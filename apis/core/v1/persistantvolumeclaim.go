@@ -1,0 +1,56 @@
+/*
+Copyright 2021 the original author or authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package v1
+
+import (
+	diemetav1 "github.com/scothis/dies/apis/meta/v1"
+	corev1 "k8s.io/api/core/v1"
+)
+
+// +die:target=k8s.io/api/core/v1.PersistentVolumeClaim,object=true
+
+// +die:target=k8s.io/api/core/v1.PersistentVolumeClaimSpec
+// +die:field:receiver=PersistentVolumeClaimSpecDie,name=AccessModes,type=[]k8s.io/api/core/v1.PersistentVolumeAccessMode
+// +die:field:receiver=PersistentVolumeClaimSpecDie,name=Selector,type=*k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector
+// +die:field:receiver=PersistentVolumeClaimSpecDie,name=Resources,type=k8s.io/api/core/v1.ResourceRequirements
+// +die:field:receiver=PersistentVolumeClaimSpecDie,name=VolumeName,type=string
+// +die:field:receiver=PersistentVolumeClaimSpecDie,name=StorageClassName,type=*string
+// +die:field:receiver=PersistentVolumeClaimSpecDie,name=VolumeMode,type=*k8s.io/api/core/v1.PersistentVolumeMode
+// +die:field:receiver=PersistentVolumeClaimSpecDie,name=DataSource,type=*k8s.io/api/core/v1.TypedLocalObjectReference
+// +die:field:receiver=PersistentVolumeClaimSpecDie,name=DataSourceRef,type=*k8s.io/api/core/v1.TypedLocalObjectReference
+
+// +die:target=k8s.io/api/core/v1.PersistentVolumeClaimStatus
+// +die:field:receiver=PersistentVolumeClaimStatusDie,name=Phase,type=k8s.io/api/core/v1.PersistentVolumeClaimPhase
+// +die:field:receiver=PersistentVolumeClaimStatusDie,name=AccessModes,type=[]k8s.io/api/core/v1.PersistentVolumeAccessMode
+// +die:field:receiver=PersistentVolumeClaimStatusDie,name=Capacity,type=k8s.io/api/core/v1.ResourceList
+// +die:field:receiver=PersistentVolumeClaimStatusDie,name=Conditions,type=[]k8s.io/api/core/v1.PersistentVolumeClaimCondition
+
+func (d *PersistentVolumeClaimStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) *PersistentVolumeClaimStatusDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
+		r.Conditions = make([]corev1.PersistentVolumeClaimCondition, len(conditions))
+		for i := range conditions {
+			c := conditions[i].DieRelease()
+			r.Conditions[i] = corev1.PersistentVolumeClaimCondition{
+				Type:               corev1.PersistentVolumeClaimConditionType(c.Type),
+				Status:             corev1.ConditionStatus(c.Status),
+				Reason:             c.Reason,
+				Message:            c.Message,
+				LastTransitionTime: c.LastTransitionTime,
+			}
+		}
+	})
+}
