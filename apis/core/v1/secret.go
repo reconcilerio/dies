@@ -21,13 +21,43 @@ import (
 )
 
 // +die:target=k8s.io/api/core/v1.Secret,object=true
-// +die:field:receiver=SecretDie,name=Data,type=map[string][]byte
+// +die:field:receiver=SecretDie,name=Immutable,type=*bool
+// +die:field:receiver=SecretDie,name=Type,type=k8s.io/api/core/v1.SecretType
+
+func (d *SecretDie) Data(v map[string][]byte) *SecretDie {
+	return d.DieStamp(func(r *corev1.Secret) {
+		for k := range v {
+			delete(r.StringData, k)
+		}
+		r.Data = v
+	})
+}
 
 func (d *SecretDie) AddData(key string, value []byte) *SecretDie {
 	return d.DieStamp(func(r *corev1.Secret) {
 		if r.Data == nil {
 			r.Data = map[string][]byte{}
 		}
+		delete(d.r.StringData, key)
 		r.Data[key] = value
+	})
+}
+
+func (d *SecretDie) StringData(v map[string]string) *SecretDie {
+	return d.DieStamp(func(r *corev1.Secret) {
+		for k := range v {
+			delete(r.Data, k)
+		}
+		r.StringData = v
+	})
+}
+
+func (d *SecretDie) AddStringData(key string, value string) *SecretDie {
+	return d.DieStamp(func(r *corev1.Secret) {
+		if r.StringData == nil {
+			r.StringData = map[string]string{}
+		}
+		delete(d.r.StringData, key)
+		r.StringData[key] = value
 	})
 }

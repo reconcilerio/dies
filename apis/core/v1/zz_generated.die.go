@@ -131,9 +131,9 @@ func init() {
 	})
 }
 
-func (d *ConfigMapDie) Data(v map[string]string) *ConfigMapDie {
+func (d *ConfigMapDie) Immutable(v *bool) *ConfigMapDie {
 	return d.DieStamp(func(r *corev1.ConfigMap) {
-		r.Data = v
+		r.Immutable = v
 	})
 }
 
@@ -678,6 +678,12 @@ func (d *LimitRangeDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *LimitRang
 	})
 }
 
+func (d *LimitRangeDie) Spec(v corev1.LimitRangeSpec) *LimitRangeDie {
+	return d.DieStamp(func(r *corev1.LimitRange) {
+		r.Spec = v
+	})
+}
+
 func (d *LimitRangeDie) SpecDie(fn func(d *LimitRangeSpecDie)) *LimitRangeDie {
 	return d.DieStamp(func(r *corev1.LimitRange) {
 		d := LimitRangeSpecBlank.DieImmutable(false).DieFeed(r.Spec)
@@ -834,11 +840,23 @@ func (d *NamespaceDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *NamespaceD
 	})
 }
 
+func (d *NamespaceDie) Spec(v corev1.NamespaceSpec) *NamespaceDie {
+	return d.DieStamp(func(r *corev1.Namespace) {
+		r.Spec = v
+	})
+}
+
 func (d *NamespaceDie) SpecDie(fn func(d *NamespaceSpecDie)) *NamespaceDie {
 	return d.DieStamp(func(r *corev1.Namespace) {
 		d := NamespaceSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
+	})
+}
+
+func (d *NamespaceDie) Status(v corev1.NamespaceStatus) *NamespaceDie {
+	return d.DieStamp(func(r *corev1.Namespace) {
+		r.Status = v
 	})
 }
 
@@ -1058,11 +1076,23 @@ func (d *NodeDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *NodeDie {
 	})
 }
 
+func (d *NodeDie) Spec(v corev1.NodeSpec) *NodeDie {
+	return d.DieStamp(func(r *corev1.Node) {
+		r.Spec = v
+	})
+}
+
 func (d *NodeDie) SpecDie(fn func(d *NodeSpecDie)) *NodeDie {
 	return d.DieStamp(func(r *corev1.Node) {
 		d := NodeSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
+	})
+}
+
+func (d *NodeDie) Status(v corev1.NodeStatus) *NodeDie {
+	return d.DieStamp(func(r *corev1.Node) {
+		r.Status = v
 	})
 }
 
@@ -1372,11 +1402,23 @@ func (d *PersistentVolumeDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Per
 	})
 }
 
+func (d *PersistentVolumeDie) Spec(v corev1.PersistentVolumeSpec) *PersistentVolumeDie {
+	return d.DieStamp(func(r *corev1.PersistentVolume) {
+		r.Spec = v
+	})
+}
+
 func (d *PersistentVolumeDie) SpecDie(fn func(d *PersistentVolumeSpecDie)) *PersistentVolumeDie {
 	return d.DieStamp(func(r *corev1.PersistentVolume) {
 		d := PersistentVolumeSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
+	})
+}
+
+func (d *PersistentVolumeDie) Status(v corev1.PersistentVolumeStatus) *PersistentVolumeDie {
+	return d.DieStamp(func(r *corev1.PersistentVolume) {
+		r.Status = v
 	})
 }
 
@@ -1650,11 +1692,23 @@ func (d *PersistentVolumeClaimDie) MetadataDie(fn func(d *metav1.ObjectMetaDie))
 	})
 }
 
+func (d *PersistentVolumeClaimDie) Spec(v corev1.PersistentVolumeClaimSpec) *PersistentVolumeClaimDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaim) {
+		r.Spec = v
+	})
+}
+
 func (d *PersistentVolumeClaimDie) SpecDie(fn func(d *PersistentVolumeClaimSpecDie)) *PersistentVolumeClaimDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaim) {
 		d := PersistentVolumeClaimSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
+	})
+}
+
+func (d *PersistentVolumeClaimDie) Status(v corev1.PersistentVolumeClaimStatus) *PersistentVolumeClaimDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaim) {
+		r.Status = v
 	})
 }
 
@@ -1928,11 +1982,23 @@ func (d *PodDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *PodDie {
 	})
 }
 
+func (d *PodDie) Spec(v corev1.PodSpec) *PodDie {
+	return d.DieStamp(func(r *corev1.Pod) {
+		r.Spec = v
+	})
+}
+
 func (d *PodDie) SpecDie(fn func(d *PodSpecDie)) *PodDie {
 	return d.DieStamp(func(r *corev1.Pod) {
 		d := PodSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
+	})
+}
+
+func (d *PodDie) Status(v corev1.PodStatus) *PodDie {
+	return d.DieStamp(func(r *corev1.Pod) {
+		r.Status = v
 	})
 }
 
@@ -2060,6 +2126,12 @@ func (d *PodSpecDie) NodeSelector(v map[string]string) *PodSpecDie {
 func (d *PodSpecDie) ServiceAccountName(v string) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.ServiceAccountName = v
+	})
+}
+
+func (d *PodSpecDie) DeprecatedServiceAccount(v string) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		r.DeprecatedServiceAccount = v
 	})
 }
 
@@ -2470,11 +2542,23 @@ func (d *ResourceQuotaDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Resour
 	})
 }
 
+func (d *ResourceQuotaDie) Spec(v corev1.ResourceQuotaSpec) *ResourceQuotaDie {
+	return d.DieStamp(func(r *corev1.ResourceQuota) {
+		r.Spec = v
+	})
+}
+
 func (d *ResourceQuotaDie) SpecDie(fn func(d *ResourceQuotaSpecDie)) *ResourceQuotaDie {
 	return d.DieStamp(func(r *corev1.ResourceQuota) {
 		d := ResourceQuotaSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
+	})
+}
+
+func (d *ResourceQuotaDie) Status(v corev1.ResourceQuotaStatus) *ResourceQuotaDie {
+	return d.DieStamp(func(r *corev1.ResourceQuota) {
+		r.Status = v
 	})
 }
 
@@ -2717,9 +2801,15 @@ func init() {
 	})
 }
 
-func (d *SecretDie) Data(v map[string][]byte) *SecretDie {
+func (d *SecretDie) Immutable(v *bool) *SecretDie {
 	return d.DieStamp(func(r *corev1.Secret) {
-		r.Data = v
+		r.Immutable = v
+	})
+}
+
+func (d *SecretDie) Type(v corev1.SecretType) *SecretDie {
+	return d.DieStamp(func(r *corev1.Secret) {
+		r.Type = v
 	})
 }
 
@@ -2806,11 +2896,23 @@ func (d *ServiceDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *ServiceDie {
 	})
 }
 
+func (d *ServiceDie) Spec(v corev1.ServiceSpec) *ServiceDie {
+	return d.DieStamp(func(r *corev1.Service) {
+		r.Spec = v
+	})
+}
+
 func (d *ServiceDie) SpecDie(fn func(d *ServiceSpecDie)) *ServiceDie {
 	return d.DieStamp(func(r *corev1.Service) {
 		d := ServiceSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
+	})
+}
+
+func (d *ServiceDie) Status(v corev1.ServiceStatus) *ServiceDie {
+	return d.DieStamp(func(r *corev1.Service) {
+		r.Status = v
 	})
 }
 

@@ -21,13 +21,42 @@ import (
 )
 
 // +die:target=k8s.io/api/core/v1.ConfigMap,object=true
-// +die:field:receiver=ConfigMapDie,name=Data,type=map[string]string
+// +die:field:receiver=ConfigMapDie,name=Immutable,type=*bool
+
+func (d *ConfigMapDie) Data(v map[string]string) *ConfigMapDie {
+	return d.DieStamp(func(r *corev1.ConfigMap) {
+		for k := range v {
+			delete(r.BinaryData, k)
+		}
+		r.Data = v
+	})
+}
 
 func (d *ConfigMapDie) AddData(key, value string) *ConfigMapDie {
 	return d.DieStamp(func(r *corev1.ConfigMap) {
 		if r.Data == nil {
 			r.Data = map[string]string{}
 		}
+		delete(d.r.BinaryData, key)
+		r.Data[key] = value
+	})
+}
+
+func (d *ConfigMapDie) BinaryData(v map[string][]byte) *ConfigMapDie {
+	return d.DieStamp(func(r *corev1.ConfigMap) {
+		for k := range v {
+			delete(r.Data, k)
+		}
+		r.BinaryData = v
+	})
+}
+
+func (d *ConfigMapDie) AddBinaryData(key, value string) *ConfigMapDie {
+	return d.DieStamp(func(r *corev1.ConfigMap) {
+		if r.BinaryData == nil {
+			r.BinaryData = map[string][]byte{}
+		}
+		delete(d.r.Data, key)
 		r.Data[key] = value
 	})
 }

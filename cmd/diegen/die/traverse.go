@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io"
 	"path"
+	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -128,6 +129,7 @@ type copyMethodMaker struct {
 	pkg *loader.Package
 	*importsList
 	*codeWriter
+	test *copyMethodMaker
 	dies sets.String
 }
 
@@ -171,6 +173,8 @@ func (c *copyMethodMaker) generateDieFor(die Die) {
 	c.generateDieReleaseMethodFor(die)
 	c.generateDieStampMethodFor(die)
 	c.generateDeepCopyMethodFor(die)
+
+	c.test.generateMissingFieldTestFor(die)
 }
 
 func (c *copyMethodMaker) generateDieImmutableMethodFor(die Die) {
@@ -244,10 +248,10 @@ func (c *copyMethodMaker) generateObjectMethodsFor(die Die) {
 		c.generateJSONMethodsFor(die)
 		c.generateMetadataDieMethodFor(die)
 		if c.dies.Has(die.SpecName) {
-			c.generateSpecDieMethodFor(die)
+			c.generateSpecMethodFor(die)
 		}
 		if c.dies.Has(die.StatusName) {
-			c.generateStatusDieMethodFor(die)
+			c.generateStatusMethodFor(die)
 		}
 		c.Linef("")
 		c.Linef("var _ %s = (*%s)(nil)", c.AliasedRef("k8s.io/apimachinery/pkg/apis/meta/v1", "Object"), die.Type)
@@ -297,7 +301,13 @@ func (c *copyMethodMaker) generateMetadataDieMethodFor(die Die) {
 	c.Linef("}")
 }
 
-func (c *copyMethodMaker) generateSpecDieMethodFor(die Die) {
+func (c *copyMethodMaker) generateSpecMethodFor(die Die) {
+	c.Linef("")
+	c.Linef("func (d *%s) Spec(v %s) *%s {", die.Type, c.AliasedRef(die.TargetPackage, die.SpecName), die.Type)
+	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
+	c.Linef("		r.Spec = v")
+	c.Linef("	})")
+	c.Linef("}")
 	c.Linef("")
 	c.Linef("func (d *%s) SpecDie(fn func(d *%s)) *%s {", die.Type, die.SpecType, die.Type)
 	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
@@ -308,7 +318,13 @@ func (c *copyMethodMaker) generateSpecDieMethodFor(die Die) {
 	c.Linef("}")
 }
 
-func (c *copyMethodMaker) generateStatusDieMethodFor(die Die) {
+func (c *copyMethodMaker) generateStatusMethodFor(die Die) {
+	c.Linef("")
+	c.Linef("func (d *%s) Status(v %s) *%s {", die.Type, c.AliasedRef(die.TargetPackage, die.StatusName), die.Type)
+	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
+	c.Linef("		r.Status = v")
+	c.Linef("	})")
+	c.Linef("}")
 	c.Linef("")
 	c.Linef("func (d *%s) StatusDie(fn func(d *%s)) *%s {", die.Type, die.StatusType, die.Type)
 	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
@@ -326,5 +342,22 @@ func (c *copyMethodMaker) generateInitMethodFor(die Die) {
 	c.Linef("		s.AddKnownTypeWithName(GroupVersion.WithKind(\"%s\"), &%s{})", die.TargetType, die.Type)
 	c.Linef("		return nil")
 	c.Linef("	})")
+	c.Linef("}")
+}
+
+func (c *copyMethodMaker) generateMissingFieldTestFor(die Die) {
+	ignore := []string{}
+	for _, f := range die.IgnoreFields {
+		ignore = append(ignore, strconv.Quote(f))
+	}
+
+	c.Linef("")
+	c.Linef("func Test%s_MissingMethods(t *%s) {", die.Type, c.AliasedRef("testing", "T"))
+	c.Linef("	die := %s", c.AliasedRef(c.pkg.PkgPath, die.Blank))
+	c.Linef("	ignore := []string{%s}", strings.Join(ignore, ", "))
+	c.Linef("	diff := %s(die).Delete(ignore...)", c.AliasedRef("github.com/scothis/dies/testing", "DieFieldDiff"))
+	c.Linef("	if diff.Len() != 0 {")
+	c.Linef("		t.Errorf(\"found missing fields for %s: %%s\", diff.List())", die.Type)
+	c.Linef("	}")
 	c.Linef("}")
 }

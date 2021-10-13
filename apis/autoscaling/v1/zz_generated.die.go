@@ -120,11 +120,23 @@ func (d *HorizontalPodAutoscalerDie) MetadataDie(fn func(d *metav1.ObjectMetaDie
 	})
 }
 
+func (d *HorizontalPodAutoscalerDie) Spec(v autoscalingv1.HorizontalPodAutoscalerSpec) *HorizontalPodAutoscalerDie {
+	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
+		r.Spec = v
+	})
+}
+
 func (d *HorizontalPodAutoscalerDie) SpecDie(fn func(d *HorizontalPodAutoscalerSpecDie)) *HorizontalPodAutoscalerDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
 		d := HorizontalPodAutoscalerSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
+	})
+}
+
+func (d *HorizontalPodAutoscalerDie) Status(v autoscalingv1.HorizontalPodAutoscalerStatus) *HorizontalPodAutoscalerDie {
+	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
+		r.Status = v
 	})
 }
 

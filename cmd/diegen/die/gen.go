@@ -37,9 +37,15 @@ var (
 	schemeMarker = markers.Must(markers.MakeDefinition("die:scheme", markers.DescribesPackage, Scheme{}))
 )
 
+type Scheme struct {
+	Group   string `marker:"group"`
+	Version string `marker:"version"`
+}
+
 type Die struct {
-	Target string `marker:"target"`
-	Object bool   `marker:"object,optional"`
+	Target       string   `marker:"target"`
+	Object       bool     `marker:"object,optional"`
+	IgnoreFields []string `marker:"ignore,optional"`
 
 	Name          string `marker:",optional"`
 	Type          string `marker:",optional"`
@@ -52,38 +58,6 @@ type Die struct {
 	StatusName    string `marker:",optional"`
 	StatusBlank   string `marker:",optional"`
 	StatusType    string `marker:",optional"`
-}
-
-type Field struct {
-	Receiver string `marker:"receiver"`
-	Name     string `marker:"name"`
-	Type     string `marker:"type"`
-
-	TypePrefix  string `marker:",optional"`
-	TypePackage string `marker:",optional"`
-}
-
-func (d *Field) Default() {
-	if i := strings.IndexFunc(d.Type, unicode.IsLetter); i >= 0 {
-		d.TypePrefix = d.Type[0:i]
-		d.Type = d.Type[i:]
-
-		// spread slices
-		d.TypePrefix = strings.Replace(d.TypePrefix, "[]", "...", 1)
-	}
-	if i := strings.LastIndex(d.Type, "."); i >= 0 {
-		d.TypePackage = d.Type[0:i]
-		d.Type = d.Type[i+1:]
-		if strings.HasPrefix(d.TypePackage, "*") {
-			d.TypePackage = d.TypePackage[1:]
-			d.Type = "*" + d.Type
-		}
-	}
-}
-
-type Scheme struct {
-	Group   string `marker:"group"`
-	Version string `marker:"version"`
 }
 
 func (d *Die) Default() {
@@ -116,6 +90,39 @@ func (d *Die) Default() {
 	}
 	if d.StatusType == "" {
 		d.StatusType = fmt.Sprintf("%sDie", d.StatusName)
+	}
+	if d.IgnoreFields == nil {
+		d.IgnoreFields = []string{}
+	}
+	if d.Object {
+		d.IgnoreFields = append(d.IgnoreFields, "TypeMeta", "ObjectMeta")
+	}
+}
+
+type Field struct {
+	Receiver string `marker:"receiver"`
+	Name     string `marker:"name"`
+	Type     string `marker:"type"`
+
+	TypePrefix  string `marker:",optional"`
+	TypePackage string `marker:",optional"`
+}
+
+func (d *Field) Default() {
+	if i := strings.IndexFunc(d.Type, unicode.IsLetter); i >= 0 {
+		d.TypePrefix = d.Type[0:i]
+		d.Type = d.Type[i:]
+
+		// spread slices
+		d.TypePrefix = strings.Replace(d.TypePrefix, "[]", "...", 1)
+	}
+	if i := strings.LastIndex(d.Type, "."); i >= 0 {
+		d.TypePackage = d.Type[0:i]
+		d.Type = d.Type[i+1:]
+		if strings.HasPrefix(d.TypePackage, "*") {
+			d.TypePackage = d.TypePackage[1:]
+			d.Type = "*" + d.Type
+		}
 	}
 }
 
@@ -170,12 +177,13 @@ func (d Generator) Generate(ctx *genall.GenerationContext) error {
 	}
 
 	for _, root := range ctx.Roots {
-		outContents := objGenCtx.generateForPackage(root)
-		if outContents == nil {
-			continue
+		outContents, testContents := objGenCtx.generateForPackage(root)
+		if outContents != nil {
+			writeOut(ctx, root, "zz_generated.die.go", outContents)
 		}
-
-		writeOut(ctx, root, outContents)
+		if testContents != nil {
+			writeOut(ctx, root, "zz_generated.die_test.go", testContents)
+		}
 	}
 
 	return nil
@@ -215,7 +223,7 @@ import (
 // generateForPackage generates DeepCopy and runtime.Object implementations for
 // types in the given package, writing the formatted result to given writer.
 // May return nil if source could not be generated.
-func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) []byte {
+func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) ([]byte, []byte) {
 	ctx.Checker.Check(root)
 
 	root.NeedTypesInfo()
@@ -228,12 +236,21 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) []byte {
 	// avoid confusing aliases by "reserving" the root package's name as an alias
 	imports.byAlias[root.Name] = ""
 
+	testImports := &importsList{
+		byPath:  make(map[string]string),
+		byAlias: make(map[string]string),
+		pkg:     root,
+	}
+	// avoid confusing aliases by "reserving" the root package's name as an alias
+	testImports.byAlias[root.Name] = ""
+
 	markerSet, err := markers.PackageMarkers(ctx.Collector, root)
 	if err != nil {
 		root.AddError(err)
 	}
 
 	outContent := new(bytes.Buffer)
+	testContent := new(bytes.Buffer)
 
 	dies := []Die{}
 	dieSet := sets.NewString()
@@ -257,7 +274,13 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) []byte {
 		pkg:         root,
 		importsList: imports,
 		codeWriter:  &codeWriter{out: outContent},
-		dies:        dieSet,
+		test: &copyMethodMaker{
+			pkg:         root,
+			importsList: testImports,
+			codeWriter:  &codeWriter{out: testContent},
+			dies:        dieSet,
+		},
+		dies: dieSet,
 	}
 
 	schemeValues := markerSet[schemeMarker.Name]
@@ -285,14 +308,20 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) []byte {
 		}
 	}
 
-	outContentBytes := outContent.Bytes()
-	if len(outContentBytes) == 0 {
+	outBytes := ctx.outputBytes(root, imports, outContent.Bytes())
+	testBytes := ctx.outputBytes(root, testImports, testContent.Bytes())
+
+	return outBytes, testBytes
+}
+
+func (ctx *ObjectGenCtx) outputBytes(root *loader.Package, imports *importsList, content []byte) []byte {
+	if len(content) == 0 {
 		return nil
 	}
 
 	outContentWithHeader := new(bytes.Buffer)
 	writeHeader(root, outContentWithHeader, root.Name, imports, ctx.HeaderText)
-	outContentWithHeader.Write(outContent.Bytes())
+	outContentWithHeader.Write(content)
 
 	outBytes := outContentWithHeader.Bytes()
 	formattedBytes, err := format.Source(outBytes)
@@ -308,8 +337,8 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) []byte {
 
 // writeFormatted outputs the given code, after gofmt-ing it.  If we couldn't gofmt,
 // we write the unformatted code for debugging purposes.
-func writeOut(ctx *genall.GenerationContext, root *loader.Package, outBytes []byte) {
-	outputFile, err := ctx.Open(root, "zz_generated.die.go")
+func writeOut(ctx *genall.GenerationContext, root *loader.Package, filename string, outBytes []byte) {
+	outputFile, err := ctx.Open(root, filename)
 	if err != nil {
 		root.AddError(err)
 		return

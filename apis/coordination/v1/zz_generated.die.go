@@ -120,6 +120,12 @@ func (d *LeaseDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *LeaseDie {
 	})
 }
 
+func (d *LeaseDie) Spec(v coordinationv1.LeaseSpec) *LeaseDie {
+	return d.DieStamp(func(r *coordinationv1.Lease) {
+		r.Spec = v
+	})
+}
+
 func (d *LeaseDie) SpecDie(fn func(d *LeaseSpecDie)) *LeaseDie {
 	return d.DieStamp(func(r *coordinationv1.Lease) {
 		d := LeaseSpecBlank.DieImmutable(false).DieFeed(r.Spec)

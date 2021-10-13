@@ -121,11 +121,23 @@ func (d *CronJobDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *CronJobDie {
 	})
 }
 
+func (d *CronJobDie) Spec(v batchv1.CronJobSpec) *CronJobDie {
+	return d.DieStamp(func(r *batchv1.CronJob) {
+		r.Spec = v
+	})
+}
+
 func (d *CronJobDie) SpecDie(fn func(d *CronJobSpecDie)) *CronJobDie {
 	return d.DieStamp(func(r *batchv1.CronJob) {
 		d := CronJobSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
+	})
+}
+
+func (d *CronJobDie) Status(v batchv1.CronJobStatus) *CronJobDie {
+	return d.DieStamp(func(r *batchv1.CronJob) {
+		r.Status = v
 	})
 }
 
@@ -387,11 +399,23 @@ func (d *JobDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *JobDie {
 	})
 }
 
+func (d *JobDie) Spec(v batchv1.JobSpec) *JobDie {
+	return d.DieStamp(func(r *batchv1.Job) {
+		r.Spec = v
+	})
+}
+
 func (d *JobDie) SpecDie(fn func(d *JobSpecDie)) *JobDie {
 	return d.DieStamp(func(r *batchv1.Job) {
 		d := JobSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
+	})
+}
+
+func (d *JobDie) Status(v batchv1.JobStatus) *JobDie {
+	return d.DieStamp(func(r *batchv1.Job) {
+		r.Status = v
 	})
 }
 

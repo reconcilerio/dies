@@ -120,11 +120,23 @@ func (d *CustomResourceDefinitionDie) MetadataDie(fn func(d *metav1.ObjectMetaDi
 	})
 }
 
+func (d *CustomResourceDefinitionDie) Spec(v apiextensionsv1.CustomResourceDefinitionSpec) *CustomResourceDefinitionDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinition) {
+		r.Spec = v
+	})
+}
+
 func (d *CustomResourceDefinitionDie) SpecDie(fn func(d *CustomResourceDefinitionSpecDie)) *CustomResourceDefinitionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinition) {
 		d := CustomResourceDefinitionSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
+	})
+}
+
+func (d *CustomResourceDefinitionDie) Status(v apiextensionsv1.CustomResourceDefinitionStatus) *CustomResourceDefinitionDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinition) {
+		r.Status = v
 	})
 }
 

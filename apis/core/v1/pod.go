@@ -34,6 +34,7 @@ import (
 // +die:field:receiver=PodSpecDie,name=DNSPolicy,type=k8s.io/api/core/v1.DNSPolicy
 // +die:field:receiver=PodSpecDie,name=NodeSelector,type=map[string]string
 // +die:field:receiver=PodSpecDie,name=ServiceAccountName,type=string
+// +die:field:receiver=PodSpecDie,name=DeprecatedServiceAccount,type=string
 // +die:field:receiver=PodSpecDie,name=AutomountServiceAccountToken,type=*bool
 // +die:field:receiver=PodSpecDie,name=NodeName,type=string
 // +die:field:receiver=PodSpecDie,name=HostNetwork,type=bool

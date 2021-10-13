@@ -121,11 +121,23 @@ func (d *DaemonSetDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *DaemonSetD
 	})
 }
 
+func (d *DaemonSetDie) Spec(v appsv1.DaemonSetSpec) *DaemonSetDie {
+	return d.DieStamp(func(r *appsv1.DaemonSet) {
+		r.Spec = v
+	})
+}
+
 func (d *DaemonSetDie) SpecDie(fn func(d *DaemonSetSpecDie)) *DaemonSetDie {
 	return d.DieStamp(func(r *appsv1.DaemonSet) {
 		d := DaemonSetSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
+	})
+}
+
+func (d *DaemonSetDie) Status(v appsv1.DaemonSetStatus) *DaemonSetDie {
+	return d.DieStamp(func(r *appsv1.DaemonSet) {
+		r.Status = v
 	})
 }
 
@@ -417,11 +429,23 @@ func (d *DeploymentDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Deploymen
 	})
 }
 
+func (d *DeploymentDie) Spec(v appsv1.DeploymentSpec) *DeploymentDie {
+	return d.DieStamp(func(r *appsv1.Deployment) {
+		r.Spec = v
+	})
+}
+
 func (d *DeploymentDie) SpecDie(fn func(d *DeploymentSpecDie)) *DeploymentDie {
 	return d.DieStamp(func(r *appsv1.Deployment) {
 		d := DeploymentSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
+	})
+}
+
+func (d *DeploymentDie) Status(v appsv1.DeploymentStatus) *DeploymentDie {
+	return d.DieStamp(func(r *appsv1.Deployment) {
+		r.Status = v
 	})
 }
 
@@ -719,11 +743,23 @@ func (d *ReplicaSetDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *ReplicaSe
 	})
 }
 
+func (d *ReplicaSetDie) Spec(v appsv1.ReplicaSetSpec) *ReplicaSetDie {
+	return d.DieStamp(func(r *appsv1.ReplicaSet) {
+		r.Spec = v
+	})
+}
+
 func (d *ReplicaSetDie) SpecDie(fn func(d *ReplicaSetSpecDie)) *ReplicaSetDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSet) {
 		d := ReplicaSetSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
+	})
+}
+
+func (d *ReplicaSetDie) Status(v appsv1.ReplicaSetStatus) *ReplicaSetDie {
+	return d.DieStamp(func(r *appsv1.ReplicaSet) {
+		r.Status = v
 	})
 }
 
@@ -985,11 +1021,23 @@ func (d *StatefulSetDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Stateful
 	})
 }
 
+func (d *StatefulSetDie) Spec(v appsv1.StatefulSetSpec) *StatefulSetDie {
+	return d.DieStamp(func(r *appsv1.StatefulSet) {
+		r.Spec = v
+	})
+}
+
 func (d *StatefulSetDie) SpecDie(fn func(d *StatefulSetSpecDie)) *StatefulSetDie {
 	return d.DieStamp(func(r *appsv1.StatefulSet) {
 		d := StatefulSetSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
+	})
+}
+
+func (d *StatefulSetDie) Status(v appsv1.StatefulSetStatus) *StatefulSetDie {
+	return d.DieStamp(func(r *appsv1.StatefulSet) {
+		r.Status = v
 	})
 }
 

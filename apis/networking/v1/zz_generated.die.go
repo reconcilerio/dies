@@ -121,11 +121,23 @@ func (d *IngressDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *IngressDie {
 	})
 }
 
+func (d *IngressDie) Spec(v networkingv1.IngressSpec) *IngressDie {
+	return d.DieStamp(func(r *networkingv1.Ingress) {
+		r.Spec = v
+	})
+}
+
 func (d *IngressDie) SpecDie(fn func(d *IngressSpecDie)) *IngressDie {
 	return d.DieStamp(func(r *networkingv1.Ingress) {
 		d := IngressSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
+	})
+}
+
+func (d *IngressDie) Status(v networkingv1.IngressStatus) *IngressDie {
+	return d.DieStamp(func(r *networkingv1.Ingress) {
+		r.Status = v
 	})
 }
 
@@ -357,6 +369,12 @@ func (d *IngressClassDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Ingress
 	})
 }
 
+func (d *IngressClassDie) Spec(v networkingv1.IngressClassSpec) *IngressClassDie {
+	return d.DieStamp(func(r *networkingv1.IngressClass) {
+		r.Spec = v
+	})
+}
+
 func (d *IngressClassDie) SpecDie(fn func(d *IngressClassSpecDie)) *IngressClassDie {
 	return d.DieStamp(func(r *networkingv1.IngressClass) {
 		d := IngressClassSpecBlank.DieImmutable(false).DieFeed(r.Spec)
@@ -516,6 +534,12 @@ func (d *NetworkPolicyDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Networ
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
 		r.ObjectMeta = d.DieRelease()
+	})
+}
+
+func (d *NetworkPolicyDie) Spec(v networkingv1.NetworkPolicySpec) *NetworkPolicyDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
+		r.Spec = v
 	})
 }
 

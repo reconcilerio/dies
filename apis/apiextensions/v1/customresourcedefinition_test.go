@@ -27,7 +27,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func TestIngress(t *testing.T) {
+func TestCustomResourceDefinition(t *testing.T) {
 	tests := []struct {
 		name     string
 		die      *dieapiextensionsv1.CustomResourceDefinitionDie
