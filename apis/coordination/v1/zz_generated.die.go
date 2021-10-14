@@ -25,17 +25,10 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	metav1 "github.com/scothis/dies/apis/meta/v1"
-	util "github.com/scothis/dies/util"
 	coordinationv1 "k8s.io/api/coordination/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
-)
-
-var (
-	GroupVersion  = schema.GroupVersion{Group: "coordination.k8s.io", Version: "v1"}
-	SchemeBuilder = runtime.NewSchemeBuilder()
-	AddToScheme   = SchemeBuilder.AddToScheme
 )
 
 type LeaseDie struct {
@@ -91,7 +84,7 @@ func (d *LeaseDie) DeepCopy() *LeaseDie {
 }
 
 func (d *LeaseDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *LeaseDie) GetObjectKind() schema.ObjectKind {
@@ -105,7 +98,7 @@ func (d *LeaseDie) MarshalJSON() ([]byte, error) {
 
 func (d *LeaseDie) UnmarshalJSON(b []byte) error {
 	if d == LeaseBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &coordinationv1.Lease{}
 	err := json.Unmarshal(b, r)
@@ -138,12 +131,6 @@ func (d *LeaseDie) SpecDie(fn func(d *LeaseSpecDie)) *LeaseDie {
 var _ apismetav1.Object = (*LeaseDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*LeaseDie)(nil)
 var _ runtime.Object = (*LeaseDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("Lease")
-	obj := &LeaseDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type LeaseSpecDie struct {
 	mutable bool

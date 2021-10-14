@@ -13,7 +13,6 @@
 	- [die markers](#die-markers)
 		- [+die](#die)
 		- [+die:field](#diefield)
-		- [+die:scheme](#diescheme)
 
 ---
 
@@ -235,14 +234,3 @@ Properties:
 - **receiver** `string`: the die type managing the field
 - **name** `string`: the field name on the managed resource
 - **type** `string`: the field type on the managed resource
-
-
-#### +die:scheme
-
-```go
-// +die:scheme:group=apps,version=v1
-```
-
-Properties:
-- **group** `string`: api group for dies in this package
-- **version** `string`: version for dies in this package

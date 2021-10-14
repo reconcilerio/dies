@@ -32,15 +32,9 @@ import (
 )
 
 var (
-	dieMarker    = markers.Must(markers.MakeDefinition("die", markers.DescribesPackage, Die{}))
-	fieldMarker  = markers.Must(markers.MakeDefinition("die:field", markers.DescribesPackage, Field{}))
-	schemeMarker = markers.Must(markers.MakeDefinition("die:scheme", markers.DescribesPackage, Scheme{}))
+	dieMarker   = markers.Must(markers.MakeDefinition("die", markers.DescribesPackage, Die{}))
+	fieldMarker = markers.Must(markers.MakeDefinition("die:field", markers.DescribesPackage, Field{}))
 )
-
-type Scheme struct {
-	Group   string `marker:"group"`
-	Version string `marker:"version"`
-}
 
 type Die struct {
 	Target       string   `marker:"target"`
@@ -150,10 +144,6 @@ func (Generator) RegisterMarkers(into *markers.Registry) error {
 		return err
 	}
 	into.AddHelp(fieldMarker, markers.SimpleHelp("die:field", "generates a field mutator for the die"))
-	if err := into.Register(schemeMarker); err != nil {
-		return err
-	}
-	into.AddHelp(schemeMarker, markers.SimpleHelp("die:scheme", "generates a scheme for the package that object dies are registered with"))
 
 	return nil
 }
@@ -281,12 +271,6 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) ([]byte, []byt
 			dies:        dieSet,
 		},
 		dies: dieSet,
-	}
-
-	schemeValues := markerSet[schemeMarker.Name]
-	if len(schemeValues) == 1 {
-		scheme := schemeValues[0].(Scheme)
-		copyCtx.GenerateSchemeFor(scheme)
 	}
 
 	for _, die := range dies {

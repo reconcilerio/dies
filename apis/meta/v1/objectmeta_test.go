@@ -21,12 +21,19 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
+	diecorev1 "github.com/scothis/dies/apis/core/v1"
 	diemetav1 "github.com/scothis/dies/apis/meta/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/utils/pointer"
 )
 
 func TestObjectMeta(t *testing.T) {
+	scheme := runtime.NewScheme()
+	utilruntime.Must(corev1.AddToScheme(scheme))
+
 	tests := []struct {
 		name     string
 		die      *diemetav1.ObjectMetaDie
@@ -54,6 +61,29 @@ func TestObjectMeta(t *testing.T) {
 			expected: metav1.ObjectMeta{
 				Annotations: map[string]string{
 					"key": "value",
+				},
+			},
+		},
+		{
+			name: "controlled by",
+			die: diemetav1.ObjectMetaBlank.
+				ControlledBy(
+					diecorev1.PodBlank.
+						MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+							d.Name("my-name")
+							d.UID("123e4567-e89b-12d3-a456-426614174000")
+						}),
+					scheme,
+				),
+			expected: metav1.ObjectMeta{
+				OwnerReferences: []metav1.OwnerReference{
+					{
+						APIVersion: "v1",
+						Kind:       "Pod",
+						Name:       "my-name",
+						UID:        "123e4567-e89b-12d3-a456-426614174000",
+						Controller: pointer.Bool(true),
+					},
 				},
 			},
 		},

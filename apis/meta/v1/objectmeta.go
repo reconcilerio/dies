@@ -20,7 +20,9 @@ import (
 	"fmt"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/pointer"
 )
 
 // +die:target=k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta
@@ -56,6 +58,22 @@ func (d *ObjectMetaDie) AddAnnotation(key, value string) *ObjectMetaDie {
 			r.Annotations = map[string]string{}
 		}
 		r.Annotations[key] = value
+	})
+}
+
+func (d *ObjectMetaDie) ControlledBy(obj runtime.Object, scheme *runtime.Scheme) *ObjectMetaDie {
+	// create a copy to shed the die, if any
+	obj = obj.DeepCopyObject()
+	gvks, _, err := scheme.ObjectKinds(obj)
+	if err != nil {
+		panic(err)
+	}
+	return d.OwnerReferences(metav1.OwnerReference{
+		APIVersion: gvks[0].GroupVersion().String(),
+		Kind:       gvks[0].Kind,
+		Name:       obj.(metav1.Object).GetName(),
+		UID:        obj.(metav1.Object).GetUID(),
+		Controller: pointer.Bool(true),
 	})
 }
 

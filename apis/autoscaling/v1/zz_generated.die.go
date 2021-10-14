@@ -25,17 +25,10 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	metav1 "github.com/scothis/dies/apis/meta/v1"
-	util "github.com/scothis/dies/util"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
-)
-
-var (
-	GroupVersion  = schema.GroupVersion{Group: "autoscaling", Version: "v1"}
-	SchemeBuilder = runtime.NewSchemeBuilder()
-	AddToScheme   = SchemeBuilder.AddToScheme
 )
 
 type HorizontalPodAutoscalerDie struct {
@@ -91,7 +84,7 @@ func (d *HorizontalPodAutoscalerDie) DeepCopy() *HorizontalPodAutoscalerDie {
 }
 
 func (d *HorizontalPodAutoscalerDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *HorizontalPodAutoscalerDie) GetObjectKind() schema.ObjectKind {
@@ -105,7 +98,7 @@ func (d *HorizontalPodAutoscalerDie) MarshalJSON() ([]byte, error) {
 
 func (d *HorizontalPodAutoscalerDie) UnmarshalJSON(b []byte) error {
 	if d == HorizontalPodAutoscalerBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &autoscalingv1.HorizontalPodAutoscaler{}
 	err := json.Unmarshal(b, r)
@@ -152,12 +145,6 @@ func (d *HorizontalPodAutoscalerDie) StatusDie(fn func(d *HorizontalPodAutoscale
 var _ apismetav1.Object = (*HorizontalPodAutoscalerDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*HorizontalPodAutoscalerDie)(nil)
 var _ runtime.Object = (*HorizontalPodAutoscalerDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("HorizontalPodAutoscaler")
-	obj := &HorizontalPodAutoscalerDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type HorizontalPodAutoscalerSpecDie struct {
 	mutable bool

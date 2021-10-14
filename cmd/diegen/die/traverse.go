@@ -133,15 +133,6 @@ type copyMethodMaker struct {
 	dies sets.String
 }
 
-func (c *copyMethodMaker) GenerateSchemeFor(scheme Scheme) {
-	c.Linef("")
-	c.Linef("var (")
-	c.Linef("	GroupVersion  = %s{Group: \"%s\", Version: \"%s\"}", c.AliasedRef("k8s.io/apimachinery/pkg/runtime/schema", "GroupVersion"), scheme.Group, scheme.Version)
-	c.Linef("	SchemeBuilder = %s()", c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "NewSchemeBuilder"))
-	c.Linef("	AddToScheme   = SchemeBuilder.AddToScheme")
-	c.Linef(")")
-}
-
 func (c *copyMethodMaker) GenerateMethodsFor(die Die) {
 	c.generateDieFor(die)
 	c.generateObjectMethodsFor(die)
@@ -257,14 +248,13 @@ func (c *copyMethodMaker) generateObjectMethodsFor(die Die) {
 		c.Linef("var _ %s = (*%s)(nil)", c.AliasedRef("k8s.io/apimachinery/pkg/apis/meta/v1", "Object"), die.Type)
 		c.Linef("var _ %s = (*%s)(nil)", c.AliasedRef("k8s.io/apimachinery/pkg/apis/meta/v1", "ObjectMetaAccessor"), die.Type)
 		c.Linef("var _ %s = (*%s)(nil)", c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "Object"), die.Type)
-		c.generateInitMethodFor(die)
 	}
 }
 
 func (c *copyMethodMaker) generateRuntimeObjectMethodsFor(die Die) {
 	c.Linef("")
 	c.Linef("func (d *%s) DeepCopyObject() %s {", die.Type, c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "Object"))
-	c.Linef("	return d.DeepCopy()")
+	c.Linef("	return d.r.DeepCopy()")
 	c.Linef("}")
 	c.Linef("")
 	c.Linef("func (d *%s) GetObjectKind() %s {", die.Type, c.AliasedRef("k8s.io/apimachinery/pkg/runtime/schema", "ObjectKind"))
@@ -281,7 +271,7 @@ func (c *copyMethodMaker) generateJSONMethodsFor(die Die) {
 	c.Linef("")
 	c.Linef("func (d *%s) UnmarshalJSON(b []byte) error {", die.Type)
 	c.Linef("	if d == %s {", die.Blank)
-	c.Linef("		return %s(\"cannot unmarshing into the root object, create a copy first\")", c.AliasedRef("fmt", "Errorf"))
+	c.Linef("		return %s(\"cannot unmarshal into the root object, create a copy first\")", c.AliasedRef("fmt", "Errorf"))
 	c.Linef("	}")
 	c.Linef("	r := &%s{}", c.AliasedRef(die.TargetPackage, die.TargetType))
 	c.Linef("	err := %s(b, r)", c.AliasedRef("encoding/json", "Unmarshal"))
@@ -332,15 +322,6 @@ func (c *copyMethodMaker) generateStatusMethodFor(die Die) {
 	c.Linef("		fn(d)")
 	c.Linef("		r.Status = d.DieRelease()")
 	c.Linef("	})")
-	c.Linef("}")
-}
-
-func (c *copyMethodMaker) generateInitMethodFor(die Die) {
-	c.Linef("")
-	c.Linef("func init() {")
-	c.Linef("	gvk := GroupVersion.WithKind(\"%s\")", die.TargetType)
-	c.Linef("	obj := &%s{}", die.Type)
-	c.Linef("	%s(SchemeBuilder, gvk, obj)", c.AliasedRef("github.com/scothis/dies/util", "Register"))
 	c.Linef("}")
 }
 

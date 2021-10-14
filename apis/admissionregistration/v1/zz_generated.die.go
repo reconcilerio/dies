@@ -25,17 +25,10 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	metav1 "github.com/scothis/dies/apis/meta/v1"
-	util "github.com/scothis/dies/util"
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
-)
-
-var (
-	GroupVersion  = schema.GroupVersion{Group: "admissionregistration.k8s.io", Version: "v1"}
-	SchemeBuilder = runtime.NewSchemeBuilder()
-	AddToScheme   = SchemeBuilder.AddToScheme
 )
 
 type MutatingWebhookConfigurationDie struct {
@@ -91,7 +84,7 @@ func (d *MutatingWebhookConfigurationDie) DeepCopy() *MutatingWebhookConfigurati
 }
 
 func (d *MutatingWebhookConfigurationDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *MutatingWebhookConfigurationDie) GetObjectKind() schema.ObjectKind {
@@ -105,7 +98,7 @@ func (d *MutatingWebhookConfigurationDie) MarshalJSON() ([]byte, error) {
 
 func (d *MutatingWebhookConfigurationDie) UnmarshalJSON(b []byte) error {
 	if d == MutatingWebhookConfigurationBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &admissionregistrationv1.MutatingWebhookConfiguration{}
 	err := json.Unmarshal(b, r)
@@ -124,12 +117,6 @@ func (d *MutatingWebhookConfigurationDie) MetadataDie(fn func(d *metav1.ObjectMe
 var _ apismetav1.Object = (*MutatingWebhookConfigurationDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*MutatingWebhookConfigurationDie)(nil)
 var _ runtime.Object = (*MutatingWebhookConfigurationDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("MutatingWebhookConfiguration")
-	obj := &MutatingWebhookConfigurationDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 func (d *MutatingWebhookConfigurationDie) Webhooks(v ...admissionregistrationv1.MutatingWebhook) *MutatingWebhookConfigurationDie {
 	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhookConfiguration) {
@@ -190,7 +177,7 @@ func (d *ValidatingWebhookConfigurationDie) DeepCopy() *ValidatingWebhookConfigu
 }
 
 func (d *ValidatingWebhookConfigurationDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *ValidatingWebhookConfigurationDie) GetObjectKind() schema.ObjectKind {
@@ -204,7 +191,7 @@ func (d *ValidatingWebhookConfigurationDie) MarshalJSON() ([]byte, error) {
 
 func (d *ValidatingWebhookConfigurationDie) UnmarshalJSON(b []byte) error {
 	if d == ValidatingWebhookConfigurationBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &admissionregistrationv1.ValidatingWebhookConfiguration{}
 	err := json.Unmarshal(b, r)
@@ -223,12 +210,6 @@ func (d *ValidatingWebhookConfigurationDie) MetadataDie(fn func(d *metav1.Object
 var _ apismetav1.Object = (*ValidatingWebhookConfigurationDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*ValidatingWebhookConfigurationDie)(nil)
 var _ runtime.Object = (*ValidatingWebhookConfigurationDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("ValidatingWebhookConfiguration")
-	obj := &ValidatingWebhookConfigurationDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 func (d *ValidatingWebhookConfigurationDie) Webhooks(v ...admissionregistrationv1.ValidatingWebhook) *ValidatingWebhookConfigurationDie {
 	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhookConfiguration) {

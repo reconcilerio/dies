@@ -25,17 +25,10 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	metav1 "github.com/scothis/dies/apis/meta/v1"
-	util "github.com/scothis/dies/util"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
-)
-
-var (
-	GroupVersion  = schema.GroupVersion{Group: "apiextensions.k8s.io", Version: "v1"}
-	SchemeBuilder = runtime.NewSchemeBuilder()
-	AddToScheme   = SchemeBuilder.AddToScheme
 )
 
 type CustomResourceDefinitionDie struct {
@@ -91,7 +84,7 @@ func (d *CustomResourceDefinitionDie) DeepCopy() *CustomResourceDefinitionDie {
 }
 
 func (d *CustomResourceDefinitionDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *CustomResourceDefinitionDie) GetObjectKind() schema.ObjectKind {
@@ -105,7 +98,7 @@ func (d *CustomResourceDefinitionDie) MarshalJSON() ([]byte, error) {
 
 func (d *CustomResourceDefinitionDie) UnmarshalJSON(b []byte) error {
 	if d == CustomResourceDefinitionBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &apiextensionsv1.CustomResourceDefinition{}
 	err := json.Unmarshal(b, r)
@@ -152,12 +145,6 @@ func (d *CustomResourceDefinitionDie) StatusDie(fn func(d *CustomResourceDefinit
 var _ apismetav1.Object = (*CustomResourceDefinitionDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*CustomResourceDefinitionDie)(nil)
 var _ runtime.Object = (*CustomResourceDefinitionDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("CustomResourceDefinition")
-	obj := &CustomResourceDefinitionDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type CustomResourceDefinitionSpecDie struct {
 	mutable bool

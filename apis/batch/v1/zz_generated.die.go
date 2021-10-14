@@ -25,18 +25,11 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	metav1 "github.com/scothis/dies/apis/meta/v1"
-	util "github.com/scothis/dies/util"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
-)
-
-var (
-	GroupVersion  = schema.GroupVersion{Group: "batch", Version: "v1"}
-	SchemeBuilder = runtime.NewSchemeBuilder()
-	AddToScheme   = SchemeBuilder.AddToScheme
 )
 
 type CronJobDie struct {
@@ -92,7 +85,7 @@ func (d *CronJobDie) DeepCopy() *CronJobDie {
 }
 
 func (d *CronJobDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *CronJobDie) GetObjectKind() schema.ObjectKind {
@@ -106,7 +99,7 @@ func (d *CronJobDie) MarshalJSON() ([]byte, error) {
 
 func (d *CronJobDie) UnmarshalJSON(b []byte) error {
 	if d == CronJobBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &batchv1.CronJob{}
 	err := json.Unmarshal(b, r)
@@ -153,12 +146,6 @@ func (d *CronJobDie) StatusDie(fn func(d *CronJobStatusDie)) *CronJobDie {
 var _ apismetav1.Object = (*CronJobDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*CronJobDie)(nil)
 var _ runtime.Object = (*CronJobDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("CronJob")
-	obj := &CronJobDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type CronJobSpecDie struct {
 	mutable bool
@@ -369,7 +356,7 @@ func (d *JobDie) DeepCopy() *JobDie {
 }
 
 func (d *JobDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *JobDie) GetObjectKind() schema.ObjectKind {
@@ -383,7 +370,7 @@ func (d *JobDie) MarshalJSON() ([]byte, error) {
 
 func (d *JobDie) UnmarshalJSON(b []byte) error {
 	if d == JobBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &batchv1.Job{}
 	err := json.Unmarshal(b, r)
@@ -430,12 +417,6 @@ func (d *JobDie) StatusDie(fn func(d *JobStatusDie)) *JobDie {
 var _ apismetav1.Object = (*JobDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*JobDie)(nil)
 var _ runtime.Object = (*JobDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("Job")
-	obj := &JobDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type JobSpecDie struct {
 	mutable bool

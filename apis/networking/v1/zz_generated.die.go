@@ -25,18 +25,11 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	metav1 "github.com/scothis/dies/apis/meta/v1"
-	util "github.com/scothis/dies/util"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
-)
-
-var (
-	GroupVersion  = schema.GroupVersion{Group: "networking.k8s.io", Version: "v1"}
-	SchemeBuilder = runtime.NewSchemeBuilder()
-	AddToScheme   = SchemeBuilder.AddToScheme
 )
 
 type IngressDie struct {
@@ -92,7 +85,7 @@ func (d *IngressDie) DeepCopy() *IngressDie {
 }
 
 func (d *IngressDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *IngressDie) GetObjectKind() schema.ObjectKind {
@@ -106,7 +99,7 @@ func (d *IngressDie) MarshalJSON() ([]byte, error) {
 
 func (d *IngressDie) UnmarshalJSON(b []byte) error {
 	if d == IngressBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &networkingv1.Ingress{}
 	err := json.Unmarshal(b, r)
@@ -153,12 +146,6 @@ func (d *IngressDie) StatusDie(fn func(d *IngressStatusDie)) *IngressDie {
 var _ apismetav1.Object = (*IngressDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*IngressDie)(nil)
 var _ runtime.Object = (*IngressDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("Ingress")
-	obj := &IngressDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type IngressSpecDie struct {
 	mutable bool
@@ -339,7 +326,7 @@ func (d *IngressClassDie) DeepCopy() *IngressClassDie {
 }
 
 func (d *IngressClassDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *IngressClassDie) GetObjectKind() schema.ObjectKind {
@@ -353,7 +340,7 @@ func (d *IngressClassDie) MarshalJSON() ([]byte, error) {
 
 func (d *IngressClassDie) UnmarshalJSON(b []byte) error {
 	if d == IngressClassBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &networkingv1.IngressClass{}
 	err := json.Unmarshal(b, r)
@@ -386,12 +373,6 @@ func (d *IngressClassDie) SpecDie(fn func(d *IngressClassSpecDie)) *IngressClass
 var _ apismetav1.Object = (*IngressClassDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*IngressClassDie)(nil)
 var _ runtime.Object = (*IngressClassDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("IngressClass")
-	obj := &IngressClassDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type IngressClassSpecDie struct {
 	mutable bool
@@ -506,7 +487,7 @@ func (d *NetworkPolicyDie) DeepCopy() *NetworkPolicyDie {
 }
 
 func (d *NetworkPolicyDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *NetworkPolicyDie) GetObjectKind() schema.ObjectKind {
@@ -520,7 +501,7 @@ func (d *NetworkPolicyDie) MarshalJSON() ([]byte, error) {
 
 func (d *NetworkPolicyDie) UnmarshalJSON(b []byte) error {
 	if d == NetworkPolicyBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &networkingv1.NetworkPolicy{}
 	err := json.Unmarshal(b, r)
@@ -553,12 +534,6 @@ func (d *NetworkPolicyDie) SpecDie(fn func(d *NetworkPolicySpecDie)) *NetworkPol
 var _ apismetav1.Object = (*NetworkPolicyDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*NetworkPolicyDie)(nil)
 var _ runtime.Object = (*NetworkPolicyDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("NetworkPolicy")
-	obj := &NetworkPolicyDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type NetworkPolicySpecDie struct {
 	mutable bool

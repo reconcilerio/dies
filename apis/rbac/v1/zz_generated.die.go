@@ -25,17 +25,10 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	metav1 "github.com/scothis/dies/apis/meta/v1"
-	util "github.com/scothis/dies/util"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
-)
-
-var (
-	GroupVersion  = schema.GroupVersion{Group: "rbac.authorization.k8s.io", Version: "v1"}
-	SchemeBuilder = runtime.NewSchemeBuilder()
-	AddToScheme   = SchemeBuilder.AddToScheme
 )
 
 type ClusterRoleDie struct {
@@ -91,7 +84,7 @@ func (d *ClusterRoleDie) DeepCopy() *ClusterRoleDie {
 }
 
 func (d *ClusterRoleDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *ClusterRoleDie) GetObjectKind() schema.ObjectKind {
@@ -105,7 +98,7 @@ func (d *ClusterRoleDie) MarshalJSON() ([]byte, error) {
 
 func (d *ClusterRoleDie) UnmarshalJSON(b []byte) error {
 	if d == ClusterRoleBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &rbacv1.ClusterRole{}
 	err := json.Unmarshal(b, r)
@@ -124,12 +117,6 @@ func (d *ClusterRoleDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *ClusterR
 var _ apismetav1.Object = (*ClusterRoleDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*ClusterRoleDie)(nil)
 var _ runtime.Object = (*ClusterRoleDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("ClusterRole")
-	obj := &ClusterRoleDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 func (d *ClusterRoleDie) AggregationRule(v *rbacv1.AggregationRule) *ClusterRoleDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRole) {
@@ -196,7 +183,7 @@ func (d *ClusterRoleBindingDie) DeepCopy() *ClusterRoleBindingDie {
 }
 
 func (d *ClusterRoleBindingDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *ClusterRoleBindingDie) GetObjectKind() schema.ObjectKind {
@@ -210,7 +197,7 @@ func (d *ClusterRoleBindingDie) MarshalJSON() ([]byte, error) {
 
 func (d *ClusterRoleBindingDie) UnmarshalJSON(b []byte) error {
 	if d == ClusterRoleBindingBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &rbacv1.ClusterRoleBinding{}
 	err := json.Unmarshal(b, r)
@@ -229,12 +216,6 @@ func (d *ClusterRoleBindingDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *C
 var _ apismetav1.Object = (*ClusterRoleBindingDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*ClusterRoleBindingDie)(nil)
 var _ runtime.Object = (*ClusterRoleBindingDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("ClusterRoleBinding")
-	obj := &ClusterRoleBindingDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 func (d *ClusterRoleBindingDie) Subjects(v ...rbacv1.Subject) *ClusterRoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
@@ -301,7 +282,7 @@ func (d *RoleDie) DeepCopy() *RoleDie {
 }
 
 func (d *RoleDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *RoleDie) GetObjectKind() schema.ObjectKind {
@@ -315,7 +296,7 @@ func (d *RoleDie) MarshalJSON() ([]byte, error) {
 
 func (d *RoleDie) UnmarshalJSON(b []byte) error {
 	if d == RoleBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &rbacv1.Role{}
 	err := json.Unmarshal(b, r)
@@ -334,12 +315,6 @@ func (d *RoleDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *RoleDie {
 var _ apismetav1.Object = (*RoleDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*RoleDie)(nil)
 var _ runtime.Object = (*RoleDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("Role")
-	obj := &RoleDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 func (d *RoleDie) Rules(v ...rbacv1.PolicyRule) *RoleDie {
 	return d.DieStamp(func(r *rbacv1.Role) {
@@ -400,7 +375,7 @@ func (d *RoleBindingDie) DeepCopy() *RoleBindingDie {
 }
 
 func (d *RoleBindingDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *RoleBindingDie) GetObjectKind() schema.ObjectKind {
@@ -414,7 +389,7 @@ func (d *RoleBindingDie) MarshalJSON() ([]byte, error) {
 
 func (d *RoleBindingDie) UnmarshalJSON(b []byte) error {
 	if d == RoleBindingBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &rbacv1.RoleBinding{}
 	err := json.Unmarshal(b, r)
@@ -433,12 +408,6 @@ func (d *RoleBindingDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *RoleBind
 var _ apismetav1.Object = (*RoleBindingDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*RoleBindingDie)(nil)
 var _ runtime.Object = (*RoleBindingDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("RoleBinding")
-	obj := &RoleBindingDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 func (d *RoleBindingDie) Subjects(v ...rbacv1.Subject) *RoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.RoleBinding) {

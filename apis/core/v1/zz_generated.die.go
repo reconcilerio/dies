@@ -25,17 +25,10 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	metav1 "github.com/scothis/dies/apis/meta/v1"
-	util "github.com/scothis/dies/util"
 	corev1 "k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
-)
-
-var (
-	GroupVersion  = schema.GroupVersion{Group: "", Version: "v1"}
-	SchemeBuilder = runtime.NewSchemeBuilder()
-	AddToScheme   = SchemeBuilder.AddToScheme
 )
 
 type ConfigMapDie struct {
@@ -91,7 +84,7 @@ func (d *ConfigMapDie) DeepCopy() *ConfigMapDie {
 }
 
 func (d *ConfigMapDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *ConfigMapDie) GetObjectKind() schema.ObjectKind {
@@ -105,7 +98,7 @@ func (d *ConfigMapDie) MarshalJSON() ([]byte, error) {
 
 func (d *ConfigMapDie) UnmarshalJSON(b []byte) error {
 	if d == ConfigMapBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &corev1.ConfigMap{}
 	err := json.Unmarshal(b, r)
@@ -124,12 +117,6 @@ func (d *ConfigMapDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *ConfigMapD
 var _ apismetav1.Object = (*ConfigMapDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*ConfigMapDie)(nil)
 var _ runtime.Object = (*ConfigMapDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("ConfigMap")
-	obj := &ConfigMapDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 func (d *ConfigMapDie) Immutable(v *bool) *ConfigMapDie {
 	return d.DieStamp(func(r *corev1.ConfigMap) {
@@ -370,7 +357,7 @@ func (d *EndpointsDie) DeepCopy() *EndpointsDie {
 }
 
 func (d *EndpointsDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *EndpointsDie) GetObjectKind() schema.ObjectKind {
@@ -384,7 +371,7 @@ func (d *EndpointsDie) MarshalJSON() ([]byte, error) {
 
 func (d *EndpointsDie) UnmarshalJSON(b []byte) error {
 	if d == EndpointsBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &corev1.Endpoints{}
 	err := json.Unmarshal(b, r)
@@ -403,12 +390,6 @@ func (d *EndpointsDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *EndpointsD
 var _ apismetav1.Object = (*EndpointsDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*EndpointsDie)(nil)
 var _ runtime.Object = (*EndpointsDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("Endpoints")
-	obj := &EndpointsDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 func (d *EndpointsDie) Subsets(v ...corev1.EndpointSubset) *EndpointsDie {
 	return d.DieStamp(func(r *corev1.Endpoints) {
@@ -469,7 +450,7 @@ func (d *EventDie) DeepCopy() *EventDie {
 }
 
 func (d *EventDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *EventDie) GetObjectKind() schema.ObjectKind {
@@ -483,7 +464,7 @@ func (d *EventDie) MarshalJSON() ([]byte, error) {
 
 func (d *EventDie) UnmarshalJSON(b []byte) error {
 	if d == EventBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &corev1.Event{}
 	err := json.Unmarshal(b, r)
@@ -502,12 +483,6 @@ func (d *EventDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *EventDie {
 var _ apismetav1.Object = (*EventDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*EventDie)(nil)
 var _ runtime.Object = (*EventDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("Event")
-	obj := &EventDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 func (d *EventDie) InvolvedObject(v corev1.ObjectReference) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
@@ -646,7 +621,7 @@ func (d *LimitRangeDie) DeepCopy() *LimitRangeDie {
 }
 
 func (d *LimitRangeDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *LimitRangeDie) GetObjectKind() schema.ObjectKind {
@@ -660,7 +635,7 @@ func (d *LimitRangeDie) MarshalJSON() ([]byte, error) {
 
 func (d *LimitRangeDie) UnmarshalJSON(b []byte) error {
 	if d == LimitRangeBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &corev1.LimitRange{}
 	err := json.Unmarshal(b, r)
@@ -693,12 +668,6 @@ func (d *LimitRangeDie) SpecDie(fn func(d *LimitRangeSpecDie)) *LimitRangeDie {
 var _ apismetav1.Object = (*LimitRangeDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*LimitRangeDie)(nil)
 var _ runtime.Object = (*LimitRangeDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("LimitRange")
-	obj := &LimitRangeDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type LimitRangeSpecDie struct {
 	mutable bool
@@ -807,7 +776,7 @@ func (d *NamespaceDie) DeepCopy() *NamespaceDie {
 }
 
 func (d *NamespaceDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *NamespaceDie) GetObjectKind() schema.ObjectKind {
@@ -821,7 +790,7 @@ func (d *NamespaceDie) MarshalJSON() ([]byte, error) {
 
 func (d *NamespaceDie) UnmarshalJSON(b []byte) error {
 	if d == NamespaceBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &corev1.Namespace{}
 	err := json.Unmarshal(b, r)
@@ -868,12 +837,6 @@ func (d *NamespaceDie) StatusDie(fn func(d *NamespaceStatusDie)) *NamespaceDie {
 var _ apismetav1.Object = (*NamespaceDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*NamespaceDie)(nil)
 var _ runtime.Object = (*NamespaceDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("Namespace")
-	obj := &NamespaceDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type NamespaceSpecDie struct {
 	mutable bool
@@ -1042,7 +1005,7 @@ func (d *NodeDie) DeepCopy() *NodeDie {
 }
 
 func (d *NodeDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *NodeDie) GetObjectKind() schema.ObjectKind {
@@ -1056,7 +1019,7 @@ func (d *NodeDie) MarshalJSON() ([]byte, error) {
 
 func (d *NodeDie) UnmarshalJSON(b []byte) error {
 	if d == NodeBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &corev1.Node{}
 	err := json.Unmarshal(b, r)
@@ -1103,12 +1066,6 @@ func (d *NodeDie) StatusDie(fn func(d *NodeStatusDie)) *NodeDie {
 var _ apismetav1.Object = (*NodeDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*NodeDie)(nil)
 var _ runtime.Object = (*NodeDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("Node")
-	obj := &NodeDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type NodeSpecDie struct {
 	mutable bool
@@ -1367,7 +1324,7 @@ func (d *PersistentVolumeDie) DeepCopy() *PersistentVolumeDie {
 }
 
 func (d *PersistentVolumeDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *PersistentVolumeDie) GetObjectKind() schema.ObjectKind {
@@ -1381,7 +1338,7 @@ func (d *PersistentVolumeDie) MarshalJSON() ([]byte, error) {
 
 func (d *PersistentVolumeDie) UnmarshalJSON(b []byte) error {
 	if d == PersistentVolumeBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &corev1.PersistentVolume{}
 	err := json.Unmarshal(b, r)
@@ -1428,12 +1385,6 @@ func (d *PersistentVolumeDie) StatusDie(fn func(d *PersistentVolumeStatusDie)) *
 var _ apismetav1.Object = (*PersistentVolumeDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*PersistentVolumeDie)(nil)
 var _ runtime.Object = (*PersistentVolumeDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("PersistentVolume")
-	obj := &PersistentVolumeDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type PersistentVolumeSpecDie struct {
 	mutable bool
@@ -1656,7 +1607,7 @@ func (d *PersistentVolumeClaimDie) DeepCopy() *PersistentVolumeClaimDie {
 }
 
 func (d *PersistentVolumeClaimDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *PersistentVolumeClaimDie) GetObjectKind() schema.ObjectKind {
@@ -1670,7 +1621,7 @@ func (d *PersistentVolumeClaimDie) MarshalJSON() ([]byte, error) {
 
 func (d *PersistentVolumeClaimDie) UnmarshalJSON(b []byte) error {
 	if d == PersistentVolumeClaimBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &corev1.PersistentVolumeClaim{}
 	err := json.Unmarshal(b, r)
@@ -1717,12 +1668,6 @@ func (d *PersistentVolumeClaimDie) StatusDie(fn func(d *PersistentVolumeClaimSta
 var _ apismetav1.Object = (*PersistentVolumeClaimDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*PersistentVolumeClaimDie)(nil)
 var _ runtime.Object = (*PersistentVolumeClaimDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("PersistentVolumeClaim")
-	obj := &PersistentVolumeClaimDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type PersistentVolumeClaimSpecDie struct {
 	mutable bool
@@ -1945,7 +1890,7 @@ func (d *PodDie) DeepCopy() *PodDie {
 }
 
 func (d *PodDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *PodDie) GetObjectKind() schema.ObjectKind {
@@ -1959,7 +1904,7 @@ func (d *PodDie) MarshalJSON() ([]byte, error) {
 
 func (d *PodDie) UnmarshalJSON(b []byte) error {
 	if d == PodBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &corev1.Pod{}
 	err := json.Unmarshal(b, r)
@@ -2006,12 +1951,6 @@ func (d *PodDie) StatusDie(fn func(d *PodStatusDie)) *PodDie {
 var _ apismetav1.Object = (*PodDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*PodDie)(nil)
 var _ runtime.Object = (*PodDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("Pod")
-	obj := &PodDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type PodSpecDie struct {
 	mutable bool
@@ -2504,7 +2443,7 @@ func (d *ResourceQuotaDie) DeepCopy() *ResourceQuotaDie {
 }
 
 func (d *ResourceQuotaDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *ResourceQuotaDie) GetObjectKind() schema.ObjectKind {
@@ -2518,7 +2457,7 @@ func (d *ResourceQuotaDie) MarshalJSON() ([]byte, error) {
 
 func (d *ResourceQuotaDie) UnmarshalJSON(b []byte) error {
 	if d == ResourceQuotaBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &corev1.ResourceQuota{}
 	err := json.Unmarshal(b, r)
@@ -2565,12 +2504,6 @@ func (d *ResourceQuotaDie) StatusDie(fn func(d *ResourceQuotaStatusDie)) *Resour
 var _ apismetav1.Object = (*ResourceQuotaDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*ResourceQuotaDie)(nil)
 var _ runtime.Object = (*ResourceQuotaDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("ResourceQuota")
-	obj := &ResourceQuotaDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type ResourceQuotaSpecDie struct {
 	mutable bool
@@ -2751,7 +2684,7 @@ func (d *SecretDie) DeepCopy() *SecretDie {
 }
 
 func (d *SecretDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *SecretDie) GetObjectKind() schema.ObjectKind {
@@ -2765,7 +2698,7 @@ func (d *SecretDie) MarshalJSON() ([]byte, error) {
 
 func (d *SecretDie) UnmarshalJSON(b []byte) error {
 	if d == SecretBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &corev1.Secret{}
 	err := json.Unmarshal(b, r)
@@ -2784,12 +2717,6 @@ func (d *SecretDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *SecretDie {
 var _ apismetav1.Object = (*SecretDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*SecretDie)(nil)
 var _ runtime.Object = (*SecretDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("Secret")
-	obj := &SecretDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 func (d *SecretDie) Immutable(v *bool) *SecretDie {
 	return d.DieStamp(func(r *corev1.Secret) {
@@ -2856,7 +2783,7 @@ func (d *ServiceDie) DeepCopy() *ServiceDie {
 }
 
 func (d *ServiceDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *ServiceDie) GetObjectKind() schema.ObjectKind {
@@ -2870,7 +2797,7 @@ func (d *ServiceDie) MarshalJSON() ([]byte, error) {
 
 func (d *ServiceDie) UnmarshalJSON(b []byte) error {
 	if d == ServiceBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &corev1.Service{}
 	err := json.Unmarshal(b, r)
@@ -2917,12 +2844,6 @@ func (d *ServiceDie) StatusDie(fn func(d *ServiceStatusDie)) *ServiceDie {
 var _ apismetav1.Object = (*ServiceDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*ServiceDie)(nil)
 var _ runtime.Object = (*ServiceDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("Service")
-	obj := &ServiceDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type ServiceSpecDie struct {
 	mutable bool
@@ -3199,7 +3120,7 @@ func (d *ServiceAccountDie) DeepCopy() *ServiceAccountDie {
 }
 
 func (d *ServiceAccountDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *ServiceAccountDie) GetObjectKind() schema.ObjectKind {
@@ -3213,7 +3134,7 @@ func (d *ServiceAccountDie) MarshalJSON() ([]byte, error) {
 
 func (d *ServiceAccountDie) UnmarshalJSON(b []byte) error {
 	if d == ServiceAccountBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &corev1.ServiceAccount{}
 	err := json.Unmarshal(b, r)
@@ -3232,12 +3153,6 @@ func (d *ServiceAccountDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Servi
 var _ apismetav1.Object = (*ServiceAccountDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*ServiceAccountDie)(nil)
 var _ runtime.Object = (*ServiceAccountDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("ServiceAccount")
-	obj := &ServiceAccountDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 func (d *ServiceAccountDie) Secrets(v ...corev1.ObjectReference) *ServiceAccountDie {
 	return d.DieStamp(func(r *corev1.ServiceAccount) {

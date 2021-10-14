@@ -25,18 +25,11 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	metav1 "github.com/scothis/dies/apis/meta/v1"
-	util "github.com/scothis/dies/util"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
-)
-
-var (
-	GroupVersion  = schema.GroupVersion{Group: "apps", Version: "v1"}
-	SchemeBuilder = runtime.NewSchemeBuilder()
-	AddToScheme   = SchemeBuilder.AddToScheme
 )
 
 type DaemonSetDie struct {
@@ -92,7 +85,7 @@ func (d *DaemonSetDie) DeepCopy() *DaemonSetDie {
 }
 
 func (d *DaemonSetDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *DaemonSetDie) GetObjectKind() schema.ObjectKind {
@@ -106,7 +99,7 @@ func (d *DaemonSetDie) MarshalJSON() ([]byte, error) {
 
 func (d *DaemonSetDie) UnmarshalJSON(b []byte) error {
 	if d == DaemonSetBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &appsv1.DaemonSet{}
 	err := json.Unmarshal(b, r)
@@ -153,12 +146,6 @@ func (d *DaemonSetDie) StatusDie(fn func(d *DaemonSetStatusDie)) *DaemonSetDie {
 var _ apismetav1.Object = (*DaemonSetDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*DaemonSetDie)(nil)
 var _ runtime.Object = (*DaemonSetDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("DaemonSet")
-	obj := &DaemonSetDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type DaemonSetSpecDie struct {
 	mutable bool
@@ -399,7 +386,7 @@ func (d *DeploymentDie) DeepCopy() *DeploymentDie {
 }
 
 func (d *DeploymentDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *DeploymentDie) GetObjectKind() schema.ObjectKind {
@@ -413,7 +400,7 @@ func (d *DeploymentDie) MarshalJSON() ([]byte, error) {
 
 func (d *DeploymentDie) UnmarshalJSON(b []byte) error {
 	if d == DeploymentBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &appsv1.Deployment{}
 	err := json.Unmarshal(b, r)
@@ -460,12 +447,6 @@ func (d *DeploymentDie) StatusDie(fn func(d *DeploymentStatusDie)) *DeploymentDi
 var _ apismetav1.Object = (*DeploymentDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*DeploymentDie)(nil)
 var _ runtime.Object = (*DeploymentDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("Deployment")
-	obj := &DeploymentDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type DeploymentSpecDie struct {
 	mutable bool
@@ -712,7 +693,7 @@ func (d *ReplicaSetDie) DeepCopy() *ReplicaSetDie {
 }
 
 func (d *ReplicaSetDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *ReplicaSetDie) GetObjectKind() schema.ObjectKind {
@@ -726,7 +707,7 @@ func (d *ReplicaSetDie) MarshalJSON() ([]byte, error) {
 
 func (d *ReplicaSetDie) UnmarshalJSON(b []byte) error {
 	if d == ReplicaSetBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &appsv1.ReplicaSet{}
 	err := json.Unmarshal(b, r)
@@ -773,12 +754,6 @@ func (d *ReplicaSetDie) StatusDie(fn func(d *ReplicaSetStatusDie)) *ReplicaSetDi
 var _ apismetav1.Object = (*ReplicaSetDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*ReplicaSetDie)(nil)
 var _ runtime.Object = (*ReplicaSetDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("ReplicaSet")
-	obj := &ReplicaSetDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type ReplicaSetSpecDie struct {
 	mutable bool
@@ -989,7 +964,7 @@ func (d *StatefulSetDie) DeepCopy() *StatefulSetDie {
 }
 
 func (d *StatefulSetDie) DeepCopyObject() runtime.Object {
-	return d.DeepCopy()
+	return d.r.DeepCopy()
 }
 
 func (d *StatefulSetDie) GetObjectKind() schema.ObjectKind {
@@ -1003,7 +978,7 @@ func (d *StatefulSetDie) MarshalJSON() ([]byte, error) {
 
 func (d *StatefulSetDie) UnmarshalJSON(b []byte) error {
 	if d == StatefulSetBlank {
-		return fmtx.Errorf("cannot unmarshing into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &appsv1.StatefulSet{}
 	err := json.Unmarshal(b, r)
@@ -1050,12 +1025,6 @@ func (d *StatefulSetDie) StatusDie(fn func(d *StatefulSetStatusDie)) *StatefulSe
 var _ apismetav1.Object = (*StatefulSetDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*StatefulSetDie)(nil)
 var _ runtime.Object = (*StatefulSetDie)(nil)
-
-func init() {
-	gvk := GroupVersion.WithKind("StatefulSet")
-	obj := &StatefulSetDie{}
-	util.Register(SchemeBuilder, gvk, obj)
-}
 
 type StatefulSetSpecDie struct {
 	mutable bool
