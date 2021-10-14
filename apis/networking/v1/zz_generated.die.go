@@ -25,6 +25,7 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	metav1 "github.com/scothis/dies/apis/meta/v1"
+	util "github.com/scothis/dies/util"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -154,10 +155,9 @@ var _ apismetav1.ObjectMetaAccessor = (*IngressDie)(nil)
 var _ runtime.Object = (*IngressDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("Ingress"), &IngressDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("Ingress")
+	obj := &IngressDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type IngressSpecDie struct {
@@ -388,10 +388,9 @@ var _ apismetav1.ObjectMetaAccessor = (*IngressClassDie)(nil)
 var _ runtime.Object = (*IngressClassDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("IngressClass"), &IngressClassDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("IngressClass")
+	obj := &IngressClassDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type IngressClassSpecDie struct {
@@ -556,10 +555,9 @@ var _ apismetav1.ObjectMetaAccessor = (*NetworkPolicyDie)(nil)
 var _ runtime.Object = (*NetworkPolicyDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("NetworkPolicy"), &NetworkPolicyDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("NetworkPolicy")
+	obj := &NetworkPolicyDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type NetworkPolicySpecDie struct {

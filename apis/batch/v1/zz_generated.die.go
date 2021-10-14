@@ -25,6 +25,7 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	metav1 "github.com/scothis/dies/apis/meta/v1"
+	util "github.com/scothis/dies/util"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -154,10 +155,9 @@ var _ apismetav1.ObjectMetaAccessor = (*CronJobDie)(nil)
 var _ runtime.Object = (*CronJobDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("CronJob"), &CronJobDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("CronJob")
+	obj := &CronJobDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type CronJobSpecDie struct {
@@ -432,10 +432,9 @@ var _ apismetav1.ObjectMetaAccessor = (*JobDie)(nil)
 var _ runtime.Object = (*JobDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("Job"), &JobDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("Job")
+	obj := &JobDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type JobSpecDie struct {

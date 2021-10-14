@@ -25,6 +25,7 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	metav1 "github.com/scothis/dies/apis/meta/v1"
+	util "github.com/scothis/dies/util"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -125,10 +126,9 @@ var _ apismetav1.ObjectMetaAccessor = (*ClusterRoleDie)(nil)
 var _ runtime.Object = (*ClusterRoleDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("ClusterRole"), &ClusterRoleDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("ClusterRole")
+	obj := &ClusterRoleDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 func (d *ClusterRoleDie) AggregationRule(v *rbacv1.AggregationRule) *ClusterRoleDie {
@@ -231,10 +231,9 @@ var _ apismetav1.ObjectMetaAccessor = (*ClusterRoleBindingDie)(nil)
 var _ runtime.Object = (*ClusterRoleBindingDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("ClusterRoleBinding"), &ClusterRoleBindingDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("ClusterRoleBinding")
+	obj := &ClusterRoleBindingDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 func (d *ClusterRoleBindingDie) Subjects(v ...rbacv1.Subject) *ClusterRoleBindingDie {
@@ -337,10 +336,9 @@ var _ apismetav1.ObjectMetaAccessor = (*RoleDie)(nil)
 var _ runtime.Object = (*RoleDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("Role"), &RoleDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("Role")
+	obj := &RoleDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 func (d *RoleDie) Rules(v ...rbacv1.PolicyRule) *RoleDie {
@@ -437,10 +435,9 @@ var _ apismetav1.ObjectMetaAccessor = (*RoleBindingDie)(nil)
 var _ runtime.Object = (*RoleBindingDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("RoleBinding"), &RoleBindingDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("RoleBinding")
+	obj := &RoleBindingDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 func (d *RoleBindingDie) Subjects(v ...rbacv1.Subject) *RoleBindingDie {

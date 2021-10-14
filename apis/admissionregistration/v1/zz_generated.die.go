@@ -25,6 +25,7 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	metav1 "github.com/scothis/dies/apis/meta/v1"
+	util "github.com/scothis/dies/util"
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -125,10 +126,9 @@ var _ apismetav1.ObjectMetaAccessor = (*MutatingWebhookConfigurationDie)(nil)
 var _ runtime.Object = (*MutatingWebhookConfigurationDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("MutatingWebhookConfiguration"), &MutatingWebhookConfigurationDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("MutatingWebhookConfiguration")
+	obj := &MutatingWebhookConfigurationDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 func (d *MutatingWebhookConfigurationDie) Webhooks(v ...admissionregistrationv1.MutatingWebhook) *MutatingWebhookConfigurationDie {
@@ -225,10 +225,9 @@ var _ apismetav1.ObjectMetaAccessor = (*ValidatingWebhookConfigurationDie)(nil)
 var _ runtime.Object = (*ValidatingWebhookConfigurationDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("ValidatingWebhookConfiguration"), &ValidatingWebhookConfigurationDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("ValidatingWebhookConfiguration")
+	obj := &ValidatingWebhookConfigurationDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 func (d *ValidatingWebhookConfigurationDie) Webhooks(v ...admissionregistrationv1.ValidatingWebhook) *ValidatingWebhookConfigurationDie {

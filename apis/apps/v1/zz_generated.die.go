@@ -25,6 +25,7 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	metav1 "github.com/scothis/dies/apis/meta/v1"
+	util "github.com/scothis/dies/util"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -154,10 +155,9 @@ var _ apismetav1.ObjectMetaAccessor = (*DaemonSetDie)(nil)
 var _ runtime.Object = (*DaemonSetDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("DaemonSet"), &DaemonSetDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("DaemonSet")
+	obj := &DaemonSetDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type DaemonSetSpecDie struct {
@@ -462,10 +462,9 @@ var _ apismetav1.ObjectMetaAccessor = (*DeploymentDie)(nil)
 var _ runtime.Object = (*DeploymentDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("Deployment"), &DeploymentDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("Deployment")
+	obj := &DeploymentDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type DeploymentSpecDie struct {
@@ -776,10 +775,9 @@ var _ apismetav1.ObjectMetaAccessor = (*ReplicaSetDie)(nil)
 var _ runtime.Object = (*ReplicaSetDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("ReplicaSet"), &ReplicaSetDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("ReplicaSet")
+	obj := &ReplicaSetDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type ReplicaSetSpecDie struct {
@@ -1054,10 +1052,9 @@ var _ apismetav1.ObjectMetaAccessor = (*StatefulSetDie)(nil)
 var _ runtime.Object = (*StatefulSetDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("StatefulSet"), &StatefulSetDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("StatefulSet")
+	obj := &StatefulSetDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type StatefulSetSpecDie struct {

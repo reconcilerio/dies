@@ -25,6 +25,7 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	metav1 "github.com/scothis/dies/apis/meta/v1"
+	util "github.com/scothis/dies/util"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -153,10 +154,9 @@ var _ apismetav1.ObjectMetaAccessor = (*CustomResourceDefinitionDie)(nil)
 var _ runtime.Object = (*CustomResourceDefinitionDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("CustomResourceDefinition"), &CustomResourceDefinitionDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("CustomResourceDefinition")
+	obj := &CustomResourceDefinitionDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type CustomResourceDefinitionSpecDie struct {

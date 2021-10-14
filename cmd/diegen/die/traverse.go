@@ -338,10 +338,9 @@ func (c *copyMethodMaker) generateStatusMethodFor(die Die) {
 func (c *copyMethodMaker) generateInitMethodFor(die Die) {
 	c.Linef("")
 	c.Linef("func init() {")
-	c.Linef("	SchemeBuilder.Register(func(s *%s) error {", c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "Scheme"))
-	c.Linef("		s.AddKnownTypeWithName(GroupVersion.WithKind(\"%s\"), &%s{})", die.TargetType, die.Type)
-	c.Linef("		return nil")
-	c.Linef("	})")
+	c.Linef("	gvk := GroupVersion.WithKind(\"%s\")", die.TargetType)
+	c.Linef("	obj := &%s{}", die.Type)
+	c.Linef("	%s(SchemeBuilder, gvk, obj)", c.AliasedRef("github.com/scothis/dies/util", "Register"))
 	c.Linef("}")
 }
 

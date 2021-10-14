@@ -25,6 +25,7 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	metav1 "github.com/scothis/dies/apis/meta/v1"
+	util "github.com/scothis/dies/util"
 	corev1 "k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -125,10 +126,9 @@ var _ apismetav1.ObjectMetaAccessor = (*ConfigMapDie)(nil)
 var _ runtime.Object = (*ConfigMapDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("ConfigMap"), &ConfigMapDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("ConfigMap")
+	obj := &ConfigMapDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 func (d *ConfigMapDie) Immutable(v *bool) *ConfigMapDie {
@@ -405,10 +405,9 @@ var _ apismetav1.ObjectMetaAccessor = (*EndpointsDie)(nil)
 var _ runtime.Object = (*EndpointsDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("Endpoints"), &EndpointsDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("Endpoints")
+	obj := &EndpointsDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 func (d *EndpointsDie) Subsets(v ...corev1.EndpointSubset) *EndpointsDie {
@@ -505,10 +504,9 @@ var _ apismetav1.ObjectMetaAccessor = (*EventDie)(nil)
 var _ runtime.Object = (*EventDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("Event"), &EventDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("Event")
+	obj := &EventDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 func (d *EventDie) InvolvedObject(v corev1.ObjectReference) *EventDie {
@@ -697,10 +695,9 @@ var _ apismetav1.ObjectMetaAccessor = (*LimitRangeDie)(nil)
 var _ runtime.Object = (*LimitRangeDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("LimitRange"), &LimitRangeDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("LimitRange")
+	obj := &LimitRangeDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type LimitRangeSpecDie struct {
@@ -873,10 +870,9 @@ var _ apismetav1.ObjectMetaAccessor = (*NamespaceDie)(nil)
 var _ runtime.Object = (*NamespaceDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("Namespace"), &NamespaceDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("Namespace")
+	obj := &NamespaceDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type NamespaceSpecDie struct {
@@ -1109,10 +1105,9 @@ var _ apismetav1.ObjectMetaAccessor = (*NodeDie)(nil)
 var _ runtime.Object = (*NodeDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("Node"), &NodeDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("Node")
+	obj := &NodeDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type NodeSpecDie struct {
@@ -1435,10 +1430,9 @@ var _ apismetav1.ObjectMetaAccessor = (*PersistentVolumeDie)(nil)
 var _ runtime.Object = (*PersistentVolumeDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("PersistentVolume"), &PersistentVolumeDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("PersistentVolume")
+	obj := &PersistentVolumeDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type PersistentVolumeSpecDie struct {
@@ -1725,10 +1719,9 @@ var _ apismetav1.ObjectMetaAccessor = (*PersistentVolumeClaimDie)(nil)
 var _ runtime.Object = (*PersistentVolumeClaimDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("PersistentVolumeClaim"), &PersistentVolumeClaimDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("PersistentVolumeClaim")
+	obj := &PersistentVolumeClaimDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type PersistentVolumeClaimSpecDie struct {
@@ -2015,10 +2008,9 @@ var _ apismetav1.ObjectMetaAccessor = (*PodDie)(nil)
 var _ runtime.Object = (*PodDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("Pod"), &PodDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("Pod")
+	obj := &PodDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type PodSpecDie struct {
@@ -2575,10 +2567,9 @@ var _ apismetav1.ObjectMetaAccessor = (*ResourceQuotaDie)(nil)
 var _ runtime.Object = (*ResourceQuotaDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("ResourceQuota"), &ResourceQuotaDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("ResourceQuota")
+	obj := &ResourceQuotaDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type ResourceQuotaSpecDie struct {
@@ -2795,10 +2786,9 @@ var _ apismetav1.ObjectMetaAccessor = (*SecretDie)(nil)
 var _ runtime.Object = (*SecretDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("Secret"), &SecretDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("Secret")
+	obj := &SecretDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 func (d *SecretDie) Immutable(v *bool) *SecretDie {
@@ -2929,10 +2919,9 @@ var _ apismetav1.ObjectMetaAccessor = (*ServiceDie)(nil)
 var _ runtime.Object = (*ServiceDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("Service"), &ServiceDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("Service")
+	obj := &ServiceDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type ServiceSpecDie struct {
@@ -3245,10 +3234,9 @@ var _ apismetav1.ObjectMetaAccessor = (*ServiceAccountDie)(nil)
 var _ runtime.Object = (*ServiceAccountDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("ServiceAccount"), &ServiceAccountDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("ServiceAccount")
+	obj := &ServiceAccountDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 func (d *ServiceAccountDie) Secrets(v ...corev1.ObjectReference) *ServiceAccountDie {

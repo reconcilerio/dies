@@ -25,6 +25,7 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	metav1 "github.com/scothis/dies/apis/meta/v1"
+	util "github.com/scothis/dies/util"
 	coordinationv1 "k8s.io/api/coordination/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -139,10 +140,9 @@ var _ apismetav1.ObjectMetaAccessor = (*LeaseDie)(nil)
 var _ runtime.Object = (*LeaseDie)(nil)
 
 func init() {
-	SchemeBuilder.Register(func(s *runtime.Scheme) error {
-		s.AddKnownTypeWithName(GroupVersion.WithKind("Lease"), &LeaseDie{})
-		return nil
-	})
+	gvk := GroupVersion.WithKind("Lease")
+	obj := &LeaseDie{}
+	util.Register(SchemeBuilder, gvk, obj)
 }
 
 type LeaseSpecDie struct {
