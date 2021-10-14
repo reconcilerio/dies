@@ -78,11 +78,12 @@ func TestObjectMeta(t *testing.T) {
 			expected: metav1.ObjectMeta{
 				OwnerReferences: []metav1.OwnerReference{
 					{
-						APIVersion: "v1",
-						Kind:       "Pod",
-						Name:       "my-name",
-						UID:        "123e4567-e89b-12d3-a456-426614174000",
-						Controller: pointer.Bool(true),
+						APIVersion:         "v1",
+						Kind:               "Pod",
+						Name:               "my-name",
+						UID:                "123e4567-e89b-12d3-a456-426614174000",
+						BlockOwnerDeletion: pointer.Bool(true),
+						Controller:         pointer.Bool(true),
 					},
 				},
 			},

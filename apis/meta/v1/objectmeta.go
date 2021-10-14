@@ -69,11 +69,12 @@ func (d *ObjectMetaDie) ControlledBy(obj runtime.Object, scheme *runtime.Scheme)
 		panic(err)
 	}
 	return d.OwnerReferences(metav1.OwnerReference{
-		APIVersion: gvks[0].GroupVersion().String(),
-		Kind:       gvks[0].Kind,
-		Name:       obj.(metav1.Object).GetName(),
-		UID:        obj.(metav1.Object).GetUID(),
-		Controller: pointer.Bool(true),
+		APIVersion:         gvks[0].GroupVersion().String(),
+		Kind:               gvks[0].Kind,
+		Name:               obj.(metav1.Object).GetName(),
+		UID:                obj.(metav1.Object).GetUID(),
+		BlockOwnerDeletion: pointer.Bool(true),
+		Controller:         pointer.Bool(true),
 	})
 }
 
