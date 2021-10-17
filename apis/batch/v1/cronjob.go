@@ -20,16 +20,11 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 )
 
-// +die:target=k8s.io/api/batch/v1.CronJob,object=true
+// +die:object=true
+type CronJob = batchv1.CronJob
 
-// +die:target=k8s.io/api/batch/v1.CronJobSpec
-// +die:field:receiver=CronJobSpecDie,name=Schedule,type=string
-// +die:field:receiver=CronJobSpecDie,name=StartingDeadlineSeconds,type=*int64
-// +die:field:receiver=CronJobSpecDie,name=ConcurrencyPolicy,type=k8s.io/api/batch/v1.ConcurrencyPolicy
-// +die:field:receiver=CronJobSpecDie,name=Suspend,type=*bool
-// +die:field:receiver=CronJobSpecDie,name=JobTemplate,type=k8s.io/api/batch/v1.JobTemplateSpec
-// +die:field:receiver=CronJobSpecDie,name=SuccessfulJobsHistoryLimit,type=*int32
-// +die:field:receiver=CronJobSpecDie,name=FailedJobsHistoryLimit,type=*int32
+// +die
+type CronJobSpec = batchv1.CronJobSpec
 
 func (d *CronJobSpecDie) JobTemplateDie(fn func(d *JobDie)) *CronJobSpecDie {
 	return d.DieStamp(func(r *batchv1.CronJobSpec) {
@@ -43,7 +38,5 @@ func (d *CronJobSpecDie) JobTemplateDie(fn func(d *JobDie)) *CronJobSpecDie {
 	})
 }
 
-// +die:target=k8s.io/api/batch/v1.CronJobStatus
-// +die:field:receiver=CronJobStatusDie,name=Active,type=[]k8s.io/api/core/v1.ObjectReference
-// +die:field:receiver=CronJobStatusDie,name=LastScheduleTime,type=*k8s.io/apimachinery/pkg/apis/meta/v1.Time
-// +die:field:receiver=CronJobStatusDie,name=LastSuccessfulTime,type=*k8s.io/apimachinery/pkg/apis/meta/v1.Time
+// +die
+type CronJobStatus = batchv1.CronJobStatus

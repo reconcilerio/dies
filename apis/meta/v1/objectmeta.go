@@ -25,23 +25,8 @@ import (
 	"k8s.io/utils/pointer"
 )
 
-// +die:target=k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta
-// +die:field:receiver=ObjectMetaDie,name=Name,type=string
-// +die:field:receiver=ObjectMetaDie,name=GenerateName,type=string
-// +die:field:receiver=ObjectMetaDie,name=Namespace,type=string
-// +die:field:receiver=ObjectMetaDie,name=SelfLink,type=string
-// +die:field:receiver=ObjectMetaDie,name=UID,type=k8s.io/apimachinery/pkg/types.UID
-// +die:field:receiver=ObjectMetaDie,name=ResourceVersion,type=string
-// +die:field:receiver=ObjectMetaDie,name=Generation,type=int64
-// +die:field:receiver=ObjectMetaDie,name=CreationTimestamp,type=k8s.io/apimachinery/pkg/apis/meta/v1.Time
-// +die:field:receiver=ObjectMetaDie,name=DeletionTimestamp,type=*k8s.io/apimachinery/pkg/apis/meta/v1.Time
-// +die:field:receiver=ObjectMetaDie,name=DeletionGracePeriodSeconds,type=*int64
-// +die:field:receiver=ObjectMetaDie,name=Labels,type=map[string]string
-// +die:field:receiver=ObjectMetaDie,name=Annotations,type=map[string]string
-// +die:field:receiver=ObjectMetaDie,name=OwnerReferences,type=[]k8s.io/apimachinery/pkg/apis/meta/v1.OwnerReference
-// +die:field:receiver=ObjectMetaDie,name=Finalizers,type=[]string
-// +die:field:receiver=ObjectMetaDie,name=ClusterName,type=string
-// +die:field:receiver=ObjectMetaDie,name=ManagedFields,type=[]k8s.io/apimachinery/pkg/apis/meta/v1.ManagedFieldsEntry
+// +die
+type ObjectMeta = metav1.ObjectMeta
 
 func (d *ObjectMetaDie) AddLabel(key, value string) *ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {

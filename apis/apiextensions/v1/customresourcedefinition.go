@@ -21,20 +21,14 @@ import (
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 )
 
-// +die:target=k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1.CustomResourceDefinition,object=true
+// +die:object=true
+type CustomResourceDefinition = apiextensionsv1.CustomResourceDefinition
 
-// +die:target=k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1.CustomResourceDefinitionSpec
-// +die:field:receiver=CustomResourceDefinitionSpecDie,name=Group,type=string
-// +die:field:receiver=CustomResourceDefinitionSpecDie,name=Names,type=k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1.CustomResourceDefinitionNames
-// +die:field:receiver=CustomResourceDefinitionSpecDie,name=Scope,type=k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1.ResourceScope
-// +die:field:receiver=CustomResourceDefinitionSpecDie,name=Versions,type=[]k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1.CustomResourceDefinitionVersion
-// +die:field:receiver=CustomResourceDefinitionSpecDie,name=Conversion,type=*k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1.CustomResourceConversion
-// +die:field:receiver=CustomResourceDefinitionSpecDie,name=PreserveUnknownFields,type=bool
+// +die
+type CustomResourceDefinitionStatus = apiextensionsv1.CustomResourceDefinitionStatus
 
-// +die:target=k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1.CustomResourceDefinitionStatus
-// +die:field:receiver=CustomResourceDefinitionStatusDie,name=Conditions,type=[]k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1.CustomResourceDefinitionCondition
-// +die:field:receiver=CustomResourceDefinitionStatusDie,name=AcceptedNames,type=k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1.CustomResourceDefinitionNames
-// +die:field:receiver=CustomResourceDefinitionStatusDie,name=StoredVersions,type=[]string
+// +die
+type CustomResourceDefinitionSpec = apiextensionsv1.CustomResourceDefinitionSpec
 
 func (d *CustomResourceDefinitionStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *CustomResourceDefinitionStatusDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionStatus) {

@@ -16,10 +16,10 @@ limitations under the License.
 
 package v1
 
-// +die:target=k8s.io/api/networking/v1.NetworkPolicy,object=true
+import networkingv1 "k8s.io/api/networking/v1"
 
-// +die:target=k8s.io/api/networking/v1.NetworkPolicySpec
-// +die:field:receiver=NetworkPolicySpecDie,name=PodSelector,type=k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector
-// +die:field:receiver=NetworkPolicySpecDie,name=Ingress,type=[]k8s.io/api/networking/v1.NetworkPolicyIngressRule
-// +die:field:receiver=NetworkPolicySpecDie,name=Egress,type=[]k8s.io/api/networking/v1.NetworkPolicyEgressRule
-// +die:field:receiver=NetworkPolicySpecDie,name=PolicyTypes,type=[]k8s.io/api/networking/v1.PolicyType
+// +die:object=true
+type NetworkPolicy = networkingv1.NetworkPolicy
+
+// +die
+type NetworkPolicySpec = networkingv1.NetworkPolicySpec

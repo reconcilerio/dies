@@ -16,7 +16,12 @@ limitations under the License.
 
 package v1
 
-// +die:target=k8s.io/api/core/v1.LimitRange,object=true
+import (
+	corev1 "k8s.io/api/core/v1"
+)
 
-// +die:target=k8s.io/api/core/v1.LimitRangeSpec
-// +die:field:receiver=LimitRangeSpecDie,name=Limits,type=[]k8s.io/api/core/v1.LimitRangeItem
+// +die:object=true
+type LimitRange = corev1.LimitRange
+
+// +die
+type LimitRangeSpec = corev1.LimitRangeSpec

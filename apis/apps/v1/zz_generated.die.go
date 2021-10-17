@@ -115,23 +115,11 @@ func (d *DaemonSetDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *DaemonSetD
 	})
 }
 
-func (d *DaemonSetDie) Spec(v appsv1.DaemonSetSpec) *DaemonSetDie {
-	return d.DieStamp(func(r *appsv1.DaemonSet) {
-		r.Spec = v
-	})
-}
-
 func (d *DaemonSetDie) SpecDie(fn func(d *DaemonSetSpecDie)) *DaemonSetDie {
 	return d.DieStamp(func(r *appsv1.DaemonSet) {
 		d := DaemonSetSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
-	})
-}
-
-func (d *DaemonSetDie) Status(v appsv1.DaemonSetStatus) *DaemonSetDie {
-	return d.DieStamp(func(r *appsv1.DaemonSet) {
-		r.Status = v
 	})
 }
 
@@ -146,6 +134,20 @@ func (d *DaemonSetDie) StatusDie(fn func(d *DaemonSetStatusDie)) *DaemonSetDie {
 var _ apismetav1.Object = (*DaemonSetDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*DaemonSetDie)(nil)
 var _ runtime.Object = (*DaemonSetDie)(nil)
+
+// The desired behavior of this daemon set. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *DaemonSetDie) Spec(v appsv1.DaemonSetSpec) *DaemonSetDie {
+	return d.DieStamp(func(r *appsv1.DaemonSet) {
+		r.Spec = v
+	})
+}
+
+// The current status of this daemon set. This data may be out of date by some window of time. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *DaemonSetDie) Status(v appsv1.DaemonSetStatus) *DaemonSetDie {
+	return d.DieStamp(func(r *appsv1.DaemonSet) {
+		r.Status = v
+	})
+}
 
 type DaemonSetSpecDie struct {
 	mutable bool
@@ -195,30 +197,35 @@ func (d *DaemonSetSpecDie) DeepCopy() *DaemonSetSpecDie {
 	}
 }
 
+// A label query over pods that are managed by the daemon set. Must match in order to be controlled. It must match the pod template's labels. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
 func (d *DaemonSetSpecDie) Selector(v *apismetav1.LabelSelector) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		r.Selector = v
 	})
 }
 
+// An object that describes the pod that will be created. The DaemonSet will create exactly one copy of this pod on every node that matches the template's node selector (or on every node if no node selector is specified). More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
 func (d *DaemonSetSpecDie) Template(v corev1.PodTemplateSpec) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		r.Template = v
 	})
 }
 
+// An update strategy to replace existing DaemonSet pods with new pods.
 func (d *DaemonSetSpecDie) UpdateStrategy(v appsv1.DaemonSetUpdateStrategy) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		r.UpdateStrategy = v
 	})
 }
 
+// The minimum number of seconds for which a newly created DaemonSet pod should be ready without any of its container crashing, for it to be considered available. Defaults to 0 (pod will be considered available as soon as it is ready).
 func (d *DaemonSetSpecDie) MinReadySeconds(v int32) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		r.MinReadySeconds = v
 	})
 }
 
+// The number of old history to retain to allow rollback. This is a pointer to distinguish between explicit zero and not specified. Defaults to 10.
 func (d *DaemonSetSpecDie) RevisionHistoryLimit(v *int32) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		r.RevisionHistoryLimit = v
@@ -273,60 +280,70 @@ func (d *DaemonSetStatusDie) DeepCopy() *DaemonSetStatusDie {
 	}
 }
 
+// The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod. More info: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
 func (d *DaemonSetStatusDie) CurrentNumberScheduled(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.CurrentNumberScheduled = v
 	})
 }
 
+// The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod. More info: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
 func (d *DaemonSetStatusDie) NumberMisscheduled(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.NumberMisscheduled = v
 	})
 }
 
+// The total number of nodes that should be running the daemon pod (including nodes correctly running the daemon pod). More info: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
 func (d *DaemonSetStatusDie) DesiredNumberScheduled(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.DesiredNumberScheduled = v
 	})
 }
 
+// The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready.
 func (d *DaemonSetStatusDie) NumberReady(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.NumberReady = v
 	})
 }
 
+// The most recent generation observed by the daemon set controller.
 func (d *DaemonSetStatusDie) ObservedGeneration(v int64) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.ObservedGeneration = v
 	})
 }
 
+// The total number of nodes that are running updated daemon pod
 func (d *DaemonSetStatusDie) UpdatedNumberScheduled(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.UpdatedNumberScheduled = v
 	})
 }
 
+// The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and available (ready for at least spec.minReadySeconds)
 func (d *DaemonSetStatusDie) NumberAvailable(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.NumberAvailable = v
 	})
 }
 
+// The number of nodes that should be running the daemon pod and have none of the daemon pod running and available (ready for at least spec.minReadySeconds)
 func (d *DaemonSetStatusDie) NumberUnavailable(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.NumberUnavailable = v
 	})
 }
 
+// Count of hash collisions for the DaemonSet. The DaemonSet controller uses this field as a collision avoidance mechanism when it needs to create the name for the newest ControllerRevision.
 func (d *DaemonSetStatusDie) CollisionCount(v *int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.CollisionCount = v
 	})
 }
 
+// Represents the latest available observations of a DaemonSet's current state.
 func (d *DaemonSetStatusDie) Conditions(v ...appsv1.DaemonSetCondition) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.Conditions = v
@@ -416,23 +433,11 @@ func (d *DeploymentDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Deploymen
 	})
 }
 
-func (d *DeploymentDie) Spec(v appsv1.DeploymentSpec) *DeploymentDie {
-	return d.DieStamp(func(r *appsv1.Deployment) {
-		r.Spec = v
-	})
-}
-
 func (d *DeploymentDie) SpecDie(fn func(d *DeploymentSpecDie)) *DeploymentDie {
 	return d.DieStamp(func(r *appsv1.Deployment) {
 		d := DeploymentSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
-	})
-}
-
-func (d *DeploymentDie) Status(v appsv1.DeploymentStatus) *DeploymentDie {
-	return d.DieStamp(func(r *appsv1.Deployment) {
-		r.Status = v
 	})
 }
 
@@ -447,6 +452,20 @@ func (d *DeploymentDie) StatusDie(fn func(d *DeploymentStatusDie)) *DeploymentDi
 var _ apismetav1.Object = (*DeploymentDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*DeploymentDie)(nil)
 var _ runtime.Object = (*DeploymentDie)(nil)
+
+// Specification of the desired behavior of the Deployment.
+func (d *DeploymentDie) Spec(v appsv1.DeploymentSpec) *DeploymentDie {
+	return d.DieStamp(func(r *appsv1.Deployment) {
+		r.Spec = v
+	})
+}
+
+// Most recently observed status of the Deployment.
+func (d *DeploymentDie) Status(v appsv1.DeploymentStatus) *DeploymentDie {
+	return d.DieStamp(func(r *appsv1.Deployment) {
+		r.Status = v
+	})
+}
 
 type DeploymentSpecDie struct {
 	mutable bool
@@ -496,48 +515,56 @@ func (d *DeploymentSpecDie) DeepCopy() *DeploymentSpecDie {
 	}
 }
 
+// Number of desired pods. This is a pointer to distinguish between explicit zero and not specified. Defaults to 1.
 func (d *DeploymentSpecDie) Replicas(v *int32) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.Replicas = v
 	})
 }
 
+// Label selector for pods. Existing ReplicaSets whose pods are selected by this will be the ones affected by this deployment. It must match the pod template's labels.
 func (d *DeploymentSpecDie) Selector(v *apismetav1.LabelSelector) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.Selector = v
 	})
 }
 
+// Template describes the pods that will be created.
 func (d *DeploymentSpecDie) Template(v corev1.PodTemplateSpec) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.Template = v
 	})
 }
 
+// The deployment strategy to use to replace existing pods with new ones.
 func (d *DeploymentSpecDie) Strategy(v appsv1.DeploymentStrategy) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.Strategy = v
 	})
 }
 
+// Minimum number of seconds for which a newly created pod should be ready without any of its container crashing, for it to be considered available. Defaults to 0 (pod will be considered available as soon as it is ready)
 func (d *DeploymentSpecDie) MinReadySeconds(v int32) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.MinReadySeconds = v
 	})
 }
 
+// The number of old ReplicaSets to retain to allow rollback. This is a pointer to distinguish between explicit zero and not specified. Defaults to 10.
 func (d *DeploymentSpecDie) RevisionHistoryLimit(v *int32) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.RevisionHistoryLimit = v
 	})
 }
 
+// Indicates that the deployment is paused.
 func (d *DeploymentSpecDie) Paused(v bool) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.Paused = v
 	})
 }
 
+// The maximum time in seconds for a deployment to make progress before it is considered to be failed. The deployment controller will continue to process failed deployments and a condition with a ProgressDeadlineExceeded reason will be surfaced in the deployment status. Note that progress will not be estimated during the time a deployment is paused. Defaults to 600s.
 func (d *DeploymentSpecDie) ProgressDeadlineSeconds(v *int32) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.ProgressDeadlineSeconds = v
@@ -592,48 +619,56 @@ func (d *DeploymentStatusDie) DeepCopy() *DeploymentStatusDie {
 	}
 }
 
+// The generation observed by the deployment controller.
 func (d *DeploymentStatusDie) ObservedGeneration(v int64) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.ObservedGeneration = v
 	})
 }
 
+// Total number of non-terminated pods targeted by this deployment (their labels match the selector).
 func (d *DeploymentStatusDie) Replicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.Replicas = v
 	})
 }
 
+// Total number of non-terminated pods targeted by this deployment that have the desired template spec.
 func (d *DeploymentStatusDie) UpdatedReplicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.UpdatedReplicas = v
 	})
 }
 
+// Total number of ready pods targeted by this deployment.
 func (d *DeploymentStatusDie) ReadyReplicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.ReadyReplicas = v
 	})
 }
 
+// Total number of available pods (ready for at least minReadySeconds) targeted by this deployment.
 func (d *DeploymentStatusDie) AvailableReplicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.AvailableReplicas = v
 	})
 }
 
+// Total number of unavailable pods targeted by this deployment. This is the total number of pods that are still required for the deployment to have 100% available capacity. They may either be pods that are running but not yet available or pods that still have not been created.
 func (d *DeploymentStatusDie) UnavailableReplicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.UnavailableReplicas = v
 	})
 }
 
+// Represents the latest available observations of a deployment's current state.
 func (d *DeploymentStatusDie) Conditions(v ...appsv1.DeploymentCondition) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.Conditions = v
 	})
 }
 
+// Count of hash collisions for the Deployment. The Deployment controller uses this field as a collision avoidance mechanism when it needs to create the name for the newest ReplicaSet.
 func (d *DeploymentStatusDie) CollisionCount(v *int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.CollisionCount = v
@@ -723,23 +758,11 @@ func (d *ReplicaSetDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *ReplicaSe
 	})
 }
 
-func (d *ReplicaSetDie) Spec(v appsv1.ReplicaSetSpec) *ReplicaSetDie {
-	return d.DieStamp(func(r *appsv1.ReplicaSet) {
-		r.Spec = v
-	})
-}
-
 func (d *ReplicaSetDie) SpecDie(fn func(d *ReplicaSetSpecDie)) *ReplicaSetDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSet) {
 		d := ReplicaSetSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
-	})
-}
-
-func (d *ReplicaSetDie) Status(v appsv1.ReplicaSetStatus) *ReplicaSetDie {
-	return d.DieStamp(func(r *appsv1.ReplicaSet) {
-		r.Status = v
 	})
 }
 
@@ -754,6 +777,20 @@ func (d *ReplicaSetDie) StatusDie(fn func(d *ReplicaSetStatusDie)) *ReplicaSetDi
 var _ apismetav1.Object = (*ReplicaSetDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*ReplicaSetDie)(nil)
 var _ runtime.Object = (*ReplicaSetDie)(nil)
+
+// Spec defines the specification of the desired behavior of the ReplicaSet. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *ReplicaSetDie) Spec(v appsv1.ReplicaSetSpec) *ReplicaSetDie {
+	return d.DieStamp(func(r *appsv1.ReplicaSet) {
+		r.Spec = v
+	})
+}
+
+// Status is the most recently observed status of the ReplicaSet. This data may be out of date by some window of time. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *ReplicaSetDie) Status(v appsv1.ReplicaSetStatus) *ReplicaSetDie {
+	return d.DieStamp(func(r *appsv1.ReplicaSet) {
+		r.Status = v
+	})
+}
 
 type ReplicaSetSpecDie struct {
 	mutable bool
@@ -803,24 +840,28 @@ func (d *ReplicaSetSpecDie) DeepCopy() *ReplicaSetSpecDie {
 	}
 }
 
+// Replicas is the number of desired replicas. This is a pointer to distinguish between explicit zero and unspecified. Defaults to 1. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/#what-is-a-replicationcontroller
 func (d *ReplicaSetSpecDie) Replicas(v *int32) *ReplicaSetSpecDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
 		r.Replicas = v
 	})
 }
 
+// Minimum number of seconds for which a newly created pod should be ready without any of its container crashing, for it to be considered available. Defaults to 0 (pod will be considered available as soon as it is ready)
 func (d *ReplicaSetSpecDie) MinReadySeconds(v int32) *ReplicaSetSpecDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
 		r.MinReadySeconds = v
 	})
 }
 
+// Selector is a label query over pods that should match the replica count. Label keys and values that must match in order to be controlled by this replica set. It must match the pod template's labels. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
 func (d *ReplicaSetSpecDie) Selector(v *apismetav1.LabelSelector) *ReplicaSetSpecDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
 		r.Selector = v
 	})
 }
 
+// Template is the object that describes the pod that will be created if insufficient replicas are detected. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
 func (d *ReplicaSetSpecDie) Template(v corev1.PodTemplateSpec) *ReplicaSetSpecDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
 		r.Template = v
@@ -875,36 +916,42 @@ func (d *ReplicaSetStatusDie) DeepCopy() *ReplicaSetStatusDie {
 	}
 }
 
+// Replicas is the most recently oberved number of replicas. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/#what-is-a-replicationcontroller
 func (d *ReplicaSetStatusDie) Replicas(v int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.Replicas = v
 	})
 }
 
+// The number of pods that have labels matching the labels of the pod template of the replicaset.
 func (d *ReplicaSetStatusDie) FullyLabeledReplicas(v int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.FullyLabeledReplicas = v
 	})
 }
 
+// The number of ready replicas for this replica set.
 func (d *ReplicaSetStatusDie) ReadyReplicas(v int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.ReadyReplicas = v
 	})
 }
 
+// The number of available replicas (ready for at least minReadySeconds) for this replica set.
 func (d *ReplicaSetStatusDie) AvailableReplicas(v int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.AvailableReplicas = v
 	})
 }
 
+// ObservedGeneration reflects the generation of the most recently observed ReplicaSet.
 func (d *ReplicaSetStatusDie) ObservedGeneration(v int64) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.ObservedGeneration = v
 	})
 }
 
+// Represents the latest available observations of a replica set's current state.
 func (d *ReplicaSetStatusDie) Conditions(v ...appsv1.ReplicaSetCondition) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.Conditions = v
@@ -994,23 +1041,11 @@ func (d *StatefulSetDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Stateful
 	})
 }
 
-func (d *StatefulSetDie) Spec(v appsv1.StatefulSetSpec) *StatefulSetDie {
-	return d.DieStamp(func(r *appsv1.StatefulSet) {
-		r.Spec = v
-	})
-}
-
 func (d *StatefulSetDie) SpecDie(fn func(d *StatefulSetSpecDie)) *StatefulSetDie {
 	return d.DieStamp(func(r *appsv1.StatefulSet) {
 		d := StatefulSetSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
-	})
-}
-
-func (d *StatefulSetDie) Status(v appsv1.StatefulSetStatus) *StatefulSetDie {
-	return d.DieStamp(func(r *appsv1.StatefulSet) {
-		r.Status = v
 	})
 }
 
@@ -1025,6 +1060,20 @@ func (d *StatefulSetDie) StatusDie(fn func(d *StatefulSetStatusDie)) *StatefulSe
 var _ apismetav1.Object = (*StatefulSetDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*StatefulSetDie)(nil)
 var _ runtime.Object = (*StatefulSetDie)(nil)
+
+// Spec defines the desired identities of pods in this set.
+func (d *StatefulSetDie) Spec(v appsv1.StatefulSetSpec) *StatefulSetDie {
+	return d.DieStamp(func(r *appsv1.StatefulSet) {
+		r.Spec = v
+	})
+}
+
+// Status is the current status of Pods in this StatefulSet. This data may be out of date by some window of time.
+func (d *StatefulSetDie) Status(v appsv1.StatefulSetStatus) *StatefulSetDie {
+	return d.DieStamp(func(r *appsv1.StatefulSet) {
+		r.Status = v
+	})
+}
 
 type StatefulSetSpecDie struct {
 	mutable bool
@@ -1074,54 +1123,63 @@ func (d *StatefulSetSpecDie) DeepCopy() *StatefulSetSpecDie {
 	}
 }
 
+// replicas is the desired number of replicas of the given Template. These are replicas in the sense that they are instantiations of the same Template, but individual replicas also have a consistent identity. If unspecified, defaults to 1. TODO: Consider a rename of this field.
 func (d *StatefulSetSpecDie) Replicas(v *int32) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.Replicas = v
 	})
 }
 
+// selector is a label query over pods that should match the replica count. It must match the pod template's labels. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
 func (d *StatefulSetSpecDie) Selector(v *apismetav1.LabelSelector) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.Selector = v
 	})
 }
 
+// template is the object that describes the pod that will be created if insufficient replicas are detected. Each pod stamped out by the StatefulSet will fulfill this Template, but have a unique identity from the rest of the StatefulSet.
 func (d *StatefulSetSpecDie) Template(v corev1.PodTemplateSpec) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.Template = v
 	})
 }
 
+// volumeClaimTemplates is a list of claims that pods are allowed to reference. The StatefulSet controller is responsible for mapping network identities to claims in a way that maintains the identity of a pod. Every claim in this list must have at least one matching (by name) volumeMount in one container in the template. A claim in this list takes precedence over any volumes in the template, with the same name. TODO: Define the behavior if a claim already exists with the same name.
 func (d *StatefulSetSpecDie) VolumeClaimTemplates(v ...corev1.PersistentVolumeClaim) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.VolumeClaimTemplates = v
 	})
 }
 
+// serviceName is the name of the service that governs this StatefulSet. This service must exist before the StatefulSet, and is responsible for the network identity of the set. Pods get DNS/hostnames that follow the pattern: pod-specific-string.serviceName.default.svc.cluster.local where "pod-specific-string" is managed by the StatefulSet controller.
 func (d *StatefulSetSpecDie) ServiceName(v string) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.ServiceName = v
 	})
 }
 
+// podManagementPolicy controls how pods are created during initial scale up, when replacing pods on nodes, or when scaling down. The default policy is `OrderedReady`, where pods are created in increasing order (pod-0, then pod-1, etc) and the controller will wait until each pod is ready before continuing. When scaling down, the pods are removed in the opposite order. The alternative policy is `Parallel` which will create pods in parallel to match the desired scale without waiting, and on scale down will delete all pods at once.
 func (d *StatefulSetSpecDie) PodManagementPolicy(v appsv1.PodManagementPolicyType) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.PodManagementPolicy = v
 	})
 }
 
+// updateStrategy indicates the StatefulSetUpdateStrategy that will be employed to update Pods in the StatefulSet when a revision is made to Template.
 func (d *StatefulSetSpecDie) UpdateStrategy(v appsv1.StatefulSetUpdateStrategy) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.UpdateStrategy = v
 	})
 }
 
+// revisionHistoryLimit is the maximum number of revisions that will be maintained in the StatefulSet's revision history. The revision history consists of all revisions not represented by a currently applied StatefulSetSpec version. The default value is 10.
 func (d *StatefulSetSpecDie) RevisionHistoryLimit(v *int32) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.RevisionHistoryLimit = v
 	})
 }
 
+// Minimum number of seconds for which a newly created pod should be ready without any of its container crashing for it to be considered available. Defaults to 0 (pod will be considered available as soon as it is ready) This is an alpha field and requires enabling StatefulSetMinReadySeconds feature gate.
 func (d *StatefulSetSpecDie) MinReadySeconds(v int32) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.MinReadySeconds = v
@@ -1176,60 +1234,70 @@ func (d *StatefulSetStatusDie) DeepCopy() *StatefulSetStatusDie {
 	}
 }
 
+// observedGeneration is the most recent generation observed for this StatefulSet. It corresponds to the StatefulSet's generation, which is updated on mutation by the API Server.
 func (d *StatefulSetStatusDie) ObservedGeneration(v int64) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.ObservedGeneration = v
 	})
 }
 
+// replicas is the number of Pods created by the StatefulSet controller.
 func (d *StatefulSetStatusDie) Replicas(v int32) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.Replicas = v
 	})
 }
 
+// readyReplicas is the number of Pods created by the StatefulSet controller that have a Ready Condition.
 func (d *StatefulSetStatusDie) ReadyReplicas(v int32) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.ReadyReplicas = v
 	})
 }
 
+// currentReplicas is the number of Pods created by the StatefulSet controller from the StatefulSet version indicated by currentRevision.
 func (d *StatefulSetStatusDie) CurrentReplicas(v int32) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.CurrentReplicas = v
 	})
 }
 
+// updatedReplicas is the number of Pods created by the StatefulSet controller from the StatefulSet version indicated by updateRevision.
 func (d *StatefulSetStatusDie) UpdatedReplicas(v int32) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.UpdatedReplicas = v
 	})
 }
 
+// currentRevision, if not empty, indicates the version of the StatefulSet used to generate Pods in the sequence [0,currentReplicas).
 func (d *StatefulSetStatusDie) CurrentRevision(v string) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.CurrentRevision = v
 	})
 }
 
+// updateRevision, if not empty, indicates the version of the StatefulSet used to generate Pods in the sequence [replicas-updatedReplicas,replicas)
 func (d *StatefulSetStatusDie) UpdateRevision(v string) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.UpdateRevision = v
 	})
 }
 
+// collisionCount is the count of hash collisions for the StatefulSet. The StatefulSet controller uses this field as a collision avoidance mechanism when it needs to create the name for the newest ControllerRevision.
 func (d *StatefulSetStatusDie) CollisionCount(v *int32) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.CollisionCount = v
 	})
 }
 
+// Represents the latest available observations of a statefulset's current state.
 func (d *StatefulSetStatusDie) Conditions(v ...appsv1.StatefulSetCondition) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.Conditions = v
 	})
 }
 
+// Total number of available pods (ready for at least minReadySeconds) targeted by this statefulset. This is an alpha field and requires enabling StatefulSetMinReadySeconds feature gate. Remove omitempty when graduating to beta
 func (d *StatefulSetStatusDie) AvailableReplicas(v int32) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.AvailableReplicas = v

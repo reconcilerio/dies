@@ -16,11 +16,12 @@ limitations under the License.
 
 package v1
 
-// +die:target=k8s.io/api/coordination/v1.Lease,object=true
+import (
+	coordinationv1 "k8s.io/api/coordination/v1"
+)
 
-// +die:target=k8s.io/api/coordination/v1.LeaseSpec
-// +die:field:receiver=LeaseSpecDie,name=HolderIdentity,type=*string
-// +die:field:receiver=LeaseSpecDie,name=LeaseDurationSeconds,type=*int32
-// +die:field:receiver=LeaseSpecDie,name=AcquireTime,type=*k8s.io/apimachinery/pkg/apis/meta/v1.MicroTime
-// +die:field:receiver=LeaseSpecDie,name=RenewTime,type=*k8s.io/apimachinery/pkg/apis/meta/v1.MicroTime
-// +die:field:receiver=LeaseSpecDie,name=LeaseTransitions,type=*int32
+// +die:object=true
+type Lease = coordinationv1.Lease
+
+// +die
+type LeaseSpec = coordinationv1.LeaseSpec

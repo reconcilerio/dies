@@ -118,15 +118,17 @@ var _ apismetav1.Object = (*ClusterRoleDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*ClusterRoleDie)(nil)
 var _ runtime.Object = (*ClusterRoleDie)(nil)
 
-func (d *ClusterRoleDie) AggregationRule(v *rbacv1.AggregationRule) *ClusterRoleDie {
-	return d.DieStamp(func(r *rbacv1.ClusterRole) {
-		r.AggregationRule = v
-	})
-}
-
+// Rules holds all the PolicyRules for this ClusterRole
 func (d *ClusterRoleDie) Rules(v ...rbacv1.PolicyRule) *ClusterRoleDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRole) {
 		r.Rules = v
+	})
+}
+
+// AggregationRule is an optional field that describes how to build the Rules for this ClusterRole. If AggregationRule is set, then the Rules are controller managed and direct changes to Rules will be stomped by the controller.
+func (d *ClusterRoleDie) AggregationRule(v *rbacv1.AggregationRule) *ClusterRoleDie {
+	return d.DieStamp(func(r *rbacv1.ClusterRole) {
+		r.AggregationRule = v
 	})
 }
 
@@ -217,12 +219,14 @@ var _ apismetav1.Object = (*ClusterRoleBindingDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*ClusterRoleBindingDie)(nil)
 var _ runtime.Object = (*ClusterRoleBindingDie)(nil)
 
+// Subjects holds references to the objects the role applies to.
 func (d *ClusterRoleBindingDie) Subjects(v ...rbacv1.Subject) *ClusterRoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
 		r.Subjects = v
 	})
 }
 
+// RoleRef can only reference a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error.
 func (d *ClusterRoleBindingDie) RoleRef(v rbacv1.RoleRef) *ClusterRoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
 		r.RoleRef = v
@@ -316,6 +320,7 @@ var _ apismetav1.Object = (*RoleDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*RoleDie)(nil)
 var _ runtime.Object = (*RoleDie)(nil)
 
+// Rules holds all the PolicyRules for this Role
 func (d *RoleDie) Rules(v ...rbacv1.PolicyRule) *RoleDie {
 	return d.DieStamp(func(r *rbacv1.Role) {
 		r.Rules = v
@@ -409,12 +414,14 @@ var _ apismetav1.Object = (*RoleBindingDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*RoleBindingDie)(nil)
 var _ runtime.Object = (*RoleBindingDie)(nil)
 
+// Subjects holds references to the objects the role applies to.
 func (d *RoleBindingDie) Subjects(v ...rbacv1.Subject) *RoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.RoleBinding) {
 		r.Subjects = v
 	})
 }
 
+// RoleRef can reference a Role in the current namespace or a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error.
 func (d *RoleBindingDie) RoleRef(v rbacv1.RoleRef) *RoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.RoleBinding) {
 		r.RoleRef = v

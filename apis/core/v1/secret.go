@@ -20,9 +20,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// +die:target=k8s.io/api/core/v1.Secret,object=true
-// +die:field:receiver=SecretDie,name=Immutable,type=*bool
-// +die:field:receiver=SecretDie,name=Type,type=k8s.io/api/core/v1.SecretType
+// +die:object=true,ignore={Data,StringData}
+type Secret = corev1.Secret
 
 func (d *SecretDie) Data(v map[string][]byte) *SecretDie {
 	return d.DieStamp(func(r *corev1.Secret) {

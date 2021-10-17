@@ -16,10 +16,9 @@ limitations under the License.
 
 package v1
 
-// +die:target=k8s.io/apimachinery/pkg/apis/meta/v1.Condition
-// +die:field:receiver=ConditionDie,name=Type,type=string
-// +die:field:receiver=ConditionDie,name=Status,type=k8s.io/apimachinery/pkg/apis/meta/v1.ConditionStatus
-// +die:field:receiver=ConditionDie,name=ObservedGeneration,type=int64
-// +die:field:receiver=ConditionDie,name=LastTransitionTime,type=k8s.io/apimachinery/pkg/apis/meta/v1.Time
-// +die:field:receiver=ConditionDie,name=Reason,type=string
-// +die:field:receiver=ConditionDie,name=Message,type=string
+import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
+// +die
+type Condition = metav1.Condition

@@ -18,15 +18,22 @@ package v1_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 	diecorev1 "github.com/scothis/dies/apis/core/v1"
+	v1 "github.com/scothis/dies/apis/core/v1"
 	diemetav1 "github.com/scothis/dies/apis/meta/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/utils/pointer"
 )
 
 func TestPod(t *testing.T) {
+	now := metav1.Time{
+		Time: time.Now().Round(time.Second),
+	}
+
 	tests := []struct {
 		name     string
 		die      *diecorev1.PodDie
@@ -48,6 +55,275 @@ func TestPod(t *testing.T) {
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: "my-namespace",
 					Name:      "my-name",
+				},
+			},
+		},
+		{
+			name: "spec add container",
+			die: diecorev1.PodBlank.
+				SpecDie(func(d *v1.PodSpecDie) {
+					d.ContainerDie("workload", func(d *diecorev1.ContainerDie) {
+						d.Image("ubuntu:bionic")
+					})
+				}),
+			expected: corev1.Pod{
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  "workload",
+							Image: "ubuntu:bionic",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "spec multiple containers",
+			die: diecorev1.PodBlank.
+				SpecDie(func(d *v1.PodSpecDie) {
+					d.ContainerDie("workload", func(d *diecorev1.ContainerDie) {
+						d.Image("ubuntu:bionic")
+					}).
+						ContainerDie("sidecar", func(d *diecorev1.ContainerDie) {
+							d.Image("gcr.io/kubebuilder/kube-rbac-proxy")
+						})
+				}),
+			expected: corev1.Pod{
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  "workload",
+							Image: "ubuntu:bionic",
+						},
+						{
+							Name:  "sidecar",
+							Image: "gcr.io/kubebuilder/kube-rbac-proxy",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "spec update containers",
+			die: diecorev1.PodBlank.
+				SpecDie(func(d *v1.PodSpecDie) {
+					d.ContainerDie("workload", func(d *diecorev1.ContainerDie) {
+						d.Image("ubuntu:bionic")
+					})
+					d.ContainerDie("workload", func(d *diecorev1.ContainerDie) {
+						d.Command("env")
+					})
+				}),
+			expected: corev1.Pod{
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:    "workload",
+							Image:   "ubuntu:bionic",
+							Command: []string{"env"},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "spec add init container",
+			die: diecorev1.PodBlank.
+				SpecDie(func(d *v1.PodSpecDie) {
+					d.InitContainerDie("workload", func(d *diecorev1.ContainerDie) {
+						d.Image("ubuntu:bionic")
+					})
+				}),
+			expected: corev1.Pod{
+				Spec: corev1.PodSpec{
+					InitContainers: []corev1.Container{
+						{
+							Name:  "workload",
+							Image: "ubuntu:bionic",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "spec multiple init containers",
+			die: diecorev1.PodBlank.
+				SpecDie(func(d *v1.PodSpecDie) {
+					d.InitContainerDie("workload", func(d *diecorev1.ContainerDie) {
+						d.Image("ubuntu:bionic")
+					})
+					d.InitContainerDie("sidecar", func(d *diecorev1.ContainerDie) {
+						d.Image("gcr.io/kubebuilder/kube-rbac-proxy")
+					})
+				}),
+			expected: corev1.Pod{
+				Spec: corev1.PodSpec{
+					InitContainers: []corev1.Container{
+						{
+							Name:  "workload",
+							Image: "ubuntu:bionic",
+						},
+						{
+							Name:  "sidecar",
+							Image: "gcr.io/kubebuilder/kube-rbac-proxy",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "spec update init containers",
+			die: diecorev1.PodBlank.
+				SpecDie(func(d *v1.PodSpecDie) {
+					d.InitContainerDie("workload", func(d *diecorev1.ContainerDie) {
+						d.Image("ubuntu:bionic")
+					})
+					d.InitContainerDie("workload", func(d *diecorev1.ContainerDie) {
+						d.Command("env")
+					})
+				}),
+			expected: corev1.Pod{
+				Spec: corev1.PodSpec{
+					InitContainers: []corev1.Container{
+						{
+							Name:    "workload",
+							Image:   "ubuntu:bionic",
+							Command: []string{"env"},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "spec add volume",
+			die: diecorev1.PodBlank.
+				SpecDie(func(d *v1.PodSpecDie) {
+					d.VolumeDie("config", func(d *diecorev1.VolumeDie) {
+						d.ConfigMapDie(func(d *diecorev1.ConfigMapVolumeSourceDie) {
+							d.LocalObjectReference(corev1.LocalObjectReference{
+								Name: "my-config",
+							})
+						})
+					})
+				}),
+			expected: corev1.Pod{
+				Spec: corev1.PodSpec{
+					Volumes: []corev1.Volume{
+						{
+							Name: "config",
+							VolumeSource: corev1.VolumeSource{
+								ConfigMap: &corev1.ConfigMapVolumeSource{
+									LocalObjectReference: corev1.LocalObjectReference{
+										Name: "my-config",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "spec multiple volumes",
+			die: diecorev1.PodBlank.
+				SpecDie(func(d *v1.PodSpecDie) {
+					d.VolumeDie("config", func(d *diecorev1.VolumeDie) {
+						d.ConfigMapDie(func(d *diecorev1.ConfigMapVolumeSourceDie) {
+							d.LocalObjectReference(corev1.LocalObjectReference{
+								Name: "my-config",
+							})
+						})
+					})
+					d.VolumeDie("scratch", func(d *diecorev1.VolumeDie) {
+						d.EmptyDirDie(func(d *diecorev1.EmptyDirVolumeSourceDie) {
+							d.Medium(corev1.StorageMediumMemory)
+						})
+					})
+				}),
+			expected: corev1.Pod{
+				Spec: corev1.PodSpec{
+					Volumes: []corev1.Volume{
+						{
+							Name: "config",
+							VolumeSource: corev1.VolumeSource{
+								ConfigMap: &corev1.ConfigMapVolumeSource{
+									LocalObjectReference: corev1.LocalObjectReference{
+										Name: "my-config",
+									},
+								},
+							},
+						},
+						{
+							Name: "scratch",
+							VolumeSource: corev1.VolumeSource{
+								EmptyDir: &corev1.EmptyDirVolumeSource{
+									Medium: corev1.StorageMediumMemory,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "spec update containers",
+			die: diecorev1.PodBlank.
+				SpecDie(func(d *v1.PodSpecDie) {
+					d.VolumeDie("config", func(d *diecorev1.VolumeDie) {
+						d.ConfigMapDie(func(d *diecorev1.ConfigMapVolumeSourceDie) {
+							d.LocalObjectReference(corev1.LocalObjectReference{
+								Name: "my-config",
+							})
+						})
+					})
+					d.VolumeDie("config", func(d *diecorev1.VolumeDie) {
+						d.ConfigMapDie(func(d *diecorev1.ConfigMapVolumeSourceDie) {
+							d.Optional(pointer.Bool(true))
+						})
+					})
+				}),
+			expected: corev1.Pod{
+				Spec: corev1.PodSpec{
+					Volumes: []corev1.Volume{
+						{
+							Name: "config",
+							VolumeSource: corev1.VolumeSource{
+								ConfigMap: &corev1.ConfigMapVolumeSource{
+									LocalObjectReference: corev1.LocalObjectReference{
+										Name: "my-config",
+									},
+									Optional: pointer.Bool(true),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "status condition",
+			die: diecorev1.PodBlank.
+				StatusDie(func(d *v1.PodStatusDie) {
+					d.ConditionsDie(
+						diemetav1.ConditionBlank.
+							Type("ContainersReady").
+							Status(metav1.ConditionTrue).
+							Reason("TheReason").
+							Message("a message.").
+							LastTransitionTime(now),
+					)
+				}),
+			expected: corev1.Pod{
+				Status: corev1.PodStatus{
+					Conditions: []corev1.PodCondition{
+						{
+							Type:               corev1.ContainersReady,
+							Status:             corev1.ConditionTrue,
+							Reason:             "TheReason",
+							Message:            "a message.",
+							LastTransitionTime: now,
+						},
+					},
 				},
 			},
 		},

@@ -21,29 +21,14 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// +die:target=k8s.io/api/core/v1.Node,object=true
+// +die:object=true
+type Node = corev1.Node
 
-// +die:target=k8s.io/api/core/v1.NodeSpec
-// +die:field:receiver=NodeSpecDie,name=PodCIDR,type=string
-// +die:field:receiver=NodeSpecDie,name=PodCIDRs,type=[]string
-// +die:field:receiver=NodeSpecDie,name=ProviderID,type=string
-// +die:field:receiver=NodeSpecDie,name=Unschedulable,type=bool
-// +die:field:receiver=NodeSpecDie,name=Taints,type=[]k8s.io/api/core/v1.Taint
-// +die:field:receiver=NodeSpecDie,name=ConfigSource,type=*k8s.io/api/core/v1.NodeConfigSource
-// +die:field:receiver=NodeSpecDie,name=DoNotUseExternalID,type=string
+// +die
+type NodeSpec = corev1.NodeSpec
 
-// +die:target=k8s.io/api/core/v1.NodeStatus
-// +die:field:receiver=NodeStatusDie,name=Capacity,type=k8s.io/api/core/v1.ResourceList
-// +die:field:receiver=NodeStatusDie,name=Allocatable,type=k8s.io/api/core/v1.ResourceList
-// +die:field:receiver=NodeStatusDie,name=Phase,type=k8s.io/api/core/v1.NodePhase
-// +die:field:receiver=NodeStatusDie,name=Conditions,type=[]k8s.io/api/core/v1.NodeCondition
-// +die:field:receiver=NodeStatusDie,name=Addresses,type=[]k8s.io/api/core/v1.NodeAddress
-// +die:field:receiver=NodeStatusDie,name=DaemonEndpoints,type=k8s.io/api/core/v1.NodeDaemonEndpoints
-// +die:field:receiver=NodeStatusDie,name=NodeInfo,type=k8s.io/api/core/v1.NodeSystemInfo
-// +die:field:receiver=NodeStatusDie,name=Images,type=[]k8s.io/api/core/v1.ContainerImage
-// +die:field:receiver=NodeStatusDie,name=VolumesInUse,type=[]k8s.io/api/core/v1.UniqueVolumeName
-// +die:field:receiver=NodeStatusDie,name=VolumesAttached,type=[]k8s.io/api/core/v1.AttachedVolume
-// +die:field:receiver=NodeStatusDie,name=Config,type=*k8s.io/api/core/v1.NodeConfigStatus
+// +die
+type NodeStatus = corev1.NodeStatus
 
 func (d *NodeStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {

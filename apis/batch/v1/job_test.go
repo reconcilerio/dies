@@ -30,6 +30,10 @@ import (
 )
 
 func TestJob(t *testing.T) {
+	now := metav1.Time{
+		Time: time.Now().Round(time.Second),
+	}
+
 	tests := []struct {
 		name     string
 		die      *diebatchv1.JobDie
@@ -97,7 +101,7 @@ func TestJob(t *testing.T) {
 							Status(metav1.ConditionTrue).
 							Reason("TheReason").
 							Message("a message.").
-							LastTransitionTime(metav1.Time{Time: time.Unix(1, 0)}),
+							LastTransitionTime(now),
 					)
 				}),
 			expected: batchv1.Job{
@@ -108,7 +112,7 @@ func TestJob(t *testing.T) {
 							Status:             "True",
 							Reason:             "TheReason",
 							Message:            "a message.",
-							LastTransitionTime: metav1.Time{Time: time.Unix(1, 0)},
+							LastTransitionTime: now,
 						},
 					},
 				},

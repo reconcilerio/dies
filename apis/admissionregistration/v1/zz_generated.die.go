@@ -118,6 +118,7 @@ var _ apismetav1.Object = (*MutatingWebhookConfigurationDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*MutatingWebhookConfigurationDie)(nil)
 var _ runtime.Object = (*MutatingWebhookConfigurationDie)(nil)
 
+// Webhooks is a list of webhooks and the affected resources and operations.
 func (d *MutatingWebhookConfigurationDie) Webhooks(v ...admissionregistrationv1.MutatingWebhook) *MutatingWebhookConfigurationDie {
 	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhookConfiguration) {
 		r.Webhooks = v
@@ -211,6 +212,7 @@ var _ apismetav1.Object = (*ValidatingWebhookConfigurationDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*ValidatingWebhookConfigurationDie)(nil)
 var _ runtime.Object = (*ValidatingWebhookConfigurationDie)(nil)
 
+// Webhooks is a list of webhooks and the affected resources and operations.
 func (d *ValidatingWebhookConfigurationDie) Webhooks(v ...admissionregistrationv1.ValidatingWebhook) *ValidatingWebhookConfigurationDie {
 	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhookConfiguration) {
 		r.Webhooks = v

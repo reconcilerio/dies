@@ -16,5 +16,9 @@ limitations under the License.
 
 package v1
 
-// +die:target=k8s.io/api/core/v1.Endpoints,object=true
-// +die:field:receiver=EndpointsDie,name=Subsets,type=[]k8s.io/api/core/v1.EndpointSubset
+import (
+	corev1 "k8s.io/api/core/v1"
+)
+
+// +die:object=true
+type Endpoints = corev1.Endpoints

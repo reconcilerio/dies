@@ -20,8 +20,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// +die:target=k8s.io/api/core/v1.ConfigMap,object=true
-// +die:field:receiver=ConfigMapDie,name=Immutable,type=*bool
+// +die:object=true,ignore={BinaryData,Data}
+type ConfigMap = corev1.ConfigMap
 
 func (d *ConfigMapDie) Data(v map[string]string) *ConfigMapDie {
 	return d.DieStamp(func(r *corev1.ConfigMap) {

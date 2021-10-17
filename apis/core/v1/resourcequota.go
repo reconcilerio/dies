@@ -16,13 +16,15 @@ limitations under the License.
 
 package v1
 
-// +die:target=k8s.io/api/core/v1.ResourceQuota,object=true
+import (
+	corev1 "k8s.io/api/core/v1"
+)
 
-// +die:target=k8s.io/api/core/v1.ResourceQuotaSpec
-// +die:field:receiver=ResourceQuotaSpecDie,name=Hard,type=k8s.io/api/core/v1.ResourceList
-// +die:field:receiver=ResourceQuotaSpecDie,name=Scopes,type=[]k8s.io/api/core/v1.ResourceQuotaScope
-// +die:field:receiver=ResourceQuotaSpecDie,name=ScopeSelector,type=*k8s.io/api/core/v1.ScopeSelector
+// +die:object=true
+type ResourceQuota = corev1.ResourceQuota
 
-// +die:target=k8s.io/api/core/v1.ResourceQuotaStatus
-// +die:field:receiver=ResourceQuotaStatusDie,name=Hard,type=k8s.io/api/core/v1.ResourceList
-// +die:field:receiver=ResourceQuotaStatusDie,name=Used,type=k8s.io/api/core/v1.ResourceList
+// +die
+type ResourceQuotaSpec = corev1.ResourceQuotaSpec
+
+// +die
+type ResourceQuotaStatus = corev1.ResourceQuotaStatus

@@ -16,18 +16,9 @@ limitations under the License.
 
 package v1
 
-// +die:target=k8s.io/api/core/v1.Event,object=true
-// +die:field:receiver=EventDie,name=InvolvedObject,type=k8s.io/api/core/v1.ObjectReference
-// +die:field:receiver=EventDie,name=Reason,type=string
-// +die:field:receiver=EventDie,name=Message,type=string
-// +die:field:receiver=EventDie,name=Source,type=k8s.io/api/core/v1.EventSource
-// +die:field:receiver=EventDie,name=FirstTimestamp,type=k8s.io/apimachinery/pkg/apis/meta/v1.Time
-// +die:field:receiver=EventDie,name=LastTimestamp,type=k8s.io/apimachinery/pkg/apis/meta/v1.Time
-// +die:field:receiver=EventDie,name=Count,type=int32
-// +die:field:receiver=EventDie,name=Type,type=string
-// +die:field:receiver=EventDie,name=EventTime,type=k8s.io/apimachinery/pkg/apis/meta/v1.MicroTime
-// +die:field:receiver=EventDie,name=Series,type=*k8s.io/api/core/v1.EventSeries
-// +die:field:receiver=EventDie,name=Action,type=string
-// +die:field:receiver=EventDie,name=Related,type=*k8s.io/api/core/v1.ObjectReference
-// +die:field:receiver=EventDie,name=ReportingController,type=string
-// +die:field:receiver=EventDie,name=ReportingInstance,type=string
+import (
+	corev1 "k8s.io/api/core/v1"
+)
+
+// +die:object=true
+type Event = corev1.Event

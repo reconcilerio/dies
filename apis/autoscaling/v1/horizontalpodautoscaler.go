@@ -16,17 +16,15 @@ limitations under the License.
 
 package v1
 
-// +die:target=k8s.io/api/autoscaling/v1.HorizontalPodAutoscaler,object=true
+import (
+	autoscalingv1 "k8s.io/api/autoscaling/v1"
+)
 
-// +die:target=k8s.io/api/autoscaling/v1.HorizontalPodAutoscalerSpec
-// +die:field:receiver=HorizontalPodAutoscalerSpecDie,name=ScaleTargetRef,type=k8s.io/api/autoscaling/v1.CrossVersionObjectReference
-// +die:field:receiver=HorizontalPodAutoscalerSpecDie,name=MinReplicas,type=*int32
-// +die:field:receiver=HorizontalPodAutoscalerSpecDie,name=MaxReplicas,type=int32
-// +die:field:receiver=HorizontalPodAutoscalerSpecDie,name=TargetCPUUtilizationPercentage,type=*int32
+// +die:object=true
+type HorizontalPodAutoscaler = autoscalingv1.HorizontalPodAutoscaler
 
-// +die:target=k8s.io/api/autoscaling/v1.HorizontalPodAutoscalerStatus
-// +die:field:receiver=HorizontalPodAutoscalerStatusDie,name=ObservedGeneration,type=*int64
-// +die:field:receiver=HorizontalPodAutoscalerStatusDie,name=LastScaleTime,type=*k8s.io/apimachinery/pkg/apis/meta/v1.Time
-// +die:field:receiver=HorizontalPodAutoscalerStatusDie,name=CurrentReplicas,type=int32
-// +die:field:receiver=HorizontalPodAutoscalerStatusDie,name=DesiredReplicas,type=int32
-// +die:field:receiver=HorizontalPodAutoscalerStatusDie,name=CurrentCPUUtilizationPercentage,type=*int32
+// +die
+type HorizontalPodAutoscalerSpec = autoscalingv1.HorizontalPodAutoscalerSpec
+
+// +die
+type HorizontalPodAutoscalerStatus = autoscalingv1.HorizontalPodAutoscalerStatus

@@ -20,29 +20,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// +die:target=k8s.io/api/core/v1.Container
-// +die:field:receiver=ContainerDie,name=Name,type=string
-// +die:field:receiver=ContainerDie,name=Image,type=string
-// +die:field:receiver=ContainerDie,name=Command,type=[]string
-// +die:field:receiver=ContainerDie,name=Args,type=[]string
-// +die:field:receiver=ContainerDie,name=WorkingDir,type=string
-// +die:field:receiver=ContainerDie,name=Ports,type=[]k8s.io/api/core/v1.ContainerPort
-// +die:field:receiver=ContainerDie,name=EnvFrom,type=[]k8s.io/api/core/v1.EnvFromSource
-// +die:field:receiver=ContainerDie,name=Env,type=[]k8s.io/api/core/v1.EnvVar
-// +die:field:receiver=ContainerDie,name=Resources,type=k8s.io/api/core/v1.ResourceRequirements
-// +die:field:receiver=ContainerDie,name=VolumeMounts,type=[]k8s.io/api/core/v1.VolumeMount
-// +die:field:receiver=ContainerDie,name=VolumeDevices,type=[]k8s.io/api/core/v1.VolumeDevice
-// +die:field:receiver=ContainerDie,name=LivenessProbe,type=*k8s.io/api/core/v1.Probe
-// +die:field:receiver=ContainerDie,name=ReadinessProbe,type=*k8s.io/api/core/v1.Probe
-// +die:field:receiver=ContainerDie,name=StartupProbe,type=*k8s.io/api/core/v1.Probe
-// +die:field:receiver=ContainerDie,name=Lifecycle,type=*k8s.io/api/core/v1.Lifecycle
-// +die:field:receiver=ContainerDie,name=TerminationMessagePath,type=string
-// +die:field:receiver=ContainerDie,name=TerminationMessagePolicy,type=k8s.io/api/core/v1.TerminationMessagePolicy
-// +die:field:receiver=ContainerDie,name=ImagePullPolicy,type=k8s.io/api/core/v1.PullPolicy
-// +die:field:receiver=ContainerDie,name=SecurityContext,type=*k8s.io/api/core/v1.SecurityContext
-// +die:field:receiver=ContainerDie,name=Stdin,type=bool
-// +die:field:receiver=ContainerDie,name=StdinOnce,type=bool
-// +die:field:receiver=ContainerDie,name=TTY,type=bool
+// +die
+type Container = corev1.Container
 
 func (d *ContainerDie) AddEnv(env ...corev1.EnvVar) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {

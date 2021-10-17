@@ -16,7 +16,9 @@ limitations under the License.
 
 package v1
 
-// +die:target=k8s.io/api/core/v1.ServiceAccount,object=true
-// +die:field:receiver=ServiceAccountDie,name=Secrets,type=[]k8s.io/api/core/v1.ObjectReference
-// +die:field:receiver=ServiceAccountDie,name=ImagePullSecrets,type=[]k8s.io/api/core/v1.LocalObjectReference
-// +die:field:receiver=ServiceAccountDie,name=AutomountServiceAccountToken,type=*bool
+import (
+	corev1 "k8s.io/api/core/v1"
+)
+
+// +die:object=true
+type ServiceAccount = corev1.ServiceAccount

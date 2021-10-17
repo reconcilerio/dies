@@ -28,6 +28,10 @@ import (
 )
 
 func TestCustomResourceDefinition(t *testing.T) {
+	now := metav1.Time{
+		Time: time.Now().Round(time.Second),
+	}
+
 	tests := []struct {
 		name     string
 		die      *dieapiextensionsv1.CustomResourceDefinitionDie
@@ -60,7 +64,7 @@ func TestCustomResourceDefinition(t *testing.T) {
 							Status(metav1.ConditionTrue).
 							Reason("TheReason").
 							Message("a message.").
-							LastTransitionTime(metav1.Time{Time: time.Unix(1, 0)}),
+							LastTransitionTime(now),
 					)
 				}),
 			expected: apiextensionsv1.CustomResourceDefinition{
@@ -71,7 +75,7 @@ func TestCustomResourceDefinition(t *testing.T) {
 							Status:             "True",
 							Reason:             "TheReason",
 							Message:            "a message.",
-							LastTransitionTime: metav1.Time{Time: time.Unix(1, 0)},
+							LastTransitionTime: now,
 						},
 					},
 				},

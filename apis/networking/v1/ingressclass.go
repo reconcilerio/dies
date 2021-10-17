@@ -16,8 +16,12 @@ limitations under the License.
 
 package v1
 
-// +die:target=k8s.io/api/networking/v1.IngressClass,object=true
+import (
+	networkingv1 "k8s.io/api/networking/v1"
+)
 
-// +die:target=k8s.io/api/networking/v1.IngressClassSpec
-// +die:field:receiver=IngressClassSpecDie,name=Controller,type=string
-// +die:field:receiver=IngressClassSpecDie,name=Parameters,type=*k8s.io/api/networking/v1.IngressClassParametersReference
+// +die:object=true
+type IngressClass = networkingv1.IngressClass
+
+// +die
+type IngressClassSpec = networkingv1.IngressClassSpec

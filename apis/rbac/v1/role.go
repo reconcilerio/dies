@@ -16,5 +16,9 @@ limitations under the License.
 
 package v1
 
-// +die:target=k8s.io/api/rbac/v1.Role,object=true
-// +die:field:receiver=RoleDie,name=Rules,type=[]k8s.io/api/rbac/v1.PolicyRule
+import (
+	rbacv1 "k8s.io/api/rbac/v1"
+)
+
+// +die:object=true
+type Role = rbacv1.Role

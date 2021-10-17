@@ -115,23 +115,11 @@ func (d *IngressDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *IngressDie {
 	})
 }
 
-func (d *IngressDie) Spec(v networkingv1.IngressSpec) *IngressDie {
-	return d.DieStamp(func(r *networkingv1.Ingress) {
-		r.Spec = v
-	})
-}
-
 func (d *IngressDie) SpecDie(fn func(d *IngressSpecDie)) *IngressDie {
 	return d.DieStamp(func(r *networkingv1.Ingress) {
 		d := IngressSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
-	})
-}
-
-func (d *IngressDie) Status(v networkingv1.IngressStatus) *IngressDie {
-	return d.DieStamp(func(r *networkingv1.Ingress) {
-		r.Status = v
 	})
 }
 
@@ -146,6 +134,20 @@ func (d *IngressDie) StatusDie(fn func(d *IngressStatusDie)) *IngressDie {
 var _ apismetav1.Object = (*IngressDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*IngressDie)(nil)
 var _ runtime.Object = (*IngressDie)(nil)
+
+// Spec is the desired state of the Ingress. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *IngressDie) Spec(v networkingv1.IngressSpec) *IngressDie {
+	return d.DieStamp(func(r *networkingv1.Ingress) {
+		r.Spec = v
+	})
+}
+
+// Status is the current state of the Ingress. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *IngressDie) Status(v networkingv1.IngressStatus) *IngressDie {
+	return d.DieStamp(func(r *networkingv1.Ingress) {
+		r.Status = v
+	})
+}
 
 type IngressSpecDie struct {
 	mutable bool
@@ -195,24 +197,28 @@ func (d *IngressSpecDie) DeepCopy() *IngressSpecDie {
 	}
 }
 
+// IngressClassName is the name of the IngressClass cluster resource. The associated IngressClass defines which controller will implement the resource. This replaces the deprecated `kubernetes.io/ingress.class` annotation. For backwards compatibility, when that annotation is set, it must be given precedence over this field. The controller may emit a warning if the field and annotation have different values. Implementations of this API should ignore Ingresses without a class specified. An IngressClass resource may be marked as default, which can be used to set a default value for this field. For more information, refer to the IngressClass documentation.
 func (d *IngressSpecDie) IngressClassName(v *string) *IngressSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressSpec) {
 		r.IngressClassName = v
 	})
 }
 
+// DefaultBackend is the backend that should handle requests that don't match any rule. If Rules are not specified, DefaultBackend must be specified. If DefaultBackend is not set, the handling of requests that do not match any of the rules will be up to the Ingress controller.
 func (d *IngressSpecDie) DefaultBackend(v *networkingv1.IngressBackend) *IngressSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressSpec) {
 		r.DefaultBackend = v
 	})
 }
 
+// TLS configuration. Currently the Ingress only supports a single TLS port, 443. If multiple members of this list specify different hosts, they will be multiplexed on the same port according to the hostname specified through the SNI TLS extension, if the ingress controller fulfilling the ingress supports SNI.
 func (d *IngressSpecDie) TLS(v ...networkingv1.IngressTLS) *IngressSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressSpec) {
 		r.TLS = v
 	})
 }
 
+// A list of host rules used to configure the Ingress. If unspecified, or no rule matches, all traffic is sent to the default backend.
 func (d *IngressSpecDie) Rules(v ...networkingv1.IngressRule) *IngressSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressSpec) {
 		r.Rules = v
@@ -267,6 +273,7 @@ func (d *IngressStatusDie) DeepCopy() *IngressStatusDie {
 	}
 }
 
+// LoadBalancer contains the current status of the load-balancer.
 func (d *IngressStatusDie) LoadBalancer(v corev1.LoadBalancerStatus) *IngressStatusDie {
 	return d.DieStamp(func(r *networkingv1.IngressStatus) {
 		r.LoadBalancer = v
@@ -356,12 +363,6 @@ func (d *IngressClassDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Ingress
 	})
 }
 
-func (d *IngressClassDie) Spec(v networkingv1.IngressClassSpec) *IngressClassDie {
-	return d.DieStamp(func(r *networkingv1.IngressClass) {
-		r.Spec = v
-	})
-}
-
 func (d *IngressClassDie) SpecDie(fn func(d *IngressClassSpecDie)) *IngressClassDie {
 	return d.DieStamp(func(r *networkingv1.IngressClass) {
 		d := IngressClassSpecBlank.DieImmutable(false).DieFeed(r.Spec)
@@ -373,6 +374,13 @@ func (d *IngressClassDie) SpecDie(fn func(d *IngressClassSpecDie)) *IngressClass
 var _ apismetav1.Object = (*IngressClassDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*IngressClassDie)(nil)
 var _ runtime.Object = (*IngressClassDie)(nil)
+
+// Spec is the desired state of the IngressClass. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *IngressClassDie) Spec(v networkingv1.IngressClassSpec) *IngressClassDie {
+	return d.DieStamp(func(r *networkingv1.IngressClass) {
+		r.Spec = v
+	})
+}
 
 type IngressClassSpecDie struct {
 	mutable bool
@@ -422,12 +430,14 @@ func (d *IngressClassSpecDie) DeepCopy() *IngressClassSpecDie {
 	}
 }
 
+// Controller refers to the name of the controller that should handle this class. This allows for different "flavors" that are controlled by the same controller. For example, you may have different Parameters for the same implementing controller. This should be specified as a domain-prefixed path no more than 250 characters in length, e.g. "acme.io/ingress-controller". This field is immutable.
 func (d *IngressClassSpecDie) Controller(v string) *IngressClassSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressClassSpec) {
 		r.Controller = v
 	})
 }
 
+// Parameters is a link to a custom resource containing additional configuration for the controller. This is optional if the controller does not require extra parameters.
 func (d *IngressClassSpecDie) Parameters(v *networkingv1.IngressClassParametersReference) *IngressClassSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressClassSpec) {
 		r.Parameters = v
@@ -517,12 +527,6 @@ func (d *NetworkPolicyDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Networ
 	})
 }
 
-func (d *NetworkPolicyDie) Spec(v networkingv1.NetworkPolicySpec) *NetworkPolicyDie {
-	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
-		r.Spec = v
-	})
-}
-
 func (d *NetworkPolicyDie) SpecDie(fn func(d *NetworkPolicySpecDie)) *NetworkPolicyDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
 		d := NetworkPolicySpecBlank.DieImmutable(false).DieFeed(r.Spec)
@@ -534,6 +538,13 @@ func (d *NetworkPolicyDie) SpecDie(fn func(d *NetworkPolicySpecDie)) *NetworkPol
 var _ apismetav1.Object = (*NetworkPolicyDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*NetworkPolicyDie)(nil)
 var _ runtime.Object = (*NetworkPolicyDie)(nil)
+
+// Specification of the desired behavior for this NetworkPolicy.
+func (d *NetworkPolicyDie) Spec(v networkingv1.NetworkPolicySpec) *NetworkPolicyDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
+		r.Spec = v
+	})
+}
 
 type NetworkPolicySpecDie struct {
 	mutable bool
@@ -583,24 +594,28 @@ func (d *NetworkPolicySpecDie) DeepCopy() *NetworkPolicySpecDie {
 	}
 }
 
+// Selects the pods to which this NetworkPolicy object applies. The array of ingress rules is applied to any pods selected by this field. Multiple network policies can select the same set of pods. In this case, the ingress rules for each are combined additively. This field is NOT optional and follows standard label selector semantics. An empty podSelector matches all pods in this namespace.
 func (d *NetworkPolicySpecDie) PodSelector(v apismetav1.LabelSelector) *NetworkPolicySpecDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
 		r.PodSelector = v
 	})
 }
 
+// List of ingress rules to be applied to the selected pods. Traffic is allowed to a pod if there are no NetworkPolicies selecting the pod (and cluster policy otherwise allows the traffic), OR if the traffic source is the pod's local node, OR if the traffic matches at least one ingress rule across all of the NetworkPolicy objects whose podSelector matches the pod. If this field is empty then this NetworkPolicy does not allow any traffic (and serves solely to ensure that the pods it selects are isolated by default)
 func (d *NetworkPolicySpecDie) Ingress(v ...networkingv1.NetworkPolicyIngressRule) *NetworkPolicySpecDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
 		r.Ingress = v
 	})
 }
 
+// List of egress rules to be applied to the selected pods. Outgoing traffic is allowed if there are no NetworkPolicies selecting the pod (and cluster policy otherwise allows the traffic), OR if the traffic matches at least one egress rule across all of the NetworkPolicy objects whose podSelector matches the pod. If this field is empty then this NetworkPolicy limits all outgoing traffic (and serves solely to ensure that the pods it selects are isolated by default). This field is beta-level in 1.8
 func (d *NetworkPolicySpecDie) Egress(v ...networkingv1.NetworkPolicyEgressRule) *NetworkPolicySpecDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
 		r.Egress = v
 	})
 }
 
+// List of rule types that the NetworkPolicy relates to. Valid options are ["Ingress"], ["Egress"], or ["Ingress", "Egress"]. If this field is not specified, it will default based on the existence of Ingress or Egress rules; policies that contain an Egress section are assumed to affect Egress, and all policies (whether or not they contain an Ingress section) are assumed to affect Ingress. If you want to write an egress-only policy, you must explicitly specify policyTypes [ "Egress" ]. Likewise, if you want to write a policy that specifies that no egress is allowed, you must specify a policyTypes value that include "Egress" (since such a policy would not include an Egress section and would otherwise default to just [ "Ingress" ]). This field is beta-level in 1.8
 func (d *NetworkPolicySpecDie) PolicyTypes(v ...networkingv1.PolicyType) *NetworkPolicySpecDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
 		r.PolicyTypes = v

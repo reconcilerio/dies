@@ -16,13 +16,15 @@ limitations under the License.
 
 package v1
 
-// +die:target=k8s.io/api/networking/v1.Ingress,object=true
+import (
+	networkingv1 "k8s.io/api/networking/v1"
+)
 
-// +die:target=k8s.io/api/networking/v1.IngressSpec
-// +die:field:receiver=IngressSpecDie,name=IngressClassName,type=*string
-// +die:field:receiver=IngressSpecDie,name=DefaultBackend,type=*k8s.io/api/networking/v1.IngressBackend
-// +die:field:receiver=IngressSpecDie,name=TLS,type=[]k8s.io/api/networking/v1.IngressTLS
-// +die:field:receiver=IngressSpecDie,name=Rules,type=[]k8s.io/api/networking/v1.IngressRule
+// +die:object=true
+type Ingress = networkingv1.Ingress
 
-// +die:target=k8s.io/api/networking/v1.IngressStatus
-// +die:field:receiver=IngressStatusDie,name=LoadBalancer,type=k8s.io/api/core/v1.LoadBalancerStatus
+// +die
+type IngressSpec = networkingv1.IngressSpec
+
+// +die
+type IngressStatus = networkingv1.IngressStatus

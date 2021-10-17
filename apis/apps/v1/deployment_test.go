@@ -30,6 +30,10 @@ import (
 )
 
 func TestDeployment(t *testing.T) {
+	now := metav1.Time{
+		Time: time.Now().Round(time.Second),
+	}
+
 	tests := []struct {
 		name     string
 		die      *dieappsv1.DeploymentDie
@@ -99,13 +103,13 @@ func TestDeployment(t *testing.T) {
 							Status(metav1.ConditionTrue).
 							Reason("MinimumReplicasAvailable").
 							Message("Deployment has minimum availability.").
-							LastTransitionTime(metav1.Time{Time: time.Unix(1, 0)}),
+							LastTransitionTime(now),
 						diemetav1.ConditionBlank.
 							Type(string(appsv1.DeploymentProgressing)).
 							Status(metav1.ConditionTrue).
 							Reason("NewReplicaSetAvailable").
 							Message(`ReplicaSet "test" has successfully progressed.`).
-							LastTransitionTime(metav1.Time{Time: time.Unix(1, 0)}),
+							LastTransitionTime(now),
 					)
 				}),
 			expected: appsv1.Deployment{
@@ -116,14 +120,14 @@ func TestDeployment(t *testing.T) {
 							Status:             corev1.ConditionTrue,
 							Reason:             "MinimumReplicasAvailable",
 							Message:            "Deployment has minimum availability.",
-							LastTransitionTime: metav1.Time{Time: time.Unix(1, 0)},
+							LastTransitionTime: now,
 						},
 						{
 							Type:               appsv1.DeploymentProgressing,
 							Status:             corev1.ConditionTrue,
 							Reason:             "NewReplicaSetAvailable",
 							Message:            `ReplicaSet "test" has successfully progressed.`,
-							LastTransitionTime: metav1.Time{Time: time.Unix(1, 0)},
+							LastTransitionTime: now,
 						},
 					},
 				},

@@ -16,6 +16,9 @@ limitations under the License.
 
 package v1
 
-// +die:target=k8s.io/api/rbac/v1.ClusterRole,object=true
-// +die:field:receiver=ClusterRoleDie,name=AggregationRule,type=*k8s.io/api/rbac/v1.AggregationRule
-// +die:field:receiver=ClusterRoleDie,name=Rules,type=[]k8s.io/api/rbac/v1.PolicyRule
+import (
+	rbacv1 "k8s.io/api/rbac/v1"
+)
+
+// +die:object=true
+type ClusterRole = rbacv1.ClusterRole

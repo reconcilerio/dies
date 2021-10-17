@@ -16,6 +16,9 @@ limitations under the License.
 
 package v1
 
-// +die:target=k8s.io/api/rbac/v1.ClusterRoleBinding,object=true
-// +die:field:receiver=ClusterRoleBindingDie,name=Subjects,type=[]k8s.io/api/rbac/v1.Subject
-// +die:field:receiver=ClusterRoleBindingDie,name=RoleRef,type=k8s.io/api/rbac/v1.RoleRef
+import (
+	rbacv1 "k8s.io/api/rbac/v1"
+)
+
+// +die:object=true
+type ClusterRoleBinding = rbacv1.ClusterRoleBinding

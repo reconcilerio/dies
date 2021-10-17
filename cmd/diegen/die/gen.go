@@ -32,20 +32,20 @@ import (
 )
 
 var (
-	dieMarker   = markers.Must(markers.MakeDefinition("die", markers.DescribesPackage, Die{}))
-	fieldMarker = markers.Must(markers.MakeDefinition("die:field", markers.DescribesPackage, Field{}))
+	dieMarker = markers.Must(markers.MakeDefinition("die", markers.DescribesType, Die{}))
 )
 
 type Die struct {
-	Target       string   `marker:"target"`
 	Object       bool     `marker:"object,optional"`
 	IgnoreFields []string `marker:"ignore,optional"`
 
+	Target        string `marker:",optional"`
 	Name          string `marker:",optional"`
 	Type          string `marker:",optional"`
 	TargetPackage string `marker:",optional"`
 	TargetType    string `marker:",optional"`
 	Blank         string `marker:",optional"`
+	Doc           string `marker:",optional"`
 	SpecName      string `marker:",optional"`
 	SpecBlank     string `marker:",optional"`
 	SpecType      string `marker:",optional"`
@@ -100,6 +100,7 @@ type Field struct {
 
 	TypePrefix  string `marker:",optional"`
 	TypePackage string `marker:",optional"`
+	Doc         string `marker:",optional"`
 }
 
 func (d *Field) Default() {
@@ -140,10 +141,6 @@ func (Generator) RegisterMarkers(into *markers.Registry) error {
 		return err
 	}
 	into.AddHelp(dieMarker, markers.SimpleHelp("die", "generates a die for the type"))
-	if err := into.Register(fieldMarker); err != nil {
-		return err
-	}
-	into.AddHelp(fieldMarker, markers.SimpleHelp("die:field", "generates a field mutator for the die"))
 
 	return nil
 }
@@ -234,31 +231,63 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) ([]byte, []byt
 	// avoid confusing aliases by "reserving" the root package's name as an alias
 	testImports.byAlias[root.Name] = ""
 
-	markerSet, err := markers.PackageMarkers(ctx.Collector, root)
-	if err != nil {
-		root.AddError(err)
-	}
-
 	outContent := new(bytes.Buffer)
 	testContent := new(bytes.Buffer)
 
 	dies := []Die{}
 	dieSet := sets.NewString()
-	for _, markerValue := range markerSet[dieMarker.Name] {
-		die := markerValue.(Die)
-		die.Default()
-		dies = append(dies, die)
-		dieSet.Insert(die.Name)
-	}
 	fieldMap := map[string][]Field{}
-	for _, markerValue := range markerSet[fieldMarker.Name] {
-		field := markerValue.(Field)
-		field.Default()
-		if _, ok := fieldMap[field.Receiver]; !ok {
-			fieldMap[field.Receiver] = []Field{}
+
+	if err := markers.EachType(ctx.Collector, root, func(info *markers.TypeInfo) {
+		if dieMarkers, ok := info.Markers[dieMarker.Name]; ok {
+			die := dieMarkers[0].(Die)
+			die.Target = qualifyField(info.RawSpec.Type, root.ID, info.RawFile.Imports)
+
+			die.Default()
+			dies = append(dies, die)
+			dieSet.Insert(die.Name)
+
+			ignoreFields := sets.NewString(die.IgnoreFields...)
+
+			// find the target struct
+			rpkg := root.Imports()[die.TargetPackage]
+			if err := markers.EachType(ctx.Collector, rpkg, func(info *markers.TypeInfo) {
+				if info.Name != die.TargetType {
+					return
+				}
+				die.Doc = info.Doc
+				for _, f := range info.Fields {
+					field := Field{
+						Receiver: die.Type,
+						Name:     f.Name,
+						Type:     qualifyField(f.RawField.Type, rpkg.ID, info.RawFile.Imports),
+						Doc:      f.Doc,
+					}
+					if field.Name == "" {
+						// inlined field
+						field.Name = field.Type[strings.LastIndex(field.Type, ".")+1:]
+					}
+					if ignoreFields.Has(field.Name) {
+						continue
+					}
+
+					field.Default()
+					if _, ok := fieldMap[field.Receiver]; !ok {
+						fieldMap[field.Receiver] = []Field{}
+					}
+					fieldMap[field.Receiver] = append(fieldMap[field.Receiver], field)
+				}
+			}); err != nil {
+				root.AddError(err)
+				return
+			}
+
 		}
-		fieldMap[field.Receiver] = append(fieldMap[field.Receiver], field)
+	}); err != nil {
+		root.AddError(err)
+		return nil, nil
 	}
+	// return nil, nil
 
 	copyCtx := &copyMethodMaker{
 		pkg:         root,
@@ -335,5 +364,44 @@ func writeOut(ctx *genall.GenerationContext, root *loader.Package, filename stri
 	}
 	if n < len(outBytes) {
 		root.AddError(io.ErrShortWrite)
+	}
+}
+
+func qualifyImport(alias string, imps []*ast.ImportSpec) string {
+	for _, imp := range imps {
+		name := imp.Name.String()
+		path := imp.Path.Value
+		path = path[1 : len(path)-1]
+		if imp.Name == nil {
+			name = path[strings.LastIndex(path, "/")+1:]
+		}
+		if alias != name {
+			continue
+		}
+		p := imp.Path.Value
+		return p[1 : len(p)-1]
+	}
+	return alias
+}
+
+func qualifyField(e ast.Expr, imp string, imps []*ast.ImportSpec) string {
+	switch e := e.(type) {
+	case *ast.ArrayType:
+		return "[]" + qualifyField(e.Elt, imp, imps)
+	case *ast.Ident:
+		if ast.IsExported(e.Name) && imp != "" {
+			return imp + "." + e.Name
+		}
+		return e.Name
+	case *ast.MapType:
+		return "map[" + qualifyField(e.Key, imp, imps) + "]" + qualifyField(e.Value, imp, imps)
+	case *ast.SelectorExpr:
+		x := qualifyImport(qualifyField(e.X, imp, imps), imps)
+		sel := qualifyField(e.Sel, "", imps)
+		return x + "." + sel
+	case *ast.StarExpr:
+		return "*" + qualifyField(e.X, imp, imps)
+	default:
+		panic(fmt.Errorf("unhandled type for %#v", e))
 	}
 }

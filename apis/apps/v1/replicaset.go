@@ -23,13 +23,11 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// +die:target=k8s.io/api/apps/v1.ReplicaSet,object=true
+// +die:object=true
+type ReplicaSet = appsv1.ReplicaSet
 
-// +die:target=k8s.io/api/apps/v1.ReplicaSetSpec
-// +die:field:receiver=ReplicaSetSpecDie,name=Replicas,type=*int32
-// +die:field:receiver=ReplicaSetSpecDie,name=MinReadySeconds,type=int32
-// +die:field:receiver=ReplicaSetSpecDie,name=Selector,type=*k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector
-// +die:field:receiver=ReplicaSetSpecDie,name=Template,type=k8s.io/api/core/v1.PodTemplateSpec
+// +die
+type ReplicaSetSpec = appsv1.ReplicaSetSpec
 
 func (d *ReplicaSetSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *ReplicaSetSpecDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
@@ -39,13 +37,8 @@ func (d *ReplicaSetSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)
 	})
 }
 
-// +die:target=k8s.io/api/apps/v1.ReplicaSetStatus
-// +die:field:receiver=ReplicaSetStatusDie,name=Replicas,type=int32
-// +die:field:receiver=ReplicaSetStatusDie,name=FullyLabeledReplicas,type=int32
-// +die:field:receiver=ReplicaSetStatusDie,name=ReadyReplicas,type=int32
-// +die:field:receiver=ReplicaSetStatusDie,name=AvailableReplicas,type=int32
-// +die:field:receiver=ReplicaSetStatusDie,name=ObservedGeneration,type=int64
-// +die:field:receiver=ReplicaSetStatusDie,name=Conditions,type=[]k8s.io/api/apps/v1.ReplicaSetCondition
+// +die
+type ReplicaSetStatus = appsv1.ReplicaSetStatus
 
 func (d *ReplicaSetStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {

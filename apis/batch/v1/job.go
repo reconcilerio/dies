@@ -23,19 +23,11 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// +die:target=k8s.io/api/batch/v1.Job,object=true
+// +die:object=true
+type Job = batchv1.Job
 
-// +die:target=k8s.io/api/batch/v1.JobSpec
-// +die:field:receiver=JobSpecDie,name=Parallelism,type=*int32
-// +die:field:receiver=JobSpecDie,name=Completions,type=*int32
-// +die:field:receiver=JobSpecDie,name=ActiveDeadlineSeconds,type=*int64
-// +die:field:receiver=JobSpecDie,name=BackoffLimit,type=*int32
-// +die:field:receiver=JobSpecDie,name=Selector,type=*k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector
-// +die:field:receiver=JobSpecDie,name=ManualSelector,type=*bool
-// +die:field:receiver=JobSpecDie,name=Template,type=k8s.io/api/core/v1.PodTemplateSpec
-// +die:field:receiver=JobSpecDie,name=TTLSecondsAfterFinished,type=*int32
-// +die:field:receiver=JobSpecDie,name=CompletionMode,type=*k8s.io/api/batch/v1.CompletionMode
-// +die:field:receiver=JobSpecDie,name=Suspend,type=*bool
+// +die
+type JobSpec = batchv1.JobSpec
 
 func (d *JobSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
@@ -45,15 +37,8 @@ func (d *JobSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *JobS
 	})
 }
 
-// +die:target=k8s.io/api/batch/v1.JobStatus
-// +die:field:receiver=JobStatusDie,name=Conditions,type=[]k8s.io/api/batch/v1.JobCondition
-// +die:field:receiver=JobStatusDie,name=StartTime,type=*k8s.io/apimachinery/pkg/apis/meta/v1.Time
-// +die:field:receiver=JobStatusDie,name=CompletionTime,type=*k8s.io/apimachinery/pkg/apis/meta/v1.Time
-// +die:field:receiver=JobStatusDie,name=Active,type=int32
-// +die:field:receiver=JobStatusDie,name=Succeeded,type=int32
-// +die:field:receiver=JobStatusDie,name=Failed,type=int32
-// +die:field:receiver=JobStatusDie,name=CompletedIndexes,type=string
-// +die:field:receiver=JobStatusDie,name=UncountedTerminatedPods,type=*k8s.io/api/batch/v1.UncountedTerminatedPods
+// +die
+type JobStatus = batchv1.JobStatus
 
 func (d *JobStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {

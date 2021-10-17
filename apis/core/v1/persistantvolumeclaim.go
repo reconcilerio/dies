@@ -21,23 +21,14 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// +die:target=k8s.io/api/core/v1.PersistentVolumeClaim,object=true
+// +die:object=true
+type PersistentVolumeClaim = corev1.PersistentVolumeClaim
 
-// +die:target=k8s.io/api/core/v1.PersistentVolumeClaimSpec
-// +die:field:receiver=PersistentVolumeClaimSpecDie,name=AccessModes,type=[]k8s.io/api/core/v1.PersistentVolumeAccessMode
-// +die:field:receiver=PersistentVolumeClaimSpecDie,name=Selector,type=*k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector
-// +die:field:receiver=PersistentVolumeClaimSpecDie,name=Resources,type=k8s.io/api/core/v1.ResourceRequirements
-// +die:field:receiver=PersistentVolumeClaimSpecDie,name=VolumeName,type=string
-// +die:field:receiver=PersistentVolumeClaimSpecDie,name=StorageClassName,type=*string
-// +die:field:receiver=PersistentVolumeClaimSpecDie,name=VolumeMode,type=*k8s.io/api/core/v1.PersistentVolumeMode
-// +die:field:receiver=PersistentVolumeClaimSpecDie,name=DataSource,type=*k8s.io/api/core/v1.TypedLocalObjectReference
-// +die:field:receiver=PersistentVolumeClaimSpecDie,name=DataSourceRef,type=*k8s.io/api/core/v1.TypedLocalObjectReference
+// +die
+type PersistentVolumeClaimSpec = corev1.PersistentVolumeClaimSpec
 
-// +die:target=k8s.io/api/core/v1.PersistentVolumeClaimStatus
-// +die:field:receiver=PersistentVolumeClaimStatusDie,name=Phase,type=k8s.io/api/core/v1.PersistentVolumeClaimPhase
-// +die:field:receiver=PersistentVolumeClaimStatusDie,name=AccessModes,type=[]k8s.io/api/core/v1.PersistentVolumeAccessMode
-// +die:field:receiver=PersistentVolumeClaimStatusDie,name=Capacity,type=k8s.io/api/core/v1.ResourceList
-// +die:field:receiver=PersistentVolumeClaimStatusDie,name=Conditions,type=[]k8s.io/api/core/v1.PersistentVolumeClaimCondition
+// +die
+type PersistentVolumeClaimStatus = corev1.PersistentVolumeClaimStatus
 
 func (d *PersistentVolumeClaimStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {

@@ -114,23 +114,11 @@ func (d *HorizontalPodAutoscalerDie) MetadataDie(fn func(d *metav1.ObjectMetaDie
 	})
 }
 
-func (d *HorizontalPodAutoscalerDie) Spec(v autoscalingv1.HorizontalPodAutoscalerSpec) *HorizontalPodAutoscalerDie {
-	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
-		r.Spec = v
-	})
-}
-
 func (d *HorizontalPodAutoscalerDie) SpecDie(fn func(d *HorizontalPodAutoscalerSpecDie)) *HorizontalPodAutoscalerDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
 		d := HorizontalPodAutoscalerSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
-	})
-}
-
-func (d *HorizontalPodAutoscalerDie) Status(v autoscalingv1.HorizontalPodAutoscalerStatus) *HorizontalPodAutoscalerDie {
-	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
-		r.Status = v
 	})
 }
 
@@ -145,6 +133,20 @@ func (d *HorizontalPodAutoscalerDie) StatusDie(fn func(d *HorizontalPodAutoscale
 var _ apismetav1.Object = (*HorizontalPodAutoscalerDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*HorizontalPodAutoscalerDie)(nil)
 var _ runtime.Object = (*HorizontalPodAutoscalerDie)(nil)
+
+// behaviour of autoscaler. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.
+func (d *HorizontalPodAutoscalerDie) Spec(v autoscalingv1.HorizontalPodAutoscalerSpec) *HorizontalPodAutoscalerDie {
+	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
+		r.Spec = v
+	})
+}
+
+// current information about the autoscaler.
+func (d *HorizontalPodAutoscalerDie) Status(v autoscalingv1.HorizontalPodAutoscalerStatus) *HorizontalPodAutoscalerDie {
+	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
+		r.Status = v
+	})
+}
 
 type HorizontalPodAutoscalerSpecDie struct {
 	mutable bool
@@ -194,24 +196,28 @@ func (d *HorizontalPodAutoscalerSpecDie) DeepCopy() *HorizontalPodAutoscalerSpec
 	}
 }
 
+// reference to scaled resource; horizontal pod autoscaler will learn the current resource consumption and will set the desired number of pods by using its Scale subresource.
 func (d *HorizontalPodAutoscalerSpecDie) ScaleTargetRef(v autoscalingv1.CrossVersionObjectReference) *HorizontalPodAutoscalerSpecDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerSpec) {
 		r.ScaleTargetRef = v
 	})
 }
 
+// minReplicas is the lower limit for the number of replicas to which the autoscaler can scale down.  It defaults to 1 pod.  minReplicas is allowed to be 0 if the alpha feature gate HPAScaleToZero is enabled and at least one Object or External metric is configured.  Scaling is active as long as at least one metric value is available.
 func (d *HorizontalPodAutoscalerSpecDie) MinReplicas(v *int32) *HorizontalPodAutoscalerSpecDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerSpec) {
 		r.MinReplicas = v
 	})
 }
 
+// upper limit for the number of pods that can be set by the autoscaler; cannot be smaller than MinReplicas.
 func (d *HorizontalPodAutoscalerSpecDie) MaxReplicas(v int32) *HorizontalPodAutoscalerSpecDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerSpec) {
 		r.MaxReplicas = v
 	})
 }
 
+// target average CPU utilization (represented as a percentage of requested CPU) over all the pods; if not specified the default autoscaling policy will be used.
 func (d *HorizontalPodAutoscalerSpecDie) TargetCPUUtilizationPercentage(v *int32) *HorizontalPodAutoscalerSpecDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerSpec) {
 		r.TargetCPUUtilizationPercentage = v
@@ -266,30 +272,35 @@ func (d *HorizontalPodAutoscalerStatusDie) DeepCopy() *HorizontalPodAutoscalerSt
 	}
 }
 
+// most recent generation observed by this autoscaler.
 func (d *HorizontalPodAutoscalerStatusDie) ObservedGeneration(v *int64) *HorizontalPodAutoscalerStatusDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerStatus) {
 		r.ObservedGeneration = v
 	})
 }
 
+// last time the HorizontalPodAutoscaler scaled the number of pods; used by the autoscaler to control how often the number of pods is changed.
 func (d *HorizontalPodAutoscalerStatusDie) LastScaleTime(v *apismetav1.Time) *HorizontalPodAutoscalerStatusDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerStatus) {
 		r.LastScaleTime = v
 	})
 }
 
+// current number of replicas of pods managed by this autoscaler.
 func (d *HorizontalPodAutoscalerStatusDie) CurrentReplicas(v int32) *HorizontalPodAutoscalerStatusDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerStatus) {
 		r.CurrentReplicas = v
 	})
 }
 
+// desired number of replicas of pods managed by this autoscaler.
 func (d *HorizontalPodAutoscalerStatusDie) DesiredReplicas(v int32) *HorizontalPodAutoscalerStatusDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerStatus) {
 		r.DesiredReplicas = v
 	})
 }
 
+// current average CPU utilization over all pods, represented as a percentage of requested CPU, e.g. 70 means that an average pod is using now 70% of its requested CPU.
 func (d *HorizontalPodAutoscalerStatusDie) CurrentCPUUtilizationPercentage(v *int32) *HorizontalPodAutoscalerStatusDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerStatus) {
 		r.CurrentCPUUtilizationPercentage = v

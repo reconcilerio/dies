@@ -28,7 +28,7 @@ import (
 
 func TestConfigMapDie_MissingMethods(t *testingx.T) {
 	die := ConfigMapBlank
-	ignore := []string{"TypeMeta", "ObjectMeta"}
+	ignore := []string{"BinaryData", "Data", "TypeMeta", "ObjectMeta"}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for ConfigMapDie: %s", diff.List())
@@ -161,6 +161,105 @@ func TestPersistentVolumeStatusDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestGlusterfsPersistentVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := GlusterfsPersistentVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for GlusterfsPersistentVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestRBDPersistentVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := RBDPersistentVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for RBDPersistentVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestISCSIPersistentVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := ISCSIPersistentVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ISCSIPersistentVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestCinderPersistentVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := CinderPersistentVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CinderPersistentVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestCephFSPersistentVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := CephFSPersistentVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CephFSPersistentVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestFlexPersistentVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := FlexPersistentVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for FlexPersistentVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestAzureFilePersistentVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := AzureFilePersistentVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for AzureFilePersistentVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestScaleIOPersistentVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := ScaleIOPersistentVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ScaleIOPersistentVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestLocalVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := LocalVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for LocalVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestStorageOSPersistentVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := StorageOSPersistentVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for StorageOSPersistentVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestCSIPersistentVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := CSIPersistentVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CSIPersistentVolumeSourceDie: %s", diff.List())
+	}
+}
+
 func TestPersistentVolumeClaimDie_MissingMethods(t *testingx.T) {
 	die := PersistentVolumeClaimBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
@@ -217,7 +316,7 @@ func TestPodStatusDie_MissingMethods(t *testingx.T) {
 
 func TestPodTemplateSpecDie_MissingMethods(t *testingx.T) {
 	die := PodTemplateSpecBlank
-	ignore := []string{"ObjectMeta"}
+	ignore := []string{}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for PodTemplateSpecDie: %s", diff.List())
@@ -253,7 +352,7 @@ func TestResourceQuotaStatusDie_MissingMethods(t *testingx.T) {
 
 func TestSecretDie_MissingMethods(t *testingx.T) {
 	die := SecretBlank
-	ignore := []string{"TypeMeta", "ObjectMeta"}
+	ignore := []string{"Data", "StringData", "TypeMeta", "ObjectMeta"}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for SecretDie: %s", diff.List())
@@ -293,5 +392,275 @@ func TestServiceAccountDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for ServiceAccountDie: %s", diff.List())
+	}
+}
+
+func TestVolumeDie_MissingMethods(t *testingx.T) {
+	die := VolumeBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for VolumeDie: %s", diff.List())
+	}
+}
+
+func TestHostPathVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := HostPathVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for HostPathVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestEmptyDirVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := EmptyDirVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for EmptyDirVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestGCEPersistentDiskVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := GCEPersistentDiskVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for GCEPersistentDiskVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestAWSElasticBlockStoreVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := AWSElasticBlockStoreVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for AWSElasticBlockStoreVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestGitRepoVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := GitRepoVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for GitRepoVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestSecretVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := SecretVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SecretVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestNFSVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := NFSVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NFSVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestISCSIVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := ISCSIVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ISCSIVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestGlusterfsVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := GlusterfsVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for GlusterfsVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestPersistentVolumeClaimVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := PersistentVolumeClaimVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PersistentVolumeClaimVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestRBDVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := RBDVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for RBDVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestFlexVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := FlexVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for FlexVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestCinderVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := CinderVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CinderVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestCephFSVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := CephFSVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CephFSVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestFlockerVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := FlockerVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for FlockerVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestDownwardAPIVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := DownwardAPIVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for DownwardAPIVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestFCVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := FCVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for FCVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestAzureFileVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := AzureFileVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for AzureFileVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestConfigMapVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := ConfigMapVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ConfigMapVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestVsphereVirtualDiskVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := VsphereVirtualDiskVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for VsphereVirtualDiskVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestQuobyteVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := QuobyteVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for QuobyteVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestAzureDiskVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := AzureDiskVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for AzureDiskVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestPhotonPersistentDiskVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := PhotonPersistentDiskVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PhotonPersistentDiskVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestProjectedVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := ProjectedVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ProjectedVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestPortworxVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := PortworxVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PortworxVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestScaleIOVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := ScaleIOVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ScaleIOVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestStorageOSVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := StorageOSVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for StorageOSVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestCSIVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := CSIVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CSIVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestEphemeralVolumeSourceDie_MissingMethods(t *testingx.T) {
+	die := EphemeralVolumeSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for EphemeralVolumeSourceDie: %s", diff.List())
 	}
 }

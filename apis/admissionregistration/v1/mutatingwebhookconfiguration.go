@@ -16,5 +16,9 @@ limitations under the License.
 
 package v1
 
-// +die:target=k8s.io/api/admissionregistration/v1.MutatingWebhookConfiguration,object=true
-// +die:field:receiver=MutatingWebhookConfigurationDie,name=Webhooks,type=[]k8s.io/api/admissionregistration/v1.MutatingWebhook
+import (
+	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
+)
+
+// +die:object=true
+type MutatingWebhookConfiguration = admissionregistrationv1.MutatingWebhookConfiguration

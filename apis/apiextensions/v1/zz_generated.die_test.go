@@ -35,20 +35,20 @@ func TestCustomResourceDefinitionDie_MissingMethods(t *testingx.T) {
 	}
 }
 
-func TestCustomResourceDefinitionSpecDie_MissingMethods(t *testingx.T) {
-	die := CustomResourceDefinitionSpecBlank
-	ignore := []string{}
-	diff := testing.DieFieldDiff(die).Delete(ignore...)
-	if diff.Len() != 0 {
-		t.Errorf("found missing fields for CustomResourceDefinitionSpecDie: %s", diff.List())
-	}
-}
-
 func TestCustomResourceDefinitionStatusDie_MissingMethods(t *testingx.T) {
 	die := CustomResourceDefinitionStatusBlank
 	ignore := []string{}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for CustomResourceDefinitionStatusDie: %s", diff.List())
+	}
+}
+
+func TestCustomResourceDefinitionSpecDie_MissingMethods(t *testingx.T) {
+	die := CustomResourceDefinitionSpecBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CustomResourceDefinitionSpecDie: %s", diff.List())
 	}
 }

@@ -30,6 +30,10 @@ import (
 )
 
 func TestReplicaSet(t *testing.T) {
+	now := metav1.Time{
+		Time: time.Now().Round(time.Second),
+	}
+
 	tests := []struct {
 		name     string
 		die      *dieappsv1.ReplicaSetDie
@@ -97,7 +101,7 @@ func TestReplicaSet(t *testing.T) {
 							Status(metav1.ConditionTrue).
 							Reason("TheReason").
 							Message("a message.").
-							LastTransitionTime(metav1.Time{Time: time.Unix(1, 0)}),
+							LastTransitionTime(now),
 					)
 				}),
 			expected: appsv1.ReplicaSet{
@@ -108,7 +112,7 @@ func TestReplicaSet(t *testing.T) {
 							Status:             "True",
 							Reason:             "TheReason",
 							Message:            "a message.",
-							LastTransitionTime: metav1.Time{Time: time.Unix(1, 0)},
+							LastTransitionTime: now,
 						},
 					},
 				},

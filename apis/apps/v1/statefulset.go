@@ -23,18 +23,11 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// +die:target=k8s.io/api/apps/v1.StatefulSet,object=true
+// +die:object=true
+type StatefulSpec = appsv1.StatefulSet
 
-// +die:target=k8s.io/api/apps/v1.StatefulSetSpec
-// +die:field:receiver=StatefulSetSpecDie,name=Replicas,type=*int32
-// +die:field:receiver=StatefulSetSpecDie,name=Selector,type=*k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector
-// +die:field:receiver=StatefulSetSpecDie,name=Template,type=k8s.io/api/core/v1.PodTemplateSpec
-// +die:field:receiver=StatefulSetSpecDie,name=VolumeClaimTemplates,type=[]k8s.io/api/core/v1.PersistentVolumeClaim
-// +die:field:receiver=StatefulSetSpecDie,name=ServiceName,type=string
-// +die:field:receiver=StatefulSetSpecDie,name=PodManagementPolicy,type=k8s.io/api/apps/v1.PodManagementPolicyType
-// +die:field:receiver=StatefulSetSpecDie,name=UpdateStrategy,type=k8s.io/api/apps/v1.StatefulSetUpdateStrategy
-// +die:field:receiver=StatefulSetSpecDie,name=RevisionHistoryLimit,type=*int32
-// +die:field:receiver=StatefulSetSpecDie,name=MinReadySeconds,type=int32
+// +die
+type StatefulSetSpec = appsv1.StatefulSetSpec
 
 func (d *StatefulSetSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
@@ -53,17 +46,8 @@ func (d *StatefulSetSpecDie) VolumeClaimTemplatesDie(volumeClaimTemplates ...*di
 	})
 }
 
-// +die:target=k8s.io/api/apps/v1.StatefulSetStatus
-// +die:field:receiver=StatefulSetStatusDie,name=ObservedGeneration,type=int64
-// +die:field:receiver=StatefulSetStatusDie,name=Replicas,type=int32
-// +die:field:receiver=StatefulSetStatusDie,name=ReadyReplicas,type=int32
-// +die:field:receiver=StatefulSetStatusDie,name=CurrentReplicas,type=int32
-// +die:field:receiver=StatefulSetStatusDie,name=UpdatedReplicas,type=int32
-// +die:field:receiver=StatefulSetStatusDie,name=CurrentRevision,type=string
-// +die:field:receiver=StatefulSetStatusDie,name=UpdateRevision,type=string
-// +die:field:receiver=StatefulSetStatusDie,name=CollisionCount,type=*int32
-// +die:field:receiver=StatefulSetStatusDie,name=Conditions,type=[]k8s.io/api/apps/v1.StatefulSetCondition
-// +die:field:receiver=StatefulSetStatusDie,name=AvailableReplicas,type=int32
+// +die
+type StatefulSetStatus = appsv1.StatefulSetStatus
 
 func (d *StatefulSetStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {

@@ -23,14 +23,11 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// +die:target=k8s.io/api/apps/v1.DaemonSet,object=true
+// +die:object=true
+type DaemonSet = appsv1.DaemonSet
 
-// +die:target=k8s.io/api/apps/v1.DaemonSetSpec
-// +die:field:receiver=DaemonSetSpecDie,name=Selector,type=*k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector
-// +die:field:receiver=DaemonSetSpecDie,name=Template,type=k8s.io/api/core/v1.PodTemplateSpec
-// +die:field:receiver=DaemonSetSpecDie,name=UpdateStrategy,type=k8s.io/api/apps/v1.DaemonSetUpdateStrategy
-// +die:field:receiver=DaemonSetSpecDie,name=MinReadySeconds,type=int32
-// +die:field:receiver=DaemonSetSpecDie,name=RevisionHistoryLimit,type=*int32
+// +die
+type DaemonSetSpec = appsv1.DaemonSetSpec
 
 func (d *DaemonSetSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
@@ -40,17 +37,8 @@ func (d *DaemonSetSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie))
 	})
 }
 
-// +die:target=k8s.io/api/apps/v1.DaemonSetStatus
-// +die:field:receiver=DaemonSetStatusDie,name=CurrentNumberScheduled,type=int32
-// +die:field:receiver=DaemonSetStatusDie,name=NumberMisscheduled,type=int32
-// +die:field:receiver=DaemonSetStatusDie,name=DesiredNumberScheduled,type=int32
-// +die:field:receiver=DaemonSetStatusDie,name=NumberReady,type=int32
-// +die:field:receiver=DaemonSetStatusDie,name=ObservedGeneration,type=int64
-// +die:field:receiver=DaemonSetStatusDie,name=UpdatedNumberScheduled,type=int32
-// +die:field:receiver=DaemonSetStatusDie,name=NumberAvailable,type=int32
-// +die:field:receiver=DaemonSetStatusDie,name=NumberUnavailable,type=int32
-// +die:field:receiver=DaemonSetStatusDie,name=CollisionCount,type=*int32
-// +die:field:receiver=DaemonSetStatusDie,name=Conditions,type=[]k8s.io/api/apps/v1.DaemonSetCondition
+// +die
+type DaemonSetStatus = appsv1.DaemonSetStatus
 
 func (d *DaemonSetStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {

@@ -39,6 +39,17 @@ func (c *codeWriter) Linef(line string, args ...interface{}) {
 	fmt.Fprintf(c.out, line+"\n", args...)
 }
 
+func (c *codeWriter) Doc(lines string) string {
+	b := strings.Builder{}
+	for i, line := range strings.Split(lines, "\n") {
+		if i != 0 {
+			b.WriteString("\n//\n")
+		}
+		b.WriteString("// " + strings.TrimSpace(line))
+	}
+	return b.String()
+}
+
 // importsList keeps track of required imports, automatically assigning aliases
 // to import statement.
 type importsList struct {
@@ -140,6 +151,9 @@ func (c *copyMethodMaker) GenerateMethodsFor(die Die) {
 
 func (c *copyMethodMaker) GenerateFieldFor(field Field, die Die) {
 	c.Linef("")
+	if field.Doc != "" {
+		c.Linef("%s", c.Doc(field.Doc))
+	}
 	c.Linef("func (d *%s) %s(v %s%s) *%s {", field.Receiver, field.Name, field.TypePrefix, c.AliasedRef(field.TypePackage, field.Type), field.Receiver)
 	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
 	c.Linef("		r.%s = v", field.Name)
@@ -149,6 +163,9 @@ func (c *copyMethodMaker) GenerateFieldFor(field Field, die Die) {
 
 func (c *copyMethodMaker) generateDieFor(die Die) {
 	c.Linef("")
+	if die.Doc != "" {
+		c.Linef("%s", c.Doc(die.Doc))
+	}
 	c.Linef("type %s struct {", die.Type)
 	if die.Object {
 		c.Linef("	%s", c.AliasedRef("github.com/scothis/dies/apis/meta/v1", "FrozenObjectMeta"))
@@ -293,12 +310,6 @@ func (c *copyMethodMaker) generateMetadataDieMethodFor(die Die) {
 
 func (c *copyMethodMaker) generateSpecMethodFor(die Die) {
 	c.Linef("")
-	c.Linef("func (d *%s) Spec(v %s) *%s {", die.Type, c.AliasedRef(die.TargetPackage, die.SpecName), die.Type)
-	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
-	c.Linef("		r.Spec = v")
-	c.Linef("	})")
-	c.Linef("}")
-	c.Linef("")
 	c.Linef("func (d *%s) SpecDie(fn func(d *%s)) *%s {", die.Type, die.SpecType, die.Type)
 	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
 	c.Linef("		d := %s.DieImmutable(false).DieFeed(r.Spec)", die.SpecBlank)
@@ -309,12 +320,6 @@ func (c *copyMethodMaker) generateSpecMethodFor(die Die) {
 }
 
 func (c *copyMethodMaker) generateStatusMethodFor(die Die) {
-	c.Linef("")
-	c.Linef("func (d *%s) Status(v %s) *%s {", die.Type, c.AliasedRef(die.TargetPackage, die.StatusName), die.Type)
-	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
-	c.Linef("		r.Status = v")
-	c.Linef("	})")
-	c.Linef("}")
 	c.Linef("")
 	c.Linef("func (d *%s) StatusDie(fn func(d *%s)) *%s {", die.Type, die.StatusType, die.Type)
 	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))

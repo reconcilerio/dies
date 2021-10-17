@@ -21,8 +21,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// +die:target=k8s.io/api/core/v1.PodTemplateSpec,ignore={ObjectMeta}
-// +die:field:receiver=PodTemplateSpecDie,name=Spec,type=k8s.io/api/core/v1.PodSpec
+// +die
+type PodTemplateSpec = corev1.PodTemplateSpec
 
 func (d *PodTemplateSpecDie) MetadataDie(fn func(d *diemetav1.ObjectMetaDie)) *PodTemplateSpecDie {
 	return d.DieStamp(func(r *corev1.PodTemplateSpec) {

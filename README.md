@@ -12,7 +12,6 @@
 	- [diegen](#diegen)
 	- [die markers](#die-markers)
 		- [+die](#die)
-		- [+die:field](#diefield)
 
 ---
 
@@ -215,22 +214,20 @@ All generated content is created within `zz_generated.die.go` in each package wh
 #### +die
 
 ```go
-// +die:target=k8s.io/api/apps/v1.Deployment,object=true
-// +die:target=k8s.io/api/apps/v1.DeploymentSpec
-// +die:target=k8s.io/api/apps/v1.DeploymentStatus
+import (
+	appsv1 "k8s.io/api/apps/v1"
+)
+
+// +die:object=true
+type Deployment = appsv1.Deployment
+
+// +die
+type DeploymentSpec = appsv1.DeploymentSpec
+
+// +die
+type DeploymentStatus = appsv1.DeploymentStatus
 ```
 
 Properties:
-- **target** `string`: type the die manages
 - **object** `bool` (optional): indicates the target type implements `metav1.Object` and `runtime.Object`
-
-#### +die:field
-
-```go
-// +die:field:receiver=DeploymentSpecDie,name=Template,type=k8s.io/api/core/v1.PodTemplateSpec
-```
-
-Properties:
-- **receiver** `string`: the die type managing the field
-- **name** `string`: the field name on the managed resource
-- **type** `string`: the field type on the managed resource
+- **ignores** `[]string` (optional): set of fields to ignore on the type

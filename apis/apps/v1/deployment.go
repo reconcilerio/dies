@@ -23,17 +23,11 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// +die:target=k8s.io/api/apps/v1.Deployment,object=true
+// +die:object=true
+type Deployment = appsv1.Deployment
 
-// +die:target=k8s.io/api/apps/v1.DeploymentSpec
-// +die:field:receiver=DeploymentSpecDie,name=Replicas,type=*int32
-// +die:field:receiver=DeploymentSpecDie,name=Selector,type=*k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector
-// +die:field:receiver=DeploymentSpecDie,name=Template,type=k8s.io/api/core/v1.PodTemplateSpec
-// +die:field:receiver=DeploymentSpecDie,name=Strategy,type=k8s.io/api/apps/v1.DeploymentStrategy
-// +die:field:receiver=DeploymentSpecDie,name=MinReadySeconds,type=int32
-// +die:field:receiver=DeploymentSpecDie,name=RevisionHistoryLimit,type=*int32
-// +die:field:receiver=DeploymentSpecDie,name=Paused,type=bool
-// +die:field:receiver=DeploymentSpecDie,name=ProgressDeadlineSeconds,type=*int32
+// +die
+type DeploymentSpec = appsv1.DeploymentSpec
 
 func (d *DeploymentSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
@@ -43,15 +37,8 @@ func (d *DeploymentSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)
 	})
 }
 
-// +die:target=k8s.io/api/apps/v1.DeploymentStatus
-// +die:field:receiver=DeploymentStatusDie,name=ObservedGeneration,type=int64
-// +die:field:receiver=DeploymentStatusDie,name=Replicas,type=int32
-// +die:field:receiver=DeploymentStatusDie,name=UpdatedReplicas,type=int32
-// +die:field:receiver=DeploymentStatusDie,name=ReadyReplicas,type=int32
-// +die:field:receiver=DeploymentStatusDie,name=AvailableReplicas,type=int32
-// +die:field:receiver=DeploymentStatusDie,name=UnavailableReplicas,type=int32
-// +die:field:receiver=DeploymentStatusDie,name=Conditions,type=[]k8s.io/api/apps/v1.DeploymentCondition
-// +die:field:receiver=DeploymentStatusDie,name=CollisionCount,type=*int32
+// +die
+type DeploymentStatus = appsv1.DeploymentStatus
 
 func (d *DeploymentStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {

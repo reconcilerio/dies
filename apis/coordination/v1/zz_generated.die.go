@@ -114,12 +114,6 @@ func (d *LeaseDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *LeaseDie {
 	})
 }
 
-func (d *LeaseDie) Spec(v coordinationv1.LeaseSpec) *LeaseDie {
-	return d.DieStamp(func(r *coordinationv1.Lease) {
-		r.Spec = v
-	})
-}
-
 func (d *LeaseDie) SpecDie(fn func(d *LeaseSpecDie)) *LeaseDie {
 	return d.DieStamp(func(r *coordinationv1.Lease) {
 		d := LeaseSpecBlank.DieImmutable(false).DieFeed(r.Spec)
@@ -131,6 +125,13 @@ func (d *LeaseDie) SpecDie(fn func(d *LeaseSpecDie)) *LeaseDie {
 var _ apismetav1.Object = (*LeaseDie)(nil)
 var _ apismetav1.ObjectMetaAccessor = (*LeaseDie)(nil)
 var _ runtime.Object = (*LeaseDie)(nil)
+
+// Specification of the Lease. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *LeaseDie) Spec(v coordinationv1.LeaseSpec) *LeaseDie {
+	return d.DieStamp(func(r *coordinationv1.Lease) {
+		r.Spec = v
+	})
+}
 
 type LeaseSpecDie struct {
 	mutable bool
@@ -180,30 +181,35 @@ func (d *LeaseSpecDie) DeepCopy() *LeaseSpecDie {
 	}
 }
 
+// holderIdentity contains the identity of the holder of a current lease.
 func (d *LeaseSpecDie) HolderIdentity(v *string) *LeaseSpecDie {
 	return d.DieStamp(func(r *coordinationv1.LeaseSpec) {
 		r.HolderIdentity = v
 	})
 }
 
+// leaseDurationSeconds is a duration that candidates for a lease need to wait to force acquire it. This is measure against time of last observed RenewTime.
 func (d *LeaseSpecDie) LeaseDurationSeconds(v *int32) *LeaseSpecDie {
 	return d.DieStamp(func(r *coordinationv1.LeaseSpec) {
 		r.LeaseDurationSeconds = v
 	})
 }
 
+// acquireTime is a time when the current lease was acquired.
 func (d *LeaseSpecDie) AcquireTime(v *apismetav1.MicroTime) *LeaseSpecDie {
 	return d.DieStamp(func(r *coordinationv1.LeaseSpec) {
 		r.AcquireTime = v
 	})
 }
 
+// renewTime is a time when the current holder of a lease has last updated the lease.
 func (d *LeaseSpecDie) RenewTime(v *apismetav1.MicroTime) *LeaseSpecDie {
 	return d.DieStamp(func(r *coordinationv1.LeaseSpec) {
 		r.RenewTime = v
 	})
 }
 
+// leaseTransitions is the number of transitions of a lease between holders.
 func (d *LeaseSpecDie) LeaseTransitions(v *int32) *LeaseSpecDie {
 	return d.DieStamp(func(r *coordinationv1.LeaseSpec) {
 		r.LeaseTransitions = v

@@ -21,14 +21,14 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// +die:target=k8s.io/api/core/v1.Namespace,object=true
+// +die:object=true
+type Namespace = corev1.Namespace
 
-// +die:target=k8s.io/api/core/v1.NamespaceSpec
-// +die:field:receiver=NamespaceSpecDie,name=Finalizers,type=[]k8s.io/api/core/v1.FinalizerName
+// +die
+type NamespaceSpec = corev1.NamespaceSpec
 
-// +die:target=k8s.io/api/core/v1.NamespaceStatus
-// +die:field:receiver=NamespaceStatusDie,name=Phase,type=k8s.io/api/core/v1.NamespacePhase
-// +die:field:receiver=NamespaceStatusDie,name=Conditions,type=[]k8s.io/api/core/v1.NamespaceCondition
+// +die
+type NamespaceStatus = corev1.NamespaceStatus
 
 func (d *NamespaceStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) *NamespaceStatusDie {
 	return d.DieStamp(func(r *corev1.NamespaceStatus) {
