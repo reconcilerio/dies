@@ -68,7 +68,7 @@ deployment := &appsv1.Deployment{
 							{
 								Name: "MY_VAR",
 								Value: "my-value",
-                            },
+							},
 						},
 					},
 				},
