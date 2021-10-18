@@ -23,30 +23,30 @@ Dies start with a blank object that is stamped to add state. All dies are immuta
 
 ```go
 import (
-	appsv1 "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	dieappsv1 "github.com/scothis/dies/apis/apps/v1"
-	diecorev1 "github.com/scothis/dies/apis/core/v1"
-	diemetav1 "github.com/scothis/dies/apis/meta/v1"
+    appsv1 "k8s.io/api/apps/v1"
+    corev1 "k8s.io/api/core/v1"
+    metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+    dieappsv1 "github.com/scothis/dies/apis/apps/v1"
+    diecorev1 "github.com/scothis/dies/apis/core/v1"
+    diemetav1 "github.com/scothis/dies/apis/meta/v1"
 )
 ```
 
 ```go
 die := dieappsv1.DeploymentBlank.
-	MetadataDie(func(d *diemetav1.ObjectMetaDie) {
-		d.Name("my-name")
-	}).
-	SpecDie(func(d *dieappsv1.DeploymentSpecDie) {
-		d.TemplateDie(func(d *diecorev1.PodTemplateSpecDie) {
-			d.SpecDie(func(d *diecorev1.PodSpecDie) {
-				d.ContainerDie("app", func(d *diecorev1.ContainerDie) {
-					d.Image("registry.example/image:latest")
-					d.AddEnv("MY_VAR", "my-value")
-				})
-			})
-		})
-	})
+    MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+        d.Name("my-name")
+    }).
+    SpecDie(func(d *dieappsv1.DeploymentSpecDie) {
+        d.TemplateDie(func(d *diecorev1.PodTemplateSpecDie) {
+            d.SpecDie(func(d *diecorev1.PodSpecDie) {
+                d.ContainerDie("app", func(d *diecorev1.ContainerDie) {
+                    d.Image("registry.example/image:latest")
+                    d.AddEnv("MY_VAR", "my-value")
+                })
+            })
+        })
+    })
 deployment := die.DieRelease()
 ```
 
@@ -54,27 +54,27 @@ Is equivalent to:
 
 ```go
 deployment := &appsv1.Deployment{
-	ObjectMeta: metav1.ObjectMeta{
-		Name: "my-name",
-	},
-	Spec: appsv1.DeploymentSpec{
-		Template: corev1.PodTemplateSpec{
-			Spec: corev1.PodSpec{
-				Containers: []corev1.Container{
-					{
-						Name:  "app",
-						Image: "registry.example/image:latest",
-						Env:   []corev1.EnvVar{
-							{
-								Name: "MY_VAR",
-								Value: "my-value",
-							},
-						},
-					},
-				},
-			},
-		},
-	},
+    ObjectMeta: metav1.ObjectMeta{
+        Name: "my-name",
+    },
+    Spec: appsv1.DeploymentSpec{
+        Template: corev1.PodTemplateSpec{
+            Spec: corev1.PodSpec{
+                Containers: []corev1.Container{
+                    {
+                        Name:  "app",
+                        Image: "registry.example/image:latest",
+                        Env:   []corev1.EnvVar{
+                            {
+                                Name: "MY_VAR",
+                                Value: "my-value",
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    },
 }
 ```
 
@@ -82,15 +82,15 @@ Unlike when defining an instance of a struct, the die can be captured in an inte
 
 ```go
 altDeployment := die.
-	SpecDie(func(d *dieappsv1.DeploymentSpecDie) {
-		d.TemplateDie(func(d *diecorev1.PodTemplateSpecDie) {
-			d.SpecDie(func(d *diecorev1.PodSpecDie) {
-				d.ContainerDie("app", func(d *diecorev1.ContainerDie) {
-					d.AddEnv("MY_VAR", "some-other-value")
-				})
-			})
-		})
-	}).DieRelease())
+    SpecDie(func(d *dieappsv1.DeploymentSpecDie) {
+        d.TemplateDie(func(d *diecorev1.PodTemplateSpecDie) {
+            d.SpecDie(func(d *diecorev1.PodSpecDie) {
+                d.ContainerDie("app", func(d *diecorev1.ContainerDie) {
+                    d.AddEnv("MY_VAR", "some-other-value")
+                })
+            })
+        })
+    }).DieRelease())
 ```
 
 While the outer die is immutable, returning a new die for each call that can be chained together. The dies passed to callbacks are mutable.
@@ -165,11 +165,11 @@ Example dispatching to a nested die to managed the template
 
 ```go
 func (d *DeploymentSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *DeploymentSpecDie {
-	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
-		d := diecorev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
-		fn(d)
-		r.Template = d.DieRelease()
-	})
+    return d.DieStamp(func(r *appsv1.DeploymentSpec) {
+        d := diecorev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
+        fn(d)
+        r.Template = d.DieRelease()
+    })
 }
 ```
 
@@ -177,19 +177,19 @@ Example adapting `metav1.Condition` dies to `appsv1.DeploymentCondition`:
 
 ```go
 func (d *DeploymentStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *DeploymentStatusDie {
-	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
-		r.Conditions = make([]appsv1.DeploymentCondition, len(conditions))
-		for i := range conditions {
-			c := conditions[i].DieRelease()
-			r.Conditions[i] = appsv1.DeploymentCondition{
-				Type:               appsv1.DeploymentConditionType(c.Type),
-				Status:             corev1.ConditionStatus(c.Status),
-				Reason:             c.Reason,
-				Message:            c.Message,
-				LastTransitionTime: c.LastTransitionTime,
-			}
-		}
-	})
+    return d.DieStamp(func(r *appsv1.DeploymentStatus) {
+        r.Conditions = make([]appsv1.DeploymentCondition, len(conditions))
+        for i := range conditions {
+            c := conditions[i].DieRelease()
+            r.Conditions[i] = appsv1.DeploymentCondition{
+                Type:               appsv1.DeploymentConditionType(c.Type),
+                Status:             corev1.ConditionStatus(c.Status),
+                Reason:             c.Reason,
+                Message:            c.Message,
+                LastTransitionTime: c.LastTransitionTime,
+            }
+        }
+    })
 }
 ```
 
@@ -215,7 +215,7 @@ All generated content is created within `zz_generated.die.go` in each package wh
 
 ```go
 import (
-	appsv1 "k8s.io/api/apps/v1"
+    appsv1 "k8s.io/api/apps/v1"
 )
 
 // +die:object=true
