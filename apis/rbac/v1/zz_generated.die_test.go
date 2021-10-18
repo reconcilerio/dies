@@ -35,6 +35,15 @@ func TestClusterRoleDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestAggregationRuleDie_MissingMethods(t *testingx.T) {
+	die := AggregationRuleBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for AggregationRuleDie: %s", diff.List())
+	}
+}
+
 func TestClusterRoleBindingDie_MissingMethods(t *testingx.T) {
 	die := ClusterRoleBindingBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
@@ -53,11 +62,38 @@ func TestRoleDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestPolicyRuleDie_MissingMethods(t *testingx.T) {
+	die := PolicyRuleBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PolicyRuleDie: %s", diff.List())
+	}
+}
+
 func TestRoleBindingDie_MissingMethods(t *testingx.T) {
 	die := RoleBindingBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for RoleBindingDie: %s", diff.List())
+	}
+}
+
+func TestSubjectDie_MissingMethods(t *testingx.T) {
+	die := SubjectBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SubjectDie: %s", diff.List())
+	}
+}
+
+func TestRoleRefDie_MissingMethods(t *testingx.T) {
+	die := RoleRefBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for RoleRefDie: %s", diff.List())
 	}
 }

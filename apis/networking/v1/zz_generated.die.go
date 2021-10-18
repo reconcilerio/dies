@@ -62,11 +62,23 @@ func (d *IngressDie) DieFeed(r networkingv1.Ingress) *IngressDie {
 	}
 }
 
+func (d *IngressDie) DieFeedPtr(r *networkingv1.Ingress) *IngressDie {
+	if r == nil {
+		r = &networkingv1.Ingress{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *IngressDie) DieRelease() networkingv1.Ingress {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *IngressDie) DieReleasePtr() *networkingv1.Ingress {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *IngressDie) DieStamp(fn func(r *networkingv1.Ingress)) *IngressDie {
@@ -176,11 +188,23 @@ func (d *IngressSpecDie) DieFeed(r networkingv1.IngressSpec) *IngressSpecDie {
 	}
 }
 
+func (d *IngressSpecDie) DieFeedPtr(r *networkingv1.IngressSpec) *IngressSpecDie {
+	if r == nil {
+		r = &networkingv1.IngressSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *IngressSpecDie) DieRelease() networkingv1.IngressSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *IngressSpecDie) DieReleasePtr() *networkingv1.IngressSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *IngressSpecDie) DieStamp(fn func(r *networkingv1.IngressSpec)) *IngressSpecDie {
@@ -252,11 +276,23 @@ func (d *IngressStatusDie) DieFeed(r networkingv1.IngressStatus) *IngressStatusD
 	}
 }
 
+func (d *IngressStatusDie) DieFeedPtr(r *networkingv1.IngressStatus) *IngressStatusDie {
+	if r == nil {
+		r = &networkingv1.IngressStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *IngressStatusDie) DieRelease() networkingv1.IngressStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *IngressStatusDie) DieReleasePtr() *networkingv1.IngressStatus {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *IngressStatusDie) DieStamp(fn func(r *networkingv1.IngressStatus)) *IngressStatusDie {
@@ -310,11 +346,23 @@ func (d *IngressClassDie) DieFeed(r networkingv1.IngressClass) *IngressClassDie 
 	}
 }
 
+func (d *IngressClassDie) DieFeedPtr(r *networkingv1.IngressClass) *IngressClassDie {
+	if r == nil {
+		r = &networkingv1.IngressClass{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *IngressClassDie) DieRelease() networkingv1.IngressClass {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *IngressClassDie) DieReleasePtr() *networkingv1.IngressClass {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *IngressClassDie) DieStamp(fn func(r *networkingv1.IngressClass)) *IngressClassDie {
@@ -409,11 +457,23 @@ func (d *IngressClassSpecDie) DieFeed(r networkingv1.IngressClassSpec) *IngressC
 	}
 }
 
+func (d *IngressClassSpecDie) DieFeedPtr(r *networkingv1.IngressClassSpec) *IngressClassSpecDie {
+	if r == nil {
+		r = &networkingv1.IngressClassSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *IngressClassSpecDie) DieRelease() networkingv1.IngressClassSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *IngressClassSpecDie) DieReleasePtr() *networkingv1.IngressClassSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *IngressClassSpecDie) DieStamp(fn func(r *networkingv1.IngressClassSpec)) *IngressClassSpecDie {
@@ -474,11 +534,23 @@ func (d *NetworkPolicyDie) DieFeed(r networkingv1.NetworkPolicy) *NetworkPolicyD
 	}
 }
 
+func (d *NetworkPolicyDie) DieFeedPtr(r *networkingv1.NetworkPolicy) *NetworkPolicyDie {
+	if r == nil {
+		r = &networkingv1.NetworkPolicy{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *NetworkPolicyDie) DieRelease() networkingv1.NetworkPolicy {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *NetworkPolicyDie) DieReleasePtr() *networkingv1.NetworkPolicy {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *NetworkPolicyDie) DieStamp(fn func(r *networkingv1.NetworkPolicy)) *NetworkPolicyDie {
@@ -573,11 +645,23 @@ func (d *NetworkPolicySpecDie) DieFeed(r networkingv1.NetworkPolicySpec) *Networ
 	}
 }
 
+func (d *NetworkPolicySpecDie) DieFeedPtr(r *networkingv1.NetworkPolicySpec) *NetworkPolicySpecDie {
+	if r == nil {
+		r = &networkingv1.NetworkPolicySpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *NetworkPolicySpecDie) DieRelease() networkingv1.NetworkPolicySpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *NetworkPolicySpecDie) DieReleasePtr() *networkingv1.NetworkPolicySpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *NetworkPolicySpecDie) DieStamp(fn func(r *networkingv1.NetworkPolicySpec)) *NetworkPolicySpecDie {

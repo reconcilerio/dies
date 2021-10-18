@@ -44,6 +44,24 @@ func TestDaemonSetSpecDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestDaemonSetUpdateStrategyDie_MissingMethods(t *testingx.T) {
+	die := DaemonSetUpdateStrategyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for DaemonSetUpdateStrategyDie: %s", diff.List())
+	}
+}
+
+func TestRollingUpdateDaemonSetDie_MissingMethods(t *testingx.T) {
+	die := RollingUpdateDaemonSetBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for RollingUpdateDaemonSetDie: %s", diff.List())
+	}
+}
+
 func TestDaemonSetStatusDie_MissingMethods(t *testingx.T) {
 	die := DaemonSetStatusBlank
 	ignore := []string{}

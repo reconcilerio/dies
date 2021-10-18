@@ -43,3 +43,12 @@ func TestObjectMetaDie_MissingMethods(t *testingx.T) {
 		t.Errorf("found missing fields for ObjectMetaDie: %s", diff.List())
 	}
 }
+
+func TestLabelSelectorDie_MissingMethods(t *testingx.T) {
+	die := LabelSelectorBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for LabelSelectorDie: %s", diff.List())
+	}
+}

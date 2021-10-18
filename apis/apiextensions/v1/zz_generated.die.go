@@ -61,11 +61,23 @@ func (d *CustomResourceDefinitionDie) DieFeed(r apiextensionsv1.CustomResourceDe
 	}
 }
 
+func (d *CustomResourceDefinitionDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinition) *CustomResourceDefinitionDie {
+	if r == nil {
+		r = &apiextensionsv1.CustomResourceDefinition{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *CustomResourceDefinitionDie) DieRelease() apiextensionsv1.CustomResourceDefinition {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *CustomResourceDefinitionDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinition {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *CustomResourceDefinitionDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinition)) *CustomResourceDefinitionDie {
@@ -175,11 +187,23 @@ func (d *CustomResourceDefinitionStatusDie) DieFeed(r apiextensionsv1.CustomReso
 	}
 }
 
+func (d *CustomResourceDefinitionStatusDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionStatus) *CustomResourceDefinitionStatusDie {
+	if r == nil {
+		r = &apiextensionsv1.CustomResourceDefinitionStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *CustomResourceDefinitionStatusDie) DieRelease() apiextensionsv1.CustomResourceDefinitionStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *CustomResourceDefinitionStatusDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionStatus {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *CustomResourceDefinitionStatusDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionStatus)) *CustomResourceDefinitionStatusDie {
@@ -244,11 +268,23 @@ func (d *CustomResourceDefinitionSpecDie) DieFeed(r apiextensionsv1.CustomResour
 	}
 }
 
+func (d *CustomResourceDefinitionSpecDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionSpec) *CustomResourceDefinitionSpecDie {
+	if r == nil {
+		r = &apiextensionsv1.CustomResourceDefinitionSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *CustomResourceDefinitionSpecDie) DieRelease() apiextensionsv1.CustomResourceDefinitionSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *CustomResourceDefinitionSpecDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *CustomResourceDefinitionSpecDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionSpec)) *CustomResourceDefinitionSpecDie {

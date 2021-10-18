@@ -61,11 +61,23 @@ func (d *ClusterRoleDie) DieFeed(r rbacv1.ClusterRole) *ClusterRoleDie {
 	}
 }
 
+func (d *ClusterRoleDie) DieFeedPtr(r *rbacv1.ClusterRole) *ClusterRoleDie {
+	if r == nil {
+		r = &rbacv1.ClusterRole{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ClusterRoleDie) DieRelease() rbacv1.ClusterRole {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ClusterRoleDie) DieReleasePtr() *rbacv1.ClusterRole {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ClusterRoleDie) DieStamp(fn func(r *rbacv1.ClusterRole)) *ClusterRoleDie {
@@ -132,6 +144,73 @@ func (d *ClusterRoleDie) AggregationRule(v *rbacv1.AggregationRule) *ClusterRole
 	})
 }
 
+type AggregationRuleDie struct {
+	mutable bool
+	r       rbacv1.AggregationRule
+}
+
+var AggregationRuleBlank = (&AggregationRuleDie{}).DieFeed(rbacv1.AggregationRule{})
+
+func (d *AggregationRuleDie) DieImmutable(immutable bool) *AggregationRuleDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+func (d *AggregationRuleDie) DieFeed(r rbacv1.AggregationRule) *AggregationRuleDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &AggregationRuleDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *AggregationRuleDie) DieFeedPtr(r *rbacv1.AggregationRule) *AggregationRuleDie {
+	if r == nil {
+		r = &rbacv1.AggregationRule{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *AggregationRuleDie) DieRelease() rbacv1.AggregationRule {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *AggregationRuleDie) DieReleasePtr() *rbacv1.AggregationRule {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *AggregationRuleDie) DieStamp(fn func(r *rbacv1.AggregationRule)) *AggregationRuleDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *AggregationRuleDie) DeepCopy() *AggregationRuleDie {
+	r := *d.r.DeepCopy()
+	return &AggregationRuleDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// ClusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules. If any of the selectors match, then the ClusterRole's permissions will be added
+func (d *AggregationRuleDie) ClusterRoleSelectors(v ...apismetav1.LabelSelector) *AggregationRuleDie {
+	return d.DieStamp(func(r *rbacv1.AggregationRule) {
+		r.ClusterRoleSelectors = v
+	})
+}
+
 type ClusterRoleBindingDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
@@ -162,11 +241,23 @@ func (d *ClusterRoleBindingDie) DieFeed(r rbacv1.ClusterRoleBinding) *ClusterRol
 	}
 }
 
+func (d *ClusterRoleBindingDie) DieFeedPtr(r *rbacv1.ClusterRoleBinding) *ClusterRoleBindingDie {
+	if r == nil {
+		r = &rbacv1.ClusterRoleBinding{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ClusterRoleBindingDie) DieRelease() rbacv1.ClusterRoleBinding {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ClusterRoleBindingDie) DieReleasePtr() *rbacv1.ClusterRoleBinding {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ClusterRoleBindingDie) DieStamp(fn func(r *rbacv1.ClusterRoleBinding)) *ClusterRoleBindingDie {
@@ -263,11 +354,23 @@ func (d *RoleDie) DieFeed(r rbacv1.Role) *RoleDie {
 	}
 }
 
+func (d *RoleDie) DieFeedPtr(r *rbacv1.Role) *RoleDie {
+	if r == nil {
+		r = &rbacv1.Role{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *RoleDie) DieRelease() rbacv1.Role {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *RoleDie) DieReleasePtr() *rbacv1.Role {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *RoleDie) DieStamp(fn func(r *rbacv1.Role)) *RoleDie {
@@ -327,6 +430,101 @@ func (d *RoleDie) Rules(v ...rbacv1.PolicyRule) *RoleDie {
 	})
 }
 
+type PolicyRuleDie struct {
+	mutable bool
+	r       rbacv1.PolicyRule
+}
+
+var PolicyRuleBlank = (&PolicyRuleDie{}).DieFeed(rbacv1.PolicyRule{})
+
+func (d *PolicyRuleDie) DieImmutable(immutable bool) *PolicyRuleDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+func (d *PolicyRuleDie) DieFeed(r rbacv1.PolicyRule) *PolicyRuleDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &PolicyRuleDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *PolicyRuleDie) DieFeedPtr(r *rbacv1.PolicyRule) *PolicyRuleDie {
+	if r == nil {
+		r = &rbacv1.PolicyRule{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *PolicyRuleDie) DieRelease() rbacv1.PolicyRule {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *PolicyRuleDie) DieReleasePtr() *rbacv1.PolicyRule {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *PolicyRuleDie) DieStamp(fn func(r *rbacv1.PolicyRule)) *PolicyRuleDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *PolicyRuleDie) DeepCopy() *PolicyRuleDie {
+	r := *d.r.DeepCopy()
+	return &PolicyRuleDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Verbs is a list of Verbs that apply to ALL the ResourceKinds and AttributeRestrictions contained in this rule. '*' represents all verbs.
+func (d *PolicyRuleDie) Verbs(v ...string) *PolicyRuleDie {
+	return d.DieStamp(func(r *rbacv1.PolicyRule) {
+		r.Verbs = v
+	})
+}
+
+// APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of the enumerated resources in any API group will be allowed.
+func (d *PolicyRuleDie) APIGroups(v ...string) *PolicyRuleDie {
+	return d.DieStamp(func(r *rbacv1.PolicyRule) {
+		r.APIGroups = v
+	})
+}
+
+// Resources is a list of resources this rule applies to. '*' represents all resources.
+func (d *PolicyRuleDie) Resources(v ...string) *PolicyRuleDie {
+	return d.DieStamp(func(r *rbacv1.PolicyRule) {
+		r.Resources = v
+	})
+}
+
+// ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.
+func (d *PolicyRuleDie) ResourceNames(v ...string) *PolicyRuleDie {
+	return d.DieStamp(func(r *rbacv1.PolicyRule) {
+		r.ResourceNames = v
+	})
+}
+
+// NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding. Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
+func (d *PolicyRuleDie) NonResourceURLs(v ...string) *PolicyRuleDie {
+	return d.DieStamp(func(r *rbacv1.PolicyRule) {
+		r.NonResourceURLs = v
+	})
+}
+
 type RoleBindingDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
@@ -357,11 +555,23 @@ func (d *RoleBindingDie) DieFeed(r rbacv1.RoleBinding) *RoleBindingDie {
 	}
 }
 
+func (d *RoleBindingDie) DieFeedPtr(r *rbacv1.RoleBinding) *RoleBindingDie {
+	if r == nil {
+		r = &rbacv1.RoleBinding{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *RoleBindingDie) DieRelease() rbacv1.RoleBinding {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *RoleBindingDie) DieReleasePtr() *rbacv1.RoleBinding {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *RoleBindingDie) DieStamp(fn func(r *rbacv1.RoleBinding)) *RoleBindingDie {
@@ -425,5 +635,174 @@ func (d *RoleBindingDie) Subjects(v ...rbacv1.Subject) *RoleBindingDie {
 func (d *RoleBindingDie) RoleRef(v rbacv1.RoleRef) *RoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.RoleBinding) {
 		r.RoleRef = v
+	})
+}
+
+type SubjectDie struct {
+	mutable bool
+	r       rbacv1.Subject
+}
+
+var SubjectBlank = (&SubjectDie{}).DieFeed(rbacv1.Subject{})
+
+func (d *SubjectDie) DieImmutable(immutable bool) *SubjectDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+func (d *SubjectDie) DieFeed(r rbacv1.Subject) *SubjectDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &SubjectDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *SubjectDie) DieFeedPtr(r *rbacv1.Subject) *SubjectDie {
+	if r == nil {
+		r = &rbacv1.Subject{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *SubjectDie) DieRelease() rbacv1.Subject {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *SubjectDie) DieReleasePtr() *rbacv1.Subject {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *SubjectDie) DieStamp(fn func(r *rbacv1.Subject)) *SubjectDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *SubjectDie) DeepCopy() *SubjectDie {
+	r := *d.r.DeepCopy()
+	return &SubjectDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount". If the Authorizer does not recognized the kind value, the Authorizer should report an error.
+func (d *SubjectDie) Kind(v string) *SubjectDie {
+	return d.DieStamp(func(r *rbacv1.Subject) {
+		r.Kind = v
+	})
+}
+
+// APIGroup holds the API group of the referenced subject. Defaults to "" for ServiceAccount subjects. Defaults to "rbac.authorization.k8s.io" for User and Group subjects.
+func (d *SubjectDie) APIGroup(v string) *SubjectDie {
+	return d.DieStamp(func(r *rbacv1.Subject) {
+		r.APIGroup = v
+	})
+}
+
+// Name of the object being referenced.
+func (d *SubjectDie) Name(v string) *SubjectDie {
+	return d.DieStamp(func(r *rbacv1.Subject) {
+		r.Name = v
+	})
+}
+
+// Namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty the Authorizer should report an error.
+func (d *SubjectDie) Namespace(v string) *SubjectDie {
+	return d.DieStamp(func(r *rbacv1.Subject) {
+		r.Namespace = v
+	})
+}
+
+type RoleRefDie struct {
+	mutable bool
+	r       rbacv1.RoleRef
+}
+
+var RoleRefBlank = (&RoleRefDie{}).DieFeed(rbacv1.RoleRef{})
+
+func (d *RoleRefDie) DieImmutable(immutable bool) *RoleRefDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+func (d *RoleRefDie) DieFeed(r rbacv1.RoleRef) *RoleRefDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &RoleRefDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *RoleRefDie) DieFeedPtr(r *rbacv1.RoleRef) *RoleRefDie {
+	if r == nil {
+		r = &rbacv1.RoleRef{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *RoleRefDie) DieRelease() rbacv1.RoleRef {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *RoleRefDie) DieReleasePtr() *rbacv1.RoleRef {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *RoleRefDie) DieStamp(fn func(r *rbacv1.RoleRef)) *RoleRefDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *RoleRefDie) DeepCopy() *RoleRefDie {
+	r := *d.r.DeepCopy()
+	return &RoleRefDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// APIGroup is the group for the resource being referenced
+func (d *RoleRefDie) APIGroup(v string) *RoleRefDie {
+	return d.DieStamp(func(r *rbacv1.RoleRef) {
+		r.APIGroup = v
+	})
+}
+
+// Kind is the type of resource being referenced
+func (d *RoleRefDie) Kind(v string) *RoleRefDie {
+	return d.DieStamp(func(r *rbacv1.RoleRef) {
+		r.Kind = v
+	})
+}
+
+// Name is the name of resource being referenced
+func (d *RoleRefDie) Name(v string) *RoleRefDie {
+	return d.DieStamp(func(r *rbacv1.RoleRef) {
+		r.Name = v
 	})
 }

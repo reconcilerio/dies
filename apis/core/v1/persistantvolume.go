@@ -28,308 +28,220 @@ type PersistentVolumeSpec = corev1.PersistentVolumeSpec
 
 func (d *PersistentVolumeSpecDie) GCEPersistentDiskDie(fn func(d *GCEPersistentDiskVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := GCEPersistentDiskVolumeSourceBlank.DieImmutable(false)
-		if v := r.GCEPersistentDisk; v != nil {
-			d.DieFeed(*v)
-		}
+		d := GCEPersistentDiskVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.GCEPersistentDisk)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			GCEPersistentDisk: &v,
+			GCEPersistentDisk: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) AWSElasticBlockStoreDie(fn func(d *AWSElasticBlockStoreVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := AWSElasticBlockStoreVolumeSourceBlank.DieImmutable(false)
-		if v := r.AWSElasticBlockStore; v != nil {
-			d.DieFeed(*v)
-		}
+		d := AWSElasticBlockStoreVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.AWSElasticBlockStore)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			AWSElasticBlockStore: &v,
+			AWSElasticBlockStore: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) HostPathDie(fn func(d *HostPathVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := HostPathVolumeSourceBlank.DieImmutable(false)
-		if v := r.HostPath; v != nil {
-			d.DieFeed(*v)
-		}
+		d := HostPathVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.HostPath)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			HostPath: &v,
+			HostPath: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) GlusterfsDie(fn func(d *GlusterfsPersistentVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := GlusterfsPersistentVolumeSourceBlank.DieImmutable(false)
-		if v := r.Glusterfs; v != nil {
-			d.DieFeed(*v)
-		}
+		d := GlusterfsPersistentVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.Glusterfs)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			Glusterfs: &v,
+			Glusterfs: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) NFSDie(fn func(d *NFSVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := NFSVolumeSourceBlank.DieImmutable(false)
-		if v := r.NFS; v != nil {
-			d.DieFeed(*r.NFS)
-		}
+		d := NFSVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.NFS)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			NFS: &v,
+			NFS: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) RBDDie(fn func(d *RBDPersistentVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := RBDPersistentVolumeSourceBlank.DieImmutable(false)
-		if v := r.RBD; v != nil {
-			d.DieFeed(*v)
-		}
+		d := RBDPersistentVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.RBD)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			RBD: &v,
+			RBD: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) ISCSIDie(fn func(d *ISCSIPersistentVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := ISCSIPersistentVolumeSourceBlank.DieImmutable(false)
-		if v := r.ISCSI; v != nil {
-			d.DieFeed(*v)
-		}
+		d := ISCSIPersistentVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.ISCSI)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			ISCSI: &v,
+			ISCSI: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) CinderDie(fn func(d *CinderPersistentVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := CinderPersistentVolumeSourceBlank.DieImmutable(false)
-		if v := r.Cinder; v != nil {
-			d.DieFeed(*v)
-		}
+		d := CinderPersistentVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.Cinder)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			Cinder: &v,
+			Cinder: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) CephFSDie(fn func(d *CephFSPersistentVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := CephFSPersistentVolumeSourceBlank.DieImmutable(false)
-		if v := r.CephFS; v != nil {
-			d.DieFeed(*v)
-		}
+		d := CephFSPersistentVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.CephFS)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			CephFS: &v,
+			CephFS: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) FCDie(fn func(d *FCVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := FCVolumeSourceBlank.DieImmutable(false)
-		if v := r.FC; v != nil {
-			d.DieFeed(*v)
-		}
+		d := FCVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.FC)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			FC: &v,
+			FC: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) FlockerDie(fn func(d *FlockerVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := FlockerVolumeSourceBlank.DieImmutable(false)
-		if v := r.Flocker; v != nil {
-			d.DieFeed(*v)
-		}
+		d := FlockerVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.Flocker)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			Flocker: &v,
+			Flocker: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) FlexVolumeDie(fn func(d *FlexPersistentVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := FlexPersistentVolumeSourceBlank.DieImmutable(false)
-		if v := r.FlexVolume; v != nil {
-			d.DieFeed(*r.FlexVolume)
-		}
+		d := FlexPersistentVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.FlexVolume)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			FlexVolume: &v,
+			FlexVolume: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) AzureFileDie(fn func(d *AzureFilePersistentVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := AzureFilePersistentVolumeSourceBlank.DieImmutable(false)
-		if v := r.AzureFile; v != nil {
-			d.DieFeed(*r.AzureFile)
-		}
+		d := AzureFilePersistentVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.AzureFile)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			AzureFile: &v,
+			AzureFile: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) VsphereVolumeDie(fn func(d *VsphereVirtualDiskVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := VsphereVirtualDiskVolumeSourceBlank.DieImmutable(false)
-		if v := r.VsphereVolume; v != nil {
-			d.DieFeed(*v)
-		}
+		d := VsphereVirtualDiskVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.VsphereVolume)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			VsphereVolume: &v,
+			VsphereVolume: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) QuobyteDie(fn func(d *QuobyteVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := QuobyteVolumeSourceBlank.DieImmutable(false)
-		if v := r.Quobyte; v != nil {
-			d.DieFeed(*v)
-		}
+		d := QuobyteVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.Quobyte)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			Quobyte: &v,
+			Quobyte: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) AzureDiskDie(fn func(d *AzureDiskVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := AzureDiskVolumeSourceBlank.DieImmutable(false)
-		if v := r.AzureDisk; v != nil {
-			d.DieFeed(*v)
-		}
+		d := AzureDiskVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.AzureDisk)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			AzureDisk: &v,
+			AzureDisk: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) PhotonPersistentDiskDie(fn func(d *PhotonPersistentDiskVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := PhotonPersistentDiskVolumeSourceBlank.DieImmutable(false)
-		if v := r.PhotonPersistentDisk; v != nil {
-			d.DieFeed(*v)
-		}
+		d := PhotonPersistentDiskVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.PhotonPersistentDisk)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			PhotonPersistentDisk: &v,
+			PhotonPersistentDisk: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) PortworxVolumeDie(fn func(d *PortworxVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := PortworxVolumeSourceBlank.DieImmutable(false)
-		if v := r.PortworxVolume; v != nil {
-			d.DieFeed(*v)
-		}
+		d := PortworxVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.PortworxVolume)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			PortworxVolume: &v,
+			PortworxVolume: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) ScaleIODie(fn func(d *ScaleIOPersistentVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := ScaleIOPersistentVolumeSourceBlank.DieImmutable(false)
-		if v := r.ScaleIO; v != nil {
-			d.DieFeed(*v)
-		}
+		d := ScaleIOPersistentVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.ScaleIO)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			ScaleIO: &v,
+			ScaleIO: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) LocalDie(fn func(d *LocalVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := LocalVolumeSourceBlank.DieImmutable(false)
-		if v := r.Local; v != nil {
-			d.DieFeed(*v)
-		}
+		d := LocalVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.Local)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			Local: &v,
+			Local: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) StorageOSDie(fn func(d *StorageOSPersistentVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := StorageOSPersistentVolumeSourceBlank.DieImmutable(false)
-		if v := r.StorageOS; v != nil {
-			d.DieFeed(*v)
-		}
+		d := StorageOSPersistentVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.StorageOS)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			StorageOS: &v,
+			StorageOS: d.DieReleasePtr(),
 		}
 	})
 }
 
 func (d *PersistentVolumeSpecDie) CSIDie(fn func(d *CSIPersistentVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		d := CSIPersistentVolumeSourceBlank.DieImmutable(false)
-		if v := r.CSI; v != nil {
-			d.DieFeed(*v)
-		}
+		d := CSIPersistentVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.CSI)
 		fn(d)
-		v := d.DieRelease()
 		r.PersistentVolumeSource = corev1.PersistentVolumeSource{
-			CSI: &v,
+			CSI: d.DieReleasePtr(),
 		}
 	})
 }

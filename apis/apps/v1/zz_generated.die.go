@@ -30,6 +30,7 @@ import (
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	intstr "k8s.io/apimachinery/pkg/util/intstr"
 )
 
 type DaemonSetDie struct {
@@ -62,11 +63,23 @@ func (d *DaemonSetDie) DieFeed(r appsv1.DaemonSet) *DaemonSetDie {
 	}
 }
 
+func (d *DaemonSetDie) DieFeedPtr(r *appsv1.DaemonSet) *DaemonSetDie {
+	if r == nil {
+		r = &appsv1.DaemonSet{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *DaemonSetDie) DieRelease() appsv1.DaemonSet {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *DaemonSetDie) DieReleasePtr() *appsv1.DaemonSet {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *DaemonSetDie) DieStamp(fn func(r *appsv1.DaemonSet)) *DaemonSetDie {
@@ -176,11 +189,23 @@ func (d *DaemonSetSpecDie) DieFeed(r appsv1.DaemonSetSpec) *DaemonSetSpecDie {
 	}
 }
 
+func (d *DaemonSetSpecDie) DieFeedPtr(r *appsv1.DaemonSetSpec) *DaemonSetSpecDie {
+	if r == nil {
+		r = &appsv1.DaemonSetSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *DaemonSetSpecDie) DieRelease() appsv1.DaemonSetSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *DaemonSetSpecDie) DieReleasePtr() *appsv1.DaemonSetSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *DaemonSetSpecDie) DieStamp(fn func(r *appsv1.DaemonSetSpec)) *DaemonSetSpecDie {
@@ -232,6 +257,182 @@ func (d *DaemonSetSpecDie) RevisionHistoryLimit(v *int32) *DaemonSetSpecDie {
 	})
 }
 
+type DaemonSetUpdateStrategyDie struct {
+	mutable bool
+	r       appsv1.DaemonSetUpdateStrategy
+}
+
+var DaemonSetUpdateStrategyBlank = (&DaemonSetUpdateStrategyDie{}).DieFeed(appsv1.DaemonSetUpdateStrategy{})
+
+func (d *DaemonSetUpdateStrategyDie) DieImmutable(immutable bool) *DaemonSetUpdateStrategyDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+func (d *DaemonSetUpdateStrategyDie) DieFeed(r appsv1.DaemonSetUpdateStrategy) *DaemonSetUpdateStrategyDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &DaemonSetUpdateStrategyDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *DaemonSetUpdateStrategyDie) DieFeedPtr(r *appsv1.DaemonSetUpdateStrategy) *DaemonSetUpdateStrategyDie {
+	if r == nil {
+		r = &appsv1.DaemonSetUpdateStrategy{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *DaemonSetUpdateStrategyDie) DieRelease() appsv1.DaemonSetUpdateStrategy {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *DaemonSetUpdateStrategyDie) DieReleasePtr() *appsv1.DaemonSetUpdateStrategy {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *DaemonSetUpdateStrategyDie) DieStamp(fn func(r *appsv1.DaemonSetUpdateStrategy)) *DaemonSetUpdateStrategyDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *DaemonSetUpdateStrategyDie) DeepCopy() *DaemonSetUpdateStrategyDie {
+	r := *d.r.DeepCopy()
+	return &DaemonSetUpdateStrategyDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Type of daemon set update. Can be "RollingUpdate" or "OnDelete". Default is RollingUpdate.
+func (d *DaemonSetUpdateStrategyDie) Type(v appsv1.DaemonSetUpdateStrategyType) *DaemonSetUpdateStrategyDie {
+	return d.DieStamp(func(r *appsv1.DaemonSetUpdateStrategy) {
+		r.Type = v
+	})
+}
+
+// Rolling update config params. Present only if type = "RollingUpdate". --- TODO: Update this to follow our convention for oneOf, whatever we decide it to be. Same as Deployment `strategy.rollingUpdate`. See https://github.com/kubernetes/kubernetes/issues/35345
+func (d *DaemonSetUpdateStrategyDie) RollingUpdate(v *appsv1.RollingUpdateDaemonSet) *DaemonSetUpdateStrategyDie {
+	return d.DieStamp(func(r *appsv1.DaemonSetUpdateStrategy) {
+		r.RollingUpdate = v
+	})
+}
+
+type RollingUpdateDaemonSetDie struct {
+	mutable bool
+	r       appsv1.RollingUpdateDaemonSet
+}
+
+var RollingUpdateDaemonSetBlank = (&RollingUpdateDaemonSetDie{}).DieFeed(appsv1.RollingUpdateDaemonSet{})
+
+func (d *RollingUpdateDaemonSetDie) DieImmutable(immutable bool) *RollingUpdateDaemonSetDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+func (d *RollingUpdateDaemonSetDie) DieFeed(r appsv1.RollingUpdateDaemonSet) *RollingUpdateDaemonSetDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &RollingUpdateDaemonSetDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *RollingUpdateDaemonSetDie) DieFeedPtr(r *appsv1.RollingUpdateDaemonSet) *RollingUpdateDaemonSetDie {
+	if r == nil {
+		r = &appsv1.RollingUpdateDaemonSet{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *RollingUpdateDaemonSetDie) DieRelease() appsv1.RollingUpdateDaemonSet {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *RollingUpdateDaemonSetDie) DieReleasePtr() *appsv1.RollingUpdateDaemonSet {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *RollingUpdateDaemonSetDie) DieStamp(fn func(r *appsv1.RollingUpdateDaemonSet)) *RollingUpdateDaemonSetDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *RollingUpdateDaemonSetDie) DeepCopy() *RollingUpdateDaemonSetDie {
+	r := *d.r.DeepCopy()
+	return &RollingUpdateDaemonSetDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// The maximum number of DaemonSet pods that can be unavailable during the update. Value can be an absolute number (ex: 5) or a percentage of total number of DaemonSet pods at the start of the update (ex: 10%). Absolute number is calculated from percentage by rounding up. This cannot be 0 if MaxSurge is 0 Default value is 1. Example: when this is set to 30%, at most 30% of the total number of nodes that should be running the daemon pod (i.e. status.desiredNumberScheduled) can have their pods stopped for an update at any given time. The update starts by stopping at most 30% of those DaemonSet pods and then brings up new DaemonSet pods in their place. Once the new pods are available, it then proceeds onto other DaemonSet pods, thus ensuring that at least 70% of original number of DaemonSet pods are available at all times during the update.
+func (d *RollingUpdateDaemonSetDie) MaxUnavailable(v *intstr.IntOrString) *RollingUpdateDaemonSetDie {
+	return d.DieStamp(func(r *appsv1.RollingUpdateDaemonSet) {
+		r.MaxUnavailable = v
+	})
+}
+
+func (d *RollingUpdateDaemonSetDie) MaxUnavailableInt(i int) *RollingUpdateDaemonSetDie {
+	return d.DieStamp(func(r *appsv1.RollingUpdateDaemonSet) {
+		v := intstr.FromInt(i)
+		r.MaxUnavailable = &v
+	})
+}
+
+func (d *RollingUpdateDaemonSetDie) MaxUnavailableString(s string) *RollingUpdateDaemonSetDie {
+	return d.DieStamp(func(r *appsv1.RollingUpdateDaemonSet) {
+		v := intstr.FromString(s)
+		r.MaxUnavailable = &v
+	})
+}
+
+// The maximum number of nodes with an existing available DaemonSet pod that can have an updated DaemonSet pod during during an update. Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%). This can not be 0 if MaxUnavailable is 0. Absolute number is calculated from percentage by rounding up to a minimum of 1. Default value is 0. Example: when this is set to 30%, at most 30% of the total number of nodes that should be running the daemon pod (i.e. status.desiredNumberScheduled) can have their a new pod created before the old pod is marked as deleted. The update starts by launching new pods on 30% of nodes. Once an updated pod is available (Ready for at least minReadySeconds) the old DaemonSet pod on that node is marked deleted. If the old pod becomes unavailable for any reason (Ready transitions to false, is evicted, or is drained) an updated pod is immediatedly created on that node without considering surge limits. Allowing surge implies the possibility that the resources consumed by the daemonset on any given node can double if the readiness check fails, and so resource intensive daemonsets should take into account that they may cause evictions during disruption. This is beta field and enabled/disabled by DaemonSetUpdateSurge feature gate.
+func (d *RollingUpdateDaemonSetDie) MaxSurge(v *intstr.IntOrString) *RollingUpdateDaemonSetDie {
+	return d.DieStamp(func(r *appsv1.RollingUpdateDaemonSet) {
+		r.MaxSurge = v
+	})
+}
+
+func (d *RollingUpdateDaemonSetDie) MaxSurgeInt(i int) *RollingUpdateDaemonSetDie {
+	return d.DieStamp(func(r *appsv1.RollingUpdateDaemonSet) {
+		v := intstr.FromInt(i)
+		r.MaxSurge = &v
+	})
+}
+
+func (d *RollingUpdateDaemonSetDie) MaxSurgeString(s string) *RollingUpdateDaemonSetDie {
+	return d.DieStamp(func(r *appsv1.RollingUpdateDaemonSet) {
+		v := intstr.FromString(s)
+		r.MaxSurge = &v
+	})
+}
+
 type DaemonSetStatusDie struct {
 	mutable bool
 	r       appsv1.DaemonSetStatus
@@ -259,11 +460,23 @@ func (d *DaemonSetStatusDie) DieFeed(r appsv1.DaemonSetStatus) *DaemonSetStatusD
 	}
 }
 
+func (d *DaemonSetStatusDie) DieFeedPtr(r *appsv1.DaemonSetStatus) *DaemonSetStatusDie {
+	if r == nil {
+		r = &appsv1.DaemonSetStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *DaemonSetStatusDie) DieRelease() appsv1.DaemonSetStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *DaemonSetStatusDie) DieReleasePtr() *appsv1.DaemonSetStatus {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *DaemonSetStatusDie) DieStamp(fn func(r *appsv1.DaemonSetStatus)) *DaemonSetStatusDie {
@@ -380,11 +593,23 @@ func (d *DeploymentDie) DieFeed(r appsv1.Deployment) *DeploymentDie {
 	}
 }
 
+func (d *DeploymentDie) DieFeedPtr(r *appsv1.Deployment) *DeploymentDie {
+	if r == nil {
+		r = &appsv1.Deployment{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *DeploymentDie) DieRelease() appsv1.Deployment {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *DeploymentDie) DieReleasePtr() *appsv1.Deployment {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *DeploymentDie) DieStamp(fn func(r *appsv1.Deployment)) *DeploymentDie {
@@ -494,11 +719,23 @@ func (d *DeploymentSpecDie) DieFeed(r appsv1.DeploymentSpec) *DeploymentSpecDie 
 	}
 }
 
+func (d *DeploymentSpecDie) DieFeedPtr(r *appsv1.DeploymentSpec) *DeploymentSpecDie {
+	if r == nil {
+		r = &appsv1.DeploymentSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *DeploymentSpecDie) DieRelease() appsv1.DeploymentSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *DeploymentSpecDie) DieReleasePtr() *appsv1.DeploymentSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *DeploymentSpecDie) DieStamp(fn func(r *appsv1.DeploymentSpec)) *DeploymentSpecDie {
@@ -598,11 +835,23 @@ func (d *DeploymentStatusDie) DieFeed(r appsv1.DeploymentStatus) *DeploymentStat
 	}
 }
 
+func (d *DeploymentStatusDie) DieFeedPtr(r *appsv1.DeploymentStatus) *DeploymentStatusDie {
+	if r == nil {
+		r = &appsv1.DeploymentStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *DeploymentStatusDie) DieRelease() appsv1.DeploymentStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *DeploymentStatusDie) DieReleasePtr() *appsv1.DeploymentStatus {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *DeploymentStatusDie) DieStamp(fn func(r *appsv1.DeploymentStatus)) *DeploymentStatusDie {
@@ -705,11 +954,23 @@ func (d *ReplicaSetDie) DieFeed(r appsv1.ReplicaSet) *ReplicaSetDie {
 	}
 }
 
+func (d *ReplicaSetDie) DieFeedPtr(r *appsv1.ReplicaSet) *ReplicaSetDie {
+	if r == nil {
+		r = &appsv1.ReplicaSet{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ReplicaSetDie) DieRelease() appsv1.ReplicaSet {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ReplicaSetDie) DieReleasePtr() *appsv1.ReplicaSet {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ReplicaSetDie) DieStamp(fn func(r *appsv1.ReplicaSet)) *ReplicaSetDie {
@@ -819,11 +1080,23 @@ func (d *ReplicaSetSpecDie) DieFeed(r appsv1.ReplicaSetSpec) *ReplicaSetSpecDie 
 	}
 }
 
+func (d *ReplicaSetSpecDie) DieFeedPtr(r *appsv1.ReplicaSetSpec) *ReplicaSetSpecDie {
+	if r == nil {
+		r = &appsv1.ReplicaSetSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ReplicaSetSpecDie) DieRelease() appsv1.ReplicaSetSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ReplicaSetSpecDie) DieReleasePtr() *appsv1.ReplicaSetSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ReplicaSetSpecDie) DieStamp(fn func(r *appsv1.ReplicaSetSpec)) *ReplicaSetSpecDie {
@@ -895,11 +1168,23 @@ func (d *ReplicaSetStatusDie) DieFeed(r appsv1.ReplicaSetStatus) *ReplicaSetStat
 	}
 }
 
+func (d *ReplicaSetStatusDie) DieFeedPtr(r *appsv1.ReplicaSetStatus) *ReplicaSetStatusDie {
+	if r == nil {
+		r = &appsv1.ReplicaSetStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ReplicaSetStatusDie) DieRelease() appsv1.ReplicaSetStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ReplicaSetStatusDie) DieReleasePtr() *appsv1.ReplicaSetStatus {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ReplicaSetStatusDie) DieStamp(fn func(r *appsv1.ReplicaSetStatus)) *ReplicaSetStatusDie {
@@ -988,11 +1273,23 @@ func (d *StatefulSetDie) DieFeed(r appsv1.StatefulSet) *StatefulSetDie {
 	}
 }
 
+func (d *StatefulSetDie) DieFeedPtr(r *appsv1.StatefulSet) *StatefulSetDie {
+	if r == nil {
+		r = &appsv1.StatefulSet{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *StatefulSetDie) DieRelease() appsv1.StatefulSet {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *StatefulSetDie) DieReleasePtr() *appsv1.StatefulSet {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *StatefulSetDie) DieStamp(fn func(r *appsv1.StatefulSet)) *StatefulSetDie {
@@ -1102,11 +1399,23 @@ func (d *StatefulSetSpecDie) DieFeed(r appsv1.StatefulSetSpec) *StatefulSetSpecD
 	}
 }
 
+func (d *StatefulSetSpecDie) DieFeedPtr(r *appsv1.StatefulSetSpec) *StatefulSetSpecDie {
+	if r == nil {
+		r = &appsv1.StatefulSetSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *StatefulSetSpecDie) DieRelease() appsv1.StatefulSetSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *StatefulSetSpecDie) DieReleasePtr() *appsv1.StatefulSetSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *StatefulSetSpecDie) DieStamp(fn func(r *appsv1.StatefulSetSpec)) *StatefulSetSpecDie {
@@ -1213,11 +1522,23 @@ func (d *StatefulSetStatusDie) DieFeed(r appsv1.StatefulSetStatus) *StatefulSetS
 	}
 }
 
+func (d *StatefulSetStatusDie) DieFeedPtr(r *appsv1.StatefulSetStatus) *StatefulSetStatusDie {
+	if r == nil {
+		r = &appsv1.StatefulSetStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *StatefulSetStatusDie) DieRelease() appsv1.StatefulSetStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *StatefulSetStatusDie) DieReleasePtr() *appsv1.StatefulSetStatus {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *StatefulSetStatusDie) DieStamp(fn func(r *appsv1.StatefulSetStatus)) *StatefulSetStatusDie {

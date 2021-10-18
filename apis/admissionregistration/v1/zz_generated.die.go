@@ -61,11 +61,23 @@ func (d *MutatingWebhookConfigurationDie) DieFeed(r admissionregistrationv1.Muta
 	}
 }
 
+func (d *MutatingWebhookConfigurationDie) DieFeedPtr(r *admissionregistrationv1.MutatingWebhookConfiguration) *MutatingWebhookConfigurationDie {
+	if r == nil {
+		r = &admissionregistrationv1.MutatingWebhookConfiguration{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *MutatingWebhookConfigurationDie) DieRelease() admissionregistrationv1.MutatingWebhookConfiguration {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *MutatingWebhookConfigurationDie) DieReleasePtr() *admissionregistrationv1.MutatingWebhookConfiguration {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *MutatingWebhookConfigurationDie) DieStamp(fn func(r *admissionregistrationv1.MutatingWebhookConfiguration)) *MutatingWebhookConfigurationDie {
@@ -155,11 +167,23 @@ func (d *ValidatingWebhookConfigurationDie) DieFeed(r admissionregistrationv1.Va
 	}
 }
 
+func (d *ValidatingWebhookConfigurationDie) DieFeedPtr(r *admissionregistrationv1.ValidatingWebhookConfiguration) *ValidatingWebhookConfigurationDie {
+	if r == nil {
+		r = &admissionregistrationv1.ValidatingWebhookConfiguration{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ValidatingWebhookConfigurationDie) DieRelease() admissionregistrationv1.ValidatingWebhookConfiguration {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ValidatingWebhookConfigurationDie) DieReleasePtr() *admissionregistrationv1.ValidatingWebhookConfiguration {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ValidatingWebhookConfigurationDie) DieStamp(fn func(r *admissionregistrationv1.ValidatingWebhookConfiguration)) *ValidatingWebhookConfigurationDie {

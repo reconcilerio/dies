@@ -61,11 +61,23 @@ func (d *HorizontalPodAutoscalerDie) DieFeed(r autoscalingv1.HorizontalPodAutosc
 	}
 }
 
+func (d *HorizontalPodAutoscalerDie) DieFeedPtr(r *autoscalingv1.HorizontalPodAutoscaler) *HorizontalPodAutoscalerDie {
+	if r == nil {
+		r = &autoscalingv1.HorizontalPodAutoscaler{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *HorizontalPodAutoscalerDie) DieRelease() autoscalingv1.HorizontalPodAutoscaler {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *HorizontalPodAutoscalerDie) DieReleasePtr() *autoscalingv1.HorizontalPodAutoscaler {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *HorizontalPodAutoscalerDie) DieStamp(fn func(r *autoscalingv1.HorizontalPodAutoscaler)) *HorizontalPodAutoscalerDie {
@@ -175,11 +187,23 @@ func (d *HorizontalPodAutoscalerSpecDie) DieFeed(r autoscalingv1.HorizontalPodAu
 	}
 }
 
+func (d *HorizontalPodAutoscalerSpecDie) DieFeedPtr(r *autoscalingv1.HorizontalPodAutoscalerSpec) *HorizontalPodAutoscalerSpecDie {
+	if r == nil {
+		r = &autoscalingv1.HorizontalPodAutoscalerSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *HorizontalPodAutoscalerSpecDie) DieRelease() autoscalingv1.HorizontalPodAutoscalerSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *HorizontalPodAutoscalerSpecDie) DieReleasePtr() *autoscalingv1.HorizontalPodAutoscalerSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *HorizontalPodAutoscalerSpecDie) DieStamp(fn func(r *autoscalingv1.HorizontalPodAutoscalerSpec)) *HorizontalPodAutoscalerSpecDie {
@@ -251,11 +275,23 @@ func (d *HorizontalPodAutoscalerStatusDie) DieFeed(r autoscalingv1.HorizontalPod
 	}
 }
 
+func (d *HorizontalPodAutoscalerStatusDie) DieFeedPtr(r *autoscalingv1.HorizontalPodAutoscalerStatus) *HorizontalPodAutoscalerStatusDie {
+	if r == nil {
+		r = &autoscalingv1.HorizontalPodAutoscalerStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *HorizontalPodAutoscalerStatusDie) DieRelease() autoscalingv1.HorizontalPodAutoscalerStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *HorizontalPodAutoscalerStatusDie) DieReleasePtr() *autoscalingv1.HorizontalPodAutoscalerStatus {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *HorizontalPodAutoscalerStatusDie) DieStamp(fn func(r *autoscalingv1.HorizontalPodAutoscalerStatus)) *HorizontalPodAutoscalerStatusDie {

@@ -7,11 +7,11 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 - [Using dies](#using-dies)
-	- [Common methods](#common-methods)
+  - [Common methods](#common-methods)
 - [Creating dies](#creating-dies)
-	- [diegen](#diegen)
-	- [die markers](#die-markers)
-		- [+die](#die)
+  - [diegen](#diegen)
+  - [die markers](#die-markers)
+    - [+die](#die)
 
 ---
 
@@ -113,8 +113,15 @@ func (d *<T>Die) DieStamp(fn func(r *<T>)) *<T>Die
 // DieFeed returns a new die with the provided resource.
 func (d *<T>Die) DieFeed(r <T>) *D<T>Die
 
+// DieFeedPtr returns a new die with the provided resource pointer. If the
+// resource is nil, the empty value is used instead.
+func (d *<T>Die) DieFeedPtr(r *<T>) *D<T>Die
+
 // DieRelease returns the resource managed by the die.
 func (d *<T>Die) DieRelease() <T>
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *<T>Die) DieReleasePtr() *<T>
 
 // DieImmutable returns a new die for the current die's state that is either
 // mutable (`false`) or immutable (`true`). 

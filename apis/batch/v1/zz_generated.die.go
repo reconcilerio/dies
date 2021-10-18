@@ -62,11 +62,23 @@ func (d *CronJobDie) DieFeed(r batchv1.CronJob) *CronJobDie {
 	}
 }
 
+func (d *CronJobDie) DieFeedPtr(r *batchv1.CronJob) *CronJobDie {
+	if r == nil {
+		r = &batchv1.CronJob{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *CronJobDie) DieRelease() batchv1.CronJob {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *CronJobDie) DieReleasePtr() *batchv1.CronJob {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *CronJobDie) DieStamp(fn func(r *batchv1.CronJob)) *CronJobDie {
@@ -176,11 +188,23 @@ func (d *CronJobSpecDie) DieFeed(r batchv1.CronJobSpec) *CronJobSpecDie {
 	}
 }
 
+func (d *CronJobSpecDie) DieFeedPtr(r *batchv1.CronJobSpec) *CronJobSpecDie {
+	if r == nil {
+		r = &batchv1.CronJobSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *CronJobSpecDie) DieRelease() batchv1.CronJobSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *CronJobSpecDie) DieReleasePtr() *batchv1.CronJobSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *CronJobSpecDie) DieStamp(fn func(r *batchv1.CronJobSpec)) *CronJobSpecDie {
@@ -273,11 +297,23 @@ func (d *CronJobStatusDie) DieFeed(r batchv1.CronJobStatus) *CronJobStatusDie {
 	}
 }
 
+func (d *CronJobStatusDie) DieFeedPtr(r *batchv1.CronJobStatus) *CronJobStatusDie {
+	if r == nil {
+		r = &batchv1.CronJobStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *CronJobStatusDie) DieRelease() batchv1.CronJobStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *CronJobStatusDie) DieReleasePtr() *batchv1.CronJobStatus {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *CronJobStatusDie) DieStamp(fn func(r *batchv1.CronJobStatus)) *CronJobStatusDie {
@@ -345,11 +381,23 @@ func (d *JobDie) DieFeed(r batchv1.Job) *JobDie {
 	}
 }
 
+func (d *JobDie) DieFeedPtr(r *batchv1.Job) *JobDie {
+	if r == nil {
+		r = &batchv1.Job{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *JobDie) DieRelease() batchv1.Job {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *JobDie) DieReleasePtr() *batchv1.Job {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *JobDie) DieStamp(fn func(r *batchv1.Job)) *JobDie {
@@ -459,11 +507,23 @@ func (d *JobSpecDie) DieFeed(r batchv1.JobSpec) *JobSpecDie {
 	}
 }
 
+func (d *JobSpecDie) DieFeedPtr(r *batchv1.JobSpec) *JobSpecDie {
+	if r == nil {
+		r = &batchv1.JobSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *JobSpecDie) DieRelease() batchv1.JobSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *JobSpecDie) DieReleasePtr() *batchv1.JobSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *JobSpecDie) DieStamp(fn func(r *batchv1.JobSpec)) *JobSpecDie {
@@ -585,11 +645,23 @@ func (d *JobStatusDie) DieFeed(r batchv1.JobStatus) *JobStatusDie {
 	}
 }
 
+func (d *JobStatusDie) DieFeedPtr(r *batchv1.JobStatus) *JobStatusDie {
+	if r == nil {
+		r = &batchv1.JobStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *JobStatusDie) DieRelease() batchv1.JobStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *JobStatusDie) DieReleasePtr() *batchv1.JobStatus {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *JobStatusDie) DieStamp(fn func(r *batchv1.JobStatus)) *JobStatusDie {

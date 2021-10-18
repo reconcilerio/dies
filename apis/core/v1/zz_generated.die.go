@@ -62,11 +62,23 @@ func (d *ConfigMapDie) DieFeed(r corev1.ConfigMap) *ConfigMapDie {
 	}
 }
 
+func (d *ConfigMapDie) DieFeedPtr(r *corev1.ConfigMap) *ConfigMapDie {
+	if r == nil {
+		r = &corev1.ConfigMap{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ConfigMapDie) DieRelease() corev1.ConfigMap {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ConfigMapDie) DieReleasePtr() *corev1.ConfigMap {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ConfigMapDie) DieStamp(fn func(r *corev1.ConfigMap)) *ConfigMapDie {
@@ -153,11 +165,23 @@ func (d *ContainerDie) DieFeed(r corev1.Container) *ContainerDie {
 	}
 }
 
+func (d *ContainerDie) DieFeedPtr(r *corev1.Container) *ContainerDie {
+	if r == nil {
+		r = &corev1.Container{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ContainerDie) DieRelease() corev1.Container {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ContainerDie) DieReleasePtr() *corev1.Container {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ContainerDie) DieStamp(fn func(r *corev1.Container)) *ContainerDie {
@@ -358,11 +382,23 @@ func (d *EndpointsDie) DieFeed(r corev1.Endpoints) *EndpointsDie {
 	}
 }
 
+func (d *EndpointsDie) DieFeedPtr(r *corev1.Endpoints) *EndpointsDie {
+	if r == nil {
+		r = &corev1.Endpoints{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *EndpointsDie) DieRelease() corev1.Endpoints {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *EndpointsDie) DieReleasePtr() *corev1.Endpoints {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *EndpointsDie) DieStamp(fn func(r *corev1.Endpoints)) *EndpointsDie {
@@ -452,11 +488,23 @@ func (d *EventDie) DieFeed(r corev1.Event) *EventDie {
 	}
 }
 
+func (d *EventDie) DieFeedPtr(r *corev1.Event) *EventDie {
+	if r == nil {
+		r = &corev1.Event{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *EventDie) DieRelease() corev1.Event {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *EventDie) DieReleasePtr() *corev1.Event {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *EventDie) DieStamp(fn func(r *corev1.Event)) *EventDie {
@@ -637,11 +685,23 @@ func (d *LimitRangeDie) DieFeed(r corev1.LimitRange) *LimitRangeDie {
 	}
 }
 
+func (d *LimitRangeDie) DieFeedPtr(r *corev1.LimitRange) *LimitRangeDie {
+	if r == nil {
+		r = &corev1.LimitRange{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *LimitRangeDie) DieRelease() corev1.LimitRange {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *LimitRangeDie) DieReleasePtr() *corev1.LimitRange {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *LimitRangeDie) DieStamp(fn func(r *corev1.LimitRange)) *LimitRangeDie {
@@ -736,11 +796,23 @@ func (d *LimitRangeSpecDie) DieFeed(r corev1.LimitRangeSpec) *LimitRangeSpecDie 
 	}
 }
 
+func (d *LimitRangeSpecDie) DieFeedPtr(r *corev1.LimitRangeSpec) *LimitRangeSpecDie {
+	if r == nil {
+		r = &corev1.LimitRangeSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *LimitRangeSpecDie) DieRelease() corev1.LimitRangeSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *LimitRangeSpecDie) DieReleasePtr() *corev1.LimitRangeSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *LimitRangeSpecDie) DieStamp(fn func(r *corev1.LimitRangeSpec)) *LimitRangeSpecDie {
@@ -794,11 +866,23 @@ func (d *NamespaceDie) DieFeed(r corev1.Namespace) *NamespaceDie {
 	}
 }
 
+func (d *NamespaceDie) DieFeedPtr(r *corev1.Namespace) *NamespaceDie {
+	if r == nil {
+		r = &corev1.Namespace{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *NamespaceDie) DieRelease() corev1.Namespace {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *NamespaceDie) DieReleasePtr() *corev1.Namespace {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *NamespaceDie) DieStamp(fn func(r *corev1.Namespace)) *NamespaceDie {
@@ -908,11 +992,23 @@ func (d *NamespaceSpecDie) DieFeed(r corev1.NamespaceSpec) *NamespaceSpecDie {
 	}
 }
 
+func (d *NamespaceSpecDie) DieFeedPtr(r *corev1.NamespaceSpec) *NamespaceSpecDie {
+	if r == nil {
+		r = &corev1.NamespaceSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *NamespaceSpecDie) DieRelease() corev1.NamespaceSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *NamespaceSpecDie) DieReleasePtr() *corev1.NamespaceSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *NamespaceSpecDie) DieStamp(fn func(r *corev1.NamespaceSpec)) *NamespaceSpecDie {
@@ -963,11 +1059,23 @@ func (d *NamespaceStatusDie) DieFeed(r corev1.NamespaceStatus) *NamespaceStatusD
 	}
 }
 
+func (d *NamespaceStatusDie) DieFeedPtr(r *corev1.NamespaceStatus) *NamespaceStatusDie {
+	if r == nil {
+		r = &corev1.NamespaceStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *NamespaceStatusDie) DieRelease() corev1.NamespaceStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *NamespaceStatusDie) DieReleasePtr() *corev1.NamespaceStatus {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *NamespaceStatusDie) DieStamp(fn func(r *corev1.NamespaceStatus)) *NamespaceStatusDie {
@@ -1028,11 +1136,23 @@ func (d *NodeDie) DieFeed(r corev1.Node) *NodeDie {
 	}
 }
 
+func (d *NodeDie) DieFeedPtr(r *corev1.Node) *NodeDie {
+	if r == nil {
+		r = &corev1.Node{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *NodeDie) DieRelease() corev1.Node {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *NodeDie) DieReleasePtr() *corev1.Node {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *NodeDie) DieStamp(fn func(r *corev1.Node)) *NodeDie {
@@ -1142,11 +1262,23 @@ func (d *NodeSpecDie) DieFeed(r corev1.NodeSpec) *NodeSpecDie {
 	}
 }
 
+func (d *NodeSpecDie) DieFeedPtr(r *corev1.NodeSpec) *NodeSpecDie {
+	if r == nil {
+		r = &corev1.NodeSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *NodeSpecDie) DieRelease() corev1.NodeSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *NodeSpecDie) DieReleasePtr() *corev1.NodeSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *NodeSpecDie) DieStamp(fn func(r *corev1.NodeSpec)) *NodeSpecDie {
@@ -1239,11 +1371,23 @@ func (d *NodeStatusDie) DieFeed(r corev1.NodeStatus) *NodeStatusDie {
 	}
 }
 
+func (d *NodeStatusDie) DieFeedPtr(r *corev1.NodeStatus) *NodeStatusDie {
+	if r == nil {
+		r = &corev1.NodeStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *NodeStatusDie) DieRelease() corev1.NodeStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *NodeStatusDie) DieReleasePtr() *corev1.NodeStatus {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *NodeStatusDie) DieStamp(fn func(r *corev1.NodeStatus)) *NodeStatusDie {
@@ -1367,11 +1511,23 @@ func (d *PersistentVolumeDie) DieFeed(r corev1.PersistentVolume) *PersistentVolu
 	}
 }
 
+func (d *PersistentVolumeDie) DieFeedPtr(r *corev1.PersistentVolume) *PersistentVolumeDie {
+	if r == nil {
+		r = &corev1.PersistentVolume{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *PersistentVolumeDie) DieRelease() corev1.PersistentVolume {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *PersistentVolumeDie) DieReleasePtr() *corev1.PersistentVolume {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *PersistentVolumeDie) DieStamp(fn func(r *corev1.PersistentVolume)) *PersistentVolumeDie {
@@ -1481,11 +1637,23 @@ func (d *PersistentVolumeSpecDie) DieFeed(r corev1.PersistentVolumeSpec) *Persis
 	}
 }
 
+func (d *PersistentVolumeSpecDie) DieFeedPtr(r *corev1.PersistentVolumeSpec) *PersistentVolumeSpecDie {
+	if r == nil {
+		r = &corev1.PersistentVolumeSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *PersistentVolumeSpecDie) DieRelease() corev1.PersistentVolumeSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *PersistentVolumeSpecDie) DieReleasePtr() *corev1.PersistentVolumeSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *PersistentVolumeSpecDie) DieStamp(fn func(r *corev1.PersistentVolumeSpec)) *PersistentVolumeSpecDie {
@@ -1592,11 +1760,23 @@ func (d *PersistentVolumeStatusDie) DieFeed(r corev1.PersistentVolumeStatus) *Pe
 	}
 }
 
+func (d *PersistentVolumeStatusDie) DieFeedPtr(r *corev1.PersistentVolumeStatus) *PersistentVolumeStatusDie {
+	if r == nil {
+		r = &corev1.PersistentVolumeStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *PersistentVolumeStatusDie) DieRelease() corev1.PersistentVolumeStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *PersistentVolumeStatusDie) DieReleasePtr() *corev1.PersistentVolumeStatus {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *PersistentVolumeStatusDie) DieStamp(fn func(r *corev1.PersistentVolumeStatus)) *PersistentVolumeStatusDie {
@@ -1661,11 +1841,23 @@ func (d *GlusterfsPersistentVolumeSourceDie) DieFeed(r corev1.GlusterfsPersisten
 	}
 }
 
+func (d *GlusterfsPersistentVolumeSourceDie) DieFeedPtr(r *corev1.GlusterfsPersistentVolumeSource) *GlusterfsPersistentVolumeSourceDie {
+	if r == nil {
+		r = &corev1.GlusterfsPersistentVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *GlusterfsPersistentVolumeSourceDie) DieRelease() corev1.GlusterfsPersistentVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *GlusterfsPersistentVolumeSourceDie) DieReleasePtr() *corev1.GlusterfsPersistentVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *GlusterfsPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.GlusterfsPersistentVolumeSource)) *GlusterfsPersistentVolumeSourceDie {
@@ -1737,11 +1929,23 @@ func (d *RBDPersistentVolumeSourceDie) DieFeed(r corev1.RBDPersistentVolumeSourc
 	}
 }
 
+func (d *RBDPersistentVolumeSourceDie) DieFeedPtr(r *corev1.RBDPersistentVolumeSource) *RBDPersistentVolumeSourceDie {
+	if r == nil {
+		r = &corev1.RBDPersistentVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *RBDPersistentVolumeSourceDie) DieRelease() corev1.RBDPersistentVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *RBDPersistentVolumeSourceDie) DieReleasePtr() *corev1.RBDPersistentVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *RBDPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.RBDPersistentVolumeSource)) *RBDPersistentVolumeSourceDie {
@@ -1841,11 +2045,23 @@ func (d *ISCSIPersistentVolumeSourceDie) DieFeed(r corev1.ISCSIPersistentVolumeS
 	}
 }
 
+func (d *ISCSIPersistentVolumeSourceDie) DieFeedPtr(r *corev1.ISCSIPersistentVolumeSource) *ISCSIPersistentVolumeSourceDie {
+	if r == nil {
+		r = &corev1.ISCSIPersistentVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ISCSIPersistentVolumeSourceDie) DieRelease() corev1.ISCSIPersistentVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ISCSIPersistentVolumeSourceDie) DieReleasePtr() *corev1.ISCSIPersistentVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ISCSIPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.ISCSIPersistentVolumeSource)) *ISCSIPersistentVolumeSourceDie {
@@ -1966,11 +2182,23 @@ func (d *CinderPersistentVolumeSourceDie) DieFeed(r corev1.CinderPersistentVolum
 	}
 }
 
+func (d *CinderPersistentVolumeSourceDie) DieFeedPtr(r *corev1.CinderPersistentVolumeSource) *CinderPersistentVolumeSourceDie {
+	if r == nil {
+		r = &corev1.CinderPersistentVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *CinderPersistentVolumeSourceDie) DieRelease() corev1.CinderPersistentVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *CinderPersistentVolumeSourceDie) DieReleasePtr() *corev1.CinderPersistentVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *CinderPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.CinderPersistentVolumeSource)) *CinderPersistentVolumeSourceDie {
@@ -2042,11 +2270,23 @@ func (d *CephFSPersistentVolumeSourceDie) DieFeed(r corev1.CephFSPersistentVolum
 	}
 }
 
+func (d *CephFSPersistentVolumeSourceDie) DieFeedPtr(r *corev1.CephFSPersistentVolumeSource) *CephFSPersistentVolumeSourceDie {
+	if r == nil {
+		r = &corev1.CephFSPersistentVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *CephFSPersistentVolumeSourceDie) DieRelease() corev1.CephFSPersistentVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *CephFSPersistentVolumeSourceDie) DieReleasePtr() *corev1.CephFSPersistentVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *CephFSPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.CephFSPersistentVolumeSource)) *CephFSPersistentVolumeSourceDie {
@@ -2132,11 +2372,23 @@ func (d *FlexPersistentVolumeSourceDie) DieFeed(r corev1.FlexPersistentVolumeSou
 	}
 }
 
+func (d *FlexPersistentVolumeSourceDie) DieFeedPtr(r *corev1.FlexPersistentVolumeSource) *FlexPersistentVolumeSourceDie {
+	if r == nil {
+		r = &corev1.FlexPersistentVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *FlexPersistentVolumeSourceDie) DieRelease() corev1.FlexPersistentVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *FlexPersistentVolumeSourceDie) DieReleasePtr() *corev1.FlexPersistentVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *FlexPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.FlexPersistentVolumeSource)) *FlexPersistentVolumeSourceDie {
@@ -2215,11 +2467,23 @@ func (d *AzureFilePersistentVolumeSourceDie) DieFeed(r corev1.AzureFilePersisten
 	}
 }
 
+func (d *AzureFilePersistentVolumeSourceDie) DieFeedPtr(r *corev1.AzureFilePersistentVolumeSource) *AzureFilePersistentVolumeSourceDie {
+	if r == nil {
+		r = &corev1.AzureFilePersistentVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *AzureFilePersistentVolumeSourceDie) DieRelease() corev1.AzureFilePersistentVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *AzureFilePersistentVolumeSourceDie) DieReleasePtr() *corev1.AzureFilePersistentVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *AzureFilePersistentVolumeSourceDie) DieStamp(fn func(r *corev1.AzureFilePersistentVolumeSource)) *AzureFilePersistentVolumeSourceDie {
@@ -2291,11 +2555,23 @@ func (d *ScaleIOPersistentVolumeSourceDie) DieFeed(r corev1.ScaleIOPersistentVol
 	}
 }
 
+func (d *ScaleIOPersistentVolumeSourceDie) DieFeedPtr(r *corev1.ScaleIOPersistentVolumeSource) *ScaleIOPersistentVolumeSourceDie {
+	if r == nil {
+		r = &corev1.ScaleIOPersistentVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ScaleIOPersistentVolumeSourceDie) DieRelease() corev1.ScaleIOPersistentVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ScaleIOPersistentVolumeSourceDie) DieReleasePtr() *corev1.ScaleIOPersistentVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ScaleIOPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.ScaleIOPersistentVolumeSource)) *ScaleIOPersistentVolumeSourceDie {
@@ -2409,11 +2685,23 @@ func (d *LocalVolumeSourceDie) DieFeed(r corev1.LocalVolumeSource) *LocalVolumeS
 	}
 }
 
+func (d *LocalVolumeSourceDie) DieFeedPtr(r *corev1.LocalVolumeSource) *LocalVolumeSourceDie {
+	if r == nil {
+		r = &corev1.LocalVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *LocalVolumeSourceDie) DieRelease() corev1.LocalVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *LocalVolumeSourceDie) DieReleasePtr() *corev1.LocalVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *LocalVolumeSourceDie) DieStamp(fn func(r *corev1.LocalVolumeSource)) *LocalVolumeSourceDie {
@@ -2471,11 +2759,23 @@ func (d *StorageOSPersistentVolumeSourceDie) DieFeed(r corev1.StorageOSPersisten
 	}
 }
 
+func (d *StorageOSPersistentVolumeSourceDie) DieFeedPtr(r *corev1.StorageOSPersistentVolumeSource) *StorageOSPersistentVolumeSourceDie {
+	if r == nil {
+		r = &corev1.StorageOSPersistentVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *StorageOSPersistentVolumeSourceDie) DieRelease() corev1.StorageOSPersistentVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *StorageOSPersistentVolumeSourceDie) DieReleasePtr() *corev1.StorageOSPersistentVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *StorageOSPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.StorageOSPersistentVolumeSource)) *StorageOSPersistentVolumeSourceDie {
@@ -2554,11 +2854,23 @@ func (d *CSIPersistentVolumeSourceDie) DieFeed(r corev1.CSIPersistentVolumeSourc
 	}
 }
 
+func (d *CSIPersistentVolumeSourceDie) DieFeedPtr(r *corev1.CSIPersistentVolumeSource) *CSIPersistentVolumeSourceDie {
+	if r == nil {
+		r = &corev1.CSIPersistentVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *CSIPersistentVolumeSourceDie) DieRelease() corev1.CSIPersistentVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *CSIPersistentVolumeSourceDie) DieReleasePtr() *corev1.CSIPersistentVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *CSIPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.CSIPersistentVolumeSource)) *CSIPersistentVolumeSourceDie {
@@ -2668,11 +2980,23 @@ func (d *PersistentVolumeClaimDie) DieFeed(r corev1.PersistentVolumeClaim) *Pers
 	}
 }
 
+func (d *PersistentVolumeClaimDie) DieFeedPtr(r *corev1.PersistentVolumeClaim) *PersistentVolumeClaimDie {
+	if r == nil {
+		r = &corev1.PersistentVolumeClaim{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *PersistentVolumeClaimDie) DieRelease() corev1.PersistentVolumeClaim {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *PersistentVolumeClaimDie) DieReleasePtr() *corev1.PersistentVolumeClaim {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *PersistentVolumeClaimDie) DieStamp(fn func(r *corev1.PersistentVolumeClaim)) *PersistentVolumeClaimDie {
@@ -2782,11 +3106,23 @@ func (d *PersistentVolumeClaimSpecDie) DieFeed(r corev1.PersistentVolumeClaimSpe
 	}
 }
 
+func (d *PersistentVolumeClaimSpecDie) DieFeedPtr(r *corev1.PersistentVolumeClaimSpec) *PersistentVolumeClaimSpecDie {
+	if r == nil {
+		r = &corev1.PersistentVolumeClaimSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *PersistentVolumeClaimSpecDie) DieRelease() corev1.PersistentVolumeClaimSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *PersistentVolumeClaimSpecDie) DieReleasePtr() *corev1.PersistentVolumeClaimSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *PersistentVolumeClaimSpecDie) DieStamp(fn func(r *corev1.PersistentVolumeClaimSpec)) *PersistentVolumeClaimSpecDie {
@@ -2886,11 +3222,23 @@ func (d *PersistentVolumeClaimStatusDie) DieFeed(r corev1.PersistentVolumeClaimS
 	}
 }
 
+func (d *PersistentVolumeClaimStatusDie) DieFeedPtr(r *corev1.PersistentVolumeClaimStatus) *PersistentVolumeClaimStatusDie {
+	if r == nil {
+		r = &corev1.PersistentVolumeClaimStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *PersistentVolumeClaimStatusDie) DieRelease() corev1.PersistentVolumeClaimStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *PersistentVolumeClaimStatusDie) DieReleasePtr() *corev1.PersistentVolumeClaimStatus {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *PersistentVolumeClaimStatusDie) DieStamp(fn func(r *corev1.PersistentVolumeClaimStatus)) *PersistentVolumeClaimStatusDie {
@@ -2965,11 +3313,23 @@ func (d *PodDie) DieFeed(r corev1.Pod) *PodDie {
 	}
 }
 
+func (d *PodDie) DieFeedPtr(r *corev1.Pod) *PodDie {
+	if r == nil {
+		r = &corev1.Pod{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *PodDie) DieRelease() corev1.Pod {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *PodDie) DieReleasePtr() *corev1.Pod {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *PodDie) DieStamp(fn func(r *corev1.Pod)) *PodDie {
@@ -3079,11 +3439,23 @@ func (d *PodSpecDie) DieFeed(r corev1.PodSpec) *PodSpecDie {
 	}
 }
 
+func (d *PodSpecDie) DieFeedPtr(r *corev1.PodSpec) *PodSpecDie {
+	if r == nil {
+		r = &corev1.PodSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *PodSpecDie) DieRelease() corev1.PodSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *PodSpecDie) DieReleasePtr() *corev1.PodSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *PodSpecDie) DieStamp(fn func(r *corev1.PodSpec)) *PodSpecDie {
@@ -3372,11 +3744,23 @@ func (d *PodStatusDie) DieFeed(r corev1.PodStatus) *PodStatusDie {
 	}
 }
 
+func (d *PodStatusDie) DieFeedPtr(r *corev1.PodStatus) *PodStatusDie {
+	if r == nil {
+		r = &corev1.PodStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *PodStatusDie) DieRelease() corev1.PodStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *PodStatusDie) DieReleasePtr() *corev1.PodStatus {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *PodStatusDie) DieStamp(fn func(r *corev1.PodStatus)) *PodStatusDie {
@@ -3515,11 +3899,23 @@ func (d *PodTemplateSpecDie) DieFeed(r corev1.PodTemplateSpec) *PodTemplateSpecD
 	}
 }
 
+func (d *PodTemplateSpecDie) DieFeedPtr(r *corev1.PodTemplateSpec) *PodTemplateSpecDie {
+	if r == nil {
+		r = &corev1.PodTemplateSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *PodTemplateSpecDie) DieRelease() corev1.PodTemplateSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *PodTemplateSpecDie) DieReleasePtr() *corev1.PodTemplateSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *PodTemplateSpecDie) DieStamp(fn func(r *corev1.PodTemplateSpec)) *PodTemplateSpecDie {
@@ -3580,11 +3976,23 @@ func (d *ResourceQuotaDie) DieFeed(r corev1.ResourceQuota) *ResourceQuotaDie {
 	}
 }
 
+func (d *ResourceQuotaDie) DieFeedPtr(r *corev1.ResourceQuota) *ResourceQuotaDie {
+	if r == nil {
+		r = &corev1.ResourceQuota{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ResourceQuotaDie) DieRelease() corev1.ResourceQuota {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ResourceQuotaDie) DieReleasePtr() *corev1.ResourceQuota {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ResourceQuotaDie) DieStamp(fn func(r *corev1.ResourceQuota)) *ResourceQuotaDie {
@@ -3694,11 +4102,23 @@ func (d *ResourceQuotaSpecDie) DieFeed(r corev1.ResourceQuotaSpec) *ResourceQuot
 	}
 }
 
+func (d *ResourceQuotaSpecDie) DieFeedPtr(r *corev1.ResourceQuotaSpec) *ResourceQuotaSpecDie {
+	if r == nil {
+		r = &corev1.ResourceQuotaSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ResourceQuotaSpecDie) DieRelease() corev1.ResourceQuotaSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ResourceQuotaSpecDie) DieReleasePtr() *corev1.ResourceQuotaSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ResourceQuotaSpecDie) DieStamp(fn func(r *corev1.ResourceQuotaSpec)) *ResourceQuotaSpecDie {
@@ -3763,11 +4183,23 @@ func (d *ResourceQuotaStatusDie) DieFeed(r corev1.ResourceQuotaStatus) *Resource
 	}
 }
 
+func (d *ResourceQuotaStatusDie) DieFeedPtr(r *corev1.ResourceQuotaStatus) *ResourceQuotaStatusDie {
+	if r == nil {
+		r = &corev1.ResourceQuotaStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ResourceQuotaStatusDie) DieRelease() corev1.ResourceQuotaStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ResourceQuotaStatusDie) DieReleasePtr() *corev1.ResourceQuotaStatus {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ResourceQuotaStatusDie) DieStamp(fn func(r *corev1.ResourceQuotaStatus)) *ResourceQuotaStatusDie {
@@ -3828,11 +4260,23 @@ func (d *SecretDie) DieFeed(r corev1.Secret) *SecretDie {
 	}
 }
 
+func (d *SecretDie) DieFeedPtr(r *corev1.Secret) *SecretDie {
+	if r == nil {
+		r = &corev1.Secret{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *SecretDie) DieRelease() corev1.Secret {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *SecretDie) DieReleasePtr() *corev1.Secret {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *SecretDie) DieStamp(fn func(r *corev1.Secret)) *SecretDie {
@@ -3929,11 +4373,23 @@ func (d *ServiceDie) DieFeed(r corev1.Service) *ServiceDie {
 	}
 }
 
+func (d *ServiceDie) DieFeedPtr(r *corev1.Service) *ServiceDie {
+	if r == nil {
+		r = &corev1.Service{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ServiceDie) DieRelease() corev1.Service {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ServiceDie) DieReleasePtr() *corev1.Service {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ServiceDie) DieStamp(fn func(r *corev1.Service)) *ServiceDie {
@@ -4043,11 +4499,23 @@ func (d *ServiceSpecDie) DieFeed(r corev1.ServiceSpec) *ServiceSpecDie {
 	}
 }
 
+func (d *ServiceSpecDie) DieFeedPtr(r *corev1.ServiceSpec) *ServiceSpecDie {
+	if r == nil {
+		r = &corev1.ServiceSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ServiceSpecDie) DieRelease() corev1.ServiceSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ServiceSpecDie) DieReleasePtr() *corev1.ServiceSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ServiceSpecDie) DieStamp(fn func(r *corev1.ServiceSpec)) *ServiceSpecDie {
@@ -4228,11 +4696,23 @@ func (d *ServiceStatusDie) DieFeed(r corev1.ServiceStatus) *ServiceStatusDie {
 	}
 }
 
+func (d *ServiceStatusDie) DieFeedPtr(r *corev1.ServiceStatus) *ServiceStatusDie {
+	if r == nil {
+		r = &corev1.ServiceStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ServiceStatusDie) DieRelease() corev1.ServiceStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ServiceStatusDie) DieReleasePtr() *corev1.ServiceStatus {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ServiceStatusDie) DieStamp(fn func(r *corev1.ServiceStatus)) *ServiceStatusDie {
@@ -4293,11 +4773,23 @@ func (d *ServiceAccountDie) DieFeed(r corev1.ServiceAccount) *ServiceAccountDie 
 	}
 }
 
+func (d *ServiceAccountDie) DieFeedPtr(r *corev1.ServiceAccount) *ServiceAccountDie {
+	if r == nil {
+		r = &corev1.ServiceAccount{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ServiceAccountDie) DieRelease() corev1.ServiceAccount {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ServiceAccountDie) DieReleasePtr() *corev1.ServiceAccount {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ServiceAccountDie) DieStamp(fn func(r *corev1.ServiceAccount)) *ServiceAccountDie {
@@ -4398,11 +4890,23 @@ func (d *VolumeDie) DieFeed(r corev1.Volume) *VolumeDie {
 	}
 }
 
+func (d *VolumeDie) DieFeedPtr(r *corev1.Volume) *VolumeDie {
+	if r == nil {
+		r = &corev1.Volume{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *VolumeDie) DieRelease() corev1.Volume {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *VolumeDie) DieReleasePtr() *corev1.Volume {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *VolumeDie) DieStamp(fn func(r *corev1.Volume)) *VolumeDie {
@@ -4460,11 +4964,23 @@ func (d *HostPathVolumeSourceDie) DieFeed(r corev1.HostPathVolumeSource) *HostPa
 	}
 }
 
+func (d *HostPathVolumeSourceDie) DieFeedPtr(r *corev1.HostPathVolumeSource) *HostPathVolumeSourceDie {
+	if r == nil {
+		r = &corev1.HostPathVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *HostPathVolumeSourceDie) DieRelease() corev1.HostPathVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *HostPathVolumeSourceDie) DieReleasePtr() *corev1.HostPathVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *HostPathVolumeSourceDie) DieStamp(fn func(r *corev1.HostPathVolumeSource)) *HostPathVolumeSourceDie {
@@ -4522,11 +5038,23 @@ func (d *EmptyDirVolumeSourceDie) DieFeed(r corev1.EmptyDirVolumeSource) *EmptyD
 	}
 }
 
+func (d *EmptyDirVolumeSourceDie) DieFeedPtr(r *corev1.EmptyDirVolumeSource) *EmptyDirVolumeSourceDie {
+	if r == nil {
+		r = &corev1.EmptyDirVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *EmptyDirVolumeSourceDie) DieRelease() corev1.EmptyDirVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *EmptyDirVolumeSourceDie) DieReleasePtr() *corev1.EmptyDirVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *EmptyDirVolumeSourceDie) DieStamp(fn func(r *corev1.EmptyDirVolumeSource)) *EmptyDirVolumeSourceDie {
@@ -4584,11 +5112,23 @@ func (d *GCEPersistentDiskVolumeSourceDie) DieFeed(r corev1.GCEPersistentDiskVol
 	}
 }
 
+func (d *GCEPersistentDiskVolumeSourceDie) DieFeedPtr(r *corev1.GCEPersistentDiskVolumeSource) *GCEPersistentDiskVolumeSourceDie {
+	if r == nil {
+		r = &corev1.GCEPersistentDiskVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *GCEPersistentDiskVolumeSourceDie) DieRelease() corev1.GCEPersistentDiskVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *GCEPersistentDiskVolumeSourceDie) DieReleasePtr() *corev1.GCEPersistentDiskVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *GCEPersistentDiskVolumeSourceDie) DieStamp(fn func(r *corev1.GCEPersistentDiskVolumeSource)) *GCEPersistentDiskVolumeSourceDie {
@@ -4660,11 +5200,23 @@ func (d *AWSElasticBlockStoreVolumeSourceDie) DieFeed(r corev1.AWSElasticBlockSt
 	}
 }
 
+func (d *AWSElasticBlockStoreVolumeSourceDie) DieFeedPtr(r *corev1.AWSElasticBlockStoreVolumeSource) *AWSElasticBlockStoreVolumeSourceDie {
+	if r == nil {
+		r = &corev1.AWSElasticBlockStoreVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *AWSElasticBlockStoreVolumeSourceDie) DieRelease() corev1.AWSElasticBlockStoreVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *AWSElasticBlockStoreVolumeSourceDie) DieReleasePtr() *corev1.AWSElasticBlockStoreVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *AWSElasticBlockStoreVolumeSourceDie) DieStamp(fn func(r *corev1.AWSElasticBlockStoreVolumeSource)) *AWSElasticBlockStoreVolumeSourceDie {
@@ -4736,11 +5288,23 @@ func (d *GitRepoVolumeSourceDie) DieFeed(r corev1.GitRepoVolumeSource) *GitRepoV
 	}
 }
 
+func (d *GitRepoVolumeSourceDie) DieFeedPtr(r *corev1.GitRepoVolumeSource) *GitRepoVolumeSourceDie {
+	if r == nil {
+		r = &corev1.GitRepoVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *GitRepoVolumeSourceDie) DieRelease() corev1.GitRepoVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *GitRepoVolumeSourceDie) DieReleasePtr() *corev1.GitRepoVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *GitRepoVolumeSourceDie) DieStamp(fn func(r *corev1.GitRepoVolumeSource)) *GitRepoVolumeSourceDie {
@@ -4805,11 +5369,23 @@ func (d *SecretVolumeSourceDie) DieFeed(r corev1.SecretVolumeSource) *SecretVolu
 	}
 }
 
+func (d *SecretVolumeSourceDie) DieFeedPtr(r *corev1.SecretVolumeSource) *SecretVolumeSourceDie {
+	if r == nil {
+		r = &corev1.SecretVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *SecretVolumeSourceDie) DieRelease() corev1.SecretVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *SecretVolumeSourceDie) DieReleasePtr() *corev1.SecretVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *SecretVolumeSourceDie) DieStamp(fn func(r *corev1.SecretVolumeSource)) *SecretVolumeSourceDie {
@@ -4881,11 +5457,23 @@ func (d *NFSVolumeSourceDie) DieFeed(r corev1.NFSVolumeSource) *NFSVolumeSourceD
 	}
 }
 
+func (d *NFSVolumeSourceDie) DieFeedPtr(r *corev1.NFSVolumeSource) *NFSVolumeSourceDie {
+	if r == nil {
+		r = &corev1.NFSVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *NFSVolumeSourceDie) DieRelease() corev1.NFSVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *NFSVolumeSourceDie) DieReleasePtr() *corev1.NFSVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *NFSVolumeSourceDie) DieStamp(fn func(r *corev1.NFSVolumeSource)) *NFSVolumeSourceDie {
@@ -4950,11 +5538,23 @@ func (d *ISCSIVolumeSourceDie) DieFeed(r corev1.ISCSIVolumeSource) *ISCSIVolumeS
 	}
 }
 
+func (d *ISCSIVolumeSourceDie) DieFeedPtr(r *corev1.ISCSIVolumeSource) *ISCSIVolumeSourceDie {
+	if r == nil {
+		r = &corev1.ISCSIVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ISCSIVolumeSourceDie) DieRelease() corev1.ISCSIVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ISCSIVolumeSourceDie) DieReleasePtr() *corev1.ISCSIVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ISCSIVolumeSourceDie) DieStamp(fn func(r *corev1.ISCSIVolumeSource)) *ISCSIVolumeSourceDie {
@@ -5075,11 +5675,23 @@ func (d *GlusterfsVolumeSourceDie) DieFeed(r corev1.GlusterfsVolumeSource) *Glus
 	}
 }
 
+func (d *GlusterfsVolumeSourceDie) DieFeedPtr(r *corev1.GlusterfsVolumeSource) *GlusterfsVolumeSourceDie {
+	if r == nil {
+		r = &corev1.GlusterfsVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *GlusterfsVolumeSourceDie) DieRelease() corev1.GlusterfsVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *GlusterfsVolumeSourceDie) DieReleasePtr() *corev1.GlusterfsVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *GlusterfsVolumeSourceDie) DieStamp(fn func(r *corev1.GlusterfsVolumeSource)) *GlusterfsVolumeSourceDie {
@@ -5144,11 +5756,23 @@ func (d *PersistentVolumeClaimVolumeSourceDie) DieFeed(r corev1.PersistentVolume
 	}
 }
 
+func (d *PersistentVolumeClaimVolumeSourceDie) DieFeedPtr(r *corev1.PersistentVolumeClaimVolumeSource) *PersistentVolumeClaimVolumeSourceDie {
+	if r == nil {
+		r = &corev1.PersistentVolumeClaimVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *PersistentVolumeClaimVolumeSourceDie) DieRelease() corev1.PersistentVolumeClaimVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *PersistentVolumeClaimVolumeSourceDie) DieReleasePtr() *corev1.PersistentVolumeClaimVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *PersistentVolumeClaimVolumeSourceDie) DieStamp(fn func(r *corev1.PersistentVolumeClaimVolumeSource)) *PersistentVolumeClaimVolumeSourceDie {
@@ -5206,11 +5830,23 @@ func (d *RBDVolumeSourceDie) DieFeed(r corev1.RBDVolumeSource) *RBDVolumeSourceD
 	}
 }
 
+func (d *RBDVolumeSourceDie) DieFeedPtr(r *corev1.RBDVolumeSource) *RBDVolumeSourceDie {
+	if r == nil {
+		r = &corev1.RBDVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *RBDVolumeSourceDie) DieRelease() corev1.RBDVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *RBDVolumeSourceDie) DieReleasePtr() *corev1.RBDVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *RBDVolumeSourceDie) DieStamp(fn func(r *corev1.RBDVolumeSource)) *RBDVolumeSourceDie {
@@ -5310,11 +5946,23 @@ func (d *FlexVolumeSourceDie) DieFeed(r corev1.FlexVolumeSource) *FlexVolumeSour
 	}
 }
 
+func (d *FlexVolumeSourceDie) DieFeedPtr(r *corev1.FlexVolumeSource) *FlexVolumeSourceDie {
+	if r == nil {
+		r = &corev1.FlexVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *FlexVolumeSourceDie) DieRelease() corev1.FlexVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *FlexVolumeSourceDie) DieReleasePtr() *corev1.FlexVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *FlexVolumeSourceDie) DieStamp(fn func(r *corev1.FlexVolumeSource)) *FlexVolumeSourceDie {
@@ -5393,11 +6041,23 @@ func (d *CinderVolumeSourceDie) DieFeed(r corev1.CinderVolumeSource) *CinderVolu
 	}
 }
 
+func (d *CinderVolumeSourceDie) DieFeedPtr(r *corev1.CinderVolumeSource) *CinderVolumeSourceDie {
+	if r == nil {
+		r = &corev1.CinderVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *CinderVolumeSourceDie) DieRelease() corev1.CinderVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *CinderVolumeSourceDie) DieReleasePtr() *corev1.CinderVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *CinderVolumeSourceDie) DieStamp(fn func(r *corev1.CinderVolumeSource)) *CinderVolumeSourceDie {
@@ -5469,11 +6129,23 @@ func (d *CephFSVolumeSourceDie) DieFeed(r corev1.CephFSVolumeSource) *CephFSVolu
 	}
 }
 
+func (d *CephFSVolumeSourceDie) DieFeedPtr(r *corev1.CephFSVolumeSource) *CephFSVolumeSourceDie {
+	if r == nil {
+		r = &corev1.CephFSVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *CephFSVolumeSourceDie) DieRelease() corev1.CephFSVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *CephFSVolumeSourceDie) DieReleasePtr() *corev1.CephFSVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *CephFSVolumeSourceDie) DieStamp(fn func(r *corev1.CephFSVolumeSource)) *CephFSVolumeSourceDie {
@@ -5559,11 +6231,23 @@ func (d *FlockerVolumeSourceDie) DieFeed(r corev1.FlockerVolumeSource) *FlockerV
 	}
 }
 
+func (d *FlockerVolumeSourceDie) DieFeedPtr(r *corev1.FlockerVolumeSource) *FlockerVolumeSourceDie {
+	if r == nil {
+		r = &corev1.FlockerVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *FlockerVolumeSourceDie) DieRelease() corev1.FlockerVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *FlockerVolumeSourceDie) DieReleasePtr() *corev1.FlockerVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *FlockerVolumeSourceDie) DieStamp(fn func(r *corev1.FlockerVolumeSource)) *FlockerVolumeSourceDie {
@@ -5621,11 +6305,23 @@ func (d *DownwardAPIVolumeSourceDie) DieFeed(r corev1.DownwardAPIVolumeSource) *
 	}
 }
 
+func (d *DownwardAPIVolumeSourceDie) DieFeedPtr(r *corev1.DownwardAPIVolumeSource) *DownwardAPIVolumeSourceDie {
+	if r == nil {
+		r = &corev1.DownwardAPIVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *DownwardAPIVolumeSourceDie) DieRelease() corev1.DownwardAPIVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *DownwardAPIVolumeSourceDie) DieReleasePtr() *corev1.DownwardAPIVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *DownwardAPIVolumeSourceDie) DieStamp(fn func(r *corev1.DownwardAPIVolumeSource)) *DownwardAPIVolumeSourceDie {
@@ -5683,11 +6379,23 @@ func (d *FCVolumeSourceDie) DieFeed(r corev1.FCVolumeSource) *FCVolumeSourceDie 
 	}
 }
 
+func (d *FCVolumeSourceDie) DieFeedPtr(r *corev1.FCVolumeSource) *FCVolumeSourceDie {
+	if r == nil {
+		r = &corev1.FCVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *FCVolumeSourceDie) DieRelease() corev1.FCVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *FCVolumeSourceDie) DieReleasePtr() *corev1.FCVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *FCVolumeSourceDie) DieStamp(fn func(r *corev1.FCVolumeSource)) *FCVolumeSourceDie {
@@ -5766,11 +6474,23 @@ func (d *AzureFileVolumeSourceDie) DieFeed(r corev1.AzureFileVolumeSource) *Azur
 	}
 }
 
+func (d *AzureFileVolumeSourceDie) DieFeedPtr(r *corev1.AzureFileVolumeSource) *AzureFileVolumeSourceDie {
+	if r == nil {
+		r = &corev1.AzureFileVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *AzureFileVolumeSourceDie) DieRelease() corev1.AzureFileVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *AzureFileVolumeSourceDie) DieReleasePtr() *corev1.AzureFileVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *AzureFileVolumeSourceDie) DieStamp(fn func(r *corev1.AzureFileVolumeSource)) *AzureFileVolumeSourceDie {
@@ -5835,11 +6555,23 @@ func (d *ConfigMapVolumeSourceDie) DieFeed(r corev1.ConfigMapVolumeSource) *Conf
 	}
 }
 
+func (d *ConfigMapVolumeSourceDie) DieFeedPtr(r *corev1.ConfigMapVolumeSource) *ConfigMapVolumeSourceDie {
+	if r == nil {
+		r = &corev1.ConfigMapVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ConfigMapVolumeSourceDie) DieRelease() corev1.ConfigMapVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ConfigMapVolumeSourceDie) DieReleasePtr() *corev1.ConfigMapVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ConfigMapVolumeSourceDie) DieStamp(fn func(r *corev1.ConfigMapVolumeSource)) *ConfigMapVolumeSourceDie {
@@ -5910,11 +6642,23 @@ func (d *VsphereVirtualDiskVolumeSourceDie) DieFeed(r corev1.VsphereVirtualDiskV
 	}
 }
 
+func (d *VsphereVirtualDiskVolumeSourceDie) DieFeedPtr(r *corev1.VsphereVirtualDiskVolumeSource) *VsphereVirtualDiskVolumeSourceDie {
+	if r == nil {
+		r = &corev1.VsphereVirtualDiskVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *VsphereVirtualDiskVolumeSourceDie) DieRelease() corev1.VsphereVirtualDiskVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *VsphereVirtualDiskVolumeSourceDie) DieReleasePtr() *corev1.VsphereVirtualDiskVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *VsphereVirtualDiskVolumeSourceDie) DieStamp(fn func(r *corev1.VsphereVirtualDiskVolumeSource)) *VsphereVirtualDiskVolumeSourceDie {
@@ -5986,11 +6730,23 @@ func (d *QuobyteVolumeSourceDie) DieFeed(r corev1.QuobyteVolumeSource) *QuobyteV
 	}
 }
 
+func (d *QuobyteVolumeSourceDie) DieFeedPtr(r *corev1.QuobyteVolumeSource) *QuobyteVolumeSourceDie {
+	if r == nil {
+		r = &corev1.QuobyteVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *QuobyteVolumeSourceDie) DieRelease() corev1.QuobyteVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *QuobyteVolumeSourceDie) DieReleasePtr() *corev1.QuobyteVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *QuobyteVolumeSourceDie) DieStamp(fn func(r *corev1.QuobyteVolumeSource)) *QuobyteVolumeSourceDie {
@@ -6076,11 +6832,23 @@ func (d *AzureDiskVolumeSourceDie) DieFeed(r corev1.AzureDiskVolumeSource) *Azur
 	}
 }
 
+func (d *AzureDiskVolumeSourceDie) DieFeedPtr(r *corev1.AzureDiskVolumeSource) *AzureDiskVolumeSourceDie {
+	if r == nil {
+		r = &corev1.AzureDiskVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *AzureDiskVolumeSourceDie) DieRelease() corev1.AzureDiskVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *AzureDiskVolumeSourceDie) DieReleasePtr() *corev1.AzureDiskVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *AzureDiskVolumeSourceDie) DieStamp(fn func(r *corev1.AzureDiskVolumeSource)) *AzureDiskVolumeSourceDie {
@@ -6166,11 +6934,23 @@ func (d *PhotonPersistentDiskVolumeSourceDie) DieFeed(r corev1.PhotonPersistentD
 	}
 }
 
+func (d *PhotonPersistentDiskVolumeSourceDie) DieFeedPtr(r *corev1.PhotonPersistentDiskVolumeSource) *PhotonPersistentDiskVolumeSourceDie {
+	if r == nil {
+		r = &corev1.PhotonPersistentDiskVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *PhotonPersistentDiskVolumeSourceDie) DieRelease() corev1.PhotonPersistentDiskVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *PhotonPersistentDiskVolumeSourceDie) DieReleasePtr() *corev1.PhotonPersistentDiskVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *PhotonPersistentDiskVolumeSourceDie) DieStamp(fn func(r *corev1.PhotonPersistentDiskVolumeSource)) *PhotonPersistentDiskVolumeSourceDie {
@@ -6228,11 +7008,23 @@ func (d *ProjectedVolumeSourceDie) DieFeed(r corev1.ProjectedVolumeSource) *Proj
 	}
 }
 
+func (d *ProjectedVolumeSourceDie) DieFeedPtr(r *corev1.ProjectedVolumeSource) *ProjectedVolumeSourceDie {
+	if r == nil {
+		r = &corev1.ProjectedVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ProjectedVolumeSourceDie) DieRelease() corev1.ProjectedVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ProjectedVolumeSourceDie) DieReleasePtr() *corev1.ProjectedVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ProjectedVolumeSourceDie) DieStamp(fn func(r *corev1.ProjectedVolumeSource)) *ProjectedVolumeSourceDie {
@@ -6290,11 +7082,23 @@ func (d *PortworxVolumeSourceDie) DieFeed(r corev1.PortworxVolumeSource) *Portwo
 	}
 }
 
+func (d *PortworxVolumeSourceDie) DieFeedPtr(r *corev1.PortworxVolumeSource) *PortworxVolumeSourceDie {
+	if r == nil {
+		r = &corev1.PortworxVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *PortworxVolumeSourceDie) DieRelease() corev1.PortworxVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *PortworxVolumeSourceDie) DieReleasePtr() *corev1.PortworxVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *PortworxVolumeSourceDie) DieStamp(fn func(r *corev1.PortworxVolumeSource)) *PortworxVolumeSourceDie {
@@ -6359,11 +7163,23 @@ func (d *ScaleIOVolumeSourceDie) DieFeed(r corev1.ScaleIOVolumeSource) *ScaleIOV
 	}
 }
 
+func (d *ScaleIOVolumeSourceDie) DieFeedPtr(r *corev1.ScaleIOVolumeSource) *ScaleIOVolumeSourceDie {
+	if r == nil {
+		r = &corev1.ScaleIOVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ScaleIOVolumeSourceDie) DieRelease() corev1.ScaleIOVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ScaleIOVolumeSourceDie) DieReleasePtr() *corev1.ScaleIOVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ScaleIOVolumeSourceDie) DieStamp(fn func(r *corev1.ScaleIOVolumeSource)) *ScaleIOVolumeSourceDie {
@@ -6477,11 +7293,23 @@ func (d *StorageOSVolumeSourceDie) DieFeed(r corev1.StorageOSVolumeSource) *Stor
 	}
 }
 
+func (d *StorageOSVolumeSourceDie) DieFeedPtr(r *corev1.StorageOSVolumeSource) *StorageOSVolumeSourceDie {
+	if r == nil {
+		r = &corev1.StorageOSVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *StorageOSVolumeSourceDie) DieRelease() corev1.StorageOSVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *StorageOSVolumeSourceDie) DieReleasePtr() *corev1.StorageOSVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *StorageOSVolumeSourceDie) DieStamp(fn func(r *corev1.StorageOSVolumeSource)) *StorageOSVolumeSourceDie {
@@ -6560,11 +7388,23 @@ func (d *CSIVolumeSourceDie) DieFeed(r corev1.CSIVolumeSource) *CSIVolumeSourceD
 	}
 }
 
+func (d *CSIVolumeSourceDie) DieFeedPtr(r *corev1.CSIVolumeSource) *CSIVolumeSourceDie {
+	if r == nil {
+		r = &corev1.CSIVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *CSIVolumeSourceDie) DieRelease() corev1.CSIVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *CSIVolumeSourceDie) DieReleasePtr() *corev1.CSIVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *CSIVolumeSourceDie) DieStamp(fn func(r *corev1.CSIVolumeSource)) *CSIVolumeSourceDie {
@@ -6643,11 +7483,23 @@ func (d *EphemeralVolumeSourceDie) DieFeed(r corev1.EphemeralVolumeSource) *Ephe
 	}
 }
 
+func (d *EphemeralVolumeSourceDie) DieFeedPtr(r *corev1.EphemeralVolumeSource) *EphemeralVolumeSourceDie {
+	if r == nil {
+		r = &corev1.EphemeralVolumeSource{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *EphemeralVolumeSourceDie) DieRelease() corev1.EphemeralVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *EphemeralVolumeSourceDie) DieReleasePtr() *corev1.EphemeralVolumeSource {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *EphemeralVolumeSourceDie) DieStamp(fn func(r *corev1.EphemeralVolumeSource)) *EphemeralVolumeSourceDie {

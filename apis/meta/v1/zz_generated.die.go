@@ -53,11 +53,23 @@ func (d *ConditionDie) DieFeed(r metav1.Condition) *ConditionDie {
 	}
 }
 
+func (d *ConditionDie) DieFeedPtr(r *metav1.Condition) *ConditionDie {
+	if r == nil {
+		r = &metav1.Condition{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ConditionDie) DieRelease() metav1.Condition {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ConditionDie) DieReleasePtr() *metav1.Condition {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ConditionDie) DieStamp(fn func(r *metav1.Condition)) *ConditionDie {
@@ -143,11 +155,23 @@ func (d *ObjectMetaDie) DieFeed(r metav1.ObjectMeta) *ObjectMetaDie {
 	}
 }
 
+func (d *ObjectMetaDie) DieFeedPtr(r *metav1.ObjectMeta) *ObjectMetaDie {
+	if r == nil {
+		r = &metav1.ObjectMeta{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *ObjectMetaDie) DieRelease() metav1.ObjectMeta {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *ObjectMetaDie) DieReleasePtr() *metav1.ObjectMeta {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *ObjectMetaDie) DieStamp(fn func(r *metav1.ObjectMeta)) *ObjectMetaDie {
@@ -289,5 +313,79 @@ func (d *ObjectMetaDie) ClusterName(v string) *ObjectMetaDie {
 func (d *ObjectMetaDie) ManagedFields(v ...metav1.ManagedFieldsEntry) *ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.ManagedFields = v
+	})
+}
+
+type LabelSelectorDie struct {
+	mutable bool
+	r       metav1.LabelSelector
+}
+
+var LabelSelectorBlank = (&LabelSelectorDie{}).DieFeed(metav1.LabelSelector{})
+
+func (d *LabelSelectorDie) DieImmutable(immutable bool) *LabelSelectorDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+func (d *LabelSelectorDie) DieFeed(r metav1.LabelSelector) *LabelSelectorDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &LabelSelectorDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *LabelSelectorDie) DieFeedPtr(r *metav1.LabelSelector) *LabelSelectorDie {
+	if r == nil {
+		r = &metav1.LabelSelector{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *LabelSelectorDie) DieRelease() metav1.LabelSelector {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *LabelSelectorDie) DieReleasePtr() *metav1.LabelSelector {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *LabelSelectorDie) DieStamp(fn func(r *metav1.LabelSelector)) *LabelSelectorDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *LabelSelectorDie) DeepCopy() *LabelSelectorDie {
+	r := *d.r.DeepCopy()
+	return &LabelSelectorDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+func (d *LabelSelectorDie) MatchLabels(v map[string]string) *LabelSelectorDie {
+	return d.DieStamp(func(r *metav1.LabelSelector) {
+		r.MatchLabels = v
+	})
+}
+
+// matchExpressions is a list of label selector requirements. The requirements are ANDed.
+func (d *LabelSelectorDie) MatchExpressions(v ...metav1.LabelSelectorRequirement) *LabelSelectorDie {
+	return d.DieStamp(func(r *metav1.LabelSelector) {
+		r.MatchExpressions = v
 	})
 }

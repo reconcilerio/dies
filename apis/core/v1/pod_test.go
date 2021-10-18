@@ -266,7 +266,7 @@ func TestPod(t *testing.T) {
 			},
 		},
 		{
-			name: "spec update containers",
+			name: "spec update volume",
 			die: diecorev1.PodBlank.
 				SpecDie(func(d *v1.PodSpecDie) {
 					d.VolumeDie("config", func(d *diecorev1.VolumeDie) {

@@ -159,6 +159,32 @@ func (c *copyMethodMaker) GenerateFieldFor(field Field, die Die) {
 	c.Linef("		r.%s = v", field.Name)
 	c.Linef("	})")
 	c.Linef("}")
+
+	if field.Type == "IntOrString" && field.TypePackage == "k8s.io/apimachinery/pkg/util/intstr" && (field.TypePrefix == "*" || field.TypePrefix == "") {
+		c.Linef("")
+		c.Linef("func (d *%s) %sInt(i int) *%s {", field.Receiver, field.Name, field.Receiver)
+		c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
+		c.Linef("		v := %s(i)", c.AliasedRef(field.TypePackage, "FromInt"))
+		if field.TypePrefix == "*" {
+			c.Linef("		r.%s = &v", field.Name)
+		} else {
+			c.Linef("		r.%s = v", field.Name)
+		}
+		c.Linef("	})")
+		c.Linef("}")
+
+		c.Linef("")
+		c.Linef("func (d *%s) %sString(s string) *%s {", field.Receiver, field.Name, field.Receiver)
+		c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
+		c.Linef("		v := %s(s)", c.AliasedRef(field.TypePackage, "FromString"))
+		if field.TypePrefix == "*" {
+			c.Linef("		r.%s = &v", field.Name)
+		} else {
+			c.Linef("		r.%s = v", field.Name)
+		}
+		c.Linef("	})")
+		c.Linef("}")
+	}
 }
 
 func (c *copyMethodMaker) generateDieFor(die Die) {
@@ -215,6 +241,14 @@ func (c *copyMethodMaker) generateDieFeedMethodFor(die Die) {
 	c.Linef("		r: r,")
 	c.Linef("	}")
 	c.Linef("}")
+
+	c.Linef("")
+	c.Linef("func (d *%s) DieFeedPtr(r *%s) *%s {", die.Type, c.AliasedRef(die.TargetPackage, die.TargetType), die.Type)
+	c.Linef("	if r == nil {")
+	c.Linef("		r = &%s{}", c.AliasedRef(die.TargetPackage, die.TargetType))
+	c.Linef("	}")
+	c.Linef("	return d.DieFeed(*r)")
+	c.Linef("}")
 }
 
 func (c *copyMethodMaker) generateDieReleaseMethodFor(die Die) {
@@ -224,6 +258,11 @@ func (c *copyMethodMaker) generateDieReleaseMethodFor(die Die) {
 	c.Linef("		return d.r")
 	c.Linef("	}")
 	c.Linef("	return *d.r.DeepCopy()")
+	c.Linef("}")
+	c.Linef("")
+	c.Linef("func (d *%s) DieReleasePtr() *%s {", die.Type, c.AliasedRef(die.TargetPackage, die.TargetType))
+	c.Linef("	r := d.DieRelease()")
+	c.Linef("	return &r")
 	c.Linef("}")
 }
 

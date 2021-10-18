@@ -61,11 +61,23 @@ func (d *LeaseDie) DieFeed(r coordinationv1.Lease) *LeaseDie {
 	}
 }
 
+func (d *LeaseDie) DieFeedPtr(r *coordinationv1.Lease) *LeaseDie {
+	if r == nil {
+		r = &coordinationv1.Lease{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *LeaseDie) DieRelease() coordinationv1.Lease {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *LeaseDie) DieReleasePtr() *coordinationv1.Lease {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *LeaseDie) DieStamp(fn func(r *coordinationv1.Lease)) *LeaseDie {
@@ -160,11 +172,23 @@ func (d *LeaseSpecDie) DieFeed(r coordinationv1.LeaseSpec) *LeaseSpecDie {
 	}
 }
 
+func (d *LeaseSpecDie) DieFeedPtr(r *coordinationv1.LeaseSpec) *LeaseSpecDie {
+	if r == nil {
+		r = &coordinationv1.LeaseSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
 func (d *LeaseSpecDie) DieRelease() coordinationv1.LeaseSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
+}
+
+func (d *LeaseSpecDie) DieReleasePtr() *coordinationv1.LeaseSpec {
+	r := d.DieRelease()
+	return &r
 }
 
 func (d *LeaseSpecDie) DieStamp(fn func(r *coordinationv1.LeaseSpec)) *LeaseSpecDie {

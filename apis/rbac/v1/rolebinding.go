@@ -22,3 +22,26 @@ import (
 
 // +die:object=true
 type RoleBinding = rbacv1.RoleBinding
+
+func (d *RoleBindingDie) SubjectsDie(subjects ...*SubjectDie) *RoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.RoleBinding) {
+		r.Subjects = make([]rbacv1.Subject, len(subjects))
+		for i := range subjects {
+			r.Subjects[i] = subjects[i].DieRelease()
+		}
+	})
+}
+
+func (d *RoleBindingDie) RoleRefDie(fn func(d *RoleRefDie)) *RoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.RoleBinding) {
+		d := RoleRefBlank.DieImmutable(false).DieFeed(r.RoleRef)
+		fn(d)
+		r.RoleRef = d.DieRelease()
+	})
+}
+
+// +die
+type Subject = rbacv1.Subject
+
+// +die
+type RoleRef = rbacv1.RoleRef
