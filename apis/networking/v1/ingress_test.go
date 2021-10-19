@@ -29,7 +29,7 @@ import (
 func TestIngress(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *dienetworkingv1.IngressDie
+		die      dienetworkingv1.IngressDie
 		expected networkingv1.Ingress
 	}{
 		{
@@ -40,7 +40,7 @@ func TestIngress(t *testing.T) {
 		{
 			name: "object metadata",
 			die: dienetworkingv1.IngressBlank.
-				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),

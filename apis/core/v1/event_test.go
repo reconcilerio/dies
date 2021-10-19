@@ -29,7 +29,7 @@ import (
 func TestEvent(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *diecorev1.EventDie
+		die      diecorev1.EventDie
 		expected corev1.Event
 	}{
 		{
@@ -40,7 +40,7 @@ func TestEvent(t *testing.T) {
 		{
 			name: "object metadata",
 			die: diecorev1.EventBlank.
-				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),

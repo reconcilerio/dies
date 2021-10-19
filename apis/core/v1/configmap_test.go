@@ -29,7 +29,7 @@ import (
 func TestConfigMap(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *diecorev1.ConfigMapDie
+		die      diecorev1.ConfigMapDie
 		expected corev1.ConfigMap
 	}{
 		{
@@ -40,7 +40,7 @@ func TestConfigMap(t *testing.T) {
 		{
 			name: "object metadata",
 			die: diecorev1.ConfigMapBlank.
-				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),

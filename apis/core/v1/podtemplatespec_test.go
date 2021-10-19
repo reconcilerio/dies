@@ -29,7 +29,7 @@ import (
 func TestPodTemplateSpec(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *diecorev1.PodTemplateSpecDie
+		die      diecorev1.PodTemplateSpecDie
 		expected corev1.PodTemplateSpec
 	}{
 		{
@@ -40,7 +40,7 @@ func TestPodTemplateSpec(t *testing.T) {
 		{
 			name: "object metadata",
 			die: diecorev1.PodTemplateSpecBlank.
-				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),

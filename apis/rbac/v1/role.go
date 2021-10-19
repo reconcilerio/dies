@@ -23,7 +23,12 @@ import (
 // +die:object=true
 type Role = rbacv1.Role
 
-func (d *RoleDie) RulesDie(rules ...*PolicyRuleDie) *RoleDie {
+type role interface {
+	RulesDie(rules ...PolicyRuleDie) RoleDie
+	AddRuleDie(rule PolicyRuleDie) RoleDie
+}
+
+func (d *roleDie) RulesDie(rules ...PolicyRuleDie) RoleDie {
 	return d.DieStamp(func(r *rbacv1.Role) {
 		r.Rules = make([]rbacv1.PolicyRule, len(rules))
 		for i := range rules {
@@ -32,7 +37,7 @@ func (d *RoleDie) RulesDie(rules ...*PolicyRuleDie) *RoleDie {
 	})
 }
 
-func (d *RoleDie) AddRuleDie(rule *PolicyRuleDie) *RoleDie {
+func (d *roleDie) AddRuleDie(rule PolicyRuleDie) RoleDie {
 	return d.DieStamp(func(r *rbacv1.Role) {
 		r.Rules = append(r.Rules, rule.DieRelease())
 	})
@@ -41,31 +46,39 @@ func (d *RoleDie) AddRuleDie(rule *PolicyRuleDie) *RoleDie {
 // +die
 type PolicyRule = rbacv1.PolicyRule
 
-func (d *PolicyRuleDie) AddVerbs(verbs ...string) *PolicyRuleDie {
+type policyRule interface {
+	AddVerbs(verbs ...string) PolicyRuleDie
+	AddAPIGroups(apiGroups ...string) PolicyRuleDie
+	AddAResources(resources ...string) PolicyRuleDie
+	AddResourceNames(resourceNames ...string) PolicyRuleDie
+	AddNonResourceURLs(nonResourceURLs ...string) PolicyRuleDie
+}
+
+func (d *policyRuleDie) AddVerbs(verbs ...string) PolicyRuleDie {
 	return d.DieStamp(func(r *rbacv1.PolicyRule) {
 		r.Verbs = append(r.Verbs, verbs...)
 	})
 }
 
-func (d *PolicyRuleDie) AddAPIGroups(apiGroups ...string) *PolicyRuleDie {
+func (d *policyRuleDie) AddAPIGroups(apiGroups ...string) PolicyRuleDie {
 	return d.DieStamp(func(r *rbacv1.PolicyRule) {
 		r.APIGroups = append(r.APIGroups, apiGroups...)
 	})
 }
 
-func (d *PolicyRuleDie) AddAResources(resources ...string) *PolicyRuleDie {
+func (d *policyRuleDie) AddAResources(resources ...string) PolicyRuleDie {
 	return d.DieStamp(func(r *rbacv1.PolicyRule) {
 		r.Resources = append(r.Resources, resources...)
 	})
 }
 
-func (d *PolicyRuleDie) AddResourceNames(resourceNames ...string) *PolicyRuleDie {
+func (d *policyRuleDie) AddResourceNames(resourceNames ...string) PolicyRuleDie {
 	return d.DieStamp(func(r *rbacv1.PolicyRule) {
 		r.ResourceNames = append(r.ResourceNames, resourceNames...)
 	})
 }
 
-func (d *PolicyRuleDie) AddNonResourceURLs(nonResourceURLs ...string) *PolicyRuleDie {
+func (d *policyRuleDie) AddNonResourceURLs(nonResourceURLs ...string) PolicyRuleDie {
 	return d.DieStamp(func(r *rbacv1.PolicyRule) {
 		r.NonResourceURLs = append(r.NonResourceURLs, nonResourceURLs...)
 	})

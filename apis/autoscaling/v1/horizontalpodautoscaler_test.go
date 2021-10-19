@@ -29,7 +29,7 @@ import (
 func TestHorizontalPodAutoscaler(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *dieautoscalingv1.HorizontalPodAutoscalerDie
+		die      dieautoscalingv1.HorizontalPodAutoscalerDie
 		expected autoscalingv1.HorizontalPodAutoscaler
 	}{
 		{
@@ -40,7 +40,7 @@ func TestHorizontalPodAutoscaler(t *testing.T) {
 		{
 			name: "object metadata",
 			die: dieautoscalingv1.HorizontalPodAutoscalerBlank.
-				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),

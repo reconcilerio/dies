@@ -31,94 +31,127 @@ import (
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-type HorizontalPodAutoscalerDie struct {
+type HorizontalPodAutoscalerDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *autoscalingv1.HorizontalPodAutoscaler)) HorizontalPodAutoscalerDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r autoscalingv1.HorizontalPodAutoscaler) HorizontalPodAutoscalerDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *autoscalingv1.HorizontalPodAutoscaler) HorizontalPodAutoscalerDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() autoscalingv1.HorizontalPodAutoscaler
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *autoscalingv1.HorizontalPodAutoscaler
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) HorizontalPodAutoscalerDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() HorizontalPodAutoscalerDie
+
+	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+	MetadataDie(fn func(d metav1.ObjectMetaDie)) HorizontalPodAutoscalerDie
+	// SpecDie stamps the resource's spec field with a mutable die.
+	SpecDie(fn func(d HorizontalPodAutoscalerSpecDie)) HorizontalPodAutoscalerDie
+	// StatusDie stamps the resource's status field with a mutable die.
+	StatusDie(fn func(d HorizontalPodAutoscalerStatusDie)) HorizontalPodAutoscalerDie
+	// behaviour of autoscaler. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.
+	Spec(Spec autoscalingv1.HorizontalPodAutoscalerSpec) HorizontalPodAutoscalerDie
+	// current information about the autoscaler.
+	Status(Status autoscalingv1.HorizontalPodAutoscalerStatus) HorizontalPodAutoscalerDie
+
+	runtime.Object
+	apismetav1.Object
+	apismetav1.ObjectMetaAccessor
+}
+
+var _ HorizontalPodAutoscalerDie = (*horizontalPodAutoscalerDie)(nil)
+var HorizontalPodAutoscalerBlank = (&horizontalPodAutoscalerDie{}).DieFeed(autoscalingv1.HorizontalPodAutoscaler{})
+
+type horizontalPodAutoscalerDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       autoscalingv1.HorizontalPodAutoscaler
 }
 
-var HorizontalPodAutoscalerBlank = (&HorizontalPodAutoscalerDie{}).DieFeed(autoscalingv1.HorizontalPodAutoscaler{})
-
-func (d *HorizontalPodAutoscalerDie) DieImmutable(immutable bool) *HorizontalPodAutoscalerDie {
+func (d *horizontalPodAutoscalerDie) DieImmutable(immutable bool) HorizontalPodAutoscalerDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*horizontalPodAutoscalerDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *HorizontalPodAutoscalerDie) DieFeed(r autoscalingv1.HorizontalPodAutoscaler) *HorizontalPodAutoscalerDie {
+func (d *horizontalPodAutoscalerDie) DieFeed(r autoscalingv1.HorizontalPodAutoscaler) HorizontalPodAutoscalerDie {
 	if d.mutable {
 		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
 		d.r = r
 		return d
 	}
-	return &HorizontalPodAutoscalerDie{
+	return &horizontalPodAutoscalerDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *HorizontalPodAutoscalerDie) DieFeedPtr(r *autoscalingv1.HorizontalPodAutoscaler) *HorizontalPodAutoscalerDie {
+func (d *horizontalPodAutoscalerDie) DieFeedPtr(r *autoscalingv1.HorizontalPodAutoscaler) HorizontalPodAutoscalerDie {
 	if r == nil {
 		r = &autoscalingv1.HorizontalPodAutoscaler{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *HorizontalPodAutoscalerDie) DieRelease() autoscalingv1.HorizontalPodAutoscaler {
+func (d *horizontalPodAutoscalerDie) DieRelease() autoscalingv1.HorizontalPodAutoscaler {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *HorizontalPodAutoscalerDie) DieReleasePtr() *autoscalingv1.HorizontalPodAutoscaler {
+func (d *horizontalPodAutoscalerDie) DieReleasePtr() *autoscalingv1.HorizontalPodAutoscaler {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *HorizontalPodAutoscalerDie) DieStamp(fn func(r *autoscalingv1.HorizontalPodAutoscaler)) *HorizontalPodAutoscalerDie {
+func (d *horizontalPodAutoscalerDie) DieStamp(fn func(r *autoscalingv1.HorizontalPodAutoscaler)) HorizontalPodAutoscalerDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *HorizontalPodAutoscalerDie) DeepCopy() *HorizontalPodAutoscalerDie {
+func (d *horizontalPodAutoscalerDie) DeepCopy() HorizontalPodAutoscalerDie {
 	r := *d.r.DeepCopy()
-	return &HorizontalPodAutoscalerDie{
+	return &horizontalPodAutoscalerDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *HorizontalPodAutoscalerDie) DeepCopyObject() runtime.Object {
+func (d *horizontalPodAutoscalerDie) DeepCopyObject() runtime.Object {
 	return d.r.DeepCopy()
 }
 
-func (d *HorizontalPodAutoscalerDie) GetObjectKind() schema.ObjectKind {
+func (d *horizontalPodAutoscalerDie) GetObjectKind() schema.ObjectKind {
 	r := d.DieRelease()
 	return r.GetObjectKind()
 }
 
-func (d *HorizontalPodAutoscalerDie) MarshalJSON() ([]byte, error) {
+func (d *horizontalPodAutoscalerDie) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.r)
 }
 
-func (d *HorizontalPodAutoscalerDie) UnmarshalJSON(b []byte) error {
+func (d *horizontalPodAutoscalerDie) UnmarshalJSON(b []byte) error {
 	if d == HorizontalPodAutoscalerBlank {
 		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &autoscalingv1.HorizontalPodAutoscaler{}
 	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	*d = *d.DieFeed(*r).(*horizontalPodAutoscalerDie)
 	return err
 }
 
-func (d *HorizontalPodAutoscalerDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *HorizontalPodAutoscalerDie {
+func (d *horizontalPodAutoscalerDie) MetadataDie(fn func(d metav1.ObjectMetaDie)) HorizontalPodAutoscalerDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
@@ -126,7 +159,7 @@ func (d *HorizontalPodAutoscalerDie) MetadataDie(fn func(d *metav1.ObjectMetaDie
 	})
 }
 
-func (d *HorizontalPodAutoscalerDie) SpecDie(fn func(d *HorizontalPodAutoscalerSpecDie)) *HorizontalPodAutoscalerDie {
+func (d *horizontalPodAutoscalerDie) SpecDie(fn func(d HorizontalPodAutoscalerSpecDie)) HorizontalPodAutoscalerDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
 		d := HorizontalPodAutoscalerSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
@@ -134,7 +167,7 @@ func (d *HorizontalPodAutoscalerDie) SpecDie(fn func(d *HorizontalPodAutoscalerS
 	})
 }
 
-func (d *HorizontalPodAutoscalerDie) StatusDie(fn func(d *HorizontalPodAutoscalerStatusDie)) *HorizontalPodAutoscalerDie {
+func (d *horizontalPodAutoscalerDie) StatusDie(fn func(d HorizontalPodAutoscalerStatusDie)) HorizontalPodAutoscalerDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
 		d := HorizontalPodAutoscalerStatusBlank.DieImmutable(false).DieFeed(r.Status)
 		fn(d)
@@ -142,202 +175,243 @@ func (d *HorizontalPodAutoscalerDie) StatusDie(fn func(d *HorizontalPodAutoscale
 	})
 }
 
-var _ apismetav1.Object = (*HorizontalPodAutoscalerDie)(nil)
-var _ apismetav1.ObjectMetaAccessor = (*HorizontalPodAutoscalerDie)(nil)
-var _ runtime.Object = (*HorizontalPodAutoscalerDie)(nil)
-
-// behaviour of autoscaler. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.
-func (d *HorizontalPodAutoscalerDie) Spec(v autoscalingv1.HorizontalPodAutoscalerSpec) *HorizontalPodAutoscalerDie {
+func (d *horizontalPodAutoscalerDie) Spec(v autoscalingv1.HorizontalPodAutoscalerSpec) HorizontalPodAutoscalerDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
 		r.Spec = v
 	})
 }
 
-// current information about the autoscaler.
-func (d *HorizontalPodAutoscalerDie) Status(v autoscalingv1.HorizontalPodAutoscalerStatus) *HorizontalPodAutoscalerDie {
+func (d *horizontalPodAutoscalerDie) Status(v autoscalingv1.HorizontalPodAutoscalerStatus) HorizontalPodAutoscalerDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
 		r.Status = v
 	})
 }
 
-type HorizontalPodAutoscalerSpecDie struct {
+type HorizontalPodAutoscalerSpecDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *autoscalingv1.HorizontalPodAutoscalerSpec)) HorizontalPodAutoscalerSpecDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r autoscalingv1.HorizontalPodAutoscalerSpec) HorizontalPodAutoscalerSpecDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *autoscalingv1.HorizontalPodAutoscalerSpec) HorizontalPodAutoscalerSpecDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() autoscalingv1.HorizontalPodAutoscalerSpec
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *autoscalingv1.HorizontalPodAutoscalerSpec
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) HorizontalPodAutoscalerSpecDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() HorizontalPodAutoscalerSpecDie
+
+	// reference to scaled resource; horizontal pod autoscaler will learn the current resource consumption and will set the desired number of pods by using its Scale subresource.
+	ScaleTargetRef(ScaleTargetRef autoscalingv1.CrossVersionObjectReference) HorizontalPodAutoscalerSpecDie
+	// minReplicas is the lower limit for the number of replicas to which the autoscaler can scale down.  It defaults to 1 pod.  minReplicas is allowed to be 0 if the alpha feature gate HPAScaleToZero is enabled and at least one Object or External metric is configured.  Scaling is active as long as at least one metric value is available.
+	MinReplicas(MinReplicas *int32) HorizontalPodAutoscalerSpecDie
+	// upper limit for the number of pods that can be set by the autoscaler; cannot be smaller than MinReplicas.
+	MaxReplicas(MaxReplicas int32) HorizontalPodAutoscalerSpecDie
+	// target average CPU utilization (represented as a percentage of requested CPU) over all the pods; if not specified the default autoscaling policy will be used.
+	TargetCPUUtilizationPercentage(TargetCPUUtilizationPercentage *int32) HorizontalPodAutoscalerSpecDie
+}
+
+var _ HorizontalPodAutoscalerSpecDie = (*horizontalPodAutoscalerSpecDie)(nil)
+var HorizontalPodAutoscalerSpecBlank = (&horizontalPodAutoscalerSpecDie{}).DieFeed(autoscalingv1.HorizontalPodAutoscalerSpec{})
+
+type horizontalPodAutoscalerSpecDie struct {
 	mutable bool
 	r       autoscalingv1.HorizontalPodAutoscalerSpec
 }
 
-var HorizontalPodAutoscalerSpecBlank = (&HorizontalPodAutoscalerSpecDie{}).DieFeed(autoscalingv1.HorizontalPodAutoscalerSpec{})
-
-func (d *HorizontalPodAutoscalerSpecDie) DieImmutable(immutable bool) *HorizontalPodAutoscalerSpecDie {
+func (d *horizontalPodAutoscalerSpecDie) DieImmutable(immutable bool) HorizontalPodAutoscalerSpecDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*horizontalPodAutoscalerSpecDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *HorizontalPodAutoscalerSpecDie) DieFeed(r autoscalingv1.HorizontalPodAutoscalerSpec) *HorizontalPodAutoscalerSpecDie {
+func (d *horizontalPodAutoscalerSpecDie) DieFeed(r autoscalingv1.HorizontalPodAutoscalerSpec) HorizontalPodAutoscalerSpecDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &HorizontalPodAutoscalerSpecDie{
+	return &horizontalPodAutoscalerSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *HorizontalPodAutoscalerSpecDie) DieFeedPtr(r *autoscalingv1.HorizontalPodAutoscalerSpec) *HorizontalPodAutoscalerSpecDie {
+func (d *horizontalPodAutoscalerSpecDie) DieFeedPtr(r *autoscalingv1.HorizontalPodAutoscalerSpec) HorizontalPodAutoscalerSpecDie {
 	if r == nil {
 		r = &autoscalingv1.HorizontalPodAutoscalerSpec{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *HorizontalPodAutoscalerSpecDie) DieRelease() autoscalingv1.HorizontalPodAutoscalerSpec {
+func (d *horizontalPodAutoscalerSpecDie) DieRelease() autoscalingv1.HorizontalPodAutoscalerSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *HorizontalPodAutoscalerSpecDie) DieReleasePtr() *autoscalingv1.HorizontalPodAutoscalerSpec {
+func (d *horizontalPodAutoscalerSpecDie) DieReleasePtr() *autoscalingv1.HorizontalPodAutoscalerSpec {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *HorizontalPodAutoscalerSpecDie) DieStamp(fn func(r *autoscalingv1.HorizontalPodAutoscalerSpec)) *HorizontalPodAutoscalerSpecDie {
+func (d *horizontalPodAutoscalerSpecDie) DieStamp(fn func(r *autoscalingv1.HorizontalPodAutoscalerSpec)) HorizontalPodAutoscalerSpecDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *HorizontalPodAutoscalerSpecDie) DeepCopy() *HorizontalPodAutoscalerSpecDie {
+func (d *horizontalPodAutoscalerSpecDie) DeepCopy() HorizontalPodAutoscalerSpecDie {
 	r := *d.r.DeepCopy()
-	return &HorizontalPodAutoscalerSpecDie{
+	return &horizontalPodAutoscalerSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// reference to scaled resource; horizontal pod autoscaler will learn the current resource consumption and will set the desired number of pods by using its Scale subresource.
-func (d *HorizontalPodAutoscalerSpecDie) ScaleTargetRef(v autoscalingv1.CrossVersionObjectReference) *HorizontalPodAutoscalerSpecDie {
+func (d *horizontalPodAutoscalerSpecDie) ScaleTargetRef(v autoscalingv1.CrossVersionObjectReference) HorizontalPodAutoscalerSpecDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerSpec) {
 		r.ScaleTargetRef = v
 	})
 }
 
-// minReplicas is the lower limit for the number of replicas to which the autoscaler can scale down.  It defaults to 1 pod.  minReplicas is allowed to be 0 if the alpha feature gate HPAScaleToZero is enabled and at least one Object or External metric is configured.  Scaling is active as long as at least one metric value is available.
-func (d *HorizontalPodAutoscalerSpecDie) MinReplicas(v *int32) *HorizontalPodAutoscalerSpecDie {
+func (d *horizontalPodAutoscalerSpecDie) MinReplicas(v *int32) HorizontalPodAutoscalerSpecDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerSpec) {
 		r.MinReplicas = v
 	})
 }
 
-// upper limit for the number of pods that can be set by the autoscaler; cannot be smaller than MinReplicas.
-func (d *HorizontalPodAutoscalerSpecDie) MaxReplicas(v int32) *HorizontalPodAutoscalerSpecDie {
+func (d *horizontalPodAutoscalerSpecDie) MaxReplicas(v int32) HorizontalPodAutoscalerSpecDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerSpec) {
 		r.MaxReplicas = v
 	})
 }
 
-// target average CPU utilization (represented as a percentage of requested CPU) over all the pods; if not specified the default autoscaling policy will be used.
-func (d *HorizontalPodAutoscalerSpecDie) TargetCPUUtilizationPercentage(v *int32) *HorizontalPodAutoscalerSpecDie {
+func (d *horizontalPodAutoscalerSpecDie) TargetCPUUtilizationPercentage(v *int32) HorizontalPodAutoscalerSpecDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerSpec) {
 		r.TargetCPUUtilizationPercentage = v
 	})
 }
 
-type HorizontalPodAutoscalerStatusDie struct {
+type HorizontalPodAutoscalerStatusDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *autoscalingv1.HorizontalPodAutoscalerStatus)) HorizontalPodAutoscalerStatusDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r autoscalingv1.HorizontalPodAutoscalerStatus) HorizontalPodAutoscalerStatusDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *autoscalingv1.HorizontalPodAutoscalerStatus) HorizontalPodAutoscalerStatusDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() autoscalingv1.HorizontalPodAutoscalerStatus
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *autoscalingv1.HorizontalPodAutoscalerStatus
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) HorizontalPodAutoscalerStatusDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() HorizontalPodAutoscalerStatusDie
+
+	// most recent generation observed by this autoscaler.
+	ObservedGeneration(ObservedGeneration *int64) HorizontalPodAutoscalerStatusDie
+	// last time the HorizontalPodAutoscaler scaled the number of pods; used by the autoscaler to control how often the number of pods is changed.
+	LastScaleTime(LastScaleTime *apismetav1.Time) HorizontalPodAutoscalerStatusDie
+	// current number of replicas of pods managed by this autoscaler.
+	CurrentReplicas(CurrentReplicas int32) HorizontalPodAutoscalerStatusDie
+	// desired number of replicas of pods managed by this autoscaler.
+	DesiredReplicas(DesiredReplicas int32) HorizontalPodAutoscalerStatusDie
+	// current average CPU utilization over all pods, represented as a percentage of requested CPU, e.g. 70 means that an average pod is using now 70% of its requested CPU.
+	CurrentCPUUtilizationPercentage(CurrentCPUUtilizationPercentage *int32) HorizontalPodAutoscalerStatusDie
+}
+
+var _ HorizontalPodAutoscalerStatusDie = (*horizontalPodAutoscalerStatusDie)(nil)
+var HorizontalPodAutoscalerStatusBlank = (&horizontalPodAutoscalerStatusDie{}).DieFeed(autoscalingv1.HorizontalPodAutoscalerStatus{})
+
+type horizontalPodAutoscalerStatusDie struct {
 	mutable bool
 	r       autoscalingv1.HorizontalPodAutoscalerStatus
 }
 
-var HorizontalPodAutoscalerStatusBlank = (&HorizontalPodAutoscalerStatusDie{}).DieFeed(autoscalingv1.HorizontalPodAutoscalerStatus{})
-
-func (d *HorizontalPodAutoscalerStatusDie) DieImmutable(immutable bool) *HorizontalPodAutoscalerStatusDie {
+func (d *horizontalPodAutoscalerStatusDie) DieImmutable(immutable bool) HorizontalPodAutoscalerStatusDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*horizontalPodAutoscalerStatusDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *HorizontalPodAutoscalerStatusDie) DieFeed(r autoscalingv1.HorizontalPodAutoscalerStatus) *HorizontalPodAutoscalerStatusDie {
+func (d *horizontalPodAutoscalerStatusDie) DieFeed(r autoscalingv1.HorizontalPodAutoscalerStatus) HorizontalPodAutoscalerStatusDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &HorizontalPodAutoscalerStatusDie{
+	return &horizontalPodAutoscalerStatusDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *HorizontalPodAutoscalerStatusDie) DieFeedPtr(r *autoscalingv1.HorizontalPodAutoscalerStatus) *HorizontalPodAutoscalerStatusDie {
+func (d *horizontalPodAutoscalerStatusDie) DieFeedPtr(r *autoscalingv1.HorizontalPodAutoscalerStatus) HorizontalPodAutoscalerStatusDie {
 	if r == nil {
 		r = &autoscalingv1.HorizontalPodAutoscalerStatus{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *HorizontalPodAutoscalerStatusDie) DieRelease() autoscalingv1.HorizontalPodAutoscalerStatus {
+func (d *horizontalPodAutoscalerStatusDie) DieRelease() autoscalingv1.HorizontalPodAutoscalerStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *HorizontalPodAutoscalerStatusDie) DieReleasePtr() *autoscalingv1.HorizontalPodAutoscalerStatus {
+func (d *horizontalPodAutoscalerStatusDie) DieReleasePtr() *autoscalingv1.HorizontalPodAutoscalerStatus {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *HorizontalPodAutoscalerStatusDie) DieStamp(fn func(r *autoscalingv1.HorizontalPodAutoscalerStatus)) *HorizontalPodAutoscalerStatusDie {
+func (d *horizontalPodAutoscalerStatusDie) DieStamp(fn func(r *autoscalingv1.HorizontalPodAutoscalerStatus)) HorizontalPodAutoscalerStatusDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *HorizontalPodAutoscalerStatusDie) DeepCopy() *HorizontalPodAutoscalerStatusDie {
+func (d *horizontalPodAutoscalerStatusDie) DeepCopy() HorizontalPodAutoscalerStatusDie {
 	r := *d.r.DeepCopy()
-	return &HorizontalPodAutoscalerStatusDie{
+	return &horizontalPodAutoscalerStatusDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// most recent generation observed by this autoscaler.
-func (d *HorizontalPodAutoscalerStatusDie) ObservedGeneration(v *int64) *HorizontalPodAutoscalerStatusDie {
+func (d *horizontalPodAutoscalerStatusDie) ObservedGeneration(v *int64) HorizontalPodAutoscalerStatusDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerStatus) {
 		r.ObservedGeneration = v
 	})
 }
 
-// last time the HorizontalPodAutoscaler scaled the number of pods; used by the autoscaler to control how often the number of pods is changed.
-func (d *HorizontalPodAutoscalerStatusDie) LastScaleTime(v *apismetav1.Time) *HorizontalPodAutoscalerStatusDie {
+func (d *horizontalPodAutoscalerStatusDie) LastScaleTime(v *apismetav1.Time) HorizontalPodAutoscalerStatusDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerStatus) {
 		r.LastScaleTime = v
 	})
 }
 
-// current number of replicas of pods managed by this autoscaler.
-func (d *HorizontalPodAutoscalerStatusDie) CurrentReplicas(v int32) *HorizontalPodAutoscalerStatusDie {
+func (d *horizontalPodAutoscalerStatusDie) CurrentReplicas(v int32) HorizontalPodAutoscalerStatusDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerStatus) {
 		r.CurrentReplicas = v
 	})
 }
 
-// desired number of replicas of pods managed by this autoscaler.
-func (d *HorizontalPodAutoscalerStatusDie) DesiredReplicas(v int32) *HorizontalPodAutoscalerStatusDie {
+func (d *horizontalPodAutoscalerStatusDie) DesiredReplicas(v int32) HorizontalPodAutoscalerStatusDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerStatus) {
 		r.DesiredReplicas = v
 	})
 }
 
-// current average CPU utilization over all pods, represented as a percentage of requested CPU, e.g. 70 means that an average pod is using now 70% of its requested CPU.
-func (d *HorizontalPodAutoscalerStatusDie) CurrentCPUUtilizationPercentage(v *int32) *HorizontalPodAutoscalerStatusDie {
+func (d *horizontalPodAutoscalerStatusDie) CurrentCPUUtilizationPercentage(v *int32) HorizontalPodAutoscalerStatusDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerStatus) {
 		r.CurrentCPUUtilizationPercentage = v
 	})

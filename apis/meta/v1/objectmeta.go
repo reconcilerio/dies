@@ -28,7 +28,14 @@ import (
 // +die
 type ObjectMeta = metav1.ObjectMeta
 
-func (d *ObjectMetaDie) AddLabel(key, value string) *ObjectMetaDie {
+type objectMeta interface {
+	AddLabel(key, value string) ObjectMetaDie
+	AddAnnotation(key, value string) ObjectMetaDie
+	ControlledBy(obj runtime.Object, scheme *runtime.Scheme) ObjectMetaDie
+	ManagedFieldsDie(fields ...ManagedFieldsEntryDie) ObjectMetaDie
+}
+
+func (d *objectMetaDie) AddLabel(key, value string) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		if r.Labels == nil {
 			r.Labels = map[string]string{}
@@ -37,7 +44,7 @@ func (d *ObjectMetaDie) AddLabel(key, value string) *ObjectMetaDie {
 	})
 }
 
-func (d *ObjectMetaDie) AddAnnotation(key, value string) *ObjectMetaDie {
+func (d *objectMetaDie) AddAnnotation(key, value string) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		if r.Annotations == nil {
 			r.Annotations = map[string]string{}
@@ -46,7 +53,7 @@ func (d *ObjectMetaDie) AddAnnotation(key, value string) *ObjectMetaDie {
 	})
 }
 
-func (d *ObjectMetaDie) ControlledBy(obj runtime.Object, scheme *runtime.Scheme) *ObjectMetaDie {
+func (d *objectMetaDie) ControlledBy(obj runtime.Object, scheme *runtime.Scheme) ObjectMetaDie {
 	// create a copy to shed the die, if any
 	obj = obj.DeepCopyObject()
 	gvks, _, err := scheme.ObjectKinds(obj)
@@ -63,7 +70,7 @@ func (d *ObjectMetaDie) ControlledBy(obj runtime.Object, scheme *runtime.Scheme)
 	})
 }
 
-func (d *ObjectMetaDie) ManagedFieldsDie(fields ...*ManagedFieldsEntryDie) *ObjectMetaDie {
+func (d *objectMetaDie) ManagedFieldsDie(fields ...ManagedFieldsEntryDie) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.ManagedFields = make([]metav1.ManagedFieldsEntry, len(fields))
 		for i := range fields {

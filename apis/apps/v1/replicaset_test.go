@@ -36,7 +36,7 @@ func TestReplicaSet(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		die      *dieappsv1.ReplicaSetDie
+		die      dieappsv1.ReplicaSetDie
 		expected appsv1.ReplicaSet
 	}{
 		{
@@ -47,7 +47,7 @@ func TestReplicaSet(t *testing.T) {
 		{
 			name: "object metadata",
 			die: dieappsv1.ReplicaSetBlank.
-				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),
@@ -61,13 +61,13 @@ func TestReplicaSet(t *testing.T) {
 		{
 			name: "spec template die",
 			die: dieappsv1.ReplicaSetBlank.
-				SpecDie(func(d *dieappsv1.ReplicaSetSpecDie) {
-					d.TemplateDie(func(d *diecorev1.PodTemplateSpecDie) {
-						d.MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				SpecDie(func(d dieappsv1.ReplicaSetSpecDie) {
+					d.TemplateDie(func(d diecorev1.PodTemplateSpecDie) {
+						d.MetadataDie(func(d diemetav1.ObjectMetaDie) {
 							d.Name("my-name")
 						})
-						d.SpecDie(func(d *diecorev1.PodSpecDie) {
-							d.ContainerDie("app", func(d *diecorev1.ContainerDie) {
+						d.SpecDie(func(d diecorev1.PodSpecDie) {
+							d.ContainerDie("app", func(d diecorev1.ContainerDie) {
 								d.Command("/executable")
 							})
 						})
@@ -94,7 +94,7 @@ func TestReplicaSet(t *testing.T) {
 		{
 			name: "status conditions die",
 			die: dieappsv1.ReplicaSetBlank.
-				StatusDie(func(d *dieappsv1.ReplicaSetStatusDie) {
+				StatusDie(func(d dieappsv1.ReplicaSetStatusDie) {
 					d.ConditionsDie(
 						diemetav1.ConditionBlank.
 							Type("Ready").

@@ -30,7 +30,11 @@ type NodeSpec = corev1.NodeSpec
 // +die
 type NodeStatus = corev1.NodeStatus
 
-func (d *NodeStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *NodeStatusDie {
+type nodeStatus interface {
+	ConditionsDie(conditions ...diemetav1.ConditionDie) NodeStatusDie
+}
+
+func (d *nodeStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.Conditions = make([]corev1.NodeCondition, len(conditions))
 		for i := range conditions {

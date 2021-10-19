@@ -31,94 +31,127 @@ import (
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-type CustomResourceDefinitionDie struct {
+type CustomResourceDefinitionDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinition)) CustomResourceDefinitionDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r apiextensionsv1.CustomResourceDefinition) CustomResourceDefinitionDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *apiextensionsv1.CustomResourceDefinition) CustomResourceDefinitionDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() apiextensionsv1.CustomResourceDefinition
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *apiextensionsv1.CustomResourceDefinition
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) CustomResourceDefinitionDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() CustomResourceDefinitionDie
+
+	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+	MetadataDie(fn func(d metav1.ObjectMetaDie)) CustomResourceDefinitionDie
+	// SpecDie stamps the resource's spec field with a mutable die.
+	SpecDie(fn func(d CustomResourceDefinitionSpecDie)) CustomResourceDefinitionDie
+	// StatusDie stamps the resource's status field with a mutable die.
+	StatusDie(fn func(d CustomResourceDefinitionStatusDie)) CustomResourceDefinitionDie
+	// spec describes how the user wants the resources to appear
+	Spec(Spec apiextensionsv1.CustomResourceDefinitionSpec) CustomResourceDefinitionDie
+	// status indicates the actual state of the CustomResourceDefinition
+	Status(Status apiextensionsv1.CustomResourceDefinitionStatus) CustomResourceDefinitionDie
+
+	runtime.Object
+	apismetav1.Object
+	apismetav1.ObjectMetaAccessor
+}
+
+var _ CustomResourceDefinitionDie = (*customResourceDefinitionDie)(nil)
+var CustomResourceDefinitionBlank = (&customResourceDefinitionDie{}).DieFeed(apiextensionsv1.CustomResourceDefinition{})
+
+type customResourceDefinitionDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       apiextensionsv1.CustomResourceDefinition
 }
 
-var CustomResourceDefinitionBlank = (&CustomResourceDefinitionDie{}).DieFeed(apiextensionsv1.CustomResourceDefinition{})
-
-func (d *CustomResourceDefinitionDie) DieImmutable(immutable bool) *CustomResourceDefinitionDie {
+func (d *customResourceDefinitionDie) DieImmutable(immutable bool) CustomResourceDefinitionDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*customResourceDefinitionDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *CustomResourceDefinitionDie) DieFeed(r apiextensionsv1.CustomResourceDefinition) *CustomResourceDefinitionDie {
+func (d *customResourceDefinitionDie) DieFeed(r apiextensionsv1.CustomResourceDefinition) CustomResourceDefinitionDie {
 	if d.mutable {
 		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
 		d.r = r
 		return d
 	}
-	return &CustomResourceDefinitionDie{
+	return &customResourceDefinitionDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *CustomResourceDefinitionDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinition) *CustomResourceDefinitionDie {
+func (d *customResourceDefinitionDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinition) CustomResourceDefinitionDie {
 	if r == nil {
 		r = &apiextensionsv1.CustomResourceDefinition{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *CustomResourceDefinitionDie) DieRelease() apiextensionsv1.CustomResourceDefinition {
+func (d *customResourceDefinitionDie) DieRelease() apiextensionsv1.CustomResourceDefinition {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *CustomResourceDefinitionDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinition {
+func (d *customResourceDefinitionDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinition {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *CustomResourceDefinitionDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinition)) *CustomResourceDefinitionDie {
+func (d *customResourceDefinitionDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinition)) CustomResourceDefinitionDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *CustomResourceDefinitionDie) DeepCopy() *CustomResourceDefinitionDie {
+func (d *customResourceDefinitionDie) DeepCopy() CustomResourceDefinitionDie {
 	r := *d.r.DeepCopy()
-	return &CustomResourceDefinitionDie{
+	return &customResourceDefinitionDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *CustomResourceDefinitionDie) DeepCopyObject() runtime.Object {
+func (d *customResourceDefinitionDie) DeepCopyObject() runtime.Object {
 	return d.r.DeepCopy()
 }
 
-func (d *CustomResourceDefinitionDie) GetObjectKind() schema.ObjectKind {
+func (d *customResourceDefinitionDie) GetObjectKind() schema.ObjectKind {
 	r := d.DieRelease()
 	return r.GetObjectKind()
 }
 
-func (d *CustomResourceDefinitionDie) MarshalJSON() ([]byte, error) {
+func (d *customResourceDefinitionDie) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.r)
 }
 
-func (d *CustomResourceDefinitionDie) UnmarshalJSON(b []byte) error {
+func (d *customResourceDefinitionDie) UnmarshalJSON(b []byte) error {
 	if d == CustomResourceDefinitionBlank {
 		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &apiextensionsv1.CustomResourceDefinition{}
 	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	*d = *d.DieFeed(*r).(*customResourceDefinitionDie)
 	return err
 }
 
-func (d *CustomResourceDefinitionDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *CustomResourceDefinitionDie {
+func (d *customResourceDefinitionDie) MetadataDie(fn func(d metav1.ObjectMetaDie)) CustomResourceDefinitionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinition) {
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
@@ -126,7 +159,7 @@ func (d *CustomResourceDefinitionDie) MetadataDie(fn func(d *metav1.ObjectMetaDi
 	})
 }
 
-func (d *CustomResourceDefinitionDie) SpecDie(fn func(d *CustomResourceDefinitionSpecDie)) *CustomResourceDefinitionDie {
+func (d *customResourceDefinitionDie) SpecDie(fn func(d CustomResourceDefinitionSpecDie)) CustomResourceDefinitionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinition) {
 		d := CustomResourceDefinitionSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
@@ -134,7 +167,7 @@ func (d *CustomResourceDefinitionDie) SpecDie(fn func(d *CustomResourceDefinitio
 	})
 }
 
-func (d *CustomResourceDefinitionDie) StatusDie(fn func(d *CustomResourceDefinitionStatusDie)) *CustomResourceDefinitionDie {
+func (d *customResourceDefinitionDie) StatusDie(fn func(d CustomResourceDefinitionStatusDie)) CustomResourceDefinitionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinition) {
 		d := CustomResourceDefinitionStatusBlank.DieImmutable(false).DieFeed(r.Status)
 		fn(d)
@@ -142,203 +175,245 @@ func (d *CustomResourceDefinitionDie) StatusDie(fn func(d *CustomResourceDefinit
 	})
 }
 
-var _ apismetav1.Object = (*CustomResourceDefinitionDie)(nil)
-var _ apismetav1.ObjectMetaAccessor = (*CustomResourceDefinitionDie)(nil)
-var _ runtime.Object = (*CustomResourceDefinitionDie)(nil)
-
-// spec describes how the user wants the resources to appear
-func (d *CustomResourceDefinitionDie) Spec(v apiextensionsv1.CustomResourceDefinitionSpec) *CustomResourceDefinitionDie {
+func (d *customResourceDefinitionDie) Spec(v apiextensionsv1.CustomResourceDefinitionSpec) CustomResourceDefinitionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinition) {
 		r.Spec = v
 	})
 }
 
-// status indicates the actual state of the CustomResourceDefinition
-func (d *CustomResourceDefinitionDie) Status(v apiextensionsv1.CustomResourceDefinitionStatus) *CustomResourceDefinitionDie {
+func (d *customResourceDefinitionDie) Status(v apiextensionsv1.CustomResourceDefinitionStatus) CustomResourceDefinitionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinition) {
 		r.Status = v
 	})
 }
 
-type CustomResourceDefinitionStatusDie struct {
-	mutable bool
-	r       apiextensionsv1.CustomResourceDefinitionStatus
+type CustomResourceDefinitionSpecDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionSpec)) CustomResourceDefinitionSpecDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r apiextensionsv1.CustomResourceDefinitionSpec) CustomResourceDefinitionSpecDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionSpec) CustomResourceDefinitionSpecDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() apiextensionsv1.CustomResourceDefinitionSpec
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionSpec
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) CustomResourceDefinitionSpecDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() CustomResourceDefinitionSpecDie
+
+	// group is the API group of the defined custom resource. The custom resources are served under `/apis/<group>/...`. Must match the name of the CustomResourceDefinition (in the form `<names.plural>.<group>`).
+	Group(Group string) CustomResourceDefinitionSpecDie
+	// names specify the resource and kind names for the custom resource.
+	Names(Names apiextensionsv1.CustomResourceDefinitionNames) CustomResourceDefinitionSpecDie
+	// scope indicates whether the defined custom resource is cluster- or namespace-scoped. Allowed values are `Cluster` and `Namespaced`.
+	Scope(Scope apiextensionsv1.ResourceScope) CustomResourceDefinitionSpecDie
+	// versions is the list of all API versions of the defined custom resource. Version names are used to compute the order in which served versions are listed in API discovery. If the version string is "kube-like", it will sort above non "kube-like" version strings, which are ordered lexicographically. "Kube-like" versions start with a "v", then are followed by a number (the major version), then optionally the string "alpha" or "beta" and another number (the minor version). These are sorted first by GA > beta > alpha (where GA is a version with no suffix such as beta or alpha), and then by comparing major version, then minor version. An example sorted list of versions: v10, v2, v1, v11beta2, v10beta3, v3beta1, v12alpha1, v11alpha2, foo1, foo10.
+	Versions(Versions ...apiextensionsv1.CustomResourceDefinitionVersion) CustomResourceDefinitionSpecDie
+	// conversion defines conversion settings for the CRD.
+	Conversion(Conversion *apiextensionsv1.CustomResourceConversion) CustomResourceDefinitionSpecDie
+	// preserveUnknownFields indicates that object fields which are not specified in the OpenAPI schema should be preserved when persisting to storage. apiVersion, kind, metadata and known fields inside metadata are always preserved. This field is deprecated in favor of setting `x-preserve-unknown-fields` to true in `spec.versions[*].schema.openAPIV3Schema`. See https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/#pruning-versus-preserving-unknown-fields for details.
+	PreserveUnknownFields(PreserveUnknownFields bool) CustomResourceDefinitionSpecDie
 }
 
-var CustomResourceDefinitionStatusBlank = (&CustomResourceDefinitionStatusDie{}).DieFeed(apiextensionsv1.CustomResourceDefinitionStatus{})
+var _ CustomResourceDefinitionSpecDie = (*customResourceDefinitionSpecDie)(nil)
+var CustomResourceDefinitionSpecBlank = (&customResourceDefinitionSpecDie{}).DieFeed(apiextensionsv1.CustomResourceDefinitionSpec{})
 
-func (d *CustomResourceDefinitionStatusDie) DieImmutable(immutable bool) *CustomResourceDefinitionStatusDie {
-	if d.mutable == !immutable {
-		return d
-	}
-	d = d.DeepCopy()
-	d.mutable = !immutable
-	return d
-}
-
-func (d *CustomResourceDefinitionStatusDie) DieFeed(r apiextensionsv1.CustomResourceDefinitionStatus) *CustomResourceDefinitionStatusDie {
-	if d.mutable {
-		d.r = r
-		return d
-	}
-	return &CustomResourceDefinitionStatusDie{
-		mutable: d.mutable,
-		r:       r,
-	}
-}
-
-func (d *CustomResourceDefinitionStatusDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionStatus) *CustomResourceDefinitionStatusDie {
-	if r == nil {
-		r = &apiextensionsv1.CustomResourceDefinitionStatus{}
-	}
-	return d.DieFeed(*r)
-}
-
-func (d *CustomResourceDefinitionStatusDie) DieRelease() apiextensionsv1.CustomResourceDefinitionStatus {
-	if d.mutable {
-		return d.r
-	}
-	return *d.r.DeepCopy()
-}
-
-func (d *CustomResourceDefinitionStatusDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionStatus {
-	r := d.DieRelease()
-	return &r
-}
-
-func (d *CustomResourceDefinitionStatusDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionStatus)) *CustomResourceDefinitionStatusDie {
-	r := d.DieRelease()
-	fn(&r)
-	return d.DieFeed(r)
-}
-
-func (d *CustomResourceDefinitionStatusDie) DeepCopy() *CustomResourceDefinitionStatusDie {
-	r := *d.r.DeepCopy()
-	return &CustomResourceDefinitionStatusDie{
-		mutable: d.mutable,
-		r:       r,
-	}
-}
-
-// conditions indicate state for particular aspects of a CustomResourceDefinition
-func (d *CustomResourceDefinitionStatusDie) Conditions(v ...apiextensionsv1.CustomResourceDefinitionCondition) *CustomResourceDefinitionStatusDie {
-	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionStatus) {
-		r.Conditions = v
-	})
-}
-
-// acceptedNames are the names that are actually being used to serve discovery. They may be different than the names in spec.
-func (d *CustomResourceDefinitionStatusDie) AcceptedNames(v apiextensionsv1.CustomResourceDefinitionNames) *CustomResourceDefinitionStatusDie {
-	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionStatus) {
-		r.AcceptedNames = v
-	})
-}
-
-// storedVersions lists all versions of CustomResources that were ever persisted. Tracking these versions allows a migration path for stored versions in etcd. The field is mutable so a migration controller can finish a migration to another version (ensuring no old objects are left in storage), and then remove the rest of the versions from this list. Versions may not be removed from `spec.versions` while they exist in this list.
-func (d *CustomResourceDefinitionStatusDie) StoredVersions(v ...string) *CustomResourceDefinitionStatusDie {
-	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionStatus) {
-		r.StoredVersions = v
-	})
-}
-
-type CustomResourceDefinitionSpecDie struct {
+type customResourceDefinitionSpecDie struct {
 	mutable bool
 	r       apiextensionsv1.CustomResourceDefinitionSpec
 }
 
-var CustomResourceDefinitionSpecBlank = (&CustomResourceDefinitionSpecDie{}).DieFeed(apiextensionsv1.CustomResourceDefinitionSpec{})
-
-func (d *CustomResourceDefinitionSpecDie) DieImmutable(immutable bool) *CustomResourceDefinitionSpecDie {
+func (d *customResourceDefinitionSpecDie) DieImmutable(immutable bool) CustomResourceDefinitionSpecDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*customResourceDefinitionSpecDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *CustomResourceDefinitionSpecDie) DieFeed(r apiextensionsv1.CustomResourceDefinitionSpec) *CustomResourceDefinitionSpecDie {
+func (d *customResourceDefinitionSpecDie) DieFeed(r apiextensionsv1.CustomResourceDefinitionSpec) CustomResourceDefinitionSpecDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &CustomResourceDefinitionSpecDie{
+	return &customResourceDefinitionSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *CustomResourceDefinitionSpecDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionSpec) *CustomResourceDefinitionSpecDie {
+func (d *customResourceDefinitionSpecDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionSpec) CustomResourceDefinitionSpecDie {
 	if r == nil {
 		r = &apiextensionsv1.CustomResourceDefinitionSpec{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *CustomResourceDefinitionSpecDie) DieRelease() apiextensionsv1.CustomResourceDefinitionSpec {
+func (d *customResourceDefinitionSpecDie) DieRelease() apiextensionsv1.CustomResourceDefinitionSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *CustomResourceDefinitionSpecDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionSpec {
+func (d *customResourceDefinitionSpecDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionSpec {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *CustomResourceDefinitionSpecDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionSpec)) *CustomResourceDefinitionSpecDie {
+func (d *customResourceDefinitionSpecDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionSpec)) CustomResourceDefinitionSpecDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *CustomResourceDefinitionSpecDie) DeepCopy() *CustomResourceDefinitionSpecDie {
+func (d *customResourceDefinitionSpecDie) DeepCopy() CustomResourceDefinitionSpecDie {
 	r := *d.r.DeepCopy()
-	return &CustomResourceDefinitionSpecDie{
+	return &customResourceDefinitionSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// group is the API group of the defined custom resource. The custom resources are served under `/apis/<group>/...`. Must match the name of the CustomResourceDefinition (in the form `<names.plural>.<group>`).
-func (d *CustomResourceDefinitionSpecDie) Group(v string) *CustomResourceDefinitionSpecDie {
+func (d *customResourceDefinitionSpecDie) Group(v string) CustomResourceDefinitionSpecDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
 		r.Group = v
 	})
 }
 
-// names specify the resource and kind names for the custom resource.
-func (d *CustomResourceDefinitionSpecDie) Names(v apiextensionsv1.CustomResourceDefinitionNames) *CustomResourceDefinitionSpecDie {
+func (d *customResourceDefinitionSpecDie) Names(v apiextensionsv1.CustomResourceDefinitionNames) CustomResourceDefinitionSpecDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
 		r.Names = v
 	})
 }
 
-// scope indicates whether the defined custom resource is cluster- or namespace-scoped. Allowed values are `Cluster` and `Namespaced`.
-func (d *CustomResourceDefinitionSpecDie) Scope(v apiextensionsv1.ResourceScope) *CustomResourceDefinitionSpecDie {
+func (d *customResourceDefinitionSpecDie) Scope(v apiextensionsv1.ResourceScope) CustomResourceDefinitionSpecDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
 		r.Scope = v
 	})
 }
 
-// versions is the list of all API versions of the defined custom resource. Version names are used to compute the order in which served versions are listed in API discovery. If the version string is "kube-like", it will sort above non "kube-like" version strings, which are ordered lexicographically. "Kube-like" versions start with a "v", then are followed by a number (the major version), then optionally the string "alpha" or "beta" and another number (the minor version). These are sorted first by GA > beta > alpha (where GA is a version with no suffix such as beta or alpha), and then by comparing major version, then minor version. An example sorted list of versions: v10, v2, v1, v11beta2, v10beta3, v3beta1, v12alpha1, v11alpha2, foo1, foo10.
-func (d *CustomResourceDefinitionSpecDie) Versions(v ...apiextensionsv1.CustomResourceDefinitionVersion) *CustomResourceDefinitionSpecDie {
+func (d *customResourceDefinitionSpecDie) Versions(v ...apiextensionsv1.CustomResourceDefinitionVersion) CustomResourceDefinitionSpecDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
 		r.Versions = v
 	})
 }
 
-// conversion defines conversion settings for the CRD.
-func (d *CustomResourceDefinitionSpecDie) Conversion(v *apiextensionsv1.CustomResourceConversion) *CustomResourceDefinitionSpecDie {
+func (d *customResourceDefinitionSpecDie) Conversion(v *apiextensionsv1.CustomResourceConversion) CustomResourceDefinitionSpecDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
 		r.Conversion = v
 	})
 }
 
-// preserveUnknownFields indicates that object fields which are not specified in the OpenAPI schema should be preserved when persisting to storage. apiVersion, kind, metadata and known fields inside metadata are always preserved. This field is deprecated in favor of setting `x-preserve-unknown-fields` to true in `spec.versions[*].schema.openAPIV3Schema`. See https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/#pruning-versus-preserving-unknown-fields for details.
-func (d *CustomResourceDefinitionSpecDie) PreserveUnknownFields(v bool) *CustomResourceDefinitionSpecDie {
+func (d *customResourceDefinitionSpecDie) PreserveUnknownFields(v bool) CustomResourceDefinitionSpecDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
 		r.PreserveUnknownFields = v
+	})
+}
+
+type CustomResourceDefinitionStatusDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionStatus)) CustomResourceDefinitionStatusDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r apiextensionsv1.CustomResourceDefinitionStatus) CustomResourceDefinitionStatusDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionStatus) CustomResourceDefinitionStatusDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() apiextensionsv1.CustomResourceDefinitionStatus
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionStatus
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) CustomResourceDefinitionStatusDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() CustomResourceDefinitionStatusDie
+
+	customResourceDefinitionStatus
+	// conditions indicate state for particular aspects of a CustomResourceDefinition
+	Conditions(Conditions ...apiextensionsv1.CustomResourceDefinitionCondition) CustomResourceDefinitionStatusDie
+	// acceptedNames are the names that are actually being used to serve discovery. They may be different than the names in spec.
+	AcceptedNames(AcceptedNames apiextensionsv1.CustomResourceDefinitionNames) CustomResourceDefinitionStatusDie
+	// storedVersions lists all versions of CustomResources that were ever persisted. Tracking these versions allows a migration path for stored versions in etcd. The field is mutable so a migration controller can finish a migration to another version (ensuring no old objects are left in storage), and then remove the rest of the versions from this list. Versions may not be removed from `spec.versions` while they exist in this list.
+	StoredVersions(StoredVersions ...string) CustomResourceDefinitionStatusDie
+}
+
+var _ CustomResourceDefinitionStatusDie = (*customResourceDefinitionStatusDie)(nil)
+var CustomResourceDefinitionStatusBlank = (&customResourceDefinitionStatusDie{}).DieFeed(apiextensionsv1.CustomResourceDefinitionStatus{})
+
+type customResourceDefinitionStatusDie struct {
+	mutable bool
+	r       apiextensionsv1.CustomResourceDefinitionStatus
+}
+
+func (d *customResourceDefinitionStatusDie) DieImmutable(immutable bool) CustomResourceDefinitionStatusDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*customResourceDefinitionStatusDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *customResourceDefinitionStatusDie) DieFeed(r apiextensionsv1.CustomResourceDefinitionStatus) CustomResourceDefinitionStatusDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &customResourceDefinitionStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *customResourceDefinitionStatusDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionStatus) CustomResourceDefinitionStatusDie {
+	if r == nil {
+		r = &apiextensionsv1.CustomResourceDefinitionStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *customResourceDefinitionStatusDie) DieRelease() apiextensionsv1.CustomResourceDefinitionStatus {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *customResourceDefinitionStatusDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionStatus {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *customResourceDefinitionStatusDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionStatus)) CustomResourceDefinitionStatusDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *customResourceDefinitionStatusDie) DeepCopy() CustomResourceDefinitionStatusDie {
+	r := *d.r.DeepCopy()
+	return &customResourceDefinitionStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *customResourceDefinitionStatusDie) Conditions(v ...apiextensionsv1.CustomResourceDefinitionCondition) CustomResourceDefinitionStatusDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionStatus) {
+		r.Conditions = v
+	})
+}
+
+func (d *customResourceDefinitionStatusDie) AcceptedNames(v apiextensionsv1.CustomResourceDefinitionNames) CustomResourceDefinitionStatusDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionStatus) {
+		r.AcceptedNames = v
+	})
+}
+
+func (d *customResourceDefinitionStatusDie) StoredVersions(v ...string) CustomResourceDefinitionStatusDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionStatus) {
+		r.StoredVersions = v
 	})
 }

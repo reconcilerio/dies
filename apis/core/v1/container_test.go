@@ -27,7 +27,7 @@ import (
 func TestContainer(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *diecorev1.ContainerDie
+		die      diecorev1.ContainerDie
 		expected corev1.Container
 	}{
 		{

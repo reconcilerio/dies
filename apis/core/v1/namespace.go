@@ -30,7 +30,11 @@ type NamespaceSpec = corev1.NamespaceSpec
 // +die
 type NamespaceStatus = corev1.NamespaceStatus
 
-func (d *NamespaceStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *NamespaceStatusDie {
+type namespaceStatus interface {
+	ConditionsDie(conditions ...diemetav1.ConditionDie) NamespaceStatusDie
+}
+
+func (d *namespaceStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) NamespaceStatusDie {
 	return d.DieStamp(func(r *corev1.NamespaceStatus) {
 		r.Conditions = make([]corev1.NamespaceCondition, len(conditions))
 		for i := range conditions {

@@ -29,7 +29,7 @@ import (
 func TestClusterRoleBinding(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *dierbacv1.ClusterRoleBindingDie
+		die      dierbacv1.ClusterRoleBindingDie
 		expected rbacv1.ClusterRoleBinding
 	}{
 		{
@@ -40,7 +40,7 @@ func TestClusterRoleBinding(t *testing.T) {
 		{
 			name: "object metadata",
 			die: dierbacv1.ClusterRoleBindingBlank.
-				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),

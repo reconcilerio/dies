@@ -29,7 +29,12 @@ type StatefulSpec = appsv1.StatefulSet
 // +die
 type StatefulSetSpec = appsv1.StatefulSetSpec
 
-func (d *StatefulSetSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *StatefulSetSpecDie {
+type statefulSetSpec interface {
+	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) StatefulSetSpecDie
+	VolumeClaimTemplatesDie(volumeClaimTemplates ...diecorev1.PersistentVolumeClaimDie) StatefulSetSpecDie
+}
+
+func (d *statefulSetSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		d := diecorev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
 		fn(d)
@@ -37,7 +42,7 @@ func (d *StatefulSetSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie
 	})
 }
 
-func (d *StatefulSetSpecDie) VolumeClaimTemplatesDie(volumeClaimTemplates ...*diecorev1.PersistentVolumeClaimDie) *StatefulSetSpecDie {
+func (d *statefulSetSpecDie) VolumeClaimTemplatesDie(volumeClaimTemplates ...diecorev1.PersistentVolumeClaimDie) StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.VolumeClaimTemplates = make([]corev1.PersistentVolumeClaim, len(volumeClaimTemplates))
 		for i, v := range volumeClaimTemplates {
@@ -49,7 +54,11 @@ func (d *StatefulSetSpecDie) VolumeClaimTemplatesDie(volumeClaimTemplates ...*di
 // +die
 type StatefulSetStatus = appsv1.StatefulSetStatus
 
-func (d *StatefulSetStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *StatefulSetStatusDie {
+type statefulSetStatus interface {
+	ConditionsDie(conditions ...diemetav1.ConditionDie) StatefulSetStatusDie
+}
+
+func (d *statefulSetStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.Conditions = make([]appsv1.StatefulSetCondition, len(conditions))
 		for i := range conditions {

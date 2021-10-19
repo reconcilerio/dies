@@ -21,7 +21,6 @@ import (
 	"time"
 
 	diecorev1 "dies.dev/apis/core/v1"
-	v1 "dies.dev/apis/core/v1"
 	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
@@ -36,7 +35,7 @@ func TestPod(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		die      *diecorev1.PodDie
+		die      diecorev1.PodDie
 		expected corev1.Pod
 	}{
 		{
@@ -47,7 +46,7 @@ func TestPod(t *testing.T) {
 		{
 			name: "object metadata",
 			die: diecorev1.PodBlank.
-				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),
@@ -61,8 +60,8 @@ func TestPod(t *testing.T) {
 		{
 			name: "spec add container",
 			die: diecorev1.PodBlank.
-				SpecDie(func(d *v1.PodSpecDie) {
-					d.ContainerDie("workload", func(d *diecorev1.ContainerDie) {
+				SpecDie(func(d diecorev1.PodSpecDie) {
+					d.ContainerDie("workload", func(d diecorev1.ContainerDie) {
 						d.Image("ubuntu:bionic")
 					})
 				}),
@@ -80,11 +79,11 @@ func TestPod(t *testing.T) {
 		{
 			name: "spec multiple containers",
 			die: diecorev1.PodBlank.
-				SpecDie(func(d *v1.PodSpecDie) {
-					d.ContainerDie("workload", func(d *diecorev1.ContainerDie) {
+				SpecDie(func(d diecorev1.PodSpecDie) {
+					d.ContainerDie("workload", func(d diecorev1.ContainerDie) {
 						d.Image("ubuntu:bionic")
 					}).
-						ContainerDie("sidecar", func(d *diecorev1.ContainerDie) {
+						ContainerDie("sidecar", func(d diecorev1.ContainerDie) {
 							d.Image("gcr.io/kubebuilder/kube-rbac-proxy")
 						})
 				}),
@@ -106,11 +105,11 @@ func TestPod(t *testing.T) {
 		{
 			name: "spec update containers",
 			die: diecorev1.PodBlank.
-				SpecDie(func(d *v1.PodSpecDie) {
-					d.ContainerDie("workload", func(d *diecorev1.ContainerDie) {
+				SpecDie(func(d diecorev1.PodSpecDie) {
+					d.ContainerDie("workload", func(d diecorev1.ContainerDie) {
 						d.Image("ubuntu:bionic")
 					})
-					d.ContainerDie("workload", func(d *diecorev1.ContainerDie) {
+					d.ContainerDie("workload", func(d diecorev1.ContainerDie) {
 						d.Command("env")
 					})
 				}),
@@ -129,8 +128,8 @@ func TestPod(t *testing.T) {
 		{
 			name: "spec add init container",
 			die: diecorev1.PodBlank.
-				SpecDie(func(d *v1.PodSpecDie) {
-					d.InitContainerDie("workload", func(d *diecorev1.ContainerDie) {
+				SpecDie(func(d diecorev1.PodSpecDie) {
+					d.InitContainerDie("workload", func(d diecorev1.ContainerDie) {
 						d.Image("ubuntu:bionic")
 					})
 				}),
@@ -148,11 +147,11 @@ func TestPod(t *testing.T) {
 		{
 			name: "spec multiple init containers",
 			die: diecorev1.PodBlank.
-				SpecDie(func(d *v1.PodSpecDie) {
-					d.InitContainerDie("workload", func(d *diecorev1.ContainerDie) {
+				SpecDie(func(d diecorev1.PodSpecDie) {
+					d.InitContainerDie("workload", func(d diecorev1.ContainerDie) {
 						d.Image("ubuntu:bionic")
 					})
-					d.InitContainerDie("sidecar", func(d *diecorev1.ContainerDie) {
+					d.InitContainerDie("sidecar", func(d diecorev1.ContainerDie) {
 						d.Image("gcr.io/kubebuilder/kube-rbac-proxy")
 					})
 				}),
@@ -174,11 +173,11 @@ func TestPod(t *testing.T) {
 		{
 			name: "spec update init containers",
 			die: diecorev1.PodBlank.
-				SpecDie(func(d *v1.PodSpecDie) {
-					d.InitContainerDie("workload", func(d *diecorev1.ContainerDie) {
+				SpecDie(func(d diecorev1.PodSpecDie) {
+					d.InitContainerDie("workload", func(d diecorev1.ContainerDie) {
 						d.Image("ubuntu:bionic")
 					})
-					d.InitContainerDie("workload", func(d *diecorev1.ContainerDie) {
+					d.InitContainerDie("workload", func(d diecorev1.ContainerDie) {
 						d.Command("env")
 					})
 				}),
@@ -197,9 +196,9 @@ func TestPod(t *testing.T) {
 		{
 			name: "spec add volume",
 			die: diecorev1.PodBlank.
-				SpecDie(func(d *v1.PodSpecDie) {
-					d.VolumeDie("config", func(d *diecorev1.VolumeDie) {
-						d.ConfigMapDie(func(d *diecorev1.ConfigMapVolumeSourceDie) {
+				SpecDie(func(d diecorev1.PodSpecDie) {
+					d.VolumeDie("config", func(d diecorev1.VolumeDie) {
+						d.ConfigMapDie(func(d diecorev1.ConfigMapVolumeSourceDie) {
 							d.LocalObjectReference(corev1.LocalObjectReference{
 								Name: "my-config",
 							})
@@ -226,16 +225,16 @@ func TestPod(t *testing.T) {
 		{
 			name: "spec multiple volumes",
 			die: diecorev1.PodBlank.
-				SpecDie(func(d *v1.PodSpecDie) {
-					d.VolumeDie("config", func(d *diecorev1.VolumeDie) {
-						d.ConfigMapDie(func(d *diecorev1.ConfigMapVolumeSourceDie) {
+				SpecDie(func(d diecorev1.PodSpecDie) {
+					d.VolumeDie("config", func(d diecorev1.VolumeDie) {
+						d.ConfigMapDie(func(d diecorev1.ConfigMapVolumeSourceDie) {
 							d.LocalObjectReference(corev1.LocalObjectReference{
 								Name: "my-config",
 							})
 						})
 					})
-					d.VolumeDie("scratch", func(d *diecorev1.VolumeDie) {
-						d.EmptyDirDie(func(d *diecorev1.EmptyDirVolumeSourceDie) {
+					d.VolumeDie("scratch", func(d diecorev1.VolumeDie) {
+						d.EmptyDirDie(func(d diecorev1.EmptyDirVolumeSourceDie) {
 							d.Medium(corev1.StorageMediumMemory)
 						})
 					})
@@ -268,16 +267,16 @@ func TestPod(t *testing.T) {
 		{
 			name: "spec update volume",
 			die: diecorev1.PodBlank.
-				SpecDie(func(d *v1.PodSpecDie) {
-					d.VolumeDie("config", func(d *diecorev1.VolumeDie) {
-						d.ConfigMapDie(func(d *diecorev1.ConfigMapVolumeSourceDie) {
+				SpecDie(func(d diecorev1.PodSpecDie) {
+					d.VolumeDie("config", func(d diecorev1.VolumeDie) {
+						d.ConfigMapDie(func(d diecorev1.ConfigMapVolumeSourceDie) {
 							d.LocalObjectReference(corev1.LocalObjectReference{
 								Name: "my-config",
 							})
 						})
 					})
-					d.VolumeDie("config", func(d *diecorev1.VolumeDie) {
-						d.ConfigMapDie(func(d *diecorev1.ConfigMapVolumeSourceDie) {
+					d.VolumeDie("config", func(d diecorev1.VolumeDie) {
+						d.ConfigMapDie(func(d diecorev1.ConfigMapVolumeSourceDie) {
 							d.Optional(pointer.Bool(true))
 						})
 					})
@@ -303,7 +302,7 @@ func TestPod(t *testing.T) {
 		{
 			name: "status condition",
 			die: diecorev1.PodBlank.
-				StatusDie(func(d *v1.PodStatusDie) {
+				StatusDie(func(d diecorev1.PodStatusDie) {
 					d.ConditionsDie(
 						diemetav1.ConditionBlank.
 							Type("ContainersReady").

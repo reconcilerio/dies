@@ -23,7 +23,12 @@ import (
 // +die:object=true
 type ClusterRoleBinding = rbacv1.ClusterRoleBinding
 
-func (d *ClusterRoleBindingDie) SubjectsDie(subjects ...*SubjectDie) *ClusterRoleBindingDie {
+type clusterRoleBinding interface {
+	SubjectsDie(subjects ...SubjectDie) ClusterRoleBindingDie
+	RoleRefDie(fn func(d RoleRefDie)) ClusterRoleBindingDie
+}
+
+func (d *clusterRoleBindingDie) SubjectsDie(subjects ...SubjectDie) ClusterRoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
 		r.Subjects = make([]rbacv1.Subject, len(subjects))
 		for i := range subjects {
@@ -32,7 +37,7 @@ func (d *ClusterRoleBindingDie) SubjectsDie(subjects ...*SubjectDie) *ClusterRol
 	})
 }
 
-func (d *ClusterRoleBindingDie) RoleRefDie(fn func(d *RoleRefDie)) *ClusterRoleBindingDie {
+func (d *clusterRoleBindingDie) RoleRefDie(fn func(d RoleRefDie)) ClusterRoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
 		d := RoleRefBlank.DieImmutable(false).DieFeed(r.RoleRef)
 		fn(d)

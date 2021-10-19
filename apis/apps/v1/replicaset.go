@@ -29,7 +29,11 @@ type ReplicaSet = appsv1.ReplicaSet
 // +die
 type ReplicaSetSpec = appsv1.ReplicaSetSpec
 
-func (d *ReplicaSetSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *ReplicaSetSpecDie {
+type replicaSetSpec interface {
+	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) ReplicaSetSpecDie
+}
+
+func (d *replicaSetSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) ReplicaSetSpecDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
 		d := diecorev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
 		fn(d)
@@ -40,7 +44,11 @@ func (d *ReplicaSetSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)
 // +die
 type ReplicaSetStatus = appsv1.ReplicaSetStatus
 
-func (d *ReplicaSetStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *ReplicaSetStatusDie {
+type replicaSetStatus interface {
+	ConditionsDie(conditions ...diemetav1.ConditionDie) ReplicaSetStatusDie
+}
+
+func (d *replicaSetStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.Conditions = make([]appsv1.ReplicaSetCondition, len(conditions))
 		for i := range conditions {

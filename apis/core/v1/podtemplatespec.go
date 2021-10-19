@@ -24,7 +24,12 @@ import (
 // +die
 type PodTemplateSpec = corev1.PodTemplateSpec
 
-func (d *PodTemplateSpecDie) MetadataDie(fn func(d *diemetav1.ObjectMetaDie)) *PodTemplateSpecDie {
+type podTemplateSpec interface {
+	MetadataDie(fn func(d diemetav1.ObjectMetaDie)) PodTemplateSpecDie
+	SpecDie(fn func(d PodSpecDie)) PodTemplateSpecDie
+}
+
+func (d *podTemplateSpecDie) MetadataDie(fn func(d diemetav1.ObjectMetaDie)) PodTemplateSpecDie {
 	return d.DieStamp(func(r *corev1.PodTemplateSpec) {
 		d := diemetav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
@@ -32,7 +37,7 @@ func (d *PodTemplateSpecDie) MetadataDie(fn func(d *diemetav1.ObjectMetaDie)) *P
 	})
 }
 
-func (d *PodTemplateSpecDie) SpecDie(fn func(d *PodSpecDie)) *PodTemplateSpecDie {
+func (d *podTemplateSpecDie) SpecDie(fn func(d PodSpecDie)) PodTemplateSpecDie {
 	return d.DieStamp(func(r *corev1.PodTemplateSpec) {
 		d := PodSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)

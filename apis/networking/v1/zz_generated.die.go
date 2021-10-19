@@ -33,94 +33,127 @@ import (
 	intstr "k8s.io/apimachinery/pkg/util/intstr"
 )
 
-type IngressDie struct {
+type IngressDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.Ingress)) IngressDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.Ingress) IngressDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.Ingress) IngressDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.Ingress
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.Ingress
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) IngressDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() IngressDie
+
+	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+	MetadataDie(fn func(d metav1.ObjectMetaDie)) IngressDie
+	// SpecDie stamps the resource's spec field with a mutable die.
+	SpecDie(fn func(d IngressSpecDie)) IngressDie
+	// StatusDie stamps the resource's status field with a mutable die.
+	StatusDie(fn func(d IngressStatusDie)) IngressDie
+	// Spec is the desired state of the Ingress. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	Spec(Spec networkingv1.IngressSpec) IngressDie
+	// Status is the current state of the Ingress. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	Status(Status networkingv1.IngressStatus) IngressDie
+
+	runtime.Object
+	apismetav1.Object
+	apismetav1.ObjectMetaAccessor
+}
+
+var _ IngressDie = (*ingressDie)(nil)
+var IngressBlank = (&ingressDie{}).DieFeed(networkingv1.Ingress{})
+
+type ingressDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       networkingv1.Ingress
 }
 
-var IngressBlank = (&IngressDie{}).DieFeed(networkingv1.Ingress{})
-
-func (d *IngressDie) DieImmutable(immutable bool) *IngressDie {
+func (d *ingressDie) DieImmutable(immutable bool) IngressDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*ingressDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *IngressDie) DieFeed(r networkingv1.Ingress) *IngressDie {
+func (d *ingressDie) DieFeed(r networkingv1.Ingress) IngressDie {
 	if d.mutable {
 		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
 		d.r = r
 		return d
 	}
-	return &IngressDie{
+	return &ingressDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *IngressDie) DieFeedPtr(r *networkingv1.Ingress) *IngressDie {
+func (d *ingressDie) DieFeedPtr(r *networkingv1.Ingress) IngressDie {
 	if r == nil {
 		r = &networkingv1.Ingress{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *IngressDie) DieRelease() networkingv1.Ingress {
+func (d *ingressDie) DieRelease() networkingv1.Ingress {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *IngressDie) DieReleasePtr() *networkingv1.Ingress {
+func (d *ingressDie) DieReleasePtr() *networkingv1.Ingress {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *IngressDie) DieStamp(fn func(r *networkingv1.Ingress)) *IngressDie {
+func (d *ingressDie) DieStamp(fn func(r *networkingv1.Ingress)) IngressDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *IngressDie) DeepCopy() *IngressDie {
+func (d *ingressDie) DeepCopy() IngressDie {
 	r := *d.r.DeepCopy()
-	return &IngressDie{
+	return &ingressDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *IngressDie) DeepCopyObject() runtime.Object {
+func (d *ingressDie) DeepCopyObject() runtime.Object {
 	return d.r.DeepCopy()
 }
 
-func (d *IngressDie) GetObjectKind() schema.ObjectKind {
+func (d *ingressDie) GetObjectKind() schema.ObjectKind {
 	r := d.DieRelease()
 	return r.GetObjectKind()
 }
 
-func (d *IngressDie) MarshalJSON() ([]byte, error) {
+func (d *ingressDie) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.r)
 }
 
-func (d *IngressDie) UnmarshalJSON(b []byte) error {
+func (d *ingressDie) UnmarshalJSON(b []byte) error {
 	if d == IngressBlank {
 		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &networkingv1.Ingress{}
 	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	*d = *d.DieFeed(*r).(*ingressDie)
 	return err
 }
 
-func (d *IngressDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *IngressDie {
+func (d *ingressDie) MetadataDie(fn func(d metav1.ObjectMetaDie)) IngressDie {
 	return d.DieStamp(func(r *networkingv1.Ingress) {
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
@@ -128,7 +161,7 @@ func (d *IngressDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *IngressDie {
 	})
 }
 
-func (d *IngressDie) SpecDie(fn func(d *IngressSpecDie)) *IngressDie {
+func (d *ingressDie) SpecDie(fn func(d IngressSpecDie)) IngressDie {
 	return d.DieStamp(func(r *networkingv1.Ingress) {
 		d := IngressSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
@@ -136,7 +169,7 @@ func (d *IngressDie) SpecDie(fn func(d *IngressSpecDie)) *IngressDie {
 	})
 }
 
-func (d *IngressDie) StatusDie(fn func(d *IngressStatusDie)) *IngressDie {
+func (d *ingressDie) StatusDie(fn func(d IngressStatusDie)) IngressDie {
 	return d.DieStamp(func(r *networkingv1.Ingress) {
 		d := IngressStatusBlank.DieImmutable(false).DieFeed(r.Status)
 		fn(d)
@@ -144,787 +177,1007 @@ func (d *IngressDie) StatusDie(fn func(d *IngressStatusDie)) *IngressDie {
 	})
 }
 
-var _ apismetav1.Object = (*IngressDie)(nil)
-var _ apismetav1.ObjectMetaAccessor = (*IngressDie)(nil)
-var _ runtime.Object = (*IngressDie)(nil)
-
-// Spec is the desired state of the Ingress. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-func (d *IngressDie) Spec(v networkingv1.IngressSpec) *IngressDie {
+func (d *ingressDie) Spec(v networkingv1.IngressSpec) IngressDie {
 	return d.DieStamp(func(r *networkingv1.Ingress) {
 		r.Spec = v
 	})
 }
 
-// Status is the current state of the Ingress. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-func (d *IngressDie) Status(v networkingv1.IngressStatus) *IngressDie {
+func (d *ingressDie) Status(v networkingv1.IngressStatus) IngressDie {
 	return d.DieStamp(func(r *networkingv1.Ingress) {
 		r.Status = v
 	})
 }
 
-type IngressSpecDie struct {
+type IngressSpecDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.IngressSpec)) IngressSpecDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.IngressSpec) IngressSpecDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.IngressSpec) IngressSpecDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.IngressSpec
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.IngressSpec
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) IngressSpecDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() IngressSpecDie
+
+	ingressSpec
+	// IngressClassName is the name of the IngressClass cluster resource. The associated IngressClass defines which controller will implement the resource. This replaces the deprecated `kubernetes.io/ingress.class` annotation. For backwards compatibility, when that annotation is set, it must be given precedence over this field. The controller may emit a warning if the field and annotation have different values. Implementations of this API should ignore Ingresses without a class specified. An IngressClass resource may be marked as default, which can be used to set a default value for this field. For more information, refer to the IngressClass documentation.
+	IngressClassName(IngressClassName *string) IngressSpecDie
+	// DefaultBackend is the backend that should handle requests that don't match any rule. If Rules are not specified, DefaultBackend must be specified. If DefaultBackend is not set, the handling of requests that do not match any of the rules will be up to the Ingress controller.
+	DefaultBackend(DefaultBackend *networkingv1.IngressBackend) IngressSpecDie
+	// TLS configuration. Currently the Ingress only supports a single TLS port, 443. If multiple members of this list specify different hosts, they will be multiplexed on the same port according to the hostname specified through the SNI TLS extension, if the ingress controller fulfilling the ingress supports SNI.
+	TLS(TLS ...networkingv1.IngressTLS) IngressSpecDie
+	// A list of host rules used to configure the Ingress. If unspecified, or no rule matches, all traffic is sent to the default backend.
+	Rules(Rules ...networkingv1.IngressRule) IngressSpecDie
+}
+
+var _ IngressSpecDie = (*ingressSpecDie)(nil)
+var IngressSpecBlank = (&ingressSpecDie{}).DieFeed(networkingv1.IngressSpec{})
+
+type ingressSpecDie struct {
 	mutable bool
 	r       networkingv1.IngressSpec
 }
 
-var IngressSpecBlank = (&IngressSpecDie{}).DieFeed(networkingv1.IngressSpec{})
-
-func (d *IngressSpecDie) DieImmutable(immutable bool) *IngressSpecDie {
+func (d *ingressSpecDie) DieImmutable(immutable bool) IngressSpecDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*ingressSpecDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *IngressSpecDie) DieFeed(r networkingv1.IngressSpec) *IngressSpecDie {
+func (d *ingressSpecDie) DieFeed(r networkingv1.IngressSpec) IngressSpecDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &IngressSpecDie{
+	return &ingressSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *IngressSpecDie) DieFeedPtr(r *networkingv1.IngressSpec) *IngressSpecDie {
+func (d *ingressSpecDie) DieFeedPtr(r *networkingv1.IngressSpec) IngressSpecDie {
 	if r == nil {
 		r = &networkingv1.IngressSpec{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *IngressSpecDie) DieRelease() networkingv1.IngressSpec {
+func (d *ingressSpecDie) DieRelease() networkingv1.IngressSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *IngressSpecDie) DieReleasePtr() *networkingv1.IngressSpec {
+func (d *ingressSpecDie) DieReleasePtr() *networkingv1.IngressSpec {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *IngressSpecDie) DieStamp(fn func(r *networkingv1.IngressSpec)) *IngressSpecDie {
+func (d *ingressSpecDie) DieStamp(fn func(r *networkingv1.IngressSpec)) IngressSpecDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *IngressSpecDie) DeepCopy() *IngressSpecDie {
+func (d *ingressSpecDie) DeepCopy() IngressSpecDie {
 	r := *d.r.DeepCopy()
-	return &IngressSpecDie{
+	return &ingressSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// IngressClassName is the name of the IngressClass cluster resource. The associated IngressClass defines which controller will implement the resource. This replaces the deprecated `kubernetes.io/ingress.class` annotation. For backwards compatibility, when that annotation is set, it must be given precedence over this field. The controller may emit a warning if the field and annotation have different values. Implementations of this API should ignore Ingresses without a class specified. An IngressClass resource may be marked as default, which can be used to set a default value for this field. For more information, refer to the IngressClass documentation.
-func (d *IngressSpecDie) IngressClassName(v *string) *IngressSpecDie {
+func (d *ingressSpecDie) IngressClassName(v *string) IngressSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressSpec) {
 		r.IngressClassName = v
 	})
 }
 
-// DefaultBackend is the backend that should handle requests that don't match any rule. If Rules are not specified, DefaultBackend must be specified. If DefaultBackend is not set, the handling of requests that do not match any of the rules will be up to the Ingress controller.
-func (d *IngressSpecDie) DefaultBackend(v *networkingv1.IngressBackend) *IngressSpecDie {
+func (d *ingressSpecDie) DefaultBackend(v *networkingv1.IngressBackend) IngressSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressSpec) {
 		r.DefaultBackend = v
 	})
 }
 
-// TLS configuration. Currently the Ingress only supports a single TLS port, 443. If multiple members of this list specify different hosts, they will be multiplexed on the same port according to the hostname specified through the SNI TLS extension, if the ingress controller fulfilling the ingress supports SNI.
-func (d *IngressSpecDie) TLS(v ...networkingv1.IngressTLS) *IngressSpecDie {
+func (d *ingressSpecDie) TLS(v ...networkingv1.IngressTLS) IngressSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressSpec) {
 		r.TLS = v
 	})
 }
 
-// A list of host rules used to configure the Ingress. If unspecified, or no rule matches, all traffic is sent to the default backend.
-func (d *IngressSpecDie) Rules(v ...networkingv1.IngressRule) *IngressSpecDie {
+func (d *ingressSpecDie) Rules(v ...networkingv1.IngressRule) IngressSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressSpec) {
 		r.Rules = v
 	})
 }
 
-type IngressBackendDie struct {
+type IngressBackendDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.IngressBackend)) IngressBackendDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.IngressBackend) IngressBackendDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.IngressBackend) IngressBackendDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.IngressBackend
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.IngressBackend
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) IngressBackendDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() IngressBackendDie
+
+	ingressBackend
+	// Service references a Service as a Backend. This is a mutually exclusive setting with "Resource".
+	Service(Service *networkingv1.IngressServiceBackend) IngressBackendDie
+	// Resource is an ObjectRef to another Kubernetes resource in the namespace of the Ingress object. If resource is specified, a service.Name and service.Port must not be specified. This is a mutually exclusive setting with "Service".
+	Resource(Resource *corev1.TypedLocalObjectReference) IngressBackendDie
+}
+
+var _ IngressBackendDie = (*ingressBackendDie)(nil)
+var IngressBackendBlank = (&ingressBackendDie{}).DieFeed(networkingv1.IngressBackend{})
+
+type ingressBackendDie struct {
 	mutable bool
 	r       networkingv1.IngressBackend
 }
 
-var IngressBackendBlank = (&IngressBackendDie{}).DieFeed(networkingv1.IngressBackend{})
-
-func (d *IngressBackendDie) DieImmutable(immutable bool) *IngressBackendDie {
+func (d *ingressBackendDie) DieImmutable(immutable bool) IngressBackendDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*ingressBackendDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *IngressBackendDie) DieFeed(r networkingv1.IngressBackend) *IngressBackendDie {
+func (d *ingressBackendDie) DieFeed(r networkingv1.IngressBackend) IngressBackendDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &IngressBackendDie{
+	return &ingressBackendDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *IngressBackendDie) DieFeedPtr(r *networkingv1.IngressBackend) *IngressBackendDie {
+func (d *ingressBackendDie) DieFeedPtr(r *networkingv1.IngressBackend) IngressBackendDie {
 	if r == nil {
 		r = &networkingv1.IngressBackend{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *IngressBackendDie) DieRelease() networkingv1.IngressBackend {
+func (d *ingressBackendDie) DieRelease() networkingv1.IngressBackend {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *IngressBackendDie) DieReleasePtr() *networkingv1.IngressBackend {
+func (d *ingressBackendDie) DieReleasePtr() *networkingv1.IngressBackend {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *IngressBackendDie) DieStamp(fn func(r *networkingv1.IngressBackend)) *IngressBackendDie {
+func (d *ingressBackendDie) DieStamp(fn func(r *networkingv1.IngressBackend)) IngressBackendDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *IngressBackendDie) DeepCopy() *IngressBackendDie {
+func (d *ingressBackendDie) DeepCopy() IngressBackendDie {
 	r := *d.r.DeepCopy()
-	return &IngressBackendDie{
+	return &ingressBackendDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// Service references a Service as a Backend. This is a mutually exclusive setting with "Resource".
-func (d *IngressBackendDie) Service(v *networkingv1.IngressServiceBackend) *IngressBackendDie {
+func (d *ingressBackendDie) Service(v *networkingv1.IngressServiceBackend) IngressBackendDie {
 	return d.DieStamp(func(r *networkingv1.IngressBackend) {
 		r.Service = v
 	})
 }
 
-// Resource is an ObjectRef to another Kubernetes resource in the namespace of the Ingress object. If resource is specified, a service.Name and service.Port must not be specified. This is a mutually exclusive setting with "Service".
-func (d *IngressBackendDie) Resource(v *corev1.TypedLocalObjectReference) *IngressBackendDie {
+func (d *ingressBackendDie) Resource(v *corev1.TypedLocalObjectReference) IngressBackendDie {
 	return d.DieStamp(func(r *networkingv1.IngressBackend) {
 		r.Resource = v
 	})
 }
 
-type IngressServiceBackendDie struct {
+type IngressServiceBackendDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.IngressServiceBackend)) IngressServiceBackendDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.IngressServiceBackend) IngressServiceBackendDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.IngressServiceBackend) IngressServiceBackendDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.IngressServiceBackend
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.IngressServiceBackend
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) IngressServiceBackendDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() IngressServiceBackendDie
+
+	ingressServiceBackend
+	// Name is the referenced service. The service must exist in the same namespace as the Ingress object.
+	Name(Name string) IngressServiceBackendDie
+	// Port of the referenced service. A port name or port number is required for a IngressServiceBackend.
+	Port(Port networkingv1.ServiceBackendPort) IngressServiceBackendDie
+}
+
+var _ IngressServiceBackendDie = (*ingressServiceBackendDie)(nil)
+var IngressServiceBackendBlank = (&ingressServiceBackendDie{}).DieFeed(networkingv1.IngressServiceBackend{})
+
+type ingressServiceBackendDie struct {
 	mutable bool
 	r       networkingv1.IngressServiceBackend
 }
 
-var IngressServiceBackendBlank = (&IngressServiceBackendDie{}).DieFeed(networkingv1.IngressServiceBackend{})
-
-func (d *IngressServiceBackendDie) DieImmutable(immutable bool) *IngressServiceBackendDie {
+func (d *ingressServiceBackendDie) DieImmutable(immutable bool) IngressServiceBackendDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*ingressServiceBackendDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *IngressServiceBackendDie) DieFeed(r networkingv1.IngressServiceBackend) *IngressServiceBackendDie {
+func (d *ingressServiceBackendDie) DieFeed(r networkingv1.IngressServiceBackend) IngressServiceBackendDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &IngressServiceBackendDie{
+	return &ingressServiceBackendDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *IngressServiceBackendDie) DieFeedPtr(r *networkingv1.IngressServiceBackend) *IngressServiceBackendDie {
+func (d *ingressServiceBackendDie) DieFeedPtr(r *networkingv1.IngressServiceBackend) IngressServiceBackendDie {
 	if r == nil {
 		r = &networkingv1.IngressServiceBackend{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *IngressServiceBackendDie) DieRelease() networkingv1.IngressServiceBackend {
+func (d *ingressServiceBackendDie) DieRelease() networkingv1.IngressServiceBackend {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *IngressServiceBackendDie) DieReleasePtr() *networkingv1.IngressServiceBackend {
+func (d *ingressServiceBackendDie) DieReleasePtr() *networkingv1.IngressServiceBackend {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *IngressServiceBackendDie) DieStamp(fn func(r *networkingv1.IngressServiceBackend)) *IngressServiceBackendDie {
+func (d *ingressServiceBackendDie) DieStamp(fn func(r *networkingv1.IngressServiceBackend)) IngressServiceBackendDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *IngressServiceBackendDie) DeepCopy() *IngressServiceBackendDie {
+func (d *ingressServiceBackendDie) DeepCopy() IngressServiceBackendDie {
 	r := *d.r.DeepCopy()
-	return &IngressServiceBackendDie{
+	return &ingressServiceBackendDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// Name is the referenced service. The service must exist in the same namespace as the Ingress object.
-func (d *IngressServiceBackendDie) Name(v string) *IngressServiceBackendDie {
+func (d *ingressServiceBackendDie) Name(v string) IngressServiceBackendDie {
 	return d.DieStamp(func(r *networkingv1.IngressServiceBackend) {
 		r.Name = v
 	})
 }
 
-// Port of the referenced service. A port name or port number is required for a IngressServiceBackend.
-func (d *IngressServiceBackendDie) Port(v networkingv1.ServiceBackendPort) *IngressServiceBackendDie {
+func (d *ingressServiceBackendDie) Port(v networkingv1.ServiceBackendPort) IngressServiceBackendDie {
 	return d.DieStamp(func(r *networkingv1.IngressServiceBackend) {
 		r.Port = v
 	})
 }
 
-type ServiceBackendPortDie struct {
+type ServiceBackendPortDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.ServiceBackendPort)) ServiceBackendPortDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.ServiceBackendPort) ServiceBackendPortDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.ServiceBackendPort) ServiceBackendPortDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.ServiceBackendPort
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.ServiceBackendPort
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ServiceBackendPortDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ServiceBackendPortDie
+
+	// Name is the name of the port on the Service. This is a mutually exclusive setting with "Number".
+	Name(Name string) ServiceBackendPortDie
+	// Number is the numerical port number (e.g. 80) on the Service. This is a mutually exclusive setting with "Name".
+	Number(Number int32) ServiceBackendPortDie
+}
+
+var _ ServiceBackendPortDie = (*serviceBackendPortDie)(nil)
+var ServiceBackendPortBlank = (&serviceBackendPortDie{}).DieFeed(networkingv1.ServiceBackendPort{})
+
+type serviceBackendPortDie struct {
 	mutable bool
 	r       networkingv1.ServiceBackendPort
 }
 
-var ServiceBackendPortBlank = (&ServiceBackendPortDie{}).DieFeed(networkingv1.ServiceBackendPort{})
-
-func (d *ServiceBackendPortDie) DieImmutable(immutable bool) *ServiceBackendPortDie {
+func (d *serviceBackendPortDie) DieImmutable(immutable bool) ServiceBackendPortDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*serviceBackendPortDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *ServiceBackendPortDie) DieFeed(r networkingv1.ServiceBackendPort) *ServiceBackendPortDie {
+func (d *serviceBackendPortDie) DieFeed(r networkingv1.ServiceBackendPort) ServiceBackendPortDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &ServiceBackendPortDie{
+	return &serviceBackendPortDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *ServiceBackendPortDie) DieFeedPtr(r *networkingv1.ServiceBackendPort) *ServiceBackendPortDie {
+func (d *serviceBackendPortDie) DieFeedPtr(r *networkingv1.ServiceBackendPort) ServiceBackendPortDie {
 	if r == nil {
 		r = &networkingv1.ServiceBackendPort{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *ServiceBackendPortDie) DieRelease() networkingv1.ServiceBackendPort {
+func (d *serviceBackendPortDie) DieRelease() networkingv1.ServiceBackendPort {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *ServiceBackendPortDie) DieReleasePtr() *networkingv1.ServiceBackendPort {
+func (d *serviceBackendPortDie) DieReleasePtr() *networkingv1.ServiceBackendPort {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *ServiceBackendPortDie) DieStamp(fn func(r *networkingv1.ServiceBackendPort)) *ServiceBackendPortDie {
+func (d *serviceBackendPortDie) DieStamp(fn func(r *networkingv1.ServiceBackendPort)) ServiceBackendPortDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *ServiceBackendPortDie) DeepCopy() *ServiceBackendPortDie {
+func (d *serviceBackendPortDie) DeepCopy() ServiceBackendPortDie {
 	r := *d.r.DeepCopy()
-	return &ServiceBackendPortDie{
+	return &serviceBackendPortDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// Name is the name of the port on the Service. This is a mutually exclusive setting with "Number".
-func (d *ServiceBackendPortDie) Name(v string) *ServiceBackendPortDie {
+func (d *serviceBackendPortDie) Name(v string) ServiceBackendPortDie {
 	return d.DieStamp(func(r *networkingv1.ServiceBackendPort) {
 		r.Name = v
 	})
 }
 
-// Number is the numerical port number (e.g. 80) on the Service. This is a mutually exclusive setting with "Name".
-func (d *ServiceBackendPortDie) Number(v int32) *ServiceBackendPortDie {
+func (d *serviceBackendPortDie) Number(v int32) ServiceBackendPortDie {
 	return d.DieStamp(func(r *networkingv1.ServiceBackendPort) {
 		r.Number = v
 	})
 }
 
-type IngressTLSDie struct {
+type IngressTLSDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.IngressTLS)) IngressTLSDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.IngressTLS) IngressTLSDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.IngressTLS) IngressTLSDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.IngressTLS
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.IngressTLS
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) IngressTLSDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() IngressTLSDie
+
+	// Hosts are a list of hosts included in the TLS certificate. The values in this list must match the name/s used in the tlsSecret. Defaults to the wildcard host setting for the loadbalancer controller fulfilling this Ingress, if left unspecified.
+	Hosts(Hosts ...string) IngressTLSDie
+	// SecretName is the name of the secret used to terminate TLS traffic on port 443. Field is left optional to allow TLS routing based on SNI hostname alone. If the SNI host in a listener conflicts with the "Host" header field used by an IngressRule, the SNI host is used for termination and value of the Host header is used for routing.
+	SecretName(SecretName string) IngressTLSDie
+}
+
+var _ IngressTLSDie = (*ingressTLSDie)(nil)
+var IngressTLSBlank = (&ingressTLSDie{}).DieFeed(networkingv1.IngressTLS{})
+
+type ingressTLSDie struct {
 	mutable bool
 	r       networkingv1.IngressTLS
 }
 
-var IngressTLSBlank = (&IngressTLSDie{}).DieFeed(networkingv1.IngressTLS{})
-
-func (d *IngressTLSDie) DieImmutable(immutable bool) *IngressTLSDie {
+func (d *ingressTLSDie) DieImmutable(immutable bool) IngressTLSDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*ingressTLSDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *IngressTLSDie) DieFeed(r networkingv1.IngressTLS) *IngressTLSDie {
+func (d *ingressTLSDie) DieFeed(r networkingv1.IngressTLS) IngressTLSDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &IngressTLSDie{
+	return &ingressTLSDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *IngressTLSDie) DieFeedPtr(r *networkingv1.IngressTLS) *IngressTLSDie {
+func (d *ingressTLSDie) DieFeedPtr(r *networkingv1.IngressTLS) IngressTLSDie {
 	if r == nil {
 		r = &networkingv1.IngressTLS{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *IngressTLSDie) DieRelease() networkingv1.IngressTLS {
+func (d *ingressTLSDie) DieRelease() networkingv1.IngressTLS {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *IngressTLSDie) DieReleasePtr() *networkingv1.IngressTLS {
+func (d *ingressTLSDie) DieReleasePtr() *networkingv1.IngressTLS {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *IngressTLSDie) DieStamp(fn func(r *networkingv1.IngressTLS)) *IngressTLSDie {
+func (d *ingressTLSDie) DieStamp(fn func(r *networkingv1.IngressTLS)) IngressTLSDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *IngressTLSDie) DeepCopy() *IngressTLSDie {
+func (d *ingressTLSDie) DeepCopy() IngressTLSDie {
 	r := *d.r.DeepCopy()
-	return &IngressTLSDie{
+	return &ingressTLSDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// Hosts are a list of hosts included in the TLS certificate. The values in this list must match the name/s used in the tlsSecret. Defaults to the wildcard host setting for the loadbalancer controller fulfilling this Ingress, if left unspecified.
-func (d *IngressTLSDie) Hosts(v ...string) *IngressTLSDie {
+func (d *ingressTLSDie) Hosts(v ...string) IngressTLSDie {
 	return d.DieStamp(func(r *networkingv1.IngressTLS) {
 		r.Hosts = v
 	})
 }
 
-// SecretName is the name of the secret used to terminate TLS traffic on port 443. Field is left optional to allow TLS routing based on SNI hostname alone. If the SNI host in a listener conflicts with the "Host" header field used by an IngressRule, the SNI host is used for termination and value of the Host header is used for routing.
-func (d *IngressTLSDie) SecretName(v string) *IngressTLSDie {
+func (d *ingressTLSDie) SecretName(v string) IngressTLSDie {
 	return d.DieStamp(func(r *networkingv1.IngressTLS) {
 		r.SecretName = v
 	})
 }
 
-type IngressRuleDie struct {
+type IngressRuleDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.IngressRule)) IngressRuleDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.IngressRule) IngressRuleDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.IngressRule) IngressRuleDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.IngressRule
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.IngressRule
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) IngressRuleDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() IngressRuleDie
+
+	ingressRule
+	// Host is the fully qualified domain name of a network host, as defined by RFC 3986. Note the following deviations from the "host" part of the URI as defined in RFC 3986: 1. IPs are not allowed. Currently an IngressRuleValue can only apply to    the IP in the Spec of the parent Ingress. 2. The `:` delimiter is not respected because ports are not allowed. 	  Currently the port of an Ingress is implicitly :80 for http and 	  :443 for https. Both these may change in the future. Incoming requests are matched against the host before the IngressRuleValue. If the host is unspecified, the Ingress routes all traffic based on the specified IngressRuleValue.
+	//
+	// Host can be "precise" which is a domain name without the terminating dot of a network host (e.g. "foo.bar.com") or "wildcard", which is a domain name prefixed with a single wildcard label (e.g. "*.foo.com"). The wildcard character '*' must appear by itself as the first DNS label and matches only a single label. You cannot have a wildcard label by itself (e.g. Host == "*"). Requests will be matched against the Host field in the following way: 1. If Host is precise, the request matches this rule if the http host header is equal to Host. 2. If Host is a wildcard, then the request matches this rule if the http host header is to equal to the suffix (removing the first label) of the wildcard rule.
+	Host(Host string) IngressRuleDie
+	// IngressRuleValue represents a rule to route requests for this IngressRule. If unspecified, the rule defaults to a http catch-all. Whether that sends just traffic matching the host to the default backend or all traffic to the default backend, is left to the controller fulfilling the Ingress. Http is currently the only supported IngressRuleValue.
+	IngressRuleValue(IngressRuleValue networkingv1.IngressRuleValue) IngressRuleDie
+}
+
+var _ IngressRuleDie = (*ingressRuleDie)(nil)
+var IngressRuleBlank = (&ingressRuleDie{}).DieFeed(networkingv1.IngressRule{})
+
+type ingressRuleDie struct {
 	mutable bool
 	r       networkingv1.IngressRule
 }
 
-var IngressRuleBlank = (&IngressRuleDie{}).DieFeed(networkingv1.IngressRule{})
-
-func (d *IngressRuleDie) DieImmutable(immutable bool) *IngressRuleDie {
+func (d *ingressRuleDie) DieImmutable(immutable bool) IngressRuleDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*ingressRuleDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *IngressRuleDie) DieFeed(r networkingv1.IngressRule) *IngressRuleDie {
+func (d *ingressRuleDie) DieFeed(r networkingv1.IngressRule) IngressRuleDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &IngressRuleDie{
+	return &ingressRuleDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *IngressRuleDie) DieFeedPtr(r *networkingv1.IngressRule) *IngressRuleDie {
+func (d *ingressRuleDie) DieFeedPtr(r *networkingv1.IngressRule) IngressRuleDie {
 	if r == nil {
 		r = &networkingv1.IngressRule{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *IngressRuleDie) DieRelease() networkingv1.IngressRule {
+func (d *ingressRuleDie) DieRelease() networkingv1.IngressRule {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *IngressRuleDie) DieReleasePtr() *networkingv1.IngressRule {
+func (d *ingressRuleDie) DieReleasePtr() *networkingv1.IngressRule {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *IngressRuleDie) DieStamp(fn func(r *networkingv1.IngressRule)) *IngressRuleDie {
+func (d *ingressRuleDie) DieStamp(fn func(r *networkingv1.IngressRule)) IngressRuleDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *IngressRuleDie) DeepCopy() *IngressRuleDie {
+func (d *ingressRuleDie) DeepCopy() IngressRuleDie {
 	r := *d.r.DeepCopy()
-	return &IngressRuleDie{
+	return &ingressRuleDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// Host is the fully qualified domain name of a network host, as defined by RFC 3986. Note the following deviations from the "host" part of the URI as defined in RFC 3986: 1. IPs are not allowed. Currently an IngressRuleValue can only apply to    the IP in the Spec of the parent Ingress. 2. The `:` delimiter is not respected because ports are not allowed. 	  Currently the port of an Ingress is implicitly :80 for http and 	  :443 for https. Both these may change in the future. Incoming requests are matched against the host before the IngressRuleValue. If the host is unspecified, the Ingress routes all traffic based on the specified IngressRuleValue.
-//
-// Host can be "precise" which is a domain name without the terminating dot of a network host (e.g. "foo.bar.com") or "wildcard", which is a domain name prefixed with a single wildcard label (e.g. "*.foo.com"). The wildcard character '*' must appear by itself as the first DNS label and matches only a single label. You cannot have a wildcard label by itself (e.g. Host == "*"). Requests will be matched against the Host field in the following way: 1. If Host is precise, the request matches this rule if the http host header is equal to Host. 2. If Host is a wildcard, then the request matches this rule if the http host header is to equal to the suffix (removing the first label) of the wildcard rule.
-func (d *IngressRuleDie) Host(v string) *IngressRuleDie {
+func (d *ingressRuleDie) Host(v string) IngressRuleDie {
 	return d.DieStamp(func(r *networkingv1.IngressRule) {
 		r.Host = v
 	})
 }
 
-// IngressRuleValue represents a rule to route requests for this IngressRule. If unspecified, the rule defaults to a http catch-all. Whether that sends just traffic matching the host to the default backend or all traffic to the default backend, is left to the controller fulfilling the Ingress. Http is currently the only supported IngressRuleValue.
-func (d *IngressRuleDie) IngressRuleValue(v networkingv1.IngressRuleValue) *IngressRuleDie {
+func (d *ingressRuleDie) IngressRuleValue(v networkingv1.IngressRuleValue) IngressRuleDie {
 	return d.DieStamp(func(r *networkingv1.IngressRule) {
 		r.IngressRuleValue = v
 	})
 }
 
-type HTTPIngressRuleValueDie struct {
+type HTTPIngressRuleValueDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.HTTPIngressRuleValue)) HTTPIngressRuleValueDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.HTTPIngressRuleValue) HTTPIngressRuleValueDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.HTTPIngressRuleValue) HTTPIngressRuleValueDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.HTTPIngressRuleValue
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.HTTPIngressRuleValue
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) HTTPIngressRuleValueDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() HTTPIngressRuleValueDie
+
+	hTTPIngressRuleValue
+	// A collection of paths that map requests to backends.
+	Paths(Paths ...networkingv1.HTTPIngressPath) HTTPIngressRuleValueDie
+}
+
+var _ HTTPIngressRuleValueDie = (*hTTPIngressRuleValueDie)(nil)
+var HTTPIngressRuleValueBlank = (&hTTPIngressRuleValueDie{}).DieFeed(networkingv1.HTTPIngressRuleValue{})
+
+type hTTPIngressRuleValueDie struct {
 	mutable bool
 	r       networkingv1.HTTPIngressRuleValue
 }
 
-var HTTPIngressRuleValueBlank = (&HTTPIngressRuleValueDie{}).DieFeed(networkingv1.HTTPIngressRuleValue{})
-
-func (d *HTTPIngressRuleValueDie) DieImmutable(immutable bool) *HTTPIngressRuleValueDie {
+func (d *hTTPIngressRuleValueDie) DieImmutable(immutable bool) HTTPIngressRuleValueDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*hTTPIngressRuleValueDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *HTTPIngressRuleValueDie) DieFeed(r networkingv1.HTTPIngressRuleValue) *HTTPIngressRuleValueDie {
+func (d *hTTPIngressRuleValueDie) DieFeed(r networkingv1.HTTPIngressRuleValue) HTTPIngressRuleValueDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &HTTPIngressRuleValueDie{
+	return &hTTPIngressRuleValueDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *HTTPIngressRuleValueDie) DieFeedPtr(r *networkingv1.HTTPIngressRuleValue) *HTTPIngressRuleValueDie {
+func (d *hTTPIngressRuleValueDie) DieFeedPtr(r *networkingv1.HTTPIngressRuleValue) HTTPIngressRuleValueDie {
 	if r == nil {
 		r = &networkingv1.HTTPIngressRuleValue{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *HTTPIngressRuleValueDie) DieRelease() networkingv1.HTTPIngressRuleValue {
+func (d *hTTPIngressRuleValueDie) DieRelease() networkingv1.HTTPIngressRuleValue {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *HTTPIngressRuleValueDie) DieReleasePtr() *networkingv1.HTTPIngressRuleValue {
+func (d *hTTPIngressRuleValueDie) DieReleasePtr() *networkingv1.HTTPIngressRuleValue {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *HTTPIngressRuleValueDie) DieStamp(fn func(r *networkingv1.HTTPIngressRuleValue)) *HTTPIngressRuleValueDie {
+func (d *hTTPIngressRuleValueDie) DieStamp(fn func(r *networkingv1.HTTPIngressRuleValue)) HTTPIngressRuleValueDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *HTTPIngressRuleValueDie) DeepCopy() *HTTPIngressRuleValueDie {
+func (d *hTTPIngressRuleValueDie) DeepCopy() HTTPIngressRuleValueDie {
 	r := *d.r.DeepCopy()
-	return &HTTPIngressRuleValueDie{
+	return &hTTPIngressRuleValueDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// A collection of paths that map requests to backends.
-func (d *HTTPIngressRuleValueDie) Paths(v ...networkingv1.HTTPIngressPath) *HTTPIngressRuleValueDie {
+func (d *hTTPIngressRuleValueDie) Paths(v ...networkingv1.HTTPIngressPath) HTTPIngressRuleValueDie {
 	return d.DieStamp(func(r *networkingv1.HTTPIngressRuleValue) {
 		r.Paths = v
 	})
 }
 
-type HTTPIngressPathDie struct {
+type HTTPIngressPathDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.HTTPIngressPath)) HTTPIngressPathDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.HTTPIngressPath) HTTPIngressPathDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.HTTPIngressPath) HTTPIngressPathDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.HTTPIngressPath
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.HTTPIngressPath
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) HTTPIngressPathDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() HTTPIngressPathDie
+
+	hTTPIngressPath
+	// Path is matched against the path of an incoming request. Currently it can contain characters disallowed from the conventional "path" part of a URL as defined by RFC 3986. Paths must begin with a '/' and must be present when using PathType with value "Exact" or "Prefix".
+	Path(Path string) HTTPIngressPathDie
+	// PathType determines the interpretation of the Path matching. PathType can be one of the following values: * Exact: Matches the URL path exactly. * Prefix: Matches based on a URL path prefix split by '/'. Matching is   done on a path element by element basis. A path element refers is the   list of labels in the path split by the '/' separator. A request is a   match for path p if every p is an element-wise prefix of p of the   request path. Note that if the last element of the path is a substring   of the last element in request path, it is not a match (e.g. /foo/bar   matches /foo/bar/baz, but does not match /foo/barbaz). * ImplementationSpecific: Interpretation of the Path matching is up to   the IngressClass. Implementations can treat this as a separate PathType   or treat it identically to Prefix or Exact path types. Implementations are required to support all path types.
+	PathType(PathType *networkingv1.PathType) HTTPIngressPathDie
+	// Backend defines the referenced service endpoint to which the traffic will be forwarded to.
+	Backend(Backend networkingv1.IngressBackend) HTTPIngressPathDie
+}
+
+var _ HTTPIngressPathDie = (*hTTPIngressPathDie)(nil)
+var HTTPIngressPathBlank = (&hTTPIngressPathDie{}).DieFeed(networkingv1.HTTPIngressPath{})
+
+type hTTPIngressPathDie struct {
 	mutable bool
 	r       networkingv1.HTTPIngressPath
 }
 
-var HTTPIngressPathBlank = (&HTTPIngressPathDie{}).DieFeed(networkingv1.HTTPIngressPath{})
-
-func (d *HTTPIngressPathDie) DieImmutable(immutable bool) *HTTPIngressPathDie {
+func (d *hTTPIngressPathDie) DieImmutable(immutable bool) HTTPIngressPathDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*hTTPIngressPathDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *HTTPIngressPathDie) DieFeed(r networkingv1.HTTPIngressPath) *HTTPIngressPathDie {
+func (d *hTTPIngressPathDie) DieFeed(r networkingv1.HTTPIngressPath) HTTPIngressPathDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &HTTPIngressPathDie{
+	return &hTTPIngressPathDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *HTTPIngressPathDie) DieFeedPtr(r *networkingv1.HTTPIngressPath) *HTTPIngressPathDie {
+func (d *hTTPIngressPathDie) DieFeedPtr(r *networkingv1.HTTPIngressPath) HTTPIngressPathDie {
 	if r == nil {
 		r = &networkingv1.HTTPIngressPath{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *HTTPIngressPathDie) DieRelease() networkingv1.HTTPIngressPath {
+func (d *hTTPIngressPathDie) DieRelease() networkingv1.HTTPIngressPath {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *HTTPIngressPathDie) DieReleasePtr() *networkingv1.HTTPIngressPath {
+func (d *hTTPIngressPathDie) DieReleasePtr() *networkingv1.HTTPIngressPath {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *HTTPIngressPathDie) DieStamp(fn func(r *networkingv1.HTTPIngressPath)) *HTTPIngressPathDie {
+func (d *hTTPIngressPathDie) DieStamp(fn func(r *networkingv1.HTTPIngressPath)) HTTPIngressPathDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *HTTPIngressPathDie) DeepCopy() *HTTPIngressPathDie {
+func (d *hTTPIngressPathDie) DeepCopy() HTTPIngressPathDie {
 	r := *d.r.DeepCopy()
-	return &HTTPIngressPathDie{
+	return &hTTPIngressPathDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// Path is matched against the path of an incoming request. Currently it can contain characters disallowed from the conventional "path" part of a URL as defined by RFC 3986. Paths must begin with a '/' and must be present when using PathType with value "Exact" or "Prefix".
-func (d *HTTPIngressPathDie) Path(v string) *HTTPIngressPathDie {
+func (d *hTTPIngressPathDie) Path(v string) HTTPIngressPathDie {
 	return d.DieStamp(func(r *networkingv1.HTTPIngressPath) {
 		r.Path = v
 	})
 }
 
-// PathType determines the interpretation of the Path matching. PathType can be one of the following values: * Exact: Matches the URL path exactly. * Prefix: Matches based on a URL path prefix split by '/'. Matching is   done on a path element by element basis. A path element refers is the   list of labels in the path split by the '/' separator. A request is a   match for path p if every p is an element-wise prefix of p of the   request path. Note that if the last element of the path is a substring   of the last element in request path, it is not a match (e.g. /foo/bar   matches /foo/bar/baz, but does not match /foo/barbaz). * ImplementationSpecific: Interpretation of the Path matching is up to   the IngressClass. Implementations can treat this as a separate PathType   or treat it identically to Prefix or Exact path types. Implementations are required to support all path types.
-func (d *HTTPIngressPathDie) PathType(v *networkingv1.PathType) *HTTPIngressPathDie {
+func (d *hTTPIngressPathDie) PathType(v *networkingv1.PathType) HTTPIngressPathDie {
 	return d.DieStamp(func(r *networkingv1.HTTPIngressPath) {
 		r.PathType = v
 	})
 }
 
-// Backend defines the referenced service endpoint to which the traffic will be forwarded to.
-func (d *HTTPIngressPathDie) Backend(v networkingv1.IngressBackend) *HTTPIngressPathDie {
+func (d *hTTPIngressPathDie) Backend(v networkingv1.IngressBackend) HTTPIngressPathDie {
 	return d.DieStamp(func(r *networkingv1.HTTPIngressPath) {
 		r.Backend = v
 	})
 }
 
-type IngressStatusDie struct {
+type IngressStatusDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.IngressStatus)) IngressStatusDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.IngressStatus) IngressStatusDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.IngressStatus) IngressStatusDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.IngressStatus
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.IngressStatus
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) IngressStatusDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() IngressStatusDie
+
+	ingressStatus
+	// LoadBalancer contains the current status of the load-balancer.
+	LoadBalancer(LoadBalancer corev1.LoadBalancerStatus) IngressStatusDie
+}
+
+var _ IngressStatusDie = (*ingressStatusDie)(nil)
+var IngressStatusBlank = (&ingressStatusDie{}).DieFeed(networkingv1.IngressStatus{})
+
+type ingressStatusDie struct {
 	mutable bool
 	r       networkingv1.IngressStatus
 }
 
-var IngressStatusBlank = (&IngressStatusDie{}).DieFeed(networkingv1.IngressStatus{})
-
-func (d *IngressStatusDie) DieImmutable(immutable bool) *IngressStatusDie {
+func (d *ingressStatusDie) DieImmutable(immutable bool) IngressStatusDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*ingressStatusDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *IngressStatusDie) DieFeed(r networkingv1.IngressStatus) *IngressStatusDie {
+func (d *ingressStatusDie) DieFeed(r networkingv1.IngressStatus) IngressStatusDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &IngressStatusDie{
+	return &ingressStatusDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *IngressStatusDie) DieFeedPtr(r *networkingv1.IngressStatus) *IngressStatusDie {
+func (d *ingressStatusDie) DieFeedPtr(r *networkingv1.IngressStatus) IngressStatusDie {
 	if r == nil {
 		r = &networkingv1.IngressStatus{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *IngressStatusDie) DieRelease() networkingv1.IngressStatus {
+func (d *ingressStatusDie) DieRelease() networkingv1.IngressStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *IngressStatusDie) DieReleasePtr() *networkingv1.IngressStatus {
+func (d *ingressStatusDie) DieReleasePtr() *networkingv1.IngressStatus {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *IngressStatusDie) DieStamp(fn func(r *networkingv1.IngressStatus)) *IngressStatusDie {
+func (d *ingressStatusDie) DieStamp(fn func(r *networkingv1.IngressStatus)) IngressStatusDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *IngressStatusDie) DeepCopy() *IngressStatusDie {
+func (d *ingressStatusDie) DeepCopy() IngressStatusDie {
 	r := *d.r.DeepCopy()
-	return &IngressStatusDie{
+	return &ingressStatusDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// LoadBalancer contains the current status of the load-balancer.
-func (d *IngressStatusDie) LoadBalancer(v corev1.LoadBalancerStatus) *IngressStatusDie {
+func (d *ingressStatusDie) LoadBalancer(v corev1.LoadBalancerStatus) IngressStatusDie {
 	return d.DieStamp(func(r *networkingv1.IngressStatus) {
 		r.LoadBalancer = v
 	})
 }
 
-type IngressClassDie struct {
+type IngressClassDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.IngressClass)) IngressClassDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.IngressClass) IngressClassDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.IngressClass) IngressClassDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.IngressClass
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.IngressClass
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) IngressClassDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() IngressClassDie
+
+	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+	MetadataDie(fn func(d metav1.ObjectMetaDie)) IngressClassDie
+	// SpecDie stamps the resource's spec field with a mutable die.
+	SpecDie(fn func(d IngressClassSpecDie)) IngressClassDie
+	// Spec is the desired state of the IngressClass. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	Spec(Spec networkingv1.IngressClassSpec) IngressClassDie
+
+	runtime.Object
+	apismetav1.Object
+	apismetav1.ObjectMetaAccessor
+}
+
+var _ IngressClassDie = (*ingressClassDie)(nil)
+var IngressClassBlank = (&ingressClassDie{}).DieFeed(networkingv1.IngressClass{})
+
+type ingressClassDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       networkingv1.IngressClass
 }
 
-var IngressClassBlank = (&IngressClassDie{}).DieFeed(networkingv1.IngressClass{})
-
-func (d *IngressClassDie) DieImmutable(immutable bool) *IngressClassDie {
+func (d *ingressClassDie) DieImmutable(immutable bool) IngressClassDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*ingressClassDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *IngressClassDie) DieFeed(r networkingv1.IngressClass) *IngressClassDie {
+func (d *ingressClassDie) DieFeed(r networkingv1.IngressClass) IngressClassDie {
 	if d.mutable {
 		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
 		d.r = r
 		return d
 	}
-	return &IngressClassDie{
+	return &ingressClassDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *IngressClassDie) DieFeedPtr(r *networkingv1.IngressClass) *IngressClassDie {
+func (d *ingressClassDie) DieFeedPtr(r *networkingv1.IngressClass) IngressClassDie {
 	if r == nil {
 		r = &networkingv1.IngressClass{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *IngressClassDie) DieRelease() networkingv1.IngressClass {
+func (d *ingressClassDie) DieRelease() networkingv1.IngressClass {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *IngressClassDie) DieReleasePtr() *networkingv1.IngressClass {
+func (d *ingressClassDie) DieReleasePtr() *networkingv1.IngressClass {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *IngressClassDie) DieStamp(fn func(r *networkingv1.IngressClass)) *IngressClassDie {
+func (d *ingressClassDie) DieStamp(fn func(r *networkingv1.IngressClass)) IngressClassDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *IngressClassDie) DeepCopy() *IngressClassDie {
+func (d *ingressClassDie) DeepCopy() IngressClassDie {
 	r := *d.r.DeepCopy()
-	return &IngressClassDie{
+	return &ingressClassDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *IngressClassDie) DeepCopyObject() runtime.Object {
+func (d *ingressClassDie) DeepCopyObject() runtime.Object {
 	return d.r.DeepCopy()
 }
 
-func (d *IngressClassDie) GetObjectKind() schema.ObjectKind {
+func (d *ingressClassDie) GetObjectKind() schema.ObjectKind {
 	r := d.DieRelease()
 	return r.GetObjectKind()
 }
 
-func (d *IngressClassDie) MarshalJSON() ([]byte, error) {
+func (d *ingressClassDie) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.r)
 }
 
-func (d *IngressClassDie) UnmarshalJSON(b []byte) error {
+func (d *ingressClassDie) UnmarshalJSON(b []byte) error {
 	if d == IngressClassBlank {
 		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &networkingv1.IngressClass{}
 	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	*d = *d.DieFeed(*r).(*ingressClassDie)
 	return err
 }
 
-func (d *IngressClassDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *IngressClassDie {
+func (d *ingressClassDie) MetadataDie(fn func(d metav1.ObjectMetaDie)) IngressClassDie {
 	return d.DieStamp(func(r *networkingv1.IngressClass) {
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
@@ -932,7 +1185,7 @@ func (d *IngressClassDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Ingress
 	})
 }
 
-func (d *IngressClassDie) SpecDie(fn func(d *IngressClassSpecDie)) *IngressClassDie {
+func (d *ingressClassDie) SpecDie(fn func(d IngressClassSpecDie)) IngressClassDie {
 	return d.DieStamp(func(r *networkingv1.IngressClass) {
 		d := IngressClassSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
@@ -940,274 +1193,344 @@ func (d *IngressClassDie) SpecDie(fn func(d *IngressClassSpecDie)) *IngressClass
 	})
 }
 
-var _ apismetav1.Object = (*IngressClassDie)(nil)
-var _ apismetav1.ObjectMetaAccessor = (*IngressClassDie)(nil)
-var _ runtime.Object = (*IngressClassDie)(nil)
-
-// Spec is the desired state of the IngressClass. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-func (d *IngressClassDie) Spec(v networkingv1.IngressClassSpec) *IngressClassDie {
+func (d *ingressClassDie) Spec(v networkingv1.IngressClassSpec) IngressClassDie {
 	return d.DieStamp(func(r *networkingv1.IngressClass) {
 		r.Spec = v
 	})
 }
 
-type IngressClassSpecDie struct {
+type IngressClassSpecDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.IngressClassSpec)) IngressClassSpecDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.IngressClassSpec) IngressClassSpecDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.IngressClassSpec) IngressClassSpecDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.IngressClassSpec
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.IngressClassSpec
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) IngressClassSpecDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() IngressClassSpecDie
+
+	ingressClassSpec
+	// Controller refers to the name of the controller that should handle this class. This allows for different "flavors" that are controlled by the same controller. For example, you may have different Parameters for the same implementing controller. This should be specified as a domain-prefixed path no more than 250 characters in length, e.g. "acme.io/ingress-controller". This field is immutable.
+	Controller(Controller string) IngressClassSpecDie
+	// Parameters is a link to a custom resource containing additional configuration for the controller. This is optional if the controller does not require extra parameters.
+	Parameters(Parameters *networkingv1.IngressClassParametersReference) IngressClassSpecDie
+}
+
+var _ IngressClassSpecDie = (*ingressClassSpecDie)(nil)
+var IngressClassSpecBlank = (&ingressClassSpecDie{}).DieFeed(networkingv1.IngressClassSpec{})
+
+type ingressClassSpecDie struct {
 	mutable bool
 	r       networkingv1.IngressClassSpec
 }
 
-var IngressClassSpecBlank = (&IngressClassSpecDie{}).DieFeed(networkingv1.IngressClassSpec{})
-
-func (d *IngressClassSpecDie) DieImmutable(immutable bool) *IngressClassSpecDie {
+func (d *ingressClassSpecDie) DieImmutable(immutable bool) IngressClassSpecDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*ingressClassSpecDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *IngressClassSpecDie) DieFeed(r networkingv1.IngressClassSpec) *IngressClassSpecDie {
+func (d *ingressClassSpecDie) DieFeed(r networkingv1.IngressClassSpec) IngressClassSpecDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &IngressClassSpecDie{
+	return &ingressClassSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *IngressClassSpecDie) DieFeedPtr(r *networkingv1.IngressClassSpec) *IngressClassSpecDie {
+func (d *ingressClassSpecDie) DieFeedPtr(r *networkingv1.IngressClassSpec) IngressClassSpecDie {
 	if r == nil {
 		r = &networkingv1.IngressClassSpec{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *IngressClassSpecDie) DieRelease() networkingv1.IngressClassSpec {
+func (d *ingressClassSpecDie) DieRelease() networkingv1.IngressClassSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *IngressClassSpecDie) DieReleasePtr() *networkingv1.IngressClassSpec {
+func (d *ingressClassSpecDie) DieReleasePtr() *networkingv1.IngressClassSpec {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *IngressClassSpecDie) DieStamp(fn func(r *networkingv1.IngressClassSpec)) *IngressClassSpecDie {
+func (d *ingressClassSpecDie) DieStamp(fn func(r *networkingv1.IngressClassSpec)) IngressClassSpecDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *IngressClassSpecDie) DeepCopy() *IngressClassSpecDie {
+func (d *ingressClassSpecDie) DeepCopy() IngressClassSpecDie {
 	r := *d.r.DeepCopy()
-	return &IngressClassSpecDie{
+	return &ingressClassSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// Controller refers to the name of the controller that should handle this class. This allows for different "flavors" that are controlled by the same controller. For example, you may have different Parameters for the same implementing controller. This should be specified as a domain-prefixed path no more than 250 characters in length, e.g. "acme.io/ingress-controller". This field is immutable.
-func (d *IngressClassSpecDie) Controller(v string) *IngressClassSpecDie {
+func (d *ingressClassSpecDie) Controller(v string) IngressClassSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressClassSpec) {
 		r.Controller = v
 	})
 }
 
-// Parameters is a link to a custom resource containing additional configuration for the controller. This is optional if the controller does not require extra parameters.
-func (d *IngressClassSpecDie) Parameters(v *networkingv1.IngressClassParametersReference) *IngressClassSpecDie {
+func (d *ingressClassSpecDie) Parameters(v *networkingv1.IngressClassParametersReference) IngressClassSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressClassSpec) {
 		r.Parameters = v
 	})
 }
 
-type IngressClassParametersReferenceDie struct {
+type IngressClassParametersReferenceDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.IngressClassParametersReference)) IngressClassParametersReferenceDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.IngressClassParametersReference) IngressClassParametersReferenceDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.IngressClassParametersReference) IngressClassParametersReferenceDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.IngressClassParametersReference
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.IngressClassParametersReference
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) IngressClassParametersReferenceDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() IngressClassParametersReferenceDie
+
+	// APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required.
+	APIGroup(APIGroup *string) IngressClassParametersReferenceDie
+	// Kind is the type of resource being referenced.
+	Kind(Kind string) IngressClassParametersReferenceDie
+	// Name is the name of resource being referenced.
+	Name(Name string) IngressClassParametersReferenceDie
+	// Scope represents if this refers to a cluster or namespace scoped resource. This may be set to "Cluster" (default) or "Namespace". Field can be enabled with IngressClassNamespacedParams feature gate.
+	Scope(Scope *string) IngressClassParametersReferenceDie
+	// Namespace is the namespace of the resource being referenced. This field is required when scope is set to "Namespace" and must be unset when scope is set to "Cluster".
+	Namespace(Namespace *string) IngressClassParametersReferenceDie
+}
+
+var _ IngressClassParametersReferenceDie = (*ingressClassParametersReferenceDie)(nil)
+var IngressClassParametersReferenceBlank = (&ingressClassParametersReferenceDie{}).DieFeed(networkingv1.IngressClassParametersReference{})
+
+type ingressClassParametersReferenceDie struct {
 	mutable bool
 	r       networkingv1.IngressClassParametersReference
 }
 
-var IngressClassParametersReferenceBlank = (&IngressClassParametersReferenceDie{}).DieFeed(networkingv1.IngressClassParametersReference{})
-
-func (d *IngressClassParametersReferenceDie) DieImmutable(immutable bool) *IngressClassParametersReferenceDie {
+func (d *ingressClassParametersReferenceDie) DieImmutable(immutable bool) IngressClassParametersReferenceDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*ingressClassParametersReferenceDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *IngressClassParametersReferenceDie) DieFeed(r networkingv1.IngressClassParametersReference) *IngressClassParametersReferenceDie {
+func (d *ingressClassParametersReferenceDie) DieFeed(r networkingv1.IngressClassParametersReference) IngressClassParametersReferenceDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &IngressClassParametersReferenceDie{
+	return &ingressClassParametersReferenceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *IngressClassParametersReferenceDie) DieFeedPtr(r *networkingv1.IngressClassParametersReference) *IngressClassParametersReferenceDie {
+func (d *ingressClassParametersReferenceDie) DieFeedPtr(r *networkingv1.IngressClassParametersReference) IngressClassParametersReferenceDie {
 	if r == nil {
 		r = &networkingv1.IngressClassParametersReference{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *IngressClassParametersReferenceDie) DieRelease() networkingv1.IngressClassParametersReference {
+func (d *ingressClassParametersReferenceDie) DieRelease() networkingv1.IngressClassParametersReference {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *IngressClassParametersReferenceDie) DieReleasePtr() *networkingv1.IngressClassParametersReference {
+func (d *ingressClassParametersReferenceDie) DieReleasePtr() *networkingv1.IngressClassParametersReference {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *IngressClassParametersReferenceDie) DieStamp(fn func(r *networkingv1.IngressClassParametersReference)) *IngressClassParametersReferenceDie {
+func (d *ingressClassParametersReferenceDie) DieStamp(fn func(r *networkingv1.IngressClassParametersReference)) IngressClassParametersReferenceDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *IngressClassParametersReferenceDie) DeepCopy() *IngressClassParametersReferenceDie {
+func (d *ingressClassParametersReferenceDie) DeepCopy() IngressClassParametersReferenceDie {
 	r := *d.r.DeepCopy()
-	return &IngressClassParametersReferenceDie{
+	return &ingressClassParametersReferenceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required.
-func (d *IngressClassParametersReferenceDie) APIGroup(v *string) *IngressClassParametersReferenceDie {
+func (d *ingressClassParametersReferenceDie) APIGroup(v *string) IngressClassParametersReferenceDie {
 	return d.DieStamp(func(r *networkingv1.IngressClassParametersReference) {
 		r.APIGroup = v
 	})
 }
 
-// Kind is the type of resource being referenced.
-func (d *IngressClassParametersReferenceDie) Kind(v string) *IngressClassParametersReferenceDie {
+func (d *ingressClassParametersReferenceDie) Kind(v string) IngressClassParametersReferenceDie {
 	return d.DieStamp(func(r *networkingv1.IngressClassParametersReference) {
 		r.Kind = v
 	})
 }
 
-// Name is the name of resource being referenced.
-func (d *IngressClassParametersReferenceDie) Name(v string) *IngressClassParametersReferenceDie {
+func (d *ingressClassParametersReferenceDie) Name(v string) IngressClassParametersReferenceDie {
 	return d.DieStamp(func(r *networkingv1.IngressClassParametersReference) {
 		r.Name = v
 	})
 }
 
-// Scope represents if this refers to a cluster or namespace scoped resource. This may be set to "Cluster" (default) or "Namespace". Field can be enabled with IngressClassNamespacedParams feature gate.
-func (d *IngressClassParametersReferenceDie) Scope(v *string) *IngressClassParametersReferenceDie {
+func (d *ingressClassParametersReferenceDie) Scope(v *string) IngressClassParametersReferenceDie {
 	return d.DieStamp(func(r *networkingv1.IngressClassParametersReference) {
 		r.Scope = v
 	})
 }
 
-// Namespace is the namespace of the resource being referenced. This field is required when scope is set to "Namespace" and must be unset when scope is set to "Cluster".
-func (d *IngressClassParametersReferenceDie) Namespace(v *string) *IngressClassParametersReferenceDie {
+func (d *ingressClassParametersReferenceDie) Namespace(v *string) IngressClassParametersReferenceDie {
 	return d.DieStamp(func(r *networkingv1.IngressClassParametersReference) {
 		r.Namespace = v
 	})
 }
 
-type NetworkPolicyDie struct {
+type NetworkPolicyDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.NetworkPolicy)) NetworkPolicyDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.NetworkPolicy) NetworkPolicyDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.NetworkPolicy) NetworkPolicyDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.NetworkPolicy
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.NetworkPolicy
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) NetworkPolicyDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() NetworkPolicyDie
+
+	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+	MetadataDie(fn func(d metav1.ObjectMetaDie)) NetworkPolicyDie
+	// SpecDie stamps the resource's spec field with a mutable die.
+	SpecDie(fn func(d NetworkPolicySpecDie)) NetworkPolicyDie
+	// Specification of the desired behavior for this NetworkPolicy.
+	Spec(Spec networkingv1.NetworkPolicySpec) NetworkPolicyDie
+
+	runtime.Object
+	apismetav1.Object
+	apismetav1.ObjectMetaAccessor
+}
+
+var _ NetworkPolicyDie = (*networkPolicyDie)(nil)
+var NetworkPolicyBlank = (&networkPolicyDie{}).DieFeed(networkingv1.NetworkPolicy{})
+
+type networkPolicyDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       networkingv1.NetworkPolicy
 }
 
-var NetworkPolicyBlank = (&NetworkPolicyDie{}).DieFeed(networkingv1.NetworkPolicy{})
-
-func (d *NetworkPolicyDie) DieImmutable(immutable bool) *NetworkPolicyDie {
+func (d *networkPolicyDie) DieImmutable(immutable bool) NetworkPolicyDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*networkPolicyDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *NetworkPolicyDie) DieFeed(r networkingv1.NetworkPolicy) *NetworkPolicyDie {
+func (d *networkPolicyDie) DieFeed(r networkingv1.NetworkPolicy) NetworkPolicyDie {
 	if d.mutable {
 		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
 		d.r = r
 		return d
 	}
-	return &NetworkPolicyDie{
+	return &networkPolicyDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *NetworkPolicyDie) DieFeedPtr(r *networkingv1.NetworkPolicy) *NetworkPolicyDie {
+func (d *networkPolicyDie) DieFeedPtr(r *networkingv1.NetworkPolicy) NetworkPolicyDie {
 	if r == nil {
 		r = &networkingv1.NetworkPolicy{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *NetworkPolicyDie) DieRelease() networkingv1.NetworkPolicy {
+func (d *networkPolicyDie) DieRelease() networkingv1.NetworkPolicy {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *NetworkPolicyDie) DieReleasePtr() *networkingv1.NetworkPolicy {
+func (d *networkPolicyDie) DieReleasePtr() *networkingv1.NetworkPolicy {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *NetworkPolicyDie) DieStamp(fn func(r *networkingv1.NetworkPolicy)) *NetworkPolicyDie {
+func (d *networkPolicyDie) DieStamp(fn func(r *networkingv1.NetworkPolicy)) NetworkPolicyDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *NetworkPolicyDie) DeepCopy() *NetworkPolicyDie {
+func (d *networkPolicyDie) DeepCopy() NetworkPolicyDie {
 	r := *d.r.DeepCopy()
-	return &NetworkPolicyDie{
+	return &networkPolicyDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *NetworkPolicyDie) DeepCopyObject() runtime.Object {
+func (d *networkPolicyDie) DeepCopyObject() runtime.Object {
 	return d.r.DeepCopy()
 }
 
-func (d *NetworkPolicyDie) GetObjectKind() schema.ObjectKind {
+func (d *networkPolicyDie) GetObjectKind() schema.ObjectKind {
 	r := d.DieRelease()
 	return r.GetObjectKind()
 }
 
-func (d *NetworkPolicyDie) MarshalJSON() ([]byte, error) {
+func (d *networkPolicyDie) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.r)
 }
 
-func (d *NetworkPolicyDie) UnmarshalJSON(b []byte) error {
+func (d *networkPolicyDie) UnmarshalJSON(b []byte) error {
 	if d == NetworkPolicyBlank {
 		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &networkingv1.NetworkPolicy{}
 	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	*d = *d.DieFeed(*r).(*networkPolicyDie)
 	return err
 }
 
-func (d *NetworkPolicyDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *NetworkPolicyDie {
+func (d *networkPolicyDie) MetadataDie(fn func(d metav1.ObjectMetaDie)) NetworkPolicyDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
@@ -1215,7 +1538,7 @@ func (d *NetworkPolicyDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Networ
 	})
 }
 
-func (d *NetworkPolicyDie) SpecDie(fn func(d *NetworkPolicySpecDie)) *NetworkPolicyDie {
+func (d *networkPolicyDie) SpecDie(fn func(d NetworkPolicySpecDie)) NetworkPolicyDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
 		d := NetworkPolicySpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
@@ -1223,502 +1546,628 @@ func (d *NetworkPolicyDie) SpecDie(fn func(d *NetworkPolicySpecDie)) *NetworkPol
 	})
 }
 
-var _ apismetav1.Object = (*NetworkPolicyDie)(nil)
-var _ apismetav1.ObjectMetaAccessor = (*NetworkPolicyDie)(nil)
-var _ runtime.Object = (*NetworkPolicyDie)(nil)
-
-// Specification of the desired behavior for this NetworkPolicy.
-func (d *NetworkPolicyDie) Spec(v networkingv1.NetworkPolicySpec) *NetworkPolicyDie {
+func (d *networkPolicyDie) Spec(v networkingv1.NetworkPolicySpec) NetworkPolicyDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
 		r.Spec = v
 	})
 }
 
-type NetworkPolicySpecDie struct {
+type NetworkPolicySpecDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.NetworkPolicySpec)) NetworkPolicySpecDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.NetworkPolicySpec) NetworkPolicySpecDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.NetworkPolicySpec) NetworkPolicySpecDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.NetworkPolicySpec
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.NetworkPolicySpec
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) NetworkPolicySpecDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() NetworkPolicySpecDie
+
+	// Selects the pods to which this NetworkPolicy object applies. The array of ingress rules is applied to any pods selected by this field. Multiple network policies can select the same set of pods. In this case, the ingress rules for each are combined additively. This field is NOT optional and follows standard label selector semantics. An empty podSelector matches all pods in this namespace.
+	PodSelector(PodSelector apismetav1.LabelSelector) NetworkPolicySpecDie
+	// List of ingress rules to be applied to the selected pods. Traffic is allowed to a pod if there are no NetworkPolicies selecting the pod (and cluster policy otherwise allows the traffic), OR if the traffic source is the pod's local node, OR if the traffic matches at least one ingress rule across all of the NetworkPolicy objects whose podSelector matches the pod. If this field is empty then this NetworkPolicy does not allow any traffic (and serves solely to ensure that the pods it selects are isolated by default)
+	Ingress(Ingress ...networkingv1.NetworkPolicyIngressRule) NetworkPolicySpecDie
+	// List of egress rules to be applied to the selected pods. Outgoing traffic is allowed if there are no NetworkPolicies selecting the pod (and cluster policy otherwise allows the traffic), OR if the traffic matches at least one egress rule across all of the NetworkPolicy objects whose podSelector matches the pod. If this field is empty then this NetworkPolicy limits all outgoing traffic (and serves solely to ensure that the pods it selects are isolated by default). This field is beta-level in 1.8
+	Egress(Egress ...networkingv1.NetworkPolicyEgressRule) NetworkPolicySpecDie
+	// List of rule types that the NetworkPolicy relates to. Valid options are ["Ingress"], ["Egress"], or ["Ingress", "Egress"]. If this field is not specified, it will default based on the existence of Ingress or Egress rules; policies that contain an Egress section are assumed to affect Egress, and all policies (whether or not they contain an Ingress section) are assumed to affect Ingress. If you want to write an egress-only policy, you must explicitly specify policyTypes [ "Egress" ]. Likewise, if you want to write a policy that specifies that no egress is allowed, you must specify a policyTypes value that include "Egress" (since such a policy would not include an Egress section and would otherwise default to just [ "Ingress" ]). This field is beta-level in 1.8
+	PolicyTypes(PolicyTypes ...networkingv1.PolicyType) NetworkPolicySpecDie
+}
+
+var _ NetworkPolicySpecDie = (*networkPolicySpecDie)(nil)
+var NetworkPolicySpecBlank = (&networkPolicySpecDie{}).DieFeed(networkingv1.NetworkPolicySpec{})
+
+type networkPolicySpecDie struct {
 	mutable bool
 	r       networkingv1.NetworkPolicySpec
 }
 
-var NetworkPolicySpecBlank = (&NetworkPolicySpecDie{}).DieFeed(networkingv1.NetworkPolicySpec{})
-
-func (d *NetworkPolicySpecDie) DieImmutable(immutable bool) *NetworkPolicySpecDie {
+func (d *networkPolicySpecDie) DieImmutable(immutable bool) NetworkPolicySpecDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*networkPolicySpecDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *NetworkPolicySpecDie) DieFeed(r networkingv1.NetworkPolicySpec) *NetworkPolicySpecDie {
+func (d *networkPolicySpecDie) DieFeed(r networkingv1.NetworkPolicySpec) NetworkPolicySpecDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &NetworkPolicySpecDie{
+	return &networkPolicySpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *NetworkPolicySpecDie) DieFeedPtr(r *networkingv1.NetworkPolicySpec) *NetworkPolicySpecDie {
+func (d *networkPolicySpecDie) DieFeedPtr(r *networkingv1.NetworkPolicySpec) NetworkPolicySpecDie {
 	if r == nil {
 		r = &networkingv1.NetworkPolicySpec{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *NetworkPolicySpecDie) DieRelease() networkingv1.NetworkPolicySpec {
+func (d *networkPolicySpecDie) DieRelease() networkingv1.NetworkPolicySpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *NetworkPolicySpecDie) DieReleasePtr() *networkingv1.NetworkPolicySpec {
+func (d *networkPolicySpecDie) DieReleasePtr() *networkingv1.NetworkPolicySpec {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *NetworkPolicySpecDie) DieStamp(fn func(r *networkingv1.NetworkPolicySpec)) *NetworkPolicySpecDie {
+func (d *networkPolicySpecDie) DieStamp(fn func(r *networkingv1.NetworkPolicySpec)) NetworkPolicySpecDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *NetworkPolicySpecDie) DeepCopy() *NetworkPolicySpecDie {
+func (d *networkPolicySpecDie) DeepCopy() NetworkPolicySpecDie {
 	r := *d.r.DeepCopy()
-	return &NetworkPolicySpecDie{
+	return &networkPolicySpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// Selects the pods to which this NetworkPolicy object applies. The array of ingress rules is applied to any pods selected by this field. Multiple network policies can select the same set of pods. In this case, the ingress rules for each are combined additively. This field is NOT optional and follows standard label selector semantics. An empty podSelector matches all pods in this namespace.
-func (d *NetworkPolicySpecDie) PodSelector(v apismetav1.LabelSelector) *NetworkPolicySpecDie {
+func (d *networkPolicySpecDie) PodSelector(v apismetav1.LabelSelector) NetworkPolicySpecDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
 		r.PodSelector = v
 	})
 }
 
-// List of ingress rules to be applied to the selected pods. Traffic is allowed to a pod if there are no NetworkPolicies selecting the pod (and cluster policy otherwise allows the traffic), OR if the traffic source is the pod's local node, OR if the traffic matches at least one ingress rule across all of the NetworkPolicy objects whose podSelector matches the pod. If this field is empty then this NetworkPolicy does not allow any traffic (and serves solely to ensure that the pods it selects are isolated by default)
-func (d *NetworkPolicySpecDie) Ingress(v ...networkingv1.NetworkPolicyIngressRule) *NetworkPolicySpecDie {
+func (d *networkPolicySpecDie) Ingress(v ...networkingv1.NetworkPolicyIngressRule) NetworkPolicySpecDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
 		r.Ingress = v
 	})
 }
 
-// List of egress rules to be applied to the selected pods. Outgoing traffic is allowed if there are no NetworkPolicies selecting the pod (and cluster policy otherwise allows the traffic), OR if the traffic matches at least one egress rule across all of the NetworkPolicy objects whose podSelector matches the pod. If this field is empty then this NetworkPolicy limits all outgoing traffic (and serves solely to ensure that the pods it selects are isolated by default). This field is beta-level in 1.8
-func (d *NetworkPolicySpecDie) Egress(v ...networkingv1.NetworkPolicyEgressRule) *NetworkPolicySpecDie {
+func (d *networkPolicySpecDie) Egress(v ...networkingv1.NetworkPolicyEgressRule) NetworkPolicySpecDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
 		r.Egress = v
 	})
 }
 
-// List of rule types that the NetworkPolicy relates to. Valid options are ["Ingress"], ["Egress"], or ["Ingress", "Egress"]. If this field is not specified, it will default based on the existence of Ingress or Egress rules; policies that contain an Egress section are assumed to affect Egress, and all policies (whether or not they contain an Ingress section) are assumed to affect Ingress. If you want to write an egress-only policy, you must explicitly specify policyTypes [ "Egress" ]. Likewise, if you want to write a policy that specifies that no egress is allowed, you must specify a policyTypes value that include "Egress" (since such a policy would not include an Egress section and would otherwise default to just [ "Ingress" ]). This field is beta-level in 1.8
-func (d *NetworkPolicySpecDie) PolicyTypes(v ...networkingv1.PolicyType) *NetworkPolicySpecDie {
+func (d *networkPolicySpecDie) PolicyTypes(v ...networkingv1.PolicyType) NetworkPolicySpecDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
 		r.PolicyTypes = v
 	})
 }
 
-type NetworkPolicyIngressRuleDie struct {
+type NetworkPolicyIngressRuleDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.NetworkPolicyIngressRule)) NetworkPolicyIngressRuleDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.NetworkPolicyIngressRule) NetworkPolicyIngressRuleDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.NetworkPolicyIngressRule) NetworkPolicyIngressRuleDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.NetworkPolicyIngressRule
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.NetworkPolicyIngressRule
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) NetworkPolicyIngressRuleDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() NetworkPolicyIngressRuleDie
+
+	// List of ports which should be made accessible on the pods selected for this rule. Each item in this list is combined using a logical OR. If this field is empty or missing, this rule matches all ports (traffic not restricted by port). If this field is present and contains at least one item, then this rule allows traffic only if the traffic matches at least one port in the list.
+	Ports(Ports ...networkingv1.NetworkPolicyPort) NetworkPolicyIngressRuleDie
+	// List of sources which should be able to access the pods selected for this rule. Items in this list are combined using a logical OR operation. If this field is empty or missing, this rule matches all sources (traffic not restricted by source). If this field is present and contains at least one item, this rule allows traffic only if the traffic matches at least one item in the from list.
+	From(From ...networkingv1.NetworkPolicyPeer) NetworkPolicyIngressRuleDie
+}
+
+var _ NetworkPolicyIngressRuleDie = (*networkPolicyIngressRuleDie)(nil)
+var NetworkPolicyIngressRuleBlank = (&networkPolicyIngressRuleDie{}).DieFeed(networkingv1.NetworkPolicyIngressRule{})
+
+type networkPolicyIngressRuleDie struct {
 	mutable bool
 	r       networkingv1.NetworkPolicyIngressRule
 }
 
-var NetworkPolicyIngressRuleBlank = (&NetworkPolicyIngressRuleDie{}).DieFeed(networkingv1.NetworkPolicyIngressRule{})
-
-func (d *NetworkPolicyIngressRuleDie) DieImmutable(immutable bool) *NetworkPolicyIngressRuleDie {
+func (d *networkPolicyIngressRuleDie) DieImmutable(immutable bool) NetworkPolicyIngressRuleDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*networkPolicyIngressRuleDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *NetworkPolicyIngressRuleDie) DieFeed(r networkingv1.NetworkPolicyIngressRule) *NetworkPolicyIngressRuleDie {
+func (d *networkPolicyIngressRuleDie) DieFeed(r networkingv1.NetworkPolicyIngressRule) NetworkPolicyIngressRuleDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &NetworkPolicyIngressRuleDie{
+	return &networkPolicyIngressRuleDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *NetworkPolicyIngressRuleDie) DieFeedPtr(r *networkingv1.NetworkPolicyIngressRule) *NetworkPolicyIngressRuleDie {
+func (d *networkPolicyIngressRuleDie) DieFeedPtr(r *networkingv1.NetworkPolicyIngressRule) NetworkPolicyIngressRuleDie {
 	if r == nil {
 		r = &networkingv1.NetworkPolicyIngressRule{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *NetworkPolicyIngressRuleDie) DieRelease() networkingv1.NetworkPolicyIngressRule {
+func (d *networkPolicyIngressRuleDie) DieRelease() networkingv1.NetworkPolicyIngressRule {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *NetworkPolicyIngressRuleDie) DieReleasePtr() *networkingv1.NetworkPolicyIngressRule {
+func (d *networkPolicyIngressRuleDie) DieReleasePtr() *networkingv1.NetworkPolicyIngressRule {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *NetworkPolicyIngressRuleDie) DieStamp(fn func(r *networkingv1.NetworkPolicyIngressRule)) *NetworkPolicyIngressRuleDie {
+func (d *networkPolicyIngressRuleDie) DieStamp(fn func(r *networkingv1.NetworkPolicyIngressRule)) NetworkPolicyIngressRuleDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *NetworkPolicyIngressRuleDie) DeepCopy() *NetworkPolicyIngressRuleDie {
+func (d *networkPolicyIngressRuleDie) DeepCopy() NetworkPolicyIngressRuleDie {
 	r := *d.r.DeepCopy()
-	return &NetworkPolicyIngressRuleDie{
+	return &networkPolicyIngressRuleDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// List of ports which should be made accessible on the pods selected for this rule. Each item in this list is combined using a logical OR. If this field is empty or missing, this rule matches all ports (traffic not restricted by port). If this field is present and contains at least one item, then this rule allows traffic only if the traffic matches at least one port in the list.
-func (d *NetworkPolicyIngressRuleDie) Ports(v ...networkingv1.NetworkPolicyPort) *NetworkPolicyIngressRuleDie {
+func (d *networkPolicyIngressRuleDie) Ports(v ...networkingv1.NetworkPolicyPort) NetworkPolicyIngressRuleDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyIngressRule) {
 		r.Ports = v
 	})
 }
 
-// List of sources which should be able to access the pods selected for this rule. Items in this list are combined using a logical OR operation. If this field is empty or missing, this rule matches all sources (traffic not restricted by source). If this field is present and contains at least one item, this rule allows traffic only if the traffic matches at least one item in the from list.
-func (d *NetworkPolicyIngressRuleDie) From(v ...networkingv1.NetworkPolicyPeer) *NetworkPolicyIngressRuleDie {
+func (d *networkPolicyIngressRuleDie) From(v ...networkingv1.NetworkPolicyPeer) NetworkPolicyIngressRuleDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyIngressRule) {
 		r.From = v
 	})
 }
 
-type NetworkPolicyEgressRuleDie struct {
+type NetworkPolicyEgressRuleDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.NetworkPolicyEgressRule)) NetworkPolicyEgressRuleDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.NetworkPolicyEgressRule) NetworkPolicyEgressRuleDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.NetworkPolicyEgressRule) NetworkPolicyEgressRuleDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.NetworkPolicyEgressRule
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.NetworkPolicyEgressRule
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) NetworkPolicyEgressRuleDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() NetworkPolicyEgressRuleDie
+
+	// List of destination ports for outgoing traffic. Each item in this list is combined using a logical OR. If this field is empty or missing, this rule matches all ports (traffic not restricted by port). If this field is present and contains at least one item, then this rule allows traffic only if the traffic matches at least one port in the list.
+	Ports(Ports ...networkingv1.NetworkPolicyPort) NetworkPolicyEgressRuleDie
+	// List of destinations for outgoing traffic of pods selected for this rule. Items in this list are combined using a logical OR operation. If this field is empty or missing, this rule matches all destinations (traffic not restricted by destination). If this field is present and contains at least one item, this rule allows traffic only if the traffic matches at least one item in the to list.
+	To(To ...networkingv1.NetworkPolicyPeer) NetworkPolicyEgressRuleDie
+}
+
+var _ NetworkPolicyEgressRuleDie = (*networkPolicyEgressRuleDie)(nil)
+var NetworkPolicyEgressRuleBlank = (&networkPolicyEgressRuleDie{}).DieFeed(networkingv1.NetworkPolicyEgressRule{})
+
+type networkPolicyEgressRuleDie struct {
 	mutable bool
 	r       networkingv1.NetworkPolicyEgressRule
 }
 
-var NetworkPolicyEgressRuleBlank = (&NetworkPolicyEgressRuleDie{}).DieFeed(networkingv1.NetworkPolicyEgressRule{})
-
-func (d *NetworkPolicyEgressRuleDie) DieImmutable(immutable bool) *NetworkPolicyEgressRuleDie {
+func (d *networkPolicyEgressRuleDie) DieImmutable(immutable bool) NetworkPolicyEgressRuleDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*networkPolicyEgressRuleDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *NetworkPolicyEgressRuleDie) DieFeed(r networkingv1.NetworkPolicyEgressRule) *NetworkPolicyEgressRuleDie {
+func (d *networkPolicyEgressRuleDie) DieFeed(r networkingv1.NetworkPolicyEgressRule) NetworkPolicyEgressRuleDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &NetworkPolicyEgressRuleDie{
+	return &networkPolicyEgressRuleDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *NetworkPolicyEgressRuleDie) DieFeedPtr(r *networkingv1.NetworkPolicyEgressRule) *NetworkPolicyEgressRuleDie {
+func (d *networkPolicyEgressRuleDie) DieFeedPtr(r *networkingv1.NetworkPolicyEgressRule) NetworkPolicyEgressRuleDie {
 	if r == nil {
 		r = &networkingv1.NetworkPolicyEgressRule{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *NetworkPolicyEgressRuleDie) DieRelease() networkingv1.NetworkPolicyEgressRule {
+func (d *networkPolicyEgressRuleDie) DieRelease() networkingv1.NetworkPolicyEgressRule {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *NetworkPolicyEgressRuleDie) DieReleasePtr() *networkingv1.NetworkPolicyEgressRule {
+func (d *networkPolicyEgressRuleDie) DieReleasePtr() *networkingv1.NetworkPolicyEgressRule {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *NetworkPolicyEgressRuleDie) DieStamp(fn func(r *networkingv1.NetworkPolicyEgressRule)) *NetworkPolicyEgressRuleDie {
+func (d *networkPolicyEgressRuleDie) DieStamp(fn func(r *networkingv1.NetworkPolicyEgressRule)) NetworkPolicyEgressRuleDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *NetworkPolicyEgressRuleDie) DeepCopy() *NetworkPolicyEgressRuleDie {
+func (d *networkPolicyEgressRuleDie) DeepCopy() NetworkPolicyEgressRuleDie {
 	r := *d.r.DeepCopy()
-	return &NetworkPolicyEgressRuleDie{
+	return &networkPolicyEgressRuleDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// List of destination ports for outgoing traffic. Each item in this list is combined using a logical OR. If this field is empty or missing, this rule matches all ports (traffic not restricted by port). If this field is present and contains at least one item, then this rule allows traffic only if the traffic matches at least one port in the list.
-func (d *NetworkPolicyEgressRuleDie) Ports(v ...networkingv1.NetworkPolicyPort) *NetworkPolicyEgressRuleDie {
+func (d *networkPolicyEgressRuleDie) Ports(v ...networkingv1.NetworkPolicyPort) NetworkPolicyEgressRuleDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyEgressRule) {
 		r.Ports = v
 	})
 }
 
-// List of destinations for outgoing traffic of pods selected for this rule. Items in this list are combined using a logical OR operation. If this field is empty or missing, this rule matches all destinations (traffic not restricted by destination). If this field is present and contains at least one item, this rule allows traffic only if the traffic matches at least one item in the to list.
-func (d *NetworkPolicyEgressRuleDie) To(v ...networkingv1.NetworkPolicyPeer) *NetworkPolicyEgressRuleDie {
+func (d *networkPolicyEgressRuleDie) To(v ...networkingv1.NetworkPolicyPeer) NetworkPolicyEgressRuleDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyEgressRule) {
 		r.To = v
 	})
 }
 
-type NetworkPolicyPortDie struct {
+type NetworkPolicyPortDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.NetworkPolicyPort)) NetworkPolicyPortDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.NetworkPolicyPort) NetworkPolicyPortDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.NetworkPolicyPort) NetworkPolicyPortDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.NetworkPolicyPort
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.NetworkPolicyPort
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) NetworkPolicyPortDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() NetworkPolicyPortDie
+
+	// The protocol (TCP, UDP, or SCTP) which traffic must match. If not specified, this field defaults to TCP.
+	Protocol(Protocol *corev1.Protocol) NetworkPolicyPortDie
+	// The port on the given protocol. This can either be a numerical or named port on a pod. If this field is not provided, this matches all port names and numbers. If present, only traffic on the specified protocol AND port will be matched.
+	Port(Port *intstr.IntOrString) NetworkPolicyPortDie
+	// If set, indicates that the range of ports from port to endPort, inclusive, should be allowed by the policy. This field cannot be defined if the port field is not defined or if the port field is defined as a named (string) port. The endPort must be equal or greater than port. This feature is in Beta state and is enabled by default. It can be disabled using the Feature Gate "NetworkPolicyEndPort".
+	EndPort(EndPort *int32) NetworkPolicyPortDie
+}
+
+var _ NetworkPolicyPortDie = (*networkPolicyPortDie)(nil)
+var NetworkPolicyPortBlank = (&networkPolicyPortDie{}).DieFeed(networkingv1.NetworkPolicyPort{})
+
+type networkPolicyPortDie struct {
 	mutable bool
 	r       networkingv1.NetworkPolicyPort
 }
 
-var NetworkPolicyPortBlank = (&NetworkPolicyPortDie{}).DieFeed(networkingv1.NetworkPolicyPort{})
-
-func (d *NetworkPolicyPortDie) DieImmutable(immutable bool) *NetworkPolicyPortDie {
+func (d *networkPolicyPortDie) DieImmutable(immutable bool) NetworkPolicyPortDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*networkPolicyPortDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *NetworkPolicyPortDie) DieFeed(r networkingv1.NetworkPolicyPort) *NetworkPolicyPortDie {
+func (d *networkPolicyPortDie) DieFeed(r networkingv1.NetworkPolicyPort) NetworkPolicyPortDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &NetworkPolicyPortDie{
+	return &networkPolicyPortDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *NetworkPolicyPortDie) DieFeedPtr(r *networkingv1.NetworkPolicyPort) *NetworkPolicyPortDie {
+func (d *networkPolicyPortDie) DieFeedPtr(r *networkingv1.NetworkPolicyPort) NetworkPolicyPortDie {
 	if r == nil {
 		r = &networkingv1.NetworkPolicyPort{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *NetworkPolicyPortDie) DieRelease() networkingv1.NetworkPolicyPort {
+func (d *networkPolicyPortDie) DieRelease() networkingv1.NetworkPolicyPort {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *NetworkPolicyPortDie) DieReleasePtr() *networkingv1.NetworkPolicyPort {
+func (d *networkPolicyPortDie) DieReleasePtr() *networkingv1.NetworkPolicyPort {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *NetworkPolicyPortDie) DieStamp(fn func(r *networkingv1.NetworkPolicyPort)) *NetworkPolicyPortDie {
+func (d *networkPolicyPortDie) DieStamp(fn func(r *networkingv1.NetworkPolicyPort)) NetworkPolicyPortDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *NetworkPolicyPortDie) DeepCopy() *NetworkPolicyPortDie {
+func (d *networkPolicyPortDie) DeepCopy() NetworkPolicyPortDie {
 	r := *d.r.DeepCopy()
-	return &NetworkPolicyPortDie{
+	return &networkPolicyPortDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// The protocol (TCP, UDP, or SCTP) which traffic must match. If not specified, this field defaults to TCP.
-func (d *NetworkPolicyPortDie) Protocol(v *corev1.Protocol) *NetworkPolicyPortDie {
+func (d *networkPolicyPortDie) Protocol(v *corev1.Protocol) NetworkPolicyPortDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyPort) {
 		r.Protocol = v
 	})
 }
 
-// The port on the given protocol. This can either be a numerical or named port on a pod. If this field is not provided, this matches all port names and numbers. If present, only traffic on the specified protocol AND port will be matched.
-func (d *NetworkPolicyPortDie) Port(v *intstr.IntOrString) *NetworkPolicyPortDie {
+func (d *networkPolicyPortDie) Port(v *intstr.IntOrString) NetworkPolicyPortDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyPort) {
 		r.Port = v
 	})
 }
 
-func (d *NetworkPolicyPortDie) PortInt(i int) *NetworkPolicyPortDie {
+func (d *networkPolicyPortDie) PortInt(i int) NetworkPolicyPortDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyPort) {
 		v := intstr.FromInt(i)
 		r.Port = &v
 	})
 }
 
-func (d *NetworkPolicyPortDie) PortString(s string) *NetworkPolicyPortDie {
+func (d *networkPolicyPortDie) PortString(s string) NetworkPolicyPortDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyPort) {
 		v := intstr.FromString(s)
 		r.Port = &v
 	})
 }
 
-// If set, indicates that the range of ports from port to endPort, inclusive, should be allowed by the policy. This field cannot be defined if the port field is not defined or if the port field is defined as a named (string) port. The endPort must be equal or greater than port. This feature is in Beta state and is enabled by default. It can be disabled using the Feature Gate "NetworkPolicyEndPort".
-func (d *NetworkPolicyPortDie) EndPort(v *int32) *NetworkPolicyPortDie {
+func (d *networkPolicyPortDie) EndPort(v *int32) NetworkPolicyPortDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyPort) {
 		r.EndPort = v
 	})
 }
 
-type NetworkPolicyPeerDie struct {
+type NetworkPolicyPeerDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.NetworkPolicyPeer)) NetworkPolicyPeerDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.NetworkPolicyPeer) NetworkPolicyPeerDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.NetworkPolicyPeer) NetworkPolicyPeerDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.NetworkPolicyPeer
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.NetworkPolicyPeer
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) NetworkPolicyPeerDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() NetworkPolicyPeerDie
+
+	networkPolicyPeer
+	// This is a label selector which selects Pods. This field follows standard label selector semantics; if present but empty, it selects all pods.
+	//
+	// If NamespaceSelector is also set, then the NetworkPolicyPeer as a whole selects the Pods matching PodSelector in the Namespaces selected by NamespaceSelector. Otherwise it selects the Pods matching PodSelector in the policy's own Namespace.
+	PodSelector(PodSelector *apismetav1.LabelSelector) NetworkPolicyPeerDie
+	// Selects Namespaces using cluster-scoped labels. This field follows standard label selector semantics; if present but empty, it selects all namespaces.
+	//
+	// If PodSelector is also set, then the NetworkPolicyPeer as a whole selects the Pods matching PodSelector in the Namespaces selected by NamespaceSelector. Otherwise it selects all Pods in the Namespaces selected by NamespaceSelector.
+	NamespaceSelector(NamespaceSelector *apismetav1.LabelSelector) NetworkPolicyPeerDie
+	// IPBlock defines policy on a particular IPBlock. If this field is set then neither of the other fields can be.
+	IPBlock(IPBlock *networkingv1.IPBlock) NetworkPolicyPeerDie
+}
+
+var _ NetworkPolicyPeerDie = (*networkPolicyPeerDie)(nil)
+var NetworkPolicyPeerBlank = (&networkPolicyPeerDie{}).DieFeed(networkingv1.NetworkPolicyPeer{})
+
+type networkPolicyPeerDie struct {
 	mutable bool
 	r       networkingv1.NetworkPolicyPeer
 }
 
-var NetworkPolicyPeerBlank = (&NetworkPolicyPeerDie{}).DieFeed(networkingv1.NetworkPolicyPeer{})
-
-func (d *NetworkPolicyPeerDie) DieImmutable(immutable bool) *NetworkPolicyPeerDie {
+func (d *networkPolicyPeerDie) DieImmutable(immutable bool) NetworkPolicyPeerDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*networkPolicyPeerDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *NetworkPolicyPeerDie) DieFeed(r networkingv1.NetworkPolicyPeer) *NetworkPolicyPeerDie {
+func (d *networkPolicyPeerDie) DieFeed(r networkingv1.NetworkPolicyPeer) NetworkPolicyPeerDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &NetworkPolicyPeerDie{
+	return &networkPolicyPeerDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *NetworkPolicyPeerDie) DieFeedPtr(r *networkingv1.NetworkPolicyPeer) *NetworkPolicyPeerDie {
+func (d *networkPolicyPeerDie) DieFeedPtr(r *networkingv1.NetworkPolicyPeer) NetworkPolicyPeerDie {
 	if r == nil {
 		r = &networkingv1.NetworkPolicyPeer{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *NetworkPolicyPeerDie) DieRelease() networkingv1.NetworkPolicyPeer {
+func (d *networkPolicyPeerDie) DieRelease() networkingv1.NetworkPolicyPeer {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *NetworkPolicyPeerDie) DieReleasePtr() *networkingv1.NetworkPolicyPeer {
+func (d *networkPolicyPeerDie) DieReleasePtr() *networkingv1.NetworkPolicyPeer {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *NetworkPolicyPeerDie) DieStamp(fn func(r *networkingv1.NetworkPolicyPeer)) *NetworkPolicyPeerDie {
+func (d *networkPolicyPeerDie) DieStamp(fn func(r *networkingv1.NetworkPolicyPeer)) NetworkPolicyPeerDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *NetworkPolicyPeerDie) DeepCopy() *NetworkPolicyPeerDie {
+func (d *networkPolicyPeerDie) DeepCopy() NetworkPolicyPeerDie {
 	r := *d.r.DeepCopy()
-	return &NetworkPolicyPeerDie{
+	return &networkPolicyPeerDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// This is a label selector which selects Pods. This field follows standard label selector semantics; if present but empty, it selects all pods.
-//
-// If NamespaceSelector is also set, then the NetworkPolicyPeer as a whole selects the Pods matching PodSelector in the Namespaces selected by NamespaceSelector. Otherwise it selects the Pods matching PodSelector in the policy's own Namespace.
-func (d *NetworkPolicyPeerDie) PodSelector(v *apismetav1.LabelSelector) *NetworkPolicyPeerDie {
+func (d *networkPolicyPeerDie) PodSelector(v *apismetav1.LabelSelector) NetworkPolicyPeerDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyPeer) {
 		r.PodSelector = v
 	})
 }
 
-// Selects Namespaces using cluster-scoped labels. This field follows standard label selector semantics; if present but empty, it selects all namespaces.
-//
-// If PodSelector is also set, then the NetworkPolicyPeer as a whole selects the Pods matching PodSelector in the Namespaces selected by NamespaceSelector. Otherwise it selects all Pods in the Namespaces selected by NamespaceSelector.
-func (d *NetworkPolicyPeerDie) NamespaceSelector(v *apismetav1.LabelSelector) *NetworkPolicyPeerDie {
+func (d *networkPolicyPeerDie) NamespaceSelector(v *apismetav1.LabelSelector) NetworkPolicyPeerDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyPeer) {
 		r.NamespaceSelector = v
 	})
 }
 
-// IPBlock defines policy on a particular IPBlock. If this field is set then neither of the other fields can be.
-func (d *NetworkPolicyPeerDie) IPBlock(v *networkingv1.IPBlock) *NetworkPolicyPeerDie {
+func (d *networkPolicyPeerDie) IPBlock(v *networkingv1.IPBlock) NetworkPolicyPeerDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyPeer) {
 		r.IPBlock = v
 	})
 }
 
-type IPBlockDie struct {
+type IPBlockDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *networkingv1.IPBlock)) IPBlockDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r networkingv1.IPBlock) IPBlockDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *networkingv1.IPBlock) IPBlockDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() networkingv1.IPBlock
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *networkingv1.IPBlock
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) IPBlockDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() IPBlockDie
+
+	// CIDR is a string representing the IP Block Valid examples are "192.168.1.1/24" or "2001:db9::/64"
+	CIDR(CIDR string) IPBlockDie
+	// Except is a slice of CIDRs that should not be included within an IP Block Valid examples are "192.168.1.1/24" or "2001:db9::/64" Except values will be rejected if they are outside the CIDR range
+	Except(Except ...string) IPBlockDie
+}
+
+var _ IPBlockDie = (*iPBlockDie)(nil)
+var IPBlockBlank = (&iPBlockDie{}).DieFeed(networkingv1.IPBlock{})
+
+type iPBlockDie struct {
 	mutable bool
 	r       networkingv1.IPBlock
 }
 
-var IPBlockBlank = (&IPBlockDie{}).DieFeed(networkingv1.IPBlock{})
-
-func (d *IPBlockDie) DieImmutable(immutable bool) *IPBlockDie {
+func (d *iPBlockDie) DieImmutable(immutable bool) IPBlockDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*iPBlockDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *IPBlockDie) DieFeed(r networkingv1.IPBlock) *IPBlockDie {
+func (d *iPBlockDie) DieFeed(r networkingv1.IPBlock) IPBlockDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &IPBlockDie{
+	return &iPBlockDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *IPBlockDie) DieFeedPtr(r *networkingv1.IPBlock) *IPBlockDie {
+func (d *iPBlockDie) DieFeedPtr(r *networkingv1.IPBlock) IPBlockDie {
 	if r == nil {
 		r = &networkingv1.IPBlock{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *IPBlockDie) DieRelease() networkingv1.IPBlock {
+func (d *iPBlockDie) DieRelease() networkingv1.IPBlock {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *IPBlockDie) DieReleasePtr() *networkingv1.IPBlock {
+func (d *iPBlockDie) DieReleasePtr() *networkingv1.IPBlock {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *IPBlockDie) DieStamp(fn func(r *networkingv1.IPBlock)) *IPBlockDie {
+func (d *iPBlockDie) DieStamp(fn func(r *networkingv1.IPBlock)) IPBlockDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *IPBlockDie) DeepCopy() *IPBlockDie {
+func (d *iPBlockDie) DeepCopy() IPBlockDie {
 	r := *d.r.DeepCopy()
-	return &IPBlockDie{
+	return &iPBlockDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// CIDR is a string representing the IP Block Valid examples are "192.168.1.1/24" or "2001:db9::/64"
-func (d *IPBlockDie) CIDR(v string) *IPBlockDie {
+func (d *iPBlockDie) CIDR(v string) IPBlockDie {
 	return d.DieStamp(func(r *networkingv1.IPBlock) {
 		r.CIDR = v
 	})
 }
 
-// Except is a slice of CIDRs that should not be included within an IP Block Valid examples are "192.168.1.1/24" or "2001:db9::/64" Except values will be rejected if they are outside the CIDR range
-func (d *IPBlockDie) Except(v ...string) *IPBlockDie {
+func (d *iPBlockDie) Except(v ...string) IPBlockDie {
 	return d.DieStamp(func(r *networkingv1.IPBlock) {
 		r.Except = v
 	})

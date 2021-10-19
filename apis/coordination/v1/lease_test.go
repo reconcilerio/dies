@@ -29,7 +29,7 @@ import (
 func TestLease(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *diecoordinationv1.LeaseDie
+		die      diecoordinationv1.LeaseDie
 		expected coordinationv1.Lease
 	}{
 		{
@@ -40,7 +40,7 @@ func TestLease(t *testing.T) {
 		{
 			name: "object metadata",
 			die: diecoordinationv1.LeaseBlank.
-				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),

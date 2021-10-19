@@ -26,7 +26,11 @@ type IngressClass = networkingv1.IngressClass
 // +die
 type IngressClassSpec = networkingv1.IngressClassSpec
 
-func (d *IngressClassSpecDie) ParametersDie(fn func(d *IngressClassParametersReferenceDie)) *IngressClassSpecDie {
+type ingressClassSpec interface {
+	ParametersDie(fn func(d IngressClassParametersReferenceDie)) IngressClassSpecDie
+}
+
+func (d *ingressClassSpecDie) ParametersDie(fn func(d IngressClassParametersReferenceDie)) IngressClassSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressClassSpec) {
 		d := IngressClassParametersReferenceBlank.DieImmutable(false).DieFeedPtr(r.Parameters)
 		fn(d)

@@ -29,7 +29,12 @@ type Deployment = appsv1.Deployment
 // +die
 type DeploymentSpec = appsv1.DeploymentSpec
 
-func (d *DeploymentSpecDie) SelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *DeploymentSpecDie {
+type deploymentSpec interface {
+	SelectorDie(fn func(d diemetav1.LabelSelectorDie)) DeploymentSpecDie
+	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) DeploymentSpecDie
+}
+
+func (d *deploymentSpecDie) SelectorDie(fn func(d diemetav1.LabelSelectorDie)) DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
 		fn(d)
@@ -37,7 +42,7 @@ func (d *DeploymentSpecDie) SelectorDie(fn func(d *diemetav1.LabelSelectorDie)) 
 	})
 }
 
-func (d *DeploymentSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *DeploymentSpecDie {
+func (d *deploymentSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		d := diecorev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
 		fn(d)
@@ -48,7 +53,11 @@ func (d *DeploymentSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)
 // +die
 type DeploymentStatus = appsv1.DeploymentStatus
 
-func (d *DeploymentStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *DeploymentStatusDie {
+type deploymentStatus interface {
+	ConditionsDie(conditions ...diemetav1.ConditionDie) DeploymentStatusDie
+}
+
+func (d *deploymentStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.Conditions = make([]appsv1.DeploymentCondition, len(conditions))
 		for i := range conditions {

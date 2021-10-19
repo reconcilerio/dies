@@ -31,7 +31,12 @@ type ServiceSpec = corev1.ServiceSpec
 // +die
 type ServiceStatus = corev1.ServiceStatus
 
-func (d *ServiceStatusDie) LoadBalancerDie(fn func(d *LoadBalancerStatusDie)) *ServiceStatusDie {
+type serviceStatus interface {
+	LoadBalancerDie(fn func(d LoadBalancerStatusDie)) ServiceStatusDie
+	ConditionsDie(conditions ...diemetav1.ConditionDie) ServiceStatusDie
+}
+
+func (d *serviceStatusDie) LoadBalancerDie(fn func(d LoadBalancerStatusDie)) ServiceStatusDie {
 	return d.DieStamp(func(r *corev1.ServiceStatus) {
 		d := LoadBalancerStatusBlank.DieImmutable(false).DieFeed(r.LoadBalancer)
 		fn(d)
@@ -39,7 +44,7 @@ func (d *ServiceStatusDie) LoadBalancerDie(fn func(d *LoadBalancerStatusDie)) *S
 	})
 }
 
-func (d *ServiceStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *ServiceStatusDie {
+func (d *serviceStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) ServiceStatusDie {
 	return d.DieStamp(func(r *corev1.ServiceStatus) {
 		r.Conditions = make([]metav1.Condition, len(conditions))
 		for i, c := range conditions {
@@ -51,7 +56,11 @@ func (d *ServiceStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) 
 // +die
 type LoadBalancerStatus = corev1.LoadBalancerStatus
 
-func (d *LoadBalancerStatusDie) LoadBalancerDie(ingress ...*LoadBalancerIngressDie) *LoadBalancerStatusDie {
+type loadBalancerStatus interface {
+	LoadBalancerDie(ingress ...LoadBalancerIngressDie) LoadBalancerStatusDie
+}
+
+func (d *loadBalancerStatusDie) LoadBalancerDie(ingress ...LoadBalancerIngressDie) LoadBalancerStatusDie {
 	return d.DieStamp(func(r *corev1.LoadBalancerStatus) {
 		r.Ingress = make([]corev1.LoadBalancerIngress, len(ingress))
 		for i := range ingress {
@@ -63,7 +72,11 @@ func (d *LoadBalancerStatusDie) LoadBalancerDie(ingress ...*LoadBalancerIngressD
 // +die
 type LoadBalancerIngress = corev1.LoadBalancerIngress
 
-func (d *LoadBalancerIngressDie) PortsDie(ports ...*PortStatusDie) *LoadBalancerIngressDie {
+type loadBalancerIngress interface {
+	PortsDie(ports ...PortStatusDie) LoadBalancerIngressDie
+}
+
+func (d *loadBalancerIngressDie) PortsDie(ports ...PortStatusDie) LoadBalancerIngressDie {
 	return d.DieStamp(func(r *corev1.LoadBalancerIngress) {
 		r.Ports = make([]corev1.PortStatus, len(ports))
 		for i := range ports {

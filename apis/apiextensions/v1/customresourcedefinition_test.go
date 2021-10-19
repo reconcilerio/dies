@@ -34,7 +34,7 @@ func TestCustomResourceDefinition(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		die      *dieapiextensionsv1.CustomResourceDefinitionDie
+		die      dieapiextensionsv1.CustomResourceDefinitionDie
 		expected apiextensionsv1.CustomResourceDefinition
 	}{
 		{
@@ -45,7 +45,7 @@ func TestCustomResourceDefinition(t *testing.T) {
 		{
 			name: "object metadata",
 			die: dieapiextensionsv1.CustomResourceDefinitionBlank.
-				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
 					d.Name("my-name")
 				}),
 			expected: apiextensionsv1.CustomResourceDefinition{
@@ -57,7 +57,7 @@ func TestCustomResourceDefinition(t *testing.T) {
 		{
 			name: "status conditions die",
 			die: dieapiextensionsv1.CustomResourceDefinitionBlank.
-				StatusDie(func(d *dieapiextensionsv1.CustomResourceDefinitionStatusDie) {
+				StatusDie(func(d dieapiextensionsv1.CustomResourceDefinitionStatusDie) {
 					d.ConditionsDie(
 						diemetav1.ConditionBlank.
 							Type(string(apiextensionsv1.Established)).

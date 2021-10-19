@@ -26,474 +26,583 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
-type ConditionDie struct {
+type ConditionDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *metav1.Condition)) ConditionDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r metav1.Condition) ConditionDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *metav1.Condition) ConditionDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() metav1.Condition
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *metav1.Condition
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ConditionDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ConditionDie
+
+	// type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+	Type(Type string) ConditionDie
+	// status of the condition, one of True, False, Unknown.
+	Status(Status metav1.ConditionStatus) ConditionDie
+	// observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+	ObservedGeneration(ObservedGeneration int64) ConditionDie
+	// lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+	LastTransitionTime(LastTransitionTime metav1.Time) ConditionDie
+	// reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+	Reason(Reason string) ConditionDie
+	// message is a human readable message indicating details about the transition. This may be an empty string.
+	Message(Message string) ConditionDie
+}
+
+var _ ConditionDie = (*conditionDie)(nil)
+var ConditionBlank = (&conditionDie{}).DieFeed(metav1.Condition{})
+
+type conditionDie struct {
 	mutable bool
 	r       metav1.Condition
 }
 
-var ConditionBlank = (&ConditionDie{}).DieFeed(metav1.Condition{})
-
-func (d *ConditionDie) DieImmutable(immutable bool) *ConditionDie {
+func (d *conditionDie) DieImmutable(immutable bool) ConditionDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*conditionDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *ConditionDie) DieFeed(r metav1.Condition) *ConditionDie {
+func (d *conditionDie) DieFeed(r metav1.Condition) ConditionDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &ConditionDie{
+	return &conditionDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *ConditionDie) DieFeedPtr(r *metav1.Condition) *ConditionDie {
+func (d *conditionDie) DieFeedPtr(r *metav1.Condition) ConditionDie {
 	if r == nil {
 		r = &metav1.Condition{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *ConditionDie) DieRelease() metav1.Condition {
+func (d *conditionDie) DieRelease() metav1.Condition {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *ConditionDie) DieReleasePtr() *metav1.Condition {
+func (d *conditionDie) DieReleasePtr() *metav1.Condition {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *ConditionDie) DieStamp(fn func(r *metav1.Condition)) *ConditionDie {
+func (d *conditionDie) DieStamp(fn func(r *metav1.Condition)) ConditionDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *ConditionDie) DeepCopy() *ConditionDie {
+func (d *conditionDie) DeepCopy() ConditionDie {
 	r := *d.r.DeepCopy()
-	return &ConditionDie{
+	return &conditionDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
-func (d *ConditionDie) Type(v string) *ConditionDie {
+func (d *conditionDie) Type(v string) ConditionDie {
 	return d.DieStamp(func(r *metav1.Condition) {
 		r.Type = v
 	})
 }
 
-// status of the condition, one of True, False, Unknown.
-func (d *ConditionDie) Status(v metav1.ConditionStatus) *ConditionDie {
+func (d *conditionDie) Status(v metav1.ConditionStatus) ConditionDie {
 	return d.DieStamp(func(r *metav1.Condition) {
 		r.Status = v
 	})
 }
 
-// observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
-func (d *ConditionDie) ObservedGeneration(v int64) *ConditionDie {
+func (d *conditionDie) ObservedGeneration(v int64) ConditionDie {
 	return d.DieStamp(func(r *metav1.Condition) {
 		r.ObservedGeneration = v
 	})
 }
 
-// lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
-func (d *ConditionDie) LastTransitionTime(v metav1.Time) *ConditionDie {
+func (d *conditionDie) LastTransitionTime(v metav1.Time) ConditionDie {
 	return d.DieStamp(func(r *metav1.Condition) {
 		r.LastTransitionTime = v
 	})
 }
 
-// reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
-func (d *ConditionDie) Reason(v string) *ConditionDie {
+func (d *conditionDie) Reason(v string) ConditionDie {
 	return d.DieStamp(func(r *metav1.Condition) {
 		r.Reason = v
 	})
 }
 
-// message is a human readable message indicating details about the transition. This may be an empty string.
-func (d *ConditionDie) Message(v string) *ConditionDie {
+func (d *conditionDie) Message(v string) ConditionDie {
 	return d.DieStamp(func(r *metav1.Condition) {
 		r.Message = v
 	})
 }
 
-type ObjectMetaDie struct {
+type ObjectMetaDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *metav1.ObjectMeta)) ObjectMetaDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r metav1.ObjectMeta) ObjectMetaDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *metav1.ObjectMeta) ObjectMetaDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() metav1.ObjectMeta
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *metav1.ObjectMeta
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ObjectMetaDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ObjectMetaDie
+
+	objectMeta
+	// Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. Cannot be updated. More info: http://kubernetes.io/docs/user-guide/identifiers#names
+	Name(Name string) ObjectMetaDie
+	// GenerateName is an optional prefix, used by the server, to generate a unique name ONLY IF the Name field has not been provided. If this field is used, the name returned to the client will be different than the name passed. This value will also be combined with a unique suffix. The provided value has the same validation rules as the Name field, and may be truncated by the length of the suffix required to make the value unique on the server.
+	//
+	// If this field is specified and the generated name exists, the server will NOT return a 409 - instead, it will either return 201 Created or 500 with Reason ServerTimeout indicating a unique name could not be found in the time allotted, and the client should retry (optionally after the time indicated in the Retry-After header).
+	//
+	// Applied only if Name is not specified. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
+	GenerateName(GenerateName string) ObjectMetaDie
+	// Namespace defines the space within which each name must be unique. An empty namespace is equivalent to the "default" namespace, but "default" is the canonical representation. Not all objects are required to be scoped to a namespace - the value of this field for those objects will be empty.
+	//
+	// Must be a DNS_LABEL. Cannot be updated. More info: http://kubernetes.io/docs/user-guide/namespaces
+	Namespace(Namespace string) ObjectMetaDie
+	// SelfLink is a URL representing this object. Populated by the system. Read-only.
+	//
+	// DEPRECATED Kubernetes will stop propagating this field in 1.20 release and the field is planned to be removed in 1.21 release.
+	SelfLink(SelfLink string) ObjectMetaDie
+	// UID is the unique in time and space value for this object. It is typically generated by the server on successful creation of a resource and is not allowed to change on PUT operations.
+	//
+	// Populated by the system. Read-only. More info: http://kubernetes.io/docs/user-guide/identifiers#uids
+	UID(UID types.UID) ObjectMetaDie
+	// An opaque value that represents the internal version of this object that can be used by clients to determine when objects have changed. May be used for optimistic concurrency, change detection, and the watch operation on a resource or set of resources. Clients must treat these values as opaque and passed unmodified back to the server. They may only be valid for a particular resource or set of resources.
+	//
+	// Populated by the system. Read-only. Value must be treated as opaque by clients and . More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+	ResourceVersion(ResourceVersion string) ObjectMetaDie
+	// A sequence number representing a specific generation of the desired state. Populated by the system. Read-only.
+	Generation(Generation int64) ObjectMetaDie
+	// CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC.
+	//
+	// Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	CreationTimestamp(CreationTimestamp metav1.Time) ObjectMetaDie
+	// DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This field is set by the server when a graceful deletion is requested by the user, and is not directly settable by a client. The resource is expected to be deleted (no longer visible from resource lists, and not reachable by name) after the time in this field, once the finalizers list is empty. As long as the finalizers list contains items, deletion is blocked. Once the deletionTimestamp is set, this value may not be unset or be set further into the future, although it may be shortened or the resource may be deleted prior to this time. For example, a user may request that a pod is deleted in 30 seconds. The Kubelet will react by sending a graceful termination signal to the containers in the pod. After that 30 seconds, the Kubelet will send a hard termination signal (SIGKILL) to the container and after cleanup, remove the pod from the API. In the presence of network partitions, this object may still exist after this timestamp, until an administrator or automated process can determine the resource is fully terminated. If not set, graceful deletion of the object has not been requested.
+	//
+	// Populated by the system when a graceful deletion is requested. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	DeletionTimestamp(DeletionTimestamp *metav1.Time) ObjectMetaDie
+	// Number of seconds allowed for this object to gracefully terminate before it will be removed from the system. Only set when deletionTimestamp is also set. May only be shortened. Read-only.
+	DeletionGracePeriodSeconds(DeletionGracePeriodSeconds *int64) ObjectMetaDie
+	// Map of string keys and values that can be used to organize and categorize (scope and select) objects. May match selectors of replication controllers and services. More info: http://kubernetes.io/docs/user-guide/labels
+	Labels(Labels map[string]string) ObjectMetaDie
+	// Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata. They are not queryable and should be preserved when modifying objects. More info: http://kubernetes.io/docs/user-guide/annotations
+	Annotations(Annotations map[string]string) ObjectMetaDie
+	// List of objects depended by this object. If ALL objects in the list have been deleted, this object will be garbage collected. If this object is managed by a controller, then an entry in this list will point to this controller, with the controller field set to true. There cannot be more than one managing controller.
+	OwnerReferences(OwnerReferences ...metav1.OwnerReference) ObjectMetaDie
+	// Must be empty before the object is deleted from the registry. Each entry is an identifier for the responsible component that will remove the entry from the list. If the deletionTimestamp of the object is non-nil, entries in this list can only be removed. Finalizers may be processed and removed in any order.  Order is NOT enforced because it introduces significant risk of stuck finalizers. finalizers is a shared field, any actor with permission can reorder it. If the finalizer list is processed in order, then this can lead to a situation in which the component responsible for the first finalizer in the list is waiting for a signal (field value, external system, or other) produced by a component responsible for a finalizer later in the list, resulting in a deadlock. Without enforced ordering finalizers are free to order amongst themselves and are not vulnerable to ordering changes in the list.
+	Finalizers(Finalizers ...string) ObjectMetaDie
+	// The name of the cluster which the object belongs to. This is used to distinguish resources with same name and namespace in different clusters. This field is not set anywhere right now and apiserver is going to ignore it if set in create or update request.
+	ClusterName(ClusterName string) ObjectMetaDie
+	// ManagedFields maps workflow-id and version to the set of fields that are managed by that workflow. This is mostly for internal housekeeping, and users typically shouldn't need to set or understand this field. A workflow can be the user's name, a controller's name, or the name of a specific apply path like "ci-cd". The set of fields is always in the version that the workflow used when modifying the object.
+	ManagedFields(ManagedFields ...metav1.ManagedFieldsEntry) ObjectMetaDie
+}
+
+var _ ObjectMetaDie = (*objectMetaDie)(nil)
+var ObjectMetaBlank = (&objectMetaDie{}).DieFeed(metav1.ObjectMeta{})
+
+type objectMetaDie struct {
 	mutable bool
 	r       metav1.ObjectMeta
 }
 
-var ObjectMetaBlank = (&ObjectMetaDie{}).DieFeed(metav1.ObjectMeta{})
-
-func (d *ObjectMetaDie) DieImmutable(immutable bool) *ObjectMetaDie {
+func (d *objectMetaDie) DieImmutable(immutable bool) ObjectMetaDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*objectMetaDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *ObjectMetaDie) DieFeed(r metav1.ObjectMeta) *ObjectMetaDie {
+func (d *objectMetaDie) DieFeed(r metav1.ObjectMeta) ObjectMetaDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &ObjectMetaDie{
+	return &objectMetaDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *ObjectMetaDie) DieFeedPtr(r *metav1.ObjectMeta) *ObjectMetaDie {
+func (d *objectMetaDie) DieFeedPtr(r *metav1.ObjectMeta) ObjectMetaDie {
 	if r == nil {
 		r = &metav1.ObjectMeta{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *ObjectMetaDie) DieRelease() metav1.ObjectMeta {
+func (d *objectMetaDie) DieRelease() metav1.ObjectMeta {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *ObjectMetaDie) DieReleasePtr() *metav1.ObjectMeta {
+func (d *objectMetaDie) DieReleasePtr() *metav1.ObjectMeta {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *ObjectMetaDie) DieStamp(fn func(r *metav1.ObjectMeta)) *ObjectMetaDie {
+func (d *objectMetaDie) DieStamp(fn func(r *metav1.ObjectMeta)) ObjectMetaDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *ObjectMetaDie) DeepCopy() *ObjectMetaDie {
+func (d *objectMetaDie) DeepCopy() ObjectMetaDie {
 	r := *d.r.DeepCopy()
-	return &ObjectMetaDie{
+	return &objectMetaDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. Cannot be updated. More info: http://kubernetes.io/docs/user-guide/identifiers#names
-func (d *ObjectMetaDie) Name(v string) *ObjectMetaDie {
+func (d *objectMetaDie) Name(v string) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.Name = v
 	})
 }
 
-// GenerateName is an optional prefix, used by the server, to generate a unique name ONLY IF the Name field has not been provided. If this field is used, the name returned to the client will be different than the name passed. This value will also be combined with a unique suffix. The provided value has the same validation rules as the Name field, and may be truncated by the length of the suffix required to make the value unique on the server.
-//
-// If this field is specified and the generated name exists, the server will NOT return a 409 - instead, it will either return 201 Created or 500 with Reason ServerTimeout indicating a unique name could not be found in the time allotted, and the client should retry (optionally after the time indicated in the Retry-After header).
-//
-// Applied only if Name is not specified. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
-func (d *ObjectMetaDie) GenerateName(v string) *ObjectMetaDie {
+func (d *objectMetaDie) GenerateName(v string) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.GenerateName = v
 	})
 }
 
-// Namespace defines the space within which each name must be unique. An empty namespace is equivalent to the "default" namespace, but "default" is the canonical representation. Not all objects are required to be scoped to a namespace - the value of this field for those objects will be empty.
-//
-// Must be a DNS_LABEL. Cannot be updated. More info: http://kubernetes.io/docs/user-guide/namespaces
-func (d *ObjectMetaDie) Namespace(v string) *ObjectMetaDie {
+func (d *objectMetaDie) Namespace(v string) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.Namespace = v
 	})
 }
 
-// SelfLink is a URL representing this object. Populated by the system. Read-only.
-//
-// DEPRECATED Kubernetes will stop propagating this field in 1.20 release and the field is planned to be removed in 1.21 release.
-func (d *ObjectMetaDie) SelfLink(v string) *ObjectMetaDie {
+func (d *objectMetaDie) SelfLink(v string) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.SelfLink = v
 	})
 }
 
-// UID is the unique in time and space value for this object. It is typically generated by the server on successful creation of a resource and is not allowed to change on PUT operations.
-//
-// Populated by the system. Read-only. More info: http://kubernetes.io/docs/user-guide/identifiers#uids
-func (d *ObjectMetaDie) UID(v types.UID) *ObjectMetaDie {
+func (d *objectMetaDie) UID(v types.UID) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.UID = v
 	})
 }
 
-// An opaque value that represents the internal version of this object that can be used by clients to determine when objects have changed. May be used for optimistic concurrency, change detection, and the watch operation on a resource or set of resources. Clients must treat these values as opaque and passed unmodified back to the server. They may only be valid for a particular resource or set of resources.
-//
-// Populated by the system. Read-only. Value must be treated as opaque by clients and . More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
-func (d *ObjectMetaDie) ResourceVersion(v string) *ObjectMetaDie {
+func (d *objectMetaDie) ResourceVersion(v string) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.ResourceVersion = v
 	})
 }
 
-// A sequence number representing a specific generation of the desired state. Populated by the system. Read-only.
-func (d *ObjectMetaDie) Generation(v int64) *ObjectMetaDie {
+func (d *objectMetaDie) Generation(v int64) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.Generation = v
 	})
 }
 
-// CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC.
-//
-// Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-func (d *ObjectMetaDie) CreationTimestamp(v metav1.Time) *ObjectMetaDie {
+func (d *objectMetaDie) CreationTimestamp(v metav1.Time) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.CreationTimestamp = v
 	})
 }
 
-// DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This field is set by the server when a graceful deletion is requested by the user, and is not directly settable by a client. The resource is expected to be deleted (no longer visible from resource lists, and not reachable by name) after the time in this field, once the finalizers list is empty. As long as the finalizers list contains items, deletion is blocked. Once the deletionTimestamp is set, this value may not be unset or be set further into the future, although it may be shortened or the resource may be deleted prior to this time. For example, a user may request that a pod is deleted in 30 seconds. The Kubelet will react by sending a graceful termination signal to the containers in the pod. After that 30 seconds, the Kubelet will send a hard termination signal (SIGKILL) to the container and after cleanup, remove the pod from the API. In the presence of network partitions, this object may still exist after this timestamp, until an administrator or automated process can determine the resource is fully terminated. If not set, graceful deletion of the object has not been requested.
-//
-// Populated by the system when a graceful deletion is requested. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-func (d *ObjectMetaDie) DeletionTimestamp(v *metav1.Time) *ObjectMetaDie {
+func (d *objectMetaDie) DeletionTimestamp(v *metav1.Time) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.DeletionTimestamp = v
 	})
 }
 
-// Number of seconds allowed for this object to gracefully terminate before it will be removed from the system. Only set when deletionTimestamp is also set. May only be shortened. Read-only.
-func (d *ObjectMetaDie) DeletionGracePeriodSeconds(v *int64) *ObjectMetaDie {
+func (d *objectMetaDie) DeletionGracePeriodSeconds(v *int64) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.DeletionGracePeriodSeconds = v
 	})
 }
 
-// Map of string keys and values that can be used to organize and categorize (scope and select) objects. May match selectors of replication controllers and services. More info: http://kubernetes.io/docs/user-guide/labels
-func (d *ObjectMetaDie) Labels(v map[string]string) *ObjectMetaDie {
+func (d *objectMetaDie) Labels(v map[string]string) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.Labels = v
 	})
 }
 
-// Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata. They are not queryable and should be preserved when modifying objects. More info: http://kubernetes.io/docs/user-guide/annotations
-func (d *ObjectMetaDie) Annotations(v map[string]string) *ObjectMetaDie {
+func (d *objectMetaDie) Annotations(v map[string]string) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.Annotations = v
 	})
 }
 
-// List of objects depended by this object. If ALL objects in the list have been deleted, this object will be garbage collected. If this object is managed by a controller, then an entry in this list will point to this controller, with the controller field set to true. There cannot be more than one managing controller.
-func (d *ObjectMetaDie) OwnerReferences(v ...metav1.OwnerReference) *ObjectMetaDie {
+func (d *objectMetaDie) OwnerReferences(v ...metav1.OwnerReference) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.OwnerReferences = v
 	})
 }
 
-// Must be empty before the object is deleted from the registry. Each entry is an identifier for the responsible component that will remove the entry from the list. If the deletionTimestamp of the object is non-nil, entries in this list can only be removed. Finalizers may be processed and removed in any order.  Order is NOT enforced because it introduces significant risk of stuck finalizers. finalizers is a shared field, any actor with permission can reorder it. If the finalizer list is processed in order, then this can lead to a situation in which the component responsible for the first finalizer in the list is waiting for a signal (field value, external system, or other) produced by a component responsible for a finalizer later in the list, resulting in a deadlock. Without enforced ordering finalizers are free to order amongst themselves and are not vulnerable to ordering changes in the list.
-func (d *ObjectMetaDie) Finalizers(v ...string) *ObjectMetaDie {
+func (d *objectMetaDie) Finalizers(v ...string) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.Finalizers = v
 	})
 }
 
-// The name of the cluster which the object belongs to. This is used to distinguish resources with same name and namespace in different clusters. This field is not set anywhere right now and apiserver is going to ignore it if set in create or update request.
-func (d *ObjectMetaDie) ClusterName(v string) *ObjectMetaDie {
+func (d *objectMetaDie) ClusterName(v string) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.ClusterName = v
 	})
 }
 
-// ManagedFields maps workflow-id and version to the set of fields that are managed by that workflow. This is mostly for internal housekeeping, and users typically shouldn't need to set or understand this field. A workflow can be the user's name, a controller's name, or the name of a specific apply path like "ci-cd". The set of fields is always in the version that the workflow used when modifying the object.
-func (d *ObjectMetaDie) ManagedFields(v ...metav1.ManagedFieldsEntry) *ObjectMetaDie {
+func (d *objectMetaDie) ManagedFields(v ...metav1.ManagedFieldsEntry) ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.ManagedFields = v
 	})
 }
 
-type ManagedFieldsEntryDie struct {
+type ManagedFieldsEntryDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *metav1.ManagedFieldsEntry)) ManagedFieldsEntryDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r metav1.ManagedFieldsEntry) ManagedFieldsEntryDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *metav1.ManagedFieldsEntry) ManagedFieldsEntryDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() metav1.ManagedFieldsEntry
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *metav1.ManagedFieldsEntry
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ManagedFieldsEntryDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ManagedFieldsEntryDie
+
+	// Manager is an identifier of the workflow managing these fields.
+	Manager(Manager string) ManagedFieldsEntryDie
+	// Operation is the type of operation which lead to this ManagedFieldsEntry being created. The only valid values for this field are 'Apply' and 'Update'.
+	Operation(Operation metav1.ManagedFieldsOperationType) ManagedFieldsEntryDie
+	// APIVersion defines the version of this resource that this field set applies to. The format is "group/version" just like the top-level APIVersion field. It is necessary to track the version of a field set because it cannot be automatically converted.
+	APIVersion(APIVersion string) ManagedFieldsEntryDie
+	// Time is timestamp of when these fields were set. It should always be empty if Operation is 'Apply'
+	Time(Time *metav1.Time) ManagedFieldsEntryDie
+	// FieldsType is the discriminator for the different fields format and version. There is currently only one possible value: "FieldsV1"
+	FieldsType(FieldsType string) ManagedFieldsEntryDie
+	// FieldsV1 holds the first JSON version format as described in the "FieldsV1" type.
+	FieldsV1(FieldsV1 *metav1.FieldsV1) ManagedFieldsEntryDie
+	// Subresource is the name of the subresource used to update that object, or empty string if the object was updated through the main resource. The value of this field is used to distinguish between managers, even if they share the same name. For example, a status update will be distinct from a regular update using the same manager name. Note that the APIVersion field is not related to the Subresource field and it always corresponds to the version of the main resource.
+	Subresource(Subresource string) ManagedFieldsEntryDie
+}
+
+var _ ManagedFieldsEntryDie = (*managedFieldsEntryDie)(nil)
+var ManagedFieldsEntryBlank = (&managedFieldsEntryDie{}).DieFeed(metav1.ManagedFieldsEntry{})
+
+type managedFieldsEntryDie struct {
 	mutable bool
 	r       metav1.ManagedFieldsEntry
 }
 
-var ManagedFieldsEntryBlank = (&ManagedFieldsEntryDie{}).DieFeed(metav1.ManagedFieldsEntry{})
-
-func (d *ManagedFieldsEntryDie) DieImmutable(immutable bool) *ManagedFieldsEntryDie {
+func (d *managedFieldsEntryDie) DieImmutable(immutable bool) ManagedFieldsEntryDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*managedFieldsEntryDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *ManagedFieldsEntryDie) DieFeed(r metav1.ManagedFieldsEntry) *ManagedFieldsEntryDie {
+func (d *managedFieldsEntryDie) DieFeed(r metav1.ManagedFieldsEntry) ManagedFieldsEntryDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &ManagedFieldsEntryDie{
+	return &managedFieldsEntryDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *ManagedFieldsEntryDie) DieFeedPtr(r *metav1.ManagedFieldsEntry) *ManagedFieldsEntryDie {
+func (d *managedFieldsEntryDie) DieFeedPtr(r *metav1.ManagedFieldsEntry) ManagedFieldsEntryDie {
 	if r == nil {
 		r = &metav1.ManagedFieldsEntry{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *ManagedFieldsEntryDie) DieRelease() metav1.ManagedFieldsEntry {
+func (d *managedFieldsEntryDie) DieRelease() metav1.ManagedFieldsEntry {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *ManagedFieldsEntryDie) DieReleasePtr() *metav1.ManagedFieldsEntry {
+func (d *managedFieldsEntryDie) DieReleasePtr() *metav1.ManagedFieldsEntry {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *ManagedFieldsEntryDie) DieStamp(fn func(r *metav1.ManagedFieldsEntry)) *ManagedFieldsEntryDie {
+func (d *managedFieldsEntryDie) DieStamp(fn func(r *metav1.ManagedFieldsEntry)) ManagedFieldsEntryDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *ManagedFieldsEntryDie) DeepCopy() *ManagedFieldsEntryDie {
+func (d *managedFieldsEntryDie) DeepCopy() ManagedFieldsEntryDie {
 	r := *d.r.DeepCopy()
-	return &ManagedFieldsEntryDie{
+	return &managedFieldsEntryDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// Manager is an identifier of the workflow managing these fields.
-func (d *ManagedFieldsEntryDie) Manager(v string) *ManagedFieldsEntryDie {
+func (d *managedFieldsEntryDie) Manager(v string) ManagedFieldsEntryDie {
 	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
 		r.Manager = v
 	})
 }
 
-// Operation is the type of operation which lead to this ManagedFieldsEntry being created. The only valid values for this field are 'Apply' and 'Update'.
-func (d *ManagedFieldsEntryDie) Operation(v metav1.ManagedFieldsOperationType) *ManagedFieldsEntryDie {
+func (d *managedFieldsEntryDie) Operation(v metav1.ManagedFieldsOperationType) ManagedFieldsEntryDie {
 	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
 		r.Operation = v
 	})
 }
 
-// APIVersion defines the version of this resource that this field set applies to. The format is "group/version" just like the top-level APIVersion field. It is necessary to track the version of a field set because it cannot be automatically converted.
-func (d *ManagedFieldsEntryDie) APIVersion(v string) *ManagedFieldsEntryDie {
+func (d *managedFieldsEntryDie) APIVersion(v string) ManagedFieldsEntryDie {
 	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
 		r.APIVersion = v
 	})
 }
 
-// Time is timestamp of when these fields were set. It should always be empty if Operation is 'Apply'
-func (d *ManagedFieldsEntryDie) Time(v *metav1.Time) *ManagedFieldsEntryDie {
+func (d *managedFieldsEntryDie) Time(v *metav1.Time) ManagedFieldsEntryDie {
 	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
 		r.Time = v
 	})
 }
 
-// FieldsType is the discriminator for the different fields format and version. There is currently only one possible value: "FieldsV1"
-func (d *ManagedFieldsEntryDie) FieldsType(v string) *ManagedFieldsEntryDie {
+func (d *managedFieldsEntryDie) FieldsType(v string) ManagedFieldsEntryDie {
 	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
 		r.FieldsType = v
 	})
 }
 
-// FieldsV1 holds the first JSON version format as described in the "FieldsV1" type.
-func (d *ManagedFieldsEntryDie) FieldsV1(v *metav1.FieldsV1) *ManagedFieldsEntryDie {
+func (d *managedFieldsEntryDie) FieldsV1(v *metav1.FieldsV1) ManagedFieldsEntryDie {
 	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
 		r.FieldsV1 = v
 	})
 }
 
-// Subresource is the name of the subresource used to update that object, or empty string if the object was updated through the main resource. The value of this field is used to distinguish between managers, even if they share the same name. For example, a status update will be distinct from a regular update using the same manager name. Note that the APIVersion field is not related to the Subresource field and it always corresponds to the version of the main resource.
-func (d *ManagedFieldsEntryDie) Subresource(v string) *ManagedFieldsEntryDie {
+func (d *managedFieldsEntryDie) Subresource(v string) ManagedFieldsEntryDie {
 	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
 		r.Subresource = v
 	})
 }
 
-type LabelSelectorDie struct {
+type LabelSelectorDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *metav1.LabelSelector)) LabelSelectorDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r metav1.LabelSelector) LabelSelectorDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *metav1.LabelSelector) LabelSelectorDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() metav1.LabelSelector
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *metav1.LabelSelector
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) LabelSelectorDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() LabelSelectorDie
+
+	labelSelector
+	// matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+	MatchLabels(MatchLabels map[string]string) LabelSelectorDie
+	// matchExpressions is a list of label selector requirements. The requirements are ANDed.
+	MatchExpressions(MatchExpressions ...metav1.LabelSelectorRequirement) LabelSelectorDie
+}
+
+var _ LabelSelectorDie = (*labelSelectorDie)(nil)
+var LabelSelectorBlank = (&labelSelectorDie{}).DieFeed(metav1.LabelSelector{})
+
+type labelSelectorDie struct {
 	mutable bool
 	r       metav1.LabelSelector
 }
 
-var LabelSelectorBlank = (&LabelSelectorDie{}).DieFeed(metav1.LabelSelector{})
-
-func (d *LabelSelectorDie) DieImmutable(immutable bool) *LabelSelectorDie {
+func (d *labelSelectorDie) DieImmutable(immutable bool) LabelSelectorDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*labelSelectorDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *LabelSelectorDie) DieFeed(r metav1.LabelSelector) *LabelSelectorDie {
+func (d *labelSelectorDie) DieFeed(r metav1.LabelSelector) LabelSelectorDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &LabelSelectorDie{
+	return &labelSelectorDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *LabelSelectorDie) DieFeedPtr(r *metav1.LabelSelector) *LabelSelectorDie {
+func (d *labelSelectorDie) DieFeedPtr(r *metav1.LabelSelector) LabelSelectorDie {
 	if r == nil {
 		r = &metav1.LabelSelector{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *LabelSelectorDie) DieRelease() metav1.LabelSelector {
+func (d *labelSelectorDie) DieRelease() metav1.LabelSelector {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *LabelSelectorDie) DieReleasePtr() *metav1.LabelSelector {
+func (d *labelSelectorDie) DieReleasePtr() *metav1.LabelSelector {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *LabelSelectorDie) DieStamp(fn func(r *metav1.LabelSelector)) *LabelSelectorDie {
+func (d *labelSelectorDie) DieStamp(fn func(r *metav1.LabelSelector)) LabelSelectorDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *LabelSelectorDie) DeepCopy() *LabelSelectorDie {
+func (d *labelSelectorDie) DeepCopy() LabelSelectorDie {
 	r := *d.r.DeepCopy()
-	return &LabelSelectorDie{
+	return &labelSelectorDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
-func (d *LabelSelectorDie) MatchLabels(v map[string]string) *LabelSelectorDie {
+func (d *labelSelectorDie) MatchLabels(v map[string]string) LabelSelectorDie {
 	return d.DieStamp(func(r *metav1.LabelSelector) {
 		r.MatchLabels = v
 	})
 }
 
-// matchExpressions is a list of label selector requirements. The requirements are ANDed.
-func (d *LabelSelectorDie) MatchExpressions(v ...metav1.LabelSelectorRequirement) *LabelSelectorDie {
+func (d *labelSelectorDie) MatchExpressions(v ...metav1.LabelSelectorRequirement) LabelSelectorDie {
 	return d.DieStamp(func(r *metav1.LabelSelector) {
 		r.MatchExpressions = v
 	})

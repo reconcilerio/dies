@@ -31,94 +31,123 @@ import (
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-type LeaseDie struct {
+type LeaseDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *coordinationv1.Lease)) LeaseDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r coordinationv1.Lease) LeaseDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *coordinationv1.Lease) LeaseDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() coordinationv1.Lease
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *coordinationv1.Lease
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) LeaseDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() LeaseDie
+
+	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+	MetadataDie(fn func(d metav1.ObjectMetaDie)) LeaseDie
+	// SpecDie stamps the resource's spec field with a mutable die.
+	SpecDie(fn func(d LeaseSpecDie)) LeaseDie
+	// Specification of the Lease. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	Spec(Spec coordinationv1.LeaseSpec) LeaseDie
+
+	runtime.Object
+	apismetav1.Object
+	apismetav1.ObjectMetaAccessor
+}
+
+var _ LeaseDie = (*leaseDie)(nil)
+var LeaseBlank = (&leaseDie{}).DieFeed(coordinationv1.Lease{})
+
+type leaseDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       coordinationv1.Lease
 }
 
-var LeaseBlank = (&LeaseDie{}).DieFeed(coordinationv1.Lease{})
-
-func (d *LeaseDie) DieImmutable(immutable bool) *LeaseDie {
+func (d *leaseDie) DieImmutable(immutable bool) LeaseDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*leaseDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *LeaseDie) DieFeed(r coordinationv1.Lease) *LeaseDie {
+func (d *leaseDie) DieFeed(r coordinationv1.Lease) LeaseDie {
 	if d.mutable {
 		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
 		d.r = r
 		return d
 	}
-	return &LeaseDie{
+	return &leaseDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *LeaseDie) DieFeedPtr(r *coordinationv1.Lease) *LeaseDie {
+func (d *leaseDie) DieFeedPtr(r *coordinationv1.Lease) LeaseDie {
 	if r == nil {
 		r = &coordinationv1.Lease{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *LeaseDie) DieRelease() coordinationv1.Lease {
+func (d *leaseDie) DieRelease() coordinationv1.Lease {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *LeaseDie) DieReleasePtr() *coordinationv1.Lease {
+func (d *leaseDie) DieReleasePtr() *coordinationv1.Lease {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *LeaseDie) DieStamp(fn func(r *coordinationv1.Lease)) *LeaseDie {
+func (d *leaseDie) DieStamp(fn func(r *coordinationv1.Lease)) LeaseDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *LeaseDie) DeepCopy() *LeaseDie {
+func (d *leaseDie) DeepCopy() LeaseDie {
 	r := *d.r.DeepCopy()
-	return &LeaseDie{
+	return &leaseDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *LeaseDie) DeepCopyObject() runtime.Object {
+func (d *leaseDie) DeepCopyObject() runtime.Object {
 	return d.r.DeepCopy()
 }
 
-func (d *LeaseDie) GetObjectKind() schema.ObjectKind {
+func (d *leaseDie) GetObjectKind() schema.ObjectKind {
 	r := d.DieRelease()
 	return r.GetObjectKind()
 }
 
-func (d *LeaseDie) MarshalJSON() ([]byte, error) {
+func (d *leaseDie) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.r)
 }
 
-func (d *LeaseDie) UnmarshalJSON(b []byte) error {
+func (d *leaseDie) UnmarshalJSON(b []byte) error {
 	if d == LeaseBlank {
 		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &coordinationv1.Lease{}
 	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	*d = *d.DieFeed(*r).(*leaseDie)
 	return err
 }
 
-func (d *LeaseDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *LeaseDie {
+func (d *leaseDie) MetadataDie(fn func(d metav1.ObjectMetaDie)) LeaseDie {
 	return d.DieStamp(func(r *coordinationv1.Lease) {
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
@@ -126,7 +155,7 @@ func (d *LeaseDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *LeaseDie {
 	})
 }
 
-func (d *LeaseDie) SpecDie(fn func(d *LeaseSpecDie)) *LeaseDie {
+func (d *leaseDie) SpecDie(fn func(d LeaseSpecDie)) LeaseDie {
 	return d.DieStamp(func(r *coordinationv1.Lease) {
 		d := LeaseSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
@@ -134,107 +163,126 @@ func (d *LeaseDie) SpecDie(fn func(d *LeaseSpecDie)) *LeaseDie {
 	})
 }
 
-var _ apismetav1.Object = (*LeaseDie)(nil)
-var _ apismetav1.ObjectMetaAccessor = (*LeaseDie)(nil)
-var _ runtime.Object = (*LeaseDie)(nil)
-
-// Specification of the Lease. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-func (d *LeaseDie) Spec(v coordinationv1.LeaseSpec) *LeaseDie {
+func (d *leaseDie) Spec(v coordinationv1.LeaseSpec) LeaseDie {
 	return d.DieStamp(func(r *coordinationv1.Lease) {
 		r.Spec = v
 	})
 }
 
-type LeaseSpecDie struct {
+type LeaseSpecDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *coordinationv1.LeaseSpec)) LeaseSpecDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r coordinationv1.LeaseSpec) LeaseSpecDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *coordinationv1.LeaseSpec) LeaseSpecDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() coordinationv1.LeaseSpec
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *coordinationv1.LeaseSpec
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) LeaseSpecDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() LeaseSpecDie
+
+	// holderIdentity contains the identity of the holder of a current lease.
+	HolderIdentity(HolderIdentity *string) LeaseSpecDie
+	// leaseDurationSeconds is a duration that candidates for a lease need to wait to force acquire it. This is measure against time of last observed RenewTime.
+	LeaseDurationSeconds(LeaseDurationSeconds *int32) LeaseSpecDie
+	// acquireTime is a time when the current lease was acquired.
+	AcquireTime(AcquireTime *apismetav1.MicroTime) LeaseSpecDie
+	// renewTime is a time when the current holder of a lease has last updated the lease.
+	RenewTime(RenewTime *apismetav1.MicroTime) LeaseSpecDie
+	// leaseTransitions is the number of transitions of a lease between holders.
+	LeaseTransitions(LeaseTransitions *int32) LeaseSpecDie
+}
+
+var _ LeaseSpecDie = (*leaseSpecDie)(nil)
+var LeaseSpecBlank = (&leaseSpecDie{}).DieFeed(coordinationv1.LeaseSpec{})
+
+type leaseSpecDie struct {
 	mutable bool
 	r       coordinationv1.LeaseSpec
 }
 
-var LeaseSpecBlank = (&LeaseSpecDie{}).DieFeed(coordinationv1.LeaseSpec{})
-
-func (d *LeaseSpecDie) DieImmutable(immutable bool) *LeaseSpecDie {
+func (d *leaseSpecDie) DieImmutable(immutable bool) LeaseSpecDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*leaseSpecDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *LeaseSpecDie) DieFeed(r coordinationv1.LeaseSpec) *LeaseSpecDie {
+func (d *leaseSpecDie) DieFeed(r coordinationv1.LeaseSpec) LeaseSpecDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &LeaseSpecDie{
+	return &leaseSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *LeaseSpecDie) DieFeedPtr(r *coordinationv1.LeaseSpec) *LeaseSpecDie {
+func (d *leaseSpecDie) DieFeedPtr(r *coordinationv1.LeaseSpec) LeaseSpecDie {
 	if r == nil {
 		r = &coordinationv1.LeaseSpec{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *LeaseSpecDie) DieRelease() coordinationv1.LeaseSpec {
+func (d *leaseSpecDie) DieRelease() coordinationv1.LeaseSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *LeaseSpecDie) DieReleasePtr() *coordinationv1.LeaseSpec {
+func (d *leaseSpecDie) DieReleasePtr() *coordinationv1.LeaseSpec {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *LeaseSpecDie) DieStamp(fn func(r *coordinationv1.LeaseSpec)) *LeaseSpecDie {
+func (d *leaseSpecDie) DieStamp(fn func(r *coordinationv1.LeaseSpec)) LeaseSpecDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *LeaseSpecDie) DeepCopy() *LeaseSpecDie {
+func (d *leaseSpecDie) DeepCopy() LeaseSpecDie {
 	r := *d.r.DeepCopy()
-	return &LeaseSpecDie{
+	return &leaseSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// holderIdentity contains the identity of the holder of a current lease.
-func (d *LeaseSpecDie) HolderIdentity(v *string) *LeaseSpecDie {
+func (d *leaseSpecDie) HolderIdentity(v *string) LeaseSpecDie {
 	return d.DieStamp(func(r *coordinationv1.LeaseSpec) {
 		r.HolderIdentity = v
 	})
 }
 
-// leaseDurationSeconds is a duration that candidates for a lease need to wait to force acquire it. This is measure against time of last observed RenewTime.
-func (d *LeaseSpecDie) LeaseDurationSeconds(v *int32) *LeaseSpecDie {
+func (d *leaseSpecDie) LeaseDurationSeconds(v *int32) LeaseSpecDie {
 	return d.DieStamp(func(r *coordinationv1.LeaseSpec) {
 		r.LeaseDurationSeconds = v
 	})
 }
 
-// acquireTime is a time when the current lease was acquired.
-func (d *LeaseSpecDie) AcquireTime(v *apismetav1.MicroTime) *LeaseSpecDie {
+func (d *leaseSpecDie) AcquireTime(v *apismetav1.MicroTime) LeaseSpecDie {
 	return d.DieStamp(func(r *coordinationv1.LeaseSpec) {
 		r.AcquireTime = v
 	})
 }
 
-// renewTime is a time when the current holder of a lease has last updated the lease.
-func (d *LeaseSpecDie) RenewTime(v *apismetav1.MicroTime) *LeaseSpecDie {
+func (d *leaseSpecDie) RenewTime(v *apismetav1.MicroTime) LeaseSpecDie {
 	return d.DieStamp(func(r *coordinationv1.LeaseSpec) {
 		r.RenewTime = v
 	})
 }
 
-// leaseTransitions is the number of transitions of a lease between holders.
-func (d *LeaseSpecDie) LeaseTransitions(v *int32) *LeaseSpecDie {
+func (d *leaseSpecDie) LeaseTransitions(v *int32) LeaseSpecDie {
 	return d.DieStamp(func(r *coordinationv1.LeaseSpec) {
 		r.LeaseTransitions = v
 	})

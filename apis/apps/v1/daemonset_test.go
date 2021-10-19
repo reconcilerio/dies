@@ -36,7 +36,7 @@ func TestDaemonSet(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		die      *dieappsv1.DaemonSetDie
+		die      dieappsv1.DaemonSetDie
 		expected appsv1.DaemonSet
 	}{
 		{
@@ -47,7 +47,7 @@ func TestDaemonSet(t *testing.T) {
 		{
 			name: "object metadata",
 			die: dieappsv1.DaemonSetBlank.
-				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),
@@ -61,13 +61,13 @@ func TestDaemonSet(t *testing.T) {
 		{
 			name: "spec template die",
 			die: dieappsv1.DaemonSetBlank.
-				SpecDie(func(d *dieappsv1.DaemonSetSpecDie) {
-					d.TemplateDie(func(d *diecorev1.PodTemplateSpecDie) {
-						d.MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				SpecDie(func(d dieappsv1.DaemonSetSpecDie) {
+					d.TemplateDie(func(d diecorev1.PodTemplateSpecDie) {
+						d.MetadataDie(func(d diemetav1.ObjectMetaDie) {
 							d.Name("my-name")
 						})
-						d.SpecDie(func(d *diecorev1.PodSpecDie) {
-							d.ContainerDie("app", func(d *diecorev1.ContainerDie) {
+						d.SpecDie(func(d diecorev1.PodSpecDie) {
+							d.ContainerDie("app", func(d diecorev1.ContainerDie) {
 								d.Command("/executable")
 							})
 						})
@@ -94,7 +94,7 @@ func TestDaemonSet(t *testing.T) {
 		{
 			name: "status conditions die",
 			die: dieappsv1.DaemonSetBlank.
-				StatusDie(func(d *dieappsv1.DaemonSetStatusDie) {
+				StatusDie(func(d dieappsv1.DaemonSetStatusDie) {
 					d.ConditionsDie(
 						diemetav1.ConditionBlank.
 							Type("Ready").

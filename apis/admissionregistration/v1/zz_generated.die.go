@@ -31,94 +31,121 @@ import (
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-type MutatingWebhookConfigurationDie struct {
+type MutatingWebhookConfigurationDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *admissionregistrationv1.MutatingWebhookConfiguration)) MutatingWebhookConfigurationDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r admissionregistrationv1.MutatingWebhookConfiguration) MutatingWebhookConfigurationDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *admissionregistrationv1.MutatingWebhookConfiguration) MutatingWebhookConfigurationDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() admissionregistrationv1.MutatingWebhookConfiguration
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *admissionregistrationv1.MutatingWebhookConfiguration
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) MutatingWebhookConfigurationDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() MutatingWebhookConfigurationDie
+
+	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+	MetadataDie(fn func(d metav1.ObjectMetaDie)) MutatingWebhookConfigurationDie
+	// Webhooks is a list of webhooks and the affected resources and operations.
+	Webhooks(Webhooks ...admissionregistrationv1.MutatingWebhook) MutatingWebhookConfigurationDie
+
+	runtime.Object
+	apismetav1.Object
+	apismetav1.ObjectMetaAccessor
+}
+
+var _ MutatingWebhookConfigurationDie = (*mutatingWebhookConfigurationDie)(nil)
+var MutatingWebhookConfigurationBlank = (&mutatingWebhookConfigurationDie{}).DieFeed(admissionregistrationv1.MutatingWebhookConfiguration{})
+
+type mutatingWebhookConfigurationDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       admissionregistrationv1.MutatingWebhookConfiguration
 }
 
-var MutatingWebhookConfigurationBlank = (&MutatingWebhookConfigurationDie{}).DieFeed(admissionregistrationv1.MutatingWebhookConfiguration{})
-
-func (d *MutatingWebhookConfigurationDie) DieImmutable(immutable bool) *MutatingWebhookConfigurationDie {
+func (d *mutatingWebhookConfigurationDie) DieImmutable(immutable bool) MutatingWebhookConfigurationDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*mutatingWebhookConfigurationDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *MutatingWebhookConfigurationDie) DieFeed(r admissionregistrationv1.MutatingWebhookConfiguration) *MutatingWebhookConfigurationDie {
+func (d *mutatingWebhookConfigurationDie) DieFeed(r admissionregistrationv1.MutatingWebhookConfiguration) MutatingWebhookConfigurationDie {
 	if d.mutable {
 		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
 		d.r = r
 		return d
 	}
-	return &MutatingWebhookConfigurationDie{
+	return &mutatingWebhookConfigurationDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *MutatingWebhookConfigurationDie) DieFeedPtr(r *admissionregistrationv1.MutatingWebhookConfiguration) *MutatingWebhookConfigurationDie {
+func (d *mutatingWebhookConfigurationDie) DieFeedPtr(r *admissionregistrationv1.MutatingWebhookConfiguration) MutatingWebhookConfigurationDie {
 	if r == nil {
 		r = &admissionregistrationv1.MutatingWebhookConfiguration{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *MutatingWebhookConfigurationDie) DieRelease() admissionregistrationv1.MutatingWebhookConfiguration {
+func (d *mutatingWebhookConfigurationDie) DieRelease() admissionregistrationv1.MutatingWebhookConfiguration {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *MutatingWebhookConfigurationDie) DieReleasePtr() *admissionregistrationv1.MutatingWebhookConfiguration {
+func (d *mutatingWebhookConfigurationDie) DieReleasePtr() *admissionregistrationv1.MutatingWebhookConfiguration {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *MutatingWebhookConfigurationDie) DieStamp(fn func(r *admissionregistrationv1.MutatingWebhookConfiguration)) *MutatingWebhookConfigurationDie {
+func (d *mutatingWebhookConfigurationDie) DieStamp(fn func(r *admissionregistrationv1.MutatingWebhookConfiguration)) MutatingWebhookConfigurationDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *MutatingWebhookConfigurationDie) DeepCopy() *MutatingWebhookConfigurationDie {
+func (d *mutatingWebhookConfigurationDie) DeepCopy() MutatingWebhookConfigurationDie {
 	r := *d.r.DeepCopy()
-	return &MutatingWebhookConfigurationDie{
+	return &mutatingWebhookConfigurationDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *MutatingWebhookConfigurationDie) DeepCopyObject() runtime.Object {
+func (d *mutatingWebhookConfigurationDie) DeepCopyObject() runtime.Object {
 	return d.r.DeepCopy()
 }
 
-func (d *MutatingWebhookConfigurationDie) GetObjectKind() schema.ObjectKind {
+func (d *mutatingWebhookConfigurationDie) GetObjectKind() schema.ObjectKind {
 	r := d.DieRelease()
 	return r.GetObjectKind()
 }
 
-func (d *MutatingWebhookConfigurationDie) MarshalJSON() ([]byte, error) {
+func (d *mutatingWebhookConfigurationDie) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.r)
 }
 
-func (d *MutatingWebhookConfigurationDie) UnmarshalJSON(b []byte) error {
+func (d *mutatingWebhookConfigurationDie) UnmarshalJSON(b []byte) error {
 	if d == MutatingWebhookConfigurationBlank {
 		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &admissionregistrationv1.MutatingWebhookConfiguration{}
 	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	*d = *d.DieFeed(*r).(*mutatingWebhookConfigurationDie)
 	return err
 }
 
-func (d *MutatingWebhookConfigurationDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *MutatingWebhookConfigurationDie {
+func (d *mutatingWebhookConfigurationDie) MetadataDie(fn func(d metav1.ObjectMetaDie)) MutatingWebhookConfigurationDie {
 	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhookConfiguration) {
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
@@ -126,105 +153,127 @@ func (d *MutatingWebhookConfigurationDie) MetadataDie(fn func(d *metav1.ObjectMe
 	})
 }
 
-var _ apismetav1.Object = (*MutatingWebhookConfigurationDie)(nil)
-var _ apismetav1.ObjectMetaAccessor = (*MutatingWebhookConfigurationDie)(nil)
-var _ runtime.Object = (*MutatingWebhookConfigurationDie)(nil)
-
-// Webhooks is a list of webhooks and the affected resources and operations.
-func (d *MutatingWebhookConfigurationDie) Webhooks(v ...admissionregistrationv1.MutatingWebhook) *MutatingWebhookConfigurationDie {
+func (d *mutatingWebhookConfigurationDie) Webhooks(v ...admissionregistrationv1.MutatingWebhook) MutatingWebhookConfigurationDie {
 	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhookConfiguration) {
 		r.Webhooks = v
 	})
 }
 
-type ValidatingWebhookConfigurationDie struct {
+type ValidatingWebhookConfigurationDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *admissionregistrationv1.ValidatingWebhookConfiguration)) ValidatingWebhookConfigurationDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r admissionregistrationv1.ValidatingWebhookConfiguration) ValidatingWebhookConfigurationDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *admissionregistrationv1.ValidatingWebhookConfiguration) ValidatingWebhookConfigurationDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() admissionregistrationv1.ValidatingWebhookConfiguration
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *admissionregistrationv1.ValidatingWebhookConfiguration
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ValidatingWebhookConfigurationDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ValidatingWebhookConfigurationDie
+
+	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+	MetadataDie(fn func(d metav1.ObjectMetaDie)) ValidatingWebhookConfigurationDie
+	// Webhooks is a list of webhooks and the affected resources and operations.
+	Webhooks(Webhooks ...admissionregistrationv1.ValidatingWebhook) ValidatingWebhookConfigurationDie
+
+	runtime.Object
+	apismetav1.Object
+	apismetav1.ObjectMetaAccessor
+}
+
+var _ ValidatingWebhookConfigurationDie = (*validatingWebhookConfigurationDie)(nil)
+var ValidatingWebhookConfigurationBlank = (&validatingWebhookConfigurationDie{}).DieFeed(admissionregistrationv1.ValidatingWebhookConfiguration{})
+
+type validatingWebhookConfigurationDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       admissionregistrationv1.ValidatingWebhookConfiguration
 }
 
-var ValidatingWebhookConfigurationBlank = (&ValidatingWebhookConfigurationDie{}).DieFeed(admissionregistrationv1.ValidatingWebhookConfiguration{})
-
-func (d *ValidatingWebhookConfigurationDie) DieImmutable(immutable bool) *ValidatingWebhookConfigurationDie {
+func (d *validatingWebhookConfigurationDie) DieImmutable(immutable bool) ValidatingWebhookConfigurationDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy()
+	d = d.DeepCopy().(*validatingWebhookConfigurationDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *ValidatingWebhookConfigurationDie) DieFeed(r admissionregistrationv1.ValidatingWebhookConfiguration) *ValidatingWebhookConfigurationDie {
+func (d *validatingWebhookConfigurationDie) DieFeed(r admissionregistrationv1.ValidatingWebhookConfiguration) ValidatingWebhookConfigurationDie {
 	if d.mutable {
 		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
 		d.r = r
 		return d
 	}
-	return &ValidatingWebhookConfigurationDie{
+	return &validatingWebhookConfigurationDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *ValidatingWebhookConfigurationDie) DieFeedPtr(r *admissionregistrationv1.ValidatingWebhookConfiguration) *ValidatingWebhookConfigurationDie {
+func (d *validatingWebhookConfigurationDie) DieFeedPtr(r *admissionregistrationv1.ValidatingWebhookConfiguration) ValidatingWebhookConfigurationDie {
 	if r == nil {
 		r = &admissionregistrationv1.ValidatingWebhookConfiguration{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *ValidatingWebhookConfigurationDie) DieRelease() admissionregistrationv1.ValidatingWebhookConfiguration {
+func (d *validatingWebhookConfigurationDie) DieRelease() admissionregistrationv1.ValidatingWebhookConfiguration {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *ValidatingWebhookConfigurationDie) DieReleasePtr() *admissionregistrationv1.ValidatingWebhookConfiguration {
+func (d *validatingWebhookConfigurationDie) DieReleasePtr() *admissionregistrationv1.ValidatingWebhookConfiguration {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *ValidatingWebhookConfigurationDie) DieStamp(fn func(r *admissionregistrationv1.ValidatingWebhookConfiguration)) *ValidatingWebhookConfigurationDie {
+func (d *validatingWebhookConfigurationDie) DieStamp(fn func(r *admissionregistrationv1.ValidatingWebhookConfiguration)) ValidatingWebhookConfigurationDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *ValidatingWebhookConfigurationDie) DeepCopy() *ValidatingWebhookConfigurationDie {
+func (d *validatingWebhookConfigurationDie) DeepCopy() ValidatingWebhookConfigurationDie {
 	r := *d.r.DeepCopy()
-	return &ValidatingWebhookConfigurationDie{
+	return &validatingWebhookConfigurationDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *ValidatingWebhookConfigurationDie) DeepCopyObject() runtime.Object {
+func (d *validatingWebhookConfigurationDie) DeepCopyObject() runtime.Object {
 	return d.r.DeepCopy()
 }
 
-func (d *ValidatingWebhookConfigurationDie) GetObjectKind() schema.ObjectKind {
+func (d *validatingWebhookConfigurationDie) GetObjectKind() schema.ObjectKind {
 	r := d.DieRelease()
 	return r.GetObjectKind()
 }
 
-func (d *ValidatingWebhookConfigurationDie) MarshalJSON() ([]byte, error) {
+func (d *validatingWebhookConfigurationDie) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.r)
 }
 
-func (d *ValidatingWebhookConfigurationDie) UnmarshalJSON(b []byte) error {
+func (d *validatingWebhookConfigurationDie) UnmarshalJSON(b []byte) error {
 	if d == ValidatingWebhookConfigurationBlank {
 		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
 	}
 	r := &admissionregistrationv1.ValidatingWebhookConfiguration{}
 	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	*d = *d.DieFeed(*r).(*validatingWebhookConfigurationDie)
 	return err
 }
 
-func (d *ValidatingWebhookConfigurationDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *ValidatingWebhookConfigurationDie {
+func (d *validatingWebhookConfigurationDie) MetadataDie(fn func(d metav1.ObjectMetaDie)) ValidatingWebhookConfigurationDie {
 	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhookConfiguration) {
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
@@ -232,12 +281,7 @@ func (d *ValidatingWebhookConfigurationDie) MetadataDie(fn func(d *metav1.Object
 	})
 }
 
-var _ apismetav1.Object = (*ValidatingWebhookConfigurationDie)(nil)
-var _ apismetav1.ObjectMetaAccessor = (*ValidatingWebhookConfigurationDie)(nil)
-var _ runtime.Object = (*ValidatingWebhookConfigurationDie)(nil)
-
-// Webhooks is a list of webhooks and the affected resources and operations.
-func (d *ValidatingWebhookConfigurationDie) Webhooks(v ...admissionregistrationv1.ValidatingWebhook) *ValidatingWebhookConfigurationDie {
+func (d *validatingWebhookConfigurationDie) Webhooks(v ...admissionregistrationv1.ValidatingWebhook) ValidatingWebhookConfigurationDie {
 	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhookConfiguration) {
 		r.Webhooks = v
 	})

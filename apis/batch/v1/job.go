@@ -29,7 +29,11 @@ type Job = batchv1.Job
 // +die
 type JobSpec = batchv1.JobSpec
 
-func (d *JobSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *JobSpecDie {
+type jobSpec interface {
+	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) JobSpecDie
+}
+
+func (d *jobSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		d := diecorev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
 		fn(d)
@@ -40,7 +44,11 @@ func (d *JobSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *JobS
 // +die
 type JobStatus = batchv1.JobStatus
 
-func (d *JobStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *JobStatusDie {
+type jobStatus interface {
+	ConditionsDie(conditions ...diemetav1.ConditionDie) JobStatusDie
+}
+
+func (d *jobStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.Conditions = make([]batchv1.JobCondition, len(conditions))
 		for i := range conditions {

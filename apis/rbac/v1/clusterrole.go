@@ -25,7 +25,13 @@ import (
 // +die:object=true
 type ClusterRole = rbacv1.ClusterRole
 
-func (d *ClusterRoleDie) RulesDie(rules ...*PolicyRuleDie) *ClusterRoleDie {
+type clusterRole interface {
+	RulesDie(rules ...PolicyRuleDie) ClusterRoleDie
+	AddRuleDie(rule PolicyRuleDie) ClusterRoleDie
+	AggregationRuleDie(fn func(d AggregationRuleDie)) ClusterRoleDie
+}
+
+func (d *clusterRoleDie) RulesDie(rules ...PolicyRuleDie) ClusterRoleDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRole) {
 		r.Rules = make([]rbacv1.PolicyRule, len(rules))
 		for i := range rules {
@@ -34,13 +40,13 @@ func (d *ClusterRoleDie) RulesDie(rules ...*PolicyRuleDie) *ClusterRoleDie {
 	})
 }
 
-func (d *ClusterRoleDie) AddRuleDie(rule *PolicyRuleDie) *ClusterRoleDie {
+func (d *clusterRoleDie) AddRuleDie(rule PolicyRuleDie) ClusterRoleDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRole) {
 		r.Rules = append(r.Rules, rule.DieRelease())
 	})
 }
 
-func (d *ClusterRoleDie) AggregationRuleDie(fn func(d *AggregationRuleDie)) *ClusterRoleDie {
+func (d *clusterRoleDie) AggregationRuleDie(fn func(d AggregationRuleDie)) ClusterRoleDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRole) {
 		d := AggregationRuleBlank.DieImmutable(false).DieFeedPtr(r.AggregationRule)
 		fn(d)
@@ -51,7 +57,11 @@ func (d *ClusterRoleDie) AggregationRuleDie(fn func(d *AggregationRuleDie)) *Clu
 // +die
 type AggregationRule = rbacv1.AggregationRule
 
-func (d *AggregationRuleDie) ClusterRoleSelectorsDie(selectors ...*diemetav1.LabelSelectorDie) *AggregationRuleDie {
+type aggregationRule interface {
+	ClusterRoleSelectorsDie(selectors ...diemetav1.LabelSelectorDie) AggregationRuleDie
+}
+
+func (d *aggregationRuleDie) ClusterRoleSelectorsDie(selectors ...diemetav1.LabelSelectorDie) AggregationRuleDie {
 	return d.DieStamp(func(r *rbacv1.AggregationRule) {
 		r.ClusterRoleSelectors = make([]metav1.LabelSelector, len(selectors))
 		for i := range selectors {

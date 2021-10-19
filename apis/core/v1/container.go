@@ -23,7 +23,13 @@ import (
 // +die
 type Container = corev1.Container
 
-func (d *ContainerDie) AddEnv(env ...corev1.EnvVar) *ContainerDie {
+type container interface {
+	AddEnv(env ...corev1.EnvVar) ContainerDie
+	AddEnvFrom(env ...corev1.EnvFromSource) ContainerDie
+	AddVolumeMounts(volumeMounts ...corev1.VolumeMount) ContainerDie
+}
+
+func (d *containerDie) AddEnv(env ...corev1.EnvVar) ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		for _, e := range env {
 			found := false
@@ -40,7 +46,7 @@ func (d *ContainerDie) AddEnv(env ...corev1.EnvVar) *ContainerDie {
 	})
 }
 
-func (d *ContainerDie) AddEnvFrom(env ...corev1.EnvFromSource) *ContainerDie {
+func (d *containerDie) AddEnvFrom(env ...corev1.EnvFromSource) ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		for _, e := range env {
 			found := false
@@ -57,7 +63,7 @@ func (d *ContainerDie) AddEnvFrom(env ...corev1.EnvFromSource) *ContainerDie {
 	})
 }
 
-func (d *ContainerDie) AddVolumeMounts(volumeMounts ...corev1.VolumeMount) *ContainerDie {
+func (d *containerDie) AddVolumeMounts(volumeMounts ...corev1.VolumeMount) ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		for _, m := range volumeMounts {
 			found := false

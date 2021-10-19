@@ -29,7 +29,7 @@ import (
 func TestRoleBinding(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *dierbacv1.RoleBindingDie
+		die      dierbacv1.RoleBindingDie
 		expected rbacv1.RoleBinding
 	}{
 		{
@@ -40,7 +40,7 @@ func TestRoleBinding(t *testing.T) {
 		{
 			name: "object metadata",
 			die: dierbacv1.RoleBindingBlank.
-				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),

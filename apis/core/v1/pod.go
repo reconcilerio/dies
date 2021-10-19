@@ -27,7 +27,13 @@ type Pod = corev1.Pod
 // +die
 type PodSpec = corev1.PodSpec
 
-func (d *PodSpecDie) InitContainerDie(name string, fn func(d *ContainerDie)) *PodSpecDie {
+type podSpec interface {
+	InitContainerDie(name string, fn func(d ContainerDie)) PodSpecDie
+	ContainerDie(name string, fn func(d ContainerDie)) PodSpecDie
+	VolumeDie(name string, fn func(d VolumeDie)) PodSpecDie
+}
+
+func (d *podSpecDie) InitContainerDie(name string, fn func(d ContainerDie)) PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		for i := range r.InitContainers {
 			if name == r.InitContainers[i].Name {
@@ -44,7 +50,7 @@ func (d *PodSpecDie) InitContainerDie(name string, fn func(d *ContainerDie)) *Po
 	})
 }
 
-func (d *PodSpecDie) ContainerDie(name string, fn func(d *ContainerDie)) *PodSpecDie {
+func (d *podSpecDie) ContainerDie(name string, fn func(d ContainerDie)) PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		for i := range r.Containers {
 			if name == r.Containers[i].Name {
@@ -61,7 +67,7 @@ func (d *PodSpecDie) ContainerDie(name string, fn func(d *ContainerDie)) *PodSpe
 	})
 }
 
-func (d *PodSpecDie) VolumeDie(name string, fn func(d *VolumeDie)) *PodSpecDie {
+func (d *podSpecDie) VolumeDie(name string, fn func(d VolumeDie)) PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		for i := range r.Volumes {
 			if name == r.Volumes[i].Name {
@@ -81,7 +87,11 @@ func (d *PodSpecDie) VolumeDie(name string, fn func(d *VolumeDie)) *PodSpecDie {
 // +die
 type PodStatus = corev1.PodStatus
 
-func (d *PodStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *PodStatusDie {
+type podStatus interface {
+	ConditionsDie(conditions ...diemetav1.ConditionDie) PodStatusDie
+}
+
+func (d *podStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.Conditions = make([]corev1.PodCondition, len(conditions))
 		for i := range conditions {

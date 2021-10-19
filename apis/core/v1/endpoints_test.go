@@ -29,7 +29,7 @@ import (
 func TestEndpoints(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *diecorev1.EndpointsDie
+		die      diecorev1.EndpointsDie
 		expected corev1.Endpoints
 	}{
 		{
@@ -40,7 +40,7 @@ func TestEndpoints(t *testing.T) {
 		{
 			name: "object metadata",
 			die: diecorev1.EndpointsBlank.
-				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),

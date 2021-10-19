@@ -39,19 +39,22 @@ type Die struct {
 	Object       bool     `marker:"object,optional"`
 	IgnoreFields []string `marker:"ignore,optional"`
 
-	Target        string `marker:",optional"`
-	Name          string `marker:",optional"`
-	Type          string `marker:",optional"`
-	TargetPackage string `marker:",optional"`
-	TargetType    string `marker:",optional"`
-	Blank         string `marker:",optional"`
-	Doc           string `marker:",optional"`
-	SpecName      string `marker:",optional"`
-	SpecBlank     string `marker:",optional"`
-	SpecType      string `marker:",optional"`
-	StatusName    string `marker:",optional"`
-	StatusBlank   string `marker:",optional"`
-	StatusType    string `marker:",optional"`
+	Target                string `marker:",optional"`
+	Name                  string `marker:",optional"`
+	InternalName          string `marker:",optional"`
+	Type                  string `marker:",optional"`
+	Interface             string `marker:",optional"`
+	TargetPackage         string `marker:",optional"`
+	TargetType            string `marker:",optional"`
+	Blank                 string `marker:",optional"`
+	Doc                   string `marker:",optional"`
+	SpecName              string `marker:",optional"`
+	SpecBlank             string `marker:",optional"`
+	SpecInterface         string `marker:",optional"`
+	StatusName            string `marker:",optional"`
+	StatusBlank           string `marker:",optional"`
+	StatusInterface       string `marker:",optional"`
+	CustomMethodInterface string `marker:",optional"`
 }
 
 func (d *Die) Default() {
@@ -61,8 +64,14 @@ func (d *Die) Default() {
 	if d.Name == "" {
 		d.Name = d.TargetType
 	}
+	if d.InternalName == "" {
+		d.InternalName = fmt.Sprintf("%s%s", strings.ToLower(d.Name[0:1]), d.Name[1:])
+	}
 	if d.Type == "" {
-		d.Type = fmt.Sprintf("%sDie", d.Name)
+		d.Type = fmt.Sprintf("%sDie", d.InternalName)
+	}
+	if d.Interface == "" {
+		d.Interface = fmt.Sprintf("%sDie", d.Name)
 	}
 	if d.Blank == "" {
 		d.Blank = fmt.Sprintf("%sBlank", d.Name)
@@ -73,8 +82,8 @@ func (d *Die) Default() {
 	if d.SpecBlank == "" {
 		d.SpecBlank = fmt.Sprintf("%sBlank", d.SpecName)
 	}
-	if d.SpecType == "" {
-		d.SpecType = fmt.Sprintf("%sDie", d.SpecName)
+	if d.SpecInterface == "" {
+		d.SpecInterface = fmt.Sprintf("%sDie", d.SpecName)
 	}
 	if d.StatusName == "" {
 		d.StatusName = fmt.Sprintf("%sStatus", d.Name)
@@ -82,8 +91,8 @@ func (d *Die) Default() {
 	if d.StatusBlank == "" {
 		d.StatusBlank = fmt.Sprintf("%sBlank", d.StatusName)
 	}
-	if d.StatusType == "" {
-		d.StatusType = fmt.Sprintf("%sDie", d.StatusName)
+	if d.StatusInterface == "" {
+		d.StatusInterface = fmt.Sprintf("%sDie", d.StatusName)
 	}
 	if d.IgnoreFields == nil {
 		d.IgnoreFields = []string{}
@@ -242,8 +251,16 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) ([]byte, []byt
 		if dieMarkers, ok := info.Markers[dieMarker.Name]; ok {
 			die := dieMarkers[0].(Die)
 			die.Target = qualifyField(info.RawSpec.Type, root.ID, info.RawFile.Imports)
-
 			die.Default()
+			if err := markers.EachType(ctx.Collector, root, func(info *markers.TypeInfo) {
+				if info.Name == die.InternalName {
+					die.CustomMethodInterface = info.Name
+				}
+			}); err != nil {
+				root.AddError(err)
+				return
+			}
+
 			dies = append(dies, die)
 			dieSet.Insert(die.Name)
 
@@ -287,7 +304,6 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) ([]byte, []byt
 		root.AddError(err)
 		return nil, nil
 	}
-	// return nil, nil
 
 	copyCtx := &copyMethodMaker{
 		pkg:         root,
@@ -304,10 +320,12 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) ([]byte, []byt
 
 	for _, die := range dies {
 		fmt.Printf("Generating die for %q\n", die.Name)
-		copyCtx.GenerateMethodsFor(die)
+		fields := fieldMap[die.Type]
+
+		copyCtx.GenerateMethodsFor(die, fields)
 
 		// print fields for this die
-		for _, field := range fieldMap[die.Type] {
+		for _, field := range fields {
 			fmt.Printf("Generating field %q for %q\n", field.Name, die.Name)
 			copyCtx.GenerateFieldFor(field, die)
 		}

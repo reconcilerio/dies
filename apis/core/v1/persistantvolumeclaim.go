@@ -30,7 +30,11 @@ type PersistentVolumeClaimSpec = corev1.PersistentVolumeClaimSpec
 // +die
 type PersistentVolumeClaimStatus = corev1.PersistentVolumeClaimStatus
 
-func (d *PersistentVolumeClaimStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *PersistentVolumeClaimStatusDie {
+type persistentVolumeClaimStatus interface {
+	ConditionsDie(conditions ...diemetav1.ConditionDie) PersistentVolumeClaimStatusDie
+}
+
+func (d *persistentVolumeClaimStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		r.Conditions = make([]corev1.PersistentVolumeClaimCondition, len(conditions))
 		for i := range conditions {

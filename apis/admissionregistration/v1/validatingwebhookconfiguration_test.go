@@ -29,7 +29,7 @@ import (
 func TestValidatingWebhookConfiguration(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *dieadmissionregistrationv1.ValidatingWebhookConfigurationDie
+		die      dieadmissionregistrationv1.ValidatingWebhookConfigurationDie
 		expected admissionregistrationv1.ValidatingWebhookConfiguration
 	}{
 		{
@@ -40,7 +40,7 @@ func TestValidatingWebhookConfiguration(t *testing.T) {
 		{
 			name: "object metadata",
 			die: dieadmissionregistrationv1.ValidatingWebhookConfigurationBlank.
-				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
 					d.Name("my-name")
 				}),
 			expected: admissionregistrationv1.ValidatingWebhookConfiguration{

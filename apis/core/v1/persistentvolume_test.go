@@ -29,7 +29,7 @@ import (
 func TestPersistentVolume(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *diecorev1.PersistentVolumeDie
+		die      diecorev1.PersistentVolumeDie
 		expected corev1.PersistentVolume
 	}{
 		{
@@ -40,7 +40,7 @@ func TestPersistentVolume(t *testing.T) {
 		{
 			name: "object metadata",
 			die: diecorev1.PersistentVolumeBlank.
-				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),

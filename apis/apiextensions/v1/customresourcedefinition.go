@@ -25,12 +25,16 @@ import (
 type CustomResourceDefinition = apiextensionsv1.CustomResourceDefinition
 
 // +die
-type CustomResourceDefinitionStatus = apiextensionsv1.CustomResourceDefinitionStatus
-
-// +die
 type CustomResourceDefinitionSpec = apiextensionsv1.CustomResourceDefinitionSpec
 
-func (d *CustomResourceDefinitionStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *CustomResourceDefinitionStatusDie {
+// +die
+type CustomResourceDefinitionStatus = apiextensionsv1.CustomResourceDefinitionStatus
+
+type customResourceDefinitionStatus interface {
+	ConditionsDie(conditions ...diemetav1.ConditionDie) CustomResourceDefinitionStatusDie
+}
+
+func (d *customResourceDefinitionStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) CustomResourceDefinitionStatusDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionStatus) {
 		r.Conditions = make([]apiextensionsv1.CustomResourceDefinitionCondition, len(conditions))
 		for i := range conditions {

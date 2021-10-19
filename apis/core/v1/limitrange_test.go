@@ -29,7 +29,7 @@ import (
 func TestLimitRange(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *diecorev1.LimitRangeDie
+		die      diecorev1.LimitRangeDie
 		expected corev1.LimitRange
 	}{
 		{
@@ -40,7 +40,7 @@ func TestLimitRange(t *testing.T) {
 		{
 			name: "object metadata",
 			die: diecorev1.LimitRangeBlank.
-				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),

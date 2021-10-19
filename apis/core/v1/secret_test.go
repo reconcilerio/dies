@@ -29,7 +29,7 @@ import (
 func TestSecret(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *diecorev1.SecretDie
+		die      diecorev1.SecretDie
 		expected corev1.Secret
 	}{
 		{
@@ -40,7 +40,7 @@ func TestSecret(t *testing.T) {
 		{
 			name: "object metadata",
 			die: diecorev1.SecretBlank.
-				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),
