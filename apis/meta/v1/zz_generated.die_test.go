@@ -22,7 +22,7 @@ limitations under the License.
 package v1
 
 import (
-	testing "github.com/scothis/dies/testing"
+	testing "dies.dev/testing"
 	testingx "testing"
 )
 
@@ -41,6 +41,15 @@ func TestObjectMetaDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for ObjectMetaDie: %s", diff.List())
+	}
+}
+
+func TestManagedFieldsEntryDie_MissingMethods(t *testingx.T) {
+	die := ManagedFieldsEntryBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ManagedFieldsEntryDie: %s", diff.List())
 	}
 }
 

@@ -19,9 +19,9 @@ package v1_test
 import (
 	"testing"
 
+	dieautoscalingv1 "dies.dev/apis/autoscaling/v1"
+	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
-	dieautoscalingv1 "github.com/scothis/dies/apis/autoscaling/v1"
-	diemetav1 "github.com/scothis/dies/apis/meta/v1"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

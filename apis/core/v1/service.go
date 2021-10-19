@@ -17,7 +17,7 @@ limitations under the License.
 package v1
 
 import (
-	diemetav1 "github.com/scothis/dies/apis/meta/v1"
+	diemetav1 "dies.dev/apis/meta/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -31,7 +31,15 @@ type ServiceSpec = corev1.ServiceSpec
 // +die
 type ServiceStatus = corev1.ServiceStatus
 
-func (d *ServiceStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) *ServiceStatusDie {
+func (d *ServiceStatusDie) LoadBalancerDie(fn func(d *LoadBalancerStatusDie)) *ServiceStatusDie {
+	return d.DieStamp(func(r *corev1.ServiceStatus) {
+		d := LoadBalancerStatusBlank.DieImmutable(false).DieFeed(r.LoadBalancer)
+		fn(d)
+		r.LoadBalancer = d.DieRelease()
+	})
+}
+
+func (d *ServiceStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *ServiceStatusDie {
 	return d.DieStamp(func(r *corev1.ServiceStatus) {
 		r.Conditions = make([]metav1.Condition, len(conditions))
 		for i, c := range conditions {
@@ -39,3 +47,30 @@ func (d *ServiceStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) *
 		}
 	})
 }
+
+// +die
+type LoadBalancerStatus = corev1.LoadBalancerStatus
+
+func (d *LoadBalancerStatusDie) LoadBalancerDie(ingress ...*LoadBalancerIngressDie) *LoadBalancerStatusDie {
+	return d.DieStamp(func(r *corev1.LoadBalancerStatus) {
+		r.Ingress = make([]corev1.LoadBalancerIngress, len(ingress))
+		for i := range ingress {
+			r.Ingress[i] = ingress[i].DieRelease()
+		}
+	})
+}
+
+// +die
+type LoadBalancerIngress = corev1.LoadBalancerIngress
+
+func (d *LoadBalancerIngressDie) PortsDie(ports ...*PortStatusDie) *LoadBalancerIngressDie {
+	return d.DieStamp(func(r *corev1.LoadBalancerIngress) {
+		r.Ports = make([]corev1.PortStatus, len(ports))
+		for i := range ports {
+			r.Ports[i] = ports[i].DieRelease()
+		}
+	})
+}
+
+// +die
+type PortStatus = corev1.PortStatus

@@ -17,22 +17,14 @@ limitations under the License.
 package v1
 
 import (
-	networkingv1 "k8s.io/api/networking/v1"
+	corev1 "k8s.io/api/core/v1"
 )
 
-// +die:object=true
-type IngressClass = networkingv1.IngressClass
+// +die
+type ObjectReference = corev1.ObjectReference
 
 // +die
-type IngressClassSpec = networkingv1.IngressClassSpec
-
-func (d *IngressClassSpecDie) ParametersDie(fn func(d *IngressClassParametersReferenceDie)) *IngressClassSpecDie {
-	return d.DieStamp(func(r *networkingv1.IngressClassSpec) {
-		d := IngressClassParametersReferenceBlank.DieImmutable(false).DieFeedPtr(r.Parameters)
-		fn(d)
-		r.Parameters = d.DieReleasePtr()
-	})
-}
+type LocalObjectReference = corev1.LocalObjectReference
 
 // +die
-type IngressClassParametersReference = networkingv1.IngressClassParametersReference
+type TypedLocalObjectReference = corev1.TypedLocalObjectReference

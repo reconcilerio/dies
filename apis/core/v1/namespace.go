@@ -17,7 +17,7 @@ limitations under the License.
 package v1
 
 import (
-	diemetav1 "github.com/scothis/dies/apis/meta/v1"
+	diemetav1 "dies.dev/apis/meta/v1"
 	corev1 "k8s.io/api/core/v1"
 )
 
@@ -30,7 +30,7 @@ type NamespaceSpec = corev1.NamespaceSpec
 // +die
 type NamespaceStatus = corev1.NamespaceStatus
 
-func (d *NamespaceStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) *NamespaceStatusDie {
+func (d *NamespaceStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *NamespaceStatusDie {
 	return d.DieStamp(func(r *corev1.NamespaceStatus) {
 		r.Conditions = make([]corev1.NamespaceCondition, len(conditions))
 		for i := range conditions {

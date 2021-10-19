@@ -1,4 +1,4 @@
-module github.com/scothis/dies
+module dies.dev
 
 go 1.17
 

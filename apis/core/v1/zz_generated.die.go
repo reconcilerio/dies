@@ -22,14 +22,15 @@ limitations under the License.
 package v1
 
 import (
+	metav1 "dies.dev/apis/meta/v1"
 	json "encoding/json"
 	fmtx "fmt"
-	metav1 "github.com/scothis/dies/apis/meta/v1"
 	corev1 "k8s.io/api/core/v1"
 	resource "k8s.io/apimachinery/pkg/api/resource"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	types "k8s.io/apimachinery/pkg/types"
 )
 
 type ConfigMapDie struct {
@@ -1478,6 +1479,263 @@ func (d *NodeStatusDie) VolumesAttached(v ...corev1.AttachedVolume) *NodeStatusD
 func (d *NodeStatusDie) Config(v *corev1.NodeConfigStatus) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.Config = v
+	})
+}
+
+type ObjectReferenceDie struct {
+	mutable bool
+	r       corev1.ObjectReference
+}
+
+var ObjectReferenceBlank = (&ObjectReferenceDie{}).DieFeed(corev1.ObjectReference{})
+
+func (d *ObjectReferenceDie) DieImmutable(immutable bool) *ObjectReferenceDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+func (d *ObjectReferenceDie) DieFeed(r corev1.ObjectReference) *ObjectReferenceDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ObjectReferenceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *ObjectReferenceDie) DieFeedPtr(r *corev1.ObjectReference) *ObjectReferenceDie {
+	if r == nil {
+		r = &corev1.ObjectReference{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *ObjectReferenceDie) DieRelease() corev1.ObjectReference {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *ObjectReferenceDie) DieReleasePtr() *corev1.ObjectReference {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *ObjectReferenceDie) DieStamp(fn func(r *corev1.ObjectReference)) *ObjectReferenceDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *ObjectReferenceDie) DeepCopy() *ObjectReferenceDie {
+	r := *d.r.DeepCopy()
+	return &ObjectReferenceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ObjectReferenceDie) Kind(v string) *ObjectReferenceDie {
+	return d.DieStamp(func(r *corev1.ObjectReference) {
+		r.Kind = v
+	})
+}
+
+// Namespace of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
+func (d *ObjectReferenceDie) Namespace(v string) *ObjectReferenceDie {
+	return d.DieStamp(func(r *corev1.ObjectReference) {
+		r.Namespace = v
+	})
+}
+
+// Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+func (d *ObjectReferenceDie) Name(v string) *ObjectReferenceDie {
+	return d.DieStamp(func(r *corev1.ObjectReference) {
+		r.Name = v
+	})
+}
+
+// UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
+func (d *ObjectReferenceDie) UID(v types.UID) *ObjectReferenceDie {
+	return d.DieStamp(func(r *corev1.ObjectReference) {
+		r.UID = v
+	})
+}
+
+// API version of the referent.
+func (d *ObjectReferenceDie) APIVersion(v string) *ObjectReferenceDie {
+	return d.DieStamp(func(r *corev1.ObjectReference) {
+		r.APIVersion = v
+	})
+}
+
+// Specific resourceVersion to which this reference is made, if any. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+func (d *ObjectReferenceDie) ResourceVersion(v string) *ObjectReferenceDie {
+	return d.DieStamp(func(r *corev1.ObjectReference) {
+		r.ResourceVersion = v
+	})
+}
+
+// If referring to a piece of an object instead of an entire object, this string should contain a valid JSON/Go field access statement, such as desiredState.manifest.containers[2]. For example, if the object reference is to a container within a pod, this would take on a value like: "spec.containers{name}" (where "name" refers to the name of the container that triggered the event) or if no container name is specified "spec.containers[2]" (container with index 2 in this pod). This syntax is chosen only to have some well-defined way of referencing a part of an object. TODO: this design is not final and this field is subject to change in the future.
+func (d *ObjectReferenceDie) FieldPath(v string) *ObjectReferenceDie {
+	return d.DieStamp(func(r *corev1.ObjectReference) {
+		r.FieldPath = v
+	})
+}
+
+type LocalObjectReferenceDie struct {
+	mutable bool
+	r       corev1.LocalObjectReference
+}
+
+var LocalObjectReferenceBlank = (&LocalObjectReferenceDie{}).DieFeed(corev1.LocalObjectReference{})
+
+func (d *LocalObjectReferenceDie) DieImmutable(immutable bool) *LocalObjectReferenceDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+func (d *LocalObjectReferenceDie) DieFeed(r corev1.LocalObjectReference) *LocalObjectReferenceDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &LocalObjectReferenceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *LocalObjectReferenceDie) DieFeedPtr(r *corev1.LocalObjectReference) *LocalObjectReferenceDie {
+	if r == nil {
+		r = &corev1.LocalObjectReference{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *LocalObjectReferenceDie) DieRelease() corev1.LocalObjectReference {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *LocalObjectReferenceDie) DieReleasePtr() *corev1.LocalObjectReference {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *LocalObjectReferenceDie) DieStamp(fn func(r *corev1.LocalObjectReference)) *LocalObjectReferenceDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *LocalObjectReferenceDie) DeepCopy() *LocalObjectReferenceDie {
+	r := *d.r.DeepCopy()
+	return &LocalObjectReferenceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+func (d *LocalObjectReferenceDie) Name(v string) *LocalObjectReferenceDie {
+	return d.DieStamp(func(r *corev1.LocalObjectReference) {
+		r.Name = v
+	})
+}
+
+type TypedLocalObjectReferenceDie struct {
+	mutable bool
+	r       corev1.TypedLocalObjectReference
+}
+
+var TypedLocalObjectReferenceBlank = (&TypedLocalObjectReferenceDie{}).DieFeed(corev1.TypedLocalObjectReference{})
+
+func (d *TypedLocalObjectReferenceDie) DieImmutable(immutable bool) *TypedLocalObjectReferenceDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+func (d *TypedLocalObjectReferenceDie) DieFeed(r corev1.TypedLocalObjectReference) *TypedLocalObjectReferenceDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &TypedLocalObjectReferenceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *TypedLocalObjectReferenceDie) DieFeedPtr(r *corev1.TypedLocalObjectReference) *TypedLocalObjectReferenceDie {
+	if r == nil {
+		r = &corev1.TypedLocalObjectReference{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *TypedLocalObjectReferenceDie) DieRelease() corev1.TypedLocalObjectReference {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *TypedLocalObjectReferenceDie) DieReleasePtr() *corev1.TypedLocalObjectReference {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *TypedLocalObjectReferenceDie) DieStamp(fn func(r *corev1.TypedLocalObjectReference)) *TypedLocalObjectReferenceDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *TypedLocalObjectReferenceDie) DeepCopy() *TypedLocalObjectReferenceDie {
+	r := *d.r.DeepCopy()
+	return &TypedLocalObjectReferenceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required.
+func (d *TypedLocalObjectReferenceDie) APIGroup(v *string) *TypedLocalObjectReferenceDie {
+	return d.DieStamp(func(r *corev1.TypedLocalObjectReference) {
+		r.APIGroup = v
+	})
+}
+
+// Kind is the type of resource being referenced
+func (d *TypedLocalObjectReferenceDie) Kind(v string) *TypedLocalObjectReferenceDie {
+	return d.DieStamp(func(r *corev1.TypedLocalObjectReference) {
+		r.Kind = v
+	})
+}
+
+// Name is the name of resource being referenced
+func (d *TypedLocalObjectReferenceDie) Name(v string) *TypedLocalObjectReferenceDie {
+	return d.DieStamp(func(r *corev1.TypedLocalObjectReference) {
+		r.Name = v
 	})
 }
 
@@ -4740,6 +4998,235 @@ func (d *ServiceStatusDie) LoadBalancer(v corev1.LoadBalancerStatus) *ServiceSta
 func (d *ServiceStatusDie) Conditions(v ...apismetav1.Condition) *ServiceStatusDie {
 	return d.DieStamp(func(r *corev1.ServiceStatus) {
 		r.Conditions = v
+	})
+}
+
+type LoadBalancerStatusDie struct {
+	mutable bool
+	r       corev1.LoadBalancerStatus
+}
+
+var LoadBalancerStatusBlank = (&LoadBalancerStatusDie{}).DieFeed(corev1.LoadBalancerStatus{})
+
+func (d *LoadBalancerStatusDie) DieImmutable(immutable bool) *LoadBalancerStatusDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+func (d *LoadBalancerStatusDie) DieFeed(r corev1.LoadBalancerStatus) *LoadBalancerStatusDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &LoadBalancerStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *LoadBalancerStatusDie) DieFeedPtr(r *corev1.LoadBalancerStatus) *LoadBalancerStatusDie {
+	if r == nil {
+		r = &corev1.LoadBalancerStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *LoadBalancerStatusDie) DieRelease() corev1.LoadBalancerStatus {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *LoadBalancerStatusDie) DieReleasePtr() *corev1.LoadBalancerStatus {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *LoadBalancerStatusDie) DieStamp(fn func(r *corev1.LoadBalancerStatus)) *LoadBalancerStatusDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *LoadBalancerStatusDie) DeepCopy() *LoadBalancerStatusDie {
+	r := *d.r.DeepCopy()
+	return &LoadBalancerStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Ingress is a list containing ingress points for the load-balancer. Traffic intended for the service should be sent to these ingress points.
+func (d *LoadBalancerStatusDie) Ingress(v ...corev1.LoadBalancerIngress) *LoadBalancerStatusDie {
+	return d.DieStamp(func(r *corev1.LoadBalancerStatus) {
+		r.Ingress = v
+	})
+}
+
+type LoadBalancerIngressDie struct {
+	mutable bool
+	r       corev1.LoadBalancerIngress
+}
+
+var LoadBalancerIngressBlank = (&LoadBalancerIngressDie{}).DieFeed(corev1.LoadBalancerIngress{})
+
+func (d *LoadBalancerIngressDie) DieImmutable(immutable bool) *LoadBalancerIngressDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+func (d *LoadBalancerIngressDie) DieFeed(r corev1.LoadBalancerIngress) *LoadBalancerIngressDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &LoadBalancerIngressDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *LoadBalancerIngressDie) DieFeedPtr(r *corev1.LoadBalancerIngress) *LoadBalancerIngressDie {
+	if r == nil {
+		r = &corev1.LoadBalancerIngress{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *LoadBalancerIngressDie) DieRelease() corev1.LoadBalancerIngress {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *LoadBalancerIngressDie) DieReleasePtr() *corev1.LoadBalancerIngress {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *LoadBalancerIngressDie) DieStamp(fn func(r *corev1.LoadBalancerIngress)) *LoadBalancerIngressDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *LoadBalancerIngressDie) DeepCopy() *LoadBalancerIngressDie {
+	r := *d.r.DeepCopy()
+	return &LoadBalancerIngressDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// IP is set for load-balancer ingress points that are IP based (typically GCE or OpenStack load-balancers)
+func (d *LoadBalancerIngressDie) IP(v string) *LoadBalancerIngressDie {
+	return d.DieStamp(func(r *corev1.LoadBalancerIngress) {
+		r.IP = v
+	})
+}
+
+// Hostname is set for load-balancer ingress points that are DNS based (typically AWS load-balancers)
+func (d *LoadBalancerIngressDie) Hostname(v string) *LoadBalancerIngressDie {
+	return d.DieStamp(func(r *corev1.LoadBalancerIngress) {
+		r.Hostname = v
+	})
+}
+
+// Ports is a list of records of service ports If used, every port defined in the service should have an entry in it
+func (d *LoadBalancerIngressDie) Ports(v ...corev1.PortStatus) *LoadBalancerIngressDie {
+	return d.DieStamp(func(r *corev1.LoadBalancerIngress) {
+		r.Ports = v
+	})
+}
+
+type PortStatusDie struct {
+	mutable bool
+	r       corev1.PortStatus
+}
+
+var PortStatusBlank = (&PortStatusDie{}).DieFeed(corev1.PortStatus{})
+
+func (d *PortStatusDie) DieImmutable(immutable bool) *PortStatusDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+func (d *PortStatusDie) DieFeed(r corev1.PortStatus) *PortStatusDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &PortStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *PortStatusDie) DieFeedPtr(r *corev1.PortStatus) *PortStatusDie {
+	if r == nil {
+		r = &corev1.PortStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *PortStatusDie) DieRelease() corev1.PortStatus {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *PortStatusDie) DieReleasePtr() *corev1.PortStatus {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *PortStatusDie) DieStamp(fn func(r *corev1.PortStatus)) *PortStatusDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *PortStatusDie) DeepCopy() *PortStatusDie {
+	r := *d.r.DeepCopy()
+	return &PortStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Port is the port number of the service port of which status is recorded here
+func (d *PortStatusDie) Port(v int32) *PortStatusDie {
+	return d.DieStamp(func(r *corev1.PortStatus) {
+		r.Port = v
+	})
+}
+
+// Protocol is the protocol of the service port of which status is recorded here The supported values are: "TCP", "UDP", "SCTP"
+func (d *PortStatusDie) Protocol(v corev1.Protocol) *PortStatusDie {
+	return d.DieStamp(func(r *corev1.PortStatus) {
+		r.Protocol = v
+	})
+}
+
+// Error is to record the problem with the service port The format of the error shall comply with the following rules: - built-in error values shall be specified in this file and those shall use   CamelCase names - cloud provider specific error values must have names that comply with the   format foo.example.com/CamelCase. --- The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+func (d *PortStatusDie) Error(v *string) *PortStatusDie {
+	return d.DieStamp(func(r *corev1.PortStatus) {
+		r.Error = v
 	})
 }
 

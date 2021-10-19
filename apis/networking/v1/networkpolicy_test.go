@@ -19,9 +19,9 @@ package v1_test
 import (
 	"testing"
 
+	diemetav1 "dies.dev/apis/meta/v1"
+	dienetworkingv1 "dies.dev/apis/networking/v1"
 	"github.com/google/go-cmp/cmp"
-	diemetav1 "github.com/scothis/dies/apis/meta/v1"
-	dienetworkingv1 "github.com/scothis/dies/apis/networking/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

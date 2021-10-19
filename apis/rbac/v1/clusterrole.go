@@ -17,7 +17,7 @@ limitations under the License.
 package v1
 
 import (
-	diemetav1 "github.com/scothis/dies/apis/meta/v1"
+	diemetav1 "dies.dev/apis/meta/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -51,7 +51,7 @@ func (d *ClusterRoleDie) AggregationRuleDie(fn func(d *AggregationRuleDie)) *Clu
 // +die
 type AggregationRule = rbacv1.AggregationRule
 
-func (d *AggregationRuleDie) ClusterRoleSelectorsDie(selectors ...diemetav1.LabelSelectorDie) *AggregationRuleDie {
+func (d *AggregationRuleDie) ClusterRoleSelectorsDie(selectors ...*diemetav1.LabelSelectorDie) *AggregationRuleDie {
 	return d.DieStamp(func(r *rbacv1.AggregationRule) {
 		r.ClusterRoleSelectors = make([]metav1.LabelSelector, len(selectors))
 		for i := range selectors {

@@ -19,8 +19,8 @@ package v1_test
 import (
 	"testing"
 
+	diecorev1 "dies.dev/apis/core/v1"
 	"github.com/google/go-cmp/cmp"
-	diecorev1 "github.com/scothis/dies/apis/core/v1"
 	corev1 "k8s.io/api/core/v1"
 )
 

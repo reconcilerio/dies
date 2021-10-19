@@ -17,7 +17,7 @@ limitations under the License.
 package v1
 
 import (
-	diemetav1 "github.com/scothis/dies/apis/meta/v1"
+	diemetav1 "dies.dev/apis/meta/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 )
 

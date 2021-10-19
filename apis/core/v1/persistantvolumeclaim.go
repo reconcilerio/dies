@@ -17,7 +17,7 @@ limitations under the License.
 package v1
 
 import (
-	diemetav1 "github.com/scothis/dies/apis/meta/v1"
+	diemetav1 "dies.dev/apis/meta/v1"
 	corev1 "k8s.io/api/core/v1"
 )
 
@@ -30,7 +30,7 @@ type PersistentVolumeClaimSpec = corev1.PersistentVolumeClaimSpec
 // +die
 type PersistentVolumeClaimStatus = corev1.PersistentVolumeClaimStatus
 
-func (d *PersistentVolumeClaimStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) *PersistentVolumeClaimStatusDie {
+func (d *PersistentVolumeClaimStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		r.Conditions = make([]corev1.PersistentVolumeClaimCondition, len(conditions))
 		for i := range conditions {

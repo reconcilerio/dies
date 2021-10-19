@@ -22,7 +22,7 @@ limitations under the License.
 package v1
 
 import (
-	testing "github.com/scothis/dies/testing"
+	testing "dies.dev/testing"
 	testingx "testing"
 )
 

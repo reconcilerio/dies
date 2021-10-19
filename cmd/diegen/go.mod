@@ -1,4 +1,4 @@
-module github.com/scothis/dies/cmd/diegen
+module dies.dev/cmd/diegen
 
 go 1.17
 

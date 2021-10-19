@@ -19,7 +19,7 @@ package main
 import (
 	"os"
 
-	"github.com/scothis/dies/cmd/diegen/die"
+	"dies.dev/cmd/diegen/die"
 	"sigs.k8s.io/controller-tools/pkg/genall"
 	"sigs.k8s.io/controller-tools/pkg/markers"
 )

@@ -194,7 +194,7 @@ func (c *copyMethodMaker) generateDieFor(die Die) {
 	}
 	c.Linef("type %s struct {", die.Type)
 	if die.Object {
-		c.Linef("	%s", c.AliasedRef("github.com/scothis/dies/apis/meta/v1", "FrozenObjectMeta"))
+		c.Linef("	%s", c.AliasedRef("dies.dev/apis/meta/v1", "FrozenObjectMeta"))
 	}
 	c.Linef("	mutable bool")
 	c.Linef("	r %s", c.AliasedRef(die.TargetPackage, die.TargetType))
@@ -228,14 +228,14 @@ func (c *copyMethodMaker) generateDieFeedMethodFor(die Die) {
 	c.Linef("func (d *%s) DieFeed(r %s) *%s {", die.Type, c.AliasedRef(die.TargetPackage, die.TargetType), die.Type)
 	c.Linef("	if d.mutable {")
 	if die.Object {
-		c.Linef("		d.FrozenObjectMeta = %s(r.ObjectMeta)", c.AliasedRef("github.com/scothis/dies/apis/meta/v1", "FreezeObjectMeta"))
+		c.Linef("		d.FrozenObjectMeta = %s(r.ObjectMeta)", c.AliasedRef("dies.dev/apis/meta/v1", "FreezeObjectMeta"))
 	}
 	c.Linef("		d.r = r")
 	c.Linef("		return d")
 	c.Linef("	}")
 	c.Linef("	return &%s{", die.Type)
 	if die.Object {
-		c.Linef("		FrozenObjectMeta: %s(r.ObjectMeta),", c.AliasedRef("github.com/scothis/dies/apis/meta/v1", "FreezeObjectMeta"))
+		c.Linef("		FrozenObjectMeta: %s(r.ObjectMeta),", c.AliasedRef("dies.dev/apis/meta/v1", "FreezeObjectMeta"))
 	}
 	c.Linef("		mutable: d.mutable,")
 	c.Linef("		r: r,")
@@ -281,7 +281,7 @@ func (c *copyMethodMaker) generateDeepCopyMethodFor(die Die) {
 	c.Linef("	r := *d.r.DeepCopy()")
 	c.Linef("	return &%s{", die.Type)
 	if die.Object {
-		c.Linef("		FrozenObjectMeta: %s(r.ObjectMeta),", c.AliasedRef("github.com/scothis/dies/apis/meta/v1", "FreezeObjectMeta"))
+		c.Linef("		FrozenObjectMeta: %s(r.ObjectMeta),", c.AliasedRef("dies.dev/apis/meta/v1", "FreezeObjectMeta"))
 	}
 	c.Linef("		mutable: d.mutable,")
 	c.Linef("		r: r,")
@@ -338,9 +338,9 @@ func (c *copyMethodMaker) generateJSONMethodsFor(die Die) {
 
 func (c *copyMethodMaker) generateMetadataDieMethodFor(die Die) {
 	c.Linef("")
-	c.Linef("func (d *%s) MetadataDie(fn func(d *%s)) *%s {", die.Type, c.AliasedRef("github.com/scothis/dies/apis/meta/v1", "ObjectMetaDie"), die.Type)
+	c.Linef("func (d *%s) MetadataDie(fn func(d *%s)) *%s {", die.Type, c.AliasedRef("dies.dev/apis/meta/v1", "ObjectMetaDie"), die.Type)
 	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
-	c.Linef("		d := %s.DieImmutable(false).DieFeed(r.ObjectMeta)", c.AliasedRef("github.com/scothis/dies/apis/meta/v1", "ObjectMetaBlank"))
+	c.Linef("		d := %s.DieImmutable(false).DieFeed(r.ObjectMeta)", c.AliasedRef("dies.dev/apis/meta/v1", "ObjectMetaBlank"))
 	c.Linef("		fn(d)")
 	c.Linef("		r.ObjectMeta = d.DieRelease()")
 	c.Linef("	})")
@@ -379,7 +379,7 @@ func (c *copyMethodMaker) generateMissingFieldTestFor(die Die) {
 	c.Linef("func Test%s_MissingMethods(t *%s) {", die.Type, c.AliasedRef("testing", "T"))
 	c.Linef("	die := %s", c.AliasedRef(c.pkg.PkgPath, die.Blank))
 	c.Linef("	ignore := []string{%s}", strings.Join(ignore, ", "))
-	c.Linef("	diff := %s(die).Delete(ignore...)", c.AliasedRef("github.com/scothis/dies/testing", "DieFieldDiff"))
+	c.Linef("	diff := %s(die).Delete(ignore...)", c.AliasedRef("dies.dev/testing", "DieFieldDiff"))
 	c.Linef("	if diff.Len() != 0 {")
 	c.Linef("		t.Errorf(\"found missing fields for %s: %%s\", diff.List())", die.Type)
 	c.Linef("	}")

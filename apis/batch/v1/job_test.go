@@ -20,10 +20,10 @@ import (
 	"testing"
 	"time"
 
+	diebatchv1 "dies.dev/apis/batch/v1"
+	diecorev1 "dies.dev/apis/core/v1"
+	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
-	diebatchv1 "github.com/scothis/dies/apis/batch/v1"
-	diecorev1 "github.com/scothis/dies/apis/core/v1"
-	diemetav1 "github.com/scothis/dies/apis/meta/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

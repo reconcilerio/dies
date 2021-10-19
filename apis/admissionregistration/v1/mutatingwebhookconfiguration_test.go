@@ -19,9 +19,9 @@ package v1_test
 import (
 	"testing"
 
+	dieadmissionregistrationv1 "dies.dev/apis/admissionregistration/v1"
+	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
-	dieadmissionregistrationv1 "github.com/scothis/dies/apis/admissionregistration/v1"
-	diemetav1 "github.com/scothis/dies/apis/meta/v1"
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

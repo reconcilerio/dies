@@ -22,9 +22,9 @@ limitations under the License.
 package v1
 
 import (
+	metav1 "dies.dev/apis/meta/v1"
 	json "encoding/json"
 	fmtx "fmt"
-	metav1 "github.com/scothis/dies/apis/meta/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

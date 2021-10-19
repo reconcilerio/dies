@@ -63,6 +63,18 @@ func (d *ObjectMetaDie) ControlledBy(obj runtime.Object, scheme *runtime.Scheme)
 	})
 }
 
+func (d *ObjectMetaDie) ManagedFieldsDie(fields ...*ManagedFieldsEntryDie) *ObjectMetaDie {
+	return d.DieStamp(func(r *metav1.ObjectMeta) {
+		r.ManagedFields = make([]metav1.ManagedFieldsEntry, len(fields))
+		for i := range fields {
+			r.ManagedFields[i] = fields[i].DieRelease()
+		}
+	})
+}
+
+// +die
+type ManagedFieldsEntry = metav1.ManagedFieldsEntry
+
 func FreezeObjectMeta(r metav1.ObjectMeta) FrozenObjectMeta {
 	return FrozenObjectMeta{
 		r: r,

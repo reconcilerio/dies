@@ -22,7 +22,7 @@ limitations under the License.
 package v1
 
 import (
-	testing "github.com/scothis/dies/testing"
+	testing "dies.dev/testing"
 	testingx "testing"
 )
 
@@ -131,6 +131,33 @@ func TestNodeStatusDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for NodeStatusDie: %s", diff.List())
+	}
+}
+
+func TestObjectReferenceDie_MissingMethods(t *testingx.T) {
+	die := ObjectReferenceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ObjectReferenceDie: %s", diff.List())
+	}
+}
+
+func TestLocalObjectReferenceDie_MissingMethods(t *testingx.T) {
+	die := LocalObjectReferenceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for LocalObjectReferenceDie: %s", diff.List())
+	}
+}
+
+func TestTypedLocalObjectReferenceDie_MissingMethods(t *testingx.T) {
+	die := TypedLocalObjectReferenceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for TypedLocalObjectReferenceDie: %s", diff.List())
 	}
 }
 
@@ -383,6 +410,33 @@ func TestServiceStatusDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for ServiceStatusDie: %s", diff.List())
+	}
+}
+
+func TestLoadBalancerStatusDie_MissingMethods(t *testingx.T) {
+	die := LoadBalancerStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for LoadBalancerStatusDie: %s", diff.List())
+	}
+}
+
+func TestLoadBalancerIngressDie_MissingMethods(t *testingx.T) {
+	die := LoadBalancerIngressBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for LoadBalancerIngressDie: %s", diff.List())
+	}
+}
+
+func TestPortStatusDie_MissingMethods(t *testingx.T) {
+	die := PortStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PortStatusDie: %s", diff.List())
 	}
 }
 

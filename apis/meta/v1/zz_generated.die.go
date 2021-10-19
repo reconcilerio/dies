@@ -316,6 +316,115 @@ func (d *ObjectMetaDie) ManagedFields(v ...metav1.ManagedFieldsEntry) *ObjectMet
 	})
 }
 
+type ManagedFieldsEntryDie struct {
+	mutable bool
+	r       metav1.ManagedFieldsEntry
+}
+
+var ManagedFieldsEntryBlank = (&ManagedFieldsEntryDie{}).DieFeed(metav1.ManagedFieldsEntry{})
+
+func (d *ManagedFieldsEntryDie) DieImmutable(immutable bool) *ManagedFieldsEntryDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+func (d *ManagedFieldsEntryDie) DieFeed(r metav1.ManagedFieldsEntry) *ManagedFieldsEntryDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ManagedFieldsEntryDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *ManagedFieldsEntryDie) DieFeedPtr(r *metav1.ManagedFieldsEntry) *ManagedFieldsEntryDie {
+	if r == nil {
+		r = &metav1.ManagedFieldsEntry{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *ManagedFieldsEntryDie) DieRelease() metav1.ManagedFieldsEntry {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *ManagedFieldsEntryDie) DieReleasePtr() *metav1.ManagedFieldsEntry {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *ManagedFieldsEntryDie) DieStamp(fn func(r *metav1.ManagedFieldsEntry)) *ManagedFieldsEntryDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *ManagedFieldsEntryDie) DeepCopy() *ManagedFieldsEntryDie {
+	r := *d.r.DeepCopy()
+	return &ManagedFieldsEntryDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Manager is an identifier of the workflow managing these fields.
+func (d *ManagedFieldsEntryDie) Manager(v string) *ManagedFieldsEntryDie {
+	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
+		r.Manager = v
+	})
+}
+
+// Operation is the type of operation which lead to this ManagedFieldsEntry being created. The only valid values for this field are 'Apply' and 'Update'.
+func (d *ManagedFieldsEntryDie) Operation(v metav1.ManagedFieldsOperationType) *ManagedFieldsEntryDie {
+	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
+		r.Operation = v
+	})
+}
+
+// APIVersion defines the version of this resource that this field set applies to. The format is "group/version" just like the top-level APIVersion field. It is necessary to track the version of a field set because it cannot be automatically converted.
+func (d *ManagedFieldsEntryDie) APIVersion(v string) *ManagedFieldsEntryDie {
+	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
+		r.APIVersion = v
+	})
+}
+
+// Time is timestamp of when these fields were set. It should always be empty if Operation is 'Apply'
+func (d *ManagedFieldsEntryDie) Time(v *metav1.Time) *ManagedFieldsEntryDie {
+	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
+		r.Time = v
+	})
+}
+
+// FieldsType is the discriminator for the different fields format and version. There is currently only one possible value: "FieldsV1"
+func (d *ManagedFieldsEntryDie) FieldsType(v string) *ManagedFieldsEntryDie {
+	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
+		r.FieldsType = v
+	})
+}
+
+// FieldsV1 holds the first JSON version format as described in the "FieldsV1" type.
+func (d *ManagedFieldsEntryDie) FieldsV1(v *metav1.FieldsV1) *ManagedFieldsEntryDie {
+	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
+		r.FieldsV1 = v
+	})
+}
+
+// Subresource is the name of the subresource used to update that object, or empty string if the object was updated through the main resource. The value of this field is used to distinguish between managers, even if they share the same name. For example, a status update will be distinct from a regular update using the same manager name. Note that the APIVersion field is not related to the Subresource field and it always corresponds to the version of the main resource.
+func (d *ManagedFieldsEntryDie) Subresource(v string) *ManagedFieldsEntryDie {
+	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
+		r.Subresource = v
+	})
+}
+
 type LabelSelectorDie struct {
 	mutable bool
 	r       metav1.LabelSelector

@@ -22,7 +22,7 @@ limitations under the License.
 package v1
 
 import (
-	testing "github.com/scothis/dies/testing"
+	testing "dies.dev/testing"
 	testingx "testing"
 )
 
@@ -41,6 +41,69 @@ func TestIngressSpecDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for IngressSpecDie: %s", diff.List())
+	}
+}
+
+func TestIngressBackendDie_MissingMethods(t *testingx.T) {
+	die := IngressBackendBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for IngressBackendDie: %s", diff.List())
+	}
+}
+
+func TestIngressServiceBackendDie_MissingMethods(t *testingx.T) {
+	die := IngressServiceBackendBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for IngressServiceBackendDie: %s", diff.List())
+	}
+}
+
+func TestServiceBackendPortDie_MissingMethods(t *testingx.T) {
+	die := ServiceBackendPortBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ServiceBackendPortDie: %s", diff.List())
+	}
+}
+
+func TestIngressTLSDie_MissingMethods(t *testingx.T) {
+	die := IngressTLSBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for IngressTLSDie: %s", diff.List())
+	}
+}
+
+func TestIngressRuleDie_MissingMethods(t *testingx.T) {
+	die := IngressRuleBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for IngressRuleDie: %s", diff.List())
+	}
+}
+
+func TestHTTPIngressRuleValueDie_MissingMethods(t *testingx.T) {
+	die := HTTPIngressRuleValueBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for HTTPIngressRuleValueDie: %s", diff.List())
+	}
+}
+
+func TestHTTPIngressPathDie_MissingMethods(t *testingx.T) {
+	die := HTTPIngressPathBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for HTTPIngressPathDie: %s", diff.List())
 	}
 }
 
@@ -71,6 +134,15 @@ func TestIngressClassSpecDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestIngressClassParametersReferenceDie_MissingMethods(t *testingx.T) {
+	die := IngressClassParametersReferenceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for IngressClassParametersReferenceDie: %s", diff.List())
+	}
+}
+
 func TestNetworkPolicyDie_MissingMethods(t *testingx.T) {
 	die := NetworkPolicyBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
@@ -86,5 +158,50 @@ func TestNetworkPolicySpecDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for NetworkPolicySpecDie: %s", diff.List())
+	}
+}
+
+func TestNetworkPolicyIngressRuleDie_MissingMethods(t *testingx.T) {
+	die := NetworkPolicyIngressRuleBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NetworkPolicyIngressRuleDie: %s", diff.List())
+	}
+}
+
+func TestNetworkPolicyEgressRuleDie_MissingMethods(t *testingx.T) {
+	die := NetworkPolicyEgressRuleBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NetworkPolicyEgressRuleDie: %s", diff.List())
+	}
+}
+
+func TestNetworkPolicyPortDie_MissingMethods(t *testingx.T) {
+	die := NetworkPolicyPortBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NetworkPolicyPortDie: %s", diff.List())
+	}
+}
+
+func TestNetworkPolicyPeerDie_MissingMethods(t *testingx.T) {
+	die := NetworkPolicyPeerBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NetworkPolicyPeerDie: %s", diff.List())
+	}
+}
+
+func TestIPBlockDie_MissingMethods(t *testingx.T) {
+	die := IPBlockBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for IPBlockDie: %s", diff.List())
 	}
 }
