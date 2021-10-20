@@ -21,10 +21,10 @@ import (
 )
 
 // +die
-type ObjectReference = corev1.ObjectReference
+type _ = corev1.ObjectReference
 
 // +die
-type LocalObjectReference = corev1.LocalObjectReference
+type _ = corev1.LocalObjectReference
 
 // +die
-type TypedLocalObjectReference = corev1.TypedLocalObjectReference
+type _ = corev1.TypedLocalObjectReference

@@ -21,4 +21,4 @@ import (
 )
 
 // +die:object=true
-type Event = corev1.Event
+type _ = corev1.Event

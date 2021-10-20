@@ -21,4 +21,4 @@ import (
 )
 
 // +die
-type Condition = metav1.Condition
+type _ = metav1.Condition

@@ -21,10 +21,10 @@ import (
 )
 
 // +die:object=true
-type PersistentVolume = corev1.PersistentVolume
+type _ = corev1.PersistentVolume
 
 // +die
-type PersistentVolumeSpec = corev1.PersistentVolumeSpec
+type _ = corev1.PersistentVolumeSpec
 
 type persistentVolumeSpec interface {
 	GCEPersistentDiskDie(fn func(d GCEPersistentDiskVolumeSourceDie)) PersistentVolumeSpecDie
@@ -272,37 +272,37 @@ func (d *persistentVolumeSpecDie) CSIDie(fn func(d CSIPersistentVolumeSourceDie)
 }
 
 // +die
-type PersistentVolumeStatus = corev1.PersistentVolumeStatus
+type _ = corev1.PersistentVolumeStatus
 
 // +die
-type GlusterfsPersistentVolumeSource = corev1.GlusterfsPersistentVolumeSource
+type _ = corev1.GlusterfsPersistentVolumeSource
 
 // +die
-type RBDPersistentVolumeSource = corev1.RBDPersistentVolumeSource
+type _ = corev1.RBDPersistentVolumeSource
 
 // +die
-type ISCSIPersistentVolumeSource = corev1.ISCSIPersistentVolumeSource
+type _ = corev1.ISCSIPersistentVolumeSource
 
 // +die
-type CinderPersistentVolumeSource = corev1.CinderPersistentVolumeSource
+type _ = corev1.CinderPersistentVolumeSource
 
 // +die
-type CephFSPersistentVolumeSource = corev1.CephFSPersistentVolumeSource
+type _ = corev1.CephFSPersistentVolumeSource
 
 // +die
-type FlexPersistentVolumeSource = corev1.FlexPersistentVolumeSource
+type _ = corev1.FlexPersistentVolumeSource
 
 // +die
-type AzureFilePersistentVolumeSource = corev1.AzureFilePersistentVolumeSource
+type _ = corev1.AzureFilePersistentVolumeSource
 
 // +die
-type ScaleIOPersistentVolumeSource = corev1.ScaleIOPersistentVolumeSource
+type _ = corev1.ScaleIOPersistentVolumeSource
 
 // +die
-type LocalVolumeSource = corev1.LocalVolumeSource
+type _ = corev1.LocalVolumeSource
 
 // +die
-type StorageOSPersistentVolumeSource = corev1.StorageOSPersistentVolumeSource
+type _ = corev1.StorageOSPersistentVolumeSource
 
 // +die
-type CSIPersistentVolumeSource = corev1.CSIPersistentVolumeSource
+type _ = corev1.CSIPersistentVolumeSource

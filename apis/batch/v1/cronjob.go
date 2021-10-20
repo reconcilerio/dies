@@ -21,10 +21,10 @@ import (
 )
 
 // +die:object=true
-type CronJob = batchv1.CronJob
+type _ = batchv1.CronJob
 
 // +die
-type CronJobSpec = batchv1.CronJobSpec
+type _ = batchv1.CronJobSpec
 
 type cronJobSpec interface {
 	JobTemplateDie(fn func(d JobDie)) CronJobSpecDie
@@ -43,4 +43,4 @@ func (d *cronJobSpecDie) JobTemplateDie(fn func(d JobDie)) CronJobSpecDie {
 }
 
 // +die
-type CronJobStatus = batchv1.CronJobStatus
+type _ = batchv1.CronJobStatus

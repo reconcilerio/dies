@@ -26,7 +26,7 @@ import (
 )
 
 // +die
-type ObjectMeta = metav1.ObjectMeta
+type _ = metav1.ObjectMeta
 
 type objectMeta interface {
 	AddLabel(key, value string) ObjectMetaDie
@@ -80,7 +80,7 @@ func (d *objectMetaDie) ManagedFieldsDie(fields ...ManagedFieldsEntryDie) Object
 }
 
 // +die
-type ManagedFieldsEntry = metav1.ManagedFieldsEntry
+type _ = metav1.ManagedFieldsEntry
 
 func FreezeObjectMeta(r metav1.ObjectMeta) FrozenObjectMeta {
 	return FrozenObjectMeta{

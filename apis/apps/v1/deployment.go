@@ -24,10 +24,10 @@ import (
 )
 
 // +die:object=true
-type Deployment = appsv1.Deployment
+type _ = appsv1.Deployment
 
 // +die
-type DeploymentSpec = appsv1.DeploymentSpec
+type _ = appsv1.DeploymentSpec
 
 type deploymentSpec interface {
 	SelectorDie(fn func(d diemetav1.LabelSelectorDie)) DeploymentSpecDie
@@ -51,7 +51,7 @@ func (d *deploymentSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie))
 }
 
 // +die
-type DeploymentStatus = appsv1.DeploymentStatus
+type _ = appsv1.DeploymentStatus
 
 type deploymentStatus interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) DeploymentStatusDie

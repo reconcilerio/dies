@@ -21,4 +21,4 @@ import (
 )
 
 // +die:object=true
-type Endpoints = corev1.Endpoints
+type _ = corev1.Endpoints

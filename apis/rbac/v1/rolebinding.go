@@ -21,7 +21,7 @@ import (
 )
 
 // +die:object=true
-type RoleBinding = rbacv1.RoleBinding
+type _ = rbacv1.RoleBinding
 
 type roleBinding interface {
 	SubjectsDie(subjects ...SubjectDie) RoleBindingDie
@@ -46,7 +46,7 @@ func (d *roleBindingDie) RoleRefDie(fn func(d RoleRefDie)) RoleBindingDie {
 }
 
 // +die
-type Subject = rbacv1.Subject
+type _ = rbacv1.Subject
 
 // +die
-type RoleRef = rbacv1.RoleRef
+type _ = rbacv1.RoleRef

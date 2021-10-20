@@ -24,10 +24,10 @@ import (
 )
 
 // +die:object=true
-type Job = batchv1.Job
+type _ = batchv1.Job
 
 // +die
-type JobSpec = batchv1.JobSpec
+type _ = batchv1.JobSpec
 
 type jobSpec interface {
 	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) JobSpecDie
@@ -42,7 +42,7 @@ func (d *jobSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) JobSpe
 }
 
 // +die
-type JobStatus = batchv1.JobStatus
+type _ = batchv1.JobStatus
 
 type jobStatus interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) JobStatusDie

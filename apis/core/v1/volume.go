@@ -21,7 +21,7 @@ import (
 )
 
 // +die
-type Volume = corev1.Volume
+type _ = corev1.Volume
 
 type volume interface {
 	HostPathDie(fn func(d HostPathVolumeSourceDie)) VolumeDie
@@ -346,88 +346,88 @@ func (d *volumeDie) EphemeralDie(fn func(d EphemeralVolumeSourceDie)) VolumeDie 
 }
 
 // +die
-type HostPathVolumeSource = corev1.HostPathVolumeSource
+type _ = corev1.HostPathVolumeSource
 
 // +die
-type EmptyDirVolumeSource = corev1.EmptyDirVolumeSource
+type _ = corev1.EmptyDirVolumeSource
 
 // +die
-type GCEPersistentDiskVolumeSource = corev1.GCEPersistentDiskVolumeSource
+type _ = corev1.GCEPersistentDiskVolumeSource
 
 // +die
-type AWSElasticBlockStoreVolumeSource = corev1.AWSElasticBlockStoreVolumeSource
+type _ = corev1.AWSElasticBlockStoreVolumeSource
 
 // +die
-type GitRepoVolumeSource = corev1.GitRepoVolumeSource
+type _ = corev1.GitRepoVolumeSource
 
 // +die
-type SecretVolumeSource = corev1.SecretVolumeSource
+type _ = corev1.SecretVolumeSource
 
 // +die
-type NFSVolumeSource = corev1.NFSVolumeSource
+type _ = corev1.NFSVolumeSource
 
 // +die
-type ISCSIVolumeSource = corev1.ISCSIVolumeSource
+type _ = corev1.ISCSIVolumeSource
 
 // +die
-type GlusterfsVolumeSource = corev1.GlusterfsVolumeSource
+type _ = corev1.GlusterfsVolumeSource
 
 // +die
-type PersistentVolumeClaimVolumeSource = corev1.PersistentVolumeClaimVolumeSource
+type _ = corev1.PersistentVolumeClaimVolumeSource
 
 // +die
-type RBDVolumeSource = corev1.RBDVolumeSource
+type _ = corev1.RBDVolumeSource
 
 // +die
-type FlexVolumeSource = corev1.FlexVolumeSource
+type _ = corev1.FlexVolumeSource
 
 // +die
-type CinderVolumeSource = corev1.CinderVolumeSource
+type _ = corev1.CinderVolumeSource
 
 // +die
-type CephFSVolumeSource = corev1.CephFSVolumeSource
+type _ = corev1.CephFSVolumeSource
 
 // +die
-type FlockerVolumeSource = corev1.FlockerVolumeSource
+type _ = corev1.FlockerVolumeSource
 
 // +die
-type DownwardAPIVolumeSource = corev1.DownwardAPIVolumeSource
+type _ = corev1.DownwardAPIVolumeSource
 
 // +die
-type FCVolumeSource = corev1.FCVolumeSource
+type _ = corev1.FCVolumeSource
 
 // +die
-type AzureFileVolumeSource = corev1.AzureFileVolumeSource
+type _ = corev1.AzureFileVolumeSource
 
 // +die
-type ConfigMapVolumeSource = corev1.ConfigMapVolumeSource
+type _ = corev1.ConfigMapVolumeSource
 
 // +die
-type VsphereVirtualDiskVolumeSource = corev1.VsphereVirtualDiskVolumeSource
+type _ = corev1.VsphereVirtualDiskVolumeSource
 
 // +die
-type QuobyteVolumeSource = corev1.QuobyteVolumeSource
+type _ = corev1.QuobyteVolumeSource
 
 // +die
-type AzureDiskVolumeSource = corev1.AzureDiskVolumeSource
+type _ = corev1.AzureDiskVolumeSource
 
 // +die
-type PhotonPersistentDiskVolumeSource = corev1.PhotonPersistentDiskVolumeSource
+type _ = corev1.PhotonPersistentDiskVolumeSource
 
 // +die
-type ProjectedVolumeSource = corev1.ProjectedVolumeSource
+type _ = corev1.ProjectedVolumeSource
 
 // +die
-type PortworxVolumeSource = corev1.PortworxVolumeSource
+type _ = corev1.PortworxVolumeSource
 
 // +die
-type ScaleIOVolumeSource = corev1.ScaleIOVolumeSource
+type _ = corev1.ScaleIOVolumeSource
 
 // +die
-type StorageOSVolumeSource = corev1.StorageOSVolumeSource
+type _ = corev1.StorageOSVolumeSource
 
 // +die
-type CSIVolumeSource = corev1.CSIVolumeSource
+type _ = corev1.CSIVolumeSource
 
 // +die
-type EphemeralVolumeSource = corev1.EphemeralVolumeSource
+type _ = corev1.EphemeralVolumeSource

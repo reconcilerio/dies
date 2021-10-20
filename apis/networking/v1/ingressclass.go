@@ -21,10 +21,10 @@ import (
 )
 
 // +die:object=true
-type IngressClass = networkingv1.IngressClass
+type _ = networkingv1.IngressClass
 
 // +die
-type IngressClassSpec = networkingv1.IngressClassSpec
+type _ = networkingv1.IngressClassSpec
 
 type ingressClassSpec interface {
 	ParametersDie(fn func(d IngressClassParametersReferenceDie)) IngressClassSpecDie
@@ -39,4 +39,4 @@ func (d *ingressClassSpecDie) ParametersDie(fn func(d IngressClassParametersRefe
 }
 
 // +die
-type IngressClassParametersReference = networkingv1.IngressClassParametersReference
+type _ = networkingv1.IngressClassParametersReference

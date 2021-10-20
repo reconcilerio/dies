@@ -21,7 +21,7 @@ import (
 )
 
 // +die:object=true
-type ClusterRoleBinding = rbacv1.ClusterRoleBinding
+type _ = rbacv1.ClusterRoleBinding
 
 type clusterRoleBinding interface {
 	SubjectsDie(subjects ...SubjectDie) ClusterRoleBindingDie

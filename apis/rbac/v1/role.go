@@ -21,7 +21,7 @@ import (
 )
 
 // +die:object=true
-type Role = rbacv1.Role
+type _ = rbacv1.Role
 
 type role interface {
 	RulesDie(rules ...PolicyRuleDie) RoleDie
@@ -44,7 +44,7 @@ func (d *roleDie) AddRuleDie(rule PolicyRuleDie) RoleDie {
 }
 
 // +die
-type PolicyRule = rbacv1.PolicyRule
+type _ = rbacv1.PolicyRule
 
 type policyRule interface {
 	AddVerbs(verbs ...string) PolicyRuleDie

@@ -21,7 +21,7 @@ import (
 )
 
 // +die
-type Container = corev1.Container
+type _ = corev1.Container
 
 type container interface {
 	AddEnv(env ...corev1.EnvVar) ContainerDie

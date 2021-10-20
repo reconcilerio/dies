@@ -22,13 +22,13 @@ import (
 )
 
 // +die:object=true
-type Namespace = corev1.Namespace
+type _ = corev1.Namespace
 
 // +die
-type NamespaceSpec = corev1.NamespaceSpec
+type _ = corev1.NamespaceSpec
 
 // +die
-type NamespaceStatus = corev1.NamespaceStatus
+type _ = corev1.NamespaceStatus
 
 type namespaceStatus interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) NamespaceStatusDie

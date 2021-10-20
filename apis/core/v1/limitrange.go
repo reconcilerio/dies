@@ -21,7 +21,7 @@ import (
 )
 
 // +die:object=true
-type LimitRange = corev1.LimitRange
+type _ = corev1.LimitRange
 
 // +die
-type LimitRangeSpec = corev1.LimitRangeSpec
+type _ = corev1.LimitRangeSpec

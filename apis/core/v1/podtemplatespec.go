@@ -22,7 +22,7 @@ import (
 )
 
 // +die
-type PodTemplateSpec = corev1.PodTemplateSpec
+type _ = corev1.PodTemplateSpec
 
 type podTemplateSpec interface {
 	MetadataDie(fn func(d diemetav1.ObjectMetaDie)) PodTemplateSpecDie

@@ -22,13 +22,13 @@ import (
 )
 
 // +die:object=true
-type Node = corev1.Node
+type _ = corev1.Node
 
 // +die
-type NodeSpec = corev1.NodeSpec
+type _ = corev1.NodeSpec
 
 // +die
-type NodeStatus = corev1.NodeStatus
+type _ = corev1.NodeStatus
 
 type nodeStatus interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) NodeStatusDie

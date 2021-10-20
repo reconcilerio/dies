@@ -22,10 +22,10 @@ import (
 )
 
 // +die:object=true
-type NetworkPolicy = networkingv1.NetworkPolicy
+type _ = networkingv1.NetworkPolicy
 
 // +die
-type NetworkPolicySpec = networkingv1.NetworkPolicySpec
+type _ = networkingv1.NetworkPolicySpec
 
 func (d *networkPolicySpecDie) PodSelectorDie(fn func(d diemetav1.LabelSelectorDie)) NetworkPolicySpecDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
@@ -54,7 +54,7 @@ func (d *networkPolicySpecDie) EgressDie(egress ...NetworkPolicyEgressRuleDie) N
 }
 
 // +die
-type NetworkPolicyIngressRule = networkingv1.NetworkPolicyIngressRule
+type _ = networkingv1.NetworkPolicyIngressRule
 
 func (d *networkPolicyIngressRuleDie) PortsDie(ports ...NetworkPolicyPortDie) NetworkPolicyIngressRuleDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyIngressRule) {
@@ -75,7 +75,7 @@ func (d *networkPolicyIngressRuleDie) FromDie(from ...NetworkPolicyPeerDie) Netw
 }
 
 // +die
-type NetworkPolicyEgressRule = networkingv1.NetworkPolicyEgressRule
+type _ = networkingv1.NetworkPolicyEgressRule
 
 func (d *networkPolicyEgressRuleDie) PortsDie(ports ...NetworkPolicyPortDie) NetworkPolicyEgressRuleDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyEgressRule) {
@@ -96,10 +96,10 @@ func (d *networkPolicyEgressRuleDie) ToDie(to ...NetworkPolicyPeerDie) NetworkPo
 }
 
 // +die
-type NetworkPolicyPort = networkingv1.NetworkPolicyPort
+type _ = networkingv1.NetworkPolicyPort
 
 // +die
-type NetworkPolicyPeer = networkingv1.NetworkPolicyPeer
+type _ = networkingv1.NetworkPolicyPeer
 
 type networkPolicyPeer interface {
 	PodSelectorDie(fn func(d diemetav1.LabelSelectorDie)) NetworkPolicyPeerDie
@@ -132,4 +132,4 @@ func (d *networkPolicyPeerDie) IPBlockDie(fn func(d IPBlockDie)) NetworkPolicyPe
 }
 
 // +die
-type IPBlock = networkingv1.IPBlock
+type _ = networkingv1.IPBlock

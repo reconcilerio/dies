@@ -24,10 +24,10 @@ import (
 )
 
 // +die:object=true
-type ReplicaSet = appsv1.ReplicaSet
+type _ = appsv1.ReplicaSet
 
 // +die
-type ReplicaSetSpec = appsv1.ReplicaSetSpec
+type _ = appsv1.ReplicaSetSpec
 
 type replicaSetSpec interface {
 	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) ReplicaSetSpecDie
@@ -42,7 +42,7 @@ func (d *replicaSetSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie))
 }
 
 // +die
-type ReplicaSetStatus = appsv1.ReplicaSetStatus
+type _ = appsv1.ReplicaSetStatus
 
 type replicaSetStatus interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) ReplicaSetStatusDie

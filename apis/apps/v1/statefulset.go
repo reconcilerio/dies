@@ -24,10 +24,10 @@ import (
 )
 
 // +die:object=true
-type StatefulSpec = appsv1.StatefulSet
+type _ = appsv1.StatefulSet
 
 // +die
-type StatefulSetSpec = appsv1.StatefulSetSpec
+type _ = appsv1.StatefulSetSpec
 
 type statefulSetSpec interface {
 	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) StatefulSetSpecDie
@@ -52,7 +52,7 @@ func (d *statefulSetSpecDie) VolumeClaimTemplatesDie(volumeClaimTemplates ...die
 }
 
 // +die
-type StatefulSetStatus = appsv1.StatefulSetStatus
+type _ = appsv1.StatefulSetStatus
 
 type statefulSetStatus interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) StatefulSetStatusDie

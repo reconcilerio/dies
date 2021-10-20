@@ -22,10 +22,10 @@ import (
 )
 
 // +die:object=true
-type Pod = corev1.Pod
+type _ = corev1.Pod
 
 // +die
-type PodSpec = corev1.PodSpec
+type _ = corev1.PodSpec
 
 type podSpec interface {
 	InitContainerDie(name string, fn func(d ContainerDie)) PodSpecDie
@@ -85,7 +85,7 @@ func (d *podSpecDie) VolumeDie(name string, fn func(d VolumeDie)) PodSpecDie {
 }
 
 // +die
-type PodStatus = corev1.PodStatus
+type _ = corev1.PodStatus
 
 type podStatus interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) PodStatusDie

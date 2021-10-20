@@ -22,10 +22,10 @@ import (
 )
 
 // +die:object=true
-type Ingress = networkingv1.Ingress
+type _ = networkingv1.Ingress
 
 // +die
-type IngressSpec = networkingv1.IngressSpec
+type _ = networkingv1.IngressSpec
 
 type ingressSpec interface {
 	DefaultBackendDie(fn func(d IngressBackendDie)) IngressSpecDie
@@ -60,7 +60,7 @@ func (d *ingressSpecDie) RulesDie(rules ...IngressRuleDie) IngressSpecDie {
 }
 
 // +die
-type IngressBackend = networkingv1.IngressBackend
+type _ = networkingv1.IngressBackend
 
 type ingressBackend interface {
 	ServiceDie(fn func(d IngressServiceBackendDie)) IngressBackendDie
@@ -84,7 +84,7 @@ func (d *ingressBackendDie) ResourceDie(fn func(d diecorev1.TypedLocalObjectRefe
 }
 
 // +die
-type IngressServiceBackend = networkingv1.IngressServiceBackend
+type _ = networkingv1.IngressServiceBackend
 
 type ingressServiceBackend interface {
 	PortDie(fn func(d ServiceBackendPortDie)) IngressServiceBackendDie
@@ -99,13 +99,13 @@ func (d *ingressServiceBackendDie) PortDie(fn func(d ServiceBackendPortDie)) Ing
 }
 
 // +die
-type ServiceBackendPort = networkingv1.ServiceBackendPort
+type _ = networkingv1.ServiceBackendPort
 
 // +die
-type IngressTLS = networkingv1.IngressTLS
+type _ = networkingv1.IngressTLS
 
 // +die
-type IngressRule = networkingv1.IngressRule
+type _ = networkingv1.IngressRule
 
 type ingressRule interface {
 	HTTPDie(fn func(d HTTPIngressRuleValueDie)) IngressRuleDie

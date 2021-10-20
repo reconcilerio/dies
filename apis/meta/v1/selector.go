@@ -21,7 +21,7 @@ import (
 )
 
 // +die
-type LabelSelector = metav1.LabelSelector
+type _ = metav1.LabelSelector
 
 type labelSelector interface {
 	AddMatchLabel(key, value string) LabelSelectorDie

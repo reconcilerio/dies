@@ -21,4 +21,4 @@ import (
 )
 
 // +die:object=true
-type ValidatingWebhookConfiguration = admissionregistrationv1.ValidatingWebhookConfiguration
+type _ = admissionregistrationv1.ValidatingWebhookConfiguration

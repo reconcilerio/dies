@@ -22,13 +22,13 @@ import (
 )
 
 // +die:object=true
-type CustomResourceDefinition = apiextensionsv1.CustomResourceDefinition
+type _ = apiextensionsv1.CustomResourceDefinition
 
 // +die
-type CustomResourceDefinitionSpec = apiextensionsv1.CustomResourceDefinitionSpec
+type _ = apiextensionsv1.CustomResourceDefinitionSpec
 
 // +die
-type CustomResourceDefinitionStatus = apiextensionsv1.CustomResourceDefinitionStatus
+type _ = apiextensionsv1.CustomResourceDefinitionStatus
 
 type customResourceDefinitionStatus interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) CustomResourceDefinitionStatusDie

@@ -21,4 +21,4 @@ import (
 )
 
 // +die:object=true
-type ServiceAccount = corev1.ServiceAccount
+type _ = corev1.ServiceAccount

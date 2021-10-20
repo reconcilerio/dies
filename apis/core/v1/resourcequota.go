@@ -21,10 +21,10 @@ import (
 )
 
 // +die:object=true
-type ResourceQuota = corev1.ResourceQuota
+type _ = corev1.ResourceQuota
 
 // +die
-type ResourceQuotaSpec = corev1.ResourceQuotaSpec
+type _ = corev1.ResourceQuotaSpec
 
 // +die
-type ResourceQuotaStatus = corev1.ResourceQuotaStatus
+type _ = corev1.ResourceQuotaStatus

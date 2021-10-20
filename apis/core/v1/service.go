@@ -23,13 +23,13 @@ import (
 )
 
 // +die:object=true
-type Service = corev1.Service
+type _ = corev1.Service
 
 // +die
-type ServiceSpec = corev1.ServiceSpec
+type _ = corev1.ServiceSpec
 
 // +die
-type ServiceStatus = corev1.ServiceStatus
+type _ = corev1.ServiceStatus
 
 type serviceStatus interface {
 	LoadBalancerDie(fn func(d LoadBalancerStatusDie)) ServiceStatusDie
@@ -54,7 +54,7 @@ func (d *serviceStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) S
 }
 
 // +die
-type LoadBalancerStatus = corev1.LoadBalancerStatus
+type _ = corev1.LoadBalancerStatus
 
 type loadBalancerStatus interface {
 	LoadBalancerDie(ingress ...LoadBalancerIngressDie) LoadBalancerStatusDie
@@ -70,7 +70,7 @@ func (d *loadBalancerStatusDie) LoadBalancerDie(ingress ...LoadBalancerIngressDi
 }
 
 // +die
-type LoadBalancerIngress = corev1.LoadBalancerIngress
+type _ = corev1.LoadBalancerIngress
 
 type loadBalancerIngress interface {
 	PortsDie(ports ...PortStatusDie) LoadBalancerIngressDie
@@ -86,4 +86,4 @@ func (d *loadBalancerIngressDie) PortsDie(ports ...PortStatusDie) LoadBalancerIn
 }
 
 // +die
-type PortStatus = corev1.PortStatus
+type _ = corev1.PortStatus

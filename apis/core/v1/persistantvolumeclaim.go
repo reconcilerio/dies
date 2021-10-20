@@ -22,13 +22,13 @@ import (
 )
 
 // +die:object=true
-type PersistentVolumeClaim = corev1.PersistentVolumeClaim
+type _ = corev1.PersistentVolumeClaim
 
 // +die
-type PersistentVolumeClaimSpec = corev1.PersistentVolumeClaimSpec
+type _ = corev1.PersistentVolumeClaimSpec
 
 // +die
-type PersistentVolumeClaimStatus = corev1.PersistentVolumeClaimStatus
+type _ = corev1.PersistentVolumeClaimStatus
 
 type persistentVolumeClaimStatus interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) PersistentVolumeClaimStatusDie

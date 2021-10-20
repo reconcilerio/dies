@@ -21,10 +21,10 @@ import (
 )
 
 // +die:object=true
-type HorizontalPodAutoscaler = autoscalingv1.HorizontalPodAutoscaler
+type _ = autoscalingv1.HorizontalPodAutoscaler
 
 // +die
-type HorizontalPodAutoscalerSpec = autoscalingv1.HorizontalPodAutoscalerSpec
+type _ = autoscalingv1.HorizontalPodAutoscalerSpec
 
 // +die
-type HorizontalPodAutoscalerStatus = autoscalingv1.HorizontalPodAutoscalerStatus
+type _ = autoscalingv1.HorizontalPodAutoscalerStatus

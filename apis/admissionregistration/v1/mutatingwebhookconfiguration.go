@@ -21,4 +21,4 @@ import (
 )
 
 // +die:object=true
-type MutatingWebhookConfiguration = admissionregistrationv1.MutatingWebhookConfiguration
+type _ = admissionregistrationv1.MutatingWebhookConfiguration

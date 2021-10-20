@@ -21,7 +21,7 @@ import (
 )
 
 // +die:object=true
-type Lease = coordinationv1.Lease
+type _ = coordinationv1.Lease
 
 // +die
-type LeaseSpec = coordinationv1.LeaseSpec
+type _ = coordinationv1.LeaseSpec

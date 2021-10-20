@@ -104,60 +104,68 @@ Additional methods will be added to dies over time to make common operations eas
 
 // <T>Blank is an empty die that mutations can be stamped from. All die blanks
 // are immutable.
-var <T>Blank <T>
+var <T>Blank <T>Die
 
-// DieStamp returns a new die with the resource passed to the callback
-// function. The resource is mutable.
-func DieStamp(fn func(r *<T>)) <T>Die
+type <T>Die interface {
+    // DieStamp returns a new die with the resource passed to the callback
+    // function. The resource is mutable.
+    func DieStamp(fn func(r *<T>)) <T>Die
 
-// DieFeed returns a new die with the provided resource.
-func DieFeed(r <T>) <T>Die
+    // DieFeed returns a new die with the provided resource.
+    func DieFeed(r <T>) <T>Die
 
-// DieFeedPtr returns a new die with the provided resource pointer. If the
-// resource is nil, the empty value is used instead.
-func DieFeedPtr(r *<T>) <T>Die
+    // DieFeedPtr returns a new die with the provided resource pointer. If the
+    // resource is nil, the empty value is used instead.
+    func DieFeedPtr(r *<T>) <T>Die
 
-// DieRelease returns the resource managed by the die.
-func DieRelease() <T>
+    // DieRelease returns the resource managed by the die.
+    func DieRelease() <T>
 
-// DieReleasePtr returns a pointer to the resource managed by the die.
-func DieReleasePtr() *<T>
+    // DieReleasePtr returns a pointer to the resource managed by the die.
+    func DieReleasePtr() *<T>
 
-// DieImmutable returns a new die for the current die's state that is either
-// mutable (`false`) or immutable (`true`). 
-func DieImmutable(immutable bool) <T>Die
+    // DieImmutable returns a new die for the current die's state that is
+    // either mutable (`false`) or immutable (`true`). 
+    func DieImmutable(immutable bool) <T>Die
 
-// DeepCopy returns a new die with equivalent state. Useful for snapshotting a
-// mutable die.
-func DeepCopy() <T>Die
+    // DeepCopy returns a new die with equivalent state. Useful for
+    // snapshotting a mutable die.
+    func DeepCopy() <T>Die
+}
+```
+
+For each exported field `<F>` on `<T>`, a method is registered to set that field.
+
+```go
+type <T>Die interface {
+    // continued
+
+    <F>(<T>) <T>Die
+}
 ```
 
 Dies marked as implementing `metav1.Object` and `runtime.Object`  generate
 additional methods.
 
 ```go
-// DeepCopyObject returns a deep copy of the resource.
-func DeepCopyObject() runtime.Object
+type <T>Die interface {
+    // continued
 
-// GetObjectKind returns the resources's ObjectKind.
-func GetObjectKind() schema.ObjectKind
+    runtime.Object
+    metav1.Object
+    metav1.ObjectMetaAccessor
 
-// MarshalJSON returns the die's resource as JSON.
-func MarshalJSON() ([]byte, error)
+    // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+    func MetadataDie(fn func(d diemetav1.ObjectMetaDie)) <T>Die
 
-// UnmarshalJSON sets the die's resource from JSON.
-func UnmarshalJSON(b []byte) error
+    // SpecDie stamps the resource's spec field with a mutable die. This method
+    // is only created if `<T>SpecDie` is defined.
+    func SpecDie(fn func(d <T>SpecDie)) <T>Die
 
-// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
-func MetadataDie(fn func(d diemetav1.ObjectMetaDie)) <T>Die
-
-// SpecDie stamps the resource's spec field with a mutable die. This method is
-// only created if `<T>SpecDie` is defined.
-func SpecDie(fn func(d <T>SpecDie)) <T>Die
-
-// StatusDie stamps the resource's status field with a mutable die. This
-// method is only created if `<T>StatusDie` is defined.
-func StatusDie(fn func(d <T>StatusDie)) <T>Die
+    // StatusDie stamps the resource's status field with a mutable die. This
+    // method is only created if `<T>StatusDie` is defined.
+    func StatusDie(fn func(d <T>StatusDie)) <T>Die
+}
 ```
 
 ## Creating dies
@@ -178,7 +186,9 @@ type deploymentSpec interface {
 
 func (d *deploymentSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) DeploymentSpecDie {
     return d.DieStamp(func(r *appsv1.DeploymentSpec) {
-        d := diecorev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
+        d := diecorev1.PodTemplateSpecBlank.
+            DieImmutable(false).
+            DieFeed(r.Template)
         fn(d)
         r.Template = d.DieRelease()
     })
@@ -198,6 +208,7 @@ func (d *deploymentStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie
         r.Conditions = make([]appsv1.DeploymentCondition, len(conditions))
         for i := range conditions {
             c := conditions[i].DieRelease()
+            // coerce metav1.Condition to appsv1.DeploymentCondition
             r.Conditions[i] = appsv1.DeploymentCondition{
                 Type:               appsv1.DeploymentConditionType(c.Type),
                 Status:             corev1.ConditionStatus(c.Status),
@@ -236,13 +247,13 @@ import (
 )
 
 // +die:object=true
-type Deployment = appsv1.Deployment
+type _ = appsv1.Deployment
 
 // +die
-type DeploymentSpec = appsv1.DeploymentSpec
+type _ = appsv1.DeploymentSpec
 
 // +die
-type DeploymentStatus = appsv1.DeploymentStatus
+type _ = appsv1.DeploymentStatus
 ```
 
 Properties:
