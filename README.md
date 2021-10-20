@@ -226,7 +226,7 @@ func (d *deploymentStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie
 Install diegen:
 
 ```sg
-go install dies.dev/cmd/diegen
+go install dies.dev/diegen
 ```
 
 Create or update the generated dies:

@@ -1,4 +1,4 @@
-module dies.dev/cmd/diegen
+module dies.dev/diegen
 
 go 1.17
 
