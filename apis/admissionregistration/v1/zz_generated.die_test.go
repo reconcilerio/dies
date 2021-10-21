@@ -26,6 +26,42 @@ import (
 	testingx "testing"
 )
 
+func TestWebhookClientConfigDie_MissingMethods(t *testingx.T) {
+	die := WebhookClientConfigBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WebhookClientConfigDie: %s", diff.List())
+	}
+}
+
+func TestServiceReferenceDie_MissingMethods(t *testingx.T) {
+	die := ServiceReferenceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ServiceReferenceDie: %s", diff.List())
+	}
+}
+
+func TestRuleWithOperationsDie_MissingMethods(t *testingx.T) {
+	die := RuleWithOperationsBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for RuleWithOperationsDie: %s", diff.List())
+	}
+}
+
+func TestRuleDie_MissingMethods(t *testingx.T) {
+	die := RuleBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for RuleDie: %s", diff.List())
+	}
+}
+
 func TestMutatingWebhookConfigurationDie_MissingMethods(t *testingx.T) {
 	die := MutatingWebhookConfigurationBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
@@ -35,11 +71,29 @@ func TestMutatingWebhookConfigurationDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestMutatingWebhookDie_MissingMethods(t *testingx.T) {
+	die := MutatingWebhookBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for MutatingWebhookDie: %s", diff.List())
+	}
+}
+
 func TestValidatingWebhookConfigurationDie_MissingMethods(t *testingx.T) {
 	die := ValidatingWebhookConfigurationBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for ValidatingWebhookConfigurationDie: %s", diff.List())
+	}
+}
+
+func TestValidatingWebhookDie_MissingMethods(t *testingx.T) {
+	die := ValidatingWebhookBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ValidatingWebhookDie: %s", diff.List())
 	}
 }

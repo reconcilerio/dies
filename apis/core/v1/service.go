@@ -28,6 +28,64 @@ type _ = corev1.Service
 // +die
 type _ = corev1.ServiceSpec
 
+type serviceSpec interface {
+	PortDie(protocol corev1.Protocol, port int32, fn func(d ServicePortDie)) ServiceSpecDie
+	AddSelector(key, value string) ServiceSpecDie
+	SessionAffinityConfigDie(fn func(d SessionAffinityConfigDie)) ServiceSpecDie
+}
+
+func (d *serviceSpecDie) PortDie(protocol corev1.Protocol, port int32, fn func(d ServicePortDie)) ServiceSpecDie {
+	return d.DieStamp(func(r *corev1.ServiceSpec) {
+		for i := range r.Ports {
+			if protocol == r.Ports[i].Protocol && port == r.Ports[i].Port {
+				d := ServicePortBlank.DieImmutable(false).DieFeed(r.Ports[i])
+				fn(d)
+				r.Ports[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := ServicePortBlank.DieImmutable(false).DieFeed(corev1.ServicePort{Protocol: protocol, Port: port})
+		fn(d)
+		r.Ports = append(r.Ports, d.DieRelease())
+	})
+}
+
+func (d *serviceSpecDie) AddSelector(key, value string) ServiceSpecDie {
+	return d.DieStamp(func(r *corev1.ServiceSpec) {
+		r.Selector[key] = value
+	})
+}
+
+func (d *serviceSpecDie) SessionAffinityConfigDie(fn func(d SessionAffinityConfigDie)) ServiceSpecDie {
+	return d.DieStamp(func(r *corev1.ServiceSpec) {
+		d := SessionAffinityConfigBlank.DieImmutable(false).DieFeedPtr(r.SessionAffinityConfig)
+		fn(d)
+		r.SessionAffinityConfig = d.DieReleasePtr()
+	})
+}
+
+// +die
+type _ = corev1.ServicePort
+
+// +die
+type _ = corev1.SessionAffinityConfig
+
+type sessionAffinityConfig interface {
+	ClientIPDie(fn func(d ClientIPConfigDie)) SessionAffinityConfigDie
+}
+
+func (d *sessionAffinityConfigDie) ClientIPDie(fn func(d ClientIPConfigDie)) SessionAffinityConfigDie {
+	return d.DieStamp(func(r *corev1.SessionAffinityConfig) {
+		d := ClientIPConfigBlank.DieImmutable(false).DieFeedPtr(r.ClientIP)
+		fn(d)
+		r.ClientIP = d.DieReleasePtr()
+	})
+}
+
+// +die
+type _ = corev1.ClientIPConfig
+
 // +die
 type _ = corev1.ServiceStatus
 

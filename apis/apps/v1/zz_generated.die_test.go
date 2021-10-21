@@ -89,6 +89,24 @@ func TestDeploymentSpecDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestDeploymentStrategyDie_MissingMethods(t *testingx.T) {
+	die := DeploymentStrategyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for DeploymentStrategyDie: %s", diff.List())
+	}
+}
+
+func TestRollingUpdateDeploymentDie_MissingMethods(t *testingx.T) {
+	die := RollingUpdateDeploymentBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for RollingUpdateDeploymentDie: %s", diff.List())
+	}
+}
+
 func TestDeploymentStatusDie_MissingMethods(t *testingx.T) {
 	die := DeploymentStatusBlank
 	ignore := []string{}
@@ -140,6 +158,24 @@ func TestStatefulSetSpecDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for StatefulSetSpecDie: %s", diff.List())
+	}
+}
+
+func TestStatefulSetUpdateStrategyDie_MissingMethods(t *testingx.T) {
+	die := StatefulSetUpdateStrategyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for StatefulSetUpdateStrategyDie: %s", diff.List())
+	}
+}
+
+func TestRollingUpdateStatefulSetStrategyDie_MissingMethods(t *testingx.T) {
+	die := RollingUpdateStatefulSetStrategyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for RollingUpdateStatefulSetStrategyDie: %s", diff.List())
 	}
 }
 

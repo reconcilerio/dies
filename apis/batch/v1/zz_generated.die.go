@@ -30,6 +30,7 @@ import (
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	types "k8s.io/apimachinery/pkg/types"
 )
 
 type CronJobDie interface {
@@ -896,5 +897,100 @@ func (d *jobStatusDie) CompletedIndexes(v string) JobStatusDie {
 func (d *jobStatusDie) UncountedTerminatedPods(v *batchv1.UncountedTerminatedPods) JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.UncountedTerminatedPods = v
+	})
+}
+
+type UncountedTerminatedPodsDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *batchv1.UncountedTerminatedPods)) UncountedTerminatedPodsDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r batchv1.UncountedTerminatedPods) UncountedTerminatedPodsDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *batchv1.UncountedTerminatedPods) UncountedTerminatedPodsDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() batchv1.UncountedTerminatedPods
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *batchv1.UncountedTerminatedPods
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) UncountedTerminatedPodsDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() UncountedTerminatedPodsDie
+
+	// Succeeded holds UIDs of succeeded Pods.
+	Succeeded(Succeeded ...types.UID) UncountedTerminatedPodsDie
+	// Failed holds UIDs of failed Pods.
+	Failed(Failed ...types.UID) UncountedTerminatedPodsDie
+}
+
+var _ UncountedTerminatedPodsDie = (*uncountedTerminatedPodsDie)(nil)
+var UncountedTerminatedPodsBlank = (&uncountedTerminatedPodsDie{}).DieFeed(batchv1.UncountedTerminatedPods{})
+
+type uncountedTerminatedPodsDie struct {
+	mutable bool
+	r       batchv1.UncountedTerminatedPods
+}
+
+func (d *uncountedTerminatedPodsDie) DieImmutable(immutable bool) UncountedTerminatedPodsDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*uncountedTerminatedPodsDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *uncountedTerminatedPodsDie) DieFeed(r batchv1.UncountedTerminatedPods) UncountedTerminatedPodsDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &uncountedTerminatedPodsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *uncountedTerminatedPodsDie) DieFeedPtr(r *batchv1.UncountedTerminatedPods) UncountedTerminatedPodsDie {
+	if r == nil {
+		r = &batchv1.UncountedTerminatedPods{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *uncountedTerminatedPodsDie) DieRelease() batchv1.UncountedTerminatedPods {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *uncountedTerminatedPodsDie) DieReleasePtr() *batchv1.UncountedTerminatedPods {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *uncountedTerminatedPodsDie) DieStamp(fn func(r *batchv1.UncountedTerminatedPods)) UncountedTerminatedPodsDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *uncountedTerminatedPodsDie) DeepCopy() UncountedTerminatedPodsDie {
+	r := *d.r.DeepCopy()
+	return &uncountedTerminatedPodsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *uncountedTerminatedPodsDie) Succeeded(v ...types.UID) UncountedTerminatedPodsDie {
+	return d.DieStamp(func(r *batchv1.UncountedTerminatedPods) {
+		r.Succeeded = v
+	})
+}
+
+func (d *uncountedTerminatedPodsDie) Failed(v ...types.UID) UncountedTerminatedPodsDie {
+	return d.DieStamp(func(r *batchv1.UncountedTerminatedPods) {
+		r.Failed = v
 	})
 }

@@ -26,11 +26,12 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	corev1 "k8s.io/api/core/v1"
-	resource "k8s.io/apimachinery/pkg/api/resource"
+	"k8s.io/apimachinery/pkg/api/resource"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
+	intstr "k8s.io/apimachinery/pkg/util/intstr"
 )
 
 type ConfigMapDie interface {
@@ -418,6 +419,3277 @@ func (d *containerDie) TTY(v bool) ContainerDie {
 	})
 }
 
+type ContainerPortDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ContainerPort)) ContainerPortDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ContainerPort) ContainerPortDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ContainerPort) ContainerPortDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ContainerPort
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ContainerPort
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ContainerPortDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ContainerPortDie
+
+	// If specified, this must be an IANA_SVC_NAME and unique within the pod. Each named port in a pod must have a unique name. Name for the port that can be referred to by services.
+	Name(Name string) ContainerPortDie
+	// Number of port to expose on the host. If specified, this must be a valid port number, 0 < x < 65536. If HostNetwork is specified, this must match ContainerPort. Most containers do not need this.
+	HostPort(HostPort int32) ContainerPortDie
+	// Number of port to expose on the pod's IP address. This must be a valid port number, 0 < x < 65536.
+	ContainerPort(ContainerPort int32) ContainerPortDie
+	// Protocol for port. Must be UDP, TCP, or SCTP. Defaults to "TCP".
+	Protocol(Protocol corev1.Protocol) ContainerPortDie
+	// What host IP to bind the external port to.
+	HostIP(HostIP string) ContainerPortDie
+}
+
+var _ ContainerPortDie = (*containerPortDie)(nil)
+var ContainerPortBlank = (&containerPortDie{}).DieFeed(corev1.ContainerPort{})
+
+type containerPortDie struct {
+	mutable bool
+	r       corev1.ContainerPort
+}
+
+func (d *containerPortDie) DieImmutable(immutable bool) ContainerPortDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*containerPortDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *containerPortDie) DieFeed(r corev1.ContainerPort) ContainerPortDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &containerPortDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *containerPortDie) DieFeedPtr(r *corev1.ContainerPort) ContainerPortDie {
+	if r == nil {
+		r = &corev1.ContainerPort{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *containerPortDie) DieRelease() corev1.ContainerPort {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *containerPortDie) DieReleasePtr() *corev1.ContainerPort {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *containerPortDie) DieStamp(fn func(r *corev1.ContainerPort)) ContainerPortDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *containerPortDie) DeepCopy() ContainerPortDie {
+	r := *d.r.DeepCopy()
+	return &containerPortDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *containerPortDie) Name(v string) ContainerPortDie {
+	return d.DieStamp(func(r *corev1.ContainerPort) {
+		r.Name = v
+	})
+}
+
+func (d *containerPortDie) HostPort(v int32) ContainerPortDie {
+	return d.DieStamp(func(r *corev1.ContainerPort) {
+		r.HostPort = v
+	})
+}
+
+func (d *containerPortDie) ContainerPort(v int32) ContainerPortDie {
+	return d.DieStamp(func(r *corev1.ContainerPort) {
+		r.ContainerPort = v
+	})
+}
+
+func (d *containerPortDie) Protocol(v corev1.Protocol) ContainerPortDie {
+	return d.DieStamp(func(r *corev1.ContainerPort) {
+		r.Protocol = v
+	})
+}
+
+func (d *containerPortDie) HostIP(v string) ContainerPortDie {
+	return d.DieStamp(func(r *corev1.ContainerPort) {
+		r.HostIP = v
+	})
+}
+
+type EnvFromSourceDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.EnvFromSource)) EnvFromSourceDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.EnvFromSource) EnvFromSourceDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.EnvFromSource) EnvFromSourceDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.EnvFromSource
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.EnvFromSource
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) EnvFromSourceDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() EnvFromSourceDie
+
+	envFromSource
+	// An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
+	Prefix(Prefix string) EnvFromSourceDie
+	// The ConfigMap to select from
+	ConfigMapRef(ConfigMapRef *corev1.ConfigMapEnvSource) EnvFromSourceDie
+	// The Secret to select from
+	SecretRef(SecretRef *corev1.SecretEnvSource) EnvFromSourceDie
+}
+
+var _ EnvFromSourceDie = (*envFromSourceDie)(nil)
+var EnvFromSourceBlank = (&envFromSourceDie{}).DieFeed(corev1.EnvFromSource{})
+
+type envFromSourceDie struct {
+	mutable bool
+	r       corev1.EnvFromSource
+}
+
+func (d *envFromSourceDie) DieImmutable(immutable bool) EnvFromSourceDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*envFromSourceDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *envFromSourceDie) DieFeed(r corev1.EnvFromSource) EnvFromSourceDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &envFromSourceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *envFromSourceDie) DieFeedPtr(r *corev1.EnvFromSource) EnvFromSourceDie {
+	if r == nil {
+		r = &corev1.EnvFromSource{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *envFromSourceDie) DieRelease() corev1.EnvFromSource {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *envFromSourceDie) DieReleasePtr() *corev1.EnvFromSource {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *envFromSourceDie) DieStamp(fn func(r *corev1.EnvFromSource)) EnvFromSourceDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *envFromSourceDie) DeepCopy() EnvFromSourceDie {
+	r := *d.r.DeepCopy()
+	return &envFromSourceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *envFromSourceDie) Prefix(v string) EnvFromSourceDie {
+	return d.DieStamp(func(r *corev1.EnvFromSource) {
+		r.Prefix = v
+	})
+}
+
+func (d *envFromSourceDie) ConfigMapRef(v *corev1.ConfigMapEnvSource) EnvFromSourceDie {
+	return d.DieStamp(func(r *corev1.EnvFromSource) {
+		r.ConfigMapRef = v
+	})
+}
+
+func (d *envFromSourceDie) SecretRef(v *corev1.SecretEnvSource) EnvFromSourceDie {
+	return d.DieStamp(func(r *corev1.EnvFromSource) {
+		r.SecretRef = v
+	})
+}
+
+type ConfigMapEnvSourceDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ConfigMapEnvSource)) ConfigMapEnvSourceDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ConfigMapEnvSource) ConfigMapEnvSourceDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ConfigMapEnvSource) ConfigMapEnvSourceDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ConfigMapEnvSource
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ConfigMapEnvSource
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ConfigMapEnvSourceDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ConfigMapEnvSourceDie
+
+	configMapEnvSource
+	// The ConfigMap to select from.
+	LocalObjectReference(LocalObjectReference corev1.LocalObjectReference) ConfigMapEnvSourceDie
+	// Specify whether the ConfigMap must be defined
+	Optional(Optional *bool) ConfigMapEnvSourceDie
+}
+
+var _ ConfigMapEnvSourceDie = (*configMapEnvSourceDie)(nil)
+var ConfigMapEnvSourceBlank = (&configMapEnvSourceDie{}).DieFeed(corev1.ConfigMapEnvSource{})
+
+type configMapEnvSourceDie struct {
+	mutable bool
+	r       corev1.ConfigMapEnvSource
+}
+
+func (d *configMapEnvSourceDie) DieImmutable(immutable bool) ConfigMapEnvSourceDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*configMapEnvSourceDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *configMapEnvSourceDie) DieFeed(r corev1.ConfigMapEnvSource) ConfigMapEnvSourceDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &configMapEnvSourceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *configMapEnvSourceDie) DieFeedPtr(r *corev1.ConfigMapEnvSource) ConfigMapEnvSourceDie {
+	if r == nil {
+		r = &corev1.ConfigMapEnvSource{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *configMapEnvSourceDie) DieRelease() corev1.ConfigMapEnvSource {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *configMapEnvSourceDie) DieReleasePtr() *corev1.ConfigMapEnvSource {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *configMapEnvSourceDie) DieStamp(fn func(r *corev1.ConfigMapEnvSource)) ConfigMapEnvSourceDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *configMapEnvSourceDie) DeepCopy() ConfigMapEnvSourceDie {
+	r := *d.r.DeepCopy()
+	return &configMapEnvSourceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *configMapEnvSourceDie) LocalObjectReference(v corev1.LocalObjectReference) ConfigMapEnvSourceDie {
+	return d.DieStamp(func(r *corev1.ConfigMapEnvSource) {
+		r.LocalObjectReference = v
+	})
+}
+
+func (d *configMapEnvSourceDie) Optional(v *bool) ConfigMapEnvSourceDie {
+	return d.DieStamp(func(r *corev1.ConfigMapEnvSource) {
+		r.Optional = v
+	})
+}
+
+type SecretEnvSourceDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.SecretEnvSource)) SecretEnvSourceDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.SecretEnvSource) SecretEnvSourceDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.SecretEnvSource) SecretEnvSourceDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.SecretEnvSource
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.SecretEnvSource
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) SecretEnvSourceDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() SecretEnvSourceDie
+
+	secretEnvSource
+	// The Secret to select from.
+	LocalObjectReference(LocalObjectReference corev1.LocalObjectReference) SecretEnvSourceDie
+	// Specify whether the Secret must be defined
+	Optional(Optional *bool) SecretEnvSourceDie
+}
+
+var _ SecretEnvSourceDie = (*secretEnvSourceDie)(nil)
+var SecretEnvSourceBlank = (&secretEnvSourceDie{}).DieFeed(corev1.SecretEnvSource{})
+
+type secretEnvSourceDie struct {
+	mutable bool
+	r       corev1.SecretEnvSource
+}
+
+func (d *secretEnvSourceDie) DieImmutable(immutable bool) SecretEnvSourceDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*secretEnvSourceDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *secretEnvSourceDie) DieFeed(r corev1.SecretEnvSource) SecretEnvSourceDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &secretEnvSourceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *secretEnvSourceDie) DieFeedPtr(r *corev1.SecretEnvSource) SecretEnvSourceDie {
+	if r == nil {
+		r = &corev1.SecretEnvSource{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *secretEnvSourceDie) DieRelease() corev1.SecretEnvSource {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *secretEnvSourceDie) DieReleasePtr() *corev1.SecretEnvSource {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *secretEnvSourceDie) DieStamp(fn func(r *corev1.SecretEnvSource)) SecretEnvSourceDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *secretEnvSourceDie) DeepCopy() SecretEnvSourceDie {
+	r := *d.r.DeepCopy()
+	return &secretEnvSourceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *secretEnvSourceDie) LocalObjectReference(v corev1.LocalObjectReference) SecretEnvSourceDie {
+	return d.DieStamp(func(r *corev1.SecretEnvSource) {
+		r.LocalObjectReference = v
+	})
+}
+
+func (d *secretEnvSourceDie) Optional(v *bool) SecretEnvSourceDie {
+	return d.DieStamp(func(r *corev1.SecretEnvSource) {
+		r.Optional = v
+	})
+}
+
+type EnvVarDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.EnvVar)) EnvVarDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.EnvVar) EnvVarDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.EnvVar) EnvVarDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.EnvVar
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.EnvVar
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) EnvVarDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() EnvVarDie
+
+	envVar
+	// Name of the environment variable. Must be a C_IDENTIFIER.
+	Name(Name string) EnvVarDie
+	// Variable references $(VAR_NAME) are expanded using the previously defined environment variables in the container and any service environment variables. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. "$$(VAR_NAME)" will produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless of whether the variable exists or not. Defaults to "".
+	Value(Value string) EnvVarDie
+	// Source for the environment variable's value. Cannot be used if value is not empty.
+	ValueFrom(ValueFrom *corev1.EnvVarSource) EnvVarDie
+}
+
+var _ EnvVarDie = (*envVarDie)(nil)
+var EnvVarBlank = (&envVarDie{}).DieFeed(corev1.EnvVar{})
+
+type envVarDie struct {
+	mutable bool
+	r       corev1.EnvVar
+}
+
+func (d *envVarDie) DieImmutable(immutable bool) EnvVarDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*envVarDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *envVarDie) DieFeed(r corev1.EnvVar) EnvVarDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &envVarDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *envVarDie) DieFeedPtr(r *corev1.EnvVar) EnvVarDie {
+	if r == nil {
+		r = &corev1.EnvVar{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *envVarDie) DieRelease() corev1.EnvVar {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *envVarDie) DieReleasePtr() *corev1.EnvVar {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *envVarDie) DieStamp(fn func(r *corev1.EnvVar)) EnvVarDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *envVarDie) DeepCopy() EnvVarDie {
+	r := *d.r.DeepCopy()
+	return &envVarDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *envVarDie) Name(v string) EnvVarDie {
+	return d.DieStamp(func(r *corev1.EnvVar) {
+		r.Name = v
+	})
+}
+
+func (d *envVarDie) Value(v string) EnvVarDie {
+	return d.DieStamp(func(r *corev1.EnvVar) {
+		r.Value = v
+	})
+}
+
+func (d *envVarDie) ValueFrom(v *corev1.EnvVarSource) EnvVarDie {
+	return d.DieStamp(func(r *corev1.EnvVar) {
+		r.ValueFrom = v
+	})
+}
+
+type EnvVarSourceDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.EnvVarSource)) EnvVarSourceDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.EnvVarSource) EnvVarSourceDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.EnvVarSource) EnvVarSourceDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.EnvVarSource
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.EnvVarSource
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) EnvVarSourceDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() EnvVarSourceDie
+
+	envVarSource
+	// Selects a field of the pod: supports metadata.name, metadata.namespace, `metadata.labels['<KEY>']`, `metadata.annotations['<KEY>']`, spec.nodeName, spec.serviceAccountName, status.hostIP, status.podIP, status.podIPs.
+	FieldRef(FieldRef *corev1.ObjectFieldSelector) EnvVarSourceDie
+	// Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, limits.ephemeral-storage, requests.cpu, requests.memory and requests.ephemeral-storage) are currently supported.
+	ResourceFieldRef(ResourceFieldRef *corev1.ResourceFieldSelector) EnvVarSourceDie
+	// Selects a key of a ConfigMap.
+	ConfigMapKeyRef(ConfigMapKeyRef *corev1.ConfigMapKeySelector) EnvVarSourceDie
+	// Selects a key of a secret in the pod's namespace
+	SecretKeyRef(SecretKeyRef *corev1.SecretKeySelector) EnvVarSourceDie
+}
+
+var _ EnvVarSourceDie = (*envVarSourceDie)(nil)
+var EnvVarSourceBlank = (&envVarSourceDie{}).DieFeed(corev1.EnvVarSource{})
+
+type envVarSourceDie struct {
+	mutable bool
+	r       corev1.EnvVarSource
+}
+
+func (d *envVarSourceDie) DieImmutable(immutable bool) EnvVarSourceDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*envVarSourceDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *envVarSourceDie) DieFeed(r corev1.EnvVarSource) EnvVarSourceDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &envVarSourceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *envVarSourceDie) DieFeedPtr(r *corev1.EnvVarSource) EnvVarSourceDie {
+	if r == nil {
+		r = &corev1.EnvVarSource{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *envVarSourceDie) DieRelease() corev1.EnvVarSource {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *envVarSourceDie) DieReleasePtr() *corev1.EnvVarSource {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *envVarSourceDie) DieStamp(fn func(r *corev1.EnvVarSource)) EnvVarSourceDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *envVarSourceDie) DeepCopy() EnvVarSourceDie {
+	r := *d.r.DeepCopy()
+	return &envVarSourceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *envVarSourceDie) FieldRef(v *corev1.ObjectFieldSelector) EnvVarSourceDie {
+	return d.DieStamp(func(r *corev1.EnvVarSource) {
+		r.FieldRef = v
+	})
+}
+
+func (d *envVarSourceDie) ResourceFieldRef(v *corev1.ResourceFieldSelector) EnvVarSourceDie {
+	return d.DieStamp(func(r *corev1.EnvVarSource) {
+		r.ResourceFieldRef = v
+	})
+}
+
+func (d *envVarSourceDie) ConfigMapKeyRef(v *corev1.ConfigMapKeySelector) EnvVarSourceDie {
+	return d.DieStamp(func(r *corev1.EnvVarSource) {
+		r.ConfigMapKeyRef = v
+	})
+}
+
+func (d *envVarSourceDie) SecretKeyRef(v *corev1.SecretKeySelector) EnvVarSourceDie {
+	return d.DieStamp(func(r *corev1.EnvVarSource) {
+		r.SecretKeyRef = v
+	})
+}
+
+type ObjectFieldSelectorDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ObjectFieldSelector)) ObjectFieldSelectorDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ObjectFieldSelector) ObjectFieldSelectorDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ObjectFieldSelector) ObjectFieldSelectorDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ObjectFieldSelector
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ObjectFieldSelector
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ObjectFieldSelectorDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ObjectFieldSelectorDie
+
+	// Version of the schema the FieldPath is written in terms of, defaults to "v1".
+	APIVersion(APIVersion string) ObjectFieldSelectorDie
+	// Path of the field to select in the specified API version.
+	FieldPath(FieldPath string) ObjectFieldSelectorDie
+}
+
+var _ ObjectFieldSelectorDie = (*objectFieldSelectorDie)(nil)
+var ObjectFieldSelectorBlank = (&objectFieldSelectorDie{}).DieFeed(corev1.ObjectFieldSelector{})
+
+type objectFieldSelectorDie struct {
+	mutable bool
+	r       corev1.ObjectFieldSelector
+}
+
+func (d *objectFieldSelectorDie) DieImmutable(immutable bool) ObjectFieldSelectorDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*objectFieldSelectorDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *objectFieldSelectorDie) DieFeed(r corev1.ObjectFieldSelector) ObjectFieldSelectorDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &objectFieldSelectorDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *objectFieldSelectorDie) DieFeedPtr(r *corev1.ObjectFieldSelector) ObjectFieldSelectorDie {
+	if r == nil {
+		r = &corev1.ObjectFieldSelector{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *objectFieldSelectorDie) DieRelease() corev1.ObjectFieldSelector {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *objectFieldSelectorDie) DieReleasePtr() *corev1.ObjectFieldSelector {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *objectFieldSelectorDie) DieStamp(fn func(r *corev1.ObjectFieldSelector)) ObjectFieldSelectorDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *objectFieldSelectorDie) DeepCopy() ObjectFieldSelectorDie {
+	r := *d.r.DeepCopy()
+	return &objectFieldSelectorDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *objectFieldSelectorDie) APIVersion(v string) ObjectFieldSelectorDie {
+	return d.DieStamp(func(r *corev1.ObjectFieldSelector) {
+		r.APIVersion = v
+	})
+}
+
+func (d *objectFieldSelectorDie) FieldPath(v string) ObjectFieldSelectorDie {
+	return d.DieStamp(func(r *corev1.ObjectFieldSelector) {
+		r.FieldPath = v
+	})
+}
+
+type ResourceFieldSelectorDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ResourceFieldSelector)) ResourceFieldSelectorDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ResourceFieldSelector) ResourceFieldSelectorDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ResourceFieldSelector) ResourceFieldSelectorDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ResourceFieldSelector
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ResourceFieldSelector
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ResourceFieldSelectorDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ResourceFieldSelectorDie
+
+	// Container name: required for volumes, optional for env vars
+	ContainerName(ContainerName string) ResourceFieldSelectorDie
+	// Required: resource to select
+	Resource(Resource string) ResourceFieldSelectorDie
+	// Specifies the output format of the exposed resources, defaults to "1"
+	Divisor(Divisor resource.Quantity) ResourceFieldSelectorDie
+}
+
+var _ ResourceFieldSelectorDie = (*resourceFieldSelectorDie)(nil)
+var ResourceFieldSelectorBlank = (&resourceFieldSelectorDie{}).DieFeed(corev1.ResourceFieldSelector{})
+
+type resourceFieldSelectorDie struct {
+	mutable bool
+	r       corev1.ResourceFieldSelector
+}
+
+func (d *resourceFieldSelectorDie) DieImmutable(immutable bool) ResourceFieldSelectorDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*resourceFieldSelectorDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *resourceFieldSelectorDie) DieFeed(r corev1.ResourceFieldSelector) ResourceFieldSelectorDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &resourceFieldSelectorDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *resourceFieldSelectorDie) DieFeedPtr(r *corev1.ResourceFieldSelector) ResourceFieldSelectorDie {
+	if r == nil {
+		r = &corev1.ResourceFieldSelector{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *resourceFieldSelectorDie) DieRelease() corev1.ResourceFieldSelector {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *resourceFieldSelectorDie) DieReleasePtr() *corev1.ResourceFieldSelector {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *resourceFieldSelectorDie) DieStamp(fn func(r *corev1.ResourceFieldSelector)) ResourceFieldSelectorDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *resourceFieldSelectorDie) DeepCopy() ResourceFieldSelectorDie {
+	r := *d.r.DeepCopy()
+	return &resourceFieldSelectorDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *resourceFieldSelectorDie) ContainerName(v string) ResourceFieldSelectorDie {
+	return d.DieStamp(func(r *corev1.ResourceFieldSelector) {
+		r.ContainerName = v
+	})
+}
+
+func (d *resourceFieldSelectorDie) Resource(v string) ResourceFieldSelectorDie {
+	return d.DieStamp(func(r *corev1.ResourceFieldSelector) {
+		r.Resource = v
+	})
+}
+
+func (d *resourceFieldSelectorDie) Divisor(v resource.Quantity) ResourceFieldSelectorDie {
+	return d.DieStamp(func(r *corev1.ResourceFieldSelector) {
+		r.Divisor = v
+	})
+}
+
+type ConfigMapKeySelectorDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ConfigMapKeySelector)) ConfigMapKeySelectorDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ConfigMapKeySelector) ConfigMapKeySelectorDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ConfigMapKeySelector) ConfigMapKeySelectorDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ConfigMapKeySelector
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ConfigMapKeySelector
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ConfigMapKeySelectorDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ConfigMapKeySelectorDie
+
+	configMapKeySelector
+	// The ConfigMap to select from.
+	LocalObjectReference(LocalObjectReference corev1.LocalObjectReference) ConfigMapKeySelectorDie
+	// The key to select.
+	Key(Key string) ConfigMapKeySelectorDie
+	// Specify whether the ConfigMap or its key must be defined
+	Optional(Optional *bool) ConfigMapKeySelectorDie
+}
+
+var _ ConfigMapKeySelectorDie = (*configMapKeySelectorDie)(nil)
+var ConfigMapKeySelectorBlank = (&configMapKeySelectorDie{}).DieFeed(corev1.ConfigMapKeySelector{})
+
+type configMapKeySelectorDie struct {
+	mutable bool
+	r       corev1.ConfigMapKeySelector
+}
+
+func (d *configMapKeySelectorDie) DieImmutable(immutable bool) ConfigMapKeySelectorDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*configMapKeySelectorDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *configMapKeySelectorDie) DieFeed(r corev1.ConfigMapKeySelector) ConfigMapKeySelectorDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &configMapKeySelectorDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *configMapKeySelectorDie) DieFeedPtr(r *corev1.ConfigMapKeySelector) ConfigMapKeySelectorDie {
+	if r == nil {
+		r = &corev1.ConfigMapKeySelector{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *configMapKeySelectorDie) DieRelease() corev1.ConfigMapKeySelector {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *configMapKeySelectorDie) DieReleasePtr() *corev1.ConfigMapKeySelector {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *configMapKeySelectorDie) DieStamp(fn func(r *corev1.ConfigMapKeySelector)) ConfigMapKeySelectorDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *configMapKeySelectorDie) DeepCopy() ConfigMapKeySelectorDie {
+	r := *d.r.DeepCopy()
+	return &configMapKeySelectorDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *configMapKeySelectorDie) LocalObjectReference(v corev1.LocalObjectReference) ConfigMapKeySelectorDie {
+	return d.DieStamp(func(r *corev1.ConfigMapKeySelector) {
+		r.LocalObjectReference = v
+	})
+}
+
+func (d *configMapKeySelectorDie) Key(v string) ConfigMapKeySelectorDie {
+	return d.DieStamp(func(r *corev1.ConfigMapKeySelector) {
+		r.Key = v
+	})
+}
+
+func (d *configMapKeySelectorDie) Optional(v *bool) ConfigMapKeySelectorDie {
+	return d.DieStamp(func(r *corev1.ConfigMapKeySelector) {
+		r.Optional = v
+	})
+}
+
+type SecretKeySelectorDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.SecretKeySelector)) SecretKeySelectorDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.SecretKeySelector) SecretKeySelectorDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.SecretKeySelector) SecretKeySelectorDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.SecretKeySelector
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.SecretKeySelector
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) SecretKeySelectorDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() SecretKeySelectorDie
+
+	secretKeySelector
+	// The name of the secret in the pod's namespace to select from.
+	LocalObjectReference(LocalObjectReference corev1.LocalObjectReference) SecretKeySelectorDie
+	// The key of the secret to select from.  Must be a valid secret key.
+	Key(Key string) SecretKeySelectorDie
+	// Specify whether the Secret or its key must be defined
+	Optional(Optional *bool) SecretKeySelectorDie
+}
+
+var _ SecretKeySelectorDie = (*secretKeySelectorDie)(nil)
+var SecretKeySelectorBlank = (&secretKeySelectorDie{}).DieFeed(corev1.SecretKeySelector{})
+
+type secretKeySelectorDie struct {
+	mutable bool
+	r       corev1.SecretKeySelector
+}
+
+func (d *secretKeySelectorDie) DieImmutable(immutable bool) SecretKeySelectorDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*secretKeySelectorDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *secretKeySelectorDie) DieFeed(r corev1.SecretKeySelector) SecretKeySelectorDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &secretKeySelectorDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *secretKeySelectorDie) DieFeedPtr(r *corev1.SecretKeySelector) SecretKeySelectorDie {
+	if r == nil {
+		r = &corev1.SecretKeySelector{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *secretKeySelectorDie) DieRelease() corev1.SecretKeySelector {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *secretKeySelectorDie) DieReleasePtr() *corev1.SecretKeySelector {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *secretKeySelectorDie) DieStamp(fn func(r *corev1.SecretKeySelector)) SecretKeySelectorDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *secretKeySelectorDie) DeepCopy() SecretKeySelectorDie {
+	r := *d.r.DeepCopy()
+	return &secretKeySelectorDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *secretKeySelectorDie) LocalObjectReference(v corev1.LocalObjectReference) SecretKeySelectorDie {
+	return d.DieStamp(func(r *corev1.SecretKeySelector) {
+		r.LocalObjectReference = v
+	})
+}
+
+func (d *secretKeySelectorDie) Key(v string) SecretKeySelectorDie {
+	return d.DieStamp(func(r *corev1.SecretKeySelector) {
+		r.Key = v
+	})
+}
+
+func (d *secretKeySelectorDie) Optional(v *bool) SecretKeySelectorDie {
+	return d.DieStamp(func(r *corev1.SecretKeySelector) {
+		r.Optional = v
+	})
+}
+
+type ResourceRequirementsDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ResourceRequirements)) ResourceRequirementsDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ResourceRequirements) ResourceRequirementsDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ResourceRequirements) ResourceRequirementsDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ResourceRequirements
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ResourceRequirements
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ResourceRequirementsDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ResourceRequirementsDie
+
+	resourceRequirements
+	// Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	Limits(Limits corev1.ResourceList) ResourceRequirementsDie
+	// Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	Requests(Requests corev1.ResourceList) ResourceRequirementsDie
+}
+
+var _ ResourceRequirementsDie = (*resourceRequirementsDie)(nil)
+var ResourceRequirementsBlank = (&resourceRequirementsDie{}).DieFeed(corev1.ResourceRequirements{})
+
+type resourceRequirementsDie struct {
+	mutable bool
+	r       corev1.ResourceRequirements
+}
+
+func (d *resourceRequirementsDie) DieImmutable(immutable bool) ResourceRequirementsDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*resourceRequirementsDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *resourceRequirementsDie) DieFeed(r corev1.ResourceRequirements) ResourceRequirementsDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &resourceRequirementsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *resourceRequirementsDie) DieFeedPtr(r *corev1.ResourceRequirements) ResourceRequirementsDie {
+	if r == nil {
+		r = &corev1.ResourceRequirements{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *resourceRequirementsDie) DieRelease() corev1.ResourceRequirements {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *resourceRequirementsDie) DieReleasePtr() *corev1.ResourceRequirements {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *resourceRequirementsDie) DieStamp(fn func(r *corev1.ResourceRequirements)) ResourceRequirementsDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *resourceRequirementsDie) DeepCopy() ResourceRequirementsDie {
+	r := *d.r.DeepCopy()
+	return &resourceRequirementsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *resourceRequirementsDie) Limits(v corev1.ResourceList) ResourceRequirementsDie {
+	return d.DieStamp(func(r *corev1.ResourceRequirements) {
+		r.Limits = v
+	})
+}
+
+func (d *resourceRequirementsDie) Requests(v corev1.ResourceList) ResourceRequirementsDie {
+	return d.DieStamp(func(r *corev1.ResourceRequirements) {
+		r.Requests = v
+	})
+}
+
+type VolumeMountDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.VolumeMount)) VolumeMountDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.VolumeMount) VolumeMountDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.VolumeMount) VolumeMountDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.VolumeMount
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.VolumeMount
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) VolumeMountDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() VolumeMountDie
+
+	// This must match the Name of a Volume.
+	Name(Name string) VolumeMountDie
+	// Mounted read-only if true, read-write otherwise (false or unspecified). Defaults to false.
+	ReadOnly(ReadOnly bool) VolumeMountDie
+	// Path within the container at which the volume should be mounted.  Must not contain ':'.
+	MountPath(MountPath string) VolumeMountDie
+	// Path within the volume from which the container's volume should be mounted. Defaults to "" (volume's root).
+	SubPath(SubPath string) VolumeMountDie
+	// mountPropagation determines how mounts are propagated from the host to container and the other way around. When not set, MountPropagationNone is used. This field is beta in 1.10.
+	MountPropagation(MountPropagation *corev1.MountPropagationMode) VolumeMountDie
+	// Expanded path within the volume from which the container's volume should be mounted. Behaves similarly to SubPath but environment variable references $(VAR_NAME) are expanded using the container's environment. Defaults to "" (volume's root). SubPathExpr and SubPath are mutually exclusive.
+	SubPathExpr(SubPathExpr string) VolumeMountDie
+}
+
+var _ VolumeMountDie = (*volumeMountDie)(nil)
+var VolumeMountBlank = (&volumeMountDie{}).DieFeed(corev1.VolumeMount{})
+
+type volumeMountDie struct {
+	mutable bool
+	r       corev1.VolumeMount
+}
+
+func (d *volumeMountDie) DieImmutable(immutable bool) VolumeMountDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*volumeMountDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *volumeMountDie) DieFeed(r corev1.VolumeMount) VolumeMountDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &volumeMountDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *volumeMountDie) DieFeedPtr(r *corev1.VolumeMount) VolumeMountDie {
+	if r == nil {
+		r = &corev1.VolumeMount{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *volumeMountDie) DieRelease() corev1.VolumeMount {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *volumeMountDie) DieReleasePtr() *corev1.VolumeMount {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *volumeMountDie) DieStamp(fn func(r *corev1.VolumeMount)) VolumeMountDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *volumeMountDie) DeepCopy() VolumeMountDie {
+	r := *d.r.DeepCopy()
+	return &volumeMountDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *volumeMountDie) Name(v string) VolumeMountDie {
+	return d.DieStamp(func(r *corev1.VolumeMount) {
+		r.Name = v
+	})
+}
+
+func (d *volumeMountDie) ReadOnly(v bool) VolumeMountDie {
+	return d.DieStamp(func(r *corev1.VolumeMount) {
+		r.ReadOnly = v
+	})
+}
+
+func (d *volumeMountDie) MountPath(v string) VolumeMountDie {
+	return d.DieStamp(func(r *corev1.VolumeMount) {
+		r.MountPath = v
+	})
+}
+
+func (d *volumeMountDie) SubPath(v string) VolumeMountDie {
+	return d.DieStamp(func(r *corev1.VolumeMount) {
+		r.SubPath = v
+	})
+}
+
+func (d *volumeMountDie) MountPropagation(v *corev1.MountPropagationMode) VolumeMountDie {
+	return d.DieStamp(func(r *corev1.VolumeMount) {
+		r.MountPropagation = v
+	})
+}
+
+func (d *volumeMountDie) SubPathExpr(v string) VolumeMountDie {
+	return d.DieStamp(func(r *corev1.VolumeMount) {
+		r.SubPathExpr = v
+	})
+}
+
+type VolumeDeviceDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.VolumeDevice)) VolumeDeviceDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.VolumeDevice) VolumeDeviceDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.VolumeDevice) VolumeDeviceDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.VolumeDevice
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.VolumeDevice
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) VolumeDeviceDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() VolumeDeviceDie
+
+	// name must match the name of a persistentVolumeClaim in the pod
+	Name(Name string) VolumeDeviceDie
+	// devicePath is the path inside of the container that the device will be mapped to.
+	DevicePath(DevicePath string) VolumeDeviceDie
+}
+
+var _ VolumeDeviceDie = (*volumeDeviceDie)(nil)
+var VolumeDeviceBlank = (&volumeDeviceDie{}).DieFeed(corev1.VolumeDevice{})
+
+type volumeDeviceDie struct {
+	mutable bool
+	r       corev1.VolumeDevice
+}
+
+func (d *volumeDeviceDie) DieImmutable(immutable bool) VolumeDeviceDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*volumeDeviceDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *volumeDeviceDie) DieFeed(r corev1.VolumeDevice) VolumeDeviceDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &volumeDeviceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *volumeDeviceDie) DieFeedPtr(r *corev1.VolumeDevice) VolumeDeviceDie {
+	if r == nil {
+		r = &corev1.VolumeDevice{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *volumeDeviceDie) DieRelease() corev1.VolumeDevice {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *volumeDeviceDie) DieReleasePtr() *corev1.VolumeDevice {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *volumeDeviceDie) DieStamp(fn func(r *corev1.VolumeDevice)) VolumeDeviceDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *volumeDeviceDie) DeepCopy() VolumeDeviceDie {
+	r := *d.r.DeepCopy()
+	return &volumeDeviceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *volumeDeviceDie) Name(v string) VolumeDeviceDie {
+	return d.DieStamp(func(r *corev1.VolumeDevice) {
+		r.Name = v
+	})
+}
+
+func (d *volumeDeviceDie) DevicePath(v string) VolumeDeviceDie {
+	return d.DieStamp(func(r *corev1.VolumeDevice) {
+		r.DevicePath = v
+	})
+}
+
+type ProbeDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.Probe)) ProbeDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.Probe) ProbeDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.Probe) ProbeDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.Probe
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.Probe
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ProbeDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ProbeDie
+
+	probe
+	// The action taken to determine the health of a container
+	Handler(Handler corev1.Handler) ProbeDie
+	// Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+	InitialDelaySeconds(InitialDelaySeconds int32) ProbeDie
+	// Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+	TimeoutSeconds(TimeoutSeconds int32) ProbeDie
+	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1.
+	PeriodSeconds(PeriodSeconds int32) ProbeDie
+	// Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+	SuccessThreshold(SuccessThreshold int32) ProbeDie
+	// Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.
+	FailureThreshold(FailureThreshold int32) ProbeDie
+	// Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+	TerminationGracePeriodSeconds(TerminationGracePeriodSeconds *int64) ProbeDie
+}
+
+var _ ProbeDie = (*probeDie)(nil)
+var ProbeBlank = (&probeDie{}).DieFeed(corev1.Probe{})
+
+type probeDie struct {
+	mutable bool
+	r       corev1.Probe
+}
+
+func (d *probeDie) DieImmutable(immutable bool) ProbeDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*probeDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *probeDie) DieFeed(r corev1.Probe) ProbeDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &probeDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *probeDie) DieFeedPtr(r *corev1.Probe) ProbeDie {
+	if r == nil {
+		r = &corev1.Probe{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *probeDie) DieRelease() corev1.Probe {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *probeDie) DieReleasePtr() *corev1.Probe {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *probeDie) DieStamp(fn func(r *corev1.Probe)) ProbeDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *probeDie) DeepCopy() ProbeDie {
+	r := *d.r.DeepCopy()
+	return &probeDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *probeDie) Handler(v corev1.Handler) ProbeDie {
+	return d.DieStamp(func(r *corev1.Probe) {
+		r.Handler = v
+	})
+}
+
+func (d *probeDie) InitialDelaySeconds(v int32) ProbeDie {
+	return d.DieStamp(func(r *corev1.Probe) {
+		r.InitialDelaySeconds = v
+	})
+}
+
+func (d *probeDie) TimeoutSeconds(v int32) ProbeDie {
+	return d.DieStamp(func(r *corev1.Probe) {
+		r.TimeoutSeconds = v
+	})
+}
+
+func (d *probeDie) PeriodSeconds(v int32) ProbeDie {
+	return d.DieStamp(func(r *corev1.Probe) {
+		r.PeriodSeconds = v
+	})
+}
+
+func (d *probeDie) SuccessThreshold(v int32) ProbeDie {
+	return d.DieStamp(func(r *corev1.Probe) {
+		r.SuccessThreshold = v
+	})
+}
+
+func (d *probeDie) FailureThreshold(v int32) ProbeDie {
+	return d.DieStamp(func(r *corev1.Probe) {
+		r.FailureThreshold = v
+	})
+}
+
+func (d *probeDie) TerminationGracePeriodSeconds(v *int64) ProbeDie {
+	return d.DieStamp(func(r *corev1.Probe) {
+		r.TerminationGracePeriodSeconds = v
+	})
+}
+
+type LifecycleDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.Lifecycle)) LifecycleDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.Lifecycle) LifecycleDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.Lifecycle) LifecycleDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.Lifecycle
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.Lifecycle
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) LifecycleDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() LifecycleDie
+
+	lifecycle
+	// PostStart is called immediately after a container is created. If the handler fails, the container is terminated and restarted according to its restart policy. Other management of the container blocks until the hook completes. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
+	PostStart(PostStart *corev1.Handler) LifecycleDie
+	// PreStop is called immediately before a container is terminated due to an API request or management event such as liveness/startup probe failure, preemption, resource contention, etc. The handler is not called if the container crashes or exits. The reason for termination is passed to the handler. The Pod's termination grace period countdown begins before the PreStop hooked is executed. Regardless of the outcome of the handler, the container will eventually terminate within the Pod's termination grace period. Other management of the container blocks until the hook completes or until the termination grace period is reached. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
+	PreStop(PreStop *corev1.Handler) LifecycleDie
+}
+
+var _ LifecycleDie = (*lifecycleDie)(nil)
+var LifecycleBlank = (&lifecycleDie{}).DieFeed(corev1.Lifecycle{})
+
+type lifecycleDie struct {
+	mutable bool
+	r       corev1.Lifecycle
+}
+
+func (d *lifecycleDie) DieImmutable(immutable bool) LifecycleDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*lifecycleDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *lifecycleDie) DieFeed(r corev1.Lifecycle) LifecycleDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &lifecycleDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *lifecycleDie) DieFeedPtr(r *corev1.Lifecycle) LifecycleDie {
+	if r == nil {
+		r = &corev1.Lifecycle{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *lifecycleDie) DieRelease() corev1.Lifecycle {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *lifecycleDie) DieReleasePtr() *corev1.Lifecycle {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *lifecycleDie) DieStamp(fn func(r *corev1.Lifecycle)) LifecycleDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *lifecycleDie) DeepCopy() LifecycleDie {
+	r := *d.r.DeepCopy()
+	return &lifecycleDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *lifecycleDie) PostStart(v *corev1.Handler) LifecycleDie {
+	return d.DieStamp(func(r *corev1.Lifecycle) {
+		r.PostStart = v
+	})
+}
+
+func (d *lifecycleDie) PreStop(v *corev1.Handler) LifecycleDie {
+	return d.DieStamp(func(r *corev1.Lifecycle) {
+		r.PreStop = v
+	})
+}
+
+type HandlerDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.Handler)) HandlerDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.Handler) HandlerDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.Handler) HandlerDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.Handler
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.Handler
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) HandlerDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() HandlerDie
+
+	handler
+	// One and only one of the following should be specified. Exec specifies the action to take.
+	Exec(Exec *corev1.ExecAction) HandlerDie
+	// HTTPGet specifies the http request to perform.
+	HTTPGet(HTTPGet *corev1.HTTPGetAction) HandlerDie
+	// TCPSocket specifies an action involving a TCP port. TCP hooks not yet supported TODO: implement a realistic TCP lifecycle hook
+	TCPSocket(TCPSocket *corev1.TCPSocketAction) HandlerDie
+}
+
+var _ HandlerDie = (*handlerDie)(nil)
+var HandlerBlank = (&handlerDie{}).DieFeed(corev1.Handler{})
+
+type handlerDie struct {
+	mutable bool
+	r       corev1.Handler
+}
+
+func (d *handlerDie) DieImmutable(immutable bool) HandlerDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*handlerDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *handlerDie) DieFeed(r corev1.Handler) HandlerDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &handlerDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *handlerDie) DieFeedPtr(r *corev1.Handler) HandlerDie {
+	if r == nil {
+		r = &corev1.Handler{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *handlerDie) DieRelease() corev1.Handler {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *handlerDie) DieReleasePtr() *corev1.Handler {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *handlerDie) DieStamp(fn func(r *corev1.Handler)) HandlerDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *handlerDie) DeepCopy() HandlerDie {
+	r := *d.r.DeepCopy()
+	return &handlerDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *handlerDie) Exec(v *corev1.ExecAction) HandlerDie {
+	return d.DieStamp(func(r *corev1.Handler) {
+		r.Exec = v
+	})
+}
+
+func (d *handlerDie) HTTPGet(v *corev1.HTTPGetAction) HandlerDie {
+	return d.DieStamp(func(r *corev1.Handler) {
+		r.HTTPGet = v
+	})
+}
+
+func (d *handlerDie) TCPSocket(v *corev1.TCPSocketAction) HandlerDie {
+	return d.DieStamp(func(r *corev1.Handler) {
+		r.TCPSocket = v
+	})
+}
+
+type ExecActionDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ExecAction)) ExecActionDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ExecAction) ExecActionDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ExecAction) ExecActionDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ExecAction
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ExecAction
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ExecActionDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ExecActionDie
+
+	// Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+	Command(Command ...string) ExecActionDie
+}
+
+var _ ExecActionDie = (*execActionDie)(nil)
+var ExecActionBlank = (&execActionDie{}).DieFeed(corev1.ExecAction{})
+
+type execActionDie struct {
+	mutable bool
+	r       corev1.ExecAction
+}
+
+func (d *execActionDie) DieImmutable(immutable bool) ExecActionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*execActionDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *execActionDie) DieFeed(r corev1.ExecAction) ExecActionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &execActionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *execActionDie) DieFeedPtr(r *corev1.ExecAction) ExecActionDie {
+	if r == nil {
+		r = &corev1.ExecAction{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *execActionDie) DieRelease() corev1.ExecAction {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *execActionDie) DieReleasePtr() *corev1.ExecAction {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *execActionDie) DieStamp(fn func(r *corev1.ExecAction)) ExecActionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *execActionDie) DeepCopy() ExecActionDie {
+	r := *d.r.DeepCopy()
+	return &execActionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *execActionDie) Command(v ...string) ExecActionDie {
+	return d.DieStamp(func(r *corev1.ExecAction) {
+		r.Command = v
+	})
+}
+
+type HTTPGetActionDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.HTTPGetAction)) HTTPGetActionDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.HTTPGetAction) HTTPGetActionDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.HTTPGetAction) HTTPGetActionDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.HTTPGetAction
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.HTTPGetAction
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) HTTPGetActionDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() HTTPGetActionDie
+
+	hTTPGetAction
+	// Path to access on the HTTP server.
+	Path(Path string) HTTPGetActionDie
+	// Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+	Port(Port intstr.IntOrString) HTTPGetActionDie
+	// Host name to connect to, defaults to the pod IP. You probably want to set "Host" in httpHeaders instead.
+	Host(Host string) HTTPGetActionDie
+	// Scheme to use for connecting to the host. Defaults to HTTP.
+	Scheme(Scheme corev1.URIScheme) HTTPGetActionDie
+	// Custom headers to set in the request. HTTP allows repeated headers.
+	HTTPHeaders(HTTPHeaders ...corev1.HTTPHeader) HTTPGetActionDie
+}
+
+var _ HTTPGetActionDie = (*hTTPGetActionDie)(nil)
+var HTTPGetActionBlank = (&hTTPGetActionDie{}).DieFeed(corev1.HTTPGetAction{})
+
+type hTTPGetActionDie struct {
+	mutable bool
+	r       corev1.HTTPGetAction
+}
+
+func (d *hTTPGetActionDie) DieImmutable(immutable bool) HTTPGetActionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*hTTPGetActionDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *hTTPGetActionDie) DieFeed(r corev1.HTTPGetAction) HTTPGetActionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &hTTPGetActionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *hTTPGetActionDie) DieFeedPtr(r *corev1.HTTPGetAction) HTTPGetActionDie {
+	if r == nil {
+		r = &corev1.HTTPGetAction{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *hTTPGetActionDie) DieRelease() corev1.HTTPGetAction {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *hTTPGetActionDie) DieReleasePtr() *corev1.HTTPGetAction {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *hTTPGetActionDie) DieStamp(fn func(r *corev1.HTTPGetAction)) HTTPGetActionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *hTTPGetActionDie) DeepCopy() HTTPGetActionDie {
+	r := *d.r.DeepCopy()
+	return &hTTPGetActionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *hTTPGetActionDie) Path(v string) HTTPGetActionDie {
+	return d.DieStamp(func(r *corev1.HTTPGetAction) {
+		r.Path = v
+	})
+}
+
+func (d *hTTPGetActionDie) Port(v intstr.IntOrString) HTTPGetActionDie {
+	return d.DieStamp(func(r *corev1.HTTPGetAction) {
+		r.Port = v
+	})
+}
+
+func (d *hTTPGetActionDie) PortInt(i int) HTTPGetActionDie {
+	return d.DieStamp(func(r *corev1.HTTPGetAction) {
+		v := intstr.FromInt(i)
+		r.Port = v
+	})
+}
+
+func (d *hTTPGetActionDie) PortString(s string) HTTPGetActionDie {
+	return d.DieStamp(func(r *corev1.HTTPGetAction) {
+		v := intstr.FromString(s)
+		r.Port = v
+	})
+}
+
+func (d *hTTPGetActionDie) Host(v string) HTTPGetActionDie {
+	return d.DieStamp(func(r *corev1.HTTPGetAction) {
+		r.Host = v
+	})
+}
+
+func (d *hTTPGetActionDie) Scheme(v corev1.URIScheme) HTTPGetActionDie {
+	return d.DieStamp(func(r *corev1.HTTPGetAction) {
+		r.Scheme = v
+	})
+}
+
+func (d *hTTPGetActionDie) HTTPHeaders(v ...corev1.HTTPHeader) HTTPGetActionDie {
+	return d.DieStamp(func(r *corev1.HTTPGetAction) {
+		r.HTTPHeaders = v
+	})
+}
+
+type HTTPHeaderDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.HTTPHeader)) HTTPHeaderDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.HTTPHeader) HTTPHeaderDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.HTTPHeader) HTTPHeaderDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.HTTPHeader
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.HTTPHeader
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) HTTPHeaderDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() HTTPHeaderDie
+
+	// The header field name
+	Name(Name string) HTTPHeaderDie
+	// The header field value
+	Value(Value string) HTTPHeaderDie
+}
+
+var _ HTTPHeaderDie = (*hTTPHeaderDie)(nil)
+var HTTPHeaderBlank = (&hTTPHeaderDie{}).DieFeed(corev1.HTTPHeader{})
+
+type hTTPHeaderDie struct {
+	mutable bool
+	r       corev1.HTTPHeader
+}
+
+func (d *hTTPHeaderDie) DieImmutable(immutable bool) HTTPHeaderDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*hTTPHeaderDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *hTTPHeaderDie) DieFeed(r corev1.HTTPHeader) HTTPHeaderDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &hTTPHeaderDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *hTTPHeaderDie) DieFeedPtr(r *corev1.HTTPHeader) HTTPHeaderDie {
+	if r == nil {
+		r = &corev1.HTTPHeader{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *hTTPHeaderDie) DieRelease() corev1.HTTPHeader {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *hTTPHeaderDie) DieReleasePtr() *corev1.HTTPHeader {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *hTTPHeaderDie) DieStamp(fn func(r *corev1.HTTPHeader)) HTTPHeaderDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *hTTPHeaderDie) DeepCopy() HTTPHeaderDie {
+	r := *d.r.DeepCopy()
+	return &hTTPHeaderDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *hTTPHeaderDie) Name(v string) HTTPHeaderDie {
+	return d.DieStamp(func(r *corev1.HTTPHeader) {
+		r.Name = v
+	})
+}
+
+func (d *hTTPHeaderDie) Value(v string) HTTPHeaderDie {
+	return d.DieStamp(func(r *corev1.HTTPHeader) {
+		r.Value = v
+	})
+}
+
+type TCPSocketActionDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.TCPSocketAction)) TCPSocketActionDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.TCPSocketAction) TCPSocketActionDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.TCPSocketAction) TCPSocketActionDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.TCPSocketAction
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.TCPSocketAction
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) TCPSocketActionDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() TCPSocketActionDie
+
+	// Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+	Port(Port intstr.IntOrString) TCPSocketActionDie
+	// Optional: Host name to connect to, defaults to the pod IP.
+	Host(Host string) TCPSocketActionDie
+}
+
+var _ TCPSocketActionDie = (*tCPSocketActionDie)(nil)
+var TCPSocketActionBlank = (&tCPSocketActionDie{}).DieFeed(corev1.TCPSocketAction{})
+
+type tCPSocketActionDie struct {
+	mutable bool
+	r       corev1.TCPSocketAction
+}
+
+func (d *tCPSocketActionDie) DieImmutable(immutable bool) TCPSocketActionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*tCPSocketActionDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *tCPSocketActionDie) DieFeed(r corev1.TCPSocketAction) TCPSocketActionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &tCPSocketActionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *tCPSocketActionDie) DieFeedPtr(r *corev1.TCPSocketAction) TCPSocketActionDie {
+	if r == nil {
+		r = &corev1.TCPSocketAction{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *tCPSocketActionDie) DieRelease() corev1.TCPSocketAction {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *tCPSocketActionDie) DieReleasePtr() *corev1.TCPSocketAction {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *tCPSocketActionDie) DieStamp(fn func(r *corev1.TCPSocketAction)) TCPSocketActionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *tCPSocketActionDie) DeepCopy() TCPSocketActionDie {
+	r := *d.r.DeepCopy()
+	return &tCPSocketActionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *tCPSocketActionDie) Port(v intstr.IntOrString) TCPSocketActionDie {
+	return d.DieStamp(func(r *corev1.TCPSocketAction) {
+		r.Port = v
+	})
+}
+
+func (d *tCPSocketActionDie) PortInt(i int) TCPSocketActionDie {
+	return d.DieStamp(func(r *corev1.TCPSocketAction) {
+		v := intstr.FromInt(i)
+		r.Port = v
+	})
+}
+
+func (d *tCPSocketActionDie) PortString(s string) TCPSocketActionDie {
+	return d.DieStamp(func(r *corev1.TCPSocketAction) {
+		v := intstr.FromString(s)
+		r.Port = v
+	})
+}
+
+func (d *tCPSocketActionDie) Host(v string) TCPSocketActionDie {
+	return d.DieStamp(func(r *corev1.TCPSocketAction) {
+		r.Host = v
+	})
+}
+
+type SecurityContextDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.SecurityContext)) SecurityContextDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.SecurityContext) SecurityContextDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.SecurityContext) SecurityContextDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.SecurityContext
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.SecurityContext
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) SecurityContextDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() SecurityContextDie
+
+	securityContext
+	// The capabilities to add/drop when running containers. Defaults to the default set of capabilities granted by the container runtime.
+	Capabilities(Capabilities *corev1.Capabilities) SecurityContextDie
+	// Run container in privileged mode. Processes in privileged containers are essentially equivalent to root on the host. Defaults to false.
+	Privileged(Privileged *bool) SecurityContextDie
+	// The SELinux context to be applied to the container. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+	SELinuxOptions(SELinuxOptions *corev1.SELinuxOptions) SecurityContextDie
+	// The Windows specific settings applied to all containers. If unspecified, the options from the PodSecurityContext will be used. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+	WindowsOptions(WindowsOptions *corev1.WindowsSecurityContextOptions) SecurityContextDie
+	// The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+	RunAsUser(RunAsUser *int64) SecurityContextDie
+	// The GID to run the entrypoint of the container process. Uses runtime default if unset. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+	RunAsGroup(RunAsGroup *int64) SecurityContextDie
+	// Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. If unset or false, no such validation will be performed. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+	RunAsNonRoot(RunAsNonRoot *bool) SecurityContextDie
+	// Whether this container has a read-only root filesystem. Default is false.
+	ReadOnlyRootFilesystem(ReadOnlyRootFilesystem *bool) SecurityContextDie
+	// AllowPrivilegeEscalation controls whether a process can gain more privileges than its parent process. This bool directly controls if the no_new_privs flag will be set on the container process. AllowPrivilegeEscalation is true always when the container is: 1) run as Privileged 2) has CAP_SYS_ADMIN
+	AllowPrivilegeEscalation(AllowPrivilegeEscalation *bool) SecurityContextDie
+	// procMount denotes the type of proc mount to use for the containers. The default is DefaultProcMount which uses the container runtime defaults for readonly paths and masked paths. This requires the ProcMountType feature flag to be enabled.
+	ProcMount(ProcMount *corev1.ProcMountType) SecurityContextDie
+	// The seccomp options to use by this container. If seccomp options are provided at both the pod & container level, the container options override the pod options.
+	SeccompProfile(SeccompProfile *corev1.SeccompProfile) SecurityContextDie
+}
+
+var _ SecurityContextDie = (*securityContextDie)(nil)
+var SecurityContextBlank = (&securityContextDie{}).DieFeed(corev1.SecurityContext{})
+
+type securityContextDie struct {
+	mutable bool
+	r       corev1.SecurityContext
+}
+
+func (d *securityContextDie) DieImmutable(immutable bool) SecurityContextDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*securityContextDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *securityContextDie) DieFeed(r corev1.SecurityContext) SecurityContextDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &securityContextDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *securityContextDie) DieFeedPtr(r *corev1.SecurityContext) SecurityContextDie {
+	if r == nil {
+		r = &corev1.SecurityContext{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *securityContextDie) DieRelease() corev1.SecurityContext {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *securityContextDie) DieReleasePtr() *corev1.SecurityContext {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *securityContextDie) DieStamp(fn func(r *corev1.SecurityContext)) SecurityContextDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *securityContextDie) DeepCopy() SecurityContextDie {
+	r := *d.r.DeepCopy()
+	return &securityContextDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *securityContextDie) Capabilities(v *corev1.Capabilities) SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		r.Capabilities = v
+	})
+}
+
+func (d *securityContextDie) Privileged(v *bool) SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		r.Privileged = v
+	})
+}
+
+func (d *securityContextDie) SELinuxOptions(v *corev1.SELinuxOptions) SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		r.SELinuxOptions = v
+	})
+}
+
+func (d *securityContextDie) WindowsOptions(v *corev1.WindowsSecurityContextOptions) SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		r.WindowsOptions = v
+	})
+}
+
+func (d *securityContextDie) RunAsUser(v *int64) SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		r.RunAsUser = v
+	})
+}
+
+func (d *securityContextDie) RunAsGroup(v *int64) SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		r.RunAsGroup = v
+	})
+}
+
+func (d *securityContextDie) RunAsNonRoot(v *bool) SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		r.RunAsNonRoot = v
+	})
+}
+
+func (d *securityContextDie) ReadOnlyRootFilesystem(v *bool) SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		r.ReadOnlyRootFilesystem = v
+	})
+}
+
+func (d *securityContextDie) AllowPrivilegeEscalation(v *bool) SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		r.AllowPrivilegeEscalation = v
+	})
+}
+
+func (d *securityContextDie) ProcMount(v *corev1.ProcMountType) SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		r.ProcMount = v
+	})
+}
+
+func (d *securityContextDie) SeccompProfile(v *corev1.SeccompProfile) SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		r.SeccompProfile = v
+	})
+}
+
+type CapabilitiesDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.Capabilities)) CapabilitiesDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.Capabilities) CapabilitiesDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.Capabilities) CapabilitiesDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.Capabilities
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.Capabilities
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) CapabilitiesDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() CapabilitiesDie
+
+	// Added capabilities
+	Add(Add ...corev1.Capability) CapabilitiesDie
+	// Removed capabilities
+	Drop(Drop ...corev1.Capability) CapabilitiesDie
+}
+
+var _ CapabilitiesDie = (*capabilitiesDie)(nil)
+var CapabilitiesBlank = (&capabilitiesDie{}).DieFeed(corev1.Capabilities{})
+
+type capabilitiesDie struct {
+	mutable bool
+	r       corev1.Capabilities
+}
+
+func (d *capabilitiesDie) DieImmutable(immutable bool) CapabilitiesDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*capabilitiesDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *capabilitiesDie) DieFeed(r corev1.Capabilities) CapabilitiesDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &capabilitiesDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *capabilitiesDie) DieFeedPtr(r *corev1.Capabilities) CapabilitiesDie {
+	if r == nil {
+		r = &corev1.Capabilities{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *capabilitiesDie) DieRelease() corev1.Capabilities {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *capabilitiesDie) DieReleasePtr() *corev1.Capabilities {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *capabilitiesDie) DieStamp(fn func(r *corev1.Capabilities)) CapabilitiesDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *capabilitiesDie) DeepCopy() CapabilitiesDie {
+	r := *d.r.DeepCopy()
+	return &capabilitiesDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *capabilitiesDie) Add(v ...corev1.Capability) CapabilitiesDie {
+	return d.DieStamp(func(r *corev1.Capabilities) {
+		r.Add = v
+	})
+}
+
+func (d *capabilitiesDie) Drop(v ...corev1.Capability) CapabilitiesDie {
+	return d.DieStamp(func(r *corev1.Capabilities) {
+		r.Drop = v
+	})
+}
+
+type SELinuxOptionsDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.SELinuxOptions)) SELinuxOptionsDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.SELinuxOptions) SELinuxOptionsDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.SELinuxOptions) SELinuxOptionsDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.SELinuxOptions
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.SELinuxOptions
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) SELinuxOptionsDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() SELinuxOptionsDie
+
+	// User is a SELinux user label that applies to the container.
+	User(User string) SELinuxOptionsDie
+	// Role is a SELinux role label that applies to the container.
+	Role(Role string) SELinuxOptionsDie
+	// Type is a SELinux type label that applies to the container.
+	Type(Type string) SELinuxOptionsDie
+	// Level is SELinux level label that applies to the container.
+	Level(Level string) SELinuxOptionsDie
+}
+
+var _ SELinuxOptionsDie = (*sELinuxOptionsDie)(nil)
+var SELinuxOptionsBlank = (&sELinuxOptionsDie{}).DieFeed(corev1.SELinuxOptions{})
+
+type sELinuxOptionsDie struct {
+	mutable bool
+	r       corev1.SELinuxOptions
+}
+
+func (d *sELinuxOptionsDie) DieImmutable(immutable bool) SELinuxOptionsDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*sELinuxOptionsDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *sELinuxOptionsDie) DieFeed(r corev1.SELinuxOptions) SELinuxOptionsDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &sELinuxOptionsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *sELinuxOptionsDie) DieFeedPtr(r *corev1.SELinuxOptions) SELinuxOptionsDie {
+	if r == nil {
+		r = &corev1.SELinuxOptions{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *sELinuxOptionsDie) DieRelease() corev1.SELinuxOptions {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *sELinuxOptionsDie) DieReleasePtr() *corev1.SELinuxOptions {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *sELinuxOptionsDie) DieStamp(fn func(r *corev1.SELinuxOptions)) SELinuxOptionsDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *sELinuxOptionsDie) DeepCopy() SELinuxOptionsDie {
+	r := *d.r.DeepCopy()
+	return &sELinuxOptionsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *sELinuxOptionsDie) User(v string) SELinuxOptionsDie {
+	return d.DieStamp(func(r *corev1.SELinuxOptions) {
+		r.User = v
+	})
+}
+
+func (d *sELinuxOptionsDie) Role(v string) SELinuxOptionsDie {
+	return d.DieStamp(func(r *corev1.SELinuxOptions) {
+		r.Role = v
+	})
+}
+
+func (d *sELinuxOptionsDie) Type(v string) SELinuxOptionsDie {
+	return d.DieStamp(func(r *corev1.SELinuxOptions) {
+		r.Type = v
+	})
+}
+
+func (d *sELinuxOptionsDie) Level(v string) SELinuxOptionsDie {
+	return d.DieStamp(func(r *corev1.SELinuxOptions) {
+		r.Level = v
+	})
+}
+
+type WindowsSecurityContextOptionsDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.WindowsSecurityContextOptions)) WindowsSecurityContextOptionsDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.WindowsSecurityContextOptions) WindowsSecurityContextOptionsDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.WindowsSecurityContextOptions) WindowsSecurityContextOptionsDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.WindowsSecurityContextOptions
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.WindowsSecurityContextOptions
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) WindowsSecurityContextOptionsDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() WindowsSecurityContextOptionsDie
+
+	// GMSACredentialSpecName is the name of the GMSA credential spec to use.
+	GMSACredentialSpecName(GMSACredentialSpecName *string) WindowsSecurityContextOptionsDie
+	// GMSACredentialSpec is where the GMSA admission webhook (https://github.com/kubernetes-sigs/windows-gmsa) inlines the contents of the GMSA credential spec named by the GMSACredentialSpecName field.
+	GMSACredentialSpec(GMSACredentialSpec *string) WindowsSecurityContextOptionsDie
+	// The UserName in Windows to run the entrypoint of the container process. Defaults to the user specified in image metadata if unspecified. May also be set in PodSecurityContext. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+	RunAsUserName(RunAsUserName *string) WindowsSecurityContextOptionsDie
+	// HostProcess determines if a container should be run as a 'Host Process' container. This field is alpha-level and will only be honored by components that enable the WindowsHostProcessContainers feature flag. Setting this field without the feature flag will result in errors when validating the Pod. All of a Pod's containers must have the same effective HostProcess value (it is not allowed to have a mix of HostProcess containers and non-HostProcess containers).  In addition, if HostProcess is true then HostNetwork must also be set to true.
+	HostProcess(HostProcess *bool) WindowsSecurityContextOptionsDie
+}
+
+var _ WindowsSecurityContextOptionsDie = (*windowsSecurityContextOptionsDie)(nil)
+var WindowsSecurityContextOptionsBlank = (&windowsSecurityContextOptionsDie{}).DieFeed(corev1.WindowsSecurityContextOptions{})
+
+type windowsSecurityContextOptionsDie struct {
+	mutable bool
+	r       corev1.WindowsSecurityContextOptions
+}
+
+func (d *windowsSecurityContextOptionsDie) DieImmutable(immutable bool) WindowsSecurityContextOptionsDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*windowsSecurityContextOptionsDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *windowsSecurityContextOptionsDie) DieFeed(r corev1.WindowsSecurityContextOptions) WindowsSecurityContextOptionsDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &windowsSecurityContextOptionsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *windowsSecurityContextOptionsDie) DieFeedPtr(r *corev1.WindowsSecurityContextOptions) WindowsSecurityContextOptionsDie {
+	if r == nil {
+		r = &corev1.WindowsSecurityContextOptions{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *windowsSecurityContextOptionsDie) DieRelease() corev1.WindowsSecurityContextOptions {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *windowsSecurityContextOptionsDie) DieReleasePtr() *corev1.WindowsSecurityContextOptions {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *windowsSecurityContextOptionsDie) DieStamp(fn func(r *corev1.WindowsSecurityContextOptions)) WindowsSecurityContextOptionsDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *windowsSecurityContextOptionsDie) DeepCopy() WindowsSecurityContextOptionsDie {
+	r := *d.r.DeepCopy()
+	return &windowsSecurityContextOptionsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *windowsSecurityContextOptionsDie) GMSACredentialSpecName(v *string) WindowsSecurityContextOptionsDie {
+	return d.DieStamp(func(r *corev1.WindowsSecurityContextOptions) {
+		r.GMSACredentialSpecName = v
+	})
+}
+
+func (d *windowsSecurityContextOptionsDie) GMSACredentialSpec(v *string) WindowsSecurityContextOptionsDie {
+	return d.DieStamp(func(r *corev1.WindowsSecurityContextOptions) {
+		r.GMSACredentialSpec = v
+	})
+}
+
+func (d *windowsSecurityContextOptionsDie) RunAsUserName(v *string) WindowsSecurityContextOptionsDie {
+	return d.DieStamp(func(r *corev1.WindowsSecurityContextOptions) {
+		r.RunAsUserName = v
+	})
+}
+
+func (d *windowsSecurityContextOptionsDie) HostProcess(v *bool) WindowsSecurityContextOptionsDie {
+	return d.DieStamp(func(r *corev1.WindowsSecurityContextOptions) {
+		r.HostProcess = v
+	})
+}
+
+type SeccompProfileDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.SeccompProfile)) SeccompProfileDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.SeccompProfile) SeccompProfileDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.SeccompProfile) SeccompProfileDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.SeccompProfile
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.SeccompProfile
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) SeccompProfileDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() SeccompProfileDie
+
+	// type indicates which kind of seccomp profile will be applied. Valid options are:
+	//
+	// Localhost - a profile defined in a file on the node should be used. RuntimeDefault - the container runtime default profile should be used. Unconfined - no profile should be applied.
+	Type(Type corev1.SeccompProfileType) SeccompProfileDie
+	// localhostProfile indicates a profile defined in a file on the node should be used. The profile must be preconfigured on the node to work. Must be a descending path, relative to the kubelet's configured seccomp profile location. Must only be set if type is "Localhost".
+	LocalhostProfile(LocalhostProfile *string) SeccompProfileDie
+}
+
+var _ SeccompProfileDie = (*seccompProfileDie)(nil)
+var SeccompProfileBlank = (&seccompProfileDie{}).DieFeed(corev1.SeccompProfile{})
+
+type seccompProfileDie struct {
+	mutable bool
+	r       corev1.SeccompProfile
+}
+
+func (d *seccompProfileDie) DieImmutable(immutable bool) SeccompProfileDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*seccompProfileDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *seccompProfileDie) DieFeed(r corev1.SeccompProfile) SeccompProfileDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &seccompProfileDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *seccompProfileDie) DieFeedPtr(r *corev1.SeccompProfile) SeccompProfileDie {
+	if r == nil {
+		r = &corev1.SeccompProfile{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *seccompProfileDie) DieRelease() corev1.SeccompProfile {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *seccompProfileDie) DieReleasePtr() *corev1.SeccompProfile {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *seccompProfileDie) DieStamp(fn func(r *corev1.SeccompProfile)) SeccompProfileDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *seccompProfileDie) DeepCopy() SeccompProfileDie {
+	r := *d.r.DeepCopy()
+	return &seccompProfileDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *seccompProfileDie) Type(v corev1.SeccompProfileType) SeccompProfileDie {
+	return d.DieStamp(func(r *corev1.SeccompProfile) {
+		r.Type = v
+	})
+}
+
+func (d *seccompProfileDie) LocalhostProfile(v *string) SeccompProfileDie {
+	return d.DieStamp(func(r *corev1.SeccompProfile) {
+		r.LocalhostProfile = v
+	})
+}
+
+type ContainerStatusDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ContainerStatus)) ContainerStatusDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ContainerStatus) ContainerStatusDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ContainerStatus) ContainerStatusDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ContainerStatus
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ContainerStatus
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ContainerStatusDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ContainerStatusDie
+
+	containerStatus
+	// This must be a DNS_LABEL. Each container in a pod must have a unique name. Cannot be updated.
+	Name(Name string) ContainerStatusDie
+	// Details about the container's current condition.
+	State(State corev1.ContainerState) ContainerStatusDie
+	// Details about the container's last termination condition.
+	LastTerminationState(LastTerminationState corev1.ContainerState) ContainerStatusDie
+	// Specifies whether the container has passed its readiness probe.
+	Ready(Ready bool) ContainerStatusDie
+	// The number of times the container has been restarted, currently based on the number of dead containers that have not yet been removed. Note that this is calculated from dead containers. But those containers are subject to garbage collection. This value will get capped at 5 by GC.
+	RestartCount(RestartCount int32) ContainerStatusDie
+	// The image the container is running. More info: https://kubernetes.io/docs/concepts/containers/images TODO(dchen1107): Which image the container is running with?
+	Image(Image string) ContainerStatusDie
+	// ImageID of the container's image.
+	ImageID(ImageID string) ContainerStatusDie
+	// Container's ID in the format 'docker://<container_id>'.
+	ContainerID(ContainerID string) ContainerStatusDie
+	// Specifies whether the container has passed its startup probe. Initialized as false, becomes true after startupProbe is considered successful. Resets to false when the container is restarted, or if kubelet loses state temporarily. Is always true when no startupProbe is defined.
+	Started(Started *bool) ContainerStatusDie
+}
+
+var _ ContainerStatusDie = (*containerStatusDie)(nil)
+var ContainerStatusBlank = (&containerStatusDie{}).DieFeed(corev1.ContainerStatus{})
+
+type containerStatusDie struct {
+	mutable bool
+	r       corev1.ContainerStatus
+}
+
+func (d *containerStatusDie) DieImmutable(immutable bool) ContainerStatusDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*containerStatusDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *containerStatusDie) DieFeed(r corev1.ContainerStatus) ContainerStatusDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &containerStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *containerStatusDie) DieFeedPtr(r *corev1.ContainerStatus) ContainerStatusDie {
+	if r == nil {
+		r = &corev1.ContainerStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *containerStatusDie) DieRelease() corev1.ContainerStatus {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *containerStatusDie) DieReleasePtr() *corev1.ContainerStatus {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *containerStatusDie) DieStamp(fn func(r *corev1.ContainerStatus)) ContainerStatusDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *containerStatusDie) DeepCopy() ContainerStatusDie {
+	r := *d.r.DeepCopy()
+	return &containerStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *containerStatusDie) Name(v string) ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		r.Name = v
+	})
+}
+
+func (d *containerStatusDie) State(v corev1.ContainerState) ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		r.State = v
+	})
+}
+
+func (d *containerStatusDie) LastTerminationState(v corev1.ContainerState) ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		r.LastTerminationState = v
+	})
+}
+
+func (d *containerStatusDie) Ready(v bool) ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		r.Ready = v
+	})
+}
+
+func (d *containerStatusDie) RestartCount(v int32) ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		r.RestartCount = v
+	})
+}
+
+func (d *containerStatusDie) Image(v string) ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		r.Image = v
+	})
+}
+
+func (d *containerStatusDie) ImageID(v string) ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		r.ImageID = v
+	})
+}
+
+func (d *containerStatusDie) ContainerID(v string) ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		r.ContainerID = v
+	})
+}
+
+func (d *containerStatusDie) Started(v *bool) ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		r.Started = v
+	})
+}
+
+type ContainerStateDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ContainerState)) ContainerStateDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ContainerState) ContainerStateDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ContainerState) ContainerStateDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ContainerState
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ContainerState
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ContainerStateDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ContainerStateDie
+
+	containerState
+	// Details about a waiting container
+	Waiting(Waiting *corev1.ContainerStateWaiting) ContainerStateDie
+	// Details about a running container
+	Running(Running *corev1.ContainerStateRunning) ContainerStateDie
+	// Details about a terminated container
+	Terminated(Terminated *corev1.ContainerStateTerminated) ContainerStateDie
+}
+
+var _ ContainerStateDie = (*containerStateDie)(nil)
+var ContainerStateBlank = (&containerStateDie{}).DieFeed(corev1.ContainerState{})
+
+type containerStateDie struct {
+	mutable bool
+	r       corev1.ContainerState
+}
+
+func (d *containerStateDie) DieImmutable(immutable bool) ContainerStateDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*containerStateDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *containerStateDie) DieFeed(r corev1.ContainerState) ContainerStateDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &containerStateDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *containerStateDie) DieFeedPtr(r *corev1.ContainerState) ContainerStateDie {
+	if r == nil {
+		r = &corev1.ContainerState{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *containerStateDie) DieRelease() corev1.ContainerState {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *containerStateDie) DieReleasePtr() *corev1.ContainerState {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *containerStateDie) DieStamp(fn func(r *corev1.ContainerState)) ContainerStateDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *containerStateDie) DeepCopy() ContainerStateDie {
+	r := *d.r.DeepCopy()
+	return &containerStateDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *containerStateDie) Waiting(v *corev1.ContainerStateWaiting) ContainerStateDie {
+	return d.DieStamp(func(r *corev1.ContainerState) {
+		r.Waiting = v
+	})
+}
+
+func (d *containerStateDie) Running(v *corev1.ContainerStateRunning) ContainerStateDie {
+	return d.DieStamp(func(r *corev1.ContainerState) {
+		r.Running = v
+	})
+}
+
+func (d *containerStateDie) Terminated(v *corev1.ContainerStateTerminated) ContainerStateDie {
+	return d.DieStamp(func(r *corev1.ContainerState) {
+		r.Terminated = v
+	})
+}
+
+type ContainerStateWaitingDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ContainerStateWaiting)) ContainerStateWaitingDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ContainerStateWaiting) ContainerStateWaitingDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ContainerStateWaiting) ContainerStateWaitingDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ContainerStateWaiting
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ContainerStateWaiting
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ContainerStateWaitingDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ContainerStateWaitingDie
+
+	// (brief) reason the container is not yet running.
+	Reason(Reason string) ContainerStateWaitingDie
+	// Message regarding why the container is not yet running.
+	Message(Message string) ContainerStateWaitingDie
+}
+
+var _ ContainerStateWaitingDie = (*containerStateWaitingDie)(nil)
+var ContainerStateWaitingBlank = (&containerStateWaitingDie{}).DieFeed(corev1.ContainerStateWaiting{})
+
+type containerStateWaitingDie struct {
+	mutable bool
+	r       corev1.ContainerStateWaiting
+}
+
+func (d *containerStateWaitingDie) DieImmutable(immutable bool) ContainerStateWaitingDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*containerStateWaitingDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *containerStateWaitingDie) DieFeed(r corev1.ContainerStateWaiting) ContainerStateWaitingDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &containerStateWaitingDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *containerStateWaitingDie) DieFeedPtr(r *corev1.ContainerStateWaiting) ContainerStateWaitingDie {
+	if r == nil {
+		r = &corev1.ContainerStateWaiting{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *containerStateWaitingDie) DieRelease() corev1.ContainerStateWaiting {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *containerStateWaitingDie) DieReleasePtr() *corev1.ContainerStateWaiting {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *containerStateWaitingDie) DieStamp(fn func(r *corev1.ContainerStateWaiting)) ContainerStateWaitingDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *containerStateWaitingDie) DeepCopy() ContainerStateWaitingDie {
+	r := *d.r.DeepCopy()
+	return &containerStateWaitingDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *containerStateWaitingDie) Reason(v string) ContainerStateWaitingDie {
+	return d.DieStamp(func(r *corev1.ContainerStateWaiting) {
+		r.Reason = v
+	})
+}
+
+func (d *containerStateWaitingDie) Message(v string) ContainerStateWaitingDie {
+	return d.DieStamp(func(r *corev1.ContainerStateWaiting) {
+		r.Message = v
+	})
+}
+
+type ContainerStateRunningDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ContainerStateRunning)) ContainerStateRunningDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ContainerStateRunning) ContainerStateRunningDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ContainerStateRunning) ContainerStateRunningDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ContainerStateRunning
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ContainerStateRunning
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ContainerStateRunningDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ContainerStateRunningDie
+
+	// Time at which the container was last (re-)started
+	StartedAt(StartedAt apismetav1.Time) ContainerStateRunningDie
+}
+
+var _ ContainerStateRunningDie = (*containerStateRunningDie)(nil)
+var ContainerStateRunningBlank = (&containerStateRunningDie{}).DieFeed(corev1.ContainerStateRunning{})
+
+type containerStateRunningDie struct {
+	mutable bool
+	r       corev1.ContainerStateRunning
+}
+
+func (d *containerStateRunningDie) DieImmutable(immutable bool) ContainerStateRunningDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*containerStateRunningDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *containerStateRunningDie) DieFeed(r corev1.ContainerStateRunning) ContainerStateRunningDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &containerStateRunningDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *containerStateRunningDie) DieFeedPtr(r *corev1.ContainerStateRunning) ContainerStateRunningDie {
+	if r == nil {
+		r = &corev1.ContainerStateRunning{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *containerStateRunningDie) DieRelease() corev1.ContainerStateRunning {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *containerStateRunningDie) DieReleasePtr() *corev1.ContainerStateRunning {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *containerStateRunningDie) DieStamp(fn func(r *corev1.ContainerStateRunning)) ContainerStateRunningDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *containerStateRunningDie) DeepCopy() ContainerStateRunningDie {
+	r := *d.r.DeepCopy()
+	return &containerStateRunningDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *containerStateRunningDie) StartedAt(v apismetav1.Time) ContainerStateRunningDie {
+	return d.DieStamp(func(r *corev1.ContainerStateRunning) {
+		r.StartedAt = v
+	})
+}
+
+type ContainerStateTerminatedDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ContainerStateTerminated)) ContainerStateTerminatedDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ContainerStateTerminated) ContainerStateTerminatedDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ContainerStateTerminated) ContainerStateTerminatedDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ContainerStateTerminated
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ContainerStateTerminated
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ContainerStateTerminatedDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ContainerStateTerminatedDie
+
+	// Exit status from the last termination of the container
+	ExitCode(ExitCode int32) ContainerStateTerminatedDie
+	// Signal from the last termination of the container
+	Signal(Signal int32) ContainerStateTerminatedDie
+	// (brief) reason from the last termination of the container
+	Reason(Reason string) ContainerStateTerminatedDie
+	// Message regarding the last termination of the container
+	Message(Message string) ContainerStateTerminatedDie
+	// Time at which previous execution of the container started
+	StartedAt(StartedAt apismetav1.Time) ContainerStateTerminatedDie
+	// Time at which the container last terminated
+	FinishedAt(FinishedAt apismetav1.Time) ContainerStateTerminatedDie
+	// Container's ID in the format 'docker://<container_id>'
+	ContainerID(ContainerID string) ContainerStateTerminatedDie
+}
+
+var _ ContainerStateTerminatedDie = (*containerStateTerminatedDie)(nil)
+var ContainerStateTerminatedBlank = (&containerStateTerminatedDie{}).DieFeed(corev1.ContainerStateTerminated{})
+
+type containerStateTerminatedDie struct {
+	mutable bool
+	r       corev1.ContainerStateTerminated
+}
+
+func (d *containerStateTerminatedDie) DieImmutable(immutable bool) ContainerStateTerminatedDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*containerStateTerminatedDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *containerStateTerminatedDie) DieFeed(r corev1.ContainerStateTerminated) ContainerStateTerminatedDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &containerStateTerminatedDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *containerStateTerminatedDie) DieFeedPtr(r *corev1.ContainerStateTerminated) ContainerStateTerminatedDie {
+	if r == nil {
+		r = &corev1.ContainerStateTerminated{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *containerStateTerminatedDie) DieRelease() corev1.ContainerStateTerminated {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *containerStateTerminatedDie) DieReleasePtr() *corev1.ContainerStateTerminated {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *containerStateTerminatedDie) DieStamp(fn func(r *corev1.ContainerStateTerminated)) ContainerStateTerminatedDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *containerStateTerminatedDie) DeepCopy() ContainerStateTerminatedDie {
+	r := *d.r.DeepCopy()
+	return &containerStateTerminatedDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *containerStateTerminatedDie) ExitCode(v int32) ContainerStateTerminatedDie {
+	return d.DieStamp(func(r *corev1.ContainerStateTerminated) {
+		r.ExitCode = v
+	})
+}
+
+func (d *containerStateTerminatedDie) Signal(v int32) ContainerStateTerminatedDie {
+	return d.DieStamp(func(r *corev1.ContainerStateTerminated) {
+		r.Signal = v
+	})
+}
+
+func (d *containerStateTerminatedDie) Reason(v string) ContainerStateTerminatedDie {
+	return d.DieStamp(func(r *corev1.ContainerStateTerminated) {
+		r.Reason = v
+	})
+}
+
+func (d *containerStateTerminatedDie) Message(v string) ContainerStateTerminatedDie {
+	return d.DieStamp(func(r *corev1.ContainerStateTerminated) {
+		r.Message = v
+	})
+}
+
+func (d *containerStateTerminatedDie) StartedAt(v apismetav1.Time) ContainerStateTerminatedDie {
+	return d.DieStamp(func(r *corev1.ContainerStateTerminated) {
+		r.StartedAt = v
+	})
+}
+
+func (d *containerStateTerminatedDie) FinishedAt(v apismetav1.Time) ContainerStateTerminatedDie {
+	return d.DieStamp(func(r *corev1.ContainerStateTerminated) {
+		r.FinishedAt = v
+	})
+}
+
+func (d *containerStateTerminatedDie) ContainerID(v string) ContainerStateTerminatedDie {
+	return d.DieStamp(func(r *corev1.ContainerStateTerminated) {
+		r.ContainerID = v
+	})
+}
+
 type EndpointsDie interface {
 	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
 	DieStamp(fn func(r *corev1.Endpoints)) EndpointsDie
@@ -434,6 +3706,7 @@ type EndpointsDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() EndpointsDie
 
+	endpoints
 	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
 	MetadataDie(fn func(d metav1.ObjectMetaDie)) EndpointsDie
 	// The set of all endpoints is the union of all subsets. Addresses are placed into subsets according to the IPs they share. A single address with multiple ports, some of which are ready and some of which are not (because they come from different containers) will result in the address being displayed in different subsets for the different ports. No address will appear in both Addresses and NotReadyAddresses in the same subset. Sets of addresses and ports that comprise a service.
@@ -546,6 +3819,333 @@ func (d *endpointsDie) Subsets(v ...corev1.EndpointSubset) EndpointsDie {
 	})
 }
 
+type EndpointSubsetDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.EndpointSubset)) EndpointSubsetDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.EndpointSubset) EndpointSubsetDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.EndpointSubset) EndpointSubsetDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.EndpointSubset
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.EndpointSubset
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) EndpointSubsetDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() EndpointSubsetDie
+
+	endpointSubset
+	// IP addresses which offer the related ports that are marked as ready. These endpoints should be considered safe for load balancers and clients to utilize.
+	Addresses(Addresses ...corev1.EndpointAddress) EndpointSubsetDie
+	// IP addresses which offer the related ports but are not currently marked as ready because they have not yet finished starting, have recently failed a readiness check, or have recently failed a liveness check.
+	NotReadyAddresses(NotReadyAddresses ...corev1.EndpointAddress) EndpointSubsetDie
+	// Port numbers available on the related IP addresses.
+	Ports(Ports ...corev1.EndpointPort) EndpointSubsetDie
+}
+
+var _ EndpointSubsetDie = (*endpointSubsetDie)(nil)
+var EndpointSubsetBlank = (&endpointSubsetDie{}).DieFeed(corev1.EndpointSubset{})
+
+type endpointSubsetDie struct {
+	mutable bool
+	r       corev1.EndpointSubset
+}
+
+func (d *endpointSubsetDie) DieImmutable(immutable bool) EndpointSubsetDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*endpointSubsetDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *endpointSubsetDie) DieFeed(r corev1.EndpointSubset) EndpointSubsetDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &endpointSubsetDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *endpointSubsetDie) DieFeedPtr(r *corev1.EndpointSubset) EndpointSubsetDie {
+	if r == nil {
+		r = &corev1.EndpointSubset{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *endpointSubsetDie) DieRelease() corev1.EndpointSubset {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *endpointSubsetDie) DieReleasePtr() *corev1.EndpointSubset {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *endpointSubsetDie) DieStamp(fn func(r *corev1.EndpointSubset)) EndpointSubsetDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *endpointSubsetDie) DeepCopy() EndpointSubsetDie {
+	r := *d.r.DeepCopy()
+	return &endpointSubsetDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *endpointSubsetDie) Addresses(v ...corev1.EndpointAddress) EndpointSubsetDie {
+	return d.DieStamp(func(r *corev1.EndpointSubset) {
+		r.Addresses = v
+	})
+}
+
+func (d *endpointSubsetDie) NotReadyAddresses(v ...corev1.EndpointAddress) EndpointSubsetDie {
+	return d.DieStamp(func(r *corev1.EndpointSubset) {
+		r.NotReadyAddresses = v
+	})
+}
+
+func (d *endpointSubsetDie) Ports(v ...corev1.EndpointPort) EndpointSubsetDie {
+	return d.DieStamp(func(r *corev1.EndpointSubset) {
+		r.Ports = v
+	})
+}
+
+type EndpointAddressDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.EndpointAddress)) EndpointAddressDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.EndpointAddress) EndpointAddressDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.EndpointAddress) EndpointAddressDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.EndpointAddress
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.EndpointAddress
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) EndpointAddressDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() EndpointAddressDie
+
+	endpointAddress
+	// The IP of this endpoint. May not be loopback (127.0.0.0/8), link-local (169.254.0.0/16), or link-local multicast ((224.0.0.0/24). IPv6 is also accepted but not fully supported on all platforms. Also, certain kubernetes components, like kube-proxy, are not IPv6 ready. TODO: This should allow hostname or IP, See #4447.
+	IP(IP string) EndpointAddressDie
+	// The Hostname of this endpoint
+	Hostname(Hostname string) EndpointAddressDie
+	// Optional: Node hosting this endpoint. This can be used to determine endpoints local to a node.
+	NodeName(NodeName *string) EndpointAddressDie
+	// Reference to object providing the endpoint.
+	TargetRef(TargetRef *corev1.ObjectReference) EndpointAddressDie
+}
+
+var _ EndpointAddressDie = (*endpointAddressDie)(nil)
+var EndpointAddressBlank = (&endpointAddressDie{}).DieFeed(corev1.EndpointAddress{})
+
+type endpointAddressDie struct {
+	mutable bool
+	r       corev1.EndpointAddress
+}
+
+func (d *endpointAddressDie) DieImmutable(immutable bool) EndpointAddressDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*endpointAddressDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *endpointAddressDie) DieFeed(r corev1.EndpointAddress) EndpointAddressDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &endpointAddressDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *endpointAddressDie) DieFeedPtr(r *corev1.EndpointAddress) EndpointAddressDie {
+	if r == nil {
+		r = &corev1.EndpointAddress{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *endpointAddressDie) DieRelease() corev1.EndpointAddress {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *endpointAddressDie) DieReleasePtr() *corev1.EndpointAddress {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *endpointAddressDie) DieStamp(fn func(r *corev1.EndpointAddress)) EndpointAddressDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *endpointAddressDie) DeepCopy() EndpointAddressDie {
+	r := *d.r.DeepCopy()
+	return &endpointAddressDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *endpointAddressDie) IP(v string) EndpointAddressDie {
+	return d.DieStamp(func(r *corev1.EndpointAddress) {
+		r.IP = v
+	})
+}
+
+func (d *endpointAddressDie) Hostname(v string) EndpointAddressDie {
+	return d.DieStamp(func(r *corev1.EndpointAddress) {
+		r.Hostname = v
+	})
+}
+
+func (d *endpointAddressDie) NodeName(v *string) EndpointAddressDie {
+	return d.DieStamp(func(r *corev1.EndpointAddress) {
+		r.NodeName = v
+	})
+}
+
+func (d *endpointAddressDie) TargetRef(v *corev1.ObjectReference) EndpointAddressDie {
+	return d.DieStamp(func(r *corev1.EndpointAddress) {
+		r.TargetRef = v
+	})
+}
+
+type EndpointPortDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.EndpointPort)) EndpointPortDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.EndpointPort) EndpointPortDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.EndpointPort) EndpointPortDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.EndpointPort
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.EndpointPort
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) EndpointPortDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() EndpointPortDie
+
+	// The name of this port.  This must match the 'name' field in the corresponding ServicePort. Must be a DNS_LABEL. Optional only if one port is defined.
+	Name(Name string) EndpointPortDie
+	// The port number of the endpoint.
+	Port(Port int32) EndpointPortDie
+	// The IP protocol for this port. Must be UDP, TCP, or SCTP. Default is TCP.
+	Protocol(Protocol corev1.Protocol) EndpointPortDie
+	// The application protocol for this port. This field follows standard Kubernetes label syntax. Un-prefixed names are reserved for IANA standard service names (as per RFC-6335 and http://www.iana.org/assignments/service-names). Non-standard protocols should use prefixed names such as mycompany.com/my-custom-protocol.
+	AppProtocol(AppProtocol *string) EndpointPortDie
+}
+
+var _ EndpointPortDie = (*endpointPortDie)(nil)
+var EndpointPortBlank = (&endpointPortDie{}).DieFeed(corev1.EndpointPort{})
+
+type endpointPortDie struct {
+	mutable bool
+	r       corev1.EndpointPort
+}
+
+func (d *endpointPortDie) DieImmutable(immutable bool) EndpointPortDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*endpointPortDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *endpointPortDie) DieFeed(r corev1.EndpointPort) EndpointPortDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &endpointPortDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *endpointPortDie) DieFeedPtr(r *corev1.EndpointPort) EndpointPortDie {
+	if r == nil {
+		r = &corev1.EndpointPort{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *endpointPortDie) DieRelease() corev1.EndpointPort {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *endpointPortDie) DieReleasePtr() *corev1.EndpointPort {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *endpointPortDie) DieStamp(fn func(r *corev1.EndpointPort)) EndpointPortDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *endpointPortDie) DeepCopy() EndpointPortDie {
+	r := *d.r.DeepCopy()
+	return &endpointPortDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *endpointPortDie) Name(v string) EndpointPortDie {
+	return d.DieStamp(func(r *corev1.EndpointPort) {
+		r.Name = v
+	})
+}
+
+func (d *endpointPortDie) Port(v int32) EndpointPortDie {
+	return d.DieStamp(func(r *corev1.EndpointPort) {
+		r.Port = v
+	})
+}
+
+func (d *endpointPortDie) Protocol(v corev1.Protocol) EndpointPortDie {
+	return d.DieStamp(func(r *corev1.EndpointPort) {
+		r.Protocol = v
+	})
+}
+
+func (d *endpointPortDie) AppProtocol(v *string) EndpointPortDie {
+	return d.DieStamp(func(r *corev1.EndpointPort) {
+		r.AppProtocol = v
+	})
+}
+
 type EventDie interface {
 	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
 	DieStamp(fn func(r *corev1.Event)) EventDie
@@ -562,6 +4162,7 @@ type EventDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() EventDie
 
+	event
 	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
 	MetadataDie(fn func(d metav1.ObjectMetaDie)) EventDie
 	// The object that this event is about.
@@ -778,6 +4379,196 @@ func (d *eventDie) ReportingInstance(v string) EventDie {
 	})
 }
 
+type EventSourceDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.EventSource)) EventSourceDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.EventSource) EventSourceDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.EventSource) EventSourceDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.EventSource
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.EventSource
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) EventSourceDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() EventSourceDie
+
+	// Component from which the event is generated.
+	Component(Component string) EventSourceDie
+	// Node name on which the event is generated.
+	Host(Host string) EventSourceDie
+}
+
+var _ EventSourceDie = (*eventSourceDie)(nil)
+var EventSourceBlank = (&eventSourceDie{}).DieFeed(corev1.EventSource{})
+
+type eventSourceDie struct {
+	mutable bool
+	r       corev1.EventSource
+}
+
+func (d *eventSourceDie) DieImmutable(immutable bool) EventSourceDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*eventSourceDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *eventSourceDie) DieFeed(r corev1.EventSource) EventSourceDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &eventSourceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *eventSourceDie) DieFeedPtr(r *corev1.EventSource) EventSourceDie {
+	if r == nil {
+		r = &corev1.EventSource{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *eventSourceDie) DieRelease() corev1.EventSource {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *eventSourceDie) DieReleasePtr() *corev1.EventSource {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *eventSourceDie) DieStamp(fn func(r *corev1.EventSource)) EventSourceDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *eventSourceDie) DeepCopy() EventSourceDie {
+	r := *d.r.DeepCopy()
+	return &eventSourceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *eventSourceDie) Component(v string) EventSourceDie {
+	return d.DieStamp(func(r *corev1.EventSource) {
+		r.Component = v
+	})
+}
+
+func (d *eventSourceDie) Host(v string) EventSourceDie {
+	return d.DieStamp(func(r *corev1.EventSource) {
+		r.Host = v
+	})
+}
+
+type EventSeriesDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.EventSeries)) EventSeriesDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.EventSeries) EventSeriesDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.EventSeries) EventSeriesDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.EventSeries
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.EventSeries
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) EventSeriesDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() EventSeriesDie
+
+	// Number of occurrences in this series up to the last heartbeat time
+	Count(Count int32) EventSeriesDie
+	// Time of the last occurrence observed
+	LastObservedTime(LastObservedTime apismetav1.MicroTime) EventSeriesDie
+}
+
+var _ EventSeriesDie = (*eventSeriesDie)(nil)
+var EventSeriesBlank = (&eventSeriesDie{}).DieFeed(corev1.EventSeries{})
+
+type eventSeriesDie struct {
+	mutable bool
+	r       corev1.EventSeries
+}
+
+func (d *eventSeriesDie) DieImmutable(immutable bool) EventSeriesDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*eventSeriesDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *eventSeriesDie) DieFeed(r corev1.EventSeries) EventSeriesDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &eventSeriesDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *eventSeriesDie) DieFeedPtr(r *corev1.EventSeries) EventSeriesDie {
+	if r == nil {
+		r = &corev1.EventSeries{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *eventSeriesDie) DieRelease() corev1.EventSeries {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *eventSeriesDie) DieReleasePtr() *corev1.EventSeries {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *eventSeriesDie) DieStamp(fn func(r *corev1.EventSeries)) EventSeriesDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *eventSeriesDie) DeepCopy() EventSeriesDie {
+	r := *d.r.DeepCopy()
+	return &eventSeriesDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *eventSeriesDie) Count(v int32) EventSeriesDie {
+	return d.DieStamp(func(r *corev1.EventSeries) {
+		r.Count = v
+	})
+}
+
+func (d *eventSeriesDie) LastObservedTime(v apismetav1.MicroTime) EventSeriesDie {
+	return d.DieStamp(func(r *corev1.EventSeries) {
+		r.LastObservedTime = v
+	})
+}
+
 type LimitRangeDie interface {
 	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
 	DieStamp(fn func(r *corev1.LimitRange)) LimitRangeDie
@@ -932,6 +4723,7 @@ type LimitRangeSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() LimitRangeSpecDie
 
+	limitRangeSpec
 	// Limits is the list of LimitRangeItem objects that are enforced.
 	Limits(Limits ...corev1.LimitRangeItem) LimitRangeSpecDie
 }
@@ -1000,6 +4792,134 @@ func (d *limitRangeSpecDie) DeepCopy() LimitRangeSpecDie {
 func (d *limitRangeSpecDie) Limits(v ...corev1.LimitRangeItem) LimitRangeSpecDie {
 	return d.DieStamp(func(r *corev1.LimitRangeSpec) {
 		r.Limits = v
+	})
+}
+
+type LimitRangeItemDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.LimitRangeItem)) LimitRangeItemDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.LimitRangeItem) LimitRangeItemDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.LimitRangeItem) LimitRangeItemDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.LimitRangeItem
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.LimitRangeItem
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) LimitRangeItemDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() LimitRangeItemDie
+
+	limitRangeItem
+	// Type of resource that this limit applies to.
+	Type(Type corev1.LimitType) LimitRangeItemDie
+	// Max usage constraints on this kind by resource name.
+	Max(Max corev1.ResourceList) LimitRangeItemDie
+	// Min usage constraints on this kind by resource name.
+	Min(Min corev1.ResourceList) LimitRangeItemDie
+	// Default resource requirement limit value by resource name if resource limit is omitted.
+	Default(Default corev1.ResourceList) LimitRangeItemDie
+	// DefaultRequest is the default resource requirement request value by resource name if resource request is omitted.
+	DefaultRequest(DefaultRequest corev1.ResourceList) LimitRangeItemDie
+	// MaxLimitRequestRatio if specified, the named resource must have a request and limit that are both non-zero where limit divided by request is less than or equal to the enumerated value; this represents the max burst for the named resource.
+	MaxLimitRequestRatio(MaxLimitRequestRatio corev1.ResourceList) LimitRangeItemDie
+}
+
+var _ LimitRangeItemDie = (*limitRangeItemDie)(nil)
+var LimitRangeItemBlank = (&limitRangeItemDie{}).DieFeed(corev1.LimitRangeItem{})
+
+type limitRangeItemDie struct {
+	mutable bool
+	r       corev1.LimitRangeItem
+}
+
+func (d *limitRangeItemDie) DieImmutable(immutable bool) LimitRangeItemDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*limitRangeItemDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *limitRangeItemDie) DieFeed(r corev1.LimitRangeItem) LimitRangeItemDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &limitRangeItemDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *limitRangeItemDie) DieFeedPtr(r *corev1.LimitRangeItem) LimitRangeItemDie {
+	if r == nil {
+		r = &corev1.LimitRangeItem{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *limitRangeItemDie) DieRelease() corev1.LimitRangeItem {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *limitRangeItemDie) DieReleasePtr() *corev1.LimitRangeItem {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *limitRangeItemDie) DieStamp(fn func(r *corev1.LimitRangeItem)) LimitRangeItemDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *limitRangeItemDie) DeepCopy() LimitRangeItemDie {
+	r := *d.r.DeepCopy()
+	return &limitRangeItemDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *limitRangeItemDie) Type(v corev1.LimitType) LimitRangeItemDie {
+	return d.DieStamp(func(r *corev1.LimitRangeItem) {
+		r.Type = v
+	})
+}
+
+func (d *limitRangeItemDie) Max(v corev1.ResourceList) LimitRangeItemDie {
+	return d.DieStamp(func(r *corev1.LimitRangeItem) {
+		r.Max = v
+	})
+}
+
+func (d *limitRangeItemDie) Min(v corev1.ResourceList) LimitRangeItemDie {
+	return d.DieStamp(func(r *corev1.LimitRangeItem) {
+		r.Min = v
+	})
+}
+
+func (d *limitRangeItemDie) Default(v corev1.ResourceList) LimitRangeItemDie {
+	return d.DieStamp(func(r *corev1.LimitRangeItem) {
+		r.Default = v
+	})
+}
+
+func (d *limitRangeItemDie) DefaultRequest(v corev1.ResourceList) LimitRangeItemDie {
+	return d.DieStamp(func(r *corev1.LimitRangeItem) {
+		r.DefaultRequest = v
+	})
+}
+
+func (d *limitRangeItemDie) MaxLimitRequestRatio(v corev1.ResourceList) LimitRangeItemDie {
+	return d.DieStamp(func(r *corev1.LimitRangeItem) {
+		r.MaxLimitRequestRatio = v
 	})
 }
 
@@ -1514,6 +5434,7 @@ type NodeSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() NodeSpecDie
 
+	nodeSpec
 	// PodCIDR represents the pod IP range assigned to the node.
 	PodCIDR(PodCIDR string) NodeSpecDie
 	// podCIDRs represents the IP ranges assigned to the node for usage by Pods on that node. If this field is specified, the 0th entry must match the podCIDR field. It may contain at most 1 value for each of IPv4 and IPv6.
@@ -1630,6 +5551,324 @@ func (d *nodeSpecDie) ConfigSource(v *corev1.NodeConfigSource) NodeSpecDie {
 func (d *nodeSpecDie) DoNotUseExternalID(v string) NodeSpecDie {
 	return d.DieStamp(func(r *corev1.NodeSpec) {
 		r.DoNotUseExternalID = v
+	})
+}
+
+type TaintDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.Taint)) TaintDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.Taint) TaintDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.Taint) TaintDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.Taint
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.Taint
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) TaintDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() TaintDie
+
+	// Required. The taint key to be applied to a node.
+	Key(Key string) TaintDie
+	// The taint value corresponding to the taint key.
+	Value(Value string) TaintDie
+	// Required. The effect of the taint on pods that do not tolerate the taint. Valid effects are NoSchedule, PreferNoSchedule and NoExecute.
+	Effect(Effect corev1.TaintEffect) TaintDie
+	// TimeAdded represents the time at which the taint was added. It is only written for NoExecute taints.
+	TimeAdded(TimeAdded *apismetav1.Time) TaintDie
+}
+
+var _ TaintDie = (*taintDie)(nil)
+var TaintBlank = (&taintDie{}).DieFeed(corev1.Taint{})
+
+type taintDie struct {
+	mutable bool
+	r       corev1.Taint
+}
+
+func (d *taintDie) DieImmutable(immutable bool) TaintDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*taintDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *taintDie) DieFeed(r corev1.Taint) TaintDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &taintDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *taintDie) DieFeedPtr(r *corev1.Taint) TaintDie {
+	if r == nil {
+		r = &corev1.Taint{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *taintDie) DieRelease() corev1.Taint {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *taintDie) DieReleasePtr() *corev1.Taint {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *taintDie) DieStamp(fn func(r *corev1.Taint)) TaintDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *taintDie) DeepCopy() TaintDie {
+	r := *d.r.DeepCopy()
+	return &taintDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *taintDie) Key(v string) TaintDie {
+	return d.DieStamp(func(r *corev1.Taint) {
+		r.Key = v
+	})
+}
+
+func (d *taintDie) Value(v string) TaintDie {
+	return d.DieStamp(func(r *corev1.Taint) {
+		r.Value = v
+	})
+}
+
+func (d *taintDie) Effect(v corev1.TaintEffect) TaintDie {
+	return d.DieStamp(func(r *corev1.Taint) {
+		r.Effect = v
+	})
+}
+
+func (d *taintDie) TimeAdded(v *apismetav1.Time) TaintDie {
+	return d.DieStamp(func(r *corev1.Taint) {
+		r.TimeAdded = v
+	})
+}
+
+type NodeConfigSourceDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.NodeConfigSource)) NodeConfigSourceDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.NodeConfigSource) NodeConfigSourceDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.NodeConfigSource) NodeConfigSourceDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.NodeConfigSource
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.NodeConfigSource
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) NodeConfigSourceDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() NodeConfigSourceDie
+
+	nodeConfigSource
+	// ConfigMap is a reference to a Node's ConfigMap
+	ConfigMap(ConfigMap *corev1.ConfigMapNodeConfigSource) NodeConfigSourceDie
+}
+
+var _ NodeConfigSourceDie = (*nodeConfigSourceDie)(nil)
+var NodeConfigSourceBlank = (&nodeConfigSourceDie{}).DieFeed(corev1.NodeConfigSource{})
+
+type nodeConfigSourceDie struct {
+	mutable bool
+	r       corev1.NodeConfigSource
+}
+
+func (d *nodeConfigSourceDie) DieImmutable(immutable bool) NodeConfigSourceDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*nodeConfigSourceDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *nodeConfigSourceDie) DieFeed(r corev1.NodeConfigSource) NodeConfigSourceDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &nodeConfigSourceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *nodeConfigSourceDie) DieFeedPtr(r *corev1.NodeConfigSource) NodeConfigSourceDie {
+	if r == nil {
+		r = &corev1.NodeConfigSource{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *nodeConfigSourceDie) DieRelease() corev1.NodeConfigSource {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *nodeConfigSourceDie) DieReleasePtr() *corev1.NodeConfigSource {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *nodeConfigSourceDie) DieStamp(fn func(r *corev1.NodeConfigSource)) NodeConfigSourceDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *nodeConfigSourceDie) DeepCopy() NodeConfigSourceDie {
+	r := *d.r.DeepCopy()
+	return &nodeConfigSourceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *nodeConfigSourceDie) ConfigMap(v *corev1.ConfigMapNodeConfigSource) NodeConfigSourceDie {
+	return d.DieStamp(func(r *corev1.NodeConfigSource) {
+		r.ConfigMap = v
+	})
+}
+
+type ConfigMapNodeConfigSourceDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ConfigMapNodeConfigSource)) ConfigMapNodeConfigSourceDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ConfigMapNodeConfigSource) ConfigMapNodeConfigSourceDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ConfigMapNodeConfigSource) ConfigMapNodeConfigSourceDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ConfigMapNodeConfigSource
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ConfigMapNodeConfigSource
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ConfigMapNodeConfigSourceDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ConfigMapNodeConfigSourceDie
+
+	// Namespace is the metadata.namespace of the referenced ConfigMap. This field is required in all cases.
+	Namespace(Namespace string) ConfigMapNodeConfigSourceDie
+	// Name is the metadata.name of the referenced ConfigMap. This field is required in all cases.
+	Name(Name string) ConfigMapNodeConfigSourceDie
+	// UID is the metadata.UID of the referenced ConfigMap. This field is forbidden in Node.Spec, and required in Node.Status.
+	UID(UID types.UID) ConfigMapNodeConfigSourceDie
+	// ResourceVersion is the metadata.ResourceVersion of the referenced ConfigMap. This field is forbidden in Node.Spec, and required in Node.Status.
+	ResourceVersion(ResourceVersion string) ConfigMapNodeConfigSourceDie
+	// KubeletConfigKey declares which key of the referenced ConfigMap corresponds to the KubeletConfiguration structure This field is required in all cases.
+	KubeletConfigKey(KubeletConfigKey string) ConfigMapNodeConfigSourceDie
+}
+
+var _ ConfigMapNodeConfigSourceDie = (*configMapNodeConfigSourceDie)(nil)
+var ConfigMapNodeConfigSourceBlank = (&configMapNodeConfigSourceDie{}).DieFeed(corev1.ConfigMapNodeConfigSource{})
+
+type configMapNodeConfigSourceDie struct {
+	mutable bool
+	r       corev1.ConfigMapNodeConfigSource
+}
+
+func (d *configMapNodeConfigSourceDie) DieImmutable(immutable bool) ConfigMapNodeConfigSourceDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*configMapNodeConfigSourceDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *configMapNodeConfigSourceDie) DieFeed(r corev1.ConfigMapNodeConfigSource) ConfigMapNodeConfigSourceDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &configMapNodeConfigSourceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *configMapNodeConfigSourceDie) DieFeedPtr(r *corev1.ConfigMapNodeConfigSource) ConfigMapNodeConfigSourceDie {
+	if r == nil {
+		r = &corev1.ConfigMapNodeConfigSource{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *configMapNodeConfigSourceDie) DieRelease() corev1.ConfigMapNodeConfigSource {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *configMapNodeConfigSourceDie) DieReleasePtr() *corev1.ConfigMapNodeConfigSource {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *configMapNodeConfigSourceDie) DieStamp(fn func(r *corev1.ConfigMapNodeConfigSource)) ConfigMapNodeConfigSourceDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *configMapNodeConfigSourceDie) DeepCopy() ConfigMapNodeConfigSourceDie {
+	r := *d.r.DeepCopy()
+	return &configMapNodeConfigSourceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *configMapNodeConfigSourceDie) Namespace(v string) ConfigMapNodeConfigSourceDie {
+	return d.DieStamp(func(r *corev1.ConfigMapNodeConfigSource) {
+		r.Namespace = v
+	})
+}
+
+func (d *configMapNodeConfigSourceDie) Name(v string) ConfigMapNodeConfigSourceDie {
+	return d.DieStamp(func(r *corev1.ConfigMapNodeConfigSource) {
+		r.Name = v
+	})
+}
+
+func (d *configMapNodeConfigSourceDie) UID(v types.UID) ConfigMapNodeConfigSourceDie {
+	return d.DieStamp(func(r *corev1.ConfigMapNodeConfigSource) {
+		r.UID = v
+	})
+}
+
+func (d *configMapNodeConfigSourceDie) ResourceVersion(v string) ConfigMapNodeConfigSourceDie {
+	return d.DieStamp(func(r *corev1.ConfigMapNodeConfigSource) {
+		r.ResourceVersion = v
+	})
+}
+
+func (d *configMapNodeConfigSourceDie) KubeletConfigKey(v string) ConfigMapNodeConfigSourceDie {
+	return d.DieStamp(func(r *corev1.ConfigMapNodeConfigSource) {
+		r.KubeletConfigKey = v
 	})
 }
 
@@ -1798,6 +6037,737 @@ func (d *nodeStatusDie) VolumesAttached(v ...corev1.AttachedVolume) NodeStatusDi
 func (d *nodeStatusDie) Config(v *corev1.NodeConfigStatus) NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.Config = v
+	})
+}
+
+type NodeAddressDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.NodeAddress)) NodeAddressDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.NodeAddress) NodeAddressDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.NodeAddress) NodeAddressDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.NodeAddress
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.NodeAddress
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) NodeAddressDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() NodeAddressDie
+
+	// Node address type, one of Hostname, ExternalIP or InternalIP.
+	Type(Type corev1.NodeAddressType) NodeAddressDie
+	// The node address.
+	Address(Address string) NodeAddressDie
+}
+
+var _ NodeAddressDie = (*nodeAddressDie)(nil)
+var NodeAddressBlank = (&nodeAddressDie{}).DieFeed(corev1.NodeAddress{})
+
+type nodeAddressDie struct {
+	mutable bool
+	r       corev1.NodeAddress
+}
+
+func (d *nodeAddressDie) DieImmutable(immutable bool) NodeAddressDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*nodeAddressDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *nodeAddressDie) DieFeed(r corev1.NodeAddress) NodeAddressDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &nodeAddressDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *nodeAddressDie) DieFeedPtr(r *corev1.NodeAddress) NodeAddressDie {
+	if r == nil {
+		r = &corev1.NodeAddress{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *nodeAddressDie) DieRelease() corev1.NodeAddress {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *nodeAddressDie) DieReleasePtr() *corev1.NodeAddress {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *nodeAddressDie) DieStamp(fn func(r *corev1.NodeAddress)) NodeAddressDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *nodeAddressDie) DeepCopy() NodeAddressDie {
+	r := *d.r.DeepCopy()
+	return &nodeAddressDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *nodeAddressDie) Type(v corev1.NodeAddressType) NodeAddressDie {
+	return d.DieStamp(func(r *corev1.NodeAddress) {
+		r.Type = v
+	})
+}
+
+func (d *nodeAddressDie) Address(v string) NodeAddressDie {
+	return d.DieStamp(func(r *corev1.NodeAddress) {
+		r.Address = v
+	})
+}
+
+type NodeDaemonEndpointsDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.NodeDaemonEndpoints)) NodeDaemonEndpointsDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.NodeDaemonEndpoints) NodeDaemonEndpointsDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.NodeDaemonEndpoints) NodeDaemonEndpointsDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.NodeDaemonEndpoints
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.NodeDaemonEndpoints
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) NodeDaemonEndpointsDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() NodeDaemonEndpointsDie
+
+	nodeDaemonEndpoints
+	// Endpoint on which Kubelet is listening.
+	KubeletEndpoint(KubeletEndpoint corev1.DaemonEndpoint) NodeDaemonEndpointsDie
+}
+
+var _ NodeDaemonEndpointsDie = (*nodeDaemonEndpointsDie)(nil)
+var NodeDaemonEndpointsBlank = (&nodeDaemonEndpointsDie{}).DieFeed(corev1.NodeDaemonEndpoints{})
+
+type nodeDaemonEndpointsDie struct {
+	mutable bool
+	r       corev1.NodeDaemonEndpoints
+}
+
+func (d *nodeDaemonEndpointsDie) DieImmutable(immutable bool) NodeDaemonEndpointsDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*nodeDaemonEndpointsDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *nodeDaemonEndpointsDie) DieFeed(r corev1.NodeDaemonEndpoints) NodeDaemonEndpointsDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &nodeDaemonEndpointsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *nodeDaemonEndpointsDie) DieFeedPtr(r *corev1.NodeDaemonEndpoints) NodeDaemonEndpointsDie {
+	if r == nil {
+		r = &corev1.NodeDaemonEndpoints{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *nodeDaemonEndpointsDie) DieRelease() corev1.NodeDaemonEndpoints {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *nodeDaemonEndpointsDie) DieReleasePtr() *corev1.NodeDaemonEndpoints {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *nodeDaemonEndpointsDie) DieStamp(fn func(r *corev1.NodeDaemonEndpoints)) NodeDaemonEndpointsDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *nodeDaemonEndpointsDie) DeepCopy() NodeDaemonEndpointsDie {
+	r := *d.r.DeepCopy()
+	return &nodeDaemonEndpointsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *nodeDaemonEndpointsDie) KubeletEndpoint(v corev1.DaemonEndpoint) NodeDaemonEndpointsDie {
+	return d.DieStamp(func(r *corev1.NodeDaemonEndpoints) {
+		r.KubeletEndpoint = v
+	})
+}
+
+type DaemonEndpointDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.DaemonEndpoint)) DaemonEndpointDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.DaemonEndpoint) DaemonEndpointDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.DaemonEndpoint) DaemonEndpointDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.DaemonEndpoint
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.DaemonEndpoint
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) DaemonEndpointDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() DaemonEndpointDie
+
+	// Port number of the given endpoint.
+	Port(Port int32) DaemonEndpointDie
+}
+
+var _ DaemonEndpointDie = (*daemonEndpointDie)(nil)
+var DaemonEndpointBlank = (&daemonEndpointDie{}).DieFeed(corev1.DaemonEndpoint{})
+
+type daemonEndpointDie struct {
+	mutable bool
+	r       corev1.DaemonEndpoint
+}
+
+func (d *daemonEndpointDie) DieImmutable(immutable bool) DaemonEndpointDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*daemonEndpointDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *daemonEndpointDie) DieFeed(r corev1.DaemonEndpoint) DaemonEndpointDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &daemonEndpointDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *daemonEndpointDie) DieFeedPtr(r *corev1.DaemonEndpoint) DaemonEndpointDie {
+	if r == nil {
+		r = &corev1.DaemonEndpoint{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *daemonEndpointDie) DieRelease() corev1.DaemonEndpoint {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *daemonEndpointDie) DieReleasePtr() *corev1.DaemonEndpoint {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *daemonEndpointDie) DieStamp(fn func(r *corev1.DaemonEndpoint)) DaemonEndpointDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *daemonEndpointDie) DeepCopy() DaemonEndpointDie {
+	r := *d.r.DeepCopy()
+	return &daemonEndpointDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *daemonEndpointDie) Port(v int32) DaemonEndpointDie {
+	return d.DieStamp(func(r *corev1.DaemonEndpoint) {
+		r.Port = v
+	})
+}
+
+type NodeSystemInfoDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.NodeSystemInfo)) NodeSystemInfoDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.NodeSystemInfo) NodeSystemInfoDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.NodeSystemInfo) NodeSystemInfoDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.NodeSystemInfo
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.NodeSystemInfo
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) NodeSystemInfoDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() NodeSystemInfoDie
+
+	// MachineID reported by the node. For unique machine identification in the cluster this field is preferred. Learn more from man(5) machine-id: http://man7.org/linux/man-pages/man5/machine-id.5.html
+	MachineID(MachineID string) NodeSystemInfoDie
+	// SystemUUID reported by the node. For unique machine identification MachineID is preferred. This field is specific to Red Hat hosts https://access.redhat.com/documentation/en-us/red_hat_subscription_management/1/html/rhsm/uuid
+	SystemUUID(SystemUUID string) NodeSystemInfoDie
+	// Boot ID reported by the node.
+	BootID(BootID string) NodeSystemInfoDie
+	// Kernel Version reported by the node from 'uname -r' (e.g. 3.16.0-0.bpo.4-amd64).
+	KernelVersion(KernelVersion string) NodeSystemInfoDie
+	// OS Image reported by the node from /etc/os-release (e.g. Debian GNU/Linux 7 (wheezy)).
+	OSImage(OSImage string) NodeSystemInfoDie
+	// ContainerRuntime Version reported by the node through runtime remote API (e.g. docker://1.5.0).
+	ContainerRuntimeVersion(ContainerRuntimeVersion string) NodeSystemInfoDie
+	// Kubelet Version reported by the node.
+	KubeletVersion(KubeletVersion string) NodeSystemInfoDie
+	// KubeProxy Version reported by the node.
+	KubeProxyVersion(KubeProxyVersion string) NodeSystemInfoDie
+	// The Operating System reported by the node
+	OperatingSystem(OperatingSystem string) NodeSystemInfoDie
+	// The Architecture reported by the node
+	Architecture(Architecture string) NodeSystemInfoDie
+}
+
+var _ NodeSystemInfoDie = (*nodeSystemInfoDie)(nil)
+var NodeSystemInfoBlank = (&nodeSystemInfoDie{}).DieFeed(corev1.NodeSystemInfo{})
+
+type nodeSystemInfoDie struct {
+	mutable bool
+	r       corev1.NodeSystemInfo
+}
+
+func (d *nodeSystemInfoDie) DieImmutable(immutable bool) NodeSystemInfoDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*nodeSystemInfoDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *nodeSystemInfoDie) DieFeed(r corev1.NodeSystemInfo) NodeSystemInfoDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &nodeSystemInfoDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *nodeSystemInfoDie) DieFeedPtr(r *corev1.NodeSystemInfo) NodeSystemInfoDie {
+	if r == nil {
+		r = &corev1.NodeSystemInfo{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *nodeSystemInfoDie) DieRelease() corev1.NodeSystemInfo {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *nodeSystemInfoDie) DieReleasePtr() *corev1.NodeSystemInfo {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *nodeSystemInfoDie) DieStamp(fn func(r *corev1.NodeSystemInfo)) NodeSystemInfoDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *nodeSystemInfoDie) DeepCopy() NodeSystemInfoDie {
+	r := *d.r.DeepCopy()
+	return &nodeSystemInfoDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *nodeSystemInfoDie) MachineID(v string) NodeSystemInfoDie {
+	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
+		r.MachineID = v
+	})
+}
+
+func (d *nodeSystemInfoDie) SystemUUID(v string) NodeSystemInfoDie {
+	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
+		r.SystemUUID = v
+	})
+}
+
+func (d *nodeSystemInfoDie) BootID(v string) NodeSystemInfoDie {
+	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
+		r.BootID = v
+	})
+}
+
+func (d *nodeSystemInfoDie) KernelVersion(v string) NodeSystemInfoDie {
+	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
+		r.KernelVersion = v
+	})
+}
+
+func (d *nodeSystemInfoDie) OSImage(v string) NodeSystemInfoDie {
+	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
+		r.OSImage = v
+	})
+}
+
+func (d *nodeSystemInfoDie) ContainerRuntimeVersion(v string) NodeSystemInfoDie {
+	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
+		r.ContainerRuntimeVersion = v
+	})
+}
+
+func (d *nodeSystemInfoDie) KubeletVersion(v string) NodeSystemInfoDie {
+	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
+		r.KubeletVersion = v
+	})
+}
+
+func (d *nodeSystemInfoDie) KubeProxyVersion(v string) NodeSystemInfoDie {
+	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
+		r.KubeProxyVersion = v
+	})
+}
+
+func (d *nodeSystemInfoDie) OperatingSystem(v string) NodeSystemInfoDie {
+	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
+		r.OperatingSystem = v
+	})
+}
+
+func (d *nodeSystemInfoDie) Architecture(v string) NodeSystemInfoDie {
+	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
+		r.Architecture = v
+	})
+}
+
+type ContainerImageDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ContainerImage)) ContainerImageDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ContainerImage) ContainerImageDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ContainerImage) ContainerImageDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ContainerImage
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ContainerImage
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ContainerImageDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ContainerImageDie
+
+	// Names by which this image is known. e.g. ["k8s.gcr.io/hyperkube:v1.0.7", "dockerhub.io/google_containers/hyperkube:v1.0.7"]
+	Names(Names ...string) ContainerImageDie
+	// The size of the image in bytes.
+	SizeBytes(SizeBytes int64) ContainerImageDie
+}
+
+var _ ContainerImageDie = (*containerImageDie)(nil)
+var ContainerImageBlank = (&containerImageDie{}).DieFeed(corev1.ContainerImage{})
+
+type containerImageDie struct {
+	mutable bool
+	r       corev1.ContainerImage
+}
+
+func (d *containerImageDie) DieImmutable(immutable bool) ContainerImageDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*containerImageDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *containerImageDie) DieFeed(r corev1.ContainerImage) ContainerImageDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &containerImageDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *containerImageDie) DieFeedPtr(r *corev1.ContainerImage) ContainerImageDie {
+	if r == nil {
+		r = &corev1.ContainerImage{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *containerImageDie) DieRelease() corev1.ContainerImage {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *containerImageDie) DieReleasePtr() *corev1.ContainerImage {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *containerImageDie) DieStamp(fn func(r *corev1.ContainerImage)) ContainerImageDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *containerImageDie) DeepCopy() ContainerImageDie {
+	r := *d.r.DeepCopy()
+	return &containerImageDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *containerImageDie) Names(v ...string) ContainerImageDie {
+	return d.DieStamp(func(r *corev1.ContainerImage) {
+		r.Names = v
+	})
+}
+
+func (d *containerImageDie) SizeBytes(v int64) ContainerImageDie {
+	return d.DieStamp(func(r *corev1.ContainerImage) {
+		r.SizeBytes = v
+	})
+}
+
+type AttachedVolumeDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.AttachedVolume)) AttachedVolumeDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.AttachedVolume) AttachedVolumeDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.AttachedVolume) AttachedVolumeDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.AttachedVolume
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.AttachedVolume
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) AttachedVolumeDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() AttachedVolumeDie
+
+	// Name of the attached volume
+	Name(Name corev1.UniqueVolumeName) AttachedVolumeDie
+	// DevicePath represents the device path where the volume should be available
+	DevicePath(DevicePath string) AttachedVolumeDie
+}
+
+var _ AttachedVolumeDie = (*attachedVolumeDie)(nil)
+var AttachedVolumeBlank = (&attachedVolumeDie{}).DieFeed(corev1.AttachedVolume{})
+
+type attachedVolumeDie struct {
+	mutable bool
+	r       corev1.AttachedVolume
+}
+
+func (d *attachedVolumeDie) DieImmutable(immutable bool) AttachedVolumeDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*attachedVolumeDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *attachedVolumeDie) DieFeed(r corev1.AttachedVolume) AttachedVolumeDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &attachedVolumeDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *attachedVolumeDie) DieFeedPtr(r *corev1.AttachedVolume) AttachedVolumeDie {
+	if r == nil {
+		r = &corev1.AttachedVolume{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *attachedVolumeDie) DieRelease() corev1.AttachedVolume {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *attachedVolumeDie) DieReleasePtr() *corev1.AttachedVolume {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *attachedVolumeDie) DieStamp(fn func(r *corev1.AttachedVolume)) AttachedVolumeDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *attachedVolumeDie) DeepCopy() AttachedVolumeDie {
+	r := *d.r.DeepCopy()
+	return &attachedVolumeDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *attachedVolumeDie) Name(v corev1.UniqueVolumeName) AttachedVolumeDie {
+	return d.DieStamp(func(r *corev1.AttachedVolume) {
+		r.Name = v
+	})
+}
+
+func (d *attachedVolumeDie) DevicePath(v string) AttachedVolumeDie {
+	return d.DieStamp(func(r *corev1.AttachedVolume) {
+		r.DevicePath = v
+	})
+}
+
+type NodeConfigStatusDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.NodeConfigStatus)) NodeConfigStatusDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.NodeConfigStatus) NodeConfigStatusDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.NodeConfigStatus) NodeConfigStatusDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.NodeConfigStatus
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.NodeConfigStatus
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) NodeConfigStatusDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() NodeConfigStatusDie
+
+	nodeConfigStatus
+	// Assigned reports the checkpointed config the node will try to use. When Node.Spec.ConfigSource is updated, the node checkpoints the associated config payload to local disk, along with a record indicating intended config. The node refers to this record to choose its config checkpoint, and reports this record in Assigned. Assigned only updates in the status after the record has been checkpointed to disk. When the Kubelet is restarted, it tries to make the Assigned config the Active config by loading and validating the checkpointed payload identified by Assigned.
+	Assigned(Assigned *corev1.NodeConfigSource) NodeConfigStatusDie
+	// Active reports the checkpointed config the node is actively using. Active will represent either the current version of the Assigned config, or the current LastKnownGood config, depending on whether attempting to use the Assigned config results in an error.
+	Active(Active *corev1.NodeConfigSource) NodeConfigStatusDie
+	// LastKnownGood reports the checkpointed config the node will fall back to when it encounters an error attempting to use the Assigned config. The Assigned config becomes the LastKnownGood config when the node determines that the Assigned config is stable and correct. This is currently implemented as a 10-minute soak period starting when the local record of Assigned config is updated. If the Assigned config is Active at the end of this period, it becomes the LastKnownGood. Note that if Spec.ConfigSource is reset to nil (use local defaults), the LastKnownGood is also immediately reset to nil, because the local default config is always assumed good. You should not make assumptions about the node's method of determining config stability and correctness, as this may change or become configurable in the future.
+	LastKnownGood(LastKnownGood *corev1.NodeConfigSource) NodeConfigStatusDie
+	// Error describes any problems reconciling the Spec.ConfigSource to the Active config. Errors may occur, for example, attempting to checkpoint Spec.ConfigSource to the local Assigned record, attempting to checkpoint the payload associated with Spec.ConfigSource, attempting to load or validate the Assigned config, etc. Errors may occur at different points while syncing config. Earlier errors (e.g. download or checkpointing errors) will not result in a rollback to LastKnownGood, and may resolve across Kubelet retries. Later errors (e.g. loading or validating a checkpointed config) will result in a rollback to LastKnownGood. In the latter case, it is usually possible to resolve the error by fixing the config assigned in Spec.ConfigSource. You can find additional information for debugging by searching the error message in the Kubelet log. Error is a human-readable description of the error state; machines can check whether or not Error is empty, but should not rely on the stability of the Error text across Kubelet versions.
+	Error(Error string) NodeConfigStatusDie
+}
+
+var _ NodeConfigStatusDie = (*nodeConfigStatusDie)(nil)
+var NodeConfigStatusBlank = (&nodeConfigStatusDie{}).DieFeed(corev1.NodeConfigStatus{})
+
+type nodeConfigStatusDie struct {
+	mutable bool
+	r       corev1.NodeConfigStatus
+}
+
+func (d *nodeConfigStatusDie) DieImmutable(immutable bool) NodeConfigStatusDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*nodeConfigStatusDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *nodeConfigStatusDie) DieFeed(r corev1.NodeConfigStatus) NodeConfigStatusDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &nodeConfigStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *nodeConfigStatusDie) DieFeedPtr(r *corev1.NodeConfigStatus) NodeConfigStatusDie {
+	if r == nil {
+		r = &corev1.NodeConfigStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *nodeConfigStatusDie) DieRelease() corev1.NodeConfigStatus {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *nodeConfigStatusDie) DieReleasePtr() *corev1.NodeConfigStatus {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *nodeConfigStatusDie) DieStamp(fn func(r *corev1.NodeConfigStatus)) NodeConfigStatusDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *nodeConfigStatusDie) DeepCopy() NodeConfigStatusDie {
+	r := *d.r.DeepCopy()
+	return &nodeConfigStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *nodeConfigStatusDie) Assigned(v *corev1.NodeConfigSource) NodeConfigStatusDie {
+	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
+		r.Assigned = v
+	})
+}
+
+func (d *nodeConfigStatusDie) Active(v *corev1.NodeConfigSource) NodeConfigStatusDie {
+	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
+		r.Active = v
+	})
+}
+
+func (d *nodeConfigStatusDie) LastKnownGood(v *corev1.NodeConfigSource) NodeConfigStatusDie {
+	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
+		r.LastKnownGood = v
+	})
+}
+
+func (d *nodeConfigStatusDie) Error(v string) NodeConfigStatusDie {
+	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
+		r.Error = v
 	})
 }
 
@@ -2123,6 +7093,101 @@ func (d *typedLocalObjectReferenceDie) Kind(v string) TypedLocalObjectReferenceD
 func (d *typedLocalObjectReferenceDie) Name(v string) TypedLocalObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.TypedLocalObjectReference) {
 		r.Name = v
+	})
+}
+
+type SecretReferenceDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.SecretReference)) SecretReferenceDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.SecretReference) SecretReferenceDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.SecretReference) SecretReferenceDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.SecretReference
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.SecretReference
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) SecretReferenceDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() SecretReferenceDie
+
+	// Name is unique within a namespace to reference a secret resource.
+	Name(Name string) SecretReferenceDie
+	// Namespace defines the space within which the secret name must be unique.
+	Namespace(Namespace string) SecretReferenceDie
+}
+
+var _ SecretReferenceDie = (*secretReferenceDie)(nil)
+var SecretReferenceBlank = (&secretReferenceDie{}).DieFeed(corev1.SecretReference{})
+
+type secretReferenceDie struct {
+	mutable bool
+	r       corev1.SecretReference
+}
+
+func (d *secretReferenceDie) DieImmutable(immutable bool) SecretReferenceDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*secretReferenceDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *secretReferenceDie) DieFeed(r corev1.SecretReference) SecretReferenceDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &secretReferenceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *secretReferenceDie) DieFeedPtr(r *corev1.SecretReference) SecretReferenceDie {
+	if r == nil {
+		r = &corev1.SecretReference{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *secretReferenceDie) DieRelease() corev1.SecretReference {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *secretReferenceDie) DieReleasePtr() *corev1.SecretReference {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *secretReferenceDie) DieStamp(fn func(r *corev1.SecretReference)) SecretReferenceDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *secretReferenceDie) DeepCopy() SecretReferenceDie {
+	r := *d.r.DeepCopy()
+	return &secretReferenceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *secretReferenceDie) Name(v string) SecretReferenceDie {
+	return d.DieStamp(func(r *corev1.SecretReference) {
+		r.Name = v
+	})
+}
+
+func (d *secretReferenceDie) Namespace(v string) SecretReferenceDie {
+	return d.DieStamp(func(r *corev1.SecretReference) {
+		r.Namespace = v
 	})
 }
 
@@ -2664,6 +7729,7 @@ type RBDPersistentVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() RBDPersistentVolumeSourceDie
 
+	rBDPersistentVolumeSource
 	// A collection of Ceph monitors. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
 	CephMonitors(CephMonitors ...string) RBDPersistentVolumeSourceDie
 	// The rados image name. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
@@ -2807,6 +7873,7 @@ type ISCSIPersistentVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ISCSIPersistentVolumeSourceDie
 
+	iSCSIPersistentVolumeSource
 	// iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
 	TargetPortal(TargetPortal string) ISCSIPersistentVolumeSourceDie
 	// Target iSCSI Qualified Name.
@@ -2974,6 +8041,7 @@ type CinderPersistentVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() CinderPersistentVolumeSourceDie
 
+	cinderPersistentVolumeSource
 	// volume id used to identify the volume in cinder. More info: https://examples.k8s.io/mysql-cinder-pd/README.md
 	VolumeID(VolumeID string) CinderPersistentVolumeSourceDie
 	// Filesystem type to mount. Must be a filesystem type supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://examples.k8s.io/mysql-cinder-pd/README.md
@@ -3085,6 +8153,7 @@ type CephFSPersistentVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() CephFSPersistentVolumeSourceDie
 
+	cephFSPersistentVolumeSource
 	// Required: Monitors is a collection of Ceph monitors More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
 	Monitors(Monitors ...string) CephFSPersistentVolumeSourceDie
 	// Optional: Used as the mounted root, rather than the full Ceph tree, default is /
@@ -3212,6 +8281,7 @@ type FlexPersistentVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() FlexPersistentVolumeSourceDie
 
+	flexPersistentVolumeSource
 	// Driver is the name of the driver to use for this volume.
 	Driver(Driver string) FlexPersistentVolumeSourceDie
 	// Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". The default filesystem depends on FlexVolume script.
@@ -3442,6 +8512,7 @@ type ScaleIOPersistentVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ScaleIOPersistentVolumeSourceDie
 
+	scaleIOPersistentVolumeSource
 	// The host address of the ScaleIO API Gateway.
 	Gateway(Gateway string) ScaleIOPersistentVolumeSourceDie
 	// The name of the storage system as configured in ScaleIO.
@@ -3696,6 +8767,7 @@ type StorageOSPersistentVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() StorageOSPersistentVolumeSourceDie
 
+	storageOSPersistentVolumeSource
 	// VolumeName is the human-readable name of the StorageOS volume.  Volume names are only unique within a namespace.
 	VolumeName(VolumeName string) StorageOSPersistentVolumeSourceDie
 	// VolumeNamespace specifies the scope of the volume within StorageOS.  If no namespace is specified then the Pod's namespace will be used.  This allows the Kubernetes name scoping to be mirrored within StorageOS for tighter integration. Set VolumeName to any name to override the default behaviour. Set to "default" if you are not using namespaces within StorageOS. Namespaces that do not pre-exist within StorageOS will be created.
@@ -3815,6 +8887,7 @@ type CSIPersistentVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() CSIPersistentVolumeSourceDie
 
+	cSIPersistentVolumeSource
 	// Driver is the name of the driver to use for this volume. Required.
 	Driver(Driver string) CSIPersistentVolumeSourceDie
 	// VolumeHandle is the unique volume name returned by the CSI volume plugin’s CreateVolume to refer to the volume on all subsequent calls. Required.
@@ -3947,6 +9020,380 @@ func (d *cSIPersistentVolumeSourceDie) NodePublishSecretRef(v *corev1.SecretRefe
 func (d *cSIPersistentVolumeSourceDie) ControllerExpandSecretRef(v *corev1.SecretReference) CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.ControllerExpandSecretRef = v
+	})
+}
+
+type VolumeNodeAffinityDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.VolumeNodeAffinity)) VolumeNodeAffinityDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.VolumeNodeAffinity) VolumeNodeAffinityDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.VolumeNodeAffinity) VolumeNodeAffinityDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.VolumeNodeAffinity
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.VolumeNodeAffinity
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) VolumeNodeAffinityDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() VolumeNodeAffinityDie
+
+	// Required specifies hard node constraints that must be met.
+	Required(Required *corev1.NodeSelector) VolumeNodeAffinityDie
+}
+
+var _ VolumeNodeAffinityDie = (*volumeNodeAffinityDie)(nil)
+var VolumeNodeAffinityBlank = (&volumeNodeAffinityDie{}).DieFeed(corev1.VolumeNodeAffinity{})
+
+type volumeNodeAffinityDie struct {
+	mutable bool
+	r       corev1.VolumeNodeAffinity
+}
+
+func (d *volumeNodeAffinityDie) DieImmutable(immutable bool) VolumeNodeAffinityDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*volumeNodeAffinityDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *volumeNodeAffinityDie) DieFeed(r corev1.VolumeNodeAffinity) VolumeNodeAffinityDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &volumeNodeAffinityDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *volumeNodeAffinityDie) DieFeedPtr(r *corev1.VolumeNodeAffinity) VolumeNodeAffinityDie {
+	if r == nil {
+		r = &corev1.VolumeNodeAffinity{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *volumeNodeAffinityDie) DieRelease() corev1.VolumeNodeAffinity {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *volumeNodeAffinityDie) DieReleasePtr() *corev1.VolumeNodeAffinity {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *volumeNodeAffinityDie) DieStamp(fn func(r *corev1.VolumeNodeAffinity)) VolumeNodeAffinityDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *volumeNodeAffinityDie) DeepCopy() VolumeNodeAffinityDie {
+	r := *d.r.DeepCopy()
+	return &volumeNodeAffinityDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *volumeNodeAffinityDie) Required(v *corev1.NodeSelector) VolumeNodeAffinityDie {
+	return d.DieStamp(func(r *corev1.VolumeNodeAffinity) {
+		r.Required = v
+	})
+}
+
+type NodeSelectorDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.NodeSelector)) NodeSelectorDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.NodeSelector) NodeSelectorDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.NodeSelector) NodeSelectorDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.NodeSelector
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.NodeSelector
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) NodeSelectorDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() NodeSelectorDie
+
+	nodeSelector
+	// Required. A list of node selector terms. The terms are ORed.
+	NodeSelectorTerms(NodeSelectorTerms ...corev1.NodeSelectorTerm) NodeSelectorDie
+}
+
+var _ NodeSelectorDie = (*nodeSelectorDie)(nil)
+var NodeSelectorBlank = (&nodeSelectorDie{}).DieFeed(corev1.NodeSelector{})
+
+type nodeSelectorDie struct {
+	mutable bool
+	r       corev1.NodeSelector
+}
+
+func (d *nodeSelectorDie) DieImmutable(immutable bool) NodeSelectorDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*nodeSelectorDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *nodeSelectorDie) DieFeed(r corev1.NodeSelector) NodeSelectorDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &nodeSelectorDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *nodeSelectorDie) DieFeedPtr(r *corev1.NodeSelector) NodeSelectorDie {
+	if r == nil {
+		r = &corev1.NodeSelector{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *nodeSelectorDie) DieRelease() corev1.NodeSelector {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *nodeSelectorDie) DieReleasePtr() *corev1.NodeSelector {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *nodeSelectorDie) DieStamp(fn func(r *corev1.NodeSelector)) NodeSelectorDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *nodeSelectorDie) DeepCopy() NodeSelectorDie {
+	r := *d.r.DeepCopy()
+	return &nodeSelectorDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *nodeSelectorDie) NodeSelectorTerms(v ...corev1.NodeSelectorTerm) NodeSelectorDie {
+	return d.DieStamp(func(r *corev1.NodeSelector) {
+		r.NodeSelectorTerms = v
+	})
+}
+
+type NodeSelectorTermDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.NodeSelectorTerm)) NodeSelectorTermDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.NodeSelectorTerm) NodeSelectorTermDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.NodeSelectorTerm) NodeSelectorTermDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.NodeSelectorTerm
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.NodeSelectorTerm
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) NodeSelectorTermDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() NodeSelectorTermDie
+
+	nodeSelectorTerm
+	// A list of node selector requirements by node's labels.
+	MatchExpressions(MatchExpressions ...corev1.NodeSelectorRequirement) NodeSelectorTermDie
+	// A list of node selector requirements by node's fields.
+	MatchFields(MatchFields ...corev1.NodeSelectorRequirement) NodeSelectorTermDie
+}
+
+var _ NodeSelectorTermDie = (*nodeSelectorTermDie)(nil)
+var NodeSelectorTermBlank = (&nodeSelectorTermDie{}).DieFeed(corev1.NodeSelectorTerm{})
+
+type nodeSelectorTermDie struct {
+	mutable bool
+	r       corev1.NodeSelectorTerm
+}
+
+func (d *nodeSelectorTermDie) DieImmutable(immutable bool) NodeSelectorTermDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*nodeSelectorTermDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *nodeSelectorTermDie) DieFeed(r corev1.NodeSelectorTerm) NodeSelectorTermDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &nodeSelectorTermDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *nodeSelectorTermDie) DieFeedPtr(r *corev1.NodeSelectorTerm) NodeSelectorTermDie {
+	if r == nil {
+		r = &corev1.NodeSelectorTerm{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *nodeSelectorTermDie) DieRelease() corev1.NodeSelectorTerm {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *nodeSelectorTermDie) DieReleasePtr() *corev1.NodeSelectorTerm {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *nodeSelectorTermDie) DieStamp(fn func(r *corev1.NodeSelectorTerm)) NodeSelectorTermDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *nodeSelectorTermDie) DeepCopy() NodeSelectorTermDie {
+	r := *d.r.DeepCopy()
+	return &nodeSelectorTermDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *nodeSelectorTermDie) MatchExpressions(v ...corev1.NodeSelectorRequirement) NodeSelectorTermDie {
+	return d.DieStamp(func(r *corev1.NodeSelectorTerm) {
+		r.MatchExpressions = v
+	})
+}
+
+func (d *nodeSelectorTermDie) MatchFields(v ...corev1.NodeSelectorRequirement) NodeSelectorTermDie {
+	return d.DieStamp(func(r *corev1.NodeSelectorTerm) {
+		r.MatchFields = v
+	})
+}
+
+type NodeSelectorRequirementDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.NodeSelectorRequirement)) NodeSelectorRequirementDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.NodeSelectorRequirement) NodeSelectorRequirementDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.NodeSelectorRequirement) NodeSelectorRequirementDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.NodeSelectorRequirement
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.NodeSelectorRequirement
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) NodeSelectorRequirementDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() NodeSelectorRequirementDie
+
+	// The label key that the selector applies to.
+	Key(Key string) NodeSelectorRequirementDie
+	// Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+	Operator(Operator corev1.NodeSelectorOperator) NodeSelectorRequirementDie
+	// An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch.
+	Values(Values ...string) NodeSelectorRequirementDie
+}
+
+var _ NodeSelectorRequirementDie = (*nodeSelectorRequirementDie)(nil)
+var NodeSelectorRequirementBlank = (&nodeSelectorRequirementDie{}).DieFeed(corev1.NodeSelectorRequirement{})
+
+type nodeSelectorRequirementDie struct {
+	mutable bool
+	r       corev1.NodeSelectorRequirement
+}
+
+func (d *nodeSelectorRequirementDie) DieImmutable(immutable bool) NodeSelectorRequirementDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*nodeSelectorRequirementDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *nodeSelectorRequirementDie) DieFeed(r corev1.NodeSelectorRequirement) NodeSelectorRequirementDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &nodeSelectorRequirementDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *nodeSelectorRequirementDie) DieFeedPtr(r *corev1.NodeSelectorRequirement) NodeSelectorRequirementDie {
+	if r == nil {
+		r = &corev1.NodeSelectorRequirement{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *nodeSelectorRequirementDie) DieRelease() corev1.NodeSelectorRequirement {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *nodeSelectorRequirementDie) DieReleasePtr() *corev1.NodeSelectorRequirement {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *nodeSelectorRequirementDie) DieStamp(fn func(r *corev1.NodeSelectorRequirement)) NodeSelectorRequirementDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *nodeSelectorRequirementDie) DeepCopy() NodeSelectorRequirementDie {
+	r := *d.r.DeepCopy()
+	return &nodeSelectorRequirementDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *nodeSelectorRequirementDie) Key(v string) NodeSelectorRequirementDie {
+	return d.DieStamp(func(r *corev1.NodeSelectorRequirement) {
+		r.Key = v
+	})
+}
+
+func (d *nodeSelectorRequirementDie) Operator(v corev1.NodeSelectorOperator) NodeSelectorRequirementDie {
+	return d.DieStamp(func(r *corev1.NodeSelectorRequirement) {
+		r.Operator = v
+	})
+}
+
+func (d *nodeSelectorRequirementDie) Values(v ...string) NodeSelectorRequirementDie {
+	return d.DieStamp(func(r *corev1.NodeSelectorRequirement) {
+		r.Values = v
 	})
 }
 
@@ -4122,6 +9569,7 @@ type PersistentVolumeClaimSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() PersistentVolumeClaimSpecDie
 
+	persistentVolumeClaimSpec
 	// AccessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
 	AccessModes(AccessModes ...corev1.PersistentVolumeAccessMode) PersistentVolumeClaimSpecDie
 	// A label query over volumes to consider for binding.
@@ -4358,6 +9806,102 @@ func (d *persistentVolumeClaimStatusDie) Capacity(v corev1.ResourceList) Persist
 func (d *persistentVolumeClaimStatusDie) Conditions(v ...corev1.PersistentVolumeClaimCondition) PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		r.Conditions = v
+	})
+}
+
+type PersistentVolumeClaimTemplateDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.PersistentVolumeClaimTemplate)) PersistentVolumeClaimTemplateDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.PersistentVolumeClaimTemplate) PersistentVolumeClaimTemplateDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.PersistentVolumeClaimTemplate) PersistentVolumeClaimTemplateDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.PersistentVolumeClaimTemplate
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.PersistentVolumeClaimTemplate
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) PersistentVolumeClaimTemplateDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() PersistentVolumeClaimTemplateDie
+
+	persistentVolumeClaimTemplate
+	// May contain labels and annotations that will be copied into the PVC when creating it. No other fields are allowed and will be rejected during validation.
+	ObjectMeta(ObjectMeta apismetav1.ObjectMeta) PersistentVolumeClaimTemplateDie
+	// The specification for the PersistentVolumeClaim. The entire content is copied unchanged into the PVC that gets created from this template. The same fields as in a PersistentVolumeClaim are also valid here.
+	Spec(Spec corev1.PersistentVolumeClaimSpec) PersistentVolumeClaimTemplateDie
+}
+
+var _ PersistentVolumeClaimTemplateDie = (*persistentVolumeClaimTemplateDie)(nil)
+var PersistentVolumeClaimTemplateBlank = (&persistentVolumeClaimTemplateDie{}).DieFeed(corev1.PersistentVolumeClaimTemplate{})
+
+type persistentVolumeClaimTemplateDie struct {
+	mutable bool
+	r       corev1.PersistentVolumeClaimTemplate
+}
+
+func (d *persistentVolumeClaimTemplateDie) DieImmutable(immutable bool) PersistentVolumeClaimTemplateDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*persistentVolumeClaimTemplateDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *persistentVolumeClaimTemplateDie) DieFeed(r corev1.PersistentVolumeClaimTemplate) PersistentVolumeClaimTemplateDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &persistentVolumeClaimTemplateDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *persistentVolumeClaimTemplateDie) DieFeedPtr(r *corev1.PersistentVolumeClaimTemplate) PersistentVolumeClaimTemplateDie {
+	if r == nil {
+		r = &corev1.PersistentVolumeClaimTemplate{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *persistentVolumeClaimTemplateDie) DieRelease() corev1.PersistentVolumeClaimTemplate {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *persistentVolumeClaimTemplateDie) DieReleasePtr() *corev1.PersistentVolumeClaimTemplate {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *persistentVolumeClaimTemplateDie) DieStamp(fn func(r *corev1.PersistentVolumeClaimTemplate)) PersistentVolumeClaimTemplateDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *persistentVolumeClaimTemplateDie) DeepCopy() PersistentVolumeClaimTemplateDie {
+	r := *d.r.DeepCopy()
+	return &persistentVolumeClaimTemplateDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *persistentVolumeClaimTemplateDie) ObjectMeta(v apismetav1.ObjectMeta) PersistentVolumeClaimTemplateDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimTemplate) {
+		r.ObjectMeta = v
+	})
+}
+
+func (d *persistentVolumeClaimTemplateDie) Spec(v corev1.PersistentVolumeClaimSpec) PersistentVolumeClaimTemplateDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimTemplate) {
+		r.Spec = v
 	})
 }
 
@@ -4877,6 +10421,876 @@ func (d *podSpecDie) SetHostnameAsFQDN(v *bool) PodSpecDie {
 	})
 }
 
+type PodSecurityContextDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.PodSecurityContext)) PodSecurityContextDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.PodSecurityContext) PodSecurityContextDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.PodSecurityContext) PodSecurityContextDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.PodSecurityContext
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.PodSecurityContext
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) PodSecurityContextDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() PodSecurityContextDie
+
+	podSecurityContext
+	// The SELinux context to be applied to all containers. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container.
+	SELinuxOptions(SELinuxOptions *corev1.SELinuxOptions) PodSecurityContextDie
+	// The Windows specific settings applied to all containers. If unspecified, the options within a container's SecurityContext will be used. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+	WindowsOptions(WindowsOptions *corev1.WindowsSecurityContextOptions) PodSecurityContextDie
+	// The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container.
+	RunAsUser(RunAsUser *int64) PodSecurityContextDie
+	// The GID to run the entrypoint of the container process. Uses runtime default if unset. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container.
+	RunAsGroup(RunAsGroup *int64) PodSecurityContextDie
+	// Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. If unset or false, no such validation will be performed. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+	RunAsNonRoot(RunAsNonRoot *bool) PodSecurityContextDie
+	// A list of groups applied to the first process run in each container, in addition to the container's primary GID.  If unspecified, no groups will be added to any container.
+	SupplementalGroups(SupplementalGroups ...int64) PodSecurityContextDie
+	// A special supplemental group that applies to all containers in a pod. Some volume types allow the Kubelet to change the ownership of that volume to be owned by the pod:
+	//
+	// 1. The owning GID will be the FSGroup 2. The setgid bit is set (new files created in the volume will be owned by FSGroup) 3. The permission bits are OR'd with rw-rw----
+	//
+	// If unset, the Kubelet will not modify the ownership and permissions of any volume.
+	FSGroup(FSGroup *int64) PodSecurityContextDie
+	// Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported sysctls (by the container runtime) might fail to launch.
+	Sysctls(Sysctls ...corev1.Sysctl) PodSecurityContextDie
+	// fsGroupChangePolicy defines behavior of changing ownership and permission of the volume before being exposed inside Pod. This field will only apply to volume types which support fsGroup based ownership(and permissions). It will have no effect on ephemeral volume types such as: secret, configmaps and emptydir. Valid values are "OnRootMismatch" and "Always". If not specified, "Always" is used.
+	FSGroupChangePolicy(FSGroupChangePolicy *corev1.PodFSGroupChangePolicy) PodSecurityContextDie
+	// The seccomp options to use by the containers in this pod.
+	SeccompProfile(SeccompProfile *corev1.SeccompProfile) PodSecurityContextDie
+}
+
+var _ PodSecurityContextDie = (*podSecurityContextDie)(nil)
+var PodSecurityContextBlank = (&podSecurityContextDie{}).DieFeed(corev1.PodSecurityContext{})
+
+type podSecurityContextDie struct {
+	mutable bool
+	r       corev1.PodSecurityContext
+}
+
+func (d *podSecurityContextDie) DieImmutable(immutable bool) PodSecurityContextDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*podSecurityContextDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *podSecurityContextDie) DieFeed(r corev1.PodSecurityContext) PodSecurityContextDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &podSecurityContextDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *podSecurityContextDie) DieFeedPtr(r *corev1.PodSecurityContext) PodSecurityContextDie {
+	if r == nil {
+		r = &corev1.PodSecurityContext{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *podSecurityContextDie) DieRelease() corev1.PodSecurityContext {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *podSecurityContextDie) DieReleasePtr() *corev1.PodSecurityContext {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *podSecurityContextDie) DieStamp(fn func(r *corev1.PodSecurityContext)) PodSecurityContextDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *podSecurityContextDie) DeepCopy() PodSecurityContextDie {
+	r := *d.r.DeepCopy()
+	return &podSecurityContextDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *podSecurityContextDie) SELinuxOptions(v *corev1.SELinuxOptions) PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		r.SELinuxOptions = v
+	})
+}
+
+func (d *podSecurityContextDie) WindowsOptions(v *corev1.WindowsSecurityContextOptions) PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		r.WindowsOptions = v
+	})
+}
+
+func (d *podSecurityContextDie) RunAsUser(v *int64) PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		r.RunAsUser = v
+	})
+}
+
+func (d *podSecurityContextDie) RunAsGroup(v *int64) PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		r.RunAsGroup = v
+	})
+}
+
+func (d *podSecurityContextDie) RunAsNonRoot(v *bool) PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		r.RunAsNonRoot = v
+	})
+}
+
+func (d *podSecurityContextDie) SupplementalGroups(v ...int64) PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		r.SupplementalGroups = v
+	})
+}
+
+func (d *podSecurityContextDie) FSGroup(v *int64) PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		r.FSGroup = v
+	})
+}
+
+func (d *podSecurityContextDie) Sysctls(v ...corev1.Sysctl) PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		r.Sysctls = v
+	})
+}
+
+func (d *podSecurityContextDie) FSGroupChangePolicy(v *corev1.PodFSGroupChangePolicy) PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		r.FSGroupChangePolicy = v
+	})
+}
+
+func (d *podSecurityContextDie) SeccompProfile(v *corev1.SeccompProfile) PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		r.SeccompProfile = v
+	})
+}
+
+type SysctlDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.Sysctl)) SysctlDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.Sysctl) SysctlDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.Sysctl) SysctlDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.Sysctl
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.Sysctl
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) SysctlDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() SysctlDie
+
+	// Name of a property to set
+	Name(Name string) SysctlDie
+	// Value of a property to set
+	Value(Value string) SysctlDie
+}
+
+var _ SysctlDie = (*sysctlDie)(nil)
+var SysctlBlank = (&sysctlDie{}).DieFeed(corev1.Sysctl{})
+
+type sysctlDie struct {
+	mutable bool
+	r       corev1.Sysctl
+}
+
+func (d *sysctlDie) DieImmutable(immutable bool) SysctlDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*sysctlDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *sysctlDie) DieFeed(r corev1.Sysctl) SysctlDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &sysctlDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *sysctlDie) DieFeedPtr(r *corev1.Sysctl) SysctlDie {
+	if r == nil {
+		r = &corev1.Sysctl{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *sysctlDie) DieRelease() corev1.Sysctl {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *sysctlDie) DieReleasePtr() *corev1.Sysctl {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *sysctlDie) DieStamp(fn func(r *corev1.Sysctl)) SysctlDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *sysctlDie) DeepCopy() SysctlDie {
+	r := *d.r.DeepCopy()
+	return &sysctlDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *sysctlDie) Name(v string) SysctlDie {
+	return d.DieStamp(func(r *corev1.Sysctl) {
+		r.Name = v
+	})
+}
+
+func (d *sysctlDie) Value(v string) SysctlDie {
+	return d.DieStamp(func(r *corev1.Sysctl) {
+		r.Value = v
+	})
+}
+
+type TolerationDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.Toleration)) TolerationDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.Toleration) TolerationDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.Toleration) TolerationDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.Toleration
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.Toleration
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) TolerationDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() TolerationDie
+
+	// Key is the taint key that the toleration applies to. Empty means match all taint keys. If the key is empty, operator must be Exists; this combination means to match all values and all keys.
+	Key(Key string) TolerationDie
+	// Operator represents a key's relationship to the value. Valid operators are Exists and Equal. Defaults to Equal. Exists is equivalent to wildcard for value, so that a pod can tolerate all taints of a particular category.
+	Operator(Operator corev1.TolerationOperator) TolerationDie
+	// Value is the taint value the toleration matches to. If the operator is Exists, the value should be empty, otherwise just a regular string.
+	Value(Value string) TolerationDie
+	// Effect indicates the taint effect to match. Empty means match all taint effects. When specified, allowed values are NoSchedule, PreferNoSchedule and NoExecute.
+	Effect(Effect corev1.TaintEffect) TolerationDie
+	// TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, otherwise this field is ignored) tolerates the taint. By default, it is not set, which means tolerate the taint forever (do not evict). Zero and negative values will be treated as 0 (evict immediately) by the system.
+	TolerationSeconds(TolerationSeconds *int64) TolerationDie
+}
+
+var _ TolerationDie = (*tolerationDie)(nil)
+var TolerationBlank = (&tolerationDie{}).DieFeed(corev1.Toleration{})
+
+type tolerationDie struct {
+	mutable bool
+	r       corev1.Toleration
+}
+
+func (d *tolerationDie) DieImmutable(immutable bool) TolerationDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*tolerationDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *tolerationDie) DieFeed(r corev1.Toleration) TolerationDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &tolerationDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *tolerationDie) DieFeedPtr(r *corev1.Toleration) TolerationDie {
+	if r == nil {
+		r = &corev1.Toleration{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *tolerationDie) DieRelease() corev1.Toleration {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *tolerationDie) DieReleasePtr() *corev1.Toleration {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *tolerationDie) DieStamp(fn func(r *corev1.Toleration)) TolerationDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *tolerationDie) DeepCopy() TolerationDie {
+	r := *d.r.DeepCopy()
+	return &tolerationDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *tolerationDie) Key(v string) TolerationDie {
+	return d.DieStamp(func(r *corev1.Toleration) {
+		r.Key = v
+	})
+}
+
+func (d *tolerationDie) Operator(v corev1.TolerationOperator) TolerationDie {
+	return d.DieStamp(func(r *corev1.Toleration) {
+		r.Operator = v
+	})
+}
+
+func (d *tolerationDie) Value(v string) TolerationDie {
+	return d.DieStamp(func(r *corev1.Toleration) {
+		r.Value = v
+	})
+}
+
+func (d *tolerationDie) Effect(v corev1.TaintEffect) TolerationDie {
+	return d.DieStamp(func(r *corev1.Toleration) {
+		r.Effect = v
+	})
+}
+
+func (d *tolerationDie) TolerationSeconds(v *int64) TolerationDie {
+	return d.DieStamp(func(r *corev1.Toleration) {
+		r.TolerationSeconds = v
+	})
+}
+
+type HostAliasDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.HostAlias)) HostAliasDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.HostAlias) HostAliasDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.HostAlias) HostAliasDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.HostAlias
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.HostAlias
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) HostAliasDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() HostAliasDie
+
+	// IP address of the host file entry.
+	IP(IP string) HostAliasDie
+	// Hostnames for the above IP address.
+	Hostnames(Hostnames ...string) HostAliasDie
+}
+
+var _ HostAliasDie = (*hostAliasDie)(nil)
+var HostAliasBlank = (&hostAliasDie{}).DieFeed(corev1.HostAlias{})
+
+type hostAliasDie struct {
+	mutable bool
+	r       corev1.HostAlias
+}
+
+func (d *hostAliasDie) DieImmutable(immutable bool) HostAliasDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*hostAliasDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *hostAliasDie) DieFeed(r corev1.HostAlias) HostAliasDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &hostAliasDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *hostAliasDie) DieFeedPtr(r *corev1.HostAlias) HostAliasDie {
+	if r == nil {
+		r = &corev1.HostAlias{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *hostAliasDie) DieRelease() corev1.HostAlias {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *hostAliasDie) DieReleasePtr() *corev1.HostAlias {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *hostAliasDie) DieStamp(fn func(r *corev1.HostAlias)) HostAliasDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *hostAliasDie) DeepCopy() HostAliasDie {
+	r := *d.r.DeepCopy()
+	return &hostAliasDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *hostAliasDie) IP(v string) HostAliasDie {
+	return d.DieStamp(func(r *corev1.HostAlias) {
+		r.IP = v
+	})
+}
+
+func (d *hostAliasDie) Hostnames(v ...string) HostAliasDie {
+	return d.DieStamp(func(r *corev1.HostAlias) {
+		r.Hostnames = v
+	})
+}
+
+type PodDNSConfigDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.PodDNSConfig)) PodDNSConfigDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.PodDNSConfig) PodDNSConfigDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.PodDNSConfig) PodDNSConfigDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.PodDNSConfig
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.PodDNSConfig
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) PodDNSConfigDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() PodDNSConfigDie
+
+	podDNSConfig
+	// A list of DNS name server IP addresses. This will be appended to the base nameservers generated from DNSPolicy. Duplicated nameservers will be removed.
+	Nameservers(Nameservers ...string) PodDNSConfigDie
+	// A list of DNS search domains for host-name lookup. This will be appended to the base search paths generated from DNSPolicy. Duplicated search paths will be removed.
+	Searches(Searches ...string) PodDNSConfigDie
+	// A list of DNS resolver options. This will be merged with the base options generated from DNSPolicy. Duplicated entries will be removed. Resolution options given in Options will override those that appear in the base DNSPolicy.
+	Options(Options ...corev1.PodDNSConfigOption) PodDNSConfigDie
+}
+
+var _ PodDNSConfigDie = (*podDNSConfigDie)(nil)
+var PodDNSConfigBlank = (&podDNSConfigDie{}).DieFeed(corev1.PodDNSConfig{})
+
+type podDNSConfigDie struct {
+	mutable bool
+	r       corev1.PodDNSConfig
+}
+
+func (d *podDNSConfigDie) DieImmutable(immutable bool) PodDNSConfigDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*podDNSConfigDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *podDNSConfigDie) DieFeed(r corev1.PodDNSConfig) PodDNSConfigDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &podDNSConfigDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *podDNSConfigDie) DieFeedPtr(r *corev1.PodDNSConfig) PodDNSConfigDie {
+	if r == nil {
+		r = &corev1.PodDNSConfig{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *podDNSConfigDie) DieRelease() corev1.PodDNSConfig {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *podDNSConfigDie) DieReleasePtr() *corev1.PodDNSConfig {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *podDNSConfigDie) DieStamp(fn func(r *corev1.PodDNSConfig)) PodDNSConfigDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *podDNSConfigDie) DeepCopy() PodDNSConfigDie {
+	r := *d.r.DeepCopy()
+	return &podDNSConfigDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *podDNSConfigDie) Nameservers(v ...string) PodDNSConfigDie {
+	return d.DieStamp(func(r *corev1.PodDNSConfig) {
+		r.Nameservers = v
+	})
+}
+
+func (d *podDNSConfigDie) Searches(v ...string) PodDNSConfigDie {
+	return d.DieStamp(func(r *corev1.PodDNSConfig) {
+		r.Searches = v
+	})
+}
+
+func (d *podDNSConfigDie) Options(v ...corev1.PodDNSConfigOption) PodDNSConfigDie {
+	return d.DieStamp(func(r *corev1.PodDNSConfig) {
+		r.Options = v
+	})
+}
+
+type PodDNSConfigOptionDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.PodDNSConfigOption)) PodDNSConfigOptionDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.PodDNSConfigOption) PodDNSConfigOptionDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.PodDNSConfigOption) PodDNSConfigOptionDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.PodDNSConfigOption
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.PodDNSConfigOption
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) PodDNSConfigOptionDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() PodDNSConfigOptionDie
+
+	// Required.
+	Name(Name string) PodDNSConfigOptionDie
+	Value(Value *string) PodDNSConfigOptionDie
+}
+
+var _ PodDNSConfigOptionDie = (*podDNSConfigOptionDie)(nil)
+var PodDNSConfigOptionBlank = (&podDNSConfigOptionDie{}).DieFeed(corev1.PodDNSConfigOption{})
+
+type podDNSConfigOptionDie struct {
+	mutable bool
+	r       corev1.PodDNSConfigOption
+}
+
+func (d *podDNSConfigOptionDie) DieImmutable(immutable bool) PodDNSConfigOptionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*podDNSConfigOptionDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *podDNSConfigOptionDie) DieFeed(r corev1.PodDNSConfigOption) PodDNSConfigOptionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &podDNSConfigOptionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *podDNSConfigOptionDie) DieFeedPtr(r *corev1.PodDNSConfigOption) PodDNSConfigOptionDie {
+	if r == nil {
+		r = &corev1.PodDNSConfigOption{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *podDNSConfigOptionDie) DieRelease() corev1.PodDNSConfigOption {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *podDNSConfigOptionDie) DieReleasePtr() *corev1.PodDNSConfigOption {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *podDNSConfigOptionDie) DieStamp(fn func(r *corev1.PodDNSConfigOption)) PodDNSConfigOptionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *podDNSConfigOptionDie) DeepCopy() PodDNSConfigOptionDie {
+	r := *d.r.DeepCopy()
+	return &podDNSConfigOptionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *podDNSConfigOptionDie) Name(v string) PodDNSConfigOptionDie {
+	return d.DieStamp(func(r *corev1.PodDNSConfigOption) {
+		r.Name = v
+	})
+}
+
+func (d *podDNSConfigOptionDie) Value(v *string) PodDNSConfigOptionDie {
+	return d.DieStamp(func(r *corev1.PodDNSConfigOption) {
+		r.Value = v
+	})
+}
+
+type PodReadinessGateDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.PodReadinessGate)) PodReadinessGateDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.PodReadinessGate) PodReadinessGateDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.PodReadinessGate) PodReadinessGateDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.PodReadinessGate
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.PodReadinessGate
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) PodReadinessGateDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() PodReadinessGateDie
+
+	// ConditionType refers to a condition in the pod's condition list with matching type.
+	ConditionType(ConditionType corev1.PodConditionType) PodReadinessGateDie
+}
+
+var _ PodReadinessGateDie = (*podReadinessGateDie)(nil)
+var PodReadinessGateBlank = (&podReadinessGateDie{}).DieFeed(corev1.PodReadinessGate{})
+
+type podReadinessGateDie struct {
+	mutable bool
+	r       corev1.PodReadinessGate
+}
+
+func (d *podReadinessGateDie) DieImmutable(immutable bool) PodReadinessGateDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*podReadinessGateDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *podReadinessGateDie) DieFeed(r corev1.PodReadinessGate) PodReadinessGateDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &podReadinessGateDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *podReadinessGateDie) DieFeedPtr(r *corev1.PodReadinessGate) PodReadinessGateDie {
+	if r == nil {
+		r = &corev1.PodReadinessGate{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *podReadinessGateDie) DieRelease() corev1.PodReadinessGate {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *podReadinessGateDie) DieReleasePtr() *corev1.PodReadinessGate {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *podReadinessGateDie) DieStamp(fn func(r *corev1.PodReadinessGate)) PodReadinessGateDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *podReadinessGateDie) DeepCopy() PodReadinessGateDie {
+	r := *d.r.DeepCopy()
+	return &podReadinessGateDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *podReadinessGateDie) ConditionType(v corev1.PodConditionType) PodReadinessGateDie {
+	return d.DieStamp(func(r *corev1.PodReadinessGate) {
+		r.ConditionType = v
+	})
+}
+
+type TopologySpreadConstraintDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.TopologySpreadConstraint)) TopologySpreadConstraintDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.TopologySpreadConstraint) TopologySpreadConstraintDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.TopologySpreadConstraint) TopologySpreadConstraintDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.TopologySpreadConstraint
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.TopologySpreadConstraint
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) TopologySpreadConstraintDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() TopologySpreadConstraintDie
+
+	topologySpreadConstraint
+	// MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 1/1/0: | zone1 | zone2 | zone3 | |   P   |   P   |       | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 1/1/1; scheduling it onto zone1(zone2) would make the ActualSkew(2-0) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed.
+	MaxSkew(MaxSkew int32) TopologySpreadConstraintDie
+	// TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a "bucket", and try to put balanced number of pods into each bucket. It's a required field.
+	TopologyKey(TopologyKey string) TopologySpreadConstraintDie
+	// WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered "Unsatisfiable" for an incoming pod if and only if every possible node assigment for that pod would violate "MaxSkew" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field.
+	WhenUnsatisfiable(WhenUnsatisfiable corev1.UnsatisfiableConstraintAction) TopologySpreadConstraintDie
+	// LabelSelector is used to find matching pods. Pods that match this label selector are counted to determine the number of pods in their corresponding topology domain.
+	LabelSelector(LabelSelector *apismetav1.LabelSelector) TopologySpreadConstraintDie
+}
+
+var _ TopologySpreadConstraintDie = (*topologySpreadConstraintDie)(nil)
+var TopologySpreadConstraintBlank = (&topologySpreadConstraintDie{}).DieFeed(corev1.TopologySpreadConstraint{})
+
+type topologySpreadConstraintDie struct {
+	mutable bool
+	r       corev1.TopologySpreadConstraint
+}
+
+func (d *topologySpreadConstraintDie) DieImmutable(immutable bool) TopologySpreadConstraintDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*topologySpreadConstraintDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *topologySpreadConstraintDie) DieFeed(r corev1.TopologySpreadConstraint) TopologySpreadConstraintDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &topologySpreadConstraintDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *topologySpreadConstraintDie) DieFeedPtr(r *corev1.TopologySpreadConstraint) TopologySpreadConstraintDie {
+	if r == nil {
+		r = &corev1.TopologySpreadConstraint{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *topologySpreadConstraintDie) DieRelease() corev1.TopologySpreadConstraint {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *topologySpreadConstraintDie) DieReleasePtr() *corev1.TopologySpreadConstraint {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *topologySpreadConstraintDie) DieStamp(fn func(r *corev1.TopologySpreadConstraint)) TopologySpreadConstraintDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *topologySpreadConstraintDie) DeepCopy() TopologySpreadConstraintDie {
+	r := *d.r.DeepCopy()
+	return &topologySpreadConstraintDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *topologySpreadConstraintDie) MaxSkew(v int32) TopologySpreadConstraintDie {
+	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
+		r.MaxSkew = v
+	})
+}
+
+func (d *topologySpreadConstraintDie) TopologyKey(v string) TopologySpreadConstraintDie {
+	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
+		r.TopologyKey = v
+	})
+}
+
+func (d *topologySpreadConstraintDie) WhenUnsatisfiable(v corev1.UnsatisfiableConstraintAction) TopologySpreadConstraintDie {
+	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
+		r.WhenUnsatisfiable = v
+	})
+}
+
+func (d *topologySpreadConstraintDie) LabelSelector(v *apismetav1.LabelSelector) TopologySpreadConstraintDie {
+	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
+		r.LabelSelector = v
+	})
+}
+
 type PodStatusDie interface {
 	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
 	DieStamp(fn func(r *corev1.PodStatus)) PodStatusDie
@@ -5333,6 +11747,7 @@ type ResourceQuotaSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ResourceQuotaSpecDie
 
+	resourceQuotaSpec
 	// hard is the set of desired hard limits for each named resource. More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
 	Hard(Hard corev1.ResourceList) ResourceQuotaSpecDie
 	// A collection of filters that must match each object tracked by a quota. If not specified, the quota matches all objects.
@@ -5420,6 +11835,197 @@ func (d *resourceQuotaSpecDie) ScopeSelector(v *corev1.ScopeSelector) ResourceQu
 	})
 }
 
+type ScopeSelectorDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ScopeSelector)) ScopeSelectorDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ScopeSelector) ScopeSelectorDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ScopeSelector) ScopeSelectorDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ScopeSelector
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ScopeSelector
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ScopeSelectorDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ScopeSelectorDie
+
+	scopeSelector
+	// A list of scope selector requirements by scope of the resources.
+	MatchExpressions(MatchExpressions ...corev1.ScopedResourceSelectorRequirement) ScopeSelectorDie
+}
+
+var _ ScopeSelectorDie = (*scopeSelectorDie)(nil)
+var ScopeSelectorBlank = (&scopeSelectorDie{}).DieFeed(corev1.ScopeSelector{})
+
+type scopeSelectorDie struct {
+	mutable bool
+	r       corev1.ScopeSelector
+}
+
+func (d *scopeSelectorDie) DieImmutable(immutable bool) ScopeSelectorDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*scopeSelectorDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *scopeSelectorDie) DieFeed(r corev1.ScopeSelector) ScopeSelectorDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &scopeSelectorDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *scopeSelectorDie) DieFeedPtr(r *corev1.ScopeSelector) ScopeSelectorDie {
+	if r == nil {
+		r = &corev1.ScopeSelector{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *scopeSelectorDie) DieRelease() corev1.ScopeSelector {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *scopeSelectorDie) DieReleasePtr() *corev1.ScopeSelector {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *scopeSelectorDie) DieStamp(fn func(r *corev1.ScopeSelector)) ScopeSelectorDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *scopeSelectorDie) DeepCopy() ScopeSelectorDie {
+	r := *d.r.DeepCopy()
+	return &scopeSelectorDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *scopeSelectorDie) MatchExpressions(v ...corev1.ScopedResourceSelectorRequirement) ScopeSelectorDie {
+	return d.DieStamp(func(r *corev1.ScopeSelector) {
+		r.MatchExpressions = v
+	})
+}
+
+type ScopedResourceSelectorRequirementDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ScopedResourceSelectorRequirement)) ScopedResourceSelectorRequirementDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ScopedResourceSelectorRequirement) ScopedResourceSelectorRequirementDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ScopedResourceSelectorRequirement) ScopedResourceSelectorRequirementDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ScopedResourceSelectorRequirement
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ScopedResourceSelectorRequirement
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ScopedResourceSelectorRequirementDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ScopedResourceSelectorRequirementDie
+
+	// The name of the scope that the selector applies to.
+	ScopeName(ScopeName corev1.ResourceQuotaScope) ScopedResourceSelectorRequirementDie
+	// Represents a scope's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist.
+	Operator(Operator corev1.ScopeSelectorOperator) ScopedResourceSelectorRequirementDie
+	// An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+	Values(Values ...string) ScopedResourceSelectorRequirementDie
+}
+
+var _ ScopedResourceSelectorRequirementDie = (*scopedResourceSelectorRequirementDie)(nil)
+var ScopedResourceSelectorRequirementBlank = (&scopedResourceSelectorRequirementDie{}).DieFeed(corev1.ScopedResourceSelectorRequirement{})
+
+type scopedResourceSelectorRequirementDie struct {
+	mutable bool
+	r       corev1.ScopedResourceSelectorRequirement
+}
+
+func (d *scopedResourceSelectorRequirementDie) DieImmutable(immutable bool) ScopedResourceSelectorRequirementDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*scopedResourceSelectorRequirementDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *scopedResourceSelectorRequirementDie) DieFeed(r corev1.ScopedResourceSelectorRequirement) ScopedResourceSelectorRequirementDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &scopedResourceSelectorRequirementDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *scopedResourceSelectorRequirementDie) DieFeedPtr(r *corev1.ScopedResourceSelectorRequirement) ScopedResourceSelectorRequirementDie {
+	if r == nil {
+		r = &corev1.ScopedResourceSelectorRequirement{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *scopedResourceSelectorRequirementDie) DieRelease() corev1.ScopedResourceSelectorRequirement {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *scopedResourceSelectorRequirementDie) DieReleasePtr() *corev1.ScopedResourceSelectorRequirement {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *scopedResourceSelectorRequirementDie) DieStamp(fn func(r *corev1.ScopedResourceSelectorRequirement)) ScopedResourceSelectorRequirementDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *scopedResourceSelectorRequirementDie) DeepCopy() ScopedResourceSelectorRequirementDie {
+	r := *d.r.DeepCopy()
+	return &scopedResourceSelectorRequirementDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *scopedResourceSelectorRequirementDie) ScopeName(v corev1.ResourceQuotaScope) ScopedResourceSelectorRequirementDie {
+	return d.DieStamp(func(r *corev1.ScopedResourceSelectorRequirement) {
+		r.ScopeName = v
+	})
+}
+
+func (d *scopedResourceSelectorRequirementDie) Operator(v corev1.ScopeSelectorOperator) ScopedResourceSelectorRequirementDie {
+	return d.DieStamp(func(r *corev1.ScopedResourceSelectorRequirement) {
+		r.Operator = v
+	})
+}
+
+func (d *scopedResourceSelectorRequirementDie) Values(v ...string) ScopedResourceSelectorRequirementDie {
+	return d.DieStamp(func(r *corev1.ScopedResourceSelectorRequirement) {
+		r.Values = v
+	})
+}
+
 type ResourceQuotaStatusDie interface {
 	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
 	DieStamp(fn func(r *corev1.ResourceQuotaStatus)) ResourceQuotaStatusDie
@@ -5436,6 +12042,7 @@ type ResourceQuotaStatusDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ResourceQuotaStatusDie
 
+	resourceQuotaStatus
 	// Hard is the set of enforced hard limits for each named resource. More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
 	Hard(Hard corev1.ResourceList) ResourceQuotaStatusDie
 	// Used is the current observed total usage of the resource in the namespace.
@@ -5824,6 +12431,7 @@ type ServiceSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ServiceSpecDie
 
+	serviceSpec
 	// The list of ports that are exposed by this service. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
 	Ports(Ports ...corev1.ServicePort) ServiceSpecDie
 	// Route service traffic to pods with label keys and values matching this selector. If empty or not present, the service is assumed to have an external process managing its endpoints, which Kubernetes will not modify. Only applies to types ClusterIP, NodePort, and LoadBalancer. Ignored if type is ExternalName. More info: https://kubernetes.io/docs/concepts/services-networking/service/
@@ -6040,6 +12648,322 @@ func (d *serviceSpecDie) LoadBalancerClass(v *string) ServiceSpecDie {
 func (d *serviceSpecDie) InternalTrafficPolicy(v *corev1.ServiceInternalTrafficPolicyType) ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.InternalTrafficPolicy = v
+	})
+}
+
+type ServicePortDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ServicePort)) ServicePortDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ServicePort) ServicePortDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ServicePort) ServicePortDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ServicePort
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ServicePort
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ServicePortDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ServicePortDie
+
+	// The name of this port within the service. This must be a DNS_LABEL. All ports within a ServiceSpec must have unique names. When considering the endpoints for a Service, this must match the 'name' field in the EndpointPort. Optional if only one ServicePort is defined on this service.
+	Name(Name string) ServicePortDie
+	// The IP protocol for this port. Supports "TCP", "UDP", and "SCTP". Default is TCP.
+	Protocol(Protocol corev1.Protocol) ServicePortDie
+	// The application protocol for this port. This field follows standard Kubernetes label syntax. Un-prefixed names are reserved for IANA standard service names (as per RFC-6335 and http://www.iana.org/assignments/service-names). Non-standard protocols should use prefixed names such as mycompany.com/my-custom-protocol.
+	AppProtocol(AppProtocol *string) ServicePortDie
+	// The port that will be exposed by this service.
+	Port(Port int32) ServicePortDie
+	// Number or name of the port to access on the pods targeted by the service. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME. If this is a string, it will be looked up as a named port in the target Pod's container ports. If this is not specified, the value of the 'port' field is used (an identity map). This field is ignored for services with clusterIP=None, and should be omitted or set equal to the 'port' field. More info: https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+	TargetPort(TargetPort intstr.IntOrString) ServicePortDie
+	// The port on each node on which this service is exposed when type is NodePort or LoadBalancer.  Usually assigned by the system. If a value is specified, in-range, and not in use it will be used, otherwise the operation will fail.  If not specified, a port will be allocated if this Service requires one.  If this field is specified when creating a Service which does not need it, creation will fail. This field will be wiped when updating a Service to no longer need it (e.g. changing type from NodePort to ClusterIP). More info: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+	NodePort(NodePort int32) ServicePortDie
+}
+
+var _ ServicePortDie = (*servicePortDie)(nil)
+var ServicePortBlank = (&servicePortDie{}).DieFeed(corev1.ServicePort{})
+
+type servicePortDie struct {
+	mutable bool
+	r       corev1.ServicePort
+}
+
+func (d *servicePortDie) DieImmutable(immutable bool) ServicePortDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*servicePortDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *servicePortDie) DieFeed(r corev1.ServicePort) ServicePortDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &servicePortDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *servicePortDie) DieFeedPtr(r *corev1.ServicePort) ServicePortDie {
+	if r == nil {
+		r = &corev1.ServicePort{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *servicePortDie) DieRelease() corev1.ServicePort {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *servicePortDie) DieReleasePtr() *corev1.ServicePort {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *servicePortDie) DieStamp(fn func(r *corev1.ServicePort)) ServicePortDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *servicePortDie) DeepCopy() ServicePortDie {
+	r := *d.r.DeepCopy()
+	return &servicePortDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *servicePortDie) Name(v string) ServicePortDie {
+	return d.DieStamp(func(r *corev1.ServicePort) {
+		r.Name = v
+	})
+}
+
+func (d *servicePortDie) Protocol(v corev1.Protocol) ServicePortDie {
+	return d.DieStamp(func(r *corev1.ServicePort) {
+		r.Protocol = v
+	})
+}
+
+func (d *servicePortDie) AppProtocol(v *string) ServicePortDie {
+	return d.DieStamp(func(r *corev1.ServicePort) {
+		r.AppProtocol = v
+	})
+}
+
+func (d *servicePortDie) Port(v int32) ServicePortDie {
+	return d.DieStamp(func(r *corev1.ServicePort) {
+		r.Port = v
+	})
+}
+
+func (d *servicePortDie) TargetPort(v intstr.IntOrString) ServicePortDie {
+	return d.DieStamp(func(r *corev1.ServicePort) {
+		r.TargetPort = v
+	})
+}
+
+func (d *servicePortDie) TargetPortInt(i int) ServicePortDie {
+	return d.DieStamp(func(r *corev1.ServicePort) {
+		v := intstr.FromInt(i)
+		r.TargetPort = v
+	})
+}
+
+func (d *servicePortDie) TargetPortString(s string) ServicePortDie {
+	return d.DieStamp(func(r *corev1.ServicePort) {
+		v := intstr.FromString(s)
+		r.TargetPort = v
+	})
+}
+
+func (d *servicePortDie) NodePort(v int32) ServicePortDie {
+	return d.DieStamp(func(r *corev1.ServicePort) {
+		r.NodePort = v
+	})
+}
+
+type SessionAffinityConfigDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.SessionAffinityConfig)) SessionAffinityConfigDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.SessionAffinityConfig) SessionAffinityConfigDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.SessionAffinityConfig) SessionAffinityConfigDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.SessionAffinityConfig
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.SessionAffinityConfig
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) SessionAffinityConfigDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() SessionAffinityConfigDie
+
+	sessionAffinityConfig
+	// clientIP contains the configurations of Client IP based session affinity.
+	ClientIP(ClientIP *corev1.ClientIPConfig) SessionAffinityConfigDie
+}
+
+var _ SessionAffinityConfigDie = (*sessionAffinityConfigDie)(nil)
+var SessionAffinityConfigBlank = (&sessionAffinityConfigDie{}).DieFeed(corev1.SessionAffinityConfig{})
+
+type sessionAffinityConfigDie struct {
+	mutable bool
+	r       corev1.SessionAffinityConfig
+}
+
+func (d *sessionAffinityConfigDie) DieImmutable(immutable bool) SessionAffinityConfigDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*sessionAffinityConfigDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *sessionAffinityConfigDie) DieFeed(r corev1.SessionAffinityConfig) SessionAffinityConfigDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &sessionAffinityConfigDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *sessionAffinityConfigDie) DieFeedPtr(r *corev1.SessionAffinityConfig) SessionAffinityConfigDie {
+	if r == nil {
+		r = &corev1.SessionAffinityConfig{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *sessionAffinityConfigDie) DieRelease() corev1.SessionAffinityConfig {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *sessionAffinityConfigDie) DieReleasePtr() *corev1.SessionAffinityConfig {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *sessionAffinityConfigDie) DieStamp(fn func(r *corev1.SessionAffinityConfig)) SessionAffinityConfigDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *sessionAffinityConfigDie) DeepCopy() SessionAffinityConfigDie {
+	r := *d.r.DeepCopy()
+	return &sessionAffinityConfigDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *sessionAffinityConfigDie) ClientIP(v *corev1.ClientIPConfig) SessionAffinityConfigDie {
+	return d.DieStamp(func(r *corev1.SessionAffinityConfig) {
+		r.ClientIP = v
+	})
+}
+
+type ClientIPConfigDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ClientIPConfig)) ClientIPConfigDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ClientIPConfig) ClientIPConfigDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ClientIPConfig) ClientIPConfigDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ClientIPConfig
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ClientIPConfig
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ClientIPConfigDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ClientIPConfigDie
+
+	// timeoutSeconds specifies the seconds of ClientIP type session sticky time. The value must be >0 && <=86400(for 1 day) if ServiceAffinity == "ClientIP". Default value is 10800(for 3 hours).
+	TimeoutSeconds(TimeoutSeconds *int32) ClientIPConfigDie
+}
+
+var _ ClientIPConfigDie = (*clientIPConfigDie)(nil)
+var ClientIPConfigBlank = (&clientIPConfigDie{}).DieFeed(corev1.ClientIPConfig{})
+
+type clientIPConfigDie struct {
+	mutable bool
+	r       corev1.ClientIPConfig
+}
+
+func (d *clientIPConfigDie) DieImmutable(immutable bool) ClientIPConfigDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*clientIPConfigDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *clientIPConfigDie) DieFeed(r corev1.ClientIPConfig) ClientIPConfigDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &clientIPConfigDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *clientIPConfigDie) DieFeedPtr(r *corev1.ClientIPConfig) ClientIPConfigDie {
+	if r == nil {
+		r = &corev1.ClientIPConfig{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *clientIPConfigDie) DieRelease() corev1.ClientIPConfig {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *clientIPConfigDie) DieReleasePtr() *corev1.ClientIPConfig {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *clientIPConfigDie) DieStamp(fn func(r *corev1.ClientIPConfig)) ClientIPConfigDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *clientIPConfigDie) DeepCopy() ClientIPConfigDie {
+	r := *d.r.DeepCopy()
+	return &clientIPConfigDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *clientIPConfigDie) TimeoutSeconds(v *int32) ClientIPConfigDie {
+	return d.DieStamp(func(r *corev1.ClientIPConfig) {
+		r.TimeoutSeconds = v
 	})
 }
 
@@ -6450,6 +13374,7 @@ type ServiceAccountDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ServiceAccountDie
 
+	serviceAccount
 	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
 	MetadataDie(fn func(d metav1.ObjectMetaDie)) ServiceAccountDie
 	// Secrets is the list of secrets allowed to be used by pods running using this ServiceAccount. More info: https://kubernetes.io/docs/concepts/configuration/secret
@@ -7205,6 +14130,7 @@ type SecretVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() SecretVolumeSourceDie
 
+	secretVolumeSource
 	// Name of the secret in the pod's namespace to use. More info: https://kubernetes.io/docs/concepts/storage/volumes#secret
 	SecretName(SecretName string) SecretVolumeSourceDie
 	// If unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'.
@@ -7419,6 +14345,7 @@ type ISCSIVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ISCSIVolumeSourceDie
 
+	iSCSIVolumeSource
 	// iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
 	TargetPortal(TargetPortal string) ISCSIVolumeSourceDie
 	// Target iSCSI Qualified Name.
@@ -7784,6 +14711,7 @@ type RBDVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() RBDVolumeSourceDie
 
+	rBDVolumeSource
 	// A collection of Ceph monitors. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
 	CephMonitors(CephMonitors ...string) RBDVolumeSourceDie
 	// The rados image name. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
@@ -7927,6 +14855,7 @@ type FlexVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() FlexVolumeSourceDie
 
+	flexVolumeSource
 	// Driver is the name of the driver to use for this volume.
 	Driver(Driver string) FlexVolumeSourceDie
 	// Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". The default filesystem depends on FlexVolume script.
@@ -8046,6 +14975,7 @@ type CinderVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() CinderVolumeSourceDie
 
+	cinderVolumeSource
 	// volume id used to identify the volume in cinder. More info: https://examples.k8s.io/mysql-cinder-pd/README.md
 	VolumeID(VolumeID string) CinderVolumeSourceDie
 	// Filesystem type to mount. Must be a filesystem type supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://examples.k8s.io/mysql-cinder-pd/README.md
@@ -8157,6 +15087,7 @@ type CephFSVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() CephFSVolumeSourceDie
 
+	cephFSVolumeSource
 	// Required: Monitors is a collection of Ceph monitors More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
 	Monitors(Monitors ...string) CephFSVolumeSourceDie
 	// Optional: Used as the mounted root, rather than the full Ceph tree, default is /
@@ -8379,6 +15310,7 @@ type DownwardAPIVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() DownwardAPIVolumeSourceDie
 
+	downwardAPIVolumeSource
 	// Items is a list of downward API volume file
 	Items(Items ...corev1.DownwardAPIVolumeFile) DownwardAPIVolumeSourceDie
 	// Optional: mode bits to use on created files by default. Must be a Optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
@@ -8455,6 +15387,118 @@ func (d *downwardAPIVolumeSourceDie) Items(v ...corev1.DownwardAPIVolumeFile) Do
 func (d *downwardAPIVolumeSourceDie) DefaultMode(v *int32) DownwardAPIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeSource) {
 		r.DefaultMode = v
+	})
+}
+
+type DownwardAPIVolumeFileDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.DownwardAPIVolumeFile)) DownwardAPIVolumeFileDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.DownwardAPIVolumeFile) DownwardAPIVolumeFileDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.DownwardAPIVolumeFile) DownwardAPIVolumeFileDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.DownwardAPIVolumeFile
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.DownwardAPIVolumeFile
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) DownwardAPIVolumeFileDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() DownwardAPIVolumeFileDie
+
+	downwardAPIVolumeFile
+	// Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'
+	Path(Path string) DownwardAPIVolumeFileDie
+	// Required: Selects a field of the pod: only annotations, labels, name and namespace are supported.
+	FieldRef(FieldRef *corev1.ObjectFieldSelector) DownwardAPIVolumeFileDie
+	// Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported.
+	ResourceFieldRef(ResourceFieldRef *corev1.ResourceFieldSelector) DownwardAPIVolumeFileDie
+	// Optional: mode bits used to set permissions on this file, must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
+	Mode(Mode *int32) DownwardAPIVolumeFileDie
+}
+
+var _ DownwardAPIVolumeFileDie = (*downwardAPIVolumeFileDie)(nil)
+var DownwardAPIVolumeFileBlank = (&downwardAPIVolumeFileDie{}).DieFeed(corev1.DownwardAPIVolumeFile{})
+
+type downwardAPIVolumeFileDie struct {
+	mutable bool
+	r       corev1.DownwardAPIVolumeFile
+}
+
+func (d *downwardAPIVolumeFileDie) DieImmutable(immutable bool) DownwardAPIVolumeFileDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*downwardAPIVolumeFileDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *downwardAPIVolumeFileDie) DieFeed(r corev1.DownwardAPIVolumeFile) DownwardAPIVolumeFileDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &downwardAPIVolumeFileDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *downwardAPIVolumeFileDie) DieFeedPtr(r *corev1.DownwardAPIVolumeFile) DownwardAPIVolumeFileDie {
+	if r == nil {
+		r = &corev1.DownwardAPIVolumeFile{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *downwardAPIVolumeFileDie) DieRelease() corev1.DownwardAPIVolumeFile {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *downwardAPIVolumeFileDie) DieReleasePtr() *corev1.DownwardAPIVolumeFile {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *downwardAPIVolumeFileDie) DieStamp(fn func(r *corev1.DownwardAPIVolumeFile)) DownwardAPIVolumeFileDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *downwardAPIVolumeFileDie) DeepCopy() DownwardAPIVolumeFileDie {
+	r := *d.r.DeepCopy()
+	return &downwardAPIVolumeFileDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *downwardAPIVolumeFileDie) Path(v string) DownwardAPIVolumeFileDie {
+	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
+		r.Path = v
+	})
+}
+
+func (d *downwardAPIVolumeFileDie) FieldRef(v *corev1.ObjectFieldSelector) DownwardAPIVolumeFileDie {
+	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
+		r.FieldRef = v
+	})
+}
+
+func (d *downwardAPIVolumeFileDie) ResourceFieldRef(v *corev1.ResourceFieldSelector) DownwardAPIVolumeFileDie {
+	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
+		r.ResourceFieldRef = v
+	})
+}
+
+func (d *downwardAPIVolumeFileDie) Mode(v *int32) DownwardAPIVolumeFileDie {
+	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
+		r.Mode = v
 	})
 }
 
@@ -8696,6 +15740,7 @@ type ConfigMapVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ConfigMapVolumeSourceDie
 
+	configMapVolumeSource
 	LocalObjectReference(LocalObjectReference corev1.LocalObjectReference) ConfigMapVolumeSourceDie
 	// If unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'.
 	Items(Items ...corev1.KeyToPath) ConfigMapVolumeSourceDie
@@ -9266,6 +16311,7 @@ type ProjectedVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ProjectedVolumeSourceDie
 
+	projectedVolumeSource
 	// list of volume projections
 	Sources(Sources ...corev1.VolumeProjection) ProjectedVolumeSourceDie
 	// Mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
@@ -9342,6 +16388,514 @@ func (d *projectedVolumeSourceDie) Sources(v ...corev1.VolumeProjection) Project
 func (d *projectedVolumeSourceDie) DefaultMode(v *int32) ProjectedVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ProjectedVolumeSource) {
 		r.DefaultMode = v
+	})
+}
+
+type VolumeProjectionDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.VolumeProjection)) VolumeProjectionDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.VolumeProjection) VolumeProjectionDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.VolumeProjection) VolumeProjectionDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.VolumeProjection
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.VolumeProjection
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) VolumeProjectionDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() VolumeProjectionDie
+
+	volumeProjection
+	// information about the secret data to project
+	Secret(Secret *corev1.SecretProjection) VolumeProjectionDie
+	// information about the downwardAPI data to project
+	DownwardAPI(DownwardAPI *corev1.DownwardAPIProjection) VolumeProjectionDie
+	// information about the configMap data to project
+	ConfigMap(ConfigMap *corev1.ConfigMapProjection) VolumeProjectionDie
+	// information about the serviceAccountToken data to project
+	ServiceAccountToken(ServiceAccountToken *corev1.ServiceAccountTokenProjection) VolumeProjectionDie
+}
+
+var _ VolumeProjectionDie = (*volumeProjectionDie)(nil)
+var VolumeProjectionBlank = (&volumeProjectionDie{}).DieFeed(corev1.VolumeProjection{})
+
+type volumeProjectionDie struct {
+	mutable bool
+	r       corev1.VolumeProjection
+}
+
+func (d *volumeProjectionDie) DieImmutable(immutable bool) VolumeProjectionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*volumeProjectionDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *volumeProjectionDie) DieFeed(r corev1.VolumeProjection) VolumeProjectionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &volumeProjectionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *volumeProjectionDie) DieFeedPtr(r *corev1.VolumeProjection) VolumeProjectionDie {
+	if r == nil {
+		r = &corev1.VolumeProjection{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *volumeProjectionDie) DieRelease() corev1.VolumeProjection {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *volumeProjectionDie) DieReleasePtr() *corev1.VolumeProjection {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *volumeProjectionDie) DieStamp(fn func(r *corev1.VolumeProjection)) VolumeProjectionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *volumeProjectionDie) DeepCopy() VolumeProjectionDie {
+	r := *d.r.DeepCopy()
+	return &volumeProjectionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *volumeProjectionDie) Secret(v *corev1.SecretProjection) VolumeProjectionDie {
+	return d.DieStamp(func(r *corev1.VolumeProjection) {
+		r.Secret = v
+	})
+}
+
+func (d *volumeProjectionDie) DownwardAPI(v *corev1.DownwardAPIProjection) VolumeProjectionDie {
+	return d.DieStamp(func(r *corev1.VolumeProjection) {
+		r.DownwardAPI = v
+	})
+}
+
+func (d *volumeProjectionDie) ConfigMap(v *corev1.ConfigMapProjection) VolumeProjectionDie {
+	return d.DieStamp(func(r *corev1.VolumeProjection) {
+		r.ConfigMap = v
+	})
+}
+
+func (d *volumeProjectionDie) ServiceAccountToken(v *corev1.ServiceAccountTokenProjection) VolumeProjectionDie {
+	return d.DieStamp(func(r *corev1.VolumeProjection) {
+		r.ServiceAccountToken = v
+	})
+}
+
+type SecretProjectionDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.SecretProjection)) SecretProjectionDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.SecretProjection) SecretProjectionDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.SecretProjection) SecretProjectionDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.SecretProjection
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.SecretProjection
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) SecretProjectionDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() SecretProjectionDie
+
+	secretProjection
+	LocalObjectReference(LocalObjectReference corev1.LocalObjectReference) SecretProjectionDie
+	// If unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'.
+	Items(Items ...corev1.KeyToPath) SecretProjectionDie
+	// Specify whether the Secret or its key must be defined
+	Optional(Optional *bool) SecretProjectionDie
+}
+
+var _ SecretProjectionDie = (*secretProjectionDie)(nil)
+var SecretProjectionBlank = (&secretProjectionDie{}).DieFeed(corev1.SecretProjection{})
+
+type secretProjectionDie struct {
+	mutable bool
+	r       corev1.SecretProjection
+}
+
+func (d *secretProjectionDie) DieImmutable(immutable bool) SecretProjectionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*secretProjectionDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *secretProjectionDie) DieFeed(r corev1.SecretProjection) SecretProjectionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &secretProjectionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *secretProjectionDie) DieFeedPtr(r *corev1.SecretProjection) SecretProjectionDie {
+	if r == nil {
+		r = &corev1.SecretProjection{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *secretProjectionDie) DieRelease() corev1.SecretProjection {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *secretProjectionDie) DieReleasePtr() *corev1.SecretProjection {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *secretProjectionDie) DieStamp(fn func(r *corev1.SecretProjection)) SecretProjectionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *secretProjectionDie) DeepCopy() SecretProjectionDie {
+	r := *d.r.DeepCopy()
+	return &secretProjectionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *secretProjectionDie) LocalObjectReference(v corev1.LocalObjectReference) SecretProjectionDie {
+	return d.DieStamp(func(r *corev1.SecretProjection) {
+		r.LocalObjectReference = v
+	})
+}
+
+func (d *secretProjectionDie) Items(v ...corev1.KeyToPath) SecretProjectionDie {
+	return d.DieStamp(func(r *corev1.SecretProjection) {
+		r.Items = v
+	})
+}
+
+func (d *secretProjectionDie) Optional(v *bool) SecretProjectionDie {
+	return d.DieStamp(func(r *corev1.SecretProjection) {
+		r.Optional = v
+	})
+}
+
+type DownwardAPIProjectionDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.DownwardAPIProjection)) DownwardAPIProjectionDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.DownwardAPIProjection) DownwardAPIProjectionDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.DownwardAPIProjection) DownwardAPIProjectionDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.DownwardAPIProjection
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.DownwardAPIProjection
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) DownwardAPIProjectionDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() DownwardAPIProjectionDie
+
+	downwardAPIProjection
+	// Items is a list of DownwardAPIVolume file
+	Items(Items ...corev1.DownwardAPIVolumeFile) DownwardAPIProjectionDie
+}
+
+var _ DownwardAPIProjectionDie = (*downwardAPIProjectionDie)(nil)
+var DownwardAPIProjectionBlank = (&downwardAPIProjectionDie{}).DieFeed(corev1.DownwardAPIProjection{})
+
+type downwardAPIProjectionDie struct {
+	mutable bool
+	r       corev1.DownwardAPIProjection
+}
+
+func (d *downwardAPIProjectionDie) DieImmutable(immutable bool) DownwardAPIProjectionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*downwardAPIProjectionDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *downwardAPIProjectionDie) DieFeed(r corev1.DownwardAPIProjection) DownwardAPIProjectionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &downwardAPIProjectionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *downwardAPIProjectionDie) DieFeedPtr(r *corev1.DownwardAPIProjection) DownwardAPIProjectionDie {
+	if r == nil {
+		r = &corev1.DownwardAPIProjection{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *downwardAPIProjectionDie) DieRelease() corev1.DownwardAPIProjection {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *downwardAPIProjectionDie) DieReleasePtr() *corev1.DownwardAPIProjection {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *downwardAPIProjectionDie) DieStamp(fn func(r *corev1.DownwardAPIProjection)) DownwardAPIProjectionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *downwardAPIProjectionDie) DeepCopy() DownwardAPIProjectionDie {
+	r := *d.r.DeepCopy()
+	return &downwardAPIProjectionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *downwardAPIProjectionDie) Items(v ...corev1.DownwardAPIVolumeFile) DownwardAPIProjectionDie {
+	return d.DieStamp(func(r *corev1.DownwardAPIProjection) {
+		r.Items = v
+	})
+}
+
+type ConfigMapProjectionDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ConfigMapProjection)) ConfigMapProjectionDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ConfigMapProjection) ConfigMapProjectionDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ConfigMapProjection) ConfigMapProjectionDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ConfigMapProjection
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ConfigMapProjection
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ConfigMapProjectionDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ConfigMapProjectionDie
+
+	LocalObjectReference(LocalObjectReference corev1.LocalObjectReference) ConfigMapProjectionDie
+	// If unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'.
+	Items(Items ...corev1.KeyToPath) ConfigMapProjectionDie
+	// Specify whether the ConfigMap or its keys must be defined
+	Optional(Optional *bool) ConfigMapProjectionDie
+}
+
+var _ ConfigMapProjectionDie = (*configMapProjectionDie)(nil)
+var ConfigMapProjectionBlank = (&configMapProjectionDie{}).DieFeed(corev1.ConfigMapProjection{})
+
+type configMapProjectionDie struct {
+	mutable bool
+	r       corev1.ConfigMapProjection
+}
+
+func (d *configMapProjectionDie) DieImmutable(immutable bool) ConfigMapProjectionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*configMapProjectionDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *configMapProjectionDie) DieFeed(r corev1.ConfigMapProjection) ConfigMapProjectionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &configMapProjectionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *configMapProjectionDie) DieFeedPtr(r *corev1.ConfigMapProjection) ConfigMapProjectionDie {
+	if r == nil {
+		r = &corev1.ConfigMapProjection{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *configMapProjectionDie) DieRelease() corev1.ConfigMapProjection {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *configMapProjectionDie) DieReleasePtr() *corev1.ConfigMapProjection {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *configMapProjectionDie) DieStamp(fn func(r *corev1.ConfigMapProjection)) ConfigMapProjectionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *configMapProjectionDie) DeepCopy() ConfigMapProjectionDie {
+	r := *d.r.DeepCopy()
+	return &configMapProjectionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *configMapProjectionDie) LocalObjectReference(v corev1.LocalObjectReference) ConfigMapProjectionDie {
+	return d.DieStamp(func(r *corev1.ConfigMapProjection) {
+		r.LocalObjectReference = v
+	})
+}
+
+func (d *configMapProjectionDie) Items(v ...corev1.KeyToPath) ConfigMapProjectionDie {
+	return d.DieStamp(func(r *corev1.ConfigMapProjection) {
+		r.Items = v
+	})
+}
+
+func (d *configMapProjectionDie) Optional(v *bool) ConfigMapProjectionDie {
+	return d.DieStamp(func(r *corev1.ConfigMapProjection) {
+		r.Optional = v
+	})
+}
+
+type ServiceAccountTokenProjectionDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.ServiceAccountTokenProjection)) ServiceAccountTokenProjectionDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.ServiceAccountTokenProjection) ServiceAccountTokenProjectionDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.ServiceAccountTokenProjection) ServiceAccountTokenProjectionDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.ServiceAccountTokenProjection
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.ServiceAccountTokenProjection
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ServiceAccountTokenProjectionDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ServiceAccountTokenProjectionDie
+
+	// Audience is the intended audience of the token. A recipient of a token must identify itself with an identifier specified in the audience of the token, and otherwise should reject the token. The audience defaults to the identifier of the apiserver.
+	Audience(Audience string) ServiceAccountTokenProjectionDie
+	// ExpirationSeconds is the requested duration of validity of the service account token. As the token approaches expiration, the kubelet volume plugin will proactively rotate the service account token. The kubelet will start trying to rotate the token if the token is older than 80 percent of its time to live or if the token is older than 24 hours.Defaults to 1 hour and must be at least 10 minutes.
+	ExpirationSeconds(ExpirationSeconds *int64) ServiceAccountTokenProjectionDie
+	// Path is the path relative to the mount point of the file to project the token into.
+	Path(Path string) ServiceAccountTokenProjectionDie
+}
+
+var _ ServiceAccountTokenProjectionDie = (*serviceAccountTokenProjectionDie)(nil)
+var ServiceAccountTokenProjectionBlank = (&serviceAccountTokenProjectionDie{}).DieFeed(corev1.ServiceAccountTokenProjection{})
+
+type serviceAccountTokenProjectionDie struct {
+	mutable bool
+	r       corev1.ServiceAccountTokenProjection
+}
+
+func (d *serviceAccountTokenProjectionDie) DieImmutable(immutable bool) ServiceAccountTokenProjectionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*serviceAccountTokenProjectionDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *serviceAccountTokenProjectionDie) DieFeed(r corev1.ServiceAccountTokenProjection) ServiceAccountTokenProjectionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &serviceAccountTokenProjectionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *serviceAccountTokenProjectionDie) DieFeedPtr(r *corev1.ServiceAccountTokenProjection) ServiceAccountTokenProjectionDie {
+	if r == nil {
+		r = &corev1.ServiceAccountTokenProjection{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *serviceAccountTokenProjectionDie) DieRelease() corev1.ServiceAccountTokenProjection {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *serviceAccountTokenProjectionDie) DieReleasePtr() *corev1.ServiceAccountTokenProjection {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *serviceAccountTokenProjectionDie) DieStamp(fn func(r *corev1.ServiceAccountTokenProjection)) ServiceAccountTokenProjectionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *serviceAccountTokenProjectionDie) DeepCopy() ServiceAccountTokenProjectionDie {
+	r := *d.r.DeepCopy()
+	return &serviceAccountTokenProjectionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *serviceAccountTokenProjectionDie) Audience(v string) ServiceAccountTokenProjectionDie {
+	return d.DieStamp(func(r *corev1.ServiceAccountTokenProjection) {
+		r.Audience = v
+	})
+}
+
+func (d *serviceAccountTokenProjectionDie) ExpirationSeconds(v *int64) ServiceAccountTokenProjectionDie {
+	return d.DieStamp(func(r *corev1.ServiceAccountTokenProjection) {
+		r.ExpirationSeconds = v
+	})
+}
+
+func (d *serviceAccountTokenProjectionDie) Path(v string) ServiceAccountTokenProjectionDie {
+	return d.DieStamp(func(r *corev1.ServiceAccountTokenProjection) {
+		r.Path = v
 	})
 }
 
@@ -9464,6 +17018,7 @@ type ScaleIOVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ScaleIOVolumeSourceDie
 
+	scaleIOVolumeSource
 	// The host address of the ScaleIO API Gateway.
 	Gateway(Gateway string) ScaleIOVolumeSourceDie
 	// The name of the storage system as configured in ScaleIO.
@@ -9623,6 +17178,7 @@ type StorageOSVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() StorageOSVolumeSourceDie
 
+	storageOSVolumeSource
 	// VolumeName is the human-readable name of the StorageOS volume.  Volume names are only unique within a namespace.
 	VolumeName(VolumeName string) StorageOSVolumeSourceDie
 	// VolumeNamespace specifies the scope of the volume within StorageOS.  If no namespace is specified then the Pod's namespace will be used.  This allows the Kubernetes name scoping to be mirrored within StorageOS for tighter integration. Set VolumeName to any name to override the default behaviour. Set to "default" if you are not using namespaces within StorageOS. Namespaces that do not pre-exist within StorageOS will be created.
@@ -9742,6 +17298,7 @@ type CSIVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() CSIVolumeSourceDie
 
+	cSIVolumeSource
 	// Driver is the name of the CSI driver that handles this volume. Consult with your admin for the correct name as registered in the cluster.
 	Driver(Driver string) CSIVolumeSourceDie
 	// Specifies a read-only configuration for the volume. Defaults to false (read/write).
@@ -9861,6 +17418,7 @@ type EphemeralVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() EphemeralVolumeSourceDie
 
+	ephemeralVolumeSource
 	// Will be used to create a stand-alone PVC to provision the volume. The pod in which this EphemeralVolumeSource is embedded will be the owner of the PVC, i.e. the PVC will be deleted together with the pod.  The name of the PVC will be `<pod name>-<volume name>` where `<volume name>` is the name from the `PodSpec.Volumes` array entry. Pod validation will reject the pod if the concatenated name is not valid for a PVC (for example, too long).
 	//
 	// An existing PVC with that name that is not owned by the pod will *not* be used for the pod to avoid using an unrelated volume by mistake. Starting the pod is then blocked until the unrelated PVC is removed. If such a pre-created PVC is meant to be used by the pod, the PVC has to updated with an owner reference to the pod once the pod exists. Normally this should not be necessary, but it may be useful when manually reconstructing a broken cluster.
@@ -9935,5 +17493,108 @@ func (d *ephemeralVolumeSourceDie) DeepCopy() EphemeralVolumeSourceDie {
 func (d *ephemeralVolumeSourceDie) VolumeClaimTemplate(v *corev1.PersistentVolumeClaimTemplate) EphemeralVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.EphemeralVolumeSource) {
 		r.VolumeClaimTemplate = v
+	})
+}
+
+type KeyToPathDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *corev1.KeyToPath)) KeyToPathDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r corev1.KeyToPath) KeyToPathDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *corev1.KeyToPath) KeyToPathDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() corev1.KeyToPath
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *corev1.KeyToPath
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) KeyToPathDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() KeyToPathDie
+
+	// The key to project.
+	Key(Key string) KeyToPathDie
+	// The relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'.
+	Path(Path string) KeyToPathDie
+	// Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
+	Mode(Mode *int32) KeyToPathDie
+}
+
+var _ KeyToPathDie = (*keyToPathDie)(nil)
+var KeyToPathBlank = (&keyToPathDie{}).DieFeed(corev1.KeyToPath{})
+
+type keyToPathDie struct {
+	mutable bool
+	r       corev1.KeyToPath
+}
+
+func (d *keyToPathDie) DieImmutable(immutable bool) KeyToPathDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*keyToPathDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *keyToPathDie) DieFeed(r corev1.KeyToPath) KeyToPathDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &keyToPathDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *keyToPathDie) DieFeedPtr(r *corev1.KeyToPath) KeyToPathDie {
+	if r == nil {
+		r = &corev1.KeyToPath{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *keyToPathDie) DieRelease() corev1.KeyToPath {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *keyToPathDie) DieReleasePtr() *corev1.KeyToPath {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *keyToPathDie) DieStamp(fn func(r *corev1.KeyToPath)) KeyToPathDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *keyToPathDie) DeepCopy() KeyToPathDie {
+	r := *d.r.DeepCopy()
+	return &keyToPathDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *keyToPathDie) Key(v string) KeyToPathDie {
+	return d.DieStamp(func(r *corev1.KeyToPath) {
+		r.Key = v
+	})
+}
+
+func (d *keyToPathDie) Path(v string) KeyToPathDie {
+	return d.DieStamp(func(r *corev1.KeyToPath) {
+		r.Path = v
+	})
+}
+
+func (d *keyToPathDie) Mode(v *int32) KeyToPathDie {
+	return d.DieStamp(func(r *corev1.KeyToPath) {
+		r.Mode = v
 	})
 }

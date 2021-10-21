@@ -22,3 +22,48 @@ import (
 
 // +die:object=true
 type _ = corev1.Event
+
+type event interface {
+	InvolvedObjectDie(fn func(d ObjectReferenceDie)) EventDie
+	SourceDie(fn func(d EventSourceDie)) EventDie
+	SeriesDie(fn func(d EventSeriesDie)) EventDie
+	RelatedDie(fn func(d ObjectReferenceDie)) EventDie
+}
+
+func (d *eventDie) InvolvedObjectDie(fn func(d ObjectReferenceDie)) EventDie {
+	return d.DieStamp(func(r *corev1.Event) {
+		d := ObjectReferenceBlank.DieImmutable(false).DieFeed(r.InvolvedObject)
+		fn(d)
+		r.InvolvedObject = d.DieRelease()
+	})
+}
+
+func (d *eventDie) SourceDie(fn func(d EventSourceDie)) EventDie {
+	return d.DieStamp(func(r *corev1.Event) {
+		d := EventSourceBlank.DieImmutable(false).DieFeed(r.Source)
+		fn(d)
+		r.Source = d.DieRelease()
+	})
+}
+
+func (d *eventDie) SeriesDie(fn func(d EventSeriesDie)) EventDie {
+	return d.DieStamp(func(r *corev1.Event) {
+		d := EventSeriesBlank.DieImmutable(false).DieFeedPtr(r.Series)
+		fn(d)
+		r.Series = d.DieReleasePtr()
+	})
+}
+
+func (d *eventDie) RelatedDie(fn func(d ObjectReferenceDie)) EventDie {
+	return d.DieStamp(func(r *corev1.Event) {
+		d := ObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.Related)
+		fn(d)
+		r.Related = d.DieReleasePtr()
+	})
+}
+
+// +die
+type _ = corev1.EventSource
+
+// +die
+type _ = corev1.EventSeries

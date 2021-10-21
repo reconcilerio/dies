@@ -22,3 +22,26 @@ import (
 
 // +die:object=true
 type _ = corev1.ServiceAccount
+
+type serviceAccount interface {
+	SecretsDie(secrets ...ObjectReferenceDie) ServiceAccountDie
+	ImagePullSecretsDie(secrets ...LocalObjectReferenceDie) ServiceAccountDie
+}
+
+func (d *serviceAccountDie) SecretsDie(secrets ...ObjectReferenceDie) ServiceAccountDie {
+	return d.DieStamp(func(r *corev1.ServiceAccount) {
+		r.Secrets = make([]corev1.ObjectReference, len(secrets))
+		for i := range secrets {
+			r.Secrets[i] = secrets[i].DieRelease()
+		}
+	})
+}
+
+func (d *serviceAccountDie) ImagePullSecretsDie(secrets ...LocalObjectReferenceDie) ServiceAccountDie {
+	return d.DieStamp(func(r *corev1.ServiceAccount) {
+		r.ImagePullSecrets = make([]corev1.LocalObjectReference, len(secrets))
+		for i := range secrets {
+			r.ImagePullSecrets[i] = secrets[i].DieRelease()
+		}
+	})
+}

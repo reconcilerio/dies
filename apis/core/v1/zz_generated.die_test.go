@@ -44,6 +44,276 @@ func TestContainerDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestContainerPortDie_MissingMethods(t *testingx.T) {
+	die := ContainerPortBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ContainerPortDie: %s", diff.List())
+	}
+}
+
+func TestEnvFromSourceDie_MissingMethods(t *testingx.T) {
+	die := EnvFromSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for EnvFromSourceDie: %s", diff.List())
+	}
+}
+
+func TestConfigMapEnvSourceDie_MissingMethods(t *testingx.T) {
+	die := ConfigMapEnvSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ConfigMapEnvSourceDie: %s", diff.List())
+	}
+}
+
+func TestSecretEnvSourceDie_MissingMethods(t *testingx.T) {
+	die := SecretEnvSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SecretEnvSourceDie: %s", diff.List())
+	}
+}
+
+func TestEnvVarDie_MissingMethods(t *testingx.T) {
+	die := EnvVarBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for EnvVarDie: %s", diff.List())
+	}
+}
+
+func TestEnvVarSourceDie_MissingMethods(t *testingx.T) {
+	die := EnvVarSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for EnvVarSourceDie: %s", diff.List())
+	}
+}
+
+func TestObjectFieldSelectorDie_MissingMethods(t *testingx.T) {
+	die := ObjectFieldSelectorBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ObjectFieldSelectorDie: %s", diff.List())
+	}
+}
+
+func TestResourceFieldSelectorDie_MissingMethods(t *testingx.T) {
+	die := ResourceFieldSelectorBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ResourceFieldSelectorDie: %s", diff.List())
+	}
+}
+
+func TestConfigMapKeySelectorDie_MissingMethods(t *testingx.T) {
+	die := ConfigMapKeySelectorBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ConfigMapKeySelectorDie: %s", diff.List())
+	}
+}
+
+func TestSecretKeySelectorDie_MissingMethods(t *testingx.T) {
+	die := SecretKeySelectorBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SecretKeySelectorDie: %s", diff.List())
+	}
+}
+
+func TestResourceRequirementsDie_MissingMethods(t *testingx.T) {
+	die := ResourceRequirementsBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ResourceRequirementsDie: %s", diff.List())
+	}
+}
+
+func TestVolumeMountDie_MissingMethods(t *testingx.T) {
+	die := VolumeMountBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for VolumeMountDie: %s", diff.List())
+	}
+}
+
+func TestVolumeDeviceDie_MissingMethods(t *testingx.T) {
+	die := VolumeDeviceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for VolumeDeviceDie: %s", diff.List())
+	}
+}
+
+func TestProbeDie_MissingMethods(t *testingx.T) {
+	die := ProbeBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ProbeDie: %s", diff.List())
+	}
+}
+
+func TestLifecycleDie_MissingMethods(t *testingx.T) {
+	die := LifecycleBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for LifecycleDie: %s", diff.List())
+	}
+}
+
+func TestHandlerDie_MissingMethods(t *testingx.T) {
+	die := HandlerBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for HandlerDie: %s", diff.List())
+	}
+}
+
+func TestExecActionDie_MissingMethods(t *testingx.T) {
+	die := ExecActionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ExecActionDie: %s", diff.List())
+	}
+}
+
+func TestHTTPGetActionDie_MissingMethods(t *testingx.T) {
+	die := HTTPGetActionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for HTTPGetActionDie: %s", diff.List())
+	}
+}
+
+func TestHTTPHeaderDie_MissingMethods(t *testingx.T) {
+	die := HTTPHeaderBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for HTTPHeaderDie: %s", diff.List())
+	}
+}
+
+func TestTCPSocketActionDie_MissingMethods(t *testingx.T) {
+	die := TCPSocketActionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for TCPSocketActionDie: %s", diff.List())
+	}
+}
+
+func TestSecurityContextDie_MissingMethods(t *testingx.T) {
+	die := SecurityContextBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SecurityContextDie: %s", diff.List())
+	}
+}
+
+func TestCapabilitiesDie_MissingMethods(t *testingx.T) {
+	die := CapabilitiesBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CapabilitiesDie: %s", diff.List())
+	}
+}
+
+func TestSELinuxOptionsDie_MissingMethods(t *testingx.T) {
+	die := SELinuxOptionsBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SELinuxOptionsDie: %s", diff.List())
+	}
+}
+
+func TestWindowsSecurityContextOptionsDie_MissingMethods(t *testingx.T) {
+	die := WindowsSecurityContextOptionsBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WindowsSecurityContextOptionsDie: %s", diff.List())
+	}
+}
+
+func TestSeccompProfileDie_MissingMethods(t *testingx.T) {
+	die := SeccompProfileBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SeccompProfileDie: %s", diff.List())
+	}
+}
+
+func TestContainerStatusDie_MissingMethods(t *testingx.T) {
+	die := ContainerStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ContainerStatusDie: %s", diff.List())
+	}
+}
+
+func TestContainerStateDie_MissingMethods(t *testingx.T) {
+	die := ContainerStateBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ContainerStateDie: %s", diff.List())
+	}
+}
+
+func TestContainerStateWaitingDie_MissingMethods(t *testingx.T) {
+	die := ContainerStateWaitingBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ContainerStateWaitingDie: %s", diff.List())
+	}
+}
+
+func TestContainerStateRunningDie_MissingMethods(t *testingx.T) {
+	die := ContainerStateRunningBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ContainerStateRunningDie: %s", diff.List())
+	}
+}
+
+func TestContainerStateTerminatedDie_MissingMethods(t *testingx.T) {
+	die := ContainerStateTerminatedBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ContainerStateTerminatedDie: %s", diff.List())
+	}
+}
+
 func TestEndpointsDie_MissingMethods(t *testingx.T) {
 	die := EndpointsBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
@@ -53,12 +323,57 @@ func TestEndpointsDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestEndpointSubsetDie_MissingMethods(t *testingx.T) {
+	die := EndpointSubsetBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for EndpointSubsetDie: %s", diff.List())
+	}
+}
+
+func TestEndpointAddressDie_MissingMethods(t *testingx.T) {
+	die := EndpointAddressBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for EndpointAddressDie: %s", diff.List())
+	}
+}
+
+func TestEndpointPortDie_MissingMethods(t *testingx.T) {
+	die := EndpointPortBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for EndpointPortDie: %s", diff.List())
+	}
+}
+
 func TestEventDie_MissingMethods(t *testingx.T) {
 	die := EventBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for EventDie: %s", diff.List())
+	}
+}
+
+func TestEventSourceDie_MissingMethods(t *testingx.T) {
+	die := EventSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for EventSourceDie: %s", diff.List())
+	}
+}
+
+func TestEventSeriesDie_MissingMethods(t *testingx.T) {
+	die := EventSeriesBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for EventSeriesDie: %s", diff.List())
 	}
 }
 
@@ -77,6 +392,15 @@ func TestLimitRangeSpecDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for LimitRangeSpecDie: %s", diff.List())
+	}
+}
+
+func TestLimitRangeItemDie_MissingMethods(t *testingx.T) {
+	die := LimitRangeItemBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for LimitRangeItemDie: %s", diff.List())
 	}
 }
 
@@ -125,12 +449,102 @@ func TestNodeSpecDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestTaintDie_MissingMethods(t *testingx.T) {
+	die := TaintBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for TaintDie: %s", diff.List())
+	}
+}
+
+func TestNodeConfigSourceDie_MissingMethods(t *testingx.T) {
+	die := NodeConfigSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodeConfigSourceDie: %s", diff.List())
+	}
+}
+
+func TestConfigMapNodeConfigSourceDie_MissingMethods(t *testingx.T) {
+	die := ConfigMapNodeConfigSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ConfigMapNodeConfigSourceDie: %s", diff.List())
+	}
+}
+
 func TestNodeStatusDie_MissingMethods(t *testingx.T) {
 	die := NodeStatusBlank
 	ignore := []string{}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for NodeStatusDie: %s", diff.List())
+	}
+}
+
+func TestNodeAddressDie_MissingMethods(t *testingx.T) {
+	die := NodeAddressBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodeAddressDie: %s", diff.List())
+	}
+}
+
+func TestNodeDaemonEndpointsDie_MissingMethods(t *testingx.T) {
+	die := NodeDaemonEndpointsBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodeDaemonEndpointsDie: %s", diff.List())
+	}
+}
+
+func TestDaemonEndpointDie_MissingMethods(t *testingx.T) {
+	die := DaemonEndpointBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for DaemonEndpointDie: %s", diff.List())
+	}
+}
+
+func TestNodeSystemInfoDie_MissingMethods(t *testingx.T) {
+	die := NodeSystemInfoBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodeSystemInfoDie: %s", diff.List())
+	}
+}
+
+func TestContainerImageDie_MissingMethods(t *testingx.T) {
+	die := ContainerImageBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ContainerImageDie: %s", diff.List())
+	}
+}
+
+func TestAttachedVolumeDie_MissingMethods(t *testingx.T) {
+	die := AttachedVolumeBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for AttachedVolumeDie: %s", diff.List())
+	}
+}
+
+func TestNodeConfigStatusDie_MissingMethods(t *testingx.T) {
+	die := NodeConfigStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodeConfigStatusDie: %s", diff.List())
 	}
 }
 
@@ -158,6 +572,15 @@ func TestTypedLocalObjectReferenceDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for TypedLocalObjectReferenceDie: %s", diff.List())
+	}
+}
+
+func TestSecretReferenceDie_MissingMethods(t *testingx.T) {
+	die := SecretReferenceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SecretReferenceDie: %s", diff.List())
 	}
 }
 
@@ -287,6 +710,42 @@ func TestCSIPersistentVolumeSourceDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestVolumeNodeAffinityDie_MissingMethods(t *testingx.T) {
+	die := VolumeNodeAffinityBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for VolumeNodeAffinityDie: %s", diff.List())
+	}
+}
+
+func TestNodeSelectorDie_MissingMethods(t *testingx.T) {
+	die := NodeSelectorBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodeSelectorDie: %s", diff.List())
+	}
+}
+
+func TestNodeSelectorTermDie_MissingMethods(t *testingx.T) {
+	die := NodeSelectorTermBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodeSelectorTermDie: %s", diff.List())
+	}
+}
+
+func TestNodeSelectorRequirementDie_MissingMethods(t *testingx.T) {
+	die := NodeSelectorRequirementBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodeSelectorRequirementDie: %s", diff.List())
+	}
+}
+
 func TestPersistentVolumeClaimDie_MissingMethods(t *testingx.T) {
 	die := PersistentVolumeClaimBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
@@ -314,6 +773,15 @@ func TestPersistentVolumeClaimStatusDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestPersistentVolumeClaimTemplateDie_MissingMethods(t *testingx.T) {
+	die := PersistentVolumeClaimTemplateBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PersistentVolumeClaimTemplateDie: %s", diff.List())
+	}
+}
+
 func TestPodDie_MissingMethods(t *testingx.T) {
 	die := PodBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
@@ -329,6 +797,78 @@ func TestPodSpecDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for PodSpecDie: %s", diff.List())
+	}
+}
+
+func TestPodSecurityContextDie_MissingMethods(t *testingx.T) {
+	die := PodSecurityContextBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PodSecurityContextDie: %s", diff.List())
+	}
+}
+
+func TestSysctlDie_MissingMethods(t *testingx.T) {
+	die := SysctlBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SysctlDie: %s", diff.List())
+	}
+}
+
+func TestTolerationDie_MissingMethods(t *testingx.T) {
+	die := TolerationBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for TolerationDie: %s", diff.List())
+	}
+}
+
+func TestHostAliasDie_MissingMethods(t *testingx.T) {
+	die := HostAliasBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for HostAliasDie: %s", diff.List())
+	}
+}
+
+func TestPodDNSConfigDie_MissingMethods(t *testingx.T) {
+	die := PodDNSConfigBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PodDNSConfigDie: %s", diff.List())
+	}
+}
+
+func TestPodDNSConfigOptionDie_MissingMethods(t *testingx.T) {
+	die := PodDNSConfigOptionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PodDNSConfigOptionDie: %s", diff.List())
+	}
+}
+
+func TestPodReadinessGateDie_MissingMethods(t *testingx.T) {
+	die := PodReadinessGateBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PodReadinessGateDie: %s", diff.List())
+	}
+}
+
+func TestTopologySpreadConstraintDie_MissingMethods(t *testingx.T) {
+	die := TopologySpreadConstraintBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for TopologySpreadConstraintDie: %s", diff.List())
 	}
 }
 
@@ -368,6 +908,24 @@ func TestResourceQuotaSpecDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestScopeSelectorDie_MissingMethods(t *testingx.T) {
+	die := ScopeSelectorBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ScopeSelectorDie: %s", diff.List())
+	}
+}
+
+func TestScopedResourceSelectorRequirementDie_MissingMethods(t *testingx.T) {
+	die := ScopedResourceSelectorRequirementBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ScopedResourceSelectorRequirementDie: %s", diff.List())
+	}
+}
+
 func TestResourceQuotaStatusDie_MissingMethods(t *testingx.T) {
 	die := ResourceQuotaStatusBlank
 	ignore := []string{}
@@ -401,6 +959,33 @@ func TestServiceSpecDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for ServiceSpecDie: %s", diff.List())
+	}
+}
+
+func TestServicePortDie_MissingMethods(t *testingx.T) {
+	die := ServicePortBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ServicePortDie: %s", diff.List())
+	}
+}
+
+func TestSessionAffinityConfigDie_MissingMethods(t *testingx.T) {
+	die := SessionAffinityConfigBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SessionAffinityConfigDie: %s", diff.List())
+	}
+}
+
+func TestClientIPConfigDie_MissingMethods(t *testingx.T) {
+	die := ClientIPConfigBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ClientIPConfigDie: %s", diff.List())
 	}
 }
 
@@ -602,6 +1187,15 @@ func TestDownwardAPIVolumeSourceDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestDownwardAPIVolumeFileDie_MissingMethods(t *testingx.T) {
+	die := DownwardAPIVolumeFileBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for DownwardAPIVolumeFileDie: %s", diff.List())
+	}
+}
+
 func TestFCVolumeSourceDie_MissingMethods(t *testingx.T) {
 	die := FCVolumeSourceBlank
 	ignore := []string{}
@@ -674,6 +1268,51 @@ func TestProjectedVolumeSourceDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestVolumeProjectionDie_MissingMethods(t *testingx.T) {
+	die := VolumeProjectionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for VolumeProjectionDie: %s", diff.List())
+	}
+}
+
+func TestSecretProjectionDie_MissingMethods(t *testingx.T) {
+	die := SecretProjectionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SecretProjectionDie: %s", diff.List())
+	}
+}
+
+func TestDownwardAPIProjectionDie_MissingMethods(t *testingx.T) {
+	die := DownwardAPIProjectionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for DownwardAPIProjectionDie: %s", diff.List())
+	}
+}
+
+func TestConfigMapProjectionDie_MissingMethods(t *testingx.T) {
+	die := ConfigMapProjectionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ConfigMapProjectionDie: %s", diff.List())
+	}
+}
+
+func TestServiceAccountTokenProjectionDie_MissingMethods(t *testingx.T) {
+	die := ServiceAccountTokenProjectionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ServiceAccountTokenProjectionDie: %s", diff.List())
+	}
+}
+
 func TestPortworxVolumeSourceDie_MissingMethods(t *testingx.T) {
 	die := PortworxVolumeSourceBlank
 	ignore := []string{}
@@ -716,5 +1355,14 @@ func TestEphemeralVolumeSourceDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for EphemeralVolumeSourceDie: %s", diff.List())
+	}
+}
+
+func TestKeyToPathDie_MissingMethods(t *testingx.T) {
+	die := KeyToPathBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for KeyToPathDie: %s", diff.List())
 	}
 }

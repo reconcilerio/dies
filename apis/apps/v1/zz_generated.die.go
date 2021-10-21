@@ -988,6 +988,225 @@ func (d *deploymentSpecDie) ProgressDeadlineSeconds(v *int32) DeploymentSpecDie 
 	})
 }
 
+type DeploymentStrategyDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *appsv1.DeploymentStrategy)) DeploymentStrategyDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r appsv1.DeploymentStrategy) DeploymentStrategyDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *appsv1.DeploymentStrategy) DeploymentStrategyDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() appsv1.DeploymentStrategy
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *appsv1.DeploymentStrategy
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) DeploymentStrategyDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() DeploymentStrategyDie
+
+	deploymentStrategy
+	// Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+	Type(Type appsv1.DeploymentStrategyType) DeploymentStrategyDie
+	// Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- TODO: Update this to follow our convention for oneOf, whatever we decide it to be.
+	RollingUpdate(RollingUpdate *appsv1.RollingUpdateDeployment) DeploymentStrategyDie
+}
+
+var _ DeploymentStrategyDie = (*deploymentStrategyDie)(nil)
+var DeploymentStrategyBlank = (&deploymentStrategyDie{}).DieFeed(appsv1.DeploymentStrategy{})
+
+type deploymentStrategyDie struct {
+	mutable bool
+	r       appsv1.DeploymentStrategy
+}
+
+func (d *deploymentStrategyDie) DieImmutable(immutable bool) DeploymentStrategyDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*deploymentStrategyDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *deploymentStrategyDie) DieFeed(r appsv1.DeploymentStrategy) DeploymentStrategyDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &deploymentStrategyDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *deploymentStrategyDie) DieFeedPtr(r *appsv1.DeploymentStrategy) DeploymentStrategyDie {
+	if r == nil {
+		r = &appsv1.DeploymentStrategy{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *deploymentStrategyDie) DieRelease() appsv1.DeploymentStrategy {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *deploymentStrategyDie) DieReleasePtr() *appsv1.DeploymentStrategy {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *deploymentStrategyDie) DieStamp(fn func(r *appsv1.DeploymentStrategy)) DeploymentStrategyDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *deploymentStrategyDie) DeepCopy() DeploymentStrategyDie {
+	r := *d.r.DeepCopy()
+	return &deploymentStrategyDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *deploymentStrategyDie) Type(v appsv1.DeploymentStrategyType) DeploymentStrategyDie {
+	return d.DieStamp(func(r *appsv1.DeploymentStrategy) {
+		r.Type = v
+	})
+}
+
+func (d *deploymentStrategyDie) RollingUpdate(v *appsv1.RollingUpdateDeployment) DeploymentStrategyDie {
+	return d.DieStamp(func(r *appsv1.DeploymentStrategy) {
+		r.RollingUpdate = v
+	})
+}
+
+type RollingUpdateDeploymentDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *appsv1.RollingUpdateDeployment)) RollingUpdateDeploymentDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r appsv1.RollingUpdateDeployment) RollingUpdateDeploymentDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *appsv1.RollingUpdateDeployment) RollingUpdateDeploymentDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() appsv1.RollingUpdateDeployment
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *appsv1.RollingUpdateDeployment
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) RollingUpdateDeploymentDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() RollingUpdateDeploymentDie
+
+	// The maximum number of pods that can be unavailable during the update. Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%). Absolute number is calculated from percentage by rounding down. This can not be 0 if MaxSurge is 0. Defaults to 25%. Example: when this is set to 30%, the old ReplicaSet can be scaled down to 70% of desired pods immediately when the rolling update starts. Once new pods are ready, old ReplicaSet can be scaled down further, followed by scaling up the new ReplicaSet, ensuring that the total number of pods available at all times during the update is at least 70% of desired pods.
+	MaxUnavailable(MaxUnavailable *intstr.IntOrString) RollingUpdateDeploymentDie
+	// The maximum number of pods that can be scheduled above the desired number of pods. Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%). This can not be 0 if MaxUnavailable is 0. Absolute number is calculated from percentage by rounding up. Defaults to 25%. Example: when this is set to 30%, the new ReplicaSet can be scaled up immediately when the rolling update starts, such that the total number of old and new pods do not exceed 130% of desired pods. Once old pods have been killed, new ReplicaSet can be scaled up further, ensuring that total number of pods running at any time during the update is at most 130% of desired pods.
+	MaxSurge(MaxSurge *intstr.IntOrString) RollingUpdateDeploymentDie
+}
+
+var _ RollingUpdateDeploymentDie = (*rollingUpdateDeploymentDie)(nil)
+var RollingUpdateDeploymentBlank = (&rollingUpdateDeploymentDie{}).DieFeed(appsv1.RollingUpdateDeployment{})
+
+type rollingUpdateDeploymentDie struct {
+	mutable bool
+	r       appsv1.RollingUpdateDeployment
+}
+
+func (d *rollingUpdateDeploymentDie) DieImmutable(immutable bool) RollingUpdateDeploymentDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*rollingUpdateDeploymentDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *rollingUpdateDeploymentDie) DieFeed(r appsv1.RollingUpdateDeployment) RollingUpdateDeploymentDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &rollingUpdateDeploymentDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *rollingUpdateDeploymentDie) DieFeedPtr(r *appsv1.RollingUpdateDeployment) RollingUpdateDeploymentDie {
+	if r == nil {
+		r = &appsv1.RollingUpdateDeployment{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *rollingUpdateDeploymentDie) DieRelease() appsv1.RollingUpdateDeployment {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *rollingUpdateDeploymentDie) DieReleasePtr() *appsv1.RollingUpdateDeployment {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *rollingUpdateDeploymentDie) DieStamp(fn func(r *appsv1.RollingUpdateDeployment)) RollingUpdateDeploymentDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *rollingUpdateDeploymentDie) DeepCopy() RollingUpdateDeploymentDie {
+	r := *d.r.DeepCopy()
+	return &rollingUpdateDeploymentDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *rollingUpdateDeploymentDie) MaxUnavailable(v *intstr.IntOrString) RollingUpdateDeploymentDie {
+	return d.DieStamp(func(r *appsv1.RollingUpdateDeployment) {
+		r.MaxUnavailable = v
+	})
+}
+
+func (d *rollingUpdateDeploymentDie) MaxUnavailableInt(i int) RollingUpdateDeploymentDie {
+	return d.DieStamp(func(r *appsv1.RollingUpdateDeployment) {
+		v := intstr.FromInt(i)
+		r.MaxUnavailable = &v
+	})
+}
+
+func (d *rollingUpdateDeploymentDie) MaxUnavailableString(s string) RollingUpdateDeploymentDie {
+	return d.DieStamp(func(r *appsv1.RollingUpdateDeployment) {
+		v := intstr.FromString(s)
+		r.MaxUnavailable = &v
+	})
+}
+
+func (d *rollingUpdateDeploymentDie) MaxSurge(v *intstr.IntOrString) RollingUpdateDeploymentDie {
+	return d.DieStamp(func(r *appsv1.RollingUpdateDeployment) {
+		r.MaxSurge = v
+	})
+}
+
+func (d *rollingUpdateDeploymentDie) MaxSurgeInt(i int) RollingUpdateDeploymentDie {
+	return d.DieStamp(func(r *appsv1.RollingUpdateDeployment) {
+		v := intstr.FromInt(i)
+		r.MaxSurge = &v
+	})
+}
+
+func (d *rollingUpdateDeploymentDie) MaxSurgeString(s string) RollingUpdateDeploymentDie {
+	return d.DieStamp(func(r *appsv1.RollingUpdateDeployment) {
+		v := intstr.FromString(s)
+		r.MaxSurge = &v
+	})
+}
+
 type DeploymentStatusDie interface {
 	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
 	DieStamp(fn func(r *appsv1.DeploymentStatus)) DeploymentStatusDie
@@ -1833,6 +2052,189 @@ func (d *statefulSetSpecDie) RevisionHistoryLimit(v *int32) StatefulSetSpecDie {
 func (d *statefulSetSpecDie) MinReadySeconds(v int32) StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.MinReadySeconds = v
+	})
+}
+
+type StatefulSetUpdateStrategyDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *appsv1.StatefulSetUpdateStrategy)) StatefulSetUpdateStrategyDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r appsv1.StatefulSetUpdateStrategy) StatefulSetUpdateStrategyDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *appsv1.StatefulSetUpdateStrategy) StatefulSetUpdateStrategyDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() appsv1.StatefulSetUpdateStrategy
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *appsv1.StatefulSetUpdateStrategy
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) StatefulSetUpdateStrategyDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() StatefulSetUpdateStrategyDie
+
+	statefulSetUpdateStrategy
+	// Type indicates the type of the StatefulSetUpdateStrategy. Default is RollingUpdate.
+	Type(Type appsv1.StatefulSetUpdateStrategyType) StatefulSetUpdateStrategyDie
+	// RollingUpdate is used to communicate parameters when Type is RollingUpdateStatefulSetStrategyType.
+	RollingUpdate(RollingUpdate *appsv1.RollingUpdateStatefulSetStrategy) StatefulSetUpdateStrategyDie
+}
+
+var _ StatefulSetUpdateStrategyDie = (*statefulSetUpdateStrategyDie)(nil)
+var StatefulSetUpdateStrategyBlank = (&statefulSetUpdateStrategyDie{}).DieFeed(appsv1.StatefulSetUpdateStrategy{})
+
+type statefulSetUpdateStrategyDie struct {
+	mutable bool
+	r       appsv1.StatefulSetUpdateStrategy
+}
+
+func (d *statefulSetUpdateStrategyDie) DieImmutable(immutable bool) StatefulSetUpdateStrategyDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*statefulSetUpdateStrategyDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *statefulSetUpdateStrategyDie) DieFeed(r appsv1.StatefulSetUpdateStrategy) StatefulSetUpdateStrategyDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &statefulSetUpdateStrategyDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *statefulSetUpdateStrategyDie) DieFeedPtr(r *appsv1.StatefulSetUpdateStrategy) StatefulSetUpdateStrategyDie {
+	if r == nil {
+		r = &appsv1.StatefulSetUpdateStrategy{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *statefulSetUpdateStrategyDie) DieRelease() appsv1.StatefulSetUpdateStrategy {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *statefulSetUpdateStrategyDie) DieReleasePtr() *appsv1.StatefulSetUpdateStrategy {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *statefulSetUpdateStrategyDie) DieStamp(fn func(r *appsv1.StatefulSetUpdateStrategy)) StatefulSetUpdateStrategyDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *statefulSetUpdateStrategyDie) DeepCopy() StatefulSetUpdateStrategyDie {
+	r := *d.r.DeepCopy()
+	return &statefulSetUpdateStrategyDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *statefulSetUpdateStrategyDie) Type(v appsv1.StatefulSetUpdateStrategyType) StatefulSetUpdateStrategyDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetUpdateStrategy) {
+		r.Type = v
+	})
+}
+
+func (d *statefulSetUpdateStrategyDie) RollingUpdate(v *appsv1.RollingUpdateStatefulSetStrategy) StatefulSetUpdateStrategyDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetUpdateStrategy) {
+		r.RollingUpdate = v
+	})
+}
+
+type RollingUpdateStatefulSetStrategyDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *appsv1.RollingUpdateStatefulSetStrategy)) RollingUpdateStatefulSetStrategyDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r appsv1.RollingUpdateStatefulSetStrategy) RollingUpdateStatefulSetStrategyDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *appsv1.RollingUpdateStatefulSetStrategy) RollingUpdateStatefulSetStrategyDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() appsv1.RollingUpdateStatefulSetStrategy
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *appsv1.RollingUpdateStatefulSetStrategy
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) RollingUpdateStatefulSetStrategyDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() RollingUpdateStatefulSetStrategyDie
+
+	// Partition indicates the ordinal at which the StatefulSet should be partitioned. Default value is 0.
+	Partition(Partition *int32) RollingUpdateStatefulSetStrategyDie
+}
+
+var _ RollingUpdateStatefulSetStrategyDie = (*rollingUpdateStatefulSetStrategyDie)(nil)
+var RollingUpdateStatefulSetStrategyBlank = (&rollingUpdateStatefulSetStrategyDie{}).DieFeed(appsv1.RollingUpdateStatefulSetStrategy{})
+
+type rollingUpdateStatefulSetStrategyDie struct {
+	mutable bool
+	r       appsv1.RollingUpdateStatefulSetStrategy
+}
+
+func (d *rollingUpdateStatefulSetStrategyDie) DieImmutable(immutable bool) RollingUpdateStatefulSetStrategyDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*rollingUpdateStatefulSetStrategyDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *rollingUpdateStatefulSetStrategyDie) DieFeed(r appsv1.RollingUpdateStatefulSetStrategy) RollingUpdateStatefulSetStrategyDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &rollingUpdateStatefulSetStrategyDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *rollingUpdateStatefulSetStrategyDie) DieFeedPtr(r *appsv1.RollingUpdateStatefulSetStrategy) RollingUpdateStatefulSetStrategyDie {
+	if r == nil {
+		r = &appsv1.RollingUpdateStatefulSetStrategy{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *rollingUpdateStatefulSetStrategyDie) DieRelease() appsv1.RollingUpdateStatefulSetStrategy {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *rollingUpdateStatefulSetStrategyDie) DieReleasePtr() *appsv1.RollingUpdateStatefulSetStrategy {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *rollingUpdateStatefulSetStrategyDie) DieStamp(fn func(r *appsv1.RollingUpdateStatefulSetStrategy)) RollingUpdateStatefulSetStrategyDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *rollingUpdateStatefulSetStrategyDie) DeepCopy() RollingUpdateStatefulSetStrategyDie {
+	r := *d.r.DeepCopy()
+	return &rollingUpdateStatefulSetStrategyDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *rollingUpdateStatefulSetStrategyDie) Partition(v *int32) RollingUpdateStatefulSetStrategyDie {
+	return d.DieStamp(func(r *appsv1.RollingUpdateStatefulSetStrategy) {
+		r.Partition = v
 	})
 }
 

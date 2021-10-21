@@ -30,7 +30,16 @@ type _ = appsv1.ReplicaSet
 type _ = appsv1.ReplicaSetSpec
 
 type replicaSetSpec interface {
+	SelectorDie(fn func(d diemetav1.LabelSelectorDie)) ReplicaSetSpecDie
 	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) ReplicaSetSpecDie
+}
+
+func (d *replicaSetSpecDie) SelectorDie(fn func(d diemetav1.LabelSelectorDie)) ReplicaSetSpecDie {
+	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
+		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
+		fn(d)
+		r.Selector = d.DieReleasePtr()
+	})
 }
 
 func (d *replicaSetSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) ReplicaSetSpecDie {

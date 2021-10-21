@@ -19,6 +19,7 @@ package v1
 import (
 	diemetav1 "dies.dev/apis/meta/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 // +die:object=true
@@ -27,11 +28,62 @@ type _ = corev1.PersistentVolumeClaim
 // +die
 type _ = corev1.PersistentVolumeClaimSpec
 
+type persistentVolumeClaimSpec interface {
+	SelectorDie(fn func(d diemetav1.LabelSelectorDie)) PersistentVolumeClaimSpecDie
+	ResourcesDie(fn func(d ResourceRequirementsDie)) PersistentVolumeClaimSpecDie
+	DataSourceDie(fn func(d TypedLocalObjectReferenceDie)) PersistentVolumeClaimSpecDie
+	DataSourceRefDie(fn func(d TypedLocalObjectReferenceDie)) PersistentVolumeClaimSpecDie
+}
+
+func (d *persistentVolumeClaimSpecDie) SelectorDie(fn func(d diemetav1.LabelSelectorDie)) PersistentVolumeClaimSpecDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
+		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
+		fn(d)
+		r.Selector = d.DieReleasePtr()
+	})
+}
+
+func (d *persistentVolumeClaimSpecDie) ResourcesDie(fn func(d ResourceRequirementsDie)) PersistentVolumeClaimSpecDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
+		d := ResourceRequirementsBlank.DieImmutable(false).DieFeed(r.Resources)
+		fn(d)
+		r.Resources = d.DieRelease()
+	})
+}
+
+func (d *persistentVolumeClaimSpecDie) DataSourceDie(fn func(d TypedLocalObjectReferenceDie)) PersistentVolumeClaimSpecDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
+		d := TypedLocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.DataSource)
+		fn(d)
+		r.DataSource = d.DieReleasePtr()
+	})
+}
+
+func (d *persistentVolumeClaimSpecDie) DataSourceRefDie(fn func(d TypedLocalObjectReferenceDie)) PersistentVolumeClaimSpecDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
+		d := TypedLocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.DataSourceRef)
+		fn(d)
+		r.DataSourceRef = d.DieReleasePtr()
+	})
+}
+
 // +die
 type _ = corev1.PersistentVolumeClaimStatus
 
 type persistentVolumeClaimStatus interface {
+	AddCapacity(name corev1.ResourceName, quantity resource.Quantity) PersistentVolumeClaimStatusDie
+	AddCapacityString(name corev1.ResourceName, quantity string) PersistentVolumeClaimStatusDie
 	ConditionsDie(conditions ...diemetav1.ConditionDie) PersistentVolumeClaimStatusDie
+}
+
+func (d *persistentVolumeClaimStatusDie) AddCapacity(name corev1.ResourceName, quantity resource.Quantity) PersistentVolumeClaimStatusDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
+		r.Capacity[name] = quantity
+	})
+}
+
+func (d *persistentVolumeClaimStatusDie) AddCapacityString(name corev1.ResourceName, quantity string) PersistentVolumeClaimStatusDie {
+	return d.AddCapacity(name, resource.MustParse(quantity))
 }
 
 func (d *persistentVolumeClaimStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) PersistentVolumeClaimStatusDie {
@@ -47,5 +99,29 @@ func (d *persistentVolumeClaimStatusDie) ConditionsDie(conditions ...diemetav1.C
 				LastTransitionTime: c.LastTransitionTime,
 			}
 		}
+	})
+}
+
+// +die
+type _ corev1.PersistentVolumeClaimTemplate
+
+type persistentVolumeClaimTemplate interface {
+	MetadataDie(fn func(d diemetav1.ObjectMetaDie)) PersistentVolumeClaimTemplateDie
+	SpecDie(fn func(d PersistentVolumeClaimSpecDie)) PersistentVolumeClaimTemplateDie
+}
+
+func (d *persistentVolumeClaimTemplateDie) MetadataDie(fn func(d diemetav1.ObjectMetaDie)) PersistentVolumeClaimTemplateDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimTemplate) {
+		d := diemetav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
+		fn(d)
+		r.ObjectMeta = d.DieRelease()
+	})
+}
+
+func (d *persistentVolumeClaimTemplateDie) SpecDie(fn func(d PersistentVolumeClaimSpecDie)) PersistentVolumeClaimTemplateDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimTemplate) {
+		d := PersistentVolumeClaimSpecBlank.DieImmutable(false).DieFeed(r.Spec)
+		fn(d)
+		r.Spec = d.DieRelease()
 	})
 }

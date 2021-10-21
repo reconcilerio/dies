@@ -30,8 +30,18 @@ type _ = appsv1.StatefulSet
 type _ = appsv1.StatefulSetSpec
 
 type statefulSetSpec interface {
+	SelectorDie(fn func(d diemetav1.LabelSelectorDie)) StatefulSetSpecDie
 	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) StatefulSetSpecDie
 	VolumeClaimTemplatesDie(volumeClaimTemplates ...diecorev1.PersistentVolumeClaimDie) StatefulSetSpecDie
+	UpdateStrategyDie(fn func(d StatefulSetUpdateStrategyDie)) StatefulSetSpecDie
+}
+
+func (d *statefulSetSpecDie) SelectorDie(fn func(d diemetav1.LabelSelectorDie)) StatefulSetSpecDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
+		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
+		fn(d)
+		r.Selector = d.DieReleasePtr()
+	})
 }
 
 func (d *statefulSetSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) StatefulSetSpecDie {
@@ -50,6 +60,41 @@ func (d *statefulSetSpecDie) VolumeClaimTemplatesDie(volumeClaimTemplates ...die
 		}
 	})
 }
+
+func (d *statefulSetSpecDie) UpdateStrategyDie(fn func(d StatefulSetUpdateStrategyDie)) StatefulSetSpecDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
+		d := StatefulSetUpdateStrategyBlank.DieImmutable(false).DieFeed(r.UpdateStrategy)
+		fn(d)
+		r.UpdateStrategy = d.DieRelease()
+	})
+}
+
+// +die
+type _ = appsv1.StatefulSetUpdateStrategy
+
+type statefulSetUpdateStrategy interface {
+	OnDelete() StatefulSetUpdateStrategyDie
+	RollingUpdateDie(fn func(d RollingUpdateStatefulSetStrategyDie)) StatefulSetUpdateStrategyDie
+}
+
+func (d *statefulSetUpdateStrategyDie) OnDelete() StatefulSetUpdateStrategyDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetUpdateStrategy) {
+		r.Type = appsv1.OnDeleteStatefulSetStrategyType
+		r.RollingUpdate = nil
+	})
+}
+
+func (d *statefulSetUpdateStrategyDie) RollingUpdateDie(fn func(d RollingUpdateStatefulSetStrategyDie)) StatefulSetUpdateStrategyDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetUpdateStrategy) {
+		r.Type = appsv1.RollingUpdateStatefulSetStrategyType
+		d := RollingUpdateStatefulSetStrategyBlank.DieImmutable(false).DieFeedPtr(r.RollingUpdate)
+		fn(d)
+		r.RollingUpdate = d.DieReleasePtr()
+	})
+}
+
+// +die
+type _ = appsv1.RollingUpdateStatefulSetStrategy
 
 // +die
 type _ = appsv1.StatefulSetStatus

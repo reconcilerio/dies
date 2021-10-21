@@ -79,3 +79,12 @@ func TestJobStatusDie_MissingMethods(t *testingx.T) {
 		t.Errorf("found missing fields for JobStatusDie: %s", diff.List())
 	}
 }
+
+func TestUncountedTerminatedPodsDie_MissingMethods(t *testingx.T) {
+	die := UncountedTerminatedPodsBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for UncountedTerminatedPodsDie: %s", diff.List())
+	}
+}

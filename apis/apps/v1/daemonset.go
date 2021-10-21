@@ -76,6 +76,7 @@ func (d *daemonSetUpdateStrategyDie) OnDelete() DaemonSetUpdateStrategyDie {
 
 func (d *daemonSetUpdateStrategyDie) RollingUpdateDie(fn func(d RollingUpdateDaemonSetDie)) DaemonSetUpdateStrategyDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetUpdateStrategy) {
+		r.Type = appsv1.RollingUpdateDaemonSetStrategyType
 		d := RollingUpdateDaemonSetBlank.DieImmutable(false).DieFeedPtr(r.RollingUpdate)
 		fn(d)
 		r.RollingUpdate = d.DieReleasePtr()

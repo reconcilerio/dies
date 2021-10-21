@@ -31,6 +31,446 @@ import (
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
+type WebhookClientConfigDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *admissionregistrationv1.WebhookClientConfig)) WebhookClientConfigDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r admissionregistrationv1.WebhookClientConfig) WebhookClientConfigDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *admissionregistrationv1.WebhookClientConfig) WebhookClientConfigDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() admissionregistrationv1.WebhookClientConfig
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *admissionregistrationv1.WebhookClientConfig
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) WebhookClientConfigDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() WebhookClientConfigDie
+
+	webhookClientConfig
+	// `url` gives the location of the webhook, in standard URL form (`scheme://host:port/path`). Exactly one of `url` or `service` must be specified.
+	//
+	// The `host` should not refer to a service running in the cluster; use the `service` field instead. The host might be resolved via external DNS in some apiservers (e.g., `kube-apiserver` cannot resolve in-cluster DNS as that would be a layering violation). `host` may also be an IP address.
+	//
+	// Please note that using `localhost` or `127.0.0.1` as a `host` is risky unless you take great care to run this webhook on all hosts which run an apiserver which might need to make calls to this webhook. Such installs are likely to be non-portable, i.e., not easy to turn up in a new cluster.
+	//
+	// The scheme must be "https"; the URL must begin with "https://".
+	//
+	// A path is optional, and if present may be any string permissible in a URL. You may use the path to pass an arbitrary string to the webhook, for example, a cluster identifier.
+	//
+	// Attempting to use a user or basic auth e.g. "user:password@" is not allowed. Fragments ("#...") and query parameters ("?...") are not allowed, either.
+	URL(URL *string) WebhookClientConfigDie
+	// `service` is a reference to the service for this webhook. Either `service` or `url` must be specified.
+	//
+	// If the webhook is running within the cluster, then you should use `service`.
+	Service(Service *admissionregistrationv1.ServiceReference) WebhookClientConfigDie
+	// `caBundle` is a PEM encoded CA bundle which will be used to validate the webhook's server certificate. If unspecified, system trust roots on the apiserver are used.
+	CABundle(CABundle ...byte) WebhookClientConfigDie
+}
+
+var _ WebhookClientConfigDie = (*webhookClientConfigDie)(nil)
+var WebhookClientConfigBlank = (&webhookClientConfigDie{}).DieFeed(admissionregistrationv1.WebhookClientConfig{})
+
+type webhookClientConfigDie struct {
+	mutable bool
+	r       admissionregistrationv1.WebhookClientConfig
+}
+
+func (d *webhookClientConfigDie) DieImmutable(immutable bool) WebhookClientConfigDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*webhookClientConfigDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *webhookClientConfigDie) DieFeed(r admissionregistrationv1.WebhookClientConfig) WebhookClientConfigDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &webhookClientConfigDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *webhookClientConfigDie) DieFeedPtr(r *admissionregistrationv1.WebhookClientConfig) WebhookClientConfigDie {
+	if r == nil {
+		r = &admissionregistrationv1.WebhookClientConfig{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *webhookClientConfigDie) DieRelease() admissionregistrationv1.WebhookClientConfig {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *webhookClientConfigDie) DieReleasePtr() *admissionregistrationv1.WebhookClientConfig {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *webhookClientConfigDie) DieStamp(fn func(r *admissionregistrationv1.WebhookClientConfig)) WebhookClientConfigDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *webhookClientConfigDie) DeepCopy() WebhookClientConfigDie {
+	r := *d.r.DeepCopy()
+	return &webhookClientConfigDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *webhookClientConfigDie) URL(v *string) WebhookClientConfigDie {
+	return d.DieStamp(func(r *admissionregistrationv1.WebhookClientConfig) {
+		r.URL = v
+	})
+}
+
+func (d *webhookClientConfigDie) Service(v *admissionregistrationv1.ServiceReference) WebhookClientConfigDie {
+	return d.DieStamp(func(r *admissionregistrationv1.WebhookClientConfig) {
+		r.Service = v
+	})
+}
+
+func (d *webhookClientConfigDie) CABundle(v ...byte) WebhookClientConfigDie {
+	return d.DieStamp(func(r *admissionregistrationv1.WebhookClientConfig) {
+		r.CABundle = v
+	})
+}
+
+type ServiceReferenceDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *admissionregistrationv1.ServiceReference)) ServiceReferenceDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r admissionregistrationv1.ServiceReference) ServiceReferenceDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *admissionregistrationv1.ServiceReference) ServiceReferenceDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() admissionregistrationv1.ServiceReference
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *admissionregistrationv1.ServiceReference
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ServiceReferenceDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ServiceReferenceDie
+
+	// `namespace` is the namespace of the service. Required
+	Namespace(Namespace string) ServiceReferenceDie
+	// `name` is the name of the service. Required
+	Name(Name string) ServiceReferenceDie
+	// `path` is an optional URL path which will be sent in any request to this service.
+	Path(Path *string) ServiceReferenceDie
+	// If specified, the port on the service that hosting webhook. Default to 443 for backward compatibility. `port` should be a valid port number (1-65535, inclusive).
+	Port(Port *int32) ServiceReferenceDie
+}
+
+var _ ServiceReferenceDie = (*serviceReferenceDie)(nil)
+var ServiceReferenceBlank = (&serviceReferenceDie{}).DieFeed(admissionregistrationv1.ServiceReference{})
+
+type serviceReferenceDie struct {
+	mutable bool
+	r       admissionregistrationv1.ServiceReference
+}
+
+func (d *serviceReferenceDie) DieImmutable(immutable bool) ServiceReferenceDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*serviceReferenceDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *serviceReferenceDie) DieFeed(r admissionregistrationv1.ServiceReference) ServiceReferenceDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &serviceReferenceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *serviceReferenceDie) DieFeedPtr(r *admissionregistrationv1.ServiceReference) ServiceReferenceDie {
+	if r == nil {
+		r = &admissionregistrationv1.ServiceReference{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *serviceReferenceDie) DieRelease() admissionregistrationv1.ServiceReference {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *serviceReferenceDie) DieReleasePtr() *admissionregistrationv1.ServiceReference {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *serviceReferenceDie) DieStamp(fn func(r *admissionregistrationv1.ServiceReference)) ServiceReferenceDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *serviceReferenceDie) DeepCopy() ServiceReferenceDie {
+	r := *d.r.DeepCopy()
+	return &serviceReferenceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *serviceReferenceDie) Namespace(v string) ServiceReferenceDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ServiceReference) {
+		r.Namespace = v
+	})
+}
+
+func (d *serviceReferenceDie) Name(v string) ServiceReferenceDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ServiceReference) {
+		r.Name = v
+	})
+}
+
+func (d *serviceReferenceDie) Path(v *string) ServiceReferenceDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ServiceReference) {
+		r.Path = v
+	})
+}
+
+func (d *serviceReferenceDie) Port(v *int32) ServiceReferenceDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ServiceReference) {
+		r.Port = v
+	})
+}
+
+type RuleWithOperationsDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *admissionregistrationv1.RuleWithOperations)) RuleWithOperationsDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r admissionregistrationv1.RuleWithOperations) RuleWithOperationsDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *admissionregistrationv1.RuleWithOperations) RuleWithOperationsDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() admissionregistrationv1.RuleWithOperations
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *admissionregistrationv1.RuleWithOperations
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) RuleWithOperationsDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() RuleWithOperationsDie
+
+	ruleWithOperations
+	// Operations is the operations the admission hook cares about - CREATE, UPDATE, DELETE, CONNECT or * for all of those operations and any future admission operations that are added. If '*' is present, the length of the slice must be one. Required.
+	Operations(Operations ...admissionregistrationv1.OperationType) RuleWithOperationsDie
+	// Rule is embedded, it describes other criteria of the rule, like APIGroups, APIVersions, Resources, etc.
+	Rule(Rule admissionregistrationv1.Rule) RuleWithOperationsDie
+}
+
+var _ RuleWithOperationsDie = (*ruleWithOperationsDie)(nil)
+var RuleWithOperationsBlank = (&ruleWithOperationsDie{}).DieFeed(admissionregistrationv1.RuleWithOperations{})
+
+type ruleWithOperationsDie struct {
+	mutable bool
+	r       admissionregistrationv1.RuleWithOperations
+}
+
+func (d *ruleWithOperationsDie) DieImmutable(immutable bool) RuleWithOperationsDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*ruleWithOperationsDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *ruleWithOperationsDie) DieFeed(r admissionregistrationv1.RuleWithOperations) RuleWithOperationsDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ruleWithOperationsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *ruleWithOperationsDie) DieFeedPtr(r *admissionregistrationv1.RuleWithOperations) RuleWithOperationsDie {
+	if r == nil {
+		r = &admissionregistrationv1.RuleWithOperations{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *ruleWithOperationsDie) DieRelease() admissionregistrationv1.RuleWithOperations {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *ruleWithOperationsDie) DieReleasePtr() *admissionregistrationv1.RuleWithOperations {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *ruleWithOperationsDie) DieStamp(fn func(r *admissionregistrationv1.RuleWithOperations)) RuleWithOperationsDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *ruleWithOperationsDie) DeepCopy() RuleWithOperationsDie {
+	r := *d.r.DeepCopy()
+	return &ruleWithOperationsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *ruleWithOperationsDie) Operations(v ...admissionregistrationv1.OperationType) RuleWithOperationsDie {
+	return d.DieStamp(func(r *admissionregistrationv1.RuleWithOperations) {
+		r.Operations = v
+	})
+}
+
+func (d *ruleWithOperationsDie) Rule(v admissionregistrationv1.Rule) RuleWithOperationsDie {
+	return d.DieStamp(func(r *admissionregistrationv1.RuleWithOperations) {
+		r.Rule = v
+	})
+}
+
+type RuleDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *admissionregistrationv1.Rule)) RuleDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r admissionregistrationv1.Rule) RuleDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *admissionregistrationv1.Rule) RuleDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() admissionregistrationv1.Rule
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *admissionregistrationv1.Rule
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) RuleDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() RuleDie
+
+	// APIGroups is the API groups the resources belong to. '*' is all groups. If '*' is present, the length of the slice must be one. Required.
+	APIGroups(APIGroups ...string) RuleDie
+	// APIVersions is the API versions the resources belong to. '*' is all versions. If '*' is present, the length of the slice must be one. Required.
+	APIVersions(APIVersions ...string) RuleDie
+	// Resources is a list of resources this rule applies to.
+	//
+	// For example: 'pods' means pods. 'pods/log' means the log subresource of pods. '*' means all resources, but not subresources. 'pods/*' means all subresources of pods. '*/scale' means all scale subresources. '*/*' means all resources and their subresources.
+	//
+	// If wildcard is present, the validation rule will ensure resources do not overlap with each other.
+	//
+	// Depending on the enclosing object, subresources might not be allowed. Required.
+	Resources(Resources ...string) RuleDie
+	// scope specifies the scope of this rule. Valid values are "Cluster", "Namespaced", and "*" "Cluster" means that only cluster-scoped resources will match this rule. Namespace API objects are cluster-scoped. "Namespaced" means that only namespaced resources will match this rule. "*" means that there are no scope restrictions. Subresources match the scope of their parent resource. Default is "*".
+	Scope(Scope *admissionregistrationv1.ScopeType) RuleDie
+}
+
+var _ RuleDie = (*ruleDie)(nil)
+var RuleBlank = (&ruleDie{}).DieFeed(admissionregistrationv1.Rule{})
+
+type ruleDie struct {
+	mutable bool
+	r       admissionregistrationv1.Rule
+}
+
+func (d *ruleDie) DieImmutable(immutable bool) RuleDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*ruleDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *ruleDie) DieFeed(r admissionregistrationv1.Rule) RuleDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ruleDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *ruleDie) DieFeedPtr(r *admissionregistrationv1.Rule) RuleDie {
+	if r == nil {
+		r = &admissionregistrationv1.Rule{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *ruleDie) DieRelease() admissionregistrationv1.Rule {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *ruleDie) DieReleasePtr() *admissionregistrationv1.Rule {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *ruleDie) DieStamp(fn func(r *admissionregistrationv1.Rule)) RuleDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *ruleDie) DeepCopy() RuleDie {
+	r := *d.r.DeepCopy()
+	return &ruleDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *ruleDie) APIGroups(v ...string) RuleDie {
+	return d.DieStamp(func(r *admissionregistrationv1.Rule) {
+		r.APIGroups = v
+	})
+}
+
+func (d *ruleDie) APIVersions(v ...string) RuleDie {
+	return d.DieStamp(func(r *admissionregistrationv1.Rule) {
+		r.APIVersions = v
+	})
+}
+
+func (d *ruleDie) Resources(v ...string) RuleDie {
+	return d.DieStamp(func(r *admissionregistrationv1.Rule) {
+		r.Resources = v
+	})
+}
+
+func (d *ruleDie) Scope(v *admissionregistrationv1.ScopeType) RuleDie {
+	return d.DieStamp(func(r *admissionregistrationv1.Rule) {
+		r.Scope = v
+	})
+}
+
 type MutatingWebhookConfigurationDie interface {
 	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
 	DieStamp(fn func(r *admissionregistrationv1.MutatingWebhookConfiguration)) MutatingWebhookConfigurationDie
@@ -47,6 +487,7 @@ type MutatingWebhookConfigurationDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() MutatingWebhookConfigurationDie
 
+	mutatingWebhookConfiguration
 	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
 	MetadataDie(fn func(d metav1.ObjectMetaDie)) MutatingWebhookConfigurationDie
 	// Webhooks is a list of webhooks and the affected resources and operations.
@@ -159,6 +600,194 @@ func (d *mutatingWebhookConfigurationDie) Webhooks(v ...admissionregistrationv1.
 	})
 }
 
+type MutatingWebhookDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *admissionregistrationv1.MutatingWebhook)) MutatingWebhookDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r admissionregistrationv1.MutatingWebhook) MutatingWebhookDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *admissionregistrationv1.MutatingWebhook) MutatingWebhookDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() admissionregistrationv1.MutatingWebhook
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *admissionregistrationv1.MutatingWebhook
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) MutatingWebhookDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() MutatingWebhookDie
+
+	mutatingWebhook
+	// The name of the admission webhook. Name should be fully qualified, e.g., imagepolicy.kubernetes.io, where "imagepolicy" is the name of the webhook, and kubernetes.io is the name of the organization. Required.
+	Name(Name string) MutatingWebhookDie
+	// ClientConfig defines how to communicate with the hook. Required
+	ClientConfig(ClientConfig admissionregistrationv1.WebhookClientConfig) MutatingWebhookDie
+	// Rules describes what operations on what resources/subresources the webhook cares about. The webhook cares about an operation if it matches _any_ Rule. However, in order to prevent ValidatingAdmissionWebhooks and MutatingAdmissionWebhooks from putting the cluster in a state which cannot be recovered from without completely disabling the plugin, ValidatingAdmissionWebhooks and MutatingAdmissionWebhooks are never called on admission requests for ValidatingWebhookConfiguration and MutatingWebhookConfiguration objects.
+	Rules(Rules ...admissionregistrationv1.RuleWithOperations) MutatingWebhookDie
+	// FailurePolicy defines how unrecognized errors from the admission endpoint are handled - allowed values are Ignore or Fail. Defaults to Fail.
+	FailurePolicy(FailurePolicy *admissionregistrationv1.FailurePolicyType) MutatingWebhookDie
+	// matchPolicy defines how the "rules" list is used to match incoming requests. Allowed values are "Exact" or "Equivalent".
+	//
+	// - Exact: match a request only if it exactly matches a specified rule. For example, if deployments can be modified via apps/v1, apps/v1beta1, and extensions/v1beta1, but "rules" only included `apiGroups:["apps"], apiVersions:["v1"], resources: ["deployments"]`, a request to apps/v1beta1 or extensions/v1beta1 would not be sent to the webhook.
+	//
+	// - Equivalent: match a request if modifies a resource listed in rules, even via another API group or version. For example, if deployments can be modified via apps/v1, apps/v1beta1, and extensions/v1beta1, and "rules" only included `apiGroups:["apps"], apiVersions:["v1"], resources: ["deployments"]`, a request to apps/v1beta1 or extensions/v1beta1 would be converted to apps/v1 and sent to the webhook.
+	//
+	// Defaults to "Equivalent"
+	MatchPolicy(MatchPolicy *admissionregistrationv1.MatchPolicyType) MutatingWebhookDie
+	// NamespaceSelector decides whether to run the webhook on an object based on whether the namespace for that object matches the selector. If the object itself is a namespace, the matching is performed on object.metadata.labels. If the object is another cluster scoped resource, it never skips the webhook.
+	//
+	// For example, to run the webhook on any objects whose namespace is not associated with "runlevel" of "0" or "1";  you will set the selector as follows: "namespaceSelector": {   "matchExpressions": [     {       "key": "runlevel",       "operator": "NotIn",       "values": [         "0",         "1"       ]     }   ] }
+	//
+	// If instead you want to only run the webhook on any objects whose namespace is associated with the "environment" of "prod" or "staging"; you will set the selector as follows: "namespaceSelector": {   "matchExpressions": [     {       "key": "environment",       "operator": "In",       "values": [         "prod",         "staging"       ]     }   ] }
+	//
+	// See https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ for more examples of label selectors.
+	//
+	// Default to the empty LabelSelector, which matches everything.
+	NamespaceSelector(NamespaceSelector *apismetav1.LabelSelector) MutatingWebhookDie
+	// ObjectSelector decides whether to run the webhook based on if the object has matching labels. objectSelector is evaluated against both the oldObject and newObject that would be sent to the webhook, and is considered to match if either object matches the selector. A null object (oldObject in the case of create, or newObject in the case of delete) or an object that cannot have labels (like a DeploymentRollback or a PodProxyOptions object) is not considered to match. Use the object selector only if the webhook is opt-in, because end users may skip the admission webhook by setting the labels. Default to the empty LabelSelector, which matches everything.
+	ObjectSelector(ObjectSelector *apismetav1.LabelSelector) MutatingWebhookDie
+	// SideEffects states whether this webhook has side effects. Acceptable values are: None, NoneOnDryRun (webhooks created via v1beta1 may also specify Some or Unknown). Webhooks with side effects MUST implement a reconciliation system, since a request may be rejected by a future step in the admission chain and the side effects therefore need to be undone. Requests with the dryRun attribute will be auto-rejected if they match a webhook with sideEffects == Unknown or Some.
+	SideEffects(SideEffects *admissionregistrationv1.SideEffectClass) MutatingWebhookDie
+	// TimeoutSeconds specifies the timeout for this webhook. After the timeout passes, the webhook call will be ignored or the API call will fail based on the failure policy. The timeout value must be between 1 and 30 seconds. Default to 10 seconds.
+	TimeoutSeconds(TimeoutSeconds *int32) MutatingWebhookDie
+	// AdmissionReviewVersions is an ordered list of preferred `AdmissionReview` versions the Webhook expects. API server will try to use first version in the list which it supports. If none of the versions specified in this list supported by API server, validation will fail for this object. If a persisted webhook configuration specifies allowed versions and does not include any versions known to the API Server, calls to the webhook will fail and be subject to the failure policy.
+	AdmissionReviewVersions(AdmissionReviewVersions ...string) MutatingWebhookDie
+	// reinvocationPolicy indicates whether this webhook should be called multiple times as part of a single admission evaluation. Allowed values are "Never" and "IfNeeded".
+	//
+	// Never: the webhook will not be called more than once in a single admission evaluation.
+	//
+	// IfNeeded: the webhook will be called at least one additional time as part of the admission evaluation if the object being admitted is modified by other admission plugins after the initial webhook call. Webhooks that specify this option *must* be idempotent, able to process objects they previously admitted. Note: * the number of additional invocations is not guaranteed to be exactly one. * if additional invocations result in further modifications to the object, webhooks are not guaranteed to be invoked again. * webhooks that use this option may be reordered to minimize the number of additional invocations. * to validate an object after all mutations are guaranteed complete, use a validating admission webhook instead.
+	//
+	// Defaults to "Never".
+	ReinvocationPolicy(ReinvocationPolicy *admissionregistrationv1.ReinvocationPolicyType) MutatingWebhookDie
+}
+
+var _ MutatingWebhookDie = (*mutatingWebhookDie)(nil)
+var MutatingWebhookBlank = (&mutatingWebhookDie{}).DieFeed(admissionregistrationv1.MutatingWebhook{})
+
+type mutatingWebhookDie struct {
+	mutable bool
+	r       admissionregistrationv1.MutatingWebhook
+}
+
+func (d *mutatingWebhookDie) DieImmutable(immutable bool) MutatingWebhookDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*mutatingWebhookDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *mutatingWebhookDie) DieFeed(r admissionregistrationv1.MutatingWebhook) MutatingWebhookDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &mutatingWebhookDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *mutatingWebhookDie) DieFeedPtr(r *admissionregistrationv1.MutatingWebhook) MutatingWebhookDie {
+	if r == nil {
+		r = &admissionregistrationv1.MutatingWebhook{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *mutatingWebhookDie) DieRelease() admissionregistrationv1.MutatingWebhook {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *mutatingWebhookDie) DieReleasePtr() *admissionregistrationv1.MutatingWebhook {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *mutatingWebhookDie) DieStamp(fn func(r *admissionregistrationv1.MutatingWebhook)) MutatingWebhookDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *mutatingWebhookDie) DeepCopy() MutatingWebhookDie {
+	r := *d.r.DeepCopy()
+	return &mutatingWebhookDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *mutatingWebhookDie) Name(v string) MutatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
+		r.Name = v
+	})
+}
+
+func (d *mutatingWebhookDie) ClientConfig(v admissionregistrationv1.WebhookClientConfig) MutatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
+		r.ClientConfig = v
+	})
+}
+
+func (d *mutatingWebhookDie) Rules(v ...admissionregistrationv1.RuleWithOperations) MutatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
+		r.Rules = v
+	})
+}
+
+func (d *mutatingWebhookDie) FailurePolicy(v *admissionregistrationv1.FailurePolicyType) MutatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
+		r.FailurePolicy = v
+	})
+}
+
+func (d *mutatingWebhookDie) MatchPolicy(v *admissionregistrationv1.MatchPolicyType) MutatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
+		r.MatchPolicy = v
+	})
+}
+
+func (d *mutatingWebhookDie) NamespaceSelector(v *apismetav1.LabelSelector) MutatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
+		r.NamespaceSelector = v
+	})
+}
+
+func (d *mutatingWebhookDie) ObjectSelector(v *apismetav1.LabelSelector) MutatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
+		r.ObjectSelector = v
+	})
+}
+
+func (d *mutatingWebhookDie) SideEffects(v *admissionregistrationv1.SideEffectClass) MutatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
+		r.SideEffects = v
+	})
+}
+
+func (d *mutatingWebhookDie) TimeoutSeconds(v *int32) MutatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
+		r.TimeoutSeconds = v
+	})
+}
+
+func (d *mutatingWebhookDie) AdmissionReviewVersions(v ...string) MutatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
+		r.AdmissionReviewVersions = v
+	})
+}
+
+func (d *mutatingWebhookDie) ReinvocationPolicy(v *admissionregistrationv1.ReinvocationPolicyType) MutatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
+		r.ReinvocationPolicy = v
+	})
+}
+
 type ValidatingWebhookConfigurationDie interface {
 	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
 	DieStamp(fn func(r *admissionregistrationv1.ValidatingWebhookConfiguration)) ValidatingWebhookConfigurationDie
@@ -175,6 +804,7 @@ type ValidatingWebhookConfigurationDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ValidatingWebhookConfigurationDie
 
+	validatingWebhookConfiguration
 	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
 	MetadataDie(fn func(d metav1.ObjectMetaDie)) ValidatingWebhookConfigurationDie
 	// Webhooks is a list of webhooks and the affected resources and operations.
@@ -284,5 +914,179 @@ func (d *validatingWebhookConfigurationDie) MetadataDie(fn func(d metav1.ObjectM
 func (d *validatingWebhookConfigurationDie) Webhooks(v ...admissionregistrationv1.ValidatingWebhook) ValidatingWebhookConfigurationDie {
 	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhookConfiguration) {
 		r.Webhooks = v
+	})
+}
+
+type ValidatingWebhookDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *admissionregistrationv1.ValidatingWebhook)) ValidatingWebhookDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r admissionregistrationv1.ValidatingWebhook) ValidatingWebhookDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *admissionregistrationv1.ValidatingWebhook) ValidatingWebhookDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() admissionregistrationv1.ValidatingWebhook
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *admissionregistrationv1.ValidatingWebhook
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) ValidatingWebhookDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() ValidatingWebhookDie
+
+	validatingWebhook
+	// The name of the admission webhook. Name should be fully qualified, e.g., imagepolicy.kubernetes.io, where "imagepolicy" is the name of the webhook, and kubernetes.io is the name of the organization. Required.
+	Name(Name string) ValidatingWebhookDie
+	// ClientConfig defines how to communicate with the hook. Required
+	ClientConfig(ClientConfig admissionregistrationv1.WebhookClientConfig) ValidatingWebhookDie
+	// Rules describes what operations on what resources/subresources the webhook cares about. The webhook cares about an operation if it matches _any_ Rule. However, in order to prevent ValidatingAdmissionWebhooks and MutatingAdmissionWebhooks from putting the cluster in a state which cannot be recovered from without completely disabling the plugin, ValidatingAdmissionWebhooks and MutatingAdmissionWebhooks are never called on admission requests for ValidatingWebhookConfiguration and MutatingWebhookConfiguration objects.
+	Rules(Rules ...admissionregistrationv1.RuleWithOperations) ValidatingWebhookDie
+	// FailurePolicy defines how unrecognized errors from the admission endpoint are handled - allowed values are Ignore or Fail. Defaults to Fail.
+	FailurePolicy(FailurePolicy *admissionregistrationv1.FailurePolicyType) ValidatingWebhookDie
+	// matchPolicy defines how the "rules" list is used to match incoming requests. Allowed values are "Exact" or "Equivalent".
+	//
+	// - Exact: match a request only if it exactly matches a specified rule. For example, if deployments can be modified via apps/v1, apps/v1beta1, and extensions/v1beta1, but "rules" only included `apiGroups:["apps"], apiVersions:["v1"], resources: ["deployments"]`, a request to apps/v1beta1 or extensions/v1beta1 would not be sent to the webhook.
+	//
+	// - Equivalent: match a request if modifies a resource listed in rules, even via another API group or version. For example, if deployments can be modified via apps/v1, apps/v1beta1, and extensions/v1beta1, and "rules" only included `apiGroups:["apps"], apiVersions:["v1"], resources: ["deployments"]`, a request to apps/v1beta1 or extensions/v1beta1 would be converted to apps/v1 and sent to the webhook.
+	//
+	// Defaults to "Equivalent"
+	MatchPolicy(MatchPolicy *admissionregistrationv1.MatchPolicyType) ValidatingWebhookDie
+	// NamespaceSelector decides whether to run the webhook on an object based on whether the namespace for that object matches the selector. If the object itself is a namespace, the matching is performed on object.metadata.labels. If the object is another cluster scoped resource, it never skips the webhook.
+	//
+	// For example, to run the webhook on any objects whose namespace is not associated with "runlevel" of "0" or "1";  you will set the selector as follows: "namespaceSelector": {   "matchExpressions": [     {       "key": "runlevel",       "operator": "NotIn",       "values": [         "0",         "1"       ]     }   ] }
+	//
+	// If instead you want to only run the webhook on any objects whose namespace is associated with the "environment" of "prod" or "staging"; you will set the selector as follows: "namespaceSelector": {   "matchExpressions": [     {       "key": "environment",       "operator": "In",       "values": [         "prod",         "staging"       ]     }   ] }
+	//
+	// See https://kubernetes.io/docs/concepts/overview/working-with-objects/labels for more examples of label selectors.
+	//
+	// Default to the empty LabelSelector, which matches everything.
+	NamespaceSelector(NamespaceSelector *apismetav1.LabelSelector) ValidatingWebhookDie
+	// ObjectSelector decides whether to run the webhook based on if the object has matching labels. objectSelector is evaluated against both the oldObject and newObject that would be sent to the webhook, and is considered to match if either object matches the selector. A null object (oldObject in the case of create, or newObject in the case of delete) or an object that cannot have labels (like a DeploymentRollback or a PodProxyOptions object) is not considered to match. Use the object selector only if the webhook is opt-in, because end users may skip the admission webhook by setting the labels. Default to the empty LabelSelector, which matches everything.
+	ObjectSelector(ObjectSelector *apismetav1.LabelSelector) ValidatingWebhookDie
+	// SideEffects states whether this webhook has side effects. Acceptable values are: None, NoneOnDryRun (webhooks created via v1beta1 may also specify Some or Unknown). Webhooks with side effects MUST implement a reconciliation system, since a request may be rejected by a future step in the admission chain and the side effects therefore need to be undone. Requests with the dryRun attribute will be auto-rejected if they match a webhook with sideEffects == Unknown or Some.
+	SideEffects(SideEffects *admissionregistrationv1.SideEffectClass) ValidatingWebhookDie
+	// TimeoutSeconds specifies the timeout for this webhook. After the timeout passes, the webhook call will be ignored or the API call will fail based on the failure policy. The timeout value must be between 1 and 30 seconds. Default to 10 seconds.
+	TimeoutSeconds(TimeoutSeconds *int32) ValidatingWebhookDie
+	// AdmissionReviewVersions is an ordered list of preferred `AdmissionReview` versions the Webhook expects. API server will try to use first version in the list which it supports. If none of the versions specified in this list supported by API server, validation will fail for this object. If a persisted webhook configuration specifies allowed versions and does not include any versions known to the API Server, calls to the webhook will fail and be subject to the failure policy.
+	AdmissionReviewVersions(AdmissionReviewVersions ...string) ValidatingWebhookDie
+}
+
+var _ ValidatingWebhookDie = (*validatingWebhookDie)(nil)
+var ValidatingWebhookBlank = (&validatingWebhookDie{}).DieFeed(admissionregistrationv1.ValidatingWebhook{})
+
+type validatingWebhookDie struct {
+	mutable bool
+	r       admissionregistrationv1.ValidatingWebhook
+}
+
+func (d *validatingWebhookDie) DieImmutable(immutable bool) ValidatingWebhookDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*validatingWebhookDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *validatingWebhookDie) DieFeed(r admissionregistrationv1.ValidatingWebhook) ValidatingWebhookDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &validatingWebhookDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *validatingWebhookDie) DieFeedPtr(r *admissionregistrationv1.ValidatingWebhook) ValidatingWebhookDie {
+	if r == nil {
+		r = &admissionregistrationv1.ValidatingWebhook{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *validatingWebhookDie) DieRelease() admissionregistrationv1.ValidatingWebhook {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *validatingWebhookDie) DieReleasePtr() *admissionregistrationv1.ValidatingWebhook {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *validatingWebhookDie) DieStamp(fn func(r *admissionregistrationv1.ValidatingWebhook)) ValidatingWebhookDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *validatingWebhookDie) DeepCopy() ValidatingWebhookDie {
+	r := *d.r.DeepCopy()
+	return &validatingWebhookDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *validatingWebhookDie) Name(v string) ValidatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
+		r.Name = v
+	})
+}
+
+func (d *validatingWebhookDie) ClientConfig(v admissionregistrationv1.WebhookClientConfig) ValidatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
+		r.ClientConfig = v
+	})
+}
+
+func (d *validatingWebhookDie) Rules(v ...admissionregistrationv1.RuleWithOperations) ValidatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
+		r.Rules = v
+	})
+}
+
+func (d *validatingWebhookDie) FailurePolicy(v *admissionregistrationv1.FailurePolicyType) ValidatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
+		r.FailurePolicy = v
+	})
+}
+
+func (d *validatingWebhookDie) MatchPolicy(v *admissionregistrationv1.MatchPolicyType) ValidatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
+		r.MatchPolicy = v
+	})
+}
+
+func (d *validatingWebhookDie) NamespaceSelector(v *apismetav1.LabelSelector) ValidatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
+		r.NamespaceSelector = v
+	})
+}
+
+func (d *validatingWebhookDie) ObjectSelector(v *apismetav1.LabelSelector) ValidatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
+		r.ObjectSelector = v
+	})
+}
+
+func (d *validatingWebhookDie) SideEffects(v *admissionregistrationv1.SideEffectClass) ValidatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
+		r.SideEffects = v
+	})
+}
+
+func (d *validatingWebhookDie) TimeoutSeconds(v *int32) ValidatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
+		r.TimeoutSeconds = v
+	})
+}
+
+func (d *validatingWebhookDie) AdmissionReviewVersions(v ...string) ValidatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
+		r.AdmissionReviewVersions = v
 	})
 }

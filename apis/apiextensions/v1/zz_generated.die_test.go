@@ -44,11 +44,101 @@ func TestCustomResourceDefinitionSpecDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestCustomResourceDefinitionVersionDie_MissingMethods(t *testingx.T) {
+	die := CustomResourceDefinitionVersionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CustomResourceDefinitionVersionDie: %s", diff.List())
+	}
+}
+
+func TestCustomResourceValidationDie_MissingMethods(t *testingx.T) {
+	die := CustomResourceValidationBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CustomResourceValidationDie: %s", diff.List())
+	}
+}
+
+func TestCustomResourceSubresourcesDie_MissingMethods(t *testingx.T) {
+	die := CustomResourceSubresourcesBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CustomResourceSubresourcesDie: %s", diff.List())
+	}
+}
+
+func TestCustomResourceSubresourceScaleDie_MissingMethods(t *testingx.T) {
+	die := CustomResourceSubresourceScaleBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CustomResourceSubresourceScaleDie: %s", diff.List())
+	}
+}
+
+func TestCustomResourceColumnDefinitionDie_MissingMethods(t *testingx.T) {
+	die := CustomResourceColumnDefinitionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CustomResourceColumnDefinitionDie: %s", diff.List())
+	}
+}
+
+func TestCustomResourceConversionDie_MissingMethods(t *testingx.T) {
+	die := CustomResourceConversionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CustomResourceConversionDie: %s", diff.List())
+	}
+}
+
+func TestWebhookConversionDie_MissingMethods(t *testingx.T) {
+	die := WebhookConversionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WebhookConversionDie: %s", diff.List())
+	}
+}
+
+func TestWebhookClientConfigDie_MissingMethods(t *testingx.T) {
+	die := WebhookClientConfigBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WebhookClientConfigDie: %s", diff.List())
+	}
+}
+
+func TestServiceReferenceDie_MissingMethods(t *testingx.T) {
+	die := ServiceReferenceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ServiceReferenceDie: %s", diff.List())
+	}
+}
+
 func TestCustomResourceDefinitionStatusDie_MissingMethods(t *testingx.T) {
 	die := CustomResourceDefinitionStatusBlank
 	ignore := []string{}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for CustomResourceDefinitionStatusDie: %s", diff.List())
+	}
+}
+
+func TestCustomResourceDefinitionNamesDie_MissingMethods(t *testingx.T) {
+	die := CustomResourceDefinitionNamesBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CustomResourceDefinitionNamesDie: %s", diff.List())
 	}
 }

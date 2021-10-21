@@ -337,3 +337,40 @@ func TestPod(t *testing.T) {
 		})
 	}
 }
+
+func TestPodTemplateSpec(t *testing.T) {
+	tests := []struct {
+		name     string
+		die      diecorev1.PodTemplateSpecDie
+		expected corev1.PodTemplateSpec
+	}{
+		{
+			name:     "empty",
+			die:      diecorev1.PodTemplateSpecBlank,
+			expected: corev1.PodTemplateSpec{},
+		},
+		{
+			name: "object metadata",
+			die: diecorev1.PodTemplateSpecBlank.
+				MetadataDie(func(d diemetav1.ObjectMetaDie) {
+					d.Namespace("my-namespace")
+					d.Name("my-name")
+				}),
+			expected: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Namespace: "my-namespace",
+					Name:      "my-name",
+				},
+			},
+		},
+	}
+
+	for _, c := range tests {
+		t.Run(c.name, func(t *testing.T) {
+			actual := c.die.DieRelease()
+			if diff := cmp.Diff(c.expected, actual); diff != "" {
+				t.Errorf("(-expected, +actual): %s", diff)
+			}
+		})
+	}
+}

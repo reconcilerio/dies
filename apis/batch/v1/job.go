@@ -30,7 +30,16 @@ type _ = batchv1.Job
 type _ = batchv1.JobSpec
 
 type jobSpec interface {
+	SelectorDie(fn func(d diemetav1.LabelSelectorDie)) JobSpecDie
 	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) JobSpecDie
+}
+
+func (d *jobSpecDie) SelectorDie(fn func(d diemetav1.LabelSelectorDie)) JobSpecDie {
+	return d.DieStamp(func(r *batchv1.JobSpec) {
+		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
+		fn(d)
+		r.Selector = d.DieReleasePtr()
+	})
 }
 
 func (d *jobSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) JobSpecDie {
@@ -46,6 +55,7 @@ type _ = batchv1.JobStatus
 
 type jobStatus interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) JobStatusDie
+	UncountedTerminatedPodsDie(fn func(d UncountedTerminatedPodsDie)) JobStatusDie
 }
 
 func (d *jobStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) JobStatusDie {
@@ -63,3 +73,14 @@ func (d *jobStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) JobSt
 		}
 	})
 }
+
+func (d *jobStatusDie) UncountedTerminatedPodsDie(fn func(d UncountedTerminatedPodsDie)) JobStatusDie {
+	return d.DieStamp(func(r *batchv1.JobStatus) {
+		d := UncountedTerminatedPodsBlank.DieImmutable(false).DieFeedPtr(r.UncountedTerminatedPods)
+		fn(d)
+		r.UncountedTerminatedPods = d.DieReleasePtr()
+	})
+}
+
+// +die
+type _ = batchv1.UncountedTerminatedPods

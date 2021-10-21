@@ -50,6 +50,41 @@ func (d *deploymentSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie))
 	})
 }
 
+func (d *deploymentSpecDie) StrategyDie(fn func(d DeploymentStrategyDie)) DeploymentSpecDie {
+	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
+		d := DeploymentStrategyBlank.DieImmutable(false).DieFeed(r.Strategy)
+		fn(d)
+		r.Strategy = d.DieRelease()
+	})
+}
+
+// +die
+type _ = appsv1.DeploymentStrategy
+
+type deploymentStrategy interface {
+	Recreate() DeploymentStrategyDie
+	RollingUpdateDie(fn func(d RollingUpdateDeploymentDie)) DeploymentStrategyDie
+}
+
+func (d *deploymentStrategyDie) Recreate() DeploymentStrategyDie {
+	return d.DieStamp(func(r *appsv1.DeploymentStrategy) {
+		r.Type = appsv1.RecreateDeploymentStrategyType
+		r.RollingUpdate = nil
+	})
+}
+
+func (d *deploymentStrategyDie) RollingUpdateDie(fn func(d RollingUpdateDeploymentDie)) DeploymentStrategyDie {
+	return d.DieStamp(func(r *appsv1.DeploymentStrategy) {
+		r.Type = appsv1.RollingUpdateDeploymentStrategyType
+		d := RollingUpdateDeploymentBlank.DieImmutable(false).DieFeedPtr(r.RollingUpdate)
+		fn(d)
+		r.RollingUpdate = d.DieReleasePtr()
+	})
+}
+
+// +die
+type _ = appsv1.RollingUpdateDeployment
+
 // +die
 type _ = appsv1.DeploymentStatus
 

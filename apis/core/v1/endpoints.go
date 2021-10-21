@@ -22,3 +22,70 @@ import (
 
 // +die:object=true
 type _ = corev1.Endpoints
+
+type endpoints interface {
+	SubsetsDie(subsets ...EndpointSubsetDie) EndpointsDie
+}
+
+func (d *endpointsDie) SubsetsDie(subsets ...EndpointSubsetDie) EndpointsDie {
+	return d.DieStamp(func(r *corev1.Endpoints) {
+		r.Subsets = make([]corev1.EndpointSubset, len(subsets))
+		for i := range subsets {
+			r.Subsets[i] = subsets[i].DieRelease()
+		}
+	})
+}
+
+// +die
+type _ = corev1.EndpointSubset
+
+type endpointSubset interface {
+	AddressesDie(addresses ...EndpointAddressDie) EndpointSubsetDie
+	NotReadyAddressesDie(addresses ...EndpointAddressDie) EndpointSubsetDie
+	PortsDie(ports ...EndpointPortDie) EndpointSubsetDie
+}
+
+func (d *endpointSubsetDie) AddressesDie(addresses ...EndpointAddressDie) EndpointSubsetDie {
+	return d.DieStamp(func(r *corev1.EndpointSubset) {
+		r.Addresses = make([]corev1.EndpointAddress, len(addresses))
+		for i := range addresses {
+			r.Addresses[i] = addresses[i].DieRelease()
+		}
+	})
+}
+
+func (d *endpointSubsetDie) NotReadyAddressesDie(addresses ...EndpointAddressDie) EndpointSubsetDie {
+	return d.DieStamp(func(r *corev1.EndpointSubset) {
+		r.NotReadyAddresses = make([]corev1.EndpointAddress, len(addresses))
+		for i := range addresses {
+			r.NotReadyAddresses[i] = addresses[i].DieRelease()
+		}
+	})
+}
+
+func (d *endpointSubsetDie) PortsDie(ports ...EndpointPortDie) EndpointSubsetDie {
+	return d.DieStamp(func(r *corev1.EndpointSubset) {
+		r.Ports = make([]corev1.EndpointPort, len(ports))
+		for i := range ports {
+			r.Ports[i] = ports[i].DieRelease()
+		}
+	})
+}
+
+// +die
+type _ = corev1.EndpointAddress
+
+type endpointAddress interface {
+	TargetRefDie(fn func(d ObjectReferenceDie)) EndpointAddressDie
+}
+
+func (d *endpointAddressDie) TargetRefDie(fn func(d ObjectReferenceDie)) EndpointAddressDie {
+	return d.DieStamp(func(r *corev1.EndpointAddress) {
+		d := ObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.TargetRef)
+		fn(d)
+		r.TargetRef = d.DieReleasePtr()
+	})
+}
+
+// +die
+type _ = corev1.EndpointPort

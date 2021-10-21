@@ -44,6 +44,15 @@ func TestHorizontalPodAutoscalerSpecDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestCrossVersionObjectReferenceDie_MissingMethods(t *testingx.T) {
+	die := CrossVersionObjectReferenceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CrossVersionObjectReferenceDie: %s", diff.List())
+	}
+}
+
 func TestHorizontalPodAutoscalerStatusDie_MissingMethods(t *testingx.T) {
 	die := HorizontalPodAutoscalerStatusBlank
 	ignore := []string{}

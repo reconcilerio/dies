@@ -203,6 +203,7 @@ type HorizontalPodAutoscalerSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() HorizontalPodAutoscalerSpecDie
 
+	horizontalPodAutoscalerSpec
 	// reference to scaled resource; horizontal pod autoscaler will learn the current resource consumption and will set the desired number of pods by using its Scale subresource.
 	ScaleTargetRef(ScaleTargetRef autoscalingv1.CrossVersionObjectReference) HorizontalPodAutoscalerSpecDie
 	// minReplicas is the lower limit for the number of replicas to which the autoscaler can scale down.  It defaults to 1 pod.  minReplicas is allowed to be 0 if the alpha feature gate HPAScaleToZero is enabled and at least one Object or External metric is configured.  Scaling is active as long as at least one metric value is available.
@@ -295,6 +296,109 @@ func (d *horizontalPodAutoscalerSpecDie) MaxReplicas(v int32) HorizontalPodAutos
 func (d *horizontalPodAutoscalerSpecDie) TargetCPUUtilizationPercentage(v *int32) HorizontalPodAutoscalerSpecDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerSpec) {
 		r.TargetCPUUtilizationPercentage = v
+	})
+}
+
+type CrossVersionObjectReferenceDie interface {
+	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+	DieStamp(fn func(r *autoscalingv1.CrossVersionObjectReference)) CrossVersionObjectReferenceDie
+	// DieFeed returns a new die with the provided resource.
+	DieFeed(r autoscalingv1.CrossVersionObjectReference) CrossVersionObjectReferenceDie
+	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+	DieFeedPtr(r *autoscalingv1.CrossVersionObjectReference) CrossVersionObjectReferenceDie
+	// DieRelease returns the resource managed by the die.
+	DieRelease() autoscalingv1.CrossVersionObjectReference
+	// DieReleasePtr returns a pointer to the resource managed by the die.
+	DieReleasePtr() *autoscalingv1.CrossVersionObjectReference
+	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+	DieImmutable(immutable bool) CrossVersionObjectReferenceDie
+	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+	DeepCopy() CrossVersionObjectReferenceDie
+
+	// Kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
+	Kind(Kind string) CrossVersionObjectReferenceDie
+	// Name of the referent; More info: http://kubernetes.io/docs/user-guide/identifiers#names
+	Name(Name string) CrossVersionObjectReferenceDie
+	// API version of the referent
+	APIVersion(APIVersion string) CrossVersionObjectReferenceDie
+}
+
+var _ CrossVersionObjectReferenceDie = (*crossVersionObjectReferenceDie)(nil)
+var CrossVersionObjectReferenceBlank = (&crossVersionObjectReferenceDie{}).DieFeed(autoscalingv1.CrossVersionObjectReference{})
+
+type crossVersionObjectReferenceDie struct {
+	mutable bool
+	r       autoscalingv1.CrossVersionObjectReference
+}
+
+func (d *crossVersionObjectReferenceDie) DieImmutable(immutable bool) CrossVersionObjectReferenceDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy().(*crossVersionObjectReferenceDie)
+	d.mutable = !immutable
+	return d
+}
+
+func (d *crossVersionObjectReferenceDie) DieFeed(r autoscalingv1.CrossVersionObjectReference) CrossVersionObjectReferenceDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &crossVersionObjectReferenceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *crossVersionObjectReferenceDie) DieFeedPtr(r *autoscalingv1.CrossVersionObjectReference) CrossVersionObjectReferenceDie {
+	if r == nil {
+		r = &autoscalingv1.CrossVersionObjectReference{}
+	}
+	return d.DieFeed(*r)
+}
+
+func (d *crossVersionObjectReferenceDie) DieRelease() autoscalingv1.CrossVersionObjectReference {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+func (d *crossVersionObjectReferenceDie) DieReleasePtr() *autoscalingv1.CrossVersionObjectReference {
+	r := d.DieRelease()
+	return &r
+}
+
+func (d *crossVersionObjectReferenceDie) DieStamp(fn func(r *autoscalingv1.CrossVersionObjectReference)) CrossVersionObjectReferenceDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+func (d *crossVersionObjectReferenceDie) DeepCopy() CrossVersionObjectReferenceDie {
+	r := *d.r.DeepCopy()
+	return &crossVersionObjectReferenceDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+func (d *crossVersionObjectReferenceDie) Kind(v string) CrossVersionObjectReferenceDie {
+	return d.DieStamp(func(r *autoscalingv1.CrossVersionObjectReference) {
+		r.Kind = v
+	})
+}
+
+func (d *crossVersionObjectReferenceDie) Name(v string) CrossVersionObjectReferenceDie {
+	return d.DieStamp(func(r *autoscalingv1.CrossVersionObjectReference) {
+		r.Name = v
+	})
+}
+
+func (d *crossVersionObjectReferenceDie) APIVersion(v string) CrossVersionObjectReferenceDie {
+	return d.DieStamp(func(r *autoscalingv1.CrossVersionObjectReference) {
+		r.APIVersion = v
 	})
 }
 
