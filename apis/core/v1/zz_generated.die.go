@@ -50,11 +50,11 @@ type ConfigMapDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ConfigMapDie
 
-	configMap
+	configMapDieExtension
 	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
 	MetadataDie(fn func(d metav1.ObjectMetaDie)) ConfigMapDie
 	// Immutable, if set to true, ensures that data stored in the ConfigMap cannot be updated (only object metadata can be modified). If not set to true, the field can be modified at any time. Defaulted to nil.
-	Immutable(Immutable *bool) ConfigMapDie
+	Immutable(v *bool) ConfigMapDie
 
 	runtime.Object
 	apismetav1.Object
@@ -179,51 +179,51 @@ type ContainerDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ContainerDie
 
-	container
+	containerDieExtension
 	// Name of the container specified as a DNS_LABEL. Each container in a pod must have a unique name (DNS_LABEL). Cannot be updated.
-	Name(Name string) ContainerDie
+	Name(v string) ContainerDie
 	// Docker image name. More info: https://kubernetes.io/docs/concepts/containers/images This field is optional to allow higher level config management to default or override container images in workload controllers like Deployments and StatefulSets.
-	Image(Image string) ContainerDie
+	Image(v string) ContainerDie
 	// Entrypoint array. Not executed within a shell. The docker image's ENTRYPOINT is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. "$$(VAR_NAME)" will produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
-	Command(Command ...string) ContainerDie
+	Command(v ...string) ContainerDie
 	// Arguments to the entrypoint. The docker image's CMD is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. "$$(VAR_NAME)" will produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
-	Args(Args ...string) ContainerDie
+	Args(v ...string) ContainerDie
 	// Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image. Cannot be updated.
-	WorkingDir(WorkingDir string) ContainerDie
+	WorkingDir(v string) ContainerDie
 	// List of ports to expose from the container. Exposing a port here gives the system additional information about the network connections a container uses, but is primarily informational. Not specifying a port here DOES NOT prevent that port from being exposed. Any port which is listening on the default "0.0.0.0" address inside a container will be accessible from the network. Cannot be updated.
-	Ports(Ports ...corev1.ContainerPort) ContainerDie
+	Ports(v ...corev1.ContainerPort) ContainerDie
 	// List of sources to populate environment variables in the container. The keys defined within a source must be a C_IDENTIFIER. All invalid keys will be reported as an event when the container is starting. When a key exists in multiple sources, the value associated with the last source will take precedence. Values defined by an Env with a duplicate key will take precedence. Cannot be updated.
-	EnvFrom(EnvFrom ...corev1.EnvFromSource) ContainerDie
+	EnvFrom(v ...corev1.EnvFromSource) ContainerDie
 	// List of environment variables to set in the container. Cannot be updated.
-	Env(Env ...corev1.EnvVar) ContainerDie
+	Env(v ...corev1.EnvVar) ContainerDie
 	// Compute Resources required by this container. Cannot be updated. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	Resources(Resources corev1.ResourceRequirements) ContainerDie
+	Resources(v corev1.ResourceRequirements) ContainerDie
 	// Pod volumes to mount into the container's filesystem. Cannot be updated.
-	VolumeMounts(VolumeMounts ...corev1.VolumeMount) ContainerDie
+	VolumeMounts(v ...corev1.VolumeMount) ContainerDie
 	// volumeDevices is the list of block devices to be used by the container.
-	VolumeDevices(VolumeDevices ...corev1.VolumeDevice) ContainerDie
+	VolumeDevices(v ...corev1.VolumeDevice) ContainerDie
 	// Periodic probe of container liveness. Container will be restarted if the probe fails. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	LivenessProbe(LivenessProbe *corev1.Probe) ContainerDie
+	LivenessProbe(v *corev1.Probe) ContainerDie
 	// Periodic probe of container service readiness. Container will be removed from service endpoints if the probe fails. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	ReadinessProbe(ReadinessProbe *corev1.Probe) ContainerDie
+	ReadinessProbe(v *corev1.Probe) ContainerDie
 	// StartupProbe indicates that the Pod has successfully initialized. If specified, no other probes are executed until this completes successfully. If this probe fails, the Pod will be restarted, just as if the livenessProbe failed. This can be used to provide different probe parameters at the beginning of a Pod's lifecycle, when it might take a long time to load data or warm a cache, than during steady-state operation. This cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	StartupProbe(StartupProbe *corev1.Probe) ContainerDie
+	StartupProbe(v *corev1.Probe) ContainerDie
 	// Actions that the management system should take in response to container lifecycle events. Cannot be updated.
-	Lifecycle(Lifecycle *corev1.Lifecycle) ContainerDie
+	Lifecycle(v *corev1.Lifecycle) ContainerDie
 	// Optional: Path at which the file to which the container's termination message will be written is mounted into the container's filesystem. Message written is intended to be brief final status, such as an assertion failure message. Will be truncated by the node if greater than 4096 bytes. The total message length across all containers will be limited to 12kb. Defaults to /dev/termination-log. Cannot be updated.
-	TerminationMessagePath(TerminationMessagePath string) ContainerDie
+	TerminationMessagePath(v string) ContainerDie
 	// Indicate how the termination message should be populated. File will use the contents of terminationMessagePath to populate the container status message on both success and failure. FallbackToLogsOnError will use the last chunk of container log output if the termination message file is empty and the container exited with an error. The log output is limited to 2048 bytes or 80 lines, whichever is smaller. Defaults to File. Cannot be updated.
-	TerminationMessagePolicy(TerminationMessagePolicy corev1.TerminationMessagePolicy) ContainerDie
+	TerminationMessagePolicy(v corev1.TerminationMessagePolicy) ContainerDie
 	// Image pull policy. One of Always, Never, IfNotPresent. Defaults to Always if :latest tag is specified, or IfNotPresent otherwise. Cannot be updated. More info: https://kubernetes.io/docs/concepts/containers/images#updating-images
-	ImagePullPolicy(ImagePullPolicy corev1.PullPolicy) ContainerDie
+	ImagePullPolicy(v corev1.PullPolicy) ContainerDie
 	// SecurityContext defines the security options the container should be run with. If set, the fields of SecurityContext override the equivalent fields of PodSecurityContext. More info: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
-	SecurityContext(SecurityContext *corev1.SecurityContext) ContainerDie
+	SecurityContext(v *corev1.SecurityContext) ContainerDie
 	// Whether this container should allocate a buffer for stdin in the container runtime. If this is not set, reads from stdin in the container will always result in EOF. Default is false.
-	Stdin(Stdin bool) ContainerDie
+	Stdin(v bool) ContainerDie
 	// Whether the container runtime should close the stdin channel after it has been opened by a single attach. When stdin is true the stdin stream will remain open across multiple attach sessions. If stdinOnce is set to true, stdin is opened on container start, is empty until the first client attaches to stdin, and then remains open and accepts data until the client disconnects, at which time stdin is closed and remains closed until the container is restarted. If this flag is false, a container processes that reads from stdin will never receive an EOF. Default is false
-	StdinOnce(StdinOnce bool) ContainerDie
+	StdinOnce(v bool) ContainerDie
 	// Whether this container should allocate a TTY for itself, also requires 'stdin' to be true. Default is false.
-	TTY(TTY bool) ContainerDie
+	TTY(v bool) ContainerDie
 }
 
 var _ ContainerDie = (*containerDie)(nil)
@@ -436,15 +436,15 @@ type ContainerPortDie interface {
 	DeepCopy() ContainerPortDie
 
 	// If specified, this must be an IANA_SVC_NAME and unique within the pod. Each named port in a pod must have a unique name. Name for the port that can be referred to by services.
-	Name(Name string) ContainerPortDie
+	Name(v string) ContainerPortDie
 	// Number of port to expose on the host. If specified, this must be a valid port number, 0 < x < 65536. If HostNetwork is specified, this must match ContainerPort. Most containers do not need this.
-	HostPort(HostPort int32) ContainerPortDie
+	HostPort(v int32) ContainerPortDie
 	// Number of port to expose on the pod's IP address. This must be a valid port number, 0 < x < 65536.
-	ContainerPort(ContainerPort int32) ContainerPortDie
+	ContainerPort(v int32) ContainerPortDie
 	// Protocol for port. Must be UDP, TCP, or SCTP. Defaults to "TCP".
-	Protocol(Protocol corev1.Protocol) ContainerPortDie
+	Protocol(v corev1.Protocol) ContainerPortDie
 	// What host IP to bind the external port to.
-	HostIP(HostIP string) ContainerPortDie
+	HostIP(v string) ContainerPortDie
 }
 
 var _ ContainerPortDie = (*containerPortDie)(nil)
@@ -554,13 +554,13 @@ type EnvFromSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() EnvFromSourceDie
 
-	envFromSource
+	envFromSourceDieExtension
 	// An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
-	Prefix(Prefix string) EnvFromSourceDie
+	Prefix(v string) EnvFromSourceDie
 	// The ConfigMap to select from
-	ConfigMapRef(ConfigMapRef *corev1.ConfigMapEnvSource) EnvFromSourceDie
+	ConfigMapRef(v *corev1.ConfigMapEnvSource) EnvFromSourceDie
 	// The Secret to select from
-	SecretRef(SecretRef *corev1.SecretEnvSource) EnvFromSourceDie
+	SecretRef(v *corev1.SecretEnvSource) EnvFromSourceDie
 }
 
 var _ EnvFromSourceDie = (*envFromSourceDie)(nil)
@@ -658,11 +658,11 @@ type ConfigMapEnvSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ConfigMapEnvSourceDie
 
-	configMapEnvSource
+	configMapEnvSourceDieExtension
 	// The ConfigMap to select from.
-	LocalObjectReference(LocalObjectReference corev1.LocalObjectReference) ConfigMapEnvSourceDie
+	LocalObjectReference(v corev1.LocalObjectReference) ConfigMapEnvSourceDie
 	// Specify whether the ConfigMap must be defined
-	Optional(Optional *bool) ConfigMapEnvSourceDie
+	Optional(v *bool) ConfigMapEnvSourceDie
 }
 
 var _ ConfigMapEnvSourceDie = (*configMapEnvSourceDie)(nil)
@@ -754,11 +754,11 @@ type SecretEnvSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() SecretEnvSourceDie
 
-	secretEnvSource
+	secretEnvSourceDieExtension
 	// The Secret to select from.
-	LocalObjectReference(LocalObjectReference corev1.LocalObjectReference) SecretEnvSourceDie
+	LocalObjectReference(v corev1.LocalObjectReference) SecretEnvSourceDie
 	// Specify whether the Secret must be defined
-	Optional(Optional *bool) SecretEnvSourceDie
+	Optional(v *bool) SecretEnvSourceDie
 }
 
 var _ SecretEnvSourceDie = (*secretEnvSourceDie)(nil)
@@ -850,13 +850,13 @@ type EnvVarDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() EnvVarDie
 
-	envVar
+	envVarDieExtension
 	// Name of the environment variable. Must be a C_IDENTIFIER.
-	Name(Name string) EnvVarDie
+	Name(v string) EnvVarDie
 	// Variable references $(VAR_NAME) are expanded using the previously defined environment variables in the container and any service environment variables. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. "$$(VAR_NAME)" will produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless of whether the variable exists or not. Defaults to "".
-	Value(Value string) EnvVarDie
+	Value(v string) EnvVarDie
 	// Source for the environment variable's value. Cannot be used if value is not empty.
-	ValueFrom(ValueFrom *corev1.EnvVarSource) EnvVarDie
+	ValueFrom(v *corev1.EnvVarSource) EnvVarDie
 }
 
 var _ EnvVarDie = (*envVarDie)(nil)
@@ -954,15 +954,15 @@ type EnvVarSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() EnvVarSourceDie
 
-	envVarSource
+	envVarSourceDieExtension
 	// Selects a field of the pod: supports metadata.name, metadata.namespace, `metadata.labels['<KEY>']`, `metadata.annotations['<KEY>']`, spec.nodeName, spec.serviceAccountName, status.hostIP, status.podIP, status.podIPs.
-	FieldRef(FieldRef *corev1.ObjectFieldSelector) EnvVarSourceDie
+	FieldRef(v *corev1.ObjectFieldSelector) EnvVarSourceDie
 	// Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, limits.ephemeral-storage, requests.cpu, requests.memory and requests.ephemeral-storage) are currently supported.
-	ResourceFieldRef(ResourceFieldRef *corev1.ResourceFieldSelector) EnvVarSourceDie
+	ResourceFieldRef(v *corev1.ResourceFieldSelector) EnvVarSourceDie
 	// Selects a key of a ConfigMap.
-	ConfigMapKeyRef(ConfigMapKeyRef *corev1.ConfigMapKeySelector) EnvVarSourceDie
+	ConfigMapKeyRef(v *corev1.ConfigMapKeySelector) EnvVarSourceDie
 	// Selects a key of a secret in the pod's namespace
-	SecretKeyRef(SecretKeyRef *corev1.SecretKeySelector) EnvVarSourceDie
+	SecretKeyRef(v *corev1.SecretKeySelector) EnvVarSourceDie
 }
 
 var _ EnvVarSourceDie = (*envVarSourceDie)(nil)
@@ -1067,9 +1067,9 @@ type ObjectFieldSelectorDie interface {
 	DeepCopy() ObjectFieldSelectorDie
 
 	// Version of the schema the FieldPath is written in terms of, defaults to "v1".
-	APIVersion(APIVersion string) ObjectFieldSelectorDie
+	APIVersion(v string) ObjectFieldSelectorDie
 	// Path of the field to select in the specified API version.
-	FieldPath(FieldPath string) ObjectFieldSelectorDie
+	FieldPath(v string) ObjectFieldSelectorDie
 }
 
 var _ ObjectFieldSelectorDie = (*objectFieldSelectorDie)(nil)
@@ -1162,11 +1162,11 @@ type ResourceFieldSelectorDie interface {
 	DeepCopy() ResourceFieldSelectorDie
 
 	// Container name: required for volumes, optional for env vars
-	ContainerName(ContainerName string) ResourceFieldSelectorDie
+	ContainerName(v string) ResourceFieldSelectorDie
 	// Required: resource to select
-	Resource(Resource string) ResourceFieldSelectorDie
+	Resource(v string) ResourceFieldSelectorDie
 	// Specifies the output format of the exposed resources, defaults to "1"
-	Divisor(Divisor resource.Quantity) ResourceFieldSelectorDie
+	Divisor(v resource.Quantity) ResourceFieldSelectorDie
 }
 
 var _ ResourceFieldSelectorDie = (*resourceFieldSelectorDie)(nil)
@@ -1264,13 +1264,13 @@ type ConfigMapKeySelectorDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ConfigMapKeySelectorDie
 
-	configMapKeySelector
+	configMapKeySelectorDieExtension
 	// The ConfigMap to select from.
-	LocalObjectReference(LocalObjectReference corev1.LocalObjectReference) ConfigMapKeySelectorDie
+	LocalObjectReference(v corev1.LocalObjectReference) ConfigMapKeySelectorDie
 	// The key to select.
-	Key(Key string) ConfigMapKeySelectorDie
+	Key(v string) ConfigMapKeySelectorDie
 	// Specify whether the ConfigMap or its key must be defined
-	Optional(Optional *bool) ConfigMapKeySelectorDie
+	Optional(v *bool) ConfigMapKeySelectorDie
 }
 
 var _ ConfigMapKeySelectorDie = (*configMapKeySelectorDie)(nil)
@@ -1368,13 +1368,13 @@ type SecretKeySelectorDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() SecretKeySelectorDie
 
-	secretKeySelector
+	secretKeySelectorDieExtension
 	// The name of the secret in the pod's namespace to select from.
-	LocalObjectReference(LocalObjectReference corev1.LocalObjectReference) SecretKeySelectorDie
+	LocalObjectReference(v corev1.LocalObjectReference) SecretKeySelectorDie
 	// The key of the secret to select from.  Must be a valid secret key.
-	Key(Key string) SecretKeySelectorDie
+	Key(v string) SecretKeySelectorDie
 	// Specify whether the Secret or its key must be defined
-	Optional(Optional *bool) SecretKeySelectorDie
+	Optional(v *bool) SecretKeySelectorDie
 }
 
 var _ SecretKeySelectorDie = (*secretKeySelectorDie)(nil)
@@ -1472,11 +1472,11 @@ type ResourceRequirementsDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ResourceRequirementsDie
 
-	resourceRequirements
+	resourceRequirementsDieExtension
 	// Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	Limits(Limits corev1.ResourceList) ResourceRequirementsDie
+	Limits(v corev1.ResourceList) ResourceRequirementsDie
 	// Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	Requests(Requests corev1.ResourceList) ResourceRequirementsDie
+	Requests(v corev1.ResourceList) ResourceRequirementsDie
 }
 
 var _ ResourceRequirementsDie = (*resourceRequirementsDie)(nil)
@@ -1569,17 +1569,17 @@ type VolumeMountDie interface {
 	DeepCopy() VolumeMountDie
 
 	// This must match the Name of a Volume.
-	Name(Name string) VolumeMountDie
+	Name(v string) VolumeMountDie
 	// Mounted read-only if true, read-write otherwise (false or unspecified). Defaults to false.
-	ReadOnly(ReadOnly bool) VolumeMountDie
+	ReadOnly(v bool) VolumeMountDie
 	// Path within the container at which the volume should be mounted.  Must not contain ':'.
-	MountPath(MountPath string) VolumeMountDie
+	MountPath(v string) VolumeMountDie
 	// Path within the volume from which the container's volume should be mounted. Defaults to "" (volume's root).
-	SubPath(SubPath string) VolumeMountDie
+	SubPath(v string) VolumeMountDie
 	// mountPropagation determines how mounts are propagated from the host to container and the other way around. When not set, MountPropagationNone is used. This field is beta in 1.10.
-	MountPropagation(MountPropagation *corev1.MountPropagationMode) VolumeMountDie
+	MountPropagation(v *corev1.MountPropagationMode) VolumeMountDie
 	// Expanded path within the volume from which the container's volume should be mounted. Behaves similarly to SubPath but environment variable references $(VAR_NAME) are expanded using the container's environment. Defaults to "" (volume's root). SubPathExpr and SubPath are mutually exclusive.
-	SubPathExpr(SubPathExpr string) VolumeMountDie
+	SubPathExpr(v string) VolumeMountDie
 }
 
 var _ VolumeMountDie = (*volumeMountDie)(nil)
@@ -1696,9 +1696,9 @@ type VolumeDeviceDie interface {
 	DeepCopy() VolumeDeviceDie
 
 	// name must match the name of a persistentVolumeClaim in the pod
-	Name(Name string) VolumeDeviceDie
+	Name(v string) VolumeDeviceDie
 	// devicePath is the path inside of the container that the device will be mapped to.
-	DevicePath(DevicePath string) VolumeDeviceDie
+	DevicePath(v string) VolumeDeviceDie
 }
 
 var _ VolumeDeviceDie = (*volumeDeviceDie)(nil)
@@ -1790,21 +1790,21 @@ type ProbeDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ProbeDie
 
-	probe
+	probeDieExtension
 	// The action taken to determine the health of a container
-	Handler(Handler corev1.Handler) ProbeDie
+	Handler(v corev1.Handler) ProbeDie
 	// Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	InitialDelaySeconds(InitialDelaySeconds int32) ProbeDie
+	InitialDelaySeconds(v int32) ProbeDie
 	// Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	TimeoutSeconds(TimeoutSeconds int32) ProbeDie
+	TimeoutSeconds(v int32) ProbeDie
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1.
-	PeriodSeconds(PeriodSeconds int32) ProbeDie
+	PeriodSeconds(v int32) ProbeDie
 	// Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
-	SuccessThreshold(SuccessThreshold int32) ProbeDie
+	SuccessThreshold(v int32) ProbeDie
 	// Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold(FailureThreshold int32) ProbeDie
+	FailureThreshold(v int32) ProbeDie
 	// Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
-	TerminationGracePeriodSeconds(TerminationGracePeriodSeconds *int64) ProbeDie
+	TerminationGracePeriodSeconds(v *int64) ProbeDie
 }
 
 var _ ProbeDie = (*probeDie)(nil)
@@ -1926,11 +1926,11 @@ type LifecycleDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() LifecycleDie
 
-	lifecycle
+	lifecycleDieExtension
 	// PostStart is called immediately after a container is created. If the handler fails, the container is terminated and restarted according to its restart policy. Other management of the container blocks until the hook completes. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
-	PostStart(PostStart *corev1.Handler) LifecycleDie
+	PostStart(v *corev1.Handler) LifecycleDie
 	// PreStop is called immediately before a container is terminated due to an API request or management event such as liveness/startup probe failure, preemption, resource contention, etc. The handler is not called if the container crashes or exits. The reason for termination is passed to the handler. The Pod's termination grace period countdown begins before the PreStop hooked is executed. Regardless of the outcome of the handler, the container will eventually terminate within the Pod's termination grace period. Other management of the container blocks until the hook completes or until the termination grace period is reached. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
-	PreStop(PreStop *corev1.Handler) LifecycleDie
+	PreStop(v *corev1.Handler) LifecycleDie
 }
 
 var _ LifecycleDie = (*lifecycleDie)(nil)
@@ -2022,13 +2022,13 @@ type HandlerDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() HandlerDie
 
-	handler
+	handlerDieExtension
 	// One and only one of the following should be specified. Exec specifies the action to take.
-	Exec(Exec *corev1.ExecAction) HandlerDie
+	Exec(v *corev1.ExecAction) HandlerDie
 	// HTTPGet specifies the http request to perform.
-	HTTPGet(HTTPGet *corev1.HTTPGetAction) HandlerDie
+	HTTPGet(v *corev1.HTTPGetAction) HandlerDie
 	// TCPSocket specifies an action involving a TCP port. TCP hooks not yet supported TODO: implement a realistic TCP lifecycle hook
-	TCPSocket(TCPSocket *corev1.TCPSocketAction) HandlerDie
+	TCPSocket(v *corev1.TCPSocketAction) HandlerDie
 }
 
 var _ HandlerDie = (*handlerDie)(nil)
@@ -2127,7 +2127,7 @@ type ExecActionDie interface {
 	DeepCopy() ExecActionDie
 
 	// Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
-	Command(Command ...string) ExecActionDie
+	Command(v ...string) ExecActionDie
 }
 
 var _ ExecActionDie = (*execActionDie)(nil)
@@ -2213,119 +2213,119 @@ type HTTPGetActionDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() HTTPGetActionDie
 
-	hTTPGetAction
+	httpGetActionDieExtension
 	// Path to access on the HTTP server.
-	Path(Path string) HTTPGetActionDie
+	Path(v string) HTTPGetActionDie
 	// Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
-	Port(Port intstr.IntOrString) HTTPGetActionDie
+	Port(v intstr.IntOrString) HTTPGetActionDie
 	// Host name to connect to, defaults to the pod IP. You probably want to set "Host" in httpHeaders instead.
-	Host(Host string) HTTPGetActionDie
+	Host(v string) HTTPGetActionDie
 	// Scheme to use for connecting to the host. Defaults to HTTP.
-	Scheme(Scheme corev1.URIScheme) HTTPGetActionDie
+	Scheme(v corev1.URIScheme) HTTPGetActionDie
 	// Custom headers to set in the request. HTTP allows repeated headers.
-	HTTPHeaders(HTTPHeaders ...corev1.HTTPHeader) HTTPGetActionDie
+	HTTPHeaders(v ...corev1.HTTPHeader) HTTPGetActionDie
 }
 
-var _ HTTPGetActionDie = (*hTTPGetActionDie)(nil)
-var HTTPGetActionBlank = (&hTTPGetActionDie{}).DieFeed(corev1.HTTPGetAction{})
+var _ HTTPGetActionDie = (*httpGetActionDie)(nil)
+var HTTPGetActionBlank = (&httpGetActionDie{}).DieFeed(corev1.HTTPGetAction{})
 
-type hTTPGetActionDie struct {
+type httpGetActionDie struct {
 	mutable bool
 	r       corev1.HTTPGetAction
 }
 
-func (d *hTTPGetActionDie) DieImmutable(immutable bool) HTTPGetActionDie {
+func (d *httpGetActionDie) DieImmutable(immutable bool) HTTPGetActionDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*hTTPGetActionDie)
+	d = d.DeepCopy().(*httpGetActionDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *hTTPGetActionDie) DieFeed(r corev1.HTTPGetAction) HTTPGetActionDie {
+func (d *httpGetActionDie) DieFeed(r corev1.HTTPGetAction) HTTPGetActionDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &hTTPGetActionDie{
+	return &httpGetActionDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *hTTPGetActionDie) DieFeedPtr(r *corev1.HTTPGetAction) HTTPGetActionDie {
+func (d *httpGetActionDie) DieFeedPtr(r *corev1.HTTPGetAction) HTTPGetActionDie {
 	if r == nil {
 		r = &corev1.HTTPGetAction{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *hTTPGetActionDie) DieRelease() corev1.HTTPGetAction {
+func (d *httpGetActionDie) DieRelease() corev1.HTTPGetAction {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *hTTPGetActionDie) DieReleasePtr() *corev1.HTTPGetAction {
+func (d *httpGetActionDie) DieReleasePtr() *corev1.HTTPGetAction {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *hTTPGetActionDie) DieStamp(fn func(r *corev1.HTTPGetAction)) HTTPGetActionDie {
+func (d *httpGetActionDie) DieStamp(fn func(r *corev1.HTTPGetAction)) HTTPGetActionDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *hTTPGetActionDie) DeepCopy() HTTPGetActionDie {
+func (d *httpGetActionDie) DeepCopy() HTTPGetActionDie {
 	r := *d.r.DeepCopy()
-	return &hTTPGetActionDie{
+	return &httpGetActionDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *hTTPGetActionDie) Path(v string) HTTPGetActionDie {
+func (d *httpGetActionDie) Path(v string) HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
 		r.Path = v
 	})
 }
 
-func (d *hTTPGetActionDie) Port(v intstr.IntOrString) HTTPGetActionDie {
+func (d *httpGetActionDie) Port(v intstr.IntOrString) HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
 		r.Port = v
 	})
 }
 
-func (d *hTTPGetActionDie) PortInt(i int) HTTPGetActionDie {
+func (d *httpGetActionDie) PortInt(i int) HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
 		v := intstr.FromInt(i)
 		r.Port = v
 	})
 }
 
-func (d *hTTPGetActionDie) PortString(s string) HTTPGetActionDie {
+func (d *httpGetActionDie) PortString(s string) HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
 		v := intstr.FromString(s)
 		r.Port = v
 	})
 }
 
-func (d *hTTPGetActionDie) Host(v string) HTTPGetActionDie {
+func (d *httpGetActionDie) Host(v string) HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
 		r.Host = v
 	})
 }
 
-func (d *hTTPGetActionDie) Scheme(v corev1.URIScheme) HTTPGetActionDie {
+func (d *httpGetActionDie) Scheme(v corev1.URIScheme) HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
 		r.Scheme = v
 	})
 }
 
-func (d *hTTPGetActionDie) HTTPHeaders(v ...corev1.HTTPHeader) HTTPGetActionDie {
+func (d *httpGetActionDie) HTTPHeaders(v ...corev1.HTTPHeader) HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
 		r.HTTPHeaders = v
 	})
@@ -2348,79 +2348,79 @@ type HTTPHeaderDie interface {
 	DeepCopy() HTTPHeaderDie
 
 	// The header field name
-	Name(Name string) HTTPHeaderDie
+	Name(v string) HTTPHeaderDie
 	// The header field value
-	Value(Value string) HTTPHeaderDie
+	Value(v string) HTTPHeaderDie
 }
 
-var _ HTTPHeaderDie = (*hTTPHeaderDie)(nil)
-var HTTPHeaderBlank = (&hTTPHeaderDie{}).DieFeed(corev1.HTTPHeader{})
+var _ HTTPHeaderDie = (*httpHeaderDie)(nil)
+var HTTPHeaderBlank = (&httpHeaderDie{}).DieFeed(corev1.HTTPHeader{})
 
-type hTTPHeaderDie struct {
+type httpHeaderDie struct {
 	mutable bool
 	r       corev1.HTTPHeader
 }
 
-func (d *hTTPHeaderDie) DieImmutable(immutable bool) HTTPHeaderDie {
+func (d *httpHeaderDie) DieImmutable(immutable bool) HTTPHeaderDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*hTTPHeaderDie)
+	d = d.DeepCopy().(*httpHeaderDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *hTTPHeaderDie) DieFeed(r corev1.HTTPHeader) HTTPHeaderDie {
+func (d *httpHeaderDie) DieFeed(r corev1.HTTPHeader) HTTPHeaderDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &hTTPHeaderDie{
+	return &httpHeaderDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *hTTPHeaderDie) DieFeedPtr(r *corev1.HTTPHeader) HTTPHeaderDie {
+func (d *httpHeaderDie) DieFeedPtr(r *corev1.HTTPHeader) HTTPHeaderDie {
 	if r == nil {
 		r = &corev1.HTTPHeader{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *hTTPHeaderDie) DieRelease() corev1.HTTPHeader {
+func (d *httpHeaderDie) DieRelease() corev1.HTTPHeader {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *hTTPHeaderDie) DieReleasePtr() *corev1.HTTPHeader {
+func (d *httpHeaderDie) DieReleasePtr() *corev1.HTTPHeader {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *hTTPHeaderDie) DieStamp(fn func(r *corev1.HTTPHeader)) HTTPHeaderDie {
+func (d *httpHeaderDie) DieStamp(fn func(r *corev1.HTTPHeader)) HTTPHeaderDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *hTTPHeaderDie) DeepCopy() HTTPHeaderDie {
+func (d *httpHeaderDie) DeepCopy() HTTPHeaderDie {
 	r := *d.r.DeepCopy()
-	return &hTTPHeaderDie{
+	return &httpHeaderDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *hTTPHeaderDie) Name(v string) HTTPHeaderDie {
+func (d *httpHeaderDie) Name(v string) HTTPHeaderDie {
 	return d.DieStamp(func(r *corev1.HTTPHeader) {
 		r.Name = v
 	})
 }
 
-func (d *hTTPHeaderDie) Value(v string) HTTPHeaderDie {
+func (d *httpHeaderDie) Value(v string) HTTPHeaderDie {
 	return d.DieStamp(func(r *corev1.HTTPHeader) {
 		r.Value = v
 	})
@@ -2443,93 +2443,93 @@ type TCPSocketActionDie interface {
 	DeepCopy() TCPSocketActionDie
 
 	// Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
-	Port(Port intstr.IntOrString) TCPSocketActionDie
+	Port(v intstr.IntOrString) TCPSocketActionDie
 	// Optional: Host name to connect to, defaults to the pod IP.
-	Host(Host string) TCPSocketActionDie
+	Host(v string) TCPSocketActionDie
 }
 
-var _ TCPSocketActionDie = (*tCPSocketActionDie)(nil)
-var TCPSocketActionBlank = (&tCPSocketActionDie{}).DieFeed(corev1.TCPSocketAction{})
+var _ TCPSocketActionDie = (*tcpSocketActionDie)(nil)
+var TCPSocketActionBlank = (&tcpSocketActionDie{}).DieFeed(corev1.TCPSocketAction{})
 
-type tCPSocketActionDie struct {
+type tcpSocketActionDie struct {
 	mutable bool
 	r       corev1.TCPSocketAction
 }
 
-func (d *tCPSocketActionDie) DieImmutable(immutable bool) TCPSocketActionDie {
+func (d *tcpSocketActionDie) DieImmutable(immutable bool) TCPSocketActionDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*tCPSocketActionDie)
+	d = d.DeepCopy().(*tcpSocketActionDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *tCPSocketActionDie) DieFeed(r corev1.TCPSocketAction) TCPSocketActionDie {
+func (d *tcpSocketActionDie) DieFeed(r corev1.TCPSocketAction) TCPSocketActionDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &tCPSocketActionDie{
+	return &tcpSocketActionDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *tCPSocketActionDie) DieFeedPtr(r *corev1.TCPSocketAction) TCPSocketActionDie {
+func (d *tcpSocketActionDie) DieFeedPtr(r *corev1.TCPSocketAction) TCPSocketActionDie {
 	if r == nil {
 		r = &corev1.TCPSocketAction{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *tCPSocketActionDie) DieRelease() corev1.TCPSocketAction {
+func (d *tcpSocketActionDie) DieRelease() corev1.TCPSocketAction {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *tCPSocketActionDie) DieReleasePtr() *corev1.TCPSocketAction {
+func (d *tcpSocketActionDie) DieReleasePtr() *corev1.TCPSocketAction {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *tCPSocketActionDie) DieStamp(fn func(r *corev1.TCPSocketAction)) TCPSocketActionDie {
+func (d *tcpSocketActionDie) DieStamp(fn func(r *corev1.TCPSocketAction)) TCPSocketActionDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *tCPSocketActionDie) DeepCopy() TCPSocketActionDie {
+func (d *tcpSocketActionDie) DeepCopy() TCPSocketActionDie {
 	r := *d.r.DeepCopy()
-	return &tCPSocketActionDie{
+	return &tcpSocketActionDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *tCPSocketActionDie) Port(v intstr.IntOrString) TCPSocketActionDie {
+func (d *tcpSocketActionDie) Port(v intstr.IntOrString) TCPSocketActionDie {
 	return d.DieStamp(func(r *corev1.TCPSocketAction) {
 		r.Port = v
 	})
 }
 
-func (d *tCPSocketActionDie) PortInt(i int) TCPSocketActionDie {
+func (d *tcpSocketActionDie) PortInt(i int) TCPSocketActionDie {
 	return d.DieStamp(func(r *corev1.TCPSocketAction) {
 		v := intstr.FromInt(i)
 		r.Port = v
 	})
 }
 
-func (d *tCPSocketActionDie) PortString(s string) TCPSocketActionDie {
+func (d *tcpSocketActionDie) PortString(s string) TCPSocketActionDie {
 	return d.DieStamp(func(r *corev1.TCPSocketAction) {
 		v := intstr.FromString(s)
 		r.Port = v
 	})
 }
 
-func (d *tCPSocketActionDie) Host(v string) TCPSocketActionDie {
+func (d *tcpSocketActionDie) Host(v string) TCPSocketActionDie {
 	return d.DieStamp(func(r *corev1.TCPSocketAction) {
 		r.Host = v
 	})
@@ -2551,29 +2551,29 @@ type SecurityContextDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() SecurityContextDie
 
-	securityContext
+	securityContextDieExtension
 	// The capabilities to add/drop when running containers. Defaults to the default set of capabilities granted by the container runtime.
-	Capabilities(Capabilities *corev1.Capabilities) SecurityContextDie
+	Capabilities(v *corev1.Capabilities) SecurityContextDie
 	// Run container in privileged mode. Processes in privileged containers are essentially equivalent to root on the host. Defaults to false.
-	Privileged(Privileged *bool) SecurityContextDie
+	Privileged(v *bool) SecurityContextDie
 	// The SELinux context to be applied to the container. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
-	SELinuxOptions(SELinuxOptions *corev1.SELinuxOptions) SecurityContextDie
+	SELinuxOptions(v *corev1.SELinuxOptions) SecurityContextDie
 	// The Windows specific settings applied to all containers. If unspecified, the options from the PodSecurityContext will be used. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
-	WindowsOptions(WindowsOptions *corev1.WindowsSecurityContextOptions) SecurityContextDie
+	WindowsOptions(v *corev1.WindowsSecurityContextOptions) SecurityContextDie
 	// The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
-	RunAsUser(RunAsUser *int64) SecurityContextDie
+	RunAsUser(v *int64) SecurityContextDie
 	// The GID to run the entrypoint of the container process. Uses runtime default if unset. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
-	RunAsGroup(RunAsGroup *int64) SecurityContextDie
+	RunAsGroup(v *int64) SecurityContextDie
 	// Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. If unset or false, no such validation will be performed. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
-	RunAsNonRoot(RunAsNonRoot *bool) SecurityContextDie
+	RunAsNonRoot(v *bool) SecurityContextDie
 	// Whether this container has a read-only root filesystem. Default is false.
-	ReadOnlyRootFilesystem(ReadOnlyRootFilesystem *bool) SecurityContextDie
+	ReadOnlyRootFilesystem(v *bool) SecurityContextDie
 	// AllowPrivilegeEscalation controls whether a process can gain more privileges than its parent process. This bool directly controls if the no_new_privs flag will be set on the container process. AllowPrivilegeEscalation is true always when the container is: 1) run as Privileged 2) has CAP_SYS_ADMIN
-	AllowPrivilegeEscalation(AllowPrivilegeEscalation *bool) SecurityContextDie
+	AllowPrivilegeEscalation(v *bool) SecurityContextDie
 	// procMount denotes the type of proc mount to use for the containers. The default is DefaultProcMount which uses the container runtime defaults for readonly paths and masked paths. This requires the ProcMountType feature flag to be enabled.
-	ProcMount(ProcMount *corev1.ProcMountType) SecurityContextDie
+	ProcMount(v *corev1.ProcMountType) SecurityContextDie
 	// The seccomp options to use by this container. If seccomp options are provided at both the pod & container level, the container options override the pod options.
-	SeccompProfile(SeccompProfile *corev1.SeccompProfile) SecurityContextDie
+	SeccompProfile(v *corev1.SeccompProfile) SecurityContextDie
 }
 
 var _ SecurityContextDie = (*securityContextDie)(nil)
@@ -2720,9 +2720,9 @@ type CapabilitiesDie interface {
 	DeepCopy() CapabilitiesDie
 
 	// Added capabilities
-	Add(Add ...corev1.Capability) CapabilitiesDie
+	Add(v ...corev1.Capability) CapabilitiesDie
 	// Removed capabilities
-	Drop(Drop ...corev1.Capability) CapabilitiesDie
+	Drop(v ...corev1.Capability) CapabilitiesDie
 }
 
 var _ CapabilitiesDie = (*capabilitiesDie)(nil)
@@ -2815,95 +2815,95 @@ type SELinuxOptionsDie interface {
 	DeepCopy() SELinuxOptionsDie
 
 	// User is a SELinux user label that applies to the container.
-	User(User string) SELinuxOptionsDie
+	User(v string) SELinuxOptionsDie
 	// Role is a SELinux role label that applies to the container.
-	Role(Role string) SELinuxOptionsDie
+	Role(v string) SELinuxOptionsDie
 	// Type is a SELinux type label that applies to the container.
-	Type(Type string) SELinuxOptionsDie
+	Type(v string) SELinuxOptionsDie
 	// Level is SELinux level label that applies to the container.
-	Level(Level string) SELinuxOptionsDie
+	Level(v string) SELinuxOptionsDie
 }
 
-var _ SELinuxOptionsDie = (*sELinuxOptionsDie)(nil)
-var SELinuxOptionsBlank = (&sELinuxOptionsDie{}).DieFeed(corev1.SELinuxOptions{})
+var _ SELinuxOptionsDie = (*seLinuxOptionsDie)(nil)
+var SELinuxOptionsBlank = (&seLinuxOptionsDie{}).DieFeed(corev1.SELinuxOptions{})
 
-type sELinuxOptionsDie struct {
+type seLinuxOptionsDie struct {
 	mutable bool
 	r       corev1.SELinuxOptions
 }
 
-func (d *sELinuxOptionsDie) DieImmutable(immutable bool) SELinuxOptionsDie {
+func (d *seLinuxOptionsDie) DieImmutable(immutable bool) SELinuxOptionsDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*sELinuxOptionsDie)
+	d = d.DeepCopy().(*seLinuxOptionsDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *sELinuxOptionsDie) DieFeed(r corev1.SELinuxOptions) SELinuxOptionsDie {
+func (d *seLinuxOptionsDie) DieFeed(r corev1.SELinuxOptions) SELinuxOptionsDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &sELinuxOptionsDie{
+	return &seLinuxOptionsDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *sELinuxOptionsDie) DieFeedPtr(r *corev1.SELinuxOptions) SELinuxOptionsDie {
+func (d *seLinuxOptionsDie) DieFeedPtr(r *corev1.SELinuxOptions) SELinuxOptionsDie {
 	if r == nil {
 		r = &corev1.SELinuxOptions{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *sELinuxOptionsDie) DieRelease() corev1.SELinuxOptions {
+func (d *seLinuxOptionsDie) DieRelease() corev1.SELinuxOptions {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *sELinuxOptionsDie) DieReleasePtr() *corev1.SELinuxOptions {
+func (d *seLinuxOptionsDie) DieReleasePtr() *corev1.SELinuxOptions {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *sELinuxOptionsDie) DieStamp(fn func(r *corev1.SELinuxOptions)) SELinuxOptionsDie {
+func (d *seLinuxOptionsDie) DieStamp(fn func(r *corev1.SELinuxOptions)) SELinuxOptionsDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *sELinuxOptionsDie) DeepCopy() SELinuxOptionsDie {
+func (d *seLinuxOptionsDie) DeepCopy() SELinuxOptionsDie {
 	r := *d.r.DeepCopy()
-	return &sELinuxOptionsDie{
+	return &seLinuxOptionsDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *sELinuxOptionsDie) User(v string) SELinuxOptionsDie {
+func (d *seLinuxOptionsDie) User(v string) SELinuxOptionsDie {
 	return d.DieStamp(func(r *corev1.SELinuxOptions) {
 		r.User = v
 	})
 }
 
-func (d *sELinuxOptionsDie) Role(v string) SELinuxOptionsDie {
+func (d *seLinuxOptionsDie) Role(v string) SELinuxOptionsDie {
 	return d.DieStamp(func(r *corev1.SELinuxOptions) {
 		r.Role = v
 	})
 }
 
-func (d *sELinuxOptionsDie) Type(v string) SELinuxOptionsDie {
+func (d *seLinuxOptionsDie) Type(v string) SELinuxOptionsDie {
 	return d.DieStamp(func(r *corev1.SELinuxOptions) {
 		r.Type = v
 	})
 }
 
-func (d *sELinuxOptionsDie) Level(v string) SELinuxOptionsDie {
+func (d *seLinuxOptionsDie) Level(v string) SELinuxOptionsDie {
 	return d.DieStamp(func(r *corev1.SELinuxOptions) {
 		r.Level = v
 	})
@@ -2926,13 +2926,13 @@ type WindowsSecurityContextOptionsDie interface {
 	DeepCopy() WindowsSecurityContextOptionsDie
 
 	// GMSACredentialSpecName is the name of the GMSA credential spec to use.
-	GMSACredentialSpecName(GMSACredentialSpecName *string) WindowsSecurityContextOptionsDie
+	GMSACredentialSpecName(v *string) WindowsSecurityContextOptionsDie
 	// GMSACredentialSpec is where the GMSA admission webhook (https://github.com/kubernetes-sigs/windows-gmsa) inlines the contents of the GMSA credential spec named by the GMSACredentialSpecName field.
-	GMSACredentialSpec(GMSACredentialSpec *string) WindowsSecurityContextOptionsDie
+	GMSACredentialSpec(v *string) WindowsSecurityContextOptionsDie
 	// The UserName in Windows to run the entrypoint of the container process. Defaults to the user specified in image metadata if unspecified. May also be set in PodSecurityContext. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
-	RunAsUserName(RunAsUserName *string) WindowsSecurityContextOptionsDie
+	RunAsUserName(v *string) WindowsSecurityContextOptionsDie
 	// HostProcess determines if a container should be run as a 'Host Process' container. This field is alpha-level and will only be honored by components that enable the WindowsHostProcessContainers feature flag. Setting this field without the feature flag will result in errors when validating the Pod. All of a Pod's containers must have the same effective HostProcess value (it is not allowed to have a mix of HostProcess containers and non-HostProcess containers).  In addition, if HostProcess is true then HostNetwork must also be set to true.
-	HostProcess(HostProcess *bool) WindowsSecurityContextOptionsDie
+	HostProcess(v *bool) WindowsSecurityContextOptionsDie
 }
 
 var _ WindowsSecurityContextOptionsDie = (*windowsSecurityContextOptionsDie)(nil)
@@ -3039,9 +3039,9 @@ type SeccompProfileDie interface {
 	// type indicates which kind of seccomp profile will be applied. Valid options are:
 	//
 	// Localhost - a profile defined in a file on the node should be used. RuntimeDefault - the container runtime default profile should be used. Unconfined - no profile should be applied.
-	Type(Type corev1.SeccompProfileType) SeccompProfileDie
+	Type(v corev1.SeccompProfileType) SeccompProfileDie
 	// localhostProfile indicates a profile defined in a file on the node should be used. The profile must be preconfigured on the node to work. Must be a descending path, relative to the kubelet's configured seccomp profile location. Must only be set if type is "Localhost".
-	LocalhostProfile(LocalhostProfile *string) SeccompProfileDie
+	LocalhostProfile(v *string) SeccompProfileDie
 }
 
 var _ SeccompProfileDie = (*seccompProfileDie)(nil)
@@ -3133,25 +3133,25 @@ type ContainerStatusDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ContainerStatusDie
 
-	containerStatus
+	containerStatusDieExtension
 	// This must be a DNS_LABEL. Each container in a pod must have a unique name. Cannot be updated.
-	Name(Name string) ContainerStatusDie
+	Name(v string) ContainerStatusDie
 	// Details about the container's current condition.
-	State(State corev1.ContainerState) ContainerStatusDie
+	State(v corev1.ContainerState) ContainerStatusDie
 	// Details about the container's last termination condition.
-	LastTerminationState(LastTerminationState corev1.ContainerState) ContainerStatusDie
+	LastTerminationState(v corev1.ContainerState) ContainerStatusDie
 	// Specifies whether the container has passed its readiness probe.
-	Ready(Ready bool) ContainerStatusDie
+	Ready(v bool) ContainerStatusDie
 	// The number of times the container has been restarted, currently based on the number of dead containers that have not yet been removed. Note that this is calculated from dead containers. But those containers are subject to garbage collection. This value will get capped at 5 by GC.
-	RestartCount(RestartCount int32) ContainerStatusDie
+	RestartCount(v int32) ContainerStatusDie
 	// The image the container is running. More info: https://kubernetes.io/docs/concepts/containers/images TODO(dchen1107): Which image the container is running with?
-	Image(Image string) ContainerStatusDie
+	Image(v string) ContainerStatusDie
 	// ImageID of the container's image.
-	ImageID(ImageID string) ContainerStatusDie
+	ImageID(v string) ContainerStatusDie
 	// Container's ID in the format 'docker://<container_id>'.
-	ContainerID(ContainerID string) ContainerStatusDie
+	ContainerID(v string) ContainerStatusDie
 	// Specifies whether the container has passed its startup probe. Initialized as false, becomes true after startupProbe is considered successful. Resets to false when the container is restarted, or if kubelet loses state temporarily. Is always true when no startupProbe is defined.
-	Started(Started *bool) ContainerStatusDie
+	Started(v *bool) ContainerStatusDie
 }
 
 var _ ContainerStatusDie = (*containerStatusDie)(nil)
@@ -3285,13 +3285,13 @@ type ContainerStateDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ContainerStateDie
 
-	containerState
+	containerStateDieExtension
 	// Details about a waiting container
-	Waiting(Waiting *corev1.ContainerStateWaiting) ContainerStateDie
+	Waiting(v *corev1.ContainerStateWaiting) ContainerStateDie
 	// Details about a running container
-	Running(Running *corev1.ContainerStateRunning) ContainerStateDie
+	Running(v *corev1.ContainerStateRunning) ContainerStateDie
 	// Details about a terminated container
-	Terminated(Terminated *corev1.ContainerStateTerminated) ContainerStateDie
+	Terminated(v *corev1.ContainerStateTerminated) ContainerStateDie
 }
 
 var _ ContainerStateDie = (*containerStateDie)(nil)
@@ -3390,9 +3390,9 @@ type ContainerStateWaitingDie interface {
 	DeepCopy() ContainerStateWaitingDie
 
 	// (brief) reason the container is not yet running.
-	Reason(Reason string) ContainerStateWaitingDie
+	Reason(v string) ContainerStateWaitingDie
 	// Message regarding why the container is not yet running.
-	Message(Message string) ContainerStateWaitingDie
+	Message(v string) ContainerStateWaitingDie
 }
 
 var _ ContainerStateWaitingDie = (*containerStateWaitingDie)(nil)
@@ -3485,7 +3485,7 @@ type ContainerStateRunningDie interface {
 	DeepCopy() ContainerStateRunningDie
 
 	// Time at which the container was last (re-)started
-	StartedAt(StartedAt apismetav1.Time) ContainerStateRunningDie
+	StartedAt(v apismetav1.Time) ContainerStateRunningDie
 }
 
 var _ ContainerStateRunningDie = (*containerStateRunningDie)(nil)
@@ -3572,19 +3572,19 @@ type ContainerStateTerminatedDie interface {
 	DeepCopy() ContainerStateTerminatedDie
 
 	// Exit status from the last termination of the container
-	ExitCode(ExitCode int32) ContainerStateTerminatedDie
+	ExitCode(v int32) ContainerStateTerminatedDie
 	// Signal from the last termination of the container
-	Signal(Signal int32) ContainerStateTerminatedDie
+	Signal(v int32) ContainerStateTerminatedDie
 	// (brief) reason from the last termination of the container
-	Reason(Reason string) ContainerStateTerminatedDie
+	Reason(v string) ContainerStateTerminatedDie
 	// Message regarding the last termination of the container
-	Message(Message string) ContainerStateTerminatedDie
+	Message(v string) ContainerStateTerminatedDie
 	// Time at which previous execution of the container started
-	StartedAt(StartedAt apismetav1.Time) ContainerStateTerminatedDie
+	StartedAt(v apismetav1.Time) ContainerStateTerminatedDie
 	// Time at which the container last terminated
-	FinishedAt(FinishedAt apismetav1.Time) ContainerStateTerminatedDie
+	FinishedAt(v apismetav1.Time) ContainerStateTerminatedDie
 	// Container's ID in the format 'docker://<container_id>'
-	ContainerID(ContainerID string) ContainerStateTerminatedDie
+	ContainerID(v string) ContainerStateTerminatedDie
 }
 
 var _ ContainerStateTerminatedDie = (*containerStateTerminatedDie)(nil)
@@ -3706,11 +3706,11 @@ type EndpointsDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() EndpointsDie
 
-	endpoints
+	endpointsDieExtension
 	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
 	MetadataDie(fn func(d metav1.ObjectMetaDie)) EndpointsDie
 	// The set of all endpoints is the union of all subsets. Addresses are placed into subsets according to the IPs they share. A single address with multiple ports, some of which are ready and some of which are not (because they come from different containers) will result in the address being displayed in different subsets for the different ports. No address will appear in both Addresses and NotReadyAddresses in the same subset. Sets of addresses and ports that comprise a service.
-	Subsets(Subsets ...corev1.EndpointSubset) EndpointsDie
+	Subsets(v ...corev1.EndpointSubset) EndpointsDie
 
 	runtime.Object
 	apismetav1.Object
@@ -3835,13 +3835,13 @@ type EndpointSubsetDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() EndpointSubsetDie
 
-	endpointSubset
+	endpointSubsetDieExtension
 	// IP addresses which offer the related ports that are marked as ready. These endpoints should be considered safe for load balancers and clients to utilize.
-	Addresses(Addresses ...corev1.EndpointAddress) EndpointSubsetDie
+	Addresses(v ...corev1.EndpointAddress) EndpointSubsetDie
 	// IP addresses which offer the related ports but are not currently marked as ready because they have not yet finished starting, have recently failed a readiness check, or have recently failed a liveness check.
-	NotReadyAddresses(NotReadyAddresses ...corev1.EndpointAddress) EndpointSubsetDie
+	NotReadyAddresses(v ...corev1.EndpointAddress) EndpointSubsetDie
 	// Port numbers available on the related IP addresses.
-	Ports(Ports ...corev1.EndpointPort) EndpointSubsetDie
+	Ports(v ...corev1.EndpointPort) EndpointSubsetDie
 }
 
 var _ EndpointSubsetDie = (*endpointSubsetDie)(nil)
@@ -3939,15 +3939,15 @@ type EndpointAddressDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() EndpointAddressDie
 
-	endpointAddress
+	endpointAddressDieExtension
 	// The IP of this endpoint. May not be loopback (127.0.0.0/8), link-local (169.254.0.0/16), or link-local multicast ((224.0.0.0/24). IPv6 is also accepted but not fully supported on all platforms. Also, certain kubernetes components, like kube-proxy, are not IPv6 ready. TODO: This should allow hostname or IP, See #4447.
-	IP(IP string) EndpointAddressDie
+	IP(v string) EndpointAddressDie
 	// The Hostname of this endpoint
-	Hostname(Hostname string) EndpointAddressDie
+	Hostname(v string) EndpointAddressDie
 	// Optional: Node hosting this endpoint. This can be used to determine endpoints local to a node.
-	NodeName(NodeName *string) EndpointAddressDie
+	NodeName(v *string) EndpointAddressDie
 	// Reference to object providing the endpoint.
-	TargetRef(TargetRef *corev1.ObjectReference) EndpointAddressDie
+	TargetRef(v *corev1.ObjectReference) EndpointAddressDie
 }
 
 var _ EndpointAddressDie = (*endpointAddressDie)(nil)
@@ -4052,13 +4052,13 @@ type EndpointPortDie interface {
 	DeepCopy() EndpointPortDie
 
 	// The name of this port.  This must match the 'name' field in the corresponding ServicePort. Must be a DNS_LABEL. Optional only if one port is defined.
-	Name(Name string) EndpointPortDie
+	Name(v string) EndpointPortDie
 	// The port number of the endpoint.
-	Port(Port int32) EndpointPortDie
+	Port(v int32) EndpointPortDie
 	// The IP protocol for this port. Must be UDP, TCP, or SCTP. Default is TCP.
-	Protocol(Protocol corev1.Protocol) EndpointPortDie
+	Protocol(v corev1.Protocol) EndpointPortDie
 	// The application protocol for this port. This field follows standard Kubernetes label syntax. Un-prefixed names are reserved for IANA standard service names (as per RFC-6335 and http://www.iana.org/assignments/service-names). Non-standard protocols should use prefixed names such as mycompany.com/my-custom-protocol.
-	AppProtocol(AppProtocol *string) EndpointPortDie
+	AppProtocol(v *string) EndpointPortDie
 }
 
 var _ EndpointPortDie = (*endpointPortDie)(nil)
@@ -4162,37 +4162,37 @@ type EventDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() EventDie
 
-	event
+	eventDieExtension
 	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
 	MetadataDie(fn func(d metav1.ObjectMetaDie)) EventDie
 	// The object that this event is about.
-	InvolvedObject(InvolvedObject corev1.ObjectReference) EventDie
+	InvolvedObject(v corev1.ObjectReference) EventDie
 	// This should be a short, machine understandable string that gives the reason for the transition into the object's current status. TODO: provide exact specification for format.
-	Reason(Reason string) EventDie
+	Reason(v string) EventDie
 	// A human-readable description of the status of this operation. TODO: decide on maximum length.
-	Message(Message string) EventDie
+	Message(v string) EventDie
 	// The component reporting this event. Should be a short machine understandable string.
-	Source(Source corev1.EventSource) EventDie
+	Source(v corev1.EventSource) EventDie
 	// The time at which the event was first recorded. (Time of server receipt is in TypeMeta.)
-	FirstTimestamp(FirstTimestamp apismetav1.Time) EventDie
+	FirstTimestamp(v apismetav1.Time) EventDie
 	// The time at which the most recent occurrence of this event was recorded.
-	LastTimestamp(LastTimestamp apismetav1.Time) EventDie
+	LastTimestamp(v apismetav1.Time) EventDie
 	// The number of times this event has occurred.
-	Count(Count int32) EventDie
+	Count(v int32) EventDie
 	// Type of this event (Normal, Warning), new types could be added in the future
-	Type(Type string) EventDie
+	Type(v string) EventDie
 	// Time when this Event was first observed.
-	EventTime(EventTime apismetav1.MicroTime) EventDie
+	EventTime(v apismetav1.MicroTime) EventDie
 	// Data about the Event series this event represents or nil if it's a singleton Event.
-	Series(Series *corev1.EventSeries) EventDie
+	Series(v *corev1.EventSeries) EventDie
 	// What action was taken/failed regarding to the Regarding object.
-	Action(Action string) EventDie
+	Action(v string) EventDie
 	// Optional secondary object for more complex actions.
-	Related(Related *corev1.ObjectReference) EventDie
+	Related(v *corev1.ObjectReference) EventDie
 	// Name of the controller that emitted this Event, e.g. `kubernetes.io/kubelet`.
-	ReportingController(ReportingController string) EventDie
+	ReportingController(v string) EventDie
 	// ID of the controller instance, e.g. `kubelet-xyzf`.
-	ReportingInstance(ReportingInstance string) EventDie
+	ReportingInstance(v string) EventDie
 
 	runtime.Object
 	apismetav1.Object
@@ -4396,9 +4396,9 @@ type EventSourceDie interface {
 	DeepCopy() EventSourceDie
 
 	// Component from which the event is generated.
-	Component(Component string) EventSourceDie
+	Component(v string) EventSourceDie
 	// Node name on which the event is generated.
-	Host(Host string) EventSourceDie
+	Host(v string) EventSourceDie
 }
 
 var _ EventSourceDie = (*eventSourceDie)(nil)
@@ -4491,9 +4491,9 @@ type EventSeriesDie interface {
 	DeepCopy() EventSeriesDie
 
 	// Number of occurrences in this series up to the last heartbeat time
-	Count(Count int32) EventSeriesDie
+	Count(v int32) EventSeriesDie
 	// Time of the last occurrence observed
-	LastObservedTime(LastObservedTime apismetav1.MicroTime) EventSeriesDie
+	LastObservedTime(v apismetav1.MicroTime) EventSeriesDie
 }
 
 var _ EventSeriesDie = (*eventSeriesDie)(nil)
@@ -4590,7 +4590,7 @@ type LimitRangeDie interface {
 	// SpecDie stamps the resource's spec field with a mutable die.
 	SpecDie(fn func(d LimitRangeSpecDie)) LimitRangeDie
 	// Spec defines the limits enforced. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Spec(Spec corev1.LimitRangeSpec) LimitRangeDie
+	Spec(v corev1.LimitRangeSpec) LimitRangeDie
 
 	runtime.Object
 	apismetav1.Object
@@ -4723,9 +4723,9 @@ type LimitRangeSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() LimitRangeSpecDie
 
-	limitRangeSpec
+	limitRangeSpecDieExtension
 	// Limits is the list of LimitRangeItem objects that are enforced.
-	Limits(Limits ...corev1.LimitRangeItem) LimitRangeSpecDie
+	Limits(v ...corev1.LimitRangeItem) LimitRangeSpecDie
 }
 
 var _ LimitRangeSpecDie = (*limitRangeSpecDie)(nil)
@@ -4811,19 +4811,19 @@ type LimitRangeItemDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() LimitRangeItemDie
 
-	limitRangeItem
+	limitRangeItemDieExtension
 	// Type of resource that this limit applies to.
-	Type(Type corev1.LimitType) LimitRangeItemDie
+	Type(v corev1.LimitType) LimitRangeItemDie
 	// Max usage constraints on this kind by resource name.
-	Max(Max corev1.ResourceList) LimitRangeItemDie
+	Max(v corev1.ResourceList) LimitRangeItemDie
 	// Min usage constraints on this kind by resource name.
-	Min(Min corev1.ResourceList) LimitRangeItemDie
+	Min(v corev1.ResourceList) LimitRangeItemDie
 	// Default resource requirement limit value by resource name if resource limit is omitted.
-	Default(Default corev1.ResourceList) LimitRangeItemDie
+	Default(v corev1.ResourceList) LimitRangeItemDie
 	// DefaultRequest is the default resource requirement request value by resource name if resource request is omitted.
-	DefaultRequest(DefaultRequest corev1.ResourceList) LimitRangeItemDie
+	DefaultRequest(v corev1.ResourceList) LimitRangeItemDie
 	// MaxLimitRequestRatio if specified, the named resource must have a request and limit that are both non-zero where limit divided by request is less than or equal to the enumerated value; this represents the max burst for the named resource.
-	MaxLimitRequestRatio(MaxLimitRequestRatio corev1.ResourceList) LimitRangeItemDie
+	MaxLimitRequestRatio(v corev1.ResourceList) LimitRangeItemDie
 }
 
 var _ LimitRangeItemDie = (*limitRangeItemDie)(nil)
@@ -4946,9 +4946,9 @@ type NamespaceDie interface {
 	// StatusDie stamps the resource's status field with a mutable die.
 	StatusDie(fn func(d NamespaceStatusDie)) NamespaceDie
 	// Spec defines the behavior of the Namespace. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Spec(Spec corev1.NamespaceSpec) NamespaceDie
+	Spec(v corev1.NamespaceSpec) NamespaceDie
 	// Status describes the current status of a Namespace. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Status(Status corev1.NamespaceStatus) NamespaceDie
+	Status(v corev1.NamespaceStatus) NamespaceDie
 
 	runtime.Object
 	apismetav1.Object
@@ -5096,7 +5096,7 @@ type NamespaceSpecDie interface {
 	DeepCopy() NamespaceSpecDie
 
 	// Finalizers is an opaque list of values that must be empty to permanently remove object from storage. More info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
-	Finalizers(Finalizers ...corev1.FinalizerName) NamespaceSpecDie
+	Finalizers(v ...corev1.FinalizerName) NamespaceSpecDie
 }
 
 var _ NamespaceSpecDie = (*namespaceSpecDie)(nil)
@@ -5182,11 +5182,11 @@ type NamespaceStatusDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() NamespaceStatusDie
 
-	namespaceStatus
+	namespaceStatusDieExtension
 	// Phase is the current lifecycle phase of the namespace. More info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
-	Phase(Phase corev1.NamespacePhase) NamespaceStatusDie
+	Phase(v corev1.NamespacePhase) NamespaceStatusDie
 	// Represents the latest available observations of a namespace's current state.
-	Conditions(Conditions ...corev1.NamespaceCondition) NamespaceStatusDie
+	Conditions(v ...corev1.NamespaceCondition) NamespaceStatusDie
 }
 
 var _ NamespaceStatusDie = (*namespaceStatusDie)(nil)
@@ -5285,9 +5285,9 @@ type NodeDie interface {
 	// StatusDie stamps the resource's status field with a mutable die.
 	StatusDie(fn func(d NodeStatusDie)) NodeDie
 	// Spec defines the behavior of a node. https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Spec(Spec corev1.NodeSpec) NodeDie
+	Spec(v corev1.NodeSpec) NodeDie
 	// Most recently observed status of the node. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Status(Status corev1.NodeStatus) NodeDie
+	Status(v corev1.NodeStatus) NodeDie
 
 	runtime.Object
 	apismetav1.Object
@@ -5434,21 +5434,21 @@ type NodeSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() NodeSpecDie
 
-	nodeSpec
+	nodeSpecDieExtension
 	// PodCIDR represents the pod IP range assigned to the node.
-	PodCIDR(PodCIDR string) NodeSpecDie
+	PodCIDR(v string) NodeSpecDie
 	// podCIDRs represents the IP ranges assigned to the node for usage by Pods on that node. If this field is specified, the 0th entry must match the podCIDR field. It may contain at most 1 value for each of IPv4 and IPv6.
-	PodCIDRs(PodCIDRs ...string) NodeSpecDie
+	PodCIDRs(v ...string) NodeSpecDie
 	// ID of the node assigned by the cloud provider in the format: <ProviderName>://<ProviderSpecificNodeID>
-	ProviderID(ProviderID string) NodeSpecDie
+	ProviderID(v string) NodeSpecDie
 	// Unschedulable controls node schedulability of new pods. By default, node is schedulable. More info: https://kubernetes.io/docs/concepts/nodes/node/#manual-node-administration
-	Unschedulable(Unschedulable bool) NodeSpecDie
+	Unschedulable(v bool) NodeSpecDie
 	// If specified, the node's taints.
-	Taints(Taints ...corev1.Taint) NodeSpecDie
+	Taints(v ...corev1.Taint) NodeSpecDie
 	// Deprecated. If specified, the source of the node's configuration. The DynamicKubeletConfig feature gate must be enabled for the Kubelet to use this field. This field is deprecated as of 1.22: https://git.k8s.io/enhancements/keps/sig-node/281-dynamic-kubelet-configuration
-	ConfigSource(ConfigSource *corev1.NodeConfigSource) NodeSpecDie
+	ConfigSource(v *corev1.NodeConfigSource) NodeSpecDie
 	// Deprecated. Not all kubelets will set this field. Remove field after 1.13. see: https://issues.k8s.io/61966
-	DoNotUseExternalID(DoNotUseExternalID string) NodeSpecDie
+	DoNotUseExternalID(v string) NodeSpecDie
 }
 
 var _ NodeSpecDie = (*nodeSpecDie)(nil)
@@ -5571,13 +5571,13 @@ type TaintDie interface {
 	DeepCopy() TaintDie
 
 	// Required. The taint key to be applied to a node.
-	Key(Key string) TaintDie
+	Key(v string) TaintDie
 	// The taint value corresponding to the taint key.
-	Value(Value string) TaintDie
+	Value(v string) TaintDie
 	// Required. The effect of the taint on pods that do not tolerate the taint. Valid effects are NoSchedule, PreferNoSchedule and NoExecute.
-	Effect(Effect corev1.TaintEffect) TaintDie
+	Effect(v corev1.TaintEffect) TaintDie
 	// TimeAdded represents the time at which the taint was added. It is only written for NoExecute taints.
-	TimeAdded(TimeAdded *apismetav1.Time) TaintDie
+	TimeAdded(v *apismetav1.Time) TaintDie
 }
 
 var _ TaintDie = (*taintDie)(nil)
@@ -5681,9 +5681,9 @@ type NodeConfigSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() NodeConfigSourceDie
 
-	nodeConfigSource
+	nodeConfigSourceDieExtension
 	// ConfigMap is a reference to a Node's ConfigMap
-	ConfigMap(ConfigMap *corev1.ConfigMapNodeConfigSource) NodeConfigSourceDie
+	ConfigMap(v *corev1.ConfigMapNodeConfigSource) NodeConfigSourceDie
 }
 
 var _ NodeConfigSourceDie = (*nodeConfigSourceDie)(nil)
@@ -5770,15 +5770,15 @@ type ConfigMapNodeConfigSourceDie interface {
 	DeepCopy() ConfigMapNodeConfigSourceDie
 
 	// Namespace is the metadata.namespace of the referenced ConfigMap. This field is required in all cases.
-	Namespace(Namespace string) ConfigMapNodeConfigSourceDie
+	Namespace(v string) ConfigMapNodeConfigSourceDie
 	// Name is the metadata.name of the referenced ConfigMap. This field is required in all cases.
-	Name(Name string) ConfigMapNodeConfigSourceDie
+	Name(v string) ConfigMapNodeConfigSourceDie
 	// UID is the metadata.UID of the referenced ConfigMap. This field is forbidden in Node.Spec, and required in Node.Status.
-	UID(UID types.UID) ConfigMapNodeConfigSourceDie
+	UID(v types.UID) ConfigMapNodeConfigSourceDie
 	// ResourceVersion is the metadata.ResourceVersion of the referenced ConfigMap. This field is forbidden in Node.Spec, and required in Node.Status.
-	ResourceVersion(ResourceVersion string) ConfigMapNodeConfigSourceDie
+	ResourceVersion(v string) ConfigMapNodeConfigSourceDie
 	// KubeletConfigKey declares which key of the referenced ConfigMap corresponds to the KubeletConfiguration structure This field is required in all cases.
-	KubeletConfigKey(KubeletConfigKey string) ConfigMapNodeConfigSourceDie
+	KubeletConfigKey(v string) ConfigMapNodeConfigSourceDie
 }
 
 var _ ConfigMapNodeConfigSourceDie = (*configMapNodeConfigSourceDie)(nil)
@@ -5888,29 +5888,29 @@ type NodeStatusDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() NodeStatusDie
 
-	nodeStatus
+	nodeStatusDieExtension
 	// Capacity represents the total resources of a node. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#capacity
-	Capacity(Capacity corev1.ResourceList) NodeStatusDie
+	Capacity(v corev1.ResourceList) NodeStatusDie
 	// Allocatable represents the resources of a node that are available for scheduling. Defaults to Capacity.
-	Allocatable(Allocatable corev1.ResourceList) NodeStatusDie
+	Allocatable(v corev1.ResourceList) NodeStatusDie
 	// NodePhase is the recently observed lifecycle phase of the node. More info: https://kubernetes.io/docs/concepts/nodes/node/#phase The field is never populated, and now is deprecated.
-	Phase(Phase corev1.NodePhase) NodeStatusDie
+	Phase(v corev1.NodePhase) NodeStatusDie
 	// Conditions is an array of current observed node conditions. More info: https://kubernetes.io/docs/concepts/nodes/node/#condition
-	Conditions(Conditions ...corev1.NodeCondition) NodeStatusDie
+	Conditions(v ...corev1.NodeCondition) NodeStatusDie
 	// List of addresses reachable to the node. Queried from cloud provider, if available. More info: https://kubernetes.io/docs/concepts/nodes/node/#addresses Note: This field is declared as mergeable, but the merge key is not sufficiently unique, which can cause data corruption when it is merged. Callers should instead use a full-replacement patch. See http://pr.k8s.io/79391 for an example.
-	Addresses(Addresses ...corev1.NodeAddress) NodeStatusDie
+	Addresses(v ...corev1.NodeAddress) NodeStatusDie
 	// Endpoints of daemons running on the Node.
-	DaemonEndpoints(DaemonEndpoints corev1.NodeDaemonEndpoints) NodeStatusDie
+	DaemonEndpoints(v corev1.NodeDaemonEndpoints) NodeStatusDie
 	// Set of ids/uuids to uniquely identify the node. More info: https://kubernetes.io/docs/concepts/nodes/node/#info
-	NodeInfo(NodeInfo corev1.NodeSystemInfo) NodeStatusDie
+	NodeInfo(v corev1.NodeSystemInfo) NodeStatusDie
 	// List of container images on this node
-	Images(Images ...corev1.ContainerImage) NodeStatusDie
+	Images(v ...corev1.ContainerImage) NodeStatusDie
 	// List of attachable volumes in use (mounted) by the node.
-	VolumesInUse(VolumesInUse ...corev1.UniqueVolumeName) NodeStatusDie
+	VolumesInUse(v ...corev1.UniqueVolumeName) NodeStatusDie
 	// List of volumes that are attached to the node.
-	VolumesAttached(VolumesAttached ...corev1.AttachedVolume) NodeStatusDie
+	VolumesAttached(v ...corev1.AttachedVolume) NodeStatusDie
 	// Status of the config assigned to the node via the dynamic Kubelet config feature.
-	Config(Config *corev1.NodeConfigStatus) NodeStatusDie
+	Config(v *corev1.NodeConfigStatus) NodeStatusDie
 }
 
 var _ NodeStatusDie = (*nodeStatusDie)(nil)
@@ -6057,9 +6057,9 @@ type NodeAddressDie interface {
 	DeepCopy() NodeAddressDie
 
 	// Node address type, one of Hostname, ExternalIP or InternalIP.
-	Type(Type corev1.NodeAddressType) NodeAddressDie
+	Type(v corev1.NodeAddressType) NodeAddressDie
 	// The node address.
-	Address(Address string) NodeAddressDie
+	Address(v string) NodeAddressDie
 }
 
 var _ NodeAddressDie = (*nodeAddressDie)(nil)
@@ -6151,9 +6151,9 @@ type NodeDaemonEndpointsDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() NodeDaemonEndpointsDie
 
-	nodeDaemonEndpoints
+	nodeDaemonEndpointsDieExtension
 	// Endpoint on which Kubelet is listening.
-	KubeletEndpoint(KubeletEndpoint corev1.DaemonEndpoint) NodeDaemonEndpointsDie
+	KubeletEndpoint(v corev1.DaemonEndpoint) NodeDaemonEndpointsDie
 }
 
 var _ NodeDaemonEndpointsDie = (*nodeDaemonEndpointsDie)(nil)
@@ -6240,7 +6240,7 @@ type DaemonEndpointDie interface {
 	DeepCopy() DaemonEndpointDie
 
 	// Port number of the given endpoint.
-	Port(Port int32) DaemonEndpointDie
+	Port(v int32) DaemonEndpointDie
 }
 
 var _ DaemonEndpointDie = (*daemonEndpointDie)(nil)
@@ -6327,25 +6327,25 @@ type NodeSystemInfoDie interface {
 	DeepCopy() NodeSystemInfoDie
 
 	// MachineID reported by the node. For unique machine identification in the cluster this field is preferred. Learn more from man(5) machine-id: http://man7.org/linux/man-pages/man5/machine-id.5.html
-	MachineID(MachineID string) NodeSystemInfoDie
+	MachineID(v string) NodeSystemInfoDie
 	// SystemUUID reported by the node. For unique machine identification MachineID is preferred. This field is specific to Red Hat hosts https://access.redhat.com/documentation/en-us/red_hat_subscription_management/1/html/rhsm/uuid
-	SystemUUID(SystemUUID string) NodeSystemInfoDie
+	SystemUUID(v string) NodeSystemInfoDie
 	// Boot ID reported by the node.
-	BootID(BootID string) NodeSystemInfoDie
+	BootID(v string) NodeSystemInfoDie
 	// Kernel Version reported by the node from 'uname -r' (e.g. 3.16.0-0.bpo.4-amd64).
-	KernelVersion(KernelVersion string) NodeSystemInfoDie
+	KernelVersion(v string) NodeSystemInfoDie
 	// OS Image reported by the node from /etc/os-release (e.g. Debian GNU/Linux 7 (wheezy)).
-	OSImage(OSImage string) NodeSystemInfoDie
+	OSImage(v string) NodeSystemInfoDie
 	// ContainerRuntime Version reported by the node through runtime remote API (e.g. docker://1.5.0).
-	ContainerRuntimeVersion(ContainerRuntimeVersion string) NodeSystemInfoDie
+	ContainerRuntimeVersion(v string) NodeSystemInfoDie
 	// Kubelet Version reported by the node.
-	KubeletVersion(KubeletVersion string) NodeSystemInfoDie
+	KubeletVersion(v string) NodeSystemInfoDie
 	// KubeProxy Version reported by the node.
-	KubeProxyVersion(KubeProxyVersion string) NodeSystemInfoDie
+	KubeProxyVersion(v string) NodeSystemInfoDie
 	// The Operating System reported by the node
-	OperatingSystem(OperatingSystem string) NodeSystemInfoDie
+	OperatingSystem(v string) NodeSystemInfoDie
 	// The Architecture reported by the node
-	Architecture(Architecture string) NodeSystemInfoDie
+	Architecture(v string) NodeSystemInfoDie
 }
 
 var _ NodeSystemInfoDie = (*nodeSystemInfoDie)(nil)
@@ -6486,9 +6486,9 @@ type ContainerImageDie interface {
 	DeepCopy() ContainerImageDie
 
 	// Names by which this image is known. e.g. ["k8s.gcr.io/hyperkube:v1.0.7", "dockerhub.io/google_containers/hyperkube:v1.0.7"]
-	Names(Names ...string) ContainerImageDie
+	Names(v ...string) ContainerImageDie
 	// The size of the image in bytes.
-	SizeBytes(SizeBytes int64) ContainerImageDie
+	SizeBytes(v int64) ContainerImageDie
 }
 
 var _ ContainerImageDie = (*containerImageDie)(nil)
@@ -6581,9 +6581,9 @@ type AttachedVolumeDie interface {
 	DeepCopy() AttachedVolumeDie
 
 	// Name of the attached volume
-	Name(Name corev1.UniqueVolumeName) AttachedVolumeDie
+	Name(v corev1.UniqueVolumeName) AttachedVolumeDie
 	// DevicePath represents the device path where the volume should be available
-	DevicePath(DevicePath string) AttachedVolumeDie
+	DevicePath(v string) AttachedVolumeDie
 }
 
 var _ AttachedVolumeDie = (*attachedVolumeDie)(nil)
@@ -6675,15 +6675,15 @@ type NodeConfigStatusDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() NodeConfigStatusDie
 
-	nodeConfigStatus
+	nodeConfigStatusDieExtension
 	// Assigned reports the checkpointed config the node will try to use. When Node.Spec.ConfigSource is updated, the node checkpoints the associated config payload to local disk, along with a record indicating intended config. The node refers to this record to choose its config checkpoint, and reports this record in Assigned. Assigned only updates in the status after the record has been checkpointed to disk. When the Kubelet is restarted, it tries to make the Assigned config the Active config by loading and validating the checkpointed payload identified by Assigned.
-	Assigned(Assigned *corev1.NodeConfigSource) NodeConfigStatusDie
+	Assigned(v *corev1.NodeConfigSource) NodeConfigStatusDie
 	// Active reports the checkpointed config the node is actively using. Active will represent either the current version of the Assigned config, or the current LastKnownGood config, depending on whether attempting to use the Assigned config results in an error.
-	Active(Active *corev1.NodeConfigSource) NodeConfigStatusDie
+	Active(v *corev1.NodeConfigSource) NodeConfigStatusDie
 	// LastKnownGood reports the checkpointed config the node will fall back to when it encounters an error attempting to use the Assigned config. The Assigned config becomes the LastKnownGood config when the node determines that the Assigned config is stable and correct. This is currently implemented as a 10-minute soak period starting when the local record of Assigned config is updated. If the Assigned config is Active at the end of this period, it becomes the LastKnownGood. Note that if Spec.ConfigSource is reset to nil (use local defaults), the LastKnownGood is also immediately reset to nil, because the local default config is always assumed good. You should not make assumptions about the node's method of determining config stability and correctness, as this may change or become configurable in the future.
-	LastKnownGood(LastKnownGood *corev1.NodeConfigSource) NodeConfigStatusDie
+	LastKnownGood(v *corev1.NodeConfigSource) NodeConfigStatusDie
 	// Error describes any problems reconciling the Spec.ConfigSource to the Active config. Errors may occur, for example, attempting to checkpoint Spec.ConfigSource to the local Assigned record, attempting to checkpoint the payload associated with Spec.ConfigSource, attempting to load or validate the Assigned config, etc. Errors may occur at different points while syncing config. Earlier errors (e.g. download or checkpointing errors) will not result in a rollback to LastKnownGood, and may resolve across Kubelet retries. Later errors (e.g. loading or validating a checkpointed config) will result in a rollback to LastKnownGood. In the latter case, it is usually possible to resolve the error by fixing the config assigned in Spec.ConfigSource. You can find additional information for debugging by searching the error message in the Kubelet log. Error is a human-readable description of the error state; machines can check whether or not Error is empty, but should not rely on the stability of the Error text across Kubelet versions.
-	Error(Error string) NodeConfigStatusDie
+	Error(v string) NodeConfigStatusDie
 }
 
 var _ NodeConfigStatusDie = (*nodeConfigStatusDie)(nil)
@@ -6788,19 +6788,19 @@ type ObjectReferenceDie interface {
 	DeepCopy() ObjectReferenceDie
 
 	// Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	Kind(Kind string) ObjectReferenceDie
+	Kind(v string) ObjectReferenceDie
 	// Namespace of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
-	Namespace(Namespace string) ObjectReferenceDie
+	Namespace(v string) ObjectReferenceDie
 	// Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-	Name(Name string) ObjectReferenceDie
+	Name(v string) ObjectReferenceDie
 	// UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
-	UID(UID types.UID) ObjectReferenceDie
+	UID(v types.UID) ObjectReferenceDie
 	// API version of the referent.
-	APIVersion(APIVersion string) ObjectReferenceDie
+	APIVersion(v string) ObjectReferenceDie
 	// Specific resourceVersion to which this reference is made, if any. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
-	ResourceVersion(ResourceVersion string) ObjectReferenceDie
+	ResourceVersion(v string) ObjectReferenceDie
 	// If referring to a piece of an object instead of an entire object, this string should contain a valid JSON/Go field access statement, such as desiredState.manifest.containers[2]. For example, if the object reference is to a container within a pod, this would take on a value like: "spec.containers{name}" (where "name" refers to the name of the container that triggered the event) or if no container name is specified "spec.containers[2]" (container with index 2 in this pod). This syntax is chosen only to have some well-defined way of referencing a part of an object. TODO: this design is not final and this field is subject to change in the future.
-	FieldPath(FieldPath string) ObjectReferenceDie
+	FieldPath(v string) ObjectReferenceDie
 }
 
 var _ ObjectReferenceDie = (*objectReferenceDie)(nil)
@@ -6923,7 +6923,7 @@ type LocalObjectReferenceDie interface {
 	DeepCopy() LocalObjectReferenceDie
 
 	// Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
-	Name(Name string) LocalObjectReferenceDie
+	Name(v string) LocalObjectReferenceDie
 }
 
 var _ LocalObjectReferenceDie = (*localObjectReferenceDie)(nil)
@@ -7010,11 +7010,11 @@ type TypedLocalObjectReferenceDie interface {
 	DeepCopy() TypedLocalObjectReferenceDie
 
 	// APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required.
-	APIGroup(APIGroup *string) TypedLocalObjectReferenceDie
+	APIGroup(v *string) TypedLocalObjectReferenceDie
 	// Kind is the type of resource being referenced
-	Kind(Kind string) TypedLocalObjectReferenceDie
+	Kind(v string) TypedLocalObjectReferenceDie
 	// Name is the name of resource being referenced
-	Name(Name string) TypedLocalObjectReferenceDie
+	Name(v string) TypedLocalObjectReferenceDie
 }
 
 var _ TypedLocalObjectReferenceDie = (*typedLocalObjectReferenceDie)(nil)
@@ -7113,9 +7113,9 @@ type SecretReferenceDie interface {
 	DeepCopy() SecretReferenceDie
 
 	// Name is unique within a namespace to reference a secret resource.
-	Name(Name string) SecretReferenceDie
+	Name(v string) SecretReferenceDie
 	// Namespace defines the space within which the secret name must be unique.
-	Namespace(Namespace string) SecretReferenceDie
+	Namespace(v string) SecretReferenceDie
 }
 
 var _ SecretReferenceDie = (*secretReferenceDie)(nil)
@@ -7214,9 +7214,9 @@ type PersistentVolumeDie interface {
 	// StatusDie stamps the resource's status field with a mutable die.
 	StatusDie(fn func(d PersistentVolumeStatusDie)) PersistentVolumeDie
 	// Spec defines a specification of a persistent volume owned by the cluster. Provisioned by an administrator. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistent-volumes
-	Spec(Spec corev1.PersistentVolumeSpec) PersistentVolumeDie
+	Spec(v corev1.PersistentVolumeSpec) PersistentVolumeDie
 	// Status represents the current information/status for the persistent volume. Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistent-volumes
-	Status(Status corev1.PersistentVolumeStatus) PersistentVolumeDie
+	Status(v corev1.PersistentVolumeStatus) PersistentVolumeDie
 
 	runtime.Object
 	apismetav1.Object
@@ -7363,25 +7363,25 @@ type PersistentVolumeSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() PersistentVolumeSpecDie
 
-	persistentVolumeSpec
+	persistentVolumeSpecDieExtension
 	// A description of the persistent volume's resources and capacity. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#capacity
-	Capacity(Capacity corev1.ResourceList) PersistentVolumeSpecDie
+	Capacity(v corev1.ResourceList) PersistentVolumeSpecDie
 	// The actual volume backing the persistent volume.
-	PersistentVolumeSource(PersistentVolumeSource corev1.PersistentVolumeSource) PersistentVolumeSpecDie
+	PersistentVolumeSource(v corev1.PersistentVolumeSource) PersistentVolumeSpecDie
 	// AccessModes contains all ways the volume can be mounted. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes
-	AccessModes(AccessModes ...corev1.PersistentVolumeAccessMode) PersistentVolumeSpecDie
+	AccessModes(v ...corev1.PersistentVolumeAccessMode) PersistentVolumeSpecDie
 	// ClaimRef is part of a bi-directional binding between PersistentVolume and PersistentVolumeClaim. Expected to be non-nil when bound. claim.VolumeName is the authoritative bind between PV and PVC. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#binding
-	ClaimRef(ClaimRef *corev1.ObjectReference) PersistentVolumeSpecDie
+	ClaimRef(v *corev1.ObjectReference) PersistentVolumeSpecDie
 	// What happens to a persistent volume when released from its claim. Valid options are Retain (default for manually created PersistentVolumes), Delete (default for dynamically provisioned PersistentVolumes), and Recycle (deprecated). Recycle must be supported by the volume plugin underlying this PersistentVolume. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#reclaiming
-	PersistentVolumeReclaimPolicy(PersistentVolumeReclaimPolicy corev1.PersistentVolumeReclaimPolicy) PersistentVolumeSpecDie
+	PersistentVolumeReclaimPolicy(v corev1.PersistentVolumeReclaimPolicy) PersistentVolumeSpecDie
 	// Name of StorageClass to which this persistent volume belongs. Empty value means that this volume does not belong to any StorageClass.
-	StorageClassName(StorageClassName string) PersistentVolumeSpecDie
+	StorageClassName(v string) PersistentVolumeSpecDie
 	// A list of mount options, e.g. ["ro", "soft"]. Not validated - mount will simply fail if one is invalid. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#mount-options
-	MountOptions(MountOptions ...string) PersistentVolumeSpecDie
+	MountOptions(v ...string) PersistentVolumeSpecDie
 	// volumeMode defines if a volume is intended to be used with a formatted filesystem or to remain in raw block state. Value of Filesystem is implied when not included in spec.
-	VolumeMode(VolumeMode *corev1.PersistentVolumeMode) PersistentVolumeSpecDie
+	VolumeMode(v *corev1.PersistentVolumeMode) PersistentVolumeSpecDie
 	// NodeAffinity defines constraints that limit what nodes this volume can be accessed from. This field influences the scheduling of pods that use this volume.
-	NodeAffinity(NodeAffinity *corev1.VolumeNodeAffinity) PersistentVolumeSpecDie
+	NodeAffinity(v *corev1.VolumeNodeAffinity) PersistentVolumeSpecDie
 }
 
 var _ PersistentVolumeSpecDie = (*persistentVolumeSpecDie)(nil)
@@ -7516,11 +7516,11 @@ type PersistentVolumeStatusDie interface {
 	DeepCopy() PersistentVolumeStatusDie
 
 	// Phase indicates if a volume is available, bound to a claim, or released by a claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#phase
-	Phase(Phase corev1.PersistentVolumePhase) PersistentVolumeStatusDie
+	Phase(v corev1.PersistentVolumePhase) PersistentVolumeStatusDie
 	// A human-readable message indicating details about why the volume is in this state.
-	Message(Message string) PersistentVolumeStatusDie
+	Message(v string) PersistentVolumeStatusDie
 	// Reason is a brief CamelCase string that describes any failure and is meant for machine parsing and tidy display in the CLI.
-	Reason(Reason string) PersistentVolumeStatusDie
+	Reason(v string) PersistentVolumeStatusDie
 }
 
 var _ PersistentVolumeStatusDie = (*persistentVolumeStatusDie)(nil)
@@ -7619,13 +7619,13 @@ type GlusterfsPersistentVolumeSourceDie interface {
 	DeepCopy() GlusterfsPersistentVolumeSourceDie
 
 	// EndpointsName is the endpoint name that details Glusterfs topology. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
-	EndpointsName(EndpointsName string) GlusterfsPersistentVolumeSourceDie
+	EndpointsName(v string) GlusterfsPersistentVolumeSourceDie
 	// Path is the Glusterfs volume path. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
-	Path(Path string) GlusterfsPersistentVolumeSourceDie
+	Path(v string) GlusterfsPersistentVolumeSourceDie
 	// ReadOnly here will force the Glusterfs volume to be mounted with read-only permissions. Defaults to false. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
-	ReadOnly(ReadOnly bool) GlusterfsPersistentVolumeSourceDie
+	ReadOnly(v bool) GlusterfsPersistentVolumeSourceDie
 	// EndpointsNamespace is the namespace that contains Glusterfs endpoint. If this field is empty, the EndpointNamespace defaults to the same namespace as the bound PVC. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
-	EndpointsNamespace(EndpointsNamespace *string) GlusterfsPersistentVolumeSourceDie
+	EndpointsNamespace(v *string) GlusterfsPersistentVolumeSourceDie
 }
 
 var _ GlusterfsPersistentVolumeSourceDie = (*glusterfsPersistentVolumeSourceDie)(nil)
@@ -7729,129 +7729,129 @@ type RBDPersistentVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() RBDPersistentVolumeSourceDie
 
-	rBDPersistentVolumeSource
+	rbdPersistentVolumeSourceDieExtension
 	// A collection of Ceph monitors. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-	CephMonitors(CephMonitors ...string) RBDPersistentVolumeSourceDie
+	CephMonitors(v ...string) RBDPersistentVolumeSourceDie
 	// The rados image name. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-	RBDImage(RBDImage string) RBDPersistentVolumeSourceDie
+	RBDImage(v string) RBDPersistentVolumeSourceDie
 	// Filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#rbd TODO: how do we prevent errors in the filesystem from compromising the machine
-	FSType(FSType string) RBDPersistentVolumeSourceDie
+	FSType(v string) RBDPersistentVolumeSourceDie
 	// The rados pool name. Default is rbd. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-	RBDPool(RBDPool string) RBDPersistentVolumeSourceDie
+	RBDPool(v string) RBDPersistentVolumeSourceDie
 	// The rados user name. Default is admin. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-	RadosUser(RadosUser string) RBDPersistentVolumeSourceDie
+	RadosUser(v string) RBDPersistentVolumeSourceDie
 	// Keyring is the path to key ring for RBDUser. Default is /etc/ceph/keyring. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-	Keyring(Keyring string) RBDPersistentVolumeSourceDie
+	Keyring(v string) RBDPersistentVolumeSourceDie
 	// SecretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-	SecretRef(SecretRef *corev1.SecretReference) RBDPersistentVolumeSourceDie
+	SecretRef(v *corev1.SecretReference) RBDPersistentVolumeSourceDie
 	// ReadOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-	ReadOnly(ReadOnly bool) RBDPersistentVolumeSourceDie
+	ReadOnly(v bool) RBDPersistentVolumeSourceDie
 }
 
-var _ RBDPersistentVolumeSourceDie = (*rBDPersistentVolumeSourceDie)(nil)
-var RBDPersistentVolumeSourceBlank = (&rBDPersistentVolumeSourceDie{}).DieFeed(corev1.RBDPersistentVolumeSource{})
+var _ RBDPersistentVolumeSourceDie = (*rbdPersistentVolumeSourceDie)(nil)
+var RBDPersistentVolumeSourceBlank = (&rbdPersistentVolumeSourceDie{}).DieFeed(corev1.RBDPersistentVolumeSource{})
 
-type rBDPersistentVolumeSourceDie struct {
+type rbdPersistentVolumeSourceDie struct {
 	mutable bool
 	r       corev1.RBDPersistentVolumeSource
 }
 
-func (d *rBDPersistentVolumeSourceDie) DieImmutable(immutable bool) RBDPersistentVolumeSourceDie {
+func (d *rbdPersistentVolumeSourceDie) DieImmutable(immutable bool) RBDPersistentVolumeSourceDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*rBDPersistentVolumeSourceDie)
+	d = d.DeepCopy().(*rbdPersistentVolumeSourceDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *rBDPersistentVolumeSourceDie) DieFeed(r corev1.RBDPersistentVolumeSource) RBDPersistentVolumeSourceDie {
+func (d *rbdPersistentVolumeSourceDie) DieFeed(r corev1.RBDPersistentVolumeSource) RBDPersistentVolumeSourceDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &rBDPersistentVolumeSourceDie{
+	return &rbdPersistentVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *rBDPersistentVolumeSourceDie) DieFeedPtr(r *corev1.RBDPersistentVolumeSource) RBDPersistentVolumeSourceDie {
+func (d *rbdPersistentVolumeSourceDie) DieFeedPtr(r *corev1.RBDPersistentVolumeSource) RBDPersistentVolumeSourceDie {
 	if r == nil {
 		r = &corev1.RBDPersistentVolumeSource{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *rBDPersistentVolumeSourceDie) DieRelease() corev1.RBDPersistentVolumeSource {
+func (d *rbdPersistentVolumeSourceDie) DieRelease() corev1.RBDPersistentVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *rBDPersistentVolumeSourceDie) DieReleasePtr() *corev1.RBDPersistentVolumeSource {
+func (d *rbdPersistentVolumeSourceDie) DieReleasePtr() *corev1.RBDPersistentVolumeSource {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *rBDPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.RBDPersistentVolumeSource)) RBDPersistentVolumeSourceDie {
+func (d *rbdPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.RBDPersistentVolumeSource)) RBDPersistentVolumeSourceDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *rBDPersistentVolumeSourceDie) DeepCopy() RBDPersistentVolumeSourceDie {
+func (d *rbdPersistentVolumeSourceDie) DeepCopy() RBDPersistentVolumeSourceDie {
 	r := *d.r.DeepCopy()
-	return &rBDPersistentVolumeSourceDie{
+	return &rbdPersistentVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *rBDPersistentVolumeSourceDie) CephMonitors(v ...string) RBDPersistentVolumeSourceDie {
+func (d *rbdPersistentVolumeSourceDie) CephMonitors(v ...string) RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
 		r.CephMonitors = v
 	})
 }
 
-func (d *rBDPersistentVolumeSourceDie) RBDImage(v string) RBDPersistentVolumeSourceDie {
+func (d *rbdPersistentVolumeSourceDie) RBDImage(v string) RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
 		r.RBDImage = v
 	})
 }
 
-func (d *rBDPersistentVolumeSourceDie) FSType(v string) RBDPersistentVolumeSourceDie {
+func (d *rbdPersistentVolumeSourceDie) FSType(v string) RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
 		r.FSType = v
 	})
 }
 
-func (d *rBDPersistentVolumeSourceDie) RBDPool(v string) RBDPersistentVolumeSourceDie {
+func (d *rbdPersistentVolumeSourceDie) RBDPool(v string) RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
 		r.RBDPool = v
 	})
 }
 
-func (d *rBDPersistentVolumeSourceDie) RadosUser(v string) RBDPersistentVolumeSourceDie {
+func (d *rbdPersistentVolumeSourceDie) RadosUser(v string) RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
 		r.RadosUser = v
 	})
 }
 
-func (d *rBDPersistentVolumeSourceDie) Keyring(v string) RBDPersistentVolumeSourceDie {
+func (d *rbdPersistentVolumeSourceDie) Keyring(v string) RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
 		r.Keyring = v
 	})
 }
 
-func (d *rBDPersistentVolumeSourceDie) SecretRef(v *corev1.SecretReference) RBDPersistentVolumeSourceDie {
+func (d *rbdPersistentVolumeSourceDie) SecretRef(v *corev1.SecretReference) RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
 		r.SecretRef = v
 	})
 }
 
-func (d *rBDPersistentVolumeSourceDie) ReadOnly(v bool) RBDPersistentVolumeSourceDie {
+func (d *rbdPersistentVolumeSourceDie) ReadOnly(v bool) RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
 		r.ReadOnly = v
 	})
@@ -7873,153 +7873,153 @@ type ISCSIPersistentVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ISCSIPersistentVolumeSourceDie
 
-	iSCSIPersistentVolumeSource
+	iscsiPersistentVolumeSourceDieExtension
 	// iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
-	TargetPortal(TargetPortal string) ISCSIPersistentVolumeSourceDie
+	TargetPortal(v string) ISCSIPersistentVolumeSourceDie
 	// Target iSCSI Qualified Name.
-	IQN(IQN string) ISCSIPersistentVolumeSourceDie
+	IQN(v string) ISCSIPersistentVolumeSourceDie
 	// iSCSI Target Lun number.
-	Lun(Lun int32) ISCSIPersistentVolumeSourceDie
+	Lun(v int32) ISCSIPersistentVolumeSourceDie
 	// iSCSI Interface Name that uses an iSCSI transport. Defaults to 'default' (tcp).
-	ISCSIInterface(ISCSIInterface string) ISCSIPersistentVolumeSourceDie
+	ISCSIInterface(v string) ISCSIPersistentVolumeSourceDie
 	// Filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#iscsi TODO: how do we prevent errors in the filesystem from compromising the machine
-	FSType(FSType string) ISCSIPersistentVolumeSourceDie
+	FSType(v string) ISCSIPersistentVolumeSourceDie
 	// ReadOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false.
-	ReadOnly(ReadOnly bool) ISCSIPersistentVolumeSourceDie
+	ReadOnly(v bool) ISCSIPersistentVolumeSourceDie
 	// iSCSI Target Portal List. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
-	Portals(Portals ...string) ISCSIPersistentVolumeSourceDie
+	Portals(v ...string) ISCSIPersistentVolumeSourceDie
 	// whether support iSCSI Discovery CHAP authentication
-	DiscoveryCHAPAuth(DiscoveryCHAPAuth bool) ISCSIPersistentVolumeSourceDie
+	DiscoveryCHAPAuth(v bool) ISCSIPersistentVolumeSourceDie
 	// whether support iSCSI Session CHAP authentication
-	SessionCHAPAuth(SessionCHAPAuth bool) ISCSIPersistentVolumeSourceDie
+	SessionCHAPAuth(v bool) ISCSIPersistentVolumeSourceDie
 	// CHAP Secret for iSCSI target and initiator authentication
-	SecretRef(SecretRef *corev1.SecretReference) ISCSIPersistentVolumeSourceDie
+	SecretRef(v *corev1.SecretReference) ISCSIPersistentVolumeSourceDie
 	// Custom iSCSI Initiator Name. If initiatorName is specified with iscsiInterface simultaneously, new iSCSI interface <target portal>:<volume name> will be created for the connection.
-	InitiatorName(InitiatorName *string) ISCSIPersistentVolumeSourceDie
+	InitiatorName(v *string) ISCSIPersistentVolumeSourceDie
 }
 
-var _ ISCSIPersistentVolumeSourceDie = (*iSCSIPersistentVolumeSourceDie)(nil)
-var ISCSIPersistentVolumeSourceBlank = (&iSCSIPersistentVolumeSourceDie{}).DieFeed(corev1.ISCSIPersistentVolumeSource{})
+var _ ISCSIPersistentVolumeSourceDie = (*iscsiPersistentVolumeSourceDie)(nil)
+var ISCSIPersistentVolumeSourceBlank = (&iscsiPersistentVolumeSourceDie{}).DieFeed(corev1.ISCSIPersistentVolumeSource{})
 
-type iSCSIPersistentVolumeSourceDie struct {
+type iscsiPersistentVolumeSourceDie struct {
 	mutable bool
 	r       corev1.ISCSIPersistentVolumeSource
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) DieImmutable(immutable bool) ISCSIPersistentVolumeSourceDie {
+func (d *iscsiPersistentVolumeSourceDie) DieImmutable(immutable bool) ISCSIPersistentVolumeSourceDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*iSCSIPersistentVolumeSourceDie)
+	d = d.DeepCopy().(*iscsiPersistentVolumeSourceDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) DieFeed(r corev1.ISCSIPersistentVolumeSource) ISCSIPersistentVolumeSourceDie {
+func (d *iscsiPersistentVolumeSourceDie) DieFeed(r corev1.ISCSIPersistentVolumeSource) ISCSIPersistentVolumeSourceDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &iSCSIPersistentVolumeSourceDie{
+	return &iscsiPersistentVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) DieFeedPtr(r *corev1.ISCSIPersistentVolumeSource) ISCSIPersistentVolumeSourceDie {
+func (d *iscsiPersistentVolumeSourceDie) DieFeedPtr(r *corev1.ISCSIPersistentVolumeSource) ISCSIPersistentVolumeSourceDie {
 	if r == nil {
 		r = &corev1.ISCSIPersistentVolumeSource{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) DieRelease() corev1.ISCSIPersistentVolumeSource {
+func (d *iscsiPersistentVolumeSourceDie) DieRelease() corev1.ISCSIPersistentVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) DieReleasePtr() *corev1.ISCSIPersistentVolumeSource {
+func (d *iscsiPersistentVolumeSourceDie) DieReleasePtr() *corev1.ISCSIPersistentVolumeSource {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.ISCSIPersistentVolumeSource)) ISCSIPersistentVolumeSourceDie {
+func (d *iscsiPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.ISCSIPersistentVolumeSource)) ISCSIPersistentVolumeSourceDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) DeepCopy() ISCSIPersistentVolumeSourceDie {
+func (d *iscsiPersistentVolumeSourceDie) DeepCopy() ISCSIPersistentVolumeSourceDie {
 	r := *d.r.DeepCopy()
-	return &iSCSIPersistentVolumeSourceDie{
+	return &iscsiPersistentVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) TargetPortal(v string) ISCSIPersistentVolumeSourceDie {
+func (d *iscsiPersistentVolumeSourceDie) TargetPortal(v string) ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		r.TargetPortal = v
 	})
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) IQN(v string) ISCSIPersistentVolumeSourceDie {
+func (d *iscsiPersistentVolumeSourceDie) IQN(v string) ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		r.IQN = v
 	})
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) Lun(v int32) ISCSIPersistentVolumeSourceDie {
+func (d *iscsiPersistentVolumeSourceDie) Lun(v int32) ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		r.Lun = v
 	})
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) ISCSIInterface(v string) ISCSIPersistentVolumeSourceDie {
+func (d *iscsiPersistentVolumeSourceDie) ISCSIInterface(v string) ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		r.ISCSIInterface = v
 	})
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) FSType(v string) ISCSIPersistentVolumeSourceDie {
+func (d *iscsiPersistentVolumeSourceDie) FSType(v string) ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		r.FSType = v
 	})
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) ReadOnly(v bool) ISCSIPersistentVolumeSourceDie {
+func (d *iscsiPersistentVolumeSourceDie) ReadOnly(v bool) ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		r.ReadOnly = v
 	})
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) Portals(v ...string) ISCSIPersistentVolumeSourceDie {
+func (d *iscsiPersistentVolumeSourceDie) Portals(v ...string) ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		r.Portals = v
 	})
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) DiscoveryCHAPAuth(v bool) ISCSIPersistentVolumeSourceDie {
+func (d *iscsiPersistentVolumeSourceDie) DiscoveryCHAPAuth(v bool) ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		r.DiscoveryCHAPAuth = v
 	})
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) SessionCHAPAuth(v bool) ISCSIPersistentVolumeSourceDie {
+func (d *iscsiPersistentVolumeSourceDie) SessionCHAPAuth(v bool) ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		r.SessionCHAPAuth = v
 	})
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) SecretRef(v *corev1.SecretReference) ISCSIPersistentVolumeSourceDie {
+func (d *iscsiPersistentVolumeSourceDie) SecretRef(v *corev1.SecretReference) ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		r.SecretRef = v
 	})
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) InitiatorName(v *string) ISCSIPersistentVolumeSourceDie {
+func (d *iscsiPersistentVolumeSourceDie) InitiatorName(v *string) ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		r.InitiatorName = v
 	})
@@ -8041,15 +8041,15 @@ type CinderPersistentVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() CinderPersistentVolumeSourceDie
 
-	cinderPersistentVolumeSource
+	cinderPersistentVolumeSourceDieExtension
 	// volume id used to identify the volume in cinder. More info: https://examples.k8s.io/mysql-cinder-pd/README.md
-	VolumeID(VolumeID string) CinderPersistentVolumeSourceDie
+	VolumeID(v string) CinderPersistentVolumeSourceDie
 	// Filesystem type to mount. Must be a filesystem type supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://examples.k8s.io/mysql-cinder-pd/README.md
-	FSType(FSType string) CinderPersistentVolumeSourceDie
+	FSType(v string) CinderPersistentVolumeSourceDie
 	// Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/mysql-cinder-pd/README.md
-	ReadOnly(ReadOnly bool) CinderPersistentVolumeSourceDie
+	ReadOnly(v bool) CinderPersistentVolumeSourceDie
 	// Optional: points to a secret object containing parameters used to connect to OpenStack.
-	SecretRef(SecretRef *corev1.SecretReference) CinderPersistentVolumeSourceDie
+	SecretRef(v *corev1.SecretReference) CinderPersistentVolumeSourceDie
 }
 
 var _ CinderPersistentVolumeSourceDie = (*cinderPersistentVolumeSourceDie)(nil)
@@ -8153,19 +8153,19 @@ type CephFSPersistentVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() CephFSPersistentVolumeSourceDie
 
-	cephFSPersistentVolumeSource
+	cephFSPersistentVolumeSourceDieExtension
 	// Required: Monitors is a collection of Ceph monitors More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
-	Monitors(Monitors ...string) CephFSPersistentVolumeSourceDie
+	Monitors(v ...string) CephFSPersistentVolumeSourceDie
 	// Optional: Used as the mounted root, rather than the full Ceph tree, default is /
-	Path(Path string) CephFSPersistentVolumeSourceDie
+	Path(v string) CephFSPersistentVolumeSourceDie
 	// Optional: User is the rados user name, default is admin More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
-	User(User string) CephFSPersistentVolumeSourceDie
+	User(v string) CephFSPersistentVolumeSourceDie
 	// Optional: SecretFile is the path to key ring for User, default is /etc/ceph/user.secret More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
-	SecretFile(SecretFile string) CephFSPersistentVolumeSourceDie
+	SecretFile(v string) CephFSPersistentVolumeSourceDie
 	// Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
-	SecretRef(SecretRef *corev1.SecretReference) CephFSPersistentVolumeSourceDie
+	SecretRef(v *corev1.SecretReference) CephFSPersistentVolumeSourceDie
 	// Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
-	ReadOnly(ReadOnly bool) CephFSPersistentVolumeSourceDie
+	ReadOnly(v bool) CephFSPersistentVolumeSourceDie
 }
 
 var _ CephFSPersistentVolumeSourceDie = (*cephFSPersistentVolumeSourceDie)(nil)
@@ -8281,17 +8281,17 @@ type FlexPersistentVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() FlexPersistentVolumeSourceDie
 
-	flexPersistentVolumeSource
+	flexPersistentVolumeSourceDieExtension
 	// Driver is the name of the driver to use for this volume.
-	Driver(Driver string) FlexPersistentVolumeSourceDie
+	Driver(v string) FlexPersistentVolumeSourceDie
 	// Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". The default filesystem depends on FlexVolume script.
-	FSType(FSType string) FlexPersistentVolumeSourceDie
+	FSType(v string) FlexPersistentVolumeSourceDie
 	// Optional: SecretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts.
-	SecretRef(SecretRef *corev1.SecretReference) FlexPersistentVolumeSourceDie
+	SecretRef(v *corev1.SecretReference) FlexPersistentVolumeSourceDie
 	// Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
-	ReadOnly(ReadOnly bool) FlexPersistentVolumeSourceDie
+	ReadOnly(v bool) FlexPersistentVolumeSourceDie
 	// Optional: Extra command options if any.
-	Options(Options map[string]string) FlexPersistentVolumeSourceDie
+	Options(v map[string]string) FlexPersistentVolumeSourceDie
 }
 
 var _ FlexPersistentVolumeSourceDie = (*flexPersistentVolumeSourceDie)(nil)
@@ -8402,13 +8402,13 @@ type AzureFilePersistentVolumeSourceDie interface {
 	DeepCopy() AzureFilePersistentVolumeSourceDie
 
 	// the name of secret that contains Azure Storage Account Name and Key
-	SecretName(SecretName string) AzureFilePersistentVolumeSourceDie
+	SecretName(v string) AzureFilePersistentVolumeSourceDie
 	// Share Name
-	ShareName(ShareName string) AzureFilePersistentVolumeSourceDie
+	ShareName(v string) AzureFilePersistentVolumeSourceDie
 	// Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
-	ReadOnly(ReadOnly bool) AzureFilePersistentVolumeSourceDie
+	ReadOnly(v bool) AzureFilePersistentVolumeSourceDie
 	// the namespace of the secret that contains Azure Storage Account Name and Key default is the same as the Pod
-	SecretNamespace(SecretNamespace *string) AzureFilePersistentVolumeSourceDie
+	SecretNamespace(v *string) AzureFilePersistentVolumeSourceDie
 }
 
 var _ AzureFilePersistentVolumeSourceDie = (*azureFilePersistentVolumeSourceDie)(nil)
@@ -8512,27 +8512,27 @@ type ScaleIOPersistentVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ScaleIOPersistentVolumeSourceDie
 
-	scaleIOPersistentVolumeSource
+	scaleIOPersistentVolumeSourceDieExtension
 	// The host address of the ScaleIO API Gateway.
-	Gateway(Gateway string) ScaleIOPersistentVolumeSourceDie
+	Gateway(v string) ScaleIOPersistentVolumeSourceDie
 	// The name of the storage system as configured in ScaleIO.
-	System(System string) ScaleIOPersistentVolumeSourceDie
+	System(v string) ScaleIOPersistentVolumeSourceDie
 	// SecretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail.
-	SecretRef(SecretRef *corev1.SecretReference) ScaleIOPersistentVolumeSourceDie
+	SecretRef(v *corev1.SecretReference) ScaleIOPersistentVolumeSourceDie
 	// Flag to enable/disable SSL communication with Gateway, default false
-	SSLEnabled(SSLEnabled bool) ScaleIOPersistentVolumeSourceDie
+	SSLEnabled(v bool) ScaleIOPersistentVolumeSourceDie
 	// The name of the ScaleIO Protection Domain for the configured storage.
-	ProtectionDomain(ProtectionDomain string) ScaleIOPersistentVolumeSourceDie
+	ProtectionDomain(v string) ScaleIOPersistentVolumeSourceDie
 	// The ScaleIO Storage Pool associated with the protection domain.
-	StoragePool(StoragePool string) ScaleIOPersistentVolumeSourceDie
+	StoragePool(v string) ScaleIOPersistentVolumeSourceDie
 	// Indicates whether the storage for a volume should be ThickProvisioned or ThinProvisioned. Default is ThinProvisioned.
-	StorageMode(StorageMode string) ScaleIOPersistentVolumeSourceDie
+	StorageMode(v string) ScaleIOPersistentVolumeSourceDie
 	// The name of a volume already created in the ScaleIO system that is associated with this volume source.
-	VolumeName(VolumeName string) ScaleIOPersistentVolumeSourceDie
+	VolumeName(v string) ScaleIOPersistentVolumeSourceDie
 	// Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Default is "xfs"
-	FSType(FSType string) ScaleIOPersistentVolumeSourceDie
+	FSType(v string) ScaleIOPersistentVolumeSourceDie
 	// Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
-	ReadOnly(ReadOnly bool) ScaleIOPersistentVolumeSourceDie
+	ReadOnly(v bool) ScaleIOPersistentVolumeSourceDie
 }
 
 var _ ScaleIOPersistentVolumeSourceDie = (*scaleIOPersistentVolumeSourceDie)(nil)
@@ -8673,9 +8673,9 @@ type LocalVolumeSourceDie interface {
 	DeepCopy() LocalVolumeSourceDie
 
 	// The full path to the volume on the node. It can be either a directory or block device (disk, partition, ...).
-	Path(Path string) LocalVolumeSourceDie
+	Path(v string) LocalVolumeSourceDie
 	// Filesystem type to mount. It applies only when the Path is a block device. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". The default value is to auto-select a fileystem if unspecified.
-	FSType(FSType *string) LocalVolumeSourceDie
+	FSType(v *string) LocalVolumeSourceDie
 }
 
 var _ LocalVolumeSourceDie = (*localVolumeSourceDie)(nil)
@@ -8767,17 +8767,17 @@ type StorageOSPersistentVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() StorageOSPersistentVolumeSourceDie
 
-	storageOSPersistentVolumeSource
+	storageOSPersistentVolumeSourceDieExtension
 	// VolumeName is the human-readable name of the StorageOS volume.  Volume names are only unique within a namespace.
-	VolumeName(VolumeName string) StorageOSPersistentVolumeSourceDie
+	VolumeName(v string) StorageOSPersistentVolumeSourceDie
 	// VolumeNamespace specifies the scope of the volume within StorageOS.  If no namespace is specified then the Pod's namespace will be used.  This allows the Kubernetes name scoping to be mirrored within StorageOS for tighter integration. Set VolumeName to any name to override the default behaviour. Set to "default" if you are not using namespaces within StorageOS. Namespaces that do not pre-exist within StorageOS will be created.
-	VolumeNamespace(VolumeNamespace string) StorageOSPersistentVolumeSourceDie
+	VolumeNamespace(v string) StorageOSPersistentVolumeSourceDie
 	// Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
-	FSType(FSType string) StorageOSPersistentVolumeSourceDie
+	FSType(v string) StorageOSPersistentVolumeSourceDie
 	// Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
-	ReadOnly(ReadOnly bool) StorageOSPersistentVolumeSourceDie
+	ReadOnly(v bool) StorageOSPersistentVolumeSourceDie
 	// SecretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted.
-	SecretRef(SecretRef *corev1.ObjectReference) StorageOSPersistentVolumeSourceDie
+	SecretRef(v *corev1.ObjectReference) StorageOSPersistentVolumeSourceDie
 }
 
 var _ StorageOSPersistentVolumeSourceDie = (*storageOSPersistentVolumeSourceDie)(nil)
@@ -8887,137 +8887,137 @@ type CSIPersistentVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() CSIPersistentVolumeSourceDie
 
-	cSIPersistentVolumeSource
+	csiPersistentVolumeSourceDieExtension
 	// Driver is the name of the driver to use for this volume. Required.
-	Driver(Driver string) CSIPersistentVolumeSourceDie
+	Driver(v string) CSIPersistentVolumeSourceDie
 	// VolumeHandle is the unique volume name returned by the CSI volume plugin’s CreateVolume to refer to the volume on all subsequent calls. Required.
-	VolumeHandle(VolumeHandle string) CSIPersistentVolumeSourceDie
+	VolumeHandle(v string) CSIPersistentVolumeSourceDie
 	// Optional: The value to pass to ControllerPublishVolumeRequest. Defaults to false (read/write).
-	ReadOnly(ReadOnly bool) CSIPersistentVolumeSourceDie
+	ReadOnly(v bool) CSIPersistentVolumeSourceDie
 	// Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs".
-	FSType(FSType string) CSIPersistentVolumeSourceDie
+	FSType(v string) CSIPersistentVolumeSourceDie
 	// Attributes of the volume to publish.
-	VolumeAttributes(VolumeAttributes map[string]string) CSIPersistentVolumeSourceDie
+	VolumeAttributes(v map[string]string) CSIPersistentVolumeSourceDie
 	// ControllerPublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI ControllerPublishVolume and ControllerUnpublishVolume calls. This field is optional, and may be empty if no secret is required. If the secret object contains more than one secret, all secrets are passed.
-	ControllerPublishSecretRef(ControllerPublishSecretRef *corev1.SecretReference) CSIPersistentVolumeSourceDie
+	ControllerPublishSecretRef(v *corev1.SecretReference) CSIPersistentVolumeSourceDie
 	// NodeStageSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodeStageVolume and NodeStageVolume and NodeUnstageVolume calls. This field is optional, and may be empty if no secret is required. If the secret object contains more than one secret, all secrets are passed.
-	NodeStageSecretRef(NodeStageSecretRef *corev1.SecretReference) CSIPersistentVolumeSourceDie
+	NodeStageSecretRef(v *corev1.SecretReference) CSIPersistentVolumeSourceDie
 	// NodePublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodePublishVolume and NodeUnpublishVolume calls. This field is optional, and may be empty if no secret is required. If the secret object contains more than one secret, all secrets are passed.
-	NodePublishSecretRef(NodePublishSecretRef *corev1.SecretReference) CSIPersistentVolumeSourceDie
+	NodePublishSecretRef(v *corev1.SecretReference) CSIPersistentVolumeSourceDie
 	// ControllerExpandSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI ControllerExpandVolume call. This is an alpha field and requires enabling ExpandCSIVolumes feature gate. This field is optional, and may be empty if no secret is required. If the secret object contains more than one secret, all secrets are passed.
-	ControllerExpandSecretRef(ControllerExpandSecretRef *corev1.SecretReference) CSIPersistentVolumeSourceDie
+	ControllerExpandSecretRef(v *corev1.SecretReference) CSIPersistentVolumeSourceDie
 }
 
-var _ CSIPersistentVolumeSourceDie = (*cSIPersistentVolumeSourceDie)(nil)
-var CSIPersistentVolumeSourceBlank = (&cSIPersistentVolumeSourceDie{}).DieFeed(corev1.CSIPersistentVolumeSource{})
+var _ CSIPersistentVolumeSourceDie = (*csiPersistentVolumeSourceDie)(nil)
+var CSIPersistentVolumeSourceBlank = (&csiPersistentVolumeSourceDie{}).DieFeed(corev1.CSIPersistentVolumeSource{})
 
-type cSIPersistentVolumeSourceDie struct {
+type csiPersistentVolumeSourceDie struct {
 	mutable bool
 	r       corev1.CSIPersistentVolumeSource
 }
 
-func (d *cSIPersistentVolumeSourceDie) DieImmutable(immutable bool) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) DieImmutable(immutable bool) CSIPersistentVolumeSourceDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*cSIPersistentVolumeSourceDie)
+	d = d.DeepCopy().(*csiPersistentVolumeSourceDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *cSIPersistentVolumeSourceDie) DieFeed(r corev1.CSIPersistentVolumeSource) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) DieFeed(r corev1.CSIPersistentVolumeSource) CSIPersistentVolumeSourceDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &cSIPersistentVolumeSourceDie{
+	return &csiPersistentVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *cSIPersistentVolumeSourceDie) DieFeedPtr(r *corev1.CSIPersistentVolumeSource) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) DieFeedPtr(r *corev1.CSIPersistentVolumeSource) CSIPersistentVolumeSourceDie {
 	if r == nil {
 		r = &corev1.CSIPersistentVolumeSource{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *cSIPersistentVolumeSourceDie) DieRelease() corev1.CSIPersistentVolumeSource {
+func (d *csiPersistentVolumeSourceDie) DieRelease() corev1.CSIPersistentVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *cSIPersistentVolumeSourceDie) DieReleasePtr() *corev1.CSIPersistentVolumeSource {
+func (d *csiPersistentVolumeSourceDie) DieReleasePtr() *corev1.CSIPersistentVolumeSource {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *cSIPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.CSIPersistentVolumeSource)) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.CSIPersistentVolumeSource)) CSIPersistentVolumeSourceDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *cSIPersistentVolumeSourceDie) DeepCopy() CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) DeepCopy() CSIPersistentVolumeSourceDie {
 	r := *d.r.DeepCopy()
-	return &cSIPersistentVolumeSourceDie{
+	return &csiPersistentVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *cSIPersistentVolumeSourceDie) Driver(v string) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) Driver(v string) CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.Driver = v
 	})
 }
 
-func (d *cSIPersistentVolumeSourceDie) VolumeHandle(v string) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) VolumeHandle(v string) CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.VolumeHandle = v
 	})
 }
 
-func (d *cSIPersistentVolumeSourceDie) ReadOnly(v bool) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) ReadOnly(v bool) CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.ReadOnly = v
 	})
 }
 
-func (d *cSIPersistentVolumeSourceDie) FSType(v string) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) FSType(v string) CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.FSType = v
 	})
 }
 
-func (d *cSIPersistentVolumeSourceDie) VolumeAttributes(v map[string]string) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) VolumeAttributes(v map[string]string) CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.VolumeAttributes = v
 	})
 }
 
-func (d *cSIPersistentVolumeSourceDie) ControllerPublishSecretRef(v *corev1.SecretReference) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) ControllerPublishSecretRef(v *corev1.SecretReference) CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.ControllerPublishSecretRef = v
 	})
 }
 
-func (d *cSIPersistentVolumeSourceDie) NodeStageSecretRef(v *corev1.SecretReference) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) NodeStageSecretRef(v *corev1.SecretReference) CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.NodeStageSecretRef = v
 	})
 }
 
-func (d *cSIPersistentVolumeSourceDie) NodePublishSecretRef(v *corev1.SecretReference) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) NodePublishSecretRef(v *corev1.SecretReference) CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.NodePublishSecretRef = v
 	})
 }
 
-func (d *cSIPersistentVolumeSourceDie) ControllerExpandSecretRef(v *corev1.SecretReference) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) ControllerExpandSecretRef(v *corev1.SecretReference) CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.ControllerExpandSecretRef = v
 	})
@@ -9040,7 +9040,7 @@ type VolumeNodeAffinityDie interface {
 	DeepCopy() VolumeNodeAffinityDie
 
 	// Required specifies hard node constraints that must be met.
-	Required(Required *corev1.NodeSelector) VolumeNodeAffinityDie
+	Required(v *corev1.NodeSelector) VolumeNodeAffinityDie
 }
 
 var _ VolumeNodeAffinityDie = (*volumeNodeAffinityDie)(nil)
@@ -9126,9 +9126,9 @@ type NodeSelectorDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() NodeSelectorDie
 
-	nodeSelector
+	nodeSelectorDieExtension
 	// Required. A list of node selector terms. The terms are ORed.
-	NodeSelectorTerms(NodeSelectorTerms ...corev1.NodeSelectorTerm) NodeSelectorDie
+	NodeSelectorTerms(v ...corev1.NodeSelectorTerm) NodeSelectorDie
 }
 
 var _ NodeSelectorDie = (*nodeSelectorDie)(nil)
@@ -9214,11 +9214,11 @@ type NodeSelectorTermDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() NodeSelectorTermDie
 
-	nodeSelectorTerm
+	nodeSelectorTermDieExtension
 	// A list of node selector requirements by node's labels.
-	MatchExpressions(MatchExpressions ...corev1.NodeSelectorRequirement) NodeSelectorTermDie
+	MatchExpressions(v ...corev1.NodeSelectorRequirement) NodeSelectorTermDie
 	// A list of node selector requirements by node's fields.
-	MatchFields(MatchFields ...corev1.NodeSelectorRequirement) NodeSelectorTermDie
+	MatchFields(v ...corev1.NodeSelectorRequirement) NodeSelectorTermDie
 }
 
 var _ NodeSelectorTermDie = (*nodeSelectorTermDie)(nil)
@@ -9311,11 +9311,11 @@ type NodeSelectorRequirementDie interface {
 	DeepCopy() NodeSelectorRequirementDie
 
 	// The label key that the selector applies to.
-	Key(Key string) NodeSelectorRequirementDie
+	Key(v string) NodeSelectorRequirementDie
 	// Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
-	Operator(Operator corev1.NodeSelectorOperator) NodeSelectorRequirementDie
+	Operator(v corev1.NodeSelectorOperator) NodeSelectorRequirementDie
 	// An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch.
-	Values(Values ...string) NodeSelectorRequirementDie
+	Values(v ...string) NodeSelectorRequirementDie
 }
 
 var _ NodeSelectorRequirementDie = (*nodeSelectorRequirementDie)(nil)
@@ -9420,9 +9420,9 @@ type PersistentVolumeClaimDie interface {
 	// StatusDie stamps the resource's status field with a mutable die.
 	StatusDie(fn func(d PersistentVolumeClaimStatusDie)) PersistentVolumeClaimDie
 	// Spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
-	Spec(Spec corev1.PersistentVolumeClaimSpec) PersistentVolumeClaimDie
+	Spec(v corev1.PersistentVolumeClaimSpec) PersistentVolumeClaimDie
 	// Status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
-	Status(Status corev1.PersistentVolumeClaimStatus) PersistentVolumeClaimDie
+	Status(v corev1.PersistentVolumeClaimStatus) PersistentVolumeClaimDie
 
 	runtime.Object
 	apismetav1.Object
@@ -9569,23 +9569,23 @@ type PersistentVolumeClaimSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() PersistentVolumeClaimSpecDie
 
-	persistentVolumeClaimSpec
+	persistentVolumeClaimSpecDieExtension
 	// AccessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
-	AccessModes(AccessModes ...corev1.PersistentVolumeAccessMode) PersistentVolumeClaimSpecDie
+	AccessModes(v ...corev1.PersistentVolumeAccessMode) PersistentVolumeClaimSpecDie
 	// A label query over volumes to consider for binding.
-	Selector(Selector *apismetav1.LabelSelector) PersistentVolumeClaimSpecDie
+	Selector(v *apismetav1.LabelSelector) PersistentVolumeClaimSpecDie
 	// Resources represents the minimum resources the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
-	Resources(Resources corev1.ResourceRequirements) PersistentVolumeClaimSpecDie
+	Resources(v corev1.ResourceRequirements) PersistentVolumeClaimSpecDie
 	// VolumeName is the binding reference to the PersistentVolume backing this claim.
-	VolumeName(VolumeName string) PersistentVolumeClaimSpecDie
+	VolumeName(v string) PersistentVolumeClaimSpecDie
 	// Name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
-	StorageClassName(StorageClassName *string) PersistentVolumeClaimSpecDie
+	StorageClassName(v *string) PersistentVolumeClaimSpecDie
 	// volumeMode defines what type of volume is required by the claim. Value of Filesystem is implied when not included in claim spec.
-	VolumeMode(VolumeMode *corev1.PersistentVolumeMode) PersistentVolumeClaimSpecDie
+	VolumeMode(v *corev1.PersistentVolumeMode) PersistentVolumeClaimSpecDie
 	// This field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source. If the AnyVolumeDataSource feature gate is enabled, this field will always have the same contents as the DataSourceRef field.
-	DataSource(DataSource *corev1.TypedLocalObjectReference) PersistentVolumeClaimSpecDie
+	DataSource(v *corev1.TypedLocalObjectReference) PersistentVolumeClaimSpecDie
 	// Specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any local object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the DataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, both fields (DataSource and DataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. There are two important differences between DataSource and DataSourceRef: * While DataSource only allows two specific types of objects, DataSourceRef   allows any non-core object, as well as PersistentVolumeClaim objects. * While DataSource ignores disallowed values (dropping them), DataSourceRef   preserves all values, and generates an error if a disallowed value is   specified. (Alpha) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
-	DataSourceRef(DataSourceRef *corev1.TypedLocalObjectReference) PersistentVolumeClaimSpecDie
+	DataSourceRef(v *corev1.TypedLocalObjectReference) PersistentVolumeClaimSpecDie
 }
 
 var _ PersistentVolumeClaimSpecDie = (*persistentVolumeClaimSpecDie)(nil)
@@ -9713,15 +9713,15 @@ type PersistentVolumeClaimStatusDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() PersistentVolumeClaimStatusDie
 
-	persistentVolumeClaimStatus
+	persistentVolumeClaimStatusDieExtension
 	// Phase represents the current phase of PersistentVolumeClaim.
-	Phase(Phase corev1.PersistentVolumeClaimPhase) PersistentVolumeClaimStatusDie
+	Phase(v corev1.PersistentVolumeClaimPhase) PersistentVolumeClaimStatusDie
 	// AccessModes contains the actual access modes the volume backing the PVC has. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
-	AccessModes(AccessModes ...corev1.PersistentVolumeAccessMode) PersistentVolumeClaimStatusDie
+	AccessModes(v ...corev1.PersistentVolumeAccessMode) PersistentVolumeClaimStatusDie
 	// Represents the actual resources of the underlying volume.
-	Capacity(Capacity corev1.ResourceList) PersistentVolumeClaimStatusDie
+	Capacity(v corev1.ResourceList) PersistentVolumeClaimStatusDie
 	// Current Condition of persistent volume claim. If underlying persistent volume is being resized then the Condition will be set to 'ResizeStarted'.
-	Conditions(Conditions ...corev1.PersistentVolumeClaimCondition) PersistentVolumeClaimStatusDie
+	Conditions(v ...corev1.PersistentVolumeClaimCondition) PersistentVolumeClaimStatusDie
 }
 
 var _ PersistentVolumeClaimStatusDie = (*persistentVolumeClaimStatusDie)(nil)
@@ -9825,11 +9825,11 @@ type PersistentVolumeClaimTemplateDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() PersistentVolumeClaimTemplateDie
 
-	persistentVolumeClaimTemplate
+	persistentVolumeClaimTemplateDieExtension
 	// May contain labels and annotations that will be copied into the PVC when creating it. No other fields are allowed and will be rejected during validation.
-	ObjectMeta(ObjectMeta apismetav1.ObjectMeta) PersistentVolumeClaimTemplateDie
+	ObjectMeta(v apismetav1.ObjectMeta) PersistentVolumeClaimTemplateDie
 	// The specification for the PersistentVolumeClaim. The entire content is copied unchanged into the PVC that gets created from this template. The same fields as in a PersistentVolumeClaim are also valid here.
-	Spec(Spec corev1.PersistentVolumeClaimSpec) PersistentVolumeClaimTemplateDie
+	Spec(v corev1.PersistentVolumeClaimSpec) PersistentVolumeClaimTemplateDie
 }
 
 var _ PersistentVolumeClaimTemplateDie = (*persistentVolumeClaimTemplateDie)(nil)
@@ -9928,9 +9928,9 @@ type PodDie interface {
 	// StatusDie stamps the resource's status field with a mutable die.
 	StatusDie(fn func(d PodStatusDie)) PodDie
 	// Specification of the desired behavior of the pod. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Spec(Spec corev1.PodSpec) PodDie
+	Spec(v corev1.PodSpec) PodDie
 	// Most recently observed status of the pod. This data may not be up to date. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Status(Status corev1.PodStatus) PodDie
+	Status(v corev1.PodStatus) PodDie
 
 	runtime.Object
 	apismetav1.Object
@@ -10077,77 +10077,77 @@ type PodSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() PodSpecDie
 
-	podSpec
+	podSpecDieExtension
 	// List of volumes that can be mounted by containers belonging to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes
-	Volumes(Volumes ...corev1.Volume) PodSpecDie
+	Volumes(v ...corev1.Volume) PodSpecDie
 	// List of initialization containers belonging to the pod. Init containers are executed in order prior to containers being started. If any init container fails, the pod is considered to have failed and is handled according to its restartPolicy. The name for an init container or normal container must be unique among all containers. Init containers may not have Lifecycle actions, Readiness probes, Liveness probes, or Startup probes. The resourceRequirements of an init container are taken into account during scheduling by finding the highest request/limit for each resource type, and then using the max of of that value or the sum of the normal containers. Limits are applied to init containers in a similar fashion. Init containers cannot currently be added or removed. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
-	InitContainers(InitContainers ...corev1.Container) PodSpecDie
+	InitContainers(v ...corev1.Container) PodSpecDie
 	// List of containers belonging to the pod. Containers cannot currently be added or removed. There must be at least one container in a Pod. Cannot be updated.
-	Containers(Containers ...corev1.Container) PodSpecDie
+	Containers(v ...corev1.Container) PodSpecDie
 	// List of ephemeral containers run in this pod. Ephemeral containers may be run in an existing pod to perform user-initiated actions such as debugging. This list cannot be specified when creating a pod, and it cannot be modified by updating the pod spec. In order to add an ephemeral container to an existing pod, use the pod's ephemeralcontainers subresource. This field is alpha-level and is only honored by servers that enable the EphemeralContainers feature.
-	EphemeralContainers(EphemeralContainers ...corev1.EphemeralContainer) PodSpecDie
+	EphemeralContainers(v ...corev1.EphemeralContainer) PodSpecDie
 	// Restart policy for all containers within the pod. One of Always, OnFailure, Never. Default to Always. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy
-	RestartPolicy(RestartPolicy corev1.RestartPolicy) PodSpecDie
+	RestartPolicy(v corev1.RestartPolicy) PodSpecDie
 	// Optional duration in seconds the pod needs to terminate gracefully. May be decreased in delete request. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). If this value is nil, the default grace period will be used instead. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. Defaults to 30 seconds.
-	TerminationGracePeriodSeconds(TerminationGracePeriodSeconds *int64) PodSpecDie
+	TerminationGracePeriodSeconds(v *int64) PodSpecDie
 	// Optional duration in seconds the pod may be active on the node relative to StartTime before the system will actively try to mark it failed and kill associated containers. Value must be a positive integer.
-	ActiveDeadlineSeconds(ActiveDeadlineSeconds *int64) PodSpecDie
+	ActiveDeadlineSeconds(v *int64) PodSpecDie
 	// Set DNS policy for the pod. Defaults to "ClusterFirst". Valid values are 'ClusterFirstWithHostNet', 'ClusterFirst', 'Default' or 'None'. DNS parameters given in DNSConfig will be merged with the policy selected with DNSPolicy. To have DNS options set along with hostNetwork, you have to specify DNS policy explicitly to 'ClusterFirstWithHostNet'.
-	DNSPolicy(DNSPolicy corev1.DNSPolicy) PodSpecDie
+	DNSPolicy(v corev1.DNSPolicy) PodSpecDie
 	// NodeSelector is a selector which must be true for the pod to fit on a node. Selector which must match a node's labels for the pod to be scheduled on that node. More info: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
-	NodeSelector(NodeSelector map[string]string) PodSpecDie
+	NodeSelector(v map[string]string) PodSpecDie
 	// ServiceAccountName is the name of the ServiceAccount to use to run this pod. More info: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
-	ServiceAccountName(ServiceAccountName string) PodSpecDie
+	ServiceAccountName(v string) PodSpecDie
 	// DeprecatedServiceAccount is a depreciated alias for ServiceAccountName. Deprecated: Use serviceAccountName instead.
-	DeprecatedServiceAccount(DeprecatedServiceAccount string) PodSpecDie
+	DeprecatedServiceAccount(v string) PodSpecDie
 	// AutomountServiceAccountToken indicates whether a service account token should be automatically mounted.
-	AutomountServiceAccountToken(AutomountServiceAccountToken *bool) PodSpecDie
+	AutomountServiceAccountToken(v *bool) PodSpecDie
 	// NodeName is a request to schedule this pod onto a specific node. If it is non-empty, the scheduler simply schedules this pod onto that node, assuming that it fits resource requirements.
-	NodeName(NodeName string) PodSpecDie
+	NodeName(v string) PodSpecDie
 	// Host networking requested for this pod. Use the host's network namespace. If this option is set, the ports that will be used must be specified. Default to false.
-	HostNetwork(HostNetwork bool) PodSpecDie
+	HostNetwork(v bool) PodSpecDie
 	// Use the host's pid namespace. Optional: Default to false.
-	HostPID(HostPID bool) PodSpecDie
+	HostPID(v bool) PodSpecDie
 	// Use the host's ipc namespace. Optional: Default to false.
-	HostIPC(HostIPC bool) PodSpecDie
+	HostIPC(v bool) PodSpecDie
 	// Share a single process namespace between all of the containers in a pod. When this is set containers will be able to view and signal processes from other containers in the same pod, and the first process in each container will not be assigned PID 1. HostPID and ShareProcessNamespace cannot both be set. Optional: Default to false.
-	ShareProcessNamespace(ShareProcessNamespace *bool) PodSpecDie
+	ShareProcessNamespace(v *bool) PodSpecDie
 	// SecurityContext holds pod-level security attributes and common container settings. Optional: Defaults to empty.  See type description for default values of each field.
-	SecurityContext(SecurityContext *corev1.PodSecurityContext) PodSpecDie
+	SecurityContext(v *corev1.PodSecurityContext) PodSpecDie
 	// ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec. If specified, these secrets will be passed to individual puller implementations for them to use. For example, in the case of docker, only DockerConfig type secrets are honored. More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod
-	ImagePullSecrets(ImagePullSecrets ...corev1.LocalObjectReference) PodSpecDie
+	ImagePullSecrets(v ...corev1.LocalObjectReference) PodSpecDie
 	// Specifies the hostname of the Pod If not specified, the pod's hostname will be set to a system-defined value.
-	Hostname(Hostname string) PodSpecDie
+	Hostname(v string) PodSpecDie
 	// If specified, the fully qualified Pod hostname will be "<hostname>.<subdomain>.<pod namespace>.svc.<cluster domain>". If not specified, the pod will not have a domainname at all.
-	Subdomain(Subdomain string) PodSpecDie
+	Subdomain(v string) PodSpecDie
 	// If specified, the pod's scheduling constraints
-	Affinity(Affinity *corev1.Affinity) PodSpecDie
+	Affinity(v *corev1.Affinity) PodSpecDie
 	// If specified, the pod will be dispatched by specified scheduler. If not specified, the pod will be dispatched by default scheduler.
-	SchedulerName(SchedulerName string) PodSpecDie
+	SchedulerName(v string) PodSpecDie
 	// If specified, the pod's tolerations.
-	Tolerations(Tolerations ...corev1.Toleration) PodSpecDie
+	Tolerations(v ...corev1.Toleration) PodSpecDie
 	// HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified. This is only valid for non-hostNetwork pods.
-	HostAliases(HostAliases ...corev1.HostAlias) PodSpecDie
+	HostAliases(v ...corev1.HostAlias) PodSpecDie
 	// If specified, indicates the pod's priority. "system-node-critical" and "system-cluster-critical" are two special keywords which indicate the highest priorities with the former being the highest priority. Any other name must be defined by creating a PriorityClass object with that name. If not specified, the pod priority will be default or zero if there is no default.
-	PriorityClassName(PriorityClassName string) PodSpecDie
+	PriorityClassName(v string) PodSpecDie
 	// The priority value. Various system components use this field to find the priority of the pod. When Priority Admission Controller is enabled, it prevents users from setting this field. The admission controller populates this field from PriorityClassName. The higher the value, the higher the priority.
-	Priority(Priority *int32) PodSpecDie
+	Priority(v *int32) PodSpecDie
 	// Specifies the DNS parameters of a pod. Parameters specified here will be merged to the generated DNS configuration based on DNSPolicy.
-	DNSConfig(DNSConfig *corev1.PodDNSConfig) PodSpecDie
+	DNSConfig(v *corev1.PodDNSConfig) PodSpecDie
 	// If specified, all readiness gates will be evaluated for pod readiness. A pod is ready when all its containers are ready AND all conditions specified in the readiness gates have status equal to "True" More info: https://git.k8s.io/enhancements/keps/sig-network/580-pod-readiness-gates
-	ReadinessGates(ReadinessGates ...corev1.PodReadinessGate) PodSpecDie
+	ReadinessGates(v ...corev1.PodReadinessGate) PodSpecDie
 	// RuntimeClassName refers to a RuntimeClass object in the node.k8s.io group, which should be used to run this pod.  If no RuntimeClass resource matches the named class, the pod will not be run. If unset or empty, the "legacy" RuntimeClass will be used, which is an implicit class with an empty definition that uses the default runtime handler. More info: https://git.k8s.io/enhancements/keps/sig-node/585-runtime-class This is a beta feature as of Kubernetes v1.14.
-	RuntimeClassName(RuntimeClassName *string) PodSpecDie
+	RuntimeClassName(v *string) PodSpecDie
 	// EnableServiceLinks indicates whether information about services should be injected into pod's environment variables, matching the syntax of Docker links. Optional: Defaults to true.
-	EnableServiceLinks(EnableServiceLinks *bool) PodSpecDie
+	EnableServiceLinks(v *bool) PodSpecDie
 	// PreemptionPolicy is the Policy for preempting pods with lower priority. One of Never, PreemptLowerPriority. Defaults to PreemptLowerPriority if unset. This field is beta-level, gated by the NonPreemptingPriority feature-gate.
-	PreemptionPolicy(PreemptionPolicy *corev1.PreemptionPolicy) PodSpecDie
+	PreemptionPolicy(v *corev1.PreemptionPolicy) PodSpecDie
 	// Overhead represents the resource overhead associated with running a pod for a given RuntimeClass. This field will be autopopulated at admission time by the RuntimeClass admission controller. If the RuntimeClass admission controller is enabled, overhead must not be set in Pod create requests. The RuntimeClass admission controller will reject Pod create requests which have the overhead already set. If RuntimeClass is configured and selected in the PodSpec, Overhead will be set to the value defined in the corresponding RuntimeClass, otherwise it will remain unset and treated as zero. More info: https://git.k8s.io/enhancements/keps/sig-node/688-pod-overhead/README.md This field is beta-level as of Kubernetes v1.18, and is only honored by servers that enable the PodOverhead feature.
-	Overhead(Overhead corev1.ResourceList) PodSpecDie
+	Overhead(v corev1.ResourceList) PodSpecDie
 	// TopologySpreadConstraints describes how a group of pods ought to spread across topology domains. Scheduler will schedule pods in a way which abides by the constraints. All topologySpreadConstraints are ANDed.
-	TopologySpreadConstraints(TopologySpreadConstraints ...corev1.TopologySpreadConstraint) PodSpecDie
+	TopologySpreadConstraints(v ...corev1.TopologySpreadConstraint) PodSpecDie
 	// If true the pod's hostname will be configured as the pod's FQDN, rather than the leaf name (the default). In Linux containers, this means setting the FQDN in the hostname field of the kernel (the nodename field of struct utsname). In Windows containers, this means setting the registry value of hostname for the registry key HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters to FQDN. If a pod does not have FQDN, this has no effect. Default to false.
-	SetHostnameAsFQDN(SetHostnameAsFQDN *bool) PodSpecDie
+	SetHostnameAsFQDN(v *bool) PodSpecDie
 }
 
 var _ PodSpecDie = (*podSpecDie)(nil)
@@ -10437,31 +10437,31 @@ type PodSecurityContextDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() PodSecurityContextDie
 
-	podSecurityContext
+	podSecurityContextDieExtension
 	// The SELinux context to be applied to all containers. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container.
-	SELinuxOptions(SELinuxOptions *corev1.SELinuxOptions) PodSecurityContextDie
+	SELinuxOptions(v *corev1.SELinuxOptions) PodSecurityContextDie
 	// The Windows specific settings applied to all containers. If unspecified, the options within a container's SecurityContext will be used. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
-	WindowsOptions(WindowsOptions *corev1.WindowsSecurityContextOptions) PodSecurityContextDie
+	WindowsOptions(v *corev1.WindowsSecurityContextOptions) PodSecurityContextDie
 	// The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container.
-	RunAsUser(RunAsUser *int64) PodSecurityContextDie
+	RunAsUser(v *int64) PodSecurityContextDie
 	// The GID to run the entrypoint of the container process. Uses runtime default if unset. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container.
-	RunAsGroup(RunAsGroup *int64) PodSecurityContextDie
+	RunAsGroup(v *int64) PodSecurityContextDie
 	// Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. If unset or false, no such validation will be performed. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
-	RunAsNonRoot(RunAsNonRoot *bool) PodSecurityContextDie
+	RunAsNonRoot(v *bool) PodSecurityContextDie
 	// A list of groups applied to the first process run in each container, in addition to the container's primary GID.  If unspecified, no groups will be added to any container.
-	SupplementalGroups(SupplementalGroups ...int64) PodSecurityContextDie
+	SupplementalGroups(v ...int64) PodSecurityContextDie
 	// A special supplemental group that applies to all containers in a pod. Some volume types allow the Kubelet to change the ownership of that volume to be owned by the pod:
 	//
 	// 1. The owning GID will be the FSGroup 2. The setgid bit is set (new files created in the volume will be owned by FSGroup) 3. The permission bits are OR'd with rw-rw----
 	//
 	// If unset, the Kubelet will not modify the ownership and permissions of any volume.
-	FSGroup(FSGroup *int64) PodSecurityContextDie
+	FSGroup(v *int64) PodSecurityContextDie
 	// Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported sysctls (by the container runtime) might fail to launch.
-	Sysctls(Sysctls ...corev1.Sysctl) PodSecurityContextDie
+	Sysctls(v ...corev1.Sysctl) PodSecurityContextDie
 	// fsGroupChangePolicy defines behavior of changing ownership and permission of the volume before being exposed inside Pod. This field will only apply to volume types which support fsGroup based ownership(and permissions). It will have no effect on ephemeral volume types such as: secret, configmaps and emptydir. Valid values are "OnRootMismatch" and "Always". If not specified, "Always" is used.
-	FSGroupChangePolicy(FSGroupChangePolicy *corev1.PodFSGroupChangePolicy) PodSecurityContextDie
+	FSGroupChangePolicy(v *corev1.PodFSGroupChangePolicy) PodSecurityContextDie
 	// The seccomp options to use by the containers in this pod.
-	SeccompProfile(SeccompProfile *corev1.SeccompProfile) PodSecurityContextDie
+	SeccompProfile(v *corev1.SeccompProfile) PodSecurityContextDie
 }
 
 var _ PodSecurityContextDie = (*podSecurityContextDie)(nil)
@@ -10602,9 +10602,9 @@ type SysctlDie interface {
 	DeepCopy() SysctlDie
 
 	// Name of a property to set
-	Name(Name string) SysctlDie
+	Name(v string) SysctlDie
 	// Value of a property to set
-	Value(Value string) SysctlDie
+	Value(v string) SysctlDie
 }
 
 var _ SysctlDie = (*sysctlDie)(nil)
@@ -10697,15 +10697,15 @@ type TolerationDie interface {
 	DeepCopy() TolerationDie
 
 	// Key is the taint key that the toleration applies to. Empty means match all taint keys. If the key is empty, operator must be Exists; this combination means to match all values and all keys.
-	Key(Key string) TolerationDie
+	Key(v string) TolerationDie
 	// Operator represents a key's relationship to the value. Valid operators are Exists and Equal. Defaults to Equal. Exists is equivalent to wildcard for value, so that a pod can tolerate all taints of a particular category.
-	Operator(Operator corev1.TolerationOperator) TolerationDie
+	Operator(v corev1.TolerationOperator) TolerationDie
 	// Value is the taint value the toleration matches to. If the operator is Exists, the value should be empty, otherwise just a regular string.
-	Value(Value string) TolerationDie
+	Value(v string) TolerationDie
 	// Effect indicates the taint effect to match. Empty means match all taint effects. When specified, allowed values are NoSchedule, PreferNoSchedule and NoExecute.
-	Effect(Effect corev1.TaintEffect) TolerationDie
+	Effect(v corev1.TaintEffect) TolerationDie
 	// TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, otherwise this field is ignored) tolerates the taint. By default, it is not set, which means tolerate the taint forever (do not evict). Zero and negative values will be treated as 0 (evict immediately) by the system.
-	TolerationSeconds(TolerationSeconds *int64) TolerationDie
+	TolerationSeconds(v *int64) TolerationDie
 }
 
 var _ TolerationDie = (*tolerationDie)(nil)
@@ -10816,9 +10816,9 @@ type HostAliasDie interface {
 	DeepCopy() HostAliasDie
 
 	// IP address of the host file entry.
-	IP(IP string) HostAliasDie
+	IP(v string) HostAliasDie
 	// Hostnames for the above IP address.
-	Hostnames(Hostnames ...string) HostAliasDie
+	Hostnames(v ...string) HostAliasDie
 }
 
 var _ HostAliasDie = (*hostAliasDie)(nil)
@@ -10910,13 +10910,13 @@ type PodDNSConfigDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() PodDNSConfigDie
 
-	podDNSConfig
+	podDNSConfigDieExtension
 	// A list of DNS name server IP addresses. This will be appended to the base nameservers generated from DNSPolicy. Duplicated nameservers will be removed.
-	Nameservers(Nameservers ...string) PodDNSConfigDie
+	Nameservers(v ...string) PodDNSConfigDie
 	// A list of DNS search domains for host-name lookup. This will be appended to the base search paths generated from DNSPolicy. Duplicated search paths will be removed.
-	Searches(Searches ...string) PodDNSConfigDie
+	Searches(v ...string) PodDNSConfigDie
 	// A list of DNS resolver options. This will be merged with the base options generated from DNSPolicy. Duplicated entries will be removed. Resolution options given in Options will override those that appear in the base DNSPolicy.
-	Options(Options ...corev1.PodDNSConfigOption) PodDNSConfigDie
+	Options(v ...corev1.PodDNSConfigOption) PodDNSConfigDie
 }
 
 var _ PodDNSConfigDie = (*podDNSConfigDie)(nil)
@@ -11015,8 +11015,8 @@ type PodDNSConfigOptionDie interface {
 	DeepCopy() PodDNSConfigOptionDie
 
 	// Required.
-	Name(Name string) PodDNSConfigOptionDie
-	Value(Value *string) PodDNSConfigOptionDie
+	Name(v string) PodDNSConfigOptionDie
+	Value(v *string) PodDNSConfigOptionDie
 }
 
 var _ PodDNSConfigOptionDie = (*podDNSConfigOptionDie)(nil)
@@ -11109,7 +11109,7 @@ type PodReadinessGateDie interface {
 	DeepCopy() PodReadinessGateDie
 
 	// ConditionType refers to a condition in the pod's condition list with matching type.
-	ConditionType(ConditionType corev1.PodConditionType) PodReadinessGateDie
+	ConditionType(v corev1.PodConditionType) PodReadinessGateDie
 }
 
 var _ PodReadinessGateDie = (*podReadinessGateDie)(nil)
@@ -11195,15 +11195,15 @@ type TopologySpreadConstraintDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() TopologySpreadConstraintDie
 
-	topologySpreadConstraint
+	topologySpreadConstraintDieExtension
 	// MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 1/1/0: | zone1 | zone2 | zone3 | |   P   |   P   |       | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 1/1/1; scheduling it onto zone1(zone2) would make the ActualSkew(2-0) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed.
-	MaxSkew(MaxSkew int32) TopologySpreadConstraintDie
+	MaxSkew(v int32) TopologySpreadConstraintDie
 	// TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a "bucket", and try to put balanced number of pods into each bucket. It's a required field.
-	TopologyKey(TopologyKey string) TopologySpreadConstraintDie
+	TopologyKey(v string) TopologySpreadConstraintDie
 	// WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered "Unsatisfiable" for an incoming pod if and only if every possible node assigment for that pod would violate "MaxSkew" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field.
-	WhenUnsatisfiable(WhenUnsatisfiable corev1.UnsatisfiableConstraintAction) TopologySpreadConstraintDie
+	WhenUnsatisfiable(v corev1.UnsatisfiableConstraintAction) TopologySpreadConstraintDie
 	// LabelSelector is used to find matching pods. Pods that match this label selector are counted to determine the number of pods in their corresponding topology domain.
-	LabelSelector(LabelSelector *apismetav1.LabelSelector) TopologySpreadConstraintDie
+	LabelSelector(v *apismetav1.LabelSelector) TopologySpreadConstraintDie
 }
 
 var _ TopologySpreadConstraintDie = (*topologySpreadConstraintDie)(nil)
@@ -11307,37 +11307,37 @@ type PodStatusDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() PodStatusDie
 
-	podStatus
+	podStatusDieExtension
 	// The phase of a Pod is a simple, high-level summary of where the Pod is in its lifecycle. The conditions array, the reason and message fields, and the individual container status arrays contain more detail about the pod's status. There are five possible phase values:
 	//
 	// Pending: The pod has been accepted by the Kubernetes system, but one or more of the container images has not been created. This includes time before being scheduled as well as time spent downloading images over the network, which could take a while. Running: The pod has been bound to a node, and all of the containers have been created. At least one container is still running, or is in the process of starting or restarting. Succeeded: All containers in the pod have terminated in success, and will not be restarted. Failed: All containers in the pod have terminated, and at least one container has terminated in failure. The container either exited with non-zero status or was terminated by the system. Unknown: For some reason the state of the pod could not be obtained, typically due to an error in communicating with the host of the pod.
 	//
 	// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-phase
-	Phase(Phase corev1.PodPhase) PodStatusDie
+	Phase(v corev1.PodPhase) PodStatusDie
 	// Current service state of pod. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-conditions
-	Conditions(Conditions ...corev1.PodCondition) PodStatusDie
+	Conditions(v ...corev1.PodCondition) PodStatusDie
 	// A human readable message indicating details about why the pod is in this condition.
-	Message(Message string) PodStatusDie
+	Message(v string) PodStatusDie
 	// A brief CamelCase message indicating details about why the pod is in this state. e.g. 'Evicted'
-	Reason(Reason string) PodStatusDie
+	Reason(v string) PodStatusDie
 	// nominatedNodeName is set only when this pod preempts other pods on the node, but it cannot be scheduled right away as preemption victims receive their graceful termination periods. This field does not guarantee that the pod will be scheduled on this node. Scheduler may decide to place the pod elsewhere if other nodes become available sooner. Scheduler may also decide to give the resources on this node to a higher priority pod that is created after preemption. As a result, this field may be different than PodSpec.nodeName when the pod is scheduled.
-	NominatedNodeName(NominatedNodeName string) PodStatusDie
+	NominatedNodeName(v string) PodStatusDie
 	// IP address of the host to which the pod is assigned. Empty if not yet scheduled.
-	HostIP(HostIP string) PodStatusDie
+	HostIP(v string) PodStatusDie
 	// IP address allocated to the pod. Routable at least within the cluster. Empty if not yet allocated.
-	PodIP(PodIP string) PodStatusDie
+	PodIP(v string) PodStatusDie
 	// podIPs holds the IP addresses allocated to the pod. If this field is specified, the 0th entry must match the podIP field. Pods may be allocated at most 1 value for each of IPv4 and IPv6. This list is empty if no IPs have been allocated yet.
-	PodIPs(PodIPs ...corev1.PodIP) PodStatusDie
+	PodIPs(v ...corev1.PodIP) PodStatusDie
 	// RFC 3339 date and time at which the object was acknowledged by the Kubelet. This is before the Kubelet pulled the container image(s) for the pod.
-	StartTime(StartTime *apismetav1.Time) PodStatusDie
+	StartTime(v *apismetav1.Time) PodStatusDie
 	// The list has one entry per init container in the manifest. The most recent successful init container will have ready = true, the most recently started container will have startTime set. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
-	InitContainerStatuses(InitContainerStatuses ...corev1.ContainerStatus) PodStatusDie
+	InitContainerStatuses(v ...corev1.ContainerStatus) PodStatusDie
 	// The list has one entry per container in the manifest. Each entry is currently the output of `docker inspect`. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
-	ContainerStatuses(ContainerStatuses ...corev1.ContainerStatus) PodStatusDie
+	ContainerStatuses(v ...corev1.ContainerStatus) PodStatusDie
 	// The Quality of Service (QOS) classification assigned to the pod based on resource requirements See PodQOSClass type for available QOS classes More info: https://git.k8s.io/community/contributors/design-proposals/node/resource-qos.md
-	QOSClass(QOSClass corev1.PodQOSClass) PodStatusDie
+	QOSClass(v corev1.PodQOSClass) PodStatusDie
 	// Status for any ephemeral containers that have run in this pod. This field is alpha-level and is only populated by servers that enable the EphemeralContainers feature.
-	EphemeralContainerStatuses(EphemeralContainerStatuses ...corev1.ContainerStatus) PodStatusDie
+	EphemeralContainerStatuses(v ...corev1.ContainerStatus) PodStatusDie
 }
 
 var _ PodStatusDie = (*podStatusDie)(nil)
@@ -11495,11 +11495,11 @@ type PodTemplateSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() PodTemplateSpecDie
 
-	podTemplateSpec
+	podTemplateSpecDieExtension
 	// Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-	ObjectMeta(ObjectMeta apismetav1.ObjectMeta) PodTemplateSpecDie
+	ObjectMeta(v apismetav1.ObjectMeta) PodTemplateSpecDie
 	// Specification of the desired behavior of the pod. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Spec(Spec corev1.PodSpec) PodTemplateSpecDie
+	Spec(v corev1.PodSpec) PodTemplateSpecDie
 }
 
 var _ PodTemplateSpecDie = (*podTemplateSpecDie)(nil)
@@ -11598,9 +11598,9 @@ type ResourceQuotaDie interface {
 	// StatusDie stamps the resource's status field with a mutable die.
 	StatusDie(fn func(d ResourceQuotaStatusDie)) ResourceQuotaDie
 	// Spec defines the desired quota. https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Spec(Spec corev1.ResourceQuotaSpec) ResourceQuotaDie
+	Spec(v corev1.ResourceQuotaSpec) ResourceQuotaDie
 	// Status defines the actual enforced quota and its current usage. https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Status(Status corev1.ResourceQuotaStatus) ResourceQuotaDie
+	Status(v corev1.ResourceQuotaStatus) ResourceQuotaDie
 
 	runtime.Object
 	apismetav1.Object
@@ -11747,13 +11747,13 @@ type ResourceQuotaSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ResourceQuotaSpecDie
 
-	resourceQuotaSpec
+	resourceQuotaSpecDieExtension
 	// hard is the set of desired hard limits for each named resource. More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
-	Hard(Hard corev1.ResourceList) ResourceQuotaSpecDie
+	Hard(v corev1.ResourceList) ResourceQuotaSpecDie
 	// A collection of filters that must match each object tracked by a quota. If not specified, the quota matches all objects.
-	Scopes(Scopes ...corev1.ResourceQuotaScope) ResourceQuotaSpecDie
+	Scopes(v ...corev1.ResourceQuotaScope) ResourceQuotaSpecDie
 	// scopeSelector is also a collection of filters like scopes that must match each object tracked by a quota but expressed using ScopeSelectorOperator in combination with possible values. For a resource to match, both scopes AND scopeSelector (if specified in spec), must be matched.
-	ScopeSelector(ScopeSelector *corev1.ScopeSelector) ResourceQuotaSpecDie
+	ScopeSelector(v *corev1.ScopeSelector) ResourceQuotaSpecDie
 }
 
 var _ ResourceQuotaSpecDie = (*resourceQuotaSpecDie)(nil)
@@ -11851,9 +11851,9 @@ type ScopeSelectorDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ScopeSelectorDie
 
-	scopeSelector
+	scopeSelectorDieExtension
 	// A list of scope selector requirements by scope of the resources.
-	MatchExpressions(MatchExpressions ...corev1.ScopedResourceSelectorRequirement) ScopeSelectorDie
+	MatchExpressions(v ...corev1.ScopedResourceSelectorRequirement) ScopeSelectorDie
 }
 
 var _ ScopeSelectorDie = (*scopeSelectorDie)(nil)
@@ -11940,11 +11940,11 @@ type ScopedResourceSelectorRequirementDie interface {
 	DeepCopy() ScopedResourceSelectorRequirementDie
 
 	// The name of the scope that the selector applies to.
-	ScopeName(ScopeName corev1.ResourceQuotaScope) ScopedResourceSelectorRequirementDie
+	ScopeName(v corev1.ResourceQuotaScope) ScopedResourceSelectorRequirementDie
 	// Represents a scope's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist.
-	Operator(Operator corev1.ScopeSelectorOperator) ScopedResourceSelectorRequirementDie
+	Operator(v corev1.ScopeSelectorOperator) ScopedResourceSelectorRequirementDie
 	// An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
-	Values(Values ...string) ScopedResourceSelectorRequirementDie
+	Values(v ...string) ScopedResourceSelectorRequirementDie
 }
 
 var _ ScopedResourceSelectorRequirementDie = (*scopedResourceSelectorRequirementDie)(nil)
@@ -12042,11 +12042,11 @@ type ResourceQuotaStatusDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ResourceQuotaStatusDie
 
-	resourceQuotaStatus
+	resourceQuotaStatusDieExtension
 	// Hard is the set of enforced hard limits for each named resource. More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
-	Hard(Hard corev1.ResourceList) ResourceQuotaStatusDie
+	Hard(v corev1.ResourceList) ResourceQuotaStatusDie
 	// Used is the current observed total usage of the resource in the namespace.
-	Used(Used corev1.ResourceList) ResourceQuotaStatusDie
+	Used(v corev1.ResourceList) ResourceQuotaStatusDie
 }
 
 var _ ResourceQuotaStatusDie = (*resourceQuotaStatusDie)(nil)
@@ -12138,13 +12138,13 @@ type SecretDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() SecretDie
 
-	secret
+	secretDieExtension
 	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
 	MetadataDie(fn func(d metav1.ObjectMetaDie)) SecretDie
 	// Immutable, if set to true, ensures that data stored in the Secret cannot be updated (only object metadata can be modified). If not set to true, the field can be modified at any time. Defaulted to nil.
-	Immutable(Immutable *bool) SecretDie
+	Immutable(v *bool) SecretDie
 	// Used to facilitate programmatic handling of secret data.
-	Type(Type corev1.SecretType) SecretDie
+	Type(v corev1.SecretType) SecretDie
 
 	runtime.Object
 	apismetav1.Object
@@ -12282,9 +12282,9 @@ type ServiceDie interface {
 	// StatusDie stamps the resource's status field with a mutable die.
 	StatusDie(fn func(d ServiceStatusDie)) ServiceDie
 	// Spec defines the behavior of a service. https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Spec(Spec corev1.ServiceSpec) ServiceDie
+	Spec(v corev1.ServiceSpec) ServiceDie
 	// Most recently observed status of the service. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Status(Status corev1.ServiceStatus) ServiceDie
+	Status(v corev1.ServiceStatus) ServiceDie
 
 	runtime.Object
 	apismetav1.Object
@@ -12431,49 +12431,49 @@ type ServiceSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ServiceSpecDie
 
-	serviceSpec
+	serviceSpecDieExtension
 	// The list of ports that are exposed by this service. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
-	Ports(Ports ...corev1.ServicePort) ServiceSpecDie
+	Ports(v ...corev1.ServicePort) ServiceSpecDie
 	// Route service traffic to pods with label keys and values matching this selector. If empty or not present, the service is assumed to have an external process managing its endpoints, which Kubernetes will not modify. Only applies to types ClusterIP, NodePort, and LoadBalancer. Ignored if type is ExternalName. More info: https://kubernetes.io/docs/concepts/services-networking/service/
-	Selector(Selector map[string]string) ServiceSpecDie
+	Selector(v map[string]string) ServiceSpecDie
 	// clusterIP is the IP address of the service and is usually assigned randomly. If an address is specified manually, is in-range (as per system configuration), and is not in use, it will be allocated to the service; otherwise creation of the service will fail. This field may not be changed through updates unless the type field is also being changed to ExternalName (which requires this field to be blank) or the type field is being changed from ExternalName (in which case this field may optionally be specified, as describe above).  Valid values are "None", empty string (""), or a valid IP address. Setting this to "None" makes a "headless service" (no virtual IP), which is useful when direct endpoint connections are preferred and proxying is not required.  Only applies to types ClusterIP, NodePort, and LoadBalancer. If this field is specified when creating a Service of type ExternalName, creation will fail. This field will be wiped when updating a Service to type ExternalName. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
-	ClusterIP(ClusterIP string) ServiceSpecDie
+	ClusterIP(v string) ServiceSpecDie
 	// ClusterIPs is a list of IP addresses assigned to this service, and are usually assigned randomly.  If an address is specified manually, is in-range (as per system configuration), and is not in use, it will be allocated to the service; otherwise creation of the service will fail. This field may not be changed through updates unless the type field is also being changed to ExternalName (which requires this field to be empty) or the type field is being changed from ExternalName (in which case this field may optionally be specified, as describe above).  Valid values are "None", empty string (""), or a valid IP address.  Setting this to "None" makes a "headless service" (no virtual IP), which is useful when direct endpoint connections are preferred and proxying is not required.  Only applies to types ClusterIP, NodePort, and LoadBalancer. If this field is specified when creating a Service of type ExternalName, creation will fail. This field will be wiped when updating a Service to type ExternalName.  If this field is not specified, it will be initialized from the clusterIP field.  If this field is specified, clients must ensure that clusterIPs[0] and clusterIP have the same value.
 	//
 	// Unless the "IPv6DualStack" feature gate is enabled, this field is limited to one value, which must be the same as the clusterIP field.  If the feature gate is enabled, this field may hold a maximum of two entries (dual-stack IPs, in either order).  These IPs must correspond to the values of the ipFamilies field. Both clusterIPs and ipFamilies are governed by the ipFamilyPolicy field. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
-	ClusterIPs(ClusterIPs ...string) ServiceSpecDie
+	ClusterIPs(v ...string) ServiceSpecDie
 	// type determines how the Service is exposed. Defaults to ClusterIP. Valid options are ExternalName, ClusterIP, NodePort, and LoadBalancer. "ClusterIP" allocates a cluster-internal IP address for load-balancing to endpoints. Endpoints are determined by the selector or if that is not specified, by manual construction of an Endpoints object or EndpointSlice objects. If clusterIP is "None", no virtual IP is allocated and the endpoints are published as a set of endpoints rather than a virtual IP. "NodePort" builds on ClusterIP and allocates a port on every node which routes to the same endpoints as the clusterIP. "LoadBalancer" builds on NodePort and creates an external load-balancer (if supported in the current cloud) which routes to the same endpoints as the clusterIP. "ExternalName" aliases this service to the specified externalName. Several other fields do not apply to ExternalName services. More info: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
-	Type(Type corev1.ServiceType) ServiceSpecDie
+	Type(v corev1.ServiceType) ServiceSpecDie
 	// externalIPs is a list of IP addresses for which nodes in the cluster will also accept traffic for this service.  These IPs are not managed by Kubernetes.  The user is responsible for ensuring that traffic arrives at a node with this IP.  A common example is external load-balancers that are not part of the Kubernetes system.
-	ExternalIPs(ExternalIPs ...string) ServiceSpecDie
+	ExternalIPs(v ...string) ServiceSpecDie
 	// Supports "ClientIP" and "None". Used to maintain session affinity. Enable client IP based session affinity. Must be ClientIP or None. Defaults to None. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
-	SessionAffinity(SessionAffinity corev1.ServiceAffinity) ServiceSpecDie
+	SessionAffinity(v corev1.ServiceAffinity) ServiceSpecDie
 	// Only applies to Service Type: LoadBalancer LoadBalancer will get created with the IP specified in this field. This feature depends on whether the underlying cloud-provider supports specifying the loadBalancerIP when a load balancer is created. This field will be ignored if the cloud-provider does not support the feature.
-	LoadBalancerIP(LoadBalancerIP string) ServiceSpecDie
+	LoadBalancerIP(v string) ServiceSpecDie
 	// If specified and supported by the platform, this will restrict traffic through the cloud-provider load-balancer will be restricted to the specified client IPs. This field will be ignored if the cloud-provider does not support the feature." More info: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/
-	LoadBalancerSourceRanges(LoadBalancerSourceRanges ...string) ServiceSpecDie
+	LoadBalancerSourceRanges(v ...string) ServiceSpecDie
 	// externalName is the external reference that discovery mechanisms will return as an alias for this service (e.g. a DNS CNAME record). No proxying will be involved.  Must be a lowercase RFC-1123 hostname (https://tools.ietf.org/html/rfc1123) and requires `type` to be "ExternalName".
-	ExternalName(ExternalName string) ServiceSpecDie
+	ExternalName(v string) ServiceSpecDie
 	// externalTrafficPolicy denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints. "Local" preserves the client source IP and avoids a second hop for LoadBalancer and Nodeport type services, but risks potentially imbalanced traffic spreading. "Cluster" obscures the client source IP and may cause a second hop to another node, but should have good overall load-spreading.
-	ExternalTrafficPolicy(ExternalTrafficPolicy corev1.ServiceExternalTrafficPolicyType) ServiceSpecDie
+	ExternalTrafficPolicy(v corev1.ServiceExternalTrafficPolicyType) ServiceSpecDie
 	// healthCheckNodePort specifies the healthcheck nodePort for the service. This only applies when type is set to LoadBalancer and externalTrafficPolicy is set to Local. If a value is specified, is in-range, and is not in use, it will be used.  If not specified, a value will be automatically allocated.  External systems (e.g. load-balancers) can use this port to determine if a given node holds endpoints for this service or not.  If this field is specified when creating a Service which does not need it, creation will fail. This field will be wiped when updating a Service to no longer need it (e.g. changing type).
-	HealthCheckNodePort(HealthCheckNodePort int32) ServiceSpecDie
+	HealthCheckNodePort(v int32) ServiceSpecDie
 	// publishNotReadyAddresses indicates that any agent which deals with endpoints for this Service should disregard any indications of ready/not-ready. The primary use case for setting this field is for a StatefulSet's Headless Service to propagate SRV DNS records for its Pods for the purpose of peer discovery. The Kubernetes controllers that generate Endpoints and EndpointSlice resources for Services interpret this to mean that all endpoints are considered "ready" even if the Pods themselves are not. Agents which consume only Kubernetes generated endpoints through the Endpoints or EndpointSlice resources can safely assume this behavior.
-	PublishNotReadyAddresses(PublishNotReadyAddresses bool) ServiceSpecDie
+	PublishNotReadyAddresses(v bool) ServiceSpecDie
 	// sessionAffinityConfig contains the configurations of session affinity.
-	SessionAffinityConfig(SessionAffinityConfig *corev1.SessionAffinityConfig) ServiceSpecDie
+	SessionAffinityConfig(v *corev1.SessionAffinityConfig) ServiceSpecDie
 	// IPFamilies is a list of IP families (e.g. IPv4, IPv6) assigned to this service, and is gated by the "IPv6DualStack" feature gate.  This field is usually assigned automatically based on cluster configuration and the ipFamilyPolicy field. If this field is specified manually, the requested family is available in the cluster, and ipFamilyPolicy allows it, it will be used; otherwise creation of the service will fail.  This field is conditionally mutable: it allows for adding or removing a secondary IP family, but it does not allow changing the primary IP family of the Service.  Valid values are "IPv4" and "IPv6".  This field only applies to Services of types ClusterIP, NodePort, and LoadBalancer, and does apply to "headless" services.  This field will be wiped when updating a Service to type ExternalName.
 	//
 	// This field may hold a maximum of two entries (dual-stack families, in either order).  These families must correspond to the values of the clusterIPs field, if specified. Both clusterIPs and ipFamilies are governed by the ipFamilyPolicy field.
-	IPFamilies(IPFamilies ...corev1.IPFamily) ServiceSpecDie
+	IPFamilies(v ...corev1.IPFamily) ServiceSpecDie
 	// IPFamilyPolicy represents the dual-stack-ness requested or required by this Service, and is gated by the "IPv6DualStack" feature gate.  If there is no value provided, then this field will be set to SingleStack. Services can be "SingleStack" (a single IP family), "PreferDualStack" (two IP families on dual-stack configured clusters or a single IP family on single-stack clusters), or "RequireDualStack" (two IP families on dual-stack configured clusters, otherwise fail). The ipFamilies and clusterIPs fields depend on the value of this field.  This field will be wiped when updating a service to type ExternalName.
-	IPFamilyPolicy(IPFamilyPolicy *corev1.IPFamilyPolicyType) ServiceSpecDie
+	IPFamilyPolicy(v *corev1.IPFamilyPolicyType) ServiceSpecDie
 	// allocateLoadBalancerNodePorts defines if NodePorts will be automatically allocated for services with type LoadBalancer.  Default is "true". It may be set to "false" if the cluster load-balancer does not rely on NodePorts.  If the caller requests specific NodePorts (by specifying a value), those requests will be respected, regardless of this field. This field may only be set for services with type LoadBalancer and will be cleared if the type is changed to any other type. This field is beta-level and is only honored by servers that enable the ServiceLBNodePortControl feature.
-	AllocateLoadBalancerNodePorts(AllocateLoadBalancerNodePorts *bool) ServiceSpecDie
+	AllocateLoadBalancerNodePorts(v *bool) ServiceSpecDie
 	// loadBalancerClass is the class of the load balancer implementation this Service belongs to. If specified, the value of this field must be a label-style identifier, with an optional prefix, e.g. "internal-vip" or "example.com/internal-vip". Unprefixed names are reserved for end-users. This field can only be set when the Service type is 'LoadBalancer'. If not set, the default load balancer implementation is used, today this is typically done through the cloud provider integration, but should apply for any default implementation. If set, it is assumed that a load balancer implementation is watching for Services with a matching class. Any default load balancer implementation (e.g. cloud providers) should ignore Services that set this field. This field can only be set when creating or updating a Service to type 'LoadBalancer'. Once set, it can not be changed. This field will be wiped when a service is updated to a non 'LoadBalancer' type.
-	LoadBalancerClass(LoadBalancerClass *string) ServiceSpecDie
+	LoadBalancerClass(v *string) ServiceSpecDie
 	// InternalTrafficPolicy specifies if the cluster internal traffic should be routed to all endpoints or node-local endpoints only. "Cluster" routes internal traffic to a Service to all endpoints. "Local" routes traffic to node-local endpoints only, traffic is dropped if no node-local endpoints are ready. The default value is "Cluster".
-	InternalTrafficPolicy(InternalTrafficPolicy *corev1.ServiceInternalTrafficPolicyType) ServiceSpecDie
+	InternalTrafficPolicy(v *corev1.ServiceInternalTrafficPolicyType) ServiceSpecDie
 }
 
 var _ ServiceSpecDie = (*serviceSpecDie)(nil)
@@ -12668,17 +12668,17 @@ type ServicePortDie interface {
 	DeepCopy() ServicePortDie
 
 	// The name of this port within the service. This must be a DNS_LABEL. All ports within a ServiceSpec must have unique names. When considering the endpoints for a Service, this must match the 'name' field in the EndpointPort. Optional if only one ServicePort is defined on this service.
-	Name(Name string) ServicePortDie
+	Name(v string) ServicePortDie
 	// The IP protocol for this port. Supports "TCP", "UDP", and "SCTP". Default is TCP.
-	Protocol(Protocol corev1.Protocol) ServicePortDie
+	Protocol(v corev1.Protocol) ServicePortDie
 	// The application protocol for this port. This field follows standard Kubernetes label syntax. Un-prefixed names are reserved for IANA standard service names (as per RFC-6335 and http://www.iana.org/assignments/service-names). Non-standard protocols should use prefixed names such as mycompany.com/my-custom-protocol.
-	AppProtocol(AppProtocol *string) ServicePortDie
+	AppProtocol(v *string) ServicePortDie
 	// The port that will be exposed by this service.
-	Port(Port int32) ServicePortDie
+	Port(v int32) ServicePortDie
 	// Number or name of the port to access on the pods targeted by the service. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME. If this is a string, it will be looked up as a named port in the target Pod's container ports. If this is not specified, the value of the 'port' field is used (an identity map). This field is ignored for services with clusterIP=None, and should be omitted or set equal to the 'port' field. More info: https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
-	TargetPort(TargetPort intstr.IntOrString) ServicePortDie
+	TargetPort(v intstr.IntOrString) ServicePortDie
 	// The port on each node on which this service is exposed when type is NodePort or LoadBalancer.  Usually assigned by the system. If a value is specified, in-range, and not in use it will be used, otherwise the operation will fail.  If not specified, a port will be allocated if this Service requires one.  If this field is specified when creating a Service which does not need it, creation will fail. This field will be wiped when updating a Service to no longer need it (e.g. changing type from NodePort to ClusterIP). More info: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
-	NodePort(NodePort int32) ServicePortDie
+	NodePort(v int32) ServicePortDie
 }
 
 var _ ServicePortDie = (*servicePortDie)(nil)
@@ -12808,9 +12808,8 @@ type SessionAffinityConfigDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() SessionAffinityConfigDie
 
-	sessionAffinityConfig
 	// clientIP contains the configurations of Client IP based session affinity.
-	ClientIP(ClientIP *corev1.ClientIPConfig) SessionAffinityConfigDie
+	ClientIP(v *corev1.ClientIPConfig) SessionAffinityConfigDie
 }
 
 var _ SessionAffinityConfigDie = (*sessionAffinityConfigDie)(nil)
@@ -12897,7 +12896,7 @@ type ClientIPConfigDie interface {
 	DeepCopy() ClientIPConfigDie
 
 	// timeoutSeconds specifies the seconds of ClientIP type session sticky time. The value must be >0 && <=86400(for 1 day) if ServiceAffinity == "ClientIP". Default value is 10800(for 3 hours).
-	TimeoutSeconds(TimeoutSeconds *int32) ClientIPConfigDie
+	TimeoutSeconds(v *int32) ClientIPConfigDie
 }
 
 var _ ClientIPConfigDie = (*clientIPConfigDie)(nil)
@@ -12983,11 +12982,11 @@ type ServiceStatusDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ServiceStatusDie
 
-	serviceStatus
+	serviceStatusDieExtension
 	// LoadBalancer contains the current status of the load-balancer, if one is present.
-	LoadBalancer(LoadBalancer corev1.LoadBalancerStatus) ServiceStatusDie
+	LoadBalancer(v corev1.LoadBalancerStatus) ServiceStatusDie
 	// Current service state
-	Conditions(Conditions ...apismetav1.Condition) ServiceStatusDie
+	Conditions(v ...apismetav1.Condition) ServiceStatusDie
 }
 
 var _ ServiceStatusDie = (*serviceStatusDie)(nil)
@@ -13079,9 +13078,9 @@ type LoadBalancerStatusDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() LoadBalancerStatusDie
 
-	loadBalancerStatus
+	loadBalancerStatusDieExtension
 	// Ingress is a list containing ingress points for the load-balancer. Traffic intended for the service should be sent to these ingress points.
-	Ingress(Ingress ...corev1.LoadBalancerIngress) LoadBalancerStatusDie
+	Ingress(v ...corev1.LoadBalancerIngress) LoadBalancerStatusDie
 }
 
 var _ LoadBalancerStatusDie = (*loadBalancerStatusDie)(nil)
@@ -13167,13 +13166,13 @@ type LoadBalancerIngressDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() LoadBalancerIngressDie
 
-	loadBalancerIngress
+	loadBalancerIngressDieExtension
 	// IP is set for load-balancer ingress points that are IP based (typically GCE or OpenStack load-balancers)
-	IP(IP string) LoadBalancerIngressDie
+	IP(v string) LoadBalancerIngressDie
 	// Hostname is set for load-balancer ingress points that are DNS based (typically AWS load-balancers)
-	Hostname(Hostname string) LoadBalancerIngressDie
+	Hostname(v string) LoadBalancerIngressDie
 	// Ports is a list of records of service ports If used, every port defined in the service should have an entry in it
-	Ports(Ports ...corev1.PortStatus) LoadBalancerIngressDie
+	Ports(v ...corev1.PortStatus) LoadBalancerIngressDie
 }
 
 var _ LoadBalancerIngressDie = (*loadBalancerIngressDie)(nil)
@@ -13272,11 +13271,11 @@ type PortStatusDie interface {
 	DeepCopy() PortStatusDie
 
 	// Port is the port number of the service port of which status is recorded here
-	Port(Port int32) PortStatusDie
+	Port(v int32) PortStatusDie
 	// Protocol is the protocol of the service port of which status is recorded here The supported values are: "TCP", "UDP", "SCTP"
-	Protocol(Protocol corev1.Protocol) PortStatusDie
+	Protocol(v corev1.Protocol) PortStatusDie
 	// Error is to record the problem with the service port The format of the error shall comply with the following rules: - built-in error values shall be specified in this file and those shall use   CamelCase names - cloud provider specific error values must have names that comply with the   format foo.example.com/CamelCase. --- The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
-	Error(Error *string) PortStatusDie
+	Error(v *string) PortStatusDie
 }
 
 var _ PortStatusDie = (*portStatusDie)(nil)
@@ -13374,15 +13373,15 @@ type ServiceAccountDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ServiceAccountDie
 
-	serviceAccount
+	serviceAccountDieExtension
 	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
 	MetadataDie(fn func(d metav1.ObjectMetaDie)) ServiceAccountDie
 	// Secrets is the list of secrets allowed to be used by pods running using this ServiceAccount. More info: https://kubernetes.io/docs/concepts/configuration/secret
-	Secrets(Secrets ...corev1.ObjectReference) ServiceAccountDie
+	Secrets(v ...corev1.ObjectReference) ServiceAccountDie
 	// ImagePullSecrets is a list of references to secrets in the same namespace to use for pulling any images in pods that reference this ServiceAccount. ImagePullSecrets are distinct from Secrets because Secrets can be mounted in the pod, but ImagePullSecrets are only accessed by the kubelet. More info: https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
-	ImagePullSecrets(ImagePullSecrets ...corev1.LocalObjectReference) ServiceAccountDie
+	ImagePullSecrets(v ...corev1.LocalObjectReference) ServiceAccountDie
 	// AutomountServiceAccountToken indicates whether pods running as this service account should have an API token automatically mounted. Can be overridden at the pod level.
-	AutomountServiceAccountToken(AutomountServiceAccountToken *bool) ServiceAccountDie
+	AutomountServiceAccountToken(v *bool) ServiceAccountDie
 
 	runtime.Object
 	apismetav1.Object
@@ -13519,11 +13518,11 @@ type VolumeDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() VolumeDie
 
-	volume
+	volumeDieExtension
 	// Volume's name. Must be a DNS_LABEL and unique within the pod. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-	Name(Name string) VolumeDie
+	Name(v string) VolumeDie
 	// VolumeSource represents the location and type of the mounted volume. If not specified, the Volume is implied to be an EmptyDir. This implied behavior is deprecated and will be removed in a future version.
-	VolumeSource(VolumeSource corev1.VolumeSource) VolumeDie
+	VolumeSource(v corev1.VolumeSource) VolumeDie
 }
 
 var _ VolumeDie = (*volumeDie)(nil)
@@ -13616,9 +13615,9 @@ type HostPathVolumeSourceDie interface {
 	DeepCopy() HostPathVolumeSourceDie
 
 	// Path of the directory on the host. If the path is a symlink, it will follow the link to the real path. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
-	Path(Path string) HostPathVolumeSourceDie
+	Path(v string) HostPathVolumeSourceDie
 	// Type for HostPath Volume Defaults to "" More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
-	Type(Type *corev1.HostPathType) HostPathVolumeSourceDie
+	Type(v *corev1.HostPathType) HostPathVolumeSourceDie
 }
 
 var _ HostPathVolumeSourceDie = (*hostPathVolumeSourceDie)(nil)
@@ -13711,9 +13710,9 @@ type EmptyDirVolumeSourceDie interface {
 	DeepCopy() EmptyDirVolumeSourceDie
 
 	// What type of storage medium should back this directory. The default is "" which means to use the node's default medium. Must be an empty string (default) or Memory. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
-	Medium(Medium corev1.StorageMedium) EmptyDirVolumeSourceDie
+	Medium(v corev1.StorageMedium) EmptyDirVolumeSourceDie
 	// Total amount of local storage required for this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. The default is nil which means that the limit is undefined. More info: http://kubernetes.io/docs/user-guide/volumes#emptydir
-	SizeLimit(SizeLimit *resource.Quantity) EmptyDirVolumeSourceDie
+	SizeLimit(v *resource.Quantity) EmptyDirVolumeSourceDie
 }
 
 var _ EmptyDirVolumeSourceDie = (*emptyDirVolumeSourceDie)(nil)
@@ -13806,95 +13805,95 @@ type GCEPersistentDiskVolumeSourceDie interface {
 	DeepCopy() GCEPersistentDiskVolumeSourceDie
 
 	// Unique name of the PD resource in GCE. Used to identify the disk in GCE. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
-	PDName(PDName string) GCEPersistentDiskVolumeSourceDie
+	PDName(v string) GCEPersistentDiskVolumeSourceDie
 	// Filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk TODO: how do we prevent errors in the filesystem from compromising the machine
-	FSType(FSType string) GCEPersistentDiskVolumeSourceDie
+	FSType(v string) GCEPersistentDiskVolumeSourceDie
 	// The partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as "1". Similarly, the volume partition for /dev/sda is "0" (or you can leave the property empty). More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
-	Partition(Partition int32) GCEPersistentDiskVolumeSourceDie
+	Partition(v int32) GCEPersistentDiskVolumeSourceDie
 	// ReadOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
-	ReadOnly(ReadOnly bool) GCEPersistentDiskVolumeSourceDie
+	ReadOnly(v bool) GCEPersistentDiskVolumeSourceDie
 }
 
-var _ GCEPersistentDiskVolumeSourceDie = (*gCEPersistentDiskVolumeSourceDie)(nil)
-var GCEPersistentDiskVolumeSourceBlank = (&gCEPersistentDiskVolumeSourceDie{}).DieFeed(corev1.GCEPersistentDiskVolumeSource{})
+var _ GCEPersistentDiskVolumeSourceDie = (*gcePersistentDiskVolumeSourceDie)(nil)
+var GCEPersistentDiskVolumeSourceBlank = (&gcePersistentDiskVolumeSourceDie{}).DieFeed(corev1.GCEPersistentDiskVolumeSource{})
 
-type gCEPersistentDiskVolumeSourceDie struct {
+type gcePersistentDiskVolumeSourceDie struct {
 	mutable bool
 	r       corev1.GCEPersistentDiskVolumeSource
 }
 
-func (d *gCEPersistentDiskVolumeSourceDie) DieImmutable(immutable bool) GCEPersistentDiskVolumeSourceDie {
+func (d *gcePersistentDiskVolumeSourceDie) DieImmutable(immutable bool) GCEPersistentDiskVolumeSourceDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*gCEPersistentDiskVolumeSourceDie)
+	d = d.DeepCopy().(*gcePersistentDiskVolumeSourceDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *gCEPersistentDiskVolumeSourceDie) DieFeed(r corev1.GCEPersistentDiskVolumeSource) GCEPersistentDiskVolumeSourceDie {
+func (d *gcePersistentDiskVolumeSourceDie) DieFeed(r corev1.GCEPersistentDiskVolumeSource) GCEPersistentDiskVolumeSourceDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &gCEPersistentDiskVolumeSourceDie{
+	return &gcePersistentDiskVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *gCEPersistentDiskVolumeSourceDie) DieFeedPtr(r *corev1.GCEPersistentDiskVolumeSource) GCEPersistentDiskVolumeSourceDie {
+func (d *gcePersistentDiskVolumeSourceDie) DieFeedPtr(r *corev1.GCEPersistentDiskVolumeSource) GCEPersistentDiskVolumeSourceDie {
 	if r == nil {
 		r = &corev1.GCEPersistentDiskVolumeSource{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *gCEPersistentDiskVolumeSourceDie) DieRelease() corev1.GCEPersistentDiskVolumeSource {
+func (d *gcePersistentDiskVolumeSourceDie) DieRelease() corev1.GCEPersistentDiskVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *gCEPersistentDiskVolumeSourceDie) DieReleasePtr() *corev1.GCEPersistentDiskVolumeSource {
+func (d *gcePersistentDiskVolumeSourceDie) DieReleasePtr() *corev1.GCEPersistentDiskVolumeSource {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *gCEPersistentDiskVolumeSourceDie) DieStamp(fn func(r *corev1.GCEPersistentDiskVolumeSource)) GCEPersistentDiskVolumeSourceDie {
+func (d *gcePersistentDiskVolumeSourceDie) DieStamp(fn func(r *corev1.GCEPersistentDiskVolumeSource)) GCEPersistentDiskVolumeSourceDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *gCEPersistentDiskVolumeSourceDie) DeepCopy() GCEPersistentDiskVolumeSourceDie {
+func (d *gcePersistentDiskVolumeSourceDie) DeepCopy() GCEPersistentDiskVolumeSourceDie {
 	r := *d.r.DeepCopy()
-	return &gCEPersistentDiskVolumeSourceDie{
+	return &gcePersistentDiskVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *gCEPersistentDiskVolumeSourceDie) PDName(v string) GCEPersistentDiskVolumeSourceDie {
+func (d *gcePersistentDiskVolumeSourceDie) PDName(v string) GCEPersistentDiskVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GCEPersistentDiskVolumeSource) {
 		r.PDName = v
 	})
 }
 
-func (d *gCEPersistentDiskVolumeSourceDie) FSType(v string) GCEPersistentDiskVolumeSourceDie {
+func (d *gcePersistentDiskVolumeSourceDie) FSType(v string) GCEPersistentDiskVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GCEPersistentDiskVolumeSource) {
 		r.FSType = v
 	})
 }
 
-func (d *gCEPersistentDiskVolumeSourceDie) Partition(v int32) GCEPersistentDiskVolumeSourceDie {
+func (d *gcePersistentDiskVolumeSourceDie) Partition(v int32) GCEPersistentDiskVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GCEPersistentDiskVolumeSource) {
 		r.Partition = v
 	})
 }
 
-func (d *gCEPersistentDiskVolumeSourceDie) ReadOnly(v bool) GCEPersistentDiskVolumeSourceDie {
+func (d *gcePersistentDiskVolumeSourceDie) ReadOnly(v bool) GCEPersistentDiskVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GCEPersistentDiskVolumeSource) {
 		r.ReadOnly = v
 	})
@@ -13917,95 +13916,95 @@ type AWSElasticBlockStoreVolumeSourceDie interface {
 	DeepCopy() AWSElasticBlockStoreVolumeSourceDie
 
 	// Unique ID of the persistent disk resource in AWS (Amazon EBS volume). More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
-	VolumeID(VolumeID string) AWSElasticBlockStoreVolumeSourceDie
+	VolumeID(v string) AWSElasticBlockStoreVolumeSourceDie
 	// Filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore TODO: how do we prevent errors in the filesystem from compromising the machine
-	FSType(FSType string) AWSElasticBlockStoreVolumeSourceDie
+	FSType(v string) AWSElasticBlockStoreVolumeSourceDie
 	// The partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as "1". Similarly, the volume partition for /dev/sda is "0" (or you can leave the property empty).
-	Partition(Partition int32) AWSElasticBlockStoreVolumeSourceDie
+	Partition(v int32) AWSElasticBlockStoreVolumeSourceDie
 	// Specify "true" to force and set the ReadOnly property in VolumeMounts to "true". If omitted, the default is "false". More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
-	ReadOnly(ReadOnly bool) AWSElasticBlockStoreVolumeSourceDie
+	ReadOnly(v bool) AWSElasticBlockStoreVolumeSourceDie
 }
 
-var _ AWSElasticBlockStoreVolumeSourceDie = (*aWSElasticBlockStoreVolumeSourceDie)(nil)
-var AWSElasticBlockStoreVolumeSourceBlank = (&aWSElasticBlockStoreVolumeSourceDie{}).DieFeed(corev1.AWSElasticBlockStoreVolumeSource{})
+var _ AWSElasticBlockStoreVolumeSourceDie = (*awsElasticBlockStoreVolumeSourceDie)(nil)
+var AWSElasticBlockStoreVolumeSourceBlank = (&awsElasticBlockStoreVolumeSourceDie{}).DieFeed(corev1.AWSElasticBlockStoreVolumeSource{})
 
-type aWSElasticBlockStoreVolumeSourceDie struct {
+type awsElasticBlockStoreVolumeSourceDie struct {
 	mutable bool
 	r       corev1.AWSElasticBlockStoreVolumeSource
 }
 
-func (d *aWSElasticBlockStoreVolumeSourceDie) DieImmutable(immutable bool) AWSElasticBlockStoreVolumeSourceDie {
+func (d *awsElasticBlockStoreVolumeSourceDie) DieImmutable(immutable bool) AWSElasticBlockStoreVolumeSourceDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*aWSElasticBlockStoreVolumeSourceDie)
+	d = d.DeepCopy().(*awsElasticBlockStoreVolumeSourceDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *aWSElasticBlockStoreVolumeSourceDie) DieFeed(r corev1.AWSElasticBlockStoreVolumeSource) AWSElasticBlockStoreVolumeSourceDie {
+func (d *awsElasticBlockStoreVolumeSourceDie) DieFeed(r corev1.AWSElasticBlockStoreVolumeSource) AWSElasticBlockStoreVolumeSourceDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &aWSElasticBlockStoreVolumeSourceDie{
+	return &awsElasticBlockStoreVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *aWSElasticBlockStoreVolumeSourceDie) DieFeedPtr(r *corev1.AWSElasticBlockStoreVolumeSource) AWSElasticBlockStoreVolumeSourceDie {
+func (d *awsElasticBlockStoreVolumeSourceDie) DieFeedPtr(r *corev1.AWSElasticBlockStoreVolumeSource) AWSElasticBlockStoreVolumeSourceDie {
 	if r == nil {
 		r = &corev1.AWSElasticBlockStoreVolumeSource{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *aWSElasticBlockStoreVolumeSourceDie) DieRelease() corev1.AWSElasticBlockStoreVolumeSource {
+func (d *awsElasticBlockStoreVolumeSourceDie) DieRelease() corev1.AWSElasticBlockStoreVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *aWSElasticBlockStoreVolumeSourceDie) DieReleasePtr() *corev1.AWSElasticBlockStoreVolumeSource {
+func (d *awsElasticBlockStoreVolumeSourceDie) DieReleasePtr() *corev1.AWSElasticBlockStoreVolumeSource {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *aWSElasticBlockStoreVolumeSourceDie) DieStamp(fn func(r *corev1.AWSElasticBlockStoreVolumeSource)) AWSElasticBlockStoreVolumeSourceDie {
+func (d *awsElasticBlockStoreVolumeSourceDie) DieStamp(fn func(r *corev1.AWSElasticBlockStoreVolumeSource)) AWSElasticBlockStoreVolumeSourceDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *aWSElasticBlockStoreVolumeSourceDie) DeepCopy() AWSElasticBlockStoreVolumeSourceDie {
+func (d *awsElasticBlockStoreVolumeSourceDie) DeepCopy() AWSElasticBlockStoreVolumeSourceDie {
 	r := *d.r.DeepCopy()
-	return &aWSElasticBlockStoreVolumeSourceDie{
+	return &awsElasticBlockStoreVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *aWSElasticBlockStoreVolumeSourceDie) VolumeID(v string) AWSElasticBlockStoreVolumeSourceDie {
+func (d *awsElasticBlockStoreVolumeSourceDie) VolumeID(v string) AWSElasticBlockStoreVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.AWSElasticBlockStoreVolumeSource) {
 		r.VolumeID = v
 	})
 }
 
-func (d *aWSElasticBlockStoreVolumeSourceDie) FSType(v string) AWSElasticBlockStoreVolumeSourceDie {
+func (d *awsElasticBlockStoreVolumeSourceDie) FSType(v string) AWSElasticBlockStoreVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.AWSElasticBlockStoreVolumeSource) {
 		r.FSType = v
 	})
 }
 
-func (d *aWSElasticBlockStoreVolumeSourceDie) Partition(v int32) AWSElasticBlockStoreVolumeSourceDie {
+func (d *awsElasticBlockStoreVolumeSourceDie) Partition(v int32) AWSElasticBlockStoreVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.AWSElasticBlockStoreVolumeSource) {
 		r.Partition = v
 	})
 }
 
-func (d *aWSElasticBlockStoreVolumeSourceDie) ReadOnly(v bool) AWSElasticBlockStoreVolumeSourceDie {
+func (d *awsElasticBlockStoreVolumeSourceDie) ReadOnly(v bool) AWSElasticBlockStoreVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.AWSElasticBlockStoreVolumeSource) {
 		r.ReadOnly = v
 	})
@@ -14028,11 +14027,11 @@ type GitRepoVolumeSourceDie interface {
 	DeepCopy() GitRepoVolumeSourceDie
 
 	// Repository URL
-	Repository(Repository string) GitRepoVolumeSourceDie
+	Repository(v string) GitRepoVolumeSourceDie
 	// Commit hash for the specified revision.
-	Revision(Revision string) GitRepoVolumeSourceDie
+	Revision(v string) GitRepoVolumeSourceDie
 	// Target directory name. Must not contain or start with '..'.  If '.' is supplied, the volume directory will be the git repository.  Otherwise, if specified, the volume will contain the git repository in the subdirectory with the given name.
-	Directory(Directory string) GitRepoVolumeSourceDie
+	Directory(v string) GitRepoVolumeSourceDie
 }
 
 var _ GitRepoVolumeSourceDie = (*gitRepoVolumeSourceDie)(nil)
@@ -14130,15 +14129,15 @@ type SecretVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() SecretVolumeSourceDie
 
-	secretVolumeSource
+	secretVolumeSourceDieExtension
 	// Name of the secret in the pod's namespace to use. More info: https://kubernetes.io/docs/concepts/storage/volumes#secret
-	SecretName(SecretName string) SecretVolumeSourceDie
+	SecretName(v string) SecretVolumeSourceDie
 	// If unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'.
-	Items(Items ...corev1.KeyToPath) SecretVolumeSourceDie
+	Items(v ...corev1.KeyToPath) SecretVolumeSourceDie
 	// Optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
-	DefaultMode(DefaultMode *int32) SecretVolumeSourceDie
+	DefaultMode(v *int32) SecretVolumeSourceDie
 	// Specify whether the Secret or its keys must be defined
-	Optional(Optional *bool) SecretVolumeSourceDie
+	Optional(v *bool) SecretVolumeSourceDie
 }
 
 var _ SecretVolumeSourceDie = (*secretVolumeSourceDie)(nil)
@@ -14243,87 +14242,87 @@ type NFSVolumeSourceDie interface {
 	DeepCopy() NFSVolumeSourceDie
 
 	// Server is the hostname or IP address of the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
-	Server(Server string) NFSVolumeSourceDie
+	Server(v string) NFSVolumeSourceDie
 	// Path that is exported by the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
-	Path(Path string) NFSVolumeSourceDie
+	Path(v string) NFSVolumeSourceDie
 	// ReadOnly here will force the NFS export to be mounted with read-only permissions. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
-	ReadOnly(ReadOnly bool) NFSVolumeSourceDie
+	ReadOnly(v bool) NFSVolumeSourceDie
 }
 
-var _ NFSVolumeSourceDie = (*nFSVolumeSourceDie)(nil)
-var NFSVolumeSourceBlank = (&nFSVolumeSourceDie{}).DieFeed(corev1.NFSVolumeSource{})
+var _ NFSVolumeSourceDie = (*nfsVolumeSourceDie)(nil)
+var NFSVolumeSourceBlank = (&nfsVolumeSourceDie{}).DieFeed(corev1.NFSVolumeSource{})
 
-type nFSVolumeSourceDie struct {
+type nfsVolumeSourceDie struct {
 	mutable bool
 	r       corev1.NFSVolumeSource
 }
 
-func (d *nFSVolumeSourceDie) DieImmutable(immutable bool) NFSVolumeSourceDie {
+func (d *nfsVolumeSourceDie) DieImmutable(immutable bool) NFSVolumeSourceDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*nFSVolumeSourceDie)
+	d = d.DeepCopy().(*nfsVolumeSourceDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *nFSVolumeSourceDie) DieFeed(r corev1.NFSVolumeSource) NFSVolumeSourceDie {
+func (d *nfsVolumeSourceDie) DieFeed(r corev1.NFSVolumeSource) NFSVolumeSourceDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &nFSVolumeSourceDie{
+	return &nfsVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *nFSVolumeSourceDie) DieFeedPtr(r *corev1.NFSVolumeSource) NFSVolumeSourceDie {
+func (d *nfsVolumeSourceDie) DieFeedPtr(r *corev1.NFSVolumeSource) NFSVolumeSourceDie {
 	if r == nil {
 		r = &corev1.NFSVolumeSource{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *nFSVolumeSourceDie) DieRelease() corev1.NFSVolumeSource {
+func (d *nfsVolumeSourceDie) DieRelease() corev1.NFSVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *nFSVolumeSourceDie) DieReleasePtr() *corev1.NFSVolumeSource {
+func (d *nfsVolumeSourceDie) DieReleasePtr() *corev1.NFSVolumeSource {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *nFSVolumeSourceDie) DieStamp(fn func(r *corev1.NFSVolumeSource)) NFSVolumeSourceDie {
+func (d *nfsVolumeSourceDie) DieStamp(fn func(r *corev1.NFSVolumeSource)) NFSVolumeSourceDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *nFSVolumeSourceDie) DeepCopy() NFSVolumeSourceDie {
+func (d *nfsVolumeSourceDie) DeepCopy() NFSVolumeSourceDie {
 	r := *d.r.DeepCopy()
-	return &nFSVolumeSourceDie{
+	return &nfsVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *nFSVolumeSourceDie) Server(v string) NFSVolumeSourceDie {
+func (d *nfsVolumeSourceDie) Server(v string) NFSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.NFSVolumeSource) {
 		r.Server = v
 	})
 }
 
-func (d *nFSVolumeSourceDie) Path(v string) NFSVolumeSourceDie {
+func (d *nfsVolumeSourceDie) Path(v string) NFSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.NFSVolumeSource) {
 		r.Path = v
 	})
 }
 
-func (d *nFSVolumeSourceDie) ReadOnly(v bool) NFSVolumeSourceDie {
+func (d *nfsVolumeSourceDie) ReadOnly(v bool) NFSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.NFSVolumeSource) {
 		r.ReadOnly = v
 	})
@@ -14345,153 +14344,153 @@ type ISCSIVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ISCSIVolumeSourceDie
 
-	iSCSIVolumeSource
+	iscsiVolumeSourceDieExtension
 	// iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
-	TargetPortal(TargetPortal string) ISCSIVolumeSourceDie
+	TargetPortal(v string) ISCSIVolumeSourceDie
 	// Target iSCSI Qualified Name.
-	IQN(IQN string) ISCSIVolumeSourceDie
+	IQN(v string) ISCSIVolumeSourceDie
 	// iSCSI Target Lun number.
-	Lun(Lun int32) ISCSIVolumeSourceDie
+	Lun(v int32) ISCSIVolumeSourceDie
 	// iSCSI Interface Name that uses an iSCSI transport. Defaults to 'default' (tcp).
-	ISCSIInterface(ISCSIInterface string) ISCSIVolumeSourceDie
+	ISCSIInterface(v string) ISCSIVolumeSourceDie
 	// Filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#iscsi TODO: how do we prevent errors in the filesystem from compromising the machine
-	FSType(FSType string) ISCSIVolumeSourceDie
+	FSType(v string) ISCSIVolumeSourceDie
 	// ReadOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false.
-	ReadOnly(ReadOnly bool) ISCSIVolumeSourceDie
+	ReadOnly(v bool) ISCSIVolumeSourceDie
 	// iSCSI Target Portal List. The portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
-	Portals(Portals ...string) ISCSIVolumeSourceDie
+	Portals(v ...string) ISCSIVolumeSourceDie
 	// whether support iSCSI Discovery CHAP authentication
-	DiscoveryCHAPAuth(DiscoveryCHAPAuth bool) ISCSIVolumeSourceDie
+	DiscoveryCHAPAuth(v bool) ISCSIVolumeSourceDie
 	// whether support iSCSI Session CHAP authentication
-	SessionCHAPAuth(SessionCHAPAuth bool) ISCSIVolumeSourceDie
+	SessionCHAPAuth(v bool) ISCSIVolumeSourceDie
 	// CHAP Secret for iSCSI target and initiator authentication
-	SecretRef(SecretRef *corev1.LocalObjectReference) ISCSIVolumeSourceDie
+	SecretRef(v *corev1.LocalObjectReference) ISCSIVolumeSourceDie
 	// Custom iSCSI Initiator Name. If initiatorName is specified with iscsiInterface simultaneously, new iSCSI interface <target portal>:<volume name> will be created for the connection.
-	InitiatorName(InitiatorName *string) ISCSIVolumeSourceDie
+	InitiatorName(v *string) ISCSIVolumeSourceDie
 }
 
-var _ ISCSIVolumeSourceDie = (*iSCSIVolumeSourceDie)(nil)
-var ISCSIVolumeSourceBlank = (&iSCSIVolumeSourceDie{}).DieFeed(corev1.ISCSIVolumeSource{})
+var _ ISCSIVolumeSourceDie = (*iscsiVolumeSourceDie)(nil)
+var ISCSIVolumeSourceBlank = (&iscsiVolumeSourceDie{}).DieFeed(corev1.ISCSIVolumeSource{})
 
-type iSCSIVolumeSourceDie struct {
+type iscsiVolumeSourceDie struct {
 	mutable bool
 	r       corev1.ISCSIVolumeSource
 }
 
-func (d *iSCSIVolumeSourceDie) DieImmutable(immutable bool) ISCSIVolumeSourceDie {
+func (d *iscsiVolumeSourceDie) DieImmutable(immutable bool) ISCSIVolumeSourceDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*iSCSIVolumeSourceDie)
+	d = d.DeepCopy().(*iscsiVolumeSourceDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *iSCSIVolumeSourceDie) DieFeed(r corev1.ISCSIVolumeSource) ISCSIVolumeSourceDie {
+func (d *iscsiVolumeSourceDie) DieFeed(r corev1.ISCSIVolumeSource) ISCSIVolumeSourceDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &iSCSIVolumeSourceDie{
+	return &iscsiVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *iSCSIVolumeSourceDie) DieFeedPtr(r *corev1.ISCSIVolumeSource) ISCSIVolumeSourceDie {
+func (d *iscsiVolumeSourceDie) DieFeedPtr(r *corev1.ISCSIVolumeSource) ISCSIVolumeSourceDie {
 	if r == nil {
 		r = &corev1.ISCSIVolumeSource{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *iSCSIVolumeSourceDie) DieRelease() corev1.ISCSIVolumeSource {
+func (d *iscsiVolumeSourceDie) DieRelease() corev1.ISCSIVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *iSCSIVolumeSourceDie) DieReleasePtr() *corev1.ISCSIVolumeSource {
+func (d *iscsiVolumeSourceDie) DieReleasePtr() *corev1.ISCSIVolumeSource {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *iSCSIVolumeSourceDie) DieStamp(fn func(r *corev1.ISCSIVolumeSource)) ISCSIVolumeSourceDie {
+func (d *iscsiVolumeSourceDie) DieStamp(fn func(r *corev1.ISCSIVolumeSource)) ISCSIVolumeSourceDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *iSCSIVolumeSourceDie) DeepCopy() ISCSIVolumeSourceDie {
+func (d *iscsiVolumeSourceDie) DeepCopy() ISCSIVolumeSourceDie {
 	r := *d.r.DeepCopy()
-	return &iSCSIVolumeSourceDie{
+	return &iscsiVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *iSCSIVolumeSourceDie) TargetPortal(v string) ISCSIVolumeSourceDie {
+func (d *iscsiVolumeSourceDie) TargetPortal(v string) ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		r.TargetPortal = v
 	})
 }
 
-func (d *iSCSIVolumeSourceDie) IQN(v string) ISCSIVolumeSourceDie {
+func (d *iscsiVolumeSourceDie) IQN(v string) ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		r.IQN = v
 	})
 }
 
-func (d *iSCSIVolumeSourceDie) Lun(v int32) ISCSIVolumeSourceDie {
+func (d *iscsiVolumeSourceDie) Lun(v int32) ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		r.Lun = v
 	})
 }
 
-func (d *iSCSIVolumeSourceDie) ISCSIInterface(v string) ISCSIVolumeSourceDie {
+func (d *iscsiVolumeSourceDie) ISCSIInterface(v string) ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		r.ISCSIInterface = v
 	})
 }
 
-func (d *iSCSIVolumeSourceDie) FSType(v string) ISCSIVolumeSourceDie {
+func (d *iscsiVolumeSourceDie) FSType(v string) ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		r.FSType = v
 	})
 }
 
-func (d *iSCSIVolumeSourceDie) ReadOnly(v bool) ISCSIVolumeSourceDie {
+func (d *iscsiVolumeSourceDie) ReadOnly(v bool) ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		r.ReadOnly = v
 	})
 }
 
-func (d *iSCSIVolumeSourceDie) Portals(v ...string) ISCSIVolumeSourceDie {
+func (d *iscsiVolumeSourceDie) Portals(v ...string) ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		r.Portals = v
 	})
 }
 
-func (d *iSCSIVolumeSourceDie) DiscoveryCHAPAuth(v bool) ISCSIVolumeSourceDie {
+func (d *iscsiVolumeSourceDie) DiscoveryCHAPAuth(v bool) ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		r.DiscoveryCHAPAuth = v
 	})
 }
 
-func (d *iSCSIVolumeSourceDie) SessionCHAPAuth(v bool) ISCSIVolumeSourceDie {
+func (d *iscsiVolumeSourceDie) SessionCHAPAuth(v bool) ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		r.SessionCHAPAuth = v
 	})
 }
 
-func (d *iSCSIVolumeSourceDie) SecretRef(v *corev1.LocalObjectReference) ISCSIVolumeSourceDie {
+func (d *iscsiVolumeSourceDie) SecretRef(v *corev1.LocalObjectReference) ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		r.SecretRef = v
 	})
 }
 
-func (d *iSCSIVolumeSourceDie) InitiatorName(v *string) ISCSIVolumeSourceDie {
+func (d *iscsiVolumeSourceDie) InitiatorName(v *string) ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		r.InitiatorName = v
 	})
@@ -14514,11 +14513,11 @@ type GlusterfsVolumeSourceDie interface {
 	DeepCopy() GlusterfsVolumeSourceDie
 
 	// EndpointsName is the endpoint name that details Glusterfs topology. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
-	EndpointsName(EndpointsName string) GlusterfsVolumeSourceDie
+	EndpointsName(v string) GlusterfsVolumeSourceDie
 	// Path is the Glusterfs volume path. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
-	Path(Path string) GlusterfsVolumeSourceDie
+	Path(v string) GlusterfsVolumeSourceDie
 	// ReadOnly here will force the Glusterfs volume to be mounted with read-only permissions. Defaults to false. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
-	ReadOnly(ReadOnly bool) GlusterfsVolumeSourceDie
+	ReadOnly(v bool) GlusterfsVolumeSourceDie
 }
 
 var _ GlusterfsVolumeSourceDie = (*glusterfsVolumeSourceDie)(nil)
@@ -14617,9 +14616,9 @@ type PersistentVolumeClaimVolumeSourceDie interface {
 	DeepCopy() PersistentVolumeClaimVolumeSourceDie
 
 	// ClaimName is the name of a PersistentVolumeClaim in the same namespace as the pod using this volume. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
-	ClaimName(ClaimName string) PersistentVolumeClaimVolumeSourceDie
+	ClaimName(v string) PersistentVolumeClaimVolumeSourceDie
 	// Will force the ReadOnly setting in VolumeMounts. Default false.
-	ReadOnly(ReadOnly bool) PersistentVolumeClaimVolumeSourceDie
+	ReadOnly(v bool) PersistentVolumeClaimVolumeSourceDie
 }
 
 var _ PersistentVolumeClaimVolumeSourceDie = (*persistentVolumeClaimVolumeSourceDie)(nil)
@@ -14711,129 +14710,129 @@ type RBDVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() RBDVolumeSourceDie
 
-	rBDVolumeSource
+	rbdVolumeSourceDieExtension
 	// A collection of Ceph monitors. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-	CephMonitors(CephMonitors ...string) RBDVolumeSourceDie
+	CephMonitors(v ...string) RBDVolumeSourceDie
 	// The rados image name. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-	RBDImage(RBDImage string) RBDVolumeSourceDie
+	RBDImage(v string) RBDVolumeSourceDie
 	// Filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#rbd TODO: how do we prevent errors in the filesystem from compromising the machine
-	FSType(FSType string) RBDVolumeSourceDie
+	FSType(v string) RBDVolumeSourceDie
 	// The rados pool name. Default is rbd. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-	RBDPool(RBDPool string) RBDVolumeSourceDie
+	RBDPool(v string) RBDVolumeSourceDie
 	// The rados user name. Default is admin. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-	RadosUser(RadosUser string) RBDVolumeSourceDie
+	RadosUser(v string) RBDVolumeSourceDie
 	// Keyring is the path to key ring for RBDUser. Default is /etc/ceph/keyring. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-	Keyring(Keyring string) RBDVolumeSourceDie
+	Keyring(v string) RBDVolumeSourceDie
 	// SecretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-	SecretRef(SecretRef *corev1.LocalObjectReference) RBDVolumeSourceDie
+	SecretRef(v *corev1.LocalObjectReference) RBDVolumeSourceDie
 	// ReadOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
-	ReadOnly(ReadOnly bool) RBDVolumeSourceDie
+	ReadOnly(v bool) RBDVolumeSourceDie
 }
 
-var _ RBDVolumeSourceDie = (*rBDVolumeSourceDie)(nil)
-var RBDVolumeSourceBlank = (&rBDVolumeSourceDie{}).DieFeed(corev1.RBDVolumeSource{})
+var _ RBDVolumeSourceDie = (*rbdVolumeSourceDie)(nil)
+var RBDVolumeSourceBlank = (&rbdVolumeSourceDie{}).DieFeed(corev1.RBDVolumeSource{})
 
-type rBDVolumeSourceDie struct {
+type rbdVolumeSourceDie struct {
 	mutable bool
 	r       corev1.RBDVolumeSource
 }
 
-func (d *rBDVolumeSourceDie) DieImmutable(immutable bool) RBDVolumeSourceDie {
+func (d *rbdVolumeSourceDie) DieImmutable(immutable bool) RBDVolumeSourceDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*rBDVolumeSourceDie)
+	d = d.DeepCopy().(*rbdVolumeSourceDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *rBDVolumeSourceDie) DieFeed(r corev1.RBDVolumeSource) RBDVolumeSourceDie {
+func (d *rbdVolumeSourceDie) DieFeed(r corev1.RBDVolumeSource) RBDVolumeSourceDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &rBDVolumeSourceDie{
+	return &rbdVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *rBDVolumeSourceDie) DieFeedPtr(r *corev1.RBDVolumeSource) RBDVolumeSourceDie {
+func (d *rbdVolumeSourceDie) DieFeedPtr(r *corev1.RBDVolumeSource) RBDVolumeSourceDie {
 	if r == nil {
 		r = &corev1.RBDVolumeSource{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *rBDVolumeSourceDie) DieRelease() corev1.RBDVolumeSource {
+func (d *rbdVolumeSourceDie) DieRelease() corev1.RBDVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *rBDVolumeSourceDie) DieReleasePtr() *corev1.RBDVolumeSource {
+func (d *rbdVolumeSourceDie) DieReleasePtr() *corev1.RBDVolumeSource {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *rBDVolumeSourceDie) DieStamp(fn func(r *corev1.RBDVolumeSource)) RBDVolumeSourceDie {
+func (d *rbdVolumeSourceDie) DieStamp(fn func(r *corev1.RBDVolumeSource)) RBDVolumeSourceDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *rBDVolumeSourceDie) DeepCopy() RBDVolumeSourceDie {
+func (d *rbdVolumeSourceDie) DeepCopy() RBDVolumeSourceDie {
 	r := *d.r.DeepCopy()
-	return &rBDVolumeSourceDie{
+	return &rbdVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *rBDVolumeSourceDie) CephMonitors(v ...string) RBDVolumeSourceDie {
+func (d *rbdVolumeSourceDie) CephMonitors(v ...string) RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		r.CephMonitors = v
 	})
 }
 
-func (d *rBDVolumeSourceDie) RBDImage(v string) RBDVolumeSourceDie {
+func (d *rbdVolumeSourceDie) RBDImage(v string) RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		r.RBDImage = v
 	})
 }
 
-func (d *rBDVolumeSourceDie) FSType(v string) RBDVolumeSourceDie {
+func (d *rbdVolumeSourceDie) FSType(v string) RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		r.FSType = v
 	})
 }
 
-func (d *rBDVolumeSourceDie) RBDPool(v string) RBDVolumeSourceDie {
+func (d *rbdVolumeSourceDie) RBDPool(v string) RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		r.RBDPool = v
 	})
 }
 
-func (d *rBDVolumeSourceDie) RadosUser(v string) RBDVolumeSourceDie {
+func (d *rbdVolumeSourceDie) RadosUser(v string) RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		r.RadosUser = v
 	})
 }
 
-func (d *rBDVolumeSourceDie) Keyring(v string) RBDVolumeSourceDie {
+func (d *rbdVolumeSourceDie) Keyring(v string) RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		r.Keyring = v
 	})
 }
 
-func (d *rBDVolumeSourceDie) SecretRef(v *corev1.LocalObjectReference) RBDVolumeSourceDie {
+func (d *rbdVolumeSourceDie) SecretRef(v *corev1.LocalObjectReference) RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		r.SecretRef = v
 	})
 }
 
-func (d *rBDVolumeSourceDie) ReadOnly(v bool) RBDVolumeSourceDie {
+func (d *rbdVolumeSourceDie) ReadOnly(v bool) RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		r.ReadOnly = v
 	})
@@ -14855,17 +14854,17 @@ type FlexVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() FlexVolumeSourceDie
 
-	flexVolumeSource
+	flexVolumeSourceDieExtension
 	// Driver is the name of the driver to use for this volume.
-	Driver(Driver string) FlexVolumeSourceDie
+	Driver(v string) FlexVolumeSourceDie
 	// Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". The default filesystem depends on FlexVolume script.
-	FSType(FSType string) FlexVolumeSourceDie
+	FSType(v string) FlexVolumeSourceDie
 	// Optional: SecretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts.
-	SecretRef(SecretRef *corev1.LocalObjectReference) FlexVolumeSourceDie
+	SecretRef(v *corev1.LocalObjectReference) FlexVolumeSourceDie
 	// Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
-	ReadOnly(ReadOnly bool) FlexVolumeSourceDie
+	ReadOnly(v bool) FlexVolumeSourceDie
 	// Optional: Extra command options if any.
-	Options(Options map[string]string) FlexVolumeSourceDie
+	Options(v map[string]string) FlexVolumeSourceDie
 }
 
 var _ FlexVolumeSourceDie = (*flexVolumeSourceDie)(nil)
@@ -14975,15 +14974,15 @@ type CinderVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() CinderVolumeSourceDie
 
-	cinderVolumeSource
+	cinderVolumeSourceDieExtension
 	// volume id used to identify the volume in cinder. More info: https://examples.k8s.io/mysql-cinder-pd/README.md
-	VolumeID(VolumeID string) CinderVolumeSourceDie
+	VolumeID(v string) CinderVolumeSourceDie
 	// Filesystem type to mount. Must be a filesystem type supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://examples.k8s.io/mysql-cinder-pd/README.md
-	FSType(FSType string) CinderVolumeSourceDie
+	FSType(v string) CinderVolumeSourceDie
 	// Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/mysql-cinder-pd/README.md
-	ReadOnly(ReadOnly bool) CinderVolumeSourceDie
+	ReadOnly(v bool) CinderVolumeSourceDie
 	// Optional: points to a secret object containing parameters used to connect to OpenStack.
-	SecretRef(SecretRef *corev1.LocalObjectReference) CinderVolumeSourceDie
+	SecretRef(v *corev1.LocalObjectReference) CinderVolumeSourceDie
 }
 
 var _ CinderVolumeSourceDie = (*cinderVolumeSourceDie)(nil)
@@ -15087,19 +15086,19 @@ type CephFSVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() CephFSVolumeSourceDie
 
-	cephFSVolumeSource
+	cephFSVolumeSourceDieExtension
 	// Required: Monitors is a collection of Ceph monitors More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
-	Monitors(Monitors ...string) CephFSVolumeSourceDie
+	Monitors(v ...string) CephFSVolumeSourceDie
 	// Optional: Used as the mounted root, rather than the full Ceph tree, default is /
-	Path(Path string) CephFSVolumeSourceDie
+	Path(v string) CephFSVolumeSourceDie
 	// Optional: User is the rados user name, default is admin More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
-	User(User string) CephFSVolumeSourceDie
+	User(v string) CephFSVolumeSourceDie
 	// Optional: SecretFile is the path to key ring for User, default is /etc/ceph/user.secret More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
-	SecretFile(SecretFile string) CephFSVolumeSourceDie
+	SecretFile(v string) CephFSVolumeSourceDie
 	// Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
-	SecretRef(SecretRef *corev1.LocalObjectReference) CephFSVolumeSourceDie
+	SecretRef(v *corev1.LocalObjectReference) CephFSVolumeSourceDie
 	// Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
-	ReadOnly(ReadOnly bool) CephFSVolumeSourceDie
+	ReadOnly(v bool) CephFSVolumeSourceDie
 }
 
 var _ CephFSVolumeSourceDie = (*cephFSVolumeSourceDie)(nil)
@@ -15216,9 +15215,9 @@ type FlockerVolumeSourceDie interface {
 	DeepCopy() FlockerVolumeSourceDie
 
 	// Name of the dataset stored as metadata -> name on the dataset for Flocker should be considered as deprecated
-	DatasetName(DatasetName string) FlockerVolumeSourceDie
+	DatasetName(v string) FlockerVolumeSourceDie
 	// UUID of the dataset. This is unique identifier of a Flocker dataset
-	DatasetUUID(DatasetUUID string) FlockerVolumeSourceDie
+	DatasetUUID(v string) FlockerVolumeSourceDie
 }
 
 var _ FlockerVolumeSourceDie = (*flockerVolumeSourceDie)(nil)
@@ -15310,11 +15309,11 @@ type DownwardAPIVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() DownwardAPIVolumeSourceDie
 
-	downwardAPIVolumeSource
+	downwardAPIVolumeSourceDieExtension
 	// Items is a list of downward API volume file
-	Items(Items ...corev1.DownwardAPIVolumeFile) DownwardAPIVolumeSourceDie
+	Items(v ...corev1.DownwardAPIVolumeFile) DownwardAPIVolumeSourceDie
 	// Optional: mode bits to use on created files by default. Must be a Optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
-	DefaultMode(DefaultMode *int32) DownwardAPIVolumeSourceDie
+	DefaultMode(v *int32) DownwardAPIVolumeSourceDie
 }
 
 var _ DownwardAPIVolumeSourceDie = (*downwardAPIVolumeSourceDie)(nil)
@@ -15406,15 +15405,15 @@ type DownwardAPIVolumeFileDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() DownwardAPIVolumeFileDie
 
-	downwardAPIVolumeFile
+	downwardAPIVolumeFileDieExtension
 	// Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'
-	Path(Path string) DownwardAPIVolumeFileDie
+	Path(v string) DownwardAPIVolumeFileDie
 	// Required: Selects a field of the pod: only annotations, labels, name and namespace are supported.
-	FieldRef(FieldRef *corev1.ObjectFieldSelector) DownwardAPIVolumeFileDie
+	FieldRef(v *corev1.ObjectFieldSelector) DownwardAPIVolumeFileDie
 	// Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported.
-	ResourceFieldRef(ResourceFieldRef *corev1.ResourceFieldSelector) DownwardAPIVolumeFileDie
+	ResourceFieldRef(v *corev1.ResourceFieldSelector) DownwardAPIVolumeFileDie
 	// Optional: mode bits used to set permissions on this file, must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
-	Mode(Mode *int32) DownwardAPIVolumeFileDie
+	Mode(v *int32) DownwardAPIVolumeFileDie
 }
 
 var _ DownwardAPIVolumeFileDie = (*downwardAPIVolumeFileDie)(nil)
@@ -15519,103 +15518,103 @@ type FCVolumeSourceDie interface {
 	DeepCopy() FCVolumeSourceDie
 
 	// Optional: FC target worldwide names (WWNs)
-	TargetWWNs(TargetWWNs ...string) FCVolumeSourceDie
+	TargetWWNs(v ...string) FCVolumeSourceDie
 	// Optional: FC target lun number
-	Lun(Lun *int32) FCVolumeSourceDie
+	Lun(v *int32) FCVolumeSourceDie
 	// Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. TODO: how do we prevent errors in the filesystem from compromising the machine
-	FSType(FSType string) FCVolumeSourceDie
+	FSType(v string) FCVolumeSourceDie
 	// Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
-	ReadOnly(ReadOnly bool) FCVolumeSourceDie
+	ReadOnly(v bool) FCVolumeSourceDie
 	// Optional: FC volume world wide identifiers (wwids) Either wwids or combination of targetWWNs and lun must be set, but not both simultaneously.
-	WWIDs(WWIDs ...string) FCVolumeSourceDie
+	WWIDs(v ...string) FCVolumeSourceDie
 }
 
-var _ FCVolumeSourceDie = (*fCVolumeSourceDie)(nil)
-var FCVolumeSourceBlank = (&fCVolumeSourceDie{}).DieFeed(corev1.FCVolumeSource{})
+var _ FCVolumeSourceDie = (*fcVolumeSourceDie)(nil)
+var FCVolumeSourceBlank = (&fcVolumeSourceDie{}).DieFeed(corev1.FCVolumeSource{})
 
-type fCVolumeSourceDie struct {
+type fcVolumeSourceDie struct {
 	mutable bool
 	r       corev1.FCVolumeSource
 }
 
-func (d *fCVolumeSourceDie) DieImmutable(immutable bool) FCVolumeSourceDie {
+func (d *fcVolumeSourceDie) DieImmutable(immutable bool) FCVolumeSourceDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*fCVolumeSourceDie)
+	d = d.DeepCopy().(*fcVolumeSourceDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *fCVolumeSourceDie) DieFeed(r corev1.FCVolumeSource) FCVolumeSourceDie {
+func (d *fcVolumeSourceDie) DieFeed(r corev1.FCVolumeSource) FCVolumeSourceDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &fCVolumeSourceDie{
+	return &fcVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *fCVolumeSourceDie) DieFeedPtr(r *corev1.FCVolumeSource) FCVolumeSourceDie {
+func (d *fcVolumeSourceDie) DieFeedPtr(r *corev1.FCVolumeSource) FCVolumeSourceDie {
 	if r == nil {
 		r = &corev1.FCVolumeSource{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *fCVolumeSourceDie) DieRelease() corev1.FCVolumeSource {
+func (d *fcVolumeSourceDie) DieRelease() corev1.FCVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *fCVolumeSourceDie) DieReleasePtr() *corev1.FCVolumeSource {
+func (d *fcVolumeSourceDie) DieReleasePtr() *corev1.FCVolumeSource {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *fCVolumeSourceDie) DieStamp(fn func(r *corev1.FCVolumeSource)) FCVolumeSourceDie {
+func (d *fcVolumeSourceDie) DieStamp(fn func(r *corev1.FCVolumeSource)) FCVolumeSourceDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *fCVolumeSourceDie) DeepCopy() FCVolumeSourceDie {
+func (d *fcVolumeSourceDie) DeepCopy() FCVolumeSourceDie {
 	r := *d.r.DeepCopy()
-	return &fCVolumeSourceDie{
+	return &fcVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *fCVolumeSourceDie) TargetWWNs(v ...string) FCVolumeSourceDie {
+func (d *fcVolumeSourceDie) TargetWWNs(v ...string) FCVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FCVolumeSource) {
 		r.TargetWWNs = v
 	})
 }
 
-func (d *fCVolumeSourceDie) Lun(v *int32) FCVolumeSourceDie {
+func (d *fcVolumeSourceDie) Lun(v *int32) FCVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FCVolumeSource) {
 		r.Lun = v
 	})
 }
 
-func (d *fCVolumeSourceDie) FSType(v string) FCVolumeSourceDie {
+func (d *fcVolumeSourceDie) FSType(v string) FCVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FCVolumeSource) {
 		r.FSType = v
 	})
 }
 
-func (d *fCVolumeSourceDie) ReadOnly(v bool) FCVolumeSourceDie {
+func (d *fcVolumeSourceDie) ReadOnly(v bool) FCVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FCVolumeSource) {
 		r.ReadOnly = v
 	})
 }
 
-func (d *fCVolumeSourceDie) WWIDs(v ...string) FCVolumeSourceDie {
+func (d *fcVolumeSourceDie) WWIDs(v ...string) FCVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FCVolumeSource) {
 		r.WWIDs = v
 	})
@@ -15638,11 +15637,11 @@ type AzureFileVolumeSourceDie interface {
 	DeepCopy() AzureFileVolumeSourceDie
 
 	// the name of secret that contains Azure Storage Account Name and Key
-	SecretName(SecretName string) AzureFileVolumeSourceDie
+	SecretName(v string) AzureFileVolumeSourceDie
 	// Share Name
-	ShareName(ShareName string) AzureFileVolumeSourceDie
+	ShareName(v string) AzureFileVolumeSourceDie
 	// Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
-	ReadOnly(ReadOnly bool) AzureFileVolumeSourceDie
+	ReadOnly(v bool) AzureFileVolumeSourceDie
 }
 
 var _ AzureFileVolumeSourceDie = (*azureFileVolumeSourceDie)(nil)
@@ -15740,14 +15739,14 @@ type ConfigMapVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ConfigMapVolumeSourceDie
 
-	configMapVolumeSource
-	LocalObjectReference(LocalObjectReference corev1.LocalObjectReference) ConfigMapVolumeSourceDie
+	configMapVolumeSourceDieExtension
+	LocalObjectReference(v corev1.LocalObjectReference) ConfigMapVolumeSourceDie
 	// If unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'.
-	Items(Items ...corev1.KeyToPath) ConfigMapVolumeSourceDie
+	Items(v ...corev1.KeyToPath) ConfigMapVolumeSourceDie
 	// Optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
-	DefaultMode(DefaultMode *int32) ConfigMapVolumeSourceDie
+	DefaultMode(v *int32) ConfigMapVolumeSourceDie
 	// Specify whether the ConfigMap or its keys must be defined
-	Optional(Optional *bool) ConfigMapVolumeSourceDie
+	Optional(v *bool) ConfigMapVolumeSourceDie
 }
 
 var _ ConfigMapVolumeSourceDie = (*configMapVolumeSourceDie)(nil)
@@ -15852,13 +15851,13 @@ type VsphereVirtualDiskVolumeSourceDie interface {
 	DeepCopy() VsphereVirtualDiskVolumeSourceDie
 
 	// Path that identifies vSphere volume vmdk
-	VolumePath(VolumePath string) VsphereVirtualDiskVolumeSourceDie
+	VolumePath(v string) VsphereVirtualDiskVolumeSourceDie
 	// Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
-	FSType(FSType string) VsphereVirtualDiskVolumeSourceDie
+	FSType(v string) VsphereVirtualDiskVolumeSourceDie
 	// Storage Policy Based Management (SPBM) profile name.
-	StoragePolicyName(StoragePolicyName string) VsphereVirtualDiskVolumeSourceDie
+	StoragePolicyName(v string) VsphereVirtualDiskVolumeSourceDie
 	// Storage Policy Based Management (SPBM) profile ID associated with the StoragePolicyName.
-	StoragePolicyID(StoragePolicyID string) VsphereVirtualDiskVolumeSourceDie
+	StoragePolicyID(v string) VsphereVirtualDiskVolumeSourceDie
 }
 
 var _ VsphereVirtualDiskVolumeSourceDie = (*vsphereVirtualDiskVolumeSourceDie)(nil)
@@ -15963,17 +15962,17 @@ type QuobyteVolumeSourceDie interface {
 	DeepCopy() QuobyteVolumeSourceDie
 
 	// Registry represents a single or multiple Quobyte Registry services specified as a string as host:port pair (multiple entries are separated with commas) which acts as the central registry for volumes
-	Registry(Registry string) QuobyteVolumeSourceDie
+	Registry(v string) QuobyteVolumeSourceDie
 	// Volume is a string that references an already created Quobyte volume by name.
-	Volume(Volume string) QuobyteVolumeSourceDie
+	Volume(v string) QuobyteVolumeSourceDie
 	// ReadOnly here will force the Quobyte volume to be mounted with read-only permissions. Defaults to false.
-	ReadOnly(ReadOnly bool) QuobyteVolumeSourceDie
+	ReadOnly(v bool) QuobyteVolumeSourceDie
 	// User to map volume access to Defaults to serivceaccount user
-	User(User string) QuobyteVolumeSourceDie
+	User(v string) QuobyteVolumeSourceDie
 	// Group to map volume access to Default is no group
-	Group(Group string) QuobyteVolumeSourceDie
+	Group(v string) QuobyteVolumeSourceDie
 	// Tenant owning the given Quobyte volume in the Backend Used with dynamically provisioned Quobyte volumes, value is set by the plugin
-	Tenant(Tenant string) QuobyteVolumeSourceDie
+	Tenant(v string) QuobyteVolumeSourceDie
 }
 
 var _ QuobyteVolumeSourceDie = (*quobyteVolumeSourceDie)(nil)
@@ -16090,17 +16089,17 @@ type AzureDiskVolumeSourceDie interface {
 	DeepCopy() AzureDiskVolumeSourceDie
 
 	// The Name of the data disk in the blob storage
-	DiskName(DiskName string) AzureDiskVolumeSourceDie
+	DiskName(v string) AzureDiskVolumeSourceDie
 	// The URI the data disk in the blob storage
-	DataDiskURI(DataDiskURI string) AzureDiskVolumeSourceDie
+	DataDiskURI(v string) AzureDiskVolumeSourceDie
 	// Host Caching mode: None, Read Only, Read Write.
-	CachingMode(CachingMode *corev1.AzureDataDiskCachingMode) AzureDiskVolumeSourceDie
+	CachingMode(v *corev1.AzureDataDiskCachingMode) AzureDiskVolumeSourceDie
 	// Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
-	FSType(FSType *string) AzureDiskVolumeSourceDie
+	FSType(v *string) AzureDiskVolumeSourceDie
 	// Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
-	ReadOnly(ReadOnly *bool) AzureDiskVolumeSourceDie
+	ReadOnly(v *bool) AzureDiskVolumeSourceDie
 	// Expected values Shared: multiple blob disks per storage account  Dedicated: single blob disk per storage account  Managed: azure managed data disk (only in managed availability set). defaults to shared
-	Kind(Kind *corev1.AzureDataDiskKind) AzureDiskVolumeSourceDie
+	Kind(v *corev1.AzureDataDiskKind) AzureDiskVolumeSourceDie
 }
 
 var _ AzureDiskVolumeSourceDie = (*azureDiskVolumeSourceDie)(nil)
@@ -16217,9 +16216,9 @@ type PhotonPersistentDiskVolumeSourceDie interface {
 	DeepCopy() PhotonPersistentDiskVolumeSourceDie
 
 	// ID that identifies Photon Controller persistent disk
-	PdID(PdID string) PhotonPersistentDiskVolumeSourceDie
+	PdID(v string) PhotonPersistentDiskVolumeSourceDie
 	// Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
-	FSType(FSType string) PhotonPersistentDiskVolumeSourceDie
+	FSType(v string) PhotonPersistentDiskVolumeSourceDie
 }
 
 var _ PhotonPersistentDiskVolumeSourceDie = (*photonPersistentDiskVolumeSourceDie)(nil)
@@ -16311,11 +16310,11 @@ type ProjectedVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ProjectedVolumeSourceDie
 
-	projectedVolumeSource
+	projectedVolumeSourceDieExtension
 	// list of volume projections
-	Sources(Sources ...corev1.VolumeProjection) ProjectedVolumeSourceDie
+	Sources(v ...corev1.VolumeProjection) ProjectedVolumeSourceDie
 	// Mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
-	DefaultMode(DefaultMode *int32) ProjectedVolumeSourceDie
+	DefaultMode(v *int32) ProjectedVolumeSourceDie
 }
 
 var _ ProjectedVolumeSourceDie = (*projectedVolumeSourceDie)(nil)
@@ -16407,15 +16406,15 @@ type VolumeProjectionDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() VolumeProjectionDie
 
-	volumeProjection
+	volumeProjectionDieExtension
 	// information about the secret data to project
-	Secret(Secret *corev1.SecretProjection) VolumeProjectionDie
+	Secret(v *corev1.SecretProjection) VolumeProjectionDie
 	// information about the downwardAPI data to project
-	DownwardAPI(DownwardAPI *corev1.DownwardAPIProjection) VolumeProjectionDie
+	DownwardAPI(v *corev1.DownwardAPIProjection) VolumeProjectionDie
 	// information about the configMap data to project
-	ConfigMap(ConfigMap *corev1.ConfigMapProjection) VolumeProjectionDie
+	ConfigMap(v *corev1.ConfigMapProjection) VolumeProjectionDie
 	// information about the serviceAccountToken data to project
-	ServiceAccountToken(ServiceAccountToken *corev1.ServiceAccountTokenProjection) VolumeProjectionDie
+	ServiceAccountToken(v *corev1.ServiceAccountTokenProjection) VolumeProjectionDie
 }
 
 var _ VolumeProjectionDie = (*volumeProjectionDie)(nil)
@@ -16519,12 +16518,12 @@ type SecretProjectionDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() SecretProjectionDie
 
-	secretProjection
-	LocalObjectReference(LocalObjectReference corev1.LocalObjectReference) SecretProjectionDie
+	secretProjectionDieExtension
+	LocalObjectReference(v corev1.LocalObjectReference) SecretProjectionDie
 	// If unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'.
-	Items(Items ...corev1.KeyToPath) SecretProjectionDie
+	Items(v ...corev1.KeyToPath) SecretProjectionDie
 	// Specify whether the Secret or its key must be defined
-	Optional(Optional *bool) SecretProjectionDie
+	Optional(v *bool) SecretProjectionDie
 }
 
 var _ SecretProjectionDie = (*secretProjectionDie)(nil)
@@ -16622,9 +16621,9 @@ type DownwardAPIProjectionDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() DownwardAPIProjectionDie
 
-	downwardAPIProjection
+	downwardAPIProjectionDieExtension
 	// Items is a list of DownwardAPIVolume file
-	Items(Items ...corev1.DownwardAPIVolumeFile) DownwardAPIProjectionDie
+	Items(v ...corev1.DownwardAPIVolumeFile) DownwardAPIProjectionDie
 }
 
 var _ DownwardAPIProjectionDie = (*downwardAPIProjectionDie)(nil)
@@ -16710,11 +16709,11 @@ type ConfigMapProjectionDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ConfigMapProjectionDie
 
-	LocalObjectReference(LocalObjectReference corev1.LocalObjectReference) ConfigMapProjectionDie
+	LocalObjectReference(v corev1.LocalObjectReference) ConfigMapProjectionDie
 	// If unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'.
-	Items(Items ...corev1.KeyToPath) ConfigMapProjectionDie
+	Items(v ...corev1.KeyToPath) ConfigMapProjectionDie
 	// Specify whether the ConfigMap or its keys must be defined
-	Optional(Optional *bool) ConfigMapProjectionDie
+	Optional(v *bool) ConfigMapProjectionDie
 }
 
 var _ ConfigMapProjectionDie = (*configMapProjectionDie)(nil)
@@ -16813,11 +16812,11 @@ type ServiceAccountTokenProjectionDie interface {
 	DeepCopy() ServiceAccountTokenProjectionDie
 
 	// Audience is the intended audience of the token. A recipient of a token must identify itself with an identifier specified in the audience of the token, and otherwise should reject the token. The audience defaults to the identifier of the apiserver.
-	Audience(Audience string) ServiceAccountTokenProjectionDie
+	Audience(v string) ServiceAccountTokenProjectionDie
 	// ExpirationSeconds is the requested duration of validity of the service account token. As the token approaches expiration, the kubelet volume plugin will proactively rotate the service account token. The kubelet will start trying to rotate the token if the token is older than 80 percent of its time to live or if the token is older than 24 hours.Defaults to 1 hour and must be at least 10 minutes.
-	ExpirationSeconds(ExpirationSeconds *int64) ServiceAccountTokenProjectionDie
+	ExpirationSeconds(v *int64) ServiceAccountTokenProjectionDie
 	// Path is the path relative to the mount point of the file to project the token into.
-	Path(Path string) ServiceAccountTokenProjectionDie
+	Path(v string) ServiceAccountTokenProjectionDie
 }
 
 var _ ServiceAccountTokenProjectionDie = (*serviceAccountTokenProjectionDie)(nil)
@@ -16916,11 +16915,11 @@ type PortworxVolumeSourceDie interface {
 	DeepCopy() PortworxVolumeSourceDie
 
 	// VolumeID uniquely identifies a Portworx volume
-	VolumeID(VolumeID string) PortworxVolumeSourceDie
+	VolumeID(v string) PortworxVolumeSourceDie
 	// FSType represents the filesystem type to mount Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs". Implicitly inferred to be "ext4" if unspecified.
-	FSType(FSType string) PortworxVolumeSourceDie
+	FSType(v string) PortworxVolumeSourceDie
 	// Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
-	ReadOnly(ReadOnly bool) PortworxVolumeSourceDie
+	ReadOnly(v bool) PortworxVolumeSourceDie
 }
 
 var _ PortworxVolumeSourceDie = (*portworxVolumeSourceDie)(nil)
@@ -17018,27 +17017,27 @@ type ScaleIOVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ScaleIOVolumeSourceDie
 
-	scaleIOVolumeSource
+	scaleIOVolumeSourceDieExtension
 	// The host address of the ScaleIO API Gateway.
-	Gateway(Gateway string) ScaleIOVolumeSourceDie
+	Gateway(v string) ScaleIOVolumeSourceDie
 	// The name of the storage system as configured in ScaleIO.
-	System(System string) ScaleIOVolumeSourceDie
+	System(v string) ScaleIOVolumeSourceDie
 	// SecretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail.
-	SecretRef(SecretRef *corev1.LocalObjectReference) ScaleIOVolumeSourceDie
+	SecretRef(v *corev1.LocalObjectReference) ScaleIOVolumeSourceDie
 	// Flag to enable/disable SSL communication with Gateway, default false
-	SSLEnabled(SSLEnabled bool) ScaleIOVolumeSourceDie
+	SSLEnabled(v bool) ScaleIOVolumeSourceDie
 	// The name of the ScaleIO Protection Domain for the configured storage.
-	ProtectionDomain(ProtectionDomain string) ScaleIOVolumeSourceDie
+	ProtectionDomain(v string) ScaleIOVolumeSourceDie
 	// The ScaleIO Storage Pool associated with the protection domain.
-	StoragePool(StoragePool string) ScaleIOVolumeSourceDie
+	StoragePool(v string) ScaleIOVolumeSourceDie
 	// Indicates whether the storage for a volume should be ThickProvisioned or ThinProvisioned. Default is ThinProvisioned.
-	StorageMode(StorageMode string) ScaleIOVolumeSourceDie
+	StorageMode(v string) ScaleIOVolumeSourceDie
 	// The name of a volume already created in the ScaleIO system that is associated with this volume source.
-	VolumeName(VolumeName string) ScaleIOVolumeSourceDie
+	VolumeName(v string) ScaleIOVolumeSourceDie
 	// Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Default is "xfs".
-	FSType(FSType string) ScaleIOVolumeSourceDie
+	FSType(v string) ScaleIOVolumeSourceDie
 	// Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
-	ReadOnly(ReadOnly bool) ScaleIOVolumeSourceDie
+	ReadOnly(v bool) ScaleIOVolumeSourceDie
 }
 
 var _ ScaleIOVolumeSourceDie = (*scaleIOVolumeSourceDie)(nil)
@@ -17178,17 +17177,17 @@ type StorageOSVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() StorageOSVolumeSourceDie
 
-	storageOSVolumeSource
+	storageOSVolumeSourceDieExtension
 	// VolumeName is the human-readable name of the StorageOS volume.  Volume names are only unique within a namespace.
-	VolumeName(VolumeName string) StorageOSVolumeSourceDie
+	VolumeName(v string) StorageOSVolumeSourceDie
 	// VolumeNamespace specifies the scope of the volume within StorageOS.  If no namespace is specified then the Pod's namespace will be used.  This allows the Kubernetes name scoping to be mirrored within StorageOS for tighter integration. Set VolumeName to any name to override the default behaviour. Set to "default" if you are not using namespaces within StorageOS. Namespaces that do not pre-exist within StorageOS will be created.
-	VolumeNamespace(VolumeNamespace string) StorageOSVolumeSourceDie
+	VolumeNamespace(v string) StorageOSVolumeSourceDie
 	// Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
-	FSType(FSType string) StorageOSVolumeSourceDie
+	FSType(v string) StorageOSVolumeSourceDie
 	// Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
-	ReadOnly(ReadOnly bool) StorageOSVolumeSourceDie
+	ReadOnly(v bool) StorageOSVolumeSourceDie
 	// SecretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted.
-	SecretRef(SecretRef *corev1.LocalObjectReference) StorageOSVolumeSourceDie
+	SecretRef(v *corev1.LocalObjectReference) StorageOSVolumeSourceDie
 }
 
 var _ StorageOSVolumeSourceDie = (*storageOSVolumeSourceDie)(nil)
@@ -17298,105 +17297,105 @@ type CSIVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() CSIVolumeSourceDie
 
-	cSIVolumeSource
+	csiVolumeSourceDieExtension
 	// Driver is the name of the CSI driver that handles this volume. Consult with your admin for the correct name as registered in the cluster.
-	Driver(Driver string) CSIVolumeSourceDie
+	Driver(v string) CSIVolumeSourceDie
 	// Specifies a read-only configuration for the volume. Defaults to false (read/write).
-	ReadOnly(ReadOnly *bool) CSIVolumeSourceDie
+	ReadOnly(v *bool) CSIVolumeSourceDie
 	// Filesystem type to mount. Ex. "ext4", "xfs", "ntfs". If not provided, the empty value is passed to the associated CSI driver which will determine the default filesystem to apply.
-	FSType(FSType *string) CSIVolumeSourceDie
+	FSType(v *string) CSIVolumeSourceDie
 	// VolumeAttributes stores driver-specific properties that are passed to the CSI driver. Consult your driver's documentation for supported values.
-	VolumeAttributes(VolumeAttributes map[string]string) CSIVolumeSourceDie
+	VolumeAttributes(v map[string]string) CSIVolumeSourceDie
 	// NodePublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodePublishVolume and NodeUnpublishVolume calls. This field is optional, and  may be empty if no secret is required. If the secret object contains more than one secret, all secret references are passed.
-	NodePublishSecretRef(NodePublishSecretRef *corev1.LocalObjectReference) CSIVolumeSourceDie
+	NodePublishSecretRef(v *corev1.LocalObjectReference) CSIVolumeSourceDie
 }
 
-var _ CSIVolumeSourceDie = (*cSIVolumeSourceDie)(nil)
-var CSIVolumeSourceBlank = (&cSIVolumeSourceDie{}).DieFeed(corev1.CSIVolumeSource{})
+var _ CSIVolumeSourceDie = (*csiVolumeSourceDie)(nil)
+var CSIVolumeSourceBlank = (&csiVolumeSourceDie{}).DieFeed(corev1.CSIVolumeSource{})
 
-type cSIVolumeSourceDie struct {
+type csiVolumeSourceDie struct {
 	mutable bool
 	r       corev1.CSIVolumeSource
 }
 
-func (d *cSIVolumeSourceDie) DieImmutable(immutable bool) CSIVolumeSourceDie {
+func (d *csiVolumeSourceDie) DieImmutable(immutable bool) CSIVolumeSourceDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*cSIVolumeSourceDie)
+	d = d.DeepCopy().(*csiVolumeSourceDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *cSIVolumeSourceDie) DieFeed(r corev1.CSIVolumeSource) CSIVolumeSourceDie {
+func (d *csiVolumeSourceDie) DieFeed(r corev1.CSIVolumeSource) CSIVolumeSourceDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &cSIVolumeSourceDie{
+	return &csiVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *cSIVolumeSourceDie) DieFeedPtr(r *corev1.CSIVolumeSource) CSIVolumeSourceDie {
+func (d *csiVolumeSourceDie) DieFeedPtr(r *corev1.CSIVolumeSource) CSIVolumeSourceDie {
 	if r == nil {
 		r = &corev1.CSIVolumeSource{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *cSIVolumeSourceDie) DieRelease() corev1.CSIVolumeSource {
+func (d *csiVolumeSourceDie) DieRelease() corev1.CSIVolumeSource {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *cSIVolumeSourceDie) DieReleasePtr() *corev1.CSIVolumeSource {
+func (d *csiVolumeSourceDie) DieReleasePtr() *corev1.CSIVolumeSource {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *cSIVolumeSourceDie) DieStamp(fn func(r *corev1.CSIVolumeSource)) CSIVolumeSourceDie {
+func (d *csiVolumeSourceDie) DieStamp(fn func(r *corev1.CSIVolumeSource)) CSIVolumeSourceDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *cSIVolumeSourceDie) DeepCopy() CSIVolumeSourceDie {
+func (d *csiVolumeSourceDie) DeepCopy() CSIVolumeSourceDie {
 	r := *d.r.DeepCopy()
-	return &cSIVolumeSourceDie{
+	return &csiVolumeSourceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *cSIVolumeSourceDie) Driver(v string) CSIVolumeSourceDie {
+func (d *csiVolumeSourceDie) Driver(v string) CSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIVolumeSource) {
 		r.Driver = v
 	})
 }
 
-func (d *cSIVolumeSourceDie) ReadOnly(v *bool) CSIVolumeSourceDie {
+func (d *csiVolumeSourceDie) ReadOnly(v *bool) CSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIVolumeSource) {
 		r.ReadOnly = v
 	})
 }
 
-func (d *cSIVolumeSourceDie) FSType(v *string) CSIVolumeSourceDie {
+func (d *csiVolumeSourceDie) FSType(v *string) CSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIVolumeSource) {
 		r.FSType = v
 	})
 }
 
-func (d *cSIVolumeSourceDie) VolumeAttributes(v map[string]string) CSIVolumeSourceDie {
+func (d *csiVolumeSourceDie) VolumeAttributes(v map[string]string) CSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIVolumeSource) {
 		r.VolumeAttributes = v
 	})
 }
 
-func (d *cSIVolumeSourceDie) NodePublishSecretRef(v *corev1.LocalObjectReference) CSIVolumeSourceDie {
+func (d *csiVolumeSourceDie) NodePublishSecretRef(v *corev1.LocalObjectReference) CSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIVolumeSource) {
 		r.NodePublishSecretRef = v
 	})
@@ -17418,7 +17417,7 @@ type EphemeralVolumeSourceDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() EphemeralVolumeSourceDie
 
-	ephemeralVolumeSource
+	ephemeralVolumeSourceDieExtension
 	// Will be used to create a stand-alone PVC to provision the volume. The pod in which this EphemeralVolumeSource is embedded will be the owner of the PVC, i.e. the PVC will be deleted together with the pod.  The name of the PVC will be `<pod name>-<volume name>` where `<volume name>` is the name from the `PodSpec.Volumes` array entry. Pod validation will reject the pod if the concatenated name is not valid for a PVC (for example, too long).
 	//
 	// An existing PVC with that name that is not owned by the pod will *not* be used for the pod to avoid using an unrelated volume by mistake. Starting the pod is then blocked until the unrelated PVC is removed. If such a pre-created PVC is meant to be used by the pod, the PVC has to updated with an owner reference to the pod once the pod exists. Normally this should not be necessary, but it may be useful when manually reconstructing a broken cluster.
@@ -17426,7 +17425,7 @@ type EphemeralVolumeSourceDie interface {
 	// This field is read-only and no changes will be made by Kubernetes to the PVC after it has been created.
 	//
 	// Required, must not be nil.
-	VolumeClaimTemplate(VolumeClaimTemplate *corev1.PersistentVolumeClaimTemplate) EphemeralVolumeSourceDie
+	VolumeClaimTemplate(v *corev1.PersistentVolumeClaimTemplate) EphemeralVolumeSourceDie
 }
 
 var _ EphemeralVolumeSourceDie = (*ephemeralVolumeSourceDie)(nil)
@@ -17513,11 +17512,11 @@ type KeyToPathDie interface {
 	DeepCopy() KeyToPathDie
 
 	// The key to project.
-	Key(Key string) KeyToPathDie
+	Key(v string) KeyToPathDie
 	// The relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'.
-	Path(Path string) KeyToPathDie
+	Path(v string) KeyToPathDie
 	// Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
-	Mode(Mode *int32) KeyToPathDie
+	Mode(v *int32) KeyToPathDie
 }
 
 var _ KeyToPathDie = (*keyToPathDie)(nil)

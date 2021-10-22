@@ -23,7 +23,7 @@ import (
 // +die
 type _ = corev1.Volume
 
-type volume interface {
+type volumeDieExtension interface {
 	HostPathDie(fn func(d HostPathVolumeSourceDie)) VolumeDie
 	EmptyDirDie(fn func(d EmptyDirVolumeSourceDie)) VolumeDie
 	GCEPersistentDiskDie(fn func(d GCEPersistentDiskVolumeSourceDie)) VolumeDie
@@ -363,7 +363,7 @@ type _ = corev1.GitRepoVolumeSource
 // +die
 type _ = corev1.SecretVolumeSource
 
-type secretVolumeSource interface {
+type secretVolumeSourceDieExtension interface {
 	ItemDie(key string, fn func(d KeyToPathDie)) SecretVolumeSourceDie
 }
 
@@ -390,11 +390,11 @@ type _ = corev1.NFSVolumeSource
 // +die
 type _ = corev1.ISCSIVolumeSource
 
-type iSCSIVolumeSource interface {
+type iscsiVolumeSourceDieExtension interface {
 	SecretRefDie(fn func(d LocalObjectReferenceDie)) ISCSIVolumeSourceDie
 }
 
-func (d *iSCSIVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie)) ISCSIVolumeSourceDie {
+func (d *iscsiVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie)) ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
 		fn(d)
@@ -411,11 +411,11 @@ type _ = corev1.PersistentVolumeClaimVolumeSource
 // +die
 type _ = corev1.RBDVolumeSource
 
-type rBDVolumeSource interface {
+type rbdVolumeSourceDieExtension interface {
 	SecretRefDie(fn func(d LocalObjectReferenceDie)) RBDVolumeSourceDie
 }
 
-func (d *rBDVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie)) RBDVolumeSourceDie {
+func (d *rbdVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie)) RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
 		fn(d)
@@ -426,7 +426,7 @@ func (d *rBDVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie)) RB
 // +die
 type _ = corev1.FlexVolumeSource
 
-type flexVolumeSource interface {
+type flexVolumeSourceDieExtension interface {
 	SecretRefDie(fn func(d LocalObjectReferenceDie)) FlexVolumeSourceDie
 }
 
@@ -441,7 +441,7 @@ func (d *flexVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie)) F
 // +die
 type _ = corev1.CinderVolumeSource
 
-type cinderVolumeSource interface {
+type cinderVolumeSourceDieExtension interface {
 	SecretRefDie(fn func(d LocalObjectReferenceDie)) CinderVolumeSourceDie
 }
 
@@ -456,7 +456,7 @@ func (d *cinderVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie))
 // +die
 type _ = corev1.CephFSVolumeSource
 
-type cephFSVolumeSource interface {
+type cephFSVolumeSourceDieExtension interface {
 	SecretRefDie(fn func(d LocalObjectReferenceDie)) CephFSVolumeSourceDie
 }
 
@@ -474,7 +474,7 @@ type _ = corev1.FlockerVolumeSource
 // +die
 type _ = corev1.DownwardAPIVolumeSource
 
-type downwardAPIVolumeSource interface {
+type downwardAPIVolumeSourceDieExtension interface {
 	ItemDie(path string, fn func(d DownwardAPIVolumeFileDie)) DownwardAPIVolumeSourceDie
 }
 
@@ -498,7 +498,7 @@ func (d *downwardAPIVolumeSourceDie) ItemDie(path string, fn func(d DownwardAPIV
 // +die
 type _ = corev1.DownwardAPIVolumeFile
 
-type downwardAPIVolumeFile interface {
+type downwardAPIVolumeFileDieExtension interface {
 	FieldRefDie(fn func(d ObjectFieldSelectorDie)) DownwardAPIVolumeFileDie
 	ResourceFieldRefDie(fn func(d ResourceFieldSelectorDie)) DownwardAPIVolumeFileDie
 }
@@ -528,7 +528,7 @@ type _ = corev1.AzureFileVolumeSource
 // +die
 type _ = corev1.ConfigMapVolumeSource
 
-type configMapVolumeSource interface {
+type configMapVolumeSourceDieExtension interface {
 	Name(v string) ConfigMapVolumeSourceDie
 	ItemDie(key string, fn func(d KeyToPathDie)) ConfigMapVolumeSourceDie
 }
@@ -571,7 +571,7 @@ type _ = corev1.PhotonPersistentDiskVolumeSource
 // +die
 type _ = corev1.ProjectedVolumeSource
 
-type projectedVolumeSource interface {
+type projectedVolumeSourceDieExtension interface {
 	SourcesDie(sources ...VolumeProjectionDie) ProjectedVolumeSourceDie
 }
 
@@ -587,7 +587,7 @@ func (d *projectedVolumeSourceDie) SourcesDie(sources ...VolumeProjectionDie) Pr
 // +die
 type _ = corev1.VolumeProjection
 
-type volumeProjection interface {
+type volumeProjectionDieExtension interface {
 	SecretDie(fn func(d SecretProjectionDie)) VolumeProjectionDie
 	DownwardAPIDie(fn func(d DownwardAPIProjectionDie)) VolumeProjectionDie
 	ConfigMapDie(fn func(d ConfigMapProjectionDie)) VolumeProjectionDie
@@ -629,7 +629,7 @@ func (d *volumeProjectionDie) ServiceAccountTokenDie(fn func(d ServiceAccountTok
 // +die
 type _ = corev1.SecretProjection
 
-type secretProjection interface {
+type secretProjectionDieExtension interface {
 	Name(v string) SecretProjectionDie
 	ItemDie(key string, fn func(d KeyToPathDie)) SecretProjectionDie
 }
@@ -660,7 +660,7 @@ func (d *secretProjectionDie) ItemDie(key string, fn func(d KeyToPathDie)) Secre
 // +die
 type _ = corev1.DownwardAPIProjection
 
-type downwardAPIProjection interface {
+type downwardAPIProjectionDieExtension interface {
 	ItemDie(path string, fn func(d DownwardAPIVolumeFileDie)) DownwardAPIProjectionDie
 }
 
@@ -684,7 +684,7 @@ func (d *downwardAPIProjectionDie) ItemDie(path string, fn func(d DownwardAPIVol
 // +die
 type _ = corev1.ConfigMapProjection
 
-type configmapProjection interface {
+type configmapProjectionDieExtension interface {
 	Name(v string) ConfigMapProjectionDie
 	ItemDie(key string, fn func(d KeyToPathDie)) ConfigMapProjectionDie
 }
@@ -721,7 +721,7 @@ type _ = corev1.PortworxVolumeSource
 // +die
 type _ = corev1.ScaleIOVolumeSource
 
-type scaleIOVolumeSource interface {
+type scaleIOVolumeSourceDieExtension interface {
 	SecretRefDie(fn func(d LocalObjectReferenceDie)) ScaleIOVolumeSourceDie
 }
 
@@ -736,7 +736,7 @@ func (d *scaleIOVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie)
 // +die
 type _ = corev1.StorageOSVolumeSource
 
-type storageOSVolumeSource interface {
+type storageOSVolumeSourceDieExtension interface {
 	SecretRefDie(fn func(d LocalObjectReferenceDie)) StorageOSVolumeSourceDie
 }
 
@@ -751,18 +751,18 @@ func (d *storageOSVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDi
 // +die
 type _ = corev1.CSIVolumeSource
 
-type cSIVolumeSource interface {
+type csiVolumeSourceDieExtension interface {
 	VolumeAttribute(key, value string) CSIVolumeSourceDie
 	NodePublishSecretRefDie(fn func(d LocalObjectReferenceDie)) CSIVolumeSourceDie
 }
 
-func (d *cSIVolumeSourceDie) VolumeAttribute(key, value string) CSIVolumeSourceDie {
+func (d *csiVolumeSourceDie) VolumeAttribute(key, value string) CSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIVolumeSource) {
 		r.VolumeAttributes[key] = value
 	})
 }
 
-func (d *cSIVolumeSourceDie) NodePublishSecretRefDie(fn func(d LocalObjectReferenceDie)) CSIVolumeSourceDie {
+func (d *csiVolumeSourceDie) NodePublishSecretRefDie(fn func(d LocalObjectReferenceDie)) CSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIVolumeSource) {
 		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.NodePublishSecretRef)
 		fn(d)
@@ -773,7 +773,7 @@ func (d *cSIVolumeSourceDie) NodePublishSecretRefDie(fn func(d LocalObjectRefere
 // +die
 type _ = corev1.EphemeralVolumeSource
 
-type ephemeralVolumeSource interface {
+type ephemeralVolumeSourceDieExtension interface {
 	VolumeClaimTemplateDie(fn func(d PersistentVolumeClaimTemplateDie)) EphemeralVolumeSourceDie
 }
 

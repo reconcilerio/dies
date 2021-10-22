@@ -27,7 +27,7 @@ type _ = corev1.LimitRange
 // +die
 type _ = corev1.LimitRangeSpec
 
-type limitRangeSpec interface {
+type limitRangeSpecDieExtension interface {
 	LimitsDie(limits ...LimitRangeItemDie) LimitRangeSpecDie
 }
 
@@ -43,7 +43,7 @@ func (d *limitRangeSpecDie) LimitsDie(limits ...LimitRangeItemDie) LimitRangeSpe
 // +die
 type _ = corev1.LimitRangeItem
 
-type limitRangeItem interface {
+type limitRangeItemDieExtension interface {
 	AddMax(name corev1.ResourceName, quantity resource.Quantity) LimitRangeItemDie
 	AddMaxString(name corev1.ResourceName, quantity string) LimitRangeItemDie
 	AddMin(name corev1.ResourceName, quantity resource.Quantity) LimitRangeItemDie

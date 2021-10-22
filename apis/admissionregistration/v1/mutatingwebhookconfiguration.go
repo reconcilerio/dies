@@ -24,7 +24,7 @@ import (
 // +die:object=true
 type _ = admissionregistrationv1.MutatingWebhookConfiguration
 
-type mutatingWebhookConfiguration interface {
+type mutatingWebhookConfigurationDieExtension interface {
 	WebhookDie(name string, fn func(d MutatingWebhookDie)) MutatingWebhookConfigurationDie
 }
 
@@ -48,7 +48,7 @@ func (d *mutatingWebhookConfigurationDie) WebhookDie(name string, fn func(d Muta
 // +die
 type _ = admissionregistrationv1.MutatingWebhook
 
-type mutatingWebhook interface {
+type mutatingWebhookDieExtension interface {
 	ClientConfigDie(fn func(d WebhookClientConfigDie)) MutatingWebhookDie
 	RulesDie(rules ...RuleWithOperationsDie) MutatingWebhookDie
 	NamespaceSelectorDie(fn func(d diemetav1.LabelSelectorDie)) MutatingWebhookDie

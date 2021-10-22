@@ -56,9 +56,9 @@ type IngressDie interface {
 	// StatusDie stamps the resource's status field with a mutable die.
 	StatusDie(fn func(d IngressStatusDie)) IngressDie
 	// Spec is the desired state of the Ingress. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Spec(Spec networkingv1.IngressSpec) IngressDie
+	Spec(v networkingv1.IngressSpec) IngressDie
 	// Status is the current state of the Ingress. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Status(Status networkingv1.IngressStatus) IngressDie
+	Status(v networkingv1.IngressStatus) IngressDie
 
 	runtime.Object
 	apismetav1.Object
@@ -205,15 +205,15 @@ type IngressSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() IngressSpecDie
 
-	ingressSpec
+	ingressSpecDieExtension
 	// IngressClassName is the name of the IngressClass cluster resource. The associated IngressClass defines which controller will implement the resource. This replaces the deprecated `kubernetes.io/ingress.class` annotation. For backwards compatibility, when that annotation is set, it must be given precedence over this field. The controller may emit a warning if the field and annotation have different values. Implementations of this API should ignore Ingresses without a class specified. An IngressClass resource may be marked as default, which can be used to set a default value for this field. For more information, refer to the IngressClass documentation.
-	IngressClassName(IngressClassName *string) IngressSpecDie
+	IngressClassName(v *string) IngressSpecDie
 	// DefaultBackend is the backend that should handle requests that don't match any rule. If Rules are not specified, DefaultBackend must be specified. If DefaultBackend is not set, the handling of requests that do not match any of the rules will be up to the Ingress controller.
-	DefaultBackend(DefaultBackend *networkingv1.IngressBackend) IngressSpecDie
+	DefaultBackend(v *networkingv1.IngressBackend) IngressSpecDie
 	// TLS configuration. Currently the Ingress only supports a single TLS port, 443. If multiple members of this list specify different hosts, they will be multiplexed on the same port according to the hostname specified through the SNI TLS extension, if the ingress controller fulfilling the ingress supports SNI.
-	TLS(TLS ...networkingv1.IngressTLS) IngressSpecDie
+	TLS(v ...networkingv1.IngressTLS) IngressSpecDie
 	// A list of host rules used to configure the Ingress. If unspecified, or no rule matches, all traffic is sent to the default backend.
-	Rules(Rules ...networkingv1.IngressRule) IngressSpecDie
+	Rules(v ...networkingv1.IngressRule) IngressSpecDie
 }
 
 var _ IngressSpecDie = (*ingressSpecDie)(nil)
@@ -317,11 +317,11 @@ type IngressBackendDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() IngressBackendDie
 
-	ingressBackend
+	ingressBackendDieExtension
 	// Service references a Service as a Backend. This is a mutually exclusive setting with "Resource".
-	Service(Service *networkingv1.IngressServiceBackend) IngressBackendDie
+	Service(v *networkingv1.IngressServiceBackend) IngressBackendDie
 	// Resource is an ObjectRef to another Kubernetes resource in the namespace of the Ingress object. If resource is specified, a service.Name and service.Port must not be specified. This is a mutually exclusive setting with "Service".
-	Resource(Resource *corev1.TypedLocalObjectReference) IngressBackendDie
+	Resource(v *corev1.TypedLocalObjectReference) IngressBackendDie
 }
 
 var _ IngressBackendDie = (*ingressBackendDie)(nil)
@@ -413,11 +413,11 @@ type IngressServiceBackendDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() IngressServiceBackendDie
 
-	ingressServiceBackend
+	ingressServiceBackendDieExtension
 	// Name is the referenced service. The service must exist in the same namespace as the Ingress object.
-	Name(Name string) IngressServiceBackendDie
+	Name(v string) IngressServiceBackendDie
 	// Port of the referenced service. A port name or port number is required for a IngressServiceBackend.
-	Port(Port networkingv1.ServiceBackendPort) IngressServiceBackendDie
+	Port(v networkingv1.ServiceBackendPort) IngressServiceBackendDie
 }
 
 var _ IngressServiceBackendDie = (*ingressServiceBackendDie)(nil)
@@ -510,9 +510,9 @@ type ServiceBackendPortDie interface {
 	DeepCopy() ServiceBackendPortDie
 
 	// Name is the name of the port on the Service. This is a mutually exclusive setting with "Number".
-	Name(Name string) ServiceBackendPortDie
+	Name(v string) ServiceBackendPortDie
 	// Number is the numerical port number (e.g. 80) on the Service. This is a mutually exclusive setting with "Name".
-	Number(Number int32) ServiceBackendPortDie
+	Number(v int32) ServiceBackendPortDie
 }
 
 var _ ServiceBackendPortDie = (*serviceBackendPortDie)(nil)
@@ -605,9 +605,9 @@ type IngressTLSDie interface {
 	DeepCopy() IngressTLSDie
 
 	// Hosts are a list of hosts included in the TLS certificate. The values in this list must match the name/s used in the tlsSecret. Defaults to the wildcard host setting for the loadbalancer controller fulfilling this Ingress, if left unspecified.
-	Hosts(Hosts ...string) IngressTLSDie
+	Hosts(v ...string) IngressTLSDie
 	// SecretName is the name of the secret used to terminate TLS traffic on port 443. Field is left optional to allow TLS routing based on SNI hostname alone. If the SNI host in a listener conflicts with the "Host" header field used by an IngressRule, the SNI host is used for termination and value of the Host header is used for routing.
-	SecretName(SecretName string) IngressTLSDie
+	SecretName(v string) IngressTLSDie
 }
 
 var _ IngressTLSDie = (*ingressTLSDie)(nil)
@@ -699,13 +699,13 @@ type IngressRuleDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() IngressRuleDie
 
-	ingressRule
+	ingressRuleDieExtension
 	// Host is the fully qualified domain name of a network host, as defined by RFC 3986. Note the following deviations from the "host" part of the URI as defined in RFC 3986: 1. IPs are not allowed. Currently an IngressRuleValue can only apply to    the IP in the Spec of the parent Ingress. 2. The `:` delimiter is not respected because ports are not allowed. 	  Currently the port of an Ingress is implicitly :80 for http and 	  :443 for https. Both these may change in the future. Incoming requests are matched against the host before the IngressRuleValue. If the host is unspecified, the Ingress routes all traffic based on the specified IngressRuleValue.
 	//
 	// Host can be "precise" which is a domain name without the terminating dot of a network host (e.g. "foo.bar.com") or "wildcard", which is a domain name prefixed with a single wildcard label (e.g. "*.foo.com"). The wildcard character '*' must appear by itself as the first DNS label and matches only a single label. You cannot have a wildcard label by itself (e.g. Host == "*"). Requests will be matched against the Host field in the following way: 1. If Host is precise, the request matches this rule if the http host header is equal to Host. 2. If Host is a wildcard, then the request matches this rule if the http host header is to equal to the suffix (removing the first label) of the wildcard rule.
-	Host(Host string) IngressRuleDie
+	Host(v string) IngressRuleDie
 	// IngressRuleValue represents a rule to route requests for this IngressRule. If unspecified, the rule defaults to a http catch-all. Whether that sends just traffic matching the host to the default backend or all traffic to the default backend, is left to the controller fulfilling the Ingress. Http is currently the only supported IngressRuleValue.
-	IngressRuleValue(IngressRuleValue networkingv1.IngressRuleValue) IngressRuleDie
+	IngressRuleValue(v networkingv1.IngressRuleValue) IngressRuleDie
 }
 
 var _ IngressRuleDie = (*ingressRuleDie)(nil)
@@ -797,73 +797,73 @@ type HTTPIngressRuleValueDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() HTTPIngressRuleValueDie
 
-	hTTPIngressRuleValue
+	httpIngressRuleValueDieExtension
 	// A collection of paths that map requests to backends.
-	Paths(Paths ...networkingv1.HTTPIngressPath) HTTPIngressRuleValueDie
+	Paths(v ...networkingv1.HTTPIngressPath) HTTPIngressRuleValueDie
 }
 
-var _ HTTPIngressRuleValueDie = (*hTTPIngressRuleValueDie)(nil)
-var HTTPIngressRuleValueBlank = (&hTTPIngressRuleValueDie{}).DieFeed(networkingv1.HTTPIngressRuleValue{})
+var _ HTTPIngressRuleValueDie = (*httpIngressRuleValueDie)(nil)
+var HTTPIngressRuleValueBlank = (&httpIngressRuleValueDie{}).DieFeed(networkingv1.HTTPIngressRuleValue{})
 
-type hTTPIngressRuleValueDie struct {
+type httpIngressRuleValueDie struct {
 	mutable bool
 	r       networkingv1.HTTPIngressRuleValue
 }
 
-func (d *hTTPIngressRuleValueDie) DieImmutable(immutable bool) HTTPIngressRuleValueDie {
+func (d *httpIngressRuleValueDie) DieImmutable(immutable bool) HTTPIngressRuleValueDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*hTTPIngressRuleValueDie)
+	d = d.DeepCopy().(*httpIngressRuleValueDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *hTTPIngressRuleValueDie) DieFeed(r networkingv1.HTTPIngressRuleValue) HTTPIngressRuleValueDie {
+func (d *httpIngressRuleValueDie) DieFeed(r networkingv1.HTTPIngressRuleValue) HTTPIngressRuleValueDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &hTTPIngressRuleValueDie{
+	return &httpIngressRuleValueDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *hTTPIngressRuleValueDie) DieFeedPtr(r *networkingv1.HTTPIngressRuleValue) HTTPIngressRuleValueDie {
+func (d *httpIngressRuleValueDie) DieFeedPtr(r *networkingv1.HTTPIngressRuleValue) HTTPIngressRuleValueDie {
 	if r == nil {
 		r = &networkingv1.HTTPIngressRuleValue{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *hTTPIngressRuleValueDie) DieRelease() networkingv1.HTTPIngressRuleValue {
+func (d *httpIngressRuleValueDie) DieRelease() networkingv1.HTTPIngressRuleValue {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *hTTPIngressRuleValueDie) DieReleasePtr() *networkingv1.HTTPIngressRuleValue {
+func (d *httpIngressRuleValueDie) DieReleasePtr() *networkingv1.HTTPIngressRuleValue {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *hTTPIngressRuleValueDie) DieStamp(fn func(r *networkingv1.HTTPIngressRuleValue)) HTTPIngressRuleValueDie {
+func (d *httpIngressRuleValueDie) DieStamp(fn func(r *networkingv1.HTTPIngressRuleValue)) HTTPIngressRuleValueDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *hTTPIngressRuleValueDie) DeepCopy() HTTPIngressRuleValueDie {
+func (d *httpIngressRuleValueDie) DeepCopy() HTTPIngressRuleValueDie {
 	r := *d.r.DeepCopy()
-	return &hTTPIngressRuleValueDie{
+	return &httpIngressRuleValueDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *hTTPIngressRuleValueDie) Paths(v ...networkingv1.HTTPIngressPath) HTTPIngressRuleValueDie {
+func (d *httpIngressRuleValueDie) Paths(v ...networkingv1.HTTPIngressPath) HTTPIngressRuleValueDie {
 	return d.DieStamp(func(r *networkingv1.HTTPIngressRuleValue) {
 		r.Paths = v
 	})
@@ -885,89 +885,89 @@ type HTTPIngressPathDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() HTTPIngressPathDie
 
-	hTTPIngressPath
+	httpIngressPathDieExtension
 	// Path is matched against the path of an incoming request. Currently it can contain characters disallowed from the conventional "path" part of a URL as defined by RFC 3986. Paths must begin with a '/' and must be present when using PathType with value "Exact" or "Prefix".
-	Path(Path string) HTTPIngressPathDie
+	Path(v string) HTTPIngressPathDie
 	// PathType determines the interpretation of the Path matching. PathType can be one of the following values: * Exact: Matches the URL path exactly. * Prefix: Matches based on a URL path prefix split by '/'. Matching is   done on a path element by element basis. A path element refers is the   list of labels in the path split by the '/' separator. A request is a   match for path p if every p is an element-wise prefix of p of the   request path. Note that if the last element of the path is a substring   of the last element in request path, it is not a match (e.g. /foo/bar   matches /foo/bar/baz, but does not match /foo/barbaz). * ImplementationSpecific: Interpretation of the Path matching is up to   the IngressClass. Implementations can treat this as a separate PathType   or treat it identically to Prefix or Exact path types. Implementations are required to support all path types.
-	PathType(PathType *networkingv1.PathType) HTTPIngressPathDie
+	PathType(v *networkingv1.PathType) HTTPIngressPathDie
 	// Backend defines the referenced service endpoint to which the traffic will be forwarded to.
-	Backend(Backend networkingv1.IngressBackend) HTTPIngressPathDie
+	Backend(v networkingv1.IngressBackend) HTTPIngressPathDie
 }
 
-var _ HTTPIngressPathDie = (*hTTPIngressPathDie)(nil)
-var HTTPIngressPathBlank = (&hTTPIngressPathDie{}).DieFeed(networkingv1.HTTPIngressPath{})
+var _ HTTPIngressPathDie = (*httpIngressPathDie)(nil)
+var HTTPIngressPathBlank = (&httpIngressPathDie{}).DieFeed(networkingv1.HTTPIngressPath{})
 
-type hTTPIngressPathDie struct {
+type httpIngressPathDie struct {
 	mutable bool
 	r       networkingv1.HTTPIngressPath
 }
 
-func (d *hTTPIngressPathDie) DieImmutable(immutable bool) HTTPIngressPathDie {
+func (d *httpIngressPathDie) DieImmutable(immutable bool) HTTPIngressPathDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*hTTPIngressPathDie)
+	d = d.DeepCopy().(*httpIngressPathDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *hTTPIngressPathDie) DieFeed(r networkingv1.HTTPIngressPath) HTTPIngressPathDie {
+func (d *httpIngressPathDie) DieFeed(r networkingv1.HTTPIngressPath) HTTPIngressPathDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &hTTPIngressPathDie{
+	return &httpIngressPathDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *hTTPIngressPathDie) DieFeedPtr(r *networkingv1.HTTPIngressPath) HTTPIngressPathDie {
+func (d *httpIngressPathDie) DieFeedPtr(r *networkingv1.HTTPIngressPath) HTTPIngressPathDie {
 	if r == nil {
 		r = &networkingv1.HTTPIngressPath{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *hTTPIngressPathDie) DieRelease() networkingv1.HTTPIngressPath {
+func (d *httpIngressPathDie) DieRelease() networkingv1.HTTPIngressPath {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *hTTPIngressPathDie) DieReleasePtr() *networkingv1.HTTPIngressPath {
+func (d *httpIngressPathDie) DieReleasePtr() *networkingv1.HTTPIngressPath {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *hTTPIngressPathDie) DieStamp(fn func(r *networkingv1.HTTPIngressPath)) HTTPIngressPathDie {
+func (d *httpIngressPathDie) DieStamp(fn func(r *networkingv1.HTTPIngressPath)) HTTPIngressPathDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *hTTPIngressPathDie) DeepCopy() HTTPIngressPathDie {
+func (d *httpIngressPathDie) DeepCopy() HTTPIngressPathDie {
 	r := *d.r.DeepCopy()
-	return &hTTPIngressPathDie{
+	return &httpIngressPathDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *hTTPIngressPathDie) Path(v string) HTTPIngressPathDie {
+func (d *httpIngressPathDie) Path(v string) HTTPIngressPathDie {
 	return d.DieStamp(func(r *networkingv1.HTTPIngressPath) {
 		r.Path = v
 	})
 }
 
-func (d *hTTPIngressPathDie) PathType(v *networkingv1.PathType) HTTPIngressPathDie {
+func (d *httpIngressPathDie) PathType(v *networkingv1.PathType) HTTPIngressPathDie {
 	return d.DieStamp(func(r *networkingv1.HTTPIngressPath) {
 		r.PathType = v
 	})
 }
 
-func (d *hTTPIngressPathDie) Backend(v networkingv1.IngressBackend) HTTPIngressPathDie {
+func (d *httpIngressPathDie) Backend(v networkingv1.IngressBackend) HTTPIngressPathDie {
 	return d.DieStamp(func(r *networkingv1.HTTPIngressPath) {
 		r.Backend = v
 	})
@@ -989,9 +989,9 @@ type IngressStatusDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() IngressStatusDie
 
-	ingressStatus
+	ingressStatusDieExtension
 	// LoadBalancer contains the current status of the load-balancer.
-	LoadBalancer(LoadBalancer corev1.LoadBalancerStatus) IngressStatusDie
+	LoadBalancer(v corev1.LoadBalancerStatus) IngressStatusDie
 }
 
 var _ IngressStatusDie = (*ingressStatusDie)(nil)
@@ -1082,7 +1082,7 @@ type IngressClassDie interface {
 	// SpecDie stamps the resource's spec field with a mutable die.
 	SpecDie(fn func(d IngressClassSpecDie)) IngressClassDie
 	// Spec is the desired state of the IngressClass. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Spec(Spec networkingv1.IngressClassSpec) IngressClassDie
+	Spec(v networkingv1.IngressClassSpec) IngressClassDie
 
 	runtime.Object
 	apismetav1.Object
@@ -1215,11 +1215,11 @@ type IngressClassSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() IngressClassSpecDie
 
-	ingressClassSpec
+	ingressClassSpecDieExtension
 	// Controller refers to the name of the controller that should handle this class. This allows for different "flavors" that are controlled by the same controller. For example, you may have different Parameters for the same implementing controller. This should be specified as a domain-prefixed path no more than 250 characters in length, e.g. "acme.io/ingress-controller". This field is immutable.
-	Controller(Controller string) IngressClassSpecDie
+	Controller(v string) IngressClassSpecDie
 	// Parameters is a link to a custom resource containing additional configuration for the controller. This is optional if the controller does not require extra parameters.
-	Parameters(Parameters *networkingv1.IngressClassParametersReference) IngressClassSpecDie
+	Parameters(v *networkingv1.IngressClassParametersReference) IngressClassSpecDie
 }
 
 var _ IngressClassSpecDie = (*ingressClassSpecDie)(nil)
@@ -1312,15 +1312,15 @@ type IngressClassParametersReferenceDie interface {
 	DeepCopy() IngressClassParametersReferenceDie
 
 	// APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required.
-	APIGroup(APIGroup *string) IngressClassParametersReferenceDie
+	APIGroup(v *string) IngressClassParametersReferenceDie
 	// Kind is the type of resource being referenced.
-	Kind(Kind string) IngressClassParametersReferenceDie
+	Kind(v string) IngressClassParametersReferenceDie
 	// Name is the name of resource being referenced.
-	Name(Name string) IngressClassParametersReferenceDie
+	Name(v string) IngressClassParametersReferenceDie
 	// Scope represents if this refers to a cluster or namespace scoped resource. This may be set to "Cluster" (default) or "Namespace". Field can be enabled with IngressClassNamespacedParams feature gate.
-	Scope(Scope *string) IngressClassParametersReferenceDie
+	Scope(v *string) IngressClassParametersReferenceDie
 	// Namespace is the namespace of the resource being referenced. This field is required when scope is set to "Namespace" and must be unset when scope is set to "Cluster".
-	Namespace(Namespace *string) IngressClassParametersReferenceDie
+	Namespace(v *string) IngressClassParametersReferenceDie
 }
 
 var _ IngressClassParametersReferenceDie = (*ingressClassParametersReferenceDie)(nil)
@@ -1435,7 +1435,7 @@ type NetworkPolicyDie interface {
 	// SpecDie stamps the resource's spec field with a mutable die.
 	SpecDie(fn func(d NetworkPolicySpecDie)) NetworkPolicyDie
 	// Specification of the desired behavior for this NetworkPolicy.
-	Spec(Spec networkingv1.NetworkPolicySpec) NetworkPolicyDie
+	Spec(v networkingv1.NetworkPolicySpec) NetworkPolicyDie
 
 	runtime.Object
 	apismetav1.Object
@@ -1569,13 +1569,13 @@ type NetworkPolicySpecDie interface {
 	DeepCopy() NetworkPolicySpecDie
 
 	// Selects the pods to which this NetworkPolicy object applies. The array of ingress rules is applied to any pods selected by this field. Multiple network policies can select the same set of pods. In this case, the ingress rules for each are combined additively. This field is NOT optional and follows standard label selector semantics. An empty podSelector matches all pods in this namespace.
-	PodSelector(PodSelector apismetav1.LabelSelector) NetworkPolicySpecDie
+	PodSelector(v apismetav1.LabelSelector) NetworkPolicySpecDie
 	// List of ingress rules to be applied to the selected pods. Traffic is allowed to a pod if there are no NetworkPolicies selecting the pod (and cluster policy otherwise allows the traffic), OR if the traffic source is the pod's local node, OR if the traffic matches at least one ingress rule across all of the NetworkPolicy objects whose podSelector matches the pod. If this field is empty then this NetworkPolicy does not allow any traffic (and serves solely to ensure that the pods it selects are isolated by default)
-	Ingress(Ingress ...networkingv1.NetworkPolicyIngressRule) NetworkPolicySpecDie
+	Ingress(v ...networkingv1.NetworkPolicyIngressRule) NetworkPolicySpecDie
 	// List of egress rules to be applied to the selected pods. Outgoing traffic is allowed if there are no NetworkPolicies selecting the pod (and cluster policy otherwise allows the traffic), OR if the traffic matches at least one egress rule across all of the NetworkPolicy objects whose podSelector matches the pod. If this field is empty then this NetworkPolicy limits all outgoing traffic (and serves solely to ensure that the pods it selects are isolated by default). This field is beta-level in 1.8
-	Egress(Egress ...networkingv1.NetworkPolicyEgressRule) NetworkPolicySpecDie
+	Egress(v ...networkingv1.NetworkPolicyEgressRule) NetworkPolicySpecDie
 	// List of rule types that the NetworkPolicy relates to. Valid options are ["Ingress"], ["Egress"], or ["Ingress", "Egress"]. If this field is not specified, it will default based on the existence of Ingress or Egress rules; policies that contain an Egress section are assumed to affect Egress, and all policies (whether or not they contain an Ingress section) are assumed to affect Ingress. If you want to write an egress-only policy, you must explicitly specify policyTypes [ "Egress" ]. Likewise, if you want to write a policy that specifies that no egress is allowed, you must specify a policyTypes value that include "Egress" (since such a policy would not include an Egress section and would otherwise default to just [ "Ingress" ]). This field is beta-level in 1.8
-	PolicyTypes(PolicyTypes ...networkingv1.PolicyType) NetworkPolicySpecDie
+	PolicyTypes(v ...networkingv1.PolicyType) NetworkPolicySpecDie
 }
 
 var _ NetworkPolicySpecDie = (*networkPolicySpecDie)(nil)
@@ -1680,9 +1680,9 @@ type NetworkPolicyIngressRuleDie interface {
 	DeepCopy() NetworkPolicyIngressRuleDie
 
 	// List of ports which should be made accessible on the pods selected for this rule. Each item in this list is combined using a logical OR. If this field is empty or missing, this rule matches all ports (traffic not restricted by port). If this field is present and contains at least one item, then this rule allows traffic only if the traffic matches at least one port in the list.
-	Ports(Ports ...networkingv1.NetworkPolicyPort) NetworkPolicyIngressRuleDie
+	Ports(v ...networkingv1.NetworkPolicyPort) NetworkPolicyIngressRuleDie
 	// List of sources which should be able to access the pods selected for this rule. Items in this list are combined using a logical OR operation. If this field is empty or missing, this rule matches all sources (traffic not restricted by source). If this field is present and contains at least one item, this rule allows traffic only if the traffic matches at least one item in the from list.
-	From(From ...networkingv1.NetworkPolicyPeer) NetworkPolicyIngressRuleDie
+	From(v ...networkingv1.NetworkPolicyPeer) NetworkPolicyIngressRuleDie
 }
 
 var _ NetworkPolicyIngressRuleDie = (*networkPolicyIngressRuleDie)(nil)
@@ -1775,9 +1775,9 @@ type NetworkPolicyEgressRuleDie interface {
 	DeepCopy() NetworkPolicyEgressRuleDie
 
 	// List of destination ports for outgoing traffic. Each item in this list is combined using a logical OR. If this field is empty or missing, this rule matches all ports (traffic not restricted by port). If this field is present and contains at least one item, then this rule allows traffic only if the traffic matches at least one port in the list.
-	Ports(Ports ...networkingv1.NetworkPolicyPort) NetworkPolicyEgressRuleDie
+	Ports(v ...networkingv1.NetworkPolicyPort) NetworkPolicyEgressRuleDie
 	// List of destinations for outgoing traffic of pods selected for this rule. Items in this list are combined using a logical OR operation. If this field is empty or missing, this rule matches all destinations (traffic not restricted by destination). If this field is present and contains at least one item, this rule allows traffic only if the traffic matches at least one item in the to list.
-	To(To ...networkingv1.NetworkPolicyPeer) NetworkPolicyEgressRuleDie
+	To(v ...networkingv1.NetworkPolicyPeer) NetworkPolicyEgressRuleDie
 }
 
 var _ NetworkPolicyEgressRuleDie = (*networkPolicyEgressRuleDie)(nil)
@@ -1870,11 +1870,11 @@ type NetworkPolicyPortDie interface {
 	DeepCopy() NetworkPolicyPortDie
 
 	// The protocol (TCP, UDP, or SCTP) which traffic must match. If not specified, this field defaults to TCP.
-	Protocol(Protocol *corev1.Protocol) NetworkPolicyPortDie
+	Protocol(v *corev1.Protocol) NetworkPolicyPortDie
 	// The port on the given protocol. This can either be a numerical or named port on a pod. If this field is not provided, this matches all port names and numbers. If present, only traffic on the specified protocol AND port will be matched.
-	Port(Port *intstr.IntOrString) NetworkPolicyPortDie
+	Port(v *intstr.IntOrString) NetworkPolicyPortDie
 	// If set, indicates that the range of ports from port to endPort, inclusive, should be allowed by the policy. This field cannot be defined if the port field is not defined or if the port field is defined as a named (string) port. The endPort must be equal or greater than port. This feature is in Beta state and is enabled by default. It can be disabled using the Feature Gate "NetworkPolicyEndPort".
-	EndPort(EndPort *int32) NetworkPolicyPortDie
+	EndPort(v *int32) NetworkPolicyPortDie
 }
 
 var _ NetworkPolicyPortDie = (*networkPolicyPortDie)(nil)
@@ -1986,17 +1986,17 @@ type NetworkPolicyPeerDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() NetworkPolicyPeerDie
 
-	networkPolicyPeer
+	networkPolicyPeerDieExtension
 	// This is a label selector which selects Pods. This field follows standard label selector semantics; if present but empty, it selects all pods.
 	//
 	// If NamespaceSelector is also set, then the NetworkPolicyPeer as a whole selects the Pods matching PodSelector in the Namespaces selected by NamespaceSelector. Otherwise it selects the Pods matching PodSelector in the policy's own Namespace.
-	PodSelector(PodSelector *apismetav1.LabelSelector) NetworkPolicyPeerDie
+	PodSelector(v *apismetav1.LabelSelector) NetworkPolicyPeerDie
 	// Selects Namespaces using cluster-scoped labels. This field follows standard label selector semantics; if present but empty, it selects all namespaces.
 	//
 	// If PodSelector is also set, then the NetworkPolicyPeer as a whole selects the Pods matching PodSelector in the Namespaces selected by NamespaceSelector. Otherwise it selects all Pods in the Namespaces selected by NamespaceSelector.
-	NamespaceSelector(NamespaceSelector *apismetav1.LabelSelector) NetworkPolicyPeerDie
+	NamespaceSelector(v *apismetav1.LabelSelector) NetworkPolicyPeerDie
 	// IPBlock defines policy on a particular IPBlock. If this field is set then neither of the other fields can be.
-	IPBlock(IPBlock *networkingv1.IPBlock) NetworkPolicyPeerDie
+	IPBlock(v *networkingv1.IPBlock) NetworkPolicyPeerDie
 }
 
 var _ NetworkPolicyPeerDie = (*networkPolicyPeerDie)(nil)
@@ -2095,79 +2095,79 @@ type IPBlockDie interface {
 	DeepCopy() IPBlockDie
 
 	// CIDR is a string representing the IP Block Valid examples are "192.168.1.1/24" or "2001:db9::/64"
-	CIDR(CIDR string) IPBlockDie
+	CIDR(v string) IPBlockDie
 	// Except is a slice of CIDRs that should not be included within an IP Block Valid examples are "192.168.1.1/24" or "2001:db9::/64" Except values will be rejected if they are outside the CIDR range
-	Except(Except ...string) IPBlockDie
+	Except(v ...string) IPBlockDie
 }
 
-var _ IPBlockDie = (*iPBlockDie)(nil)
-var IPBlockBlank = (&iPBlockDie{}).DieFeed(networkingv1.IPBlock{})
+var _ IPBlockDie = (*ipBlockDie)(nil)
+var IPBlockBlank = (&ipBlockDie{}).DieFeed(networkingv1.IPBlock{})
 
-type iPBlockDie struct {
+type ipBlockDie struct {
 	mutable bool
 	r       networkingv1.IPBlock
 }
 
-func (d *iPBlockDie) DieImmutable(immutable bool) IPBlockDie {
+func (d *ipBlockDie) DieImmutable(immutable bool) IPBlockDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*iPBlockDie)
+	d = d.DeepCopy().(*ipBlockDie)
 	d.mutable = !immutable
 	return d
 }
 
-func (d *iPBlockDie) DieFeed(r networkingv1.IPBlock) IPBlockDie {
+func (d *ipBlockDie) DieFeed(r networkingv1.IPBlock) IPBlockDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &iPBlockDie{
+	return &ipBlockDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *iPBlockDie) DieFeedPtr(r *networkingv1.IPBlock) IPBlockDie {
+func (d *ipBlockDie) DieFeedPtr(r *networkingv1.IPBlock) IPBlockDie {
 	if r == nil {
 		r = &networkingv1.IPBlock{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *iPBlockDie) DieRelease() networkingv1.IPBlock {
+func (d *ipBlockDie) DieRelease() networkingv1.IPBlock {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *iPBlockDie) DieReleasePtr() *networkingv1.IPBlock {
+func (d *ipBlockDie) DieReleasePtr() *networkingv1.IPBlock {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *iPBlockDie) DieStamp(fn func(r *networkingv1.IPBlock)) IPBlockDie {
+func (d *ipBlockDie) DieStamp(fn func(r *networkingv1.IPBlock)) IPBlockDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *iPBlockDie) DeepCopy() IPBlockDie {
+func (d *ipBlockDie) DeepCopy() IPBlockDie {
 	r := *d.r.DeepCopy()
-	return &iPBlockDie{
+	return &ipBlockDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *iPBlockDie) CIDR(v string) IPBlockDie {
+func (d *ipBlockDie) CIDR(v string) IPBlockDie {
 	return d.DieStamp(func(r *networkingv1.IPBlock) {
 		r.CIDR = v
 	})
 }
 
-func (d *iPBlockDie) Except(v ...string) IPBlockDie {
+func (d *ipBlockDie) Except(v ...string) IPBlockDie {
 	return d.DieStamp(func(r *networkingv1.IPBlock) {
 		r.Except = v
 	})

@@ -28,7 +28,7 @@ type _ = corev1.Service
 // +die
 type _ = corev1.ServiceSpec
 
-type serviceSpec interface {
+type serviceSpecDieExtension interface {
 	PortDie(protocol corev1.Protocol, port int32, fn func(d ServicePortDie)) ServiceSpecDie
 	AddSelector(key, value string) ServiceSpecDie
 	SessionAffinityConfigDie(fn func(d SessionAffinityConfigDie)) ServiceSpecDie
@@ -71,7 +71,7 @@ type _ = corev1.ServicePort
 // +die
 type _ = corev1.SessionAffinityConfig
 
-type sessionAffinityConfig interface {
+type sessionAffinityConfigDieExtensionDieExtension interface {
 	ClientIPDie(fn func(d ClientIPConfigDie)) SessionAffinityConfigDie
 }
 
@@ -89,7 +89,7 @@ type _ = corev1.ClientIPConfig
 // +die
 type _ = corev1.ServiceStatus
 
-type serviceStatus interface {
+type serviceStatusDieExtension interface {
 	LoadBalancerDie(fn func(d LoadBalancerStatusDie)) ServiceStatusDie
 	ConditionsDie(conditions ...diemetav1.ConditionDie) ServiceStatusDie
 }
@@ -114,7 +114,7 @@ func (d *serviceStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) S
 // +die
 type _ = corev1.LoadBalancerStatus
 
-type loadBalancerStatus interface {
+type loadBalancerStatusDieExtension interface {
 	LoadBalancerDie(ingress ...LoadBalancerIngressDie) LoadBalancerStatusDie
 }
 
@@ -130,7 +130,7 @@ func (d *loadBalancerStatusDie) LoadBalancerDie(ingress ...LoadBalancerIngressDi
 // +die
 type _ = corev1.LoadBalancerIngress
 
-type loadBalancerIngress interface {
+type loadBalancerIngressDieExtension interface {
 	PortsDie(ports ...PortStatusDie) LoadBalancerIngressDie
 }
 

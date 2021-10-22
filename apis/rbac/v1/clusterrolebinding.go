@@ -23,7 +23,7 @@ import (
 // +die:object=true
 type _ = rbacv1.ClusterRoleBinding
 
-type clusterRoleBinding interface {
+type clusterRoleBindingDieExtension interface {
 	SubjectsDie(subjects ...SubjectDie) ClusterRoleBindingDie
 	RoleRefDie(fn func(d RoleRefDie)) ClusterRoleBindingDie
 }

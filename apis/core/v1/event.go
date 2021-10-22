@@ -23,7 +23,7 @@ import (
 // +die:object=true
 type _ = corev1.Event
 
-type event interface {
+type eventDieExtension interface {
 	InvolvedObjectDie(fn func(d ObjectReferenceDie)) EventDie
 	SourceDie(fn func(d EventSourceDie)) EventDie
 	SeriesDie(fn func(d EventSeriesDie)) EventDie

@@ -27,7 +27,7 @@ type _ = networkingv1.Ingress
 // +die
 type _ = networkingv1.IngressSpec
 
-type ingressSpec interface {
+type ingressSpecDieExtension interface {
 	DefaultBackendDie(fn func(d IngressBackendDie)) IngressSpecDie
 	TLSDie(tls ...IngressTLSDie) IngressSpecDie
 	RulesDie(rules ...IngressRuleDie) IngressSpecDie
@@ -62,7 +62,7 @@ func (d *ingressSpecDie) RulesDie(rules ...IngressRuleDie) IngressSpecDie {
 // +die
 type _ = networkingv1.IngressBackend
 
-type ingressBackend interface {
+type ingressBackendDieExtension interface {
 	ServiceDie(fn func(d IngressServiceBackendDie)) IngressBackendDie
 	ResourceDie(fn func(d diecorev1.TypedLocalObjectReferenceDie)) IngressBackendDie
 }
@@ -86,7 +86,7 @@ func (d *ingressBackendDie) ResourceDie(fn func(d diecorev1.TypedLocalObjectRefe
 // +die
 type _ = networkingv1.IngressServiceBackend
 
-type ingressServiceBackend interface {
+type ingressServiceBackendDieExtension interface {
 	PortDie(fn func(d ServiceBackendPortDie)) IngressServiceBackendDie
 }
 
@@ -107,7 +107,7 @@ type _ = networkingv1.IngressTLS
 // +die
 type _ = networkingv1.IngressRule
 
-type ingressRule interface {
+type ingressRuleDieExtension interface {
 	HTTPDie(fn func(d HTTPIngressRuleValueDie)) IngressRuleDie
 }
 
@@ -120,13 +120,13 @@ func (d *ingressRuleDie) HTTPDie(fn func(d HTTPIngressRuleValueDie)) IngressRule
 }
 
 // +die
-type HTTPIngressRuleValue = networkingv1.HTTPIngressRuleValue
+type _ = networkingv1.HTTPIngressRuleValue
 
-type hTTPIngressRuleValue interface {
+type httpIngressRuleValueDieExtension interface {
 	PathsDie(paths ...HTTPIngressPathDie) HTTPIngressRuleValueDie
 }
 
-func (d *hTTPIngressRuleValueDie) PathsDie(paths ...HTTPIngressPathDie) HTTPIngressRuleValueDie {
+func (d *httpIngressRuleValueDie) PathsDie(paths ...HTTPIngressPathDie) HTTPIngressRuleValueDie {
 	return d.DieStamp(func(r *networkingv1.HTTPIngressRuleValue) {
 		r.Paths = make([]networkingv1.HTTPIngressPath, len(paths))
 		for i := range paths {
@@ -136,13 +136,13 @@ func (d *hTTPIngressRuleValueDie) PathsDie(paths ...HTTPIngressPathDie) HTTPIngr
 }
 
 // +die
-type HTTPIngressPath = networkingv1.HTTPIngressPath
+type _ = networkingv1.HTTPIngressPath
 
-type hTTPIngressPath interface {
+type httpIngressPathDieExtension interface {
 	BackendDie(fn func(d IngressBackendDie)) HTTPIngressPathDie
 }
 
-func (d *hTTPIngressPathDie) BackendDie(fn func(d IngressBackendDie)) HTTPIngressPathDie {
+func (d *httpIngressPathDie) BackendDie(fn func(d IngressBackendDie)) HTTPIngressPathDie {
 	return d.DieStamp(func(r *networkingv1.HTTPIngressPath) {
 		d := IngressBackendBlank.DieImmutable(false).DieFeed(r.Backend)
 		fn(d)
@@ -153,7 +153,7 @@ func (d *hTTPIngressPathDie) BackendDie(fn func(d IngressBackendDie)) HTTPIngres
 // +die
 type IngressStatus = networkingv1.IngressStatus
 
-type ingressStatus interface {
+type ingressStatusDieExtension interface {
 	LoadBalancerDie(fn func(d diecorev1.LoadBalancerStatusDie)) IngressStatusDie
 }
 

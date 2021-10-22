@@ -23,7 +23,7 @@ import (
 // +die:object=true
 type _ = corev1.ServiceAccount
 
-type serviceAccount interface {
+type serviceAccountDieExtension interface {
 	SecretsDie(secrets ...ObjectReferenceDie) ServiceAccountDie
 	ImagePullSecretsDie(secrets ...LocalObjectReferenceDie) ServiceAccountDie
 }

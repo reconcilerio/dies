@@ -25,7 +25,7 @@ import (
 // +die:object=true
 type _ = rbacv1.ClusterRole
 
-type clusterRole interface {
+type clusterRoleDieExtension interface {
 	RulesDie(rules ...PolicyRuleDie) ClusterRoleDie
 	AddRuleDie(rule PolicyRuleDie) ClusterRoleDie
 	AggregationRuleDie(fn func(d AggregationRuleDie)) ClusterRoleDie
@@ -57,7 +57,7 @@ func (d *clusterRoleDie) AggregationRuleDie(fn func(d AggregationRuleDie)) Clust
 // +die
 type _ = rbacv1.AggregationRule
 
-type aggregationRule interface {
+type aggregationRuleDieExtension interface {
 	ClusterRoleSelectorsDie(selectors ...diemetav1.LabelSelectorDie) AggregationRuleDie
 }
 

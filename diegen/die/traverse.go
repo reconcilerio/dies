@@ -222,7 +222,7 @@ func (c *copyMethodMaker) generateInterface(die Die, fields []Field) {
 		if f.Doc != "" {
 			c.Linef("%s", c.Doc(f.Doc))
 		}
-		c.Linef("	%s(%s%s %s%s) %s", f.Name, f.Name[0:1], f.Name[1:], f.TypePrefix, c.AliasedRef(f.TypePackage, f.Type), die.Interface)
+		c.Linef("	%s(v %s%s) %s", f.Name, f.TypePrefix, c.AliasedRef(f.TypePackage, f.Type), die.Interface)
 	}
 	if die.Object {
 		c.Linef("")

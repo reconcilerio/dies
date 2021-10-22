@@ -26,7 +26,7 @@ type _ = networkingv1.IngressClass
 // +die
 type _ = networkingv1.IngressClassSpec
 
-type ingressClassSpec interface {
+type ingressClassSpecDieExtension interface {
 	ParametersDie(fn func(d IngressClassParametersReferenceDie)) IngressClassSpecDie
 }
 

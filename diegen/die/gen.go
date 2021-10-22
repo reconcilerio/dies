@@ -22,6 +22,7 @@ import (
 	"go/ast"
 	"go/format"
 	"io"
+	"regexp"
 	"strings"
 	"unicode"
 
@@ -41,7 +42,8 @@ type Die struct {
 
 	Target                string `marker:",optional"`
 	Name                  string `marker:",optional"`
-	InternalName          string `marker:",optional"`
+	UnexportedName        string `marker:",optional"`
+	ExtensionName         string `marker:",optional"`
 	Type                  string `marker:",optional"`
 	Interface             string `marker:",optional"`
 	TargetPackage         string `marker:",optional"`
@@ -64,11 +66,20 @@ func (d *Die) Default() {
 	if d.Name == "" {
 		d.Name = d.TargetType
 	}
-	if d.InternalName == "" {
-		d.InternalName = fmt.Sprintf("%s%s", strings.ToLower(d.Name[0:1]), d.Name[1:])
+	if d.UnexportedName == "" {
+		d.UnexportedName = regexp.MustCompile(`^[A-Z]+`).
+			ReplaceAllStringFunc(d.Name, func(s string) string {
+				if len(s) == 1 {
+					return strings.ToLower(s)
+				}
+				return strings.ToLower(s[0:len(s)-1]) + s[len(s)-1:]
+			})
+	}
+	if d.ExtensionName == "" {
+		d.ExtensionName = fmt.Sprintf("%sDieExtension", d.UnexportedName)
 	}
 	if d.Type == "" {
-		d.Type = fmt.Sprintf("%sDie", d.InternalName)
+		d.Type = fmt.Sprintf("%sDie", d.UnexportedName)
 	}
 	if d.Interface == "" {
 		d.Interface = fmt.Sprintf("%sDie", d.Name)
@@ -253,7 +264,7 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) ([]byte, []byt
 			die.Target = qualifyField(info.RawSpec.Type, root.ID, info.RawFile.Imports)
 			die.Default()
 			if err := markers.EachType(ctx.Collector, root, func(info *markers.TypeInfo) {
-				if info.Name == die.InternalName {
+				if info.Name == die.ExtensionName {
 					die.CustomMethodInterface = info.Name
 				}
 			}); err != nil {

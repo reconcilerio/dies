@@ -29,7 +29,7 @@ type _ = appsv1.Deployment
 // +die
 type _ = appsv1.DeploymentSpec
 
-type deploymentSpec interface {
+type deploymentSpecDieExtension interface {
 	SelectorDie(fn func(d diemetav1.LabelSelectorDie)) DeploymentSpecDie
 	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) DeploymentSpecDie
 }
@@ -61,7 +61,7 @@ func (d *deploymentSpecDie) StrategyDie(fn func(d DeploymentStrategyDie)) Deploy
 // +die
 type _ = appsv1.DeploymentStrategy
 
-type deploymentStrategy interface {
+type deploymentStrategyDieExtension interface {
 	Recreate() DeploymentStrategyDie
 	RollingUpdateDie(fn func(d RollingUpdateDeploymentDie)) DeploymentStrategyDie
 }
@@ -88,7 +88,7 @@ type _ = appsv1.RollingUpdateDeployment
 // +die
 type _ = appsv1.DeploymentStatus
 
-type deploymentStatus interface {
+type deploymentStatusDieExtension interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) DeploymentStatusDie
 }
 

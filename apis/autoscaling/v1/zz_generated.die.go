@@ -54,9 +54,9 @@ type HorizontalPodAutoscalerDie interface {
 	// StatusDie stamps the resource's status field with a mutable die.
 	StatusDie(fn func(d HorizontalPodAutoscalerStatusDie)) HorizontalPodAutoscalerDie
 	// behaviour of autoscaler. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.
-	Spec(Spec autoscalingv1.HorizontalPodAutoscalerSpec) HorizontalPodAutoscalerDie
+	Spec(v autoscalingv1.HorizontalPodAutoscalerSpec) HorizontalPodAutoscalerDie
 	// current information about the autoscaler.
-	Status(Status autoscalingv1.HorizontalPodAutoscalerStatus) HorizontalPodAutoscalerDie
+	Status(v autoscalingv1.HorizontalPodAutoscalerStatus) HorizontalPodAutoscalerDie
 
 	runtime.Object
 	apismetav1.Object
@@ -203,15 +203,15 @@ type HorizontalPodAutoscalerSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() HorizontalPodAutoscalerSpecDie
 
-	horizontalPodAutoscalerSpec
+	horizontalPodAutoscalerSpecDieExtension
 	// reference to scaled resource; horizontal pod autoscaler will learn the current resource consumption and will set the desired number of pods by using its Scale subresource.
-	ScaleTargetRef(ScaleTargetRef autoscalingv1.CrossVersionObjectReference) HorizontalPodAutoscalerSpecDie
+	ScaleTargetRef(v autoscalingv1.CrossVersionObjectReference) HorizontalPodAutoscalerSpecDie
 	// minReplicas is the lower limit for the number of replicas to which the autoscaler can scale down.  It defaults to 1 pod.  minReplicas is allowed to be 0 if the alpha feature gate HPAScaleToZero is enabled and at least one Object or External metric is configured.  Scaling is active as long as at least one metric value is available.
-	MinReplicas(MinReplicas *int32) HorizontalPodAutoscalerSpecDie
+	MinReplicas(v *int32) HorizontalPodAutoscalerSpecDie
 	// upper limit for the number of pods that can be set by the autoscaler; cannot be smaller than MinReplicas.
-	MaxReplicas(MaxReplicas int32) HorizontalPodAutoscalerSpecDie
+	MaxReplicas(v int32) HorizontalPodAutoscalerSpecDie
 	// target average CPU utilization (represented as a percentage of requested CPU) over all the pods; if not specified the default autoscaling policy will be used.
-	TargetCPUUtilizationPercentage(TargetCPUUtilizationPercentage *int32) HorizontalPodAutoscalerSpecDie
+	TargetCPUUtilizationPercentage(v *int32) HorizontalPodAutoscalerSpecDie
 }
 
 var _ HorizontalPodAutoscalerSpecDie = (*horizontalPodAutoscalerSpecDie)(nil)
@@ -316,11 +316,11 @@ type CrossVersionObjectReferenceDie interface {
 	DeepCopy() CrossVersionObjectReferenceDie
 
 	// Kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
-	Kind(Kind string) CrossVersionObjectReferenceDie
+	Kind(v string) CrossVersionObjectReferenceDie
 	// Name of the referent; More info: http://kubernetes.io/docs/user-guide/identifiers#names
-	Name(Name string) CrossVersionObjectReferenceDie
+	Name(v string) CrossVersionObjectReferenceDie
 	// API version of the referent
-	APIVersion(APIVersion string) CrossVersionObjectReferenceDie
+	APIVersion(v string) CrossVersionObjectReferenceDie
 }
 
 var _ CrossVersionObjectReferenceDie = (*crossVersionObjectReferenceDie)(nil)
@@ -419,15 +419,15 @@ type HorizontalPodAutoscalerStatusDie interface {
 	DeepCopy() HorizontalPodAutoscalerStatusDie
 
 	// most recent generation observed by this autoscaler.
-	ObservedGeneration(ObservedGeneration *int64) HorizontalPodAutoscalerStatusDie
+	ObservedGeneration(v *int64) HorizontalPodAutoscalerStatusDie
 	// last time the HorizontalPodAutoscaler scaled the number of pods; used by the autoscaler to control how often the number of pods is changed.
-	LastScaleTime(LastScaleTime *apismetav1.Time) HorizontalPodAutoscalerStatusDie
+	LastScaleTime(v *apismetav1.Time) HorizontalPodAutoscalerStatusDie
 	// current number of replicas of pods managed by this autoscaler.
-	CurrentReplicas(CurrentReplicas int32) HorizontalPodAutoscalerStatusDie
+	CurrentReplicas(v int32) HorizontalPodAutoscalerStatusDie
 	// desired number of replicas of pods managed by this autoscaler.
-	DesiredReplicas(DesiredReplicas int32) HorizontalPodAutoscalerStatusDie
+	DesiredReplicas(v int32) HorizontalPodAutoscalerStatusDie
 	// current average CPU utilization over all pods, represented as a percentage of requested CPU, e.g. 70 means that an average pod is using now 70% of its requested CPU.
-	CurrentCPUUtilizationPercentage(CurrentCPUUtilizationPercentage *int32) HorizontalPodAutoscalerStatusDie
+	CurrentCPUUtilizationPercentage(v *int32) HorizontalPodAutoscalerStatusDie
 }
 
 var _ HorizontalPodAutoscalerStatusDie = (*horizontalPodAutoscalerStatusDie)(nil)

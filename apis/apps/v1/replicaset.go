@@ -29,7 +29,7 @@ type _ = appsv1.ReplicaSet
 // +die
 type _ = appsv1.ReplicaSetSpec
 
-type replicaSetSpec interface {
+type replicaSetSpecDieExtension interface {
 	SelectorDie(fn func(d diemetav1.LabelSelectorDie)) ReplicaSetSpecDie
 	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) ReplicaSetSpecDie
 }
@@ -53,7 +53,7 @@ func (d *replicaSetSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie))
 // +die
 type _ = appsv1.ReplicaSetStatus
 
-type replicaSetStatus interface {
+type replicaSetStatusDieExtension interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) ReplicaSetStatusDie
 }
 

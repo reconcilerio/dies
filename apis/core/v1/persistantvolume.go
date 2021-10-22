@@ -27,7 +27,7 @@ type _ = corev1.PersistentVolume
 // +die
 type _ = corev1.PersistentVolumeSpec
 
-type persistentVolumeSpec interface {
+type persistentVolumeSpecDieExtension interface {
 	AddCapacity(name corev1.ResourceName, quantity resource.Quantity) PersistentVolumeSpecDie
 	AddCapacityString(name corev1.ResourceName, quantity string) PersistentVolumeSpecDie
 	GCEPersistentDiskDie(fn func(d GCEPersistentDiskVolumeSourceDie)) PersistentVolumeSpecDie
@@ -311,11 +311,11 @@ type _ = corev1.GlusterfsPersistentVolumeSource
 // +die
 type _ = corev1.RBDPersistentVolumeSource
 
-type rBDPersistentVolumeSource interface {
+type rbdPersistentVolumeSourceDieExtension interface {
 	SecretRefDie(fn func(d SecretReferenceDie)) RBDPersistentVolumeSourceDie
 }
 
-func (d *rBDPersistentVolumeSourceDie) SecretRefDie(fn func(d SecretReferenceDie)) RBDPersistentVolumeSourceDie {
+func (d *rbdPersistentVolumeSourceDie) SecretRefDie(fn func(d SecretReferenceDie)) RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
 		d := SecretReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
 		fn(d)
@@ -326,11 +326,11 @@ func (d *rBDPersistentVolumeSourceDie) SecretRefDie(fn func(d SecretReferenceDie
 // +die
 type _ = corev1.ISCSIPersistentVolumeSource
 
-type iSCSIPersistentVolumeSource interface {
+type iscsiPersistentVolumeSourceDieExtension interface {
 	SecretRefDie(fn func(d SecretReferenceDie)) ISCSIPersistentVolumeSourceDie
 }
 
-func (d *iSCSIPersistentVolumeSourceDie) SecretRefDie(fn func(d SecretReferenceDie)) ISCSIPersistentVolumeSourceDie {
+func (d *iscsiPersistentVolumeSourceDie) SecretRefDie(fn func(d SecretReferenceDie)) ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		d := SecretReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
 		fn(d)
@@ -341,7 +341,7 @@ func (d *iSCSIPersistentVolumeSourceDie) SecretRefDie(fn func(d SecretReferenceD
 // +die
 type _ = corev1.CinderPersistentVolumeSource
 
-type cinderPersistentVolumeSource interface {
+type cinderPersistentVolumeSourceDieExtension interface {
 	SecretRefDie(fn func(d SecretReferenceDie)) CinderPersistentVolumeSourceDie
 }
 
@@ -356,7 +356,7 @@ func (d *cinderPersistentVolumeSourceDie) SecretRefDie(fn func(d SecretReference
 // +die
 type _ = corev1.CephFSPersistentVolumeSource
 
-type cephFSPersistentVolumeSource interface {
+type cephFSPersistentVolumeSourceDieExtension interface {
 	SecretRefDie(fn func(d SecretReferenceDie)) CephFSPersistentVolumeSourceDie
 }
 
@@ -371,7 +371,7 @@ func (d *cephFSPersistentVolumeSourceDie) SecretRefDie(fn func(d SecretReference
 // +die
 type _ = corev1.FlexPersistentVolumeSource
 
-type flexPersistentVolumeSource interface {
+type flexPersistentVolumeSourceDieExtension interface {
 	SecretRefDie(fn func(d SecretReferenceDie)) FlexPersistentVolumeSourceDie
 }
 
@@ -389,7 +389,7 @@ type _ = corev1.AzureFilePersistentVolumeSource
 // +die
 type _ = corev1.ScaleIOPersistentVolumeSource
 
-type scaleIOPersistentVolumeSource interface {
+type scaleIOPersistentVolumeSourceDieExtension interface {
 	SecretRefDie(fn func(d SecretReferenceDie)) ScaleIOPersistentVolumeSourceDie
 }
 
@@ -407,7 +407,7 @@ type _ = corev1.LocalVolumeSource
 // +die
 type _ = corev1.StorageOSPersistentVolumeSource
 
-type storageOSPersistentVolumeSource interface {
+type storageOSPersistentVolumeSourceDieExtension interface {
 	SecretRefDie(fn func(d ObjectReferenceDie)) StorageOSPersistentVolumeSourceDie
 }
 
@@ -422,7 +422,7 @@ func (d *storageOSPersistentVolumeSourceDie) SecretRefDie(fn func(d ObjectRefere
 // +die
 type _ = corev1.CSIPersistentVolumeSource
 
-type cSIPersistentVolumeSource interface {
+type csiPersistentVolumeSourceDieExtension interface {
 	AddVolumeAttributes(key, value string) CSIPersistentVolumeSourceDie
 	ControllerPublishSecretRefDie(fn func(d SecretReferenceDie)) CSIPersistentVolumeSourceDie
 	NodeStageSecretRefDie(fn func(d SecretReferenceDie)) CSIPersistentVolumeSourceDie
@@ -430,7 +430,7 @@ type cSIPersistentVolumeSource interface {
 	ControllerExpandSecretRefDie(fn func(d SecretReferenceDie)) CSIPersistentVolumeSourceDie
 }
 
-func (d *cSIPersistentVolumeSourceDie) AddVolumeAttributes(key, value string) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) AddVolumeAttributes(key, value string) CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		if r.VolumeAttributes == nil {
 			r.VolumeAttributes = map[string]string{}
@@ -439,7 +439,7 @@ func (d *cSIPersistentVolumeSourceDie) AddVolumeAttributes(key, value string) CS
 	})
 }
 
-func (d *cSIPersistentVolumeSourceDie) ControllerPublishSecretRefDie(fn func(d SecretReferenceDie)) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) ControllerPublishSecretRefDie(fn func(d SecretReferenceDie)) CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		d := SecretReferenceBlank.DieImmutable(false).DieFeedPtr(r.ControllerPublishSecretRef)
 		fn(d)
@@ -447,7 +447,7 @@ func (d *cSIPersistentVolumeSourceDie) ControllerPublishSecretRefDie(fn func(d S
 	})
 }
 
-func (d *cSIPersistentVolumeSourceDie) NodeStageSecretRefDie(fn func(d SecretReferenceDie)) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) NodeStageSecretRefDie(fn func(d SecretReferenceDie)) CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		d := SecretReferenceBlank.DieImmutable(false).DieFeedPtr(r.NodeStageSecretRef)
 		fn(d)
@@ -455,7 +455,7 @@ func (d *cSIPersistentVolumeSourceDie) NodeStageSecretRefDie(fn func(d SecretRef
 	})
 }
 
-func (d *cSIPersistentVolumeSourceDie) NodePublishSecretRefDie(fn func(d SecretReferenceDie)) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) NodePublishSecretRefDie(fn func(d SecretReferenceDie)) CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		d := SecretReferenceBlank.DieImmutable(false).DieFeedPtr(r.NodePublishSecretRef)
 		fn(d)
@@ -463,7 +463,7 @@ func (d *cSIPersistentVolumeSourceDie) NodePublishSecretRefDie(fn func(d SecretR
 	})
 }
 
-func (d *cSIPersistentVolumeSourceDie) ControllerExpandSecretRefDie(fn func(d SecretReferenceDie)) CSIPersistentVolumeSourceDie {
+func (d *csiPersistentVolumeSourceDie) ControllerExpandSecretRefDie(fn func(d SecretReferenceDie)) CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		d := SecretReferenceBlank.DieImmutable(false).DieFeedPtr(r.ControllerExpandSecretRef)
 		fn(d)
@@ -474,7 +474,7 @@ func (d *cSIPersistentVolumeSourceDie) ControllerExpandSecretRefDie(fn func(d Se
 // +die
 type _ = corev1.VolumeNodeAffinity
 
-type VolumeNodeAffinity interface {
+type VolumeNodeAffinityDieExtension interface {
 	RequiredDie(fn func(d NodeSelectorDie)) VolumeNodeAffinityDie
 }
 
@@ -489,7 +489,7 @@ func (d *volumeNodeAffinityDie) RequiredDie(fn func(d NodeSelectorDie)) VolumeNo
 // +die
 type _ = corev1.NodeSelector
 
-type nodeSelector interface {
+type nodeSelectorDieExtension interface {
 	NodeSelectorTermsDie(terms ...NodeSelectorTermDie) NodeSelectorDie
 }
 
@@ -505,7 +505,7 @@ func (d *nodeSelectorDie) NodeSelectorTermsDie(terms ...NodeSelectorTermDie) Nod
 // +die
 type _ = corev1.NodeSelectorTerm
 
-type nodeSelectorTerm interface {
+type nodeSelectorTermDieExtension interface {
 	MatchExpressionDie(key string, fn func(d NodeSelectorRequirementDie)) NodeSelectorTermDie
 	MatchFieldsDie(key string, fn func(d NodeSelectorRequirementDie)) NodeSelectorTermDie
 }

@@ -26,7 +26,7 @@ type _ = batchv1.CronJob
 // +die
 type _ = batchv1.CronJobSpec
 
-type cronJobSpec interface {
+type cronJobSpecDieExtension interface {
 	JobTemplateDie(fn func(d JobDie)) CronJobSpecDie
 }
 

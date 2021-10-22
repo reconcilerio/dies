@@ -179,7 +179,7 @@ Example dispatching to a nested die to managed the template
 `corev1.PodTemplateSpec` for `DeploymentSpec`:
 
 ```go
-type deploymentSpec interface {
+type deploymentSpecDieExtension interface {
     TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) DeploymentSpecDie
     // add other methods to contributed to DeploymentSpecDie
 }
@@ -198,7 +198,7 @@ func (d *deploymentSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie))
 Example adapting `metav1.Condition` dies to `appsv1.DeploymentCondition`:
 
 ```go
-type deploymentStatus interface {
+type deploymentStatusDieExtension interface {
     ConditionsDie(conditions ...diemetav1.ConditionDie) DeploymentStatusDie
     // add other methods to contributed to DeploymentStatusDie
 }

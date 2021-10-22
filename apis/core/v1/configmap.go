@@ -23,7 +23,7 @@ import (
 // +die:object=true,ignore={BinaryData,Data}
 type ConfigMap = corev1.ConfigMap
 
-type configMap interface {
+type configMapDieExtension interface {
 	Data(v map[string]string) ConfigMapDie
 	AddData(key, value string) ConfigMapDie
 	BinaryData(v map[string][]byte) ConfigMapDie

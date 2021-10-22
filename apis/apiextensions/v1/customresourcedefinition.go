@@ -27,7 +27,7 @@ type _ = apiextensionsv1.CustomResourceDefinition
 // +die
 type _ = apiextensionsv1.CustomResourceDefinitionSpec
 
-type customResourceDefinitionSpec interface {
+type customResourceDefinitionSpecDieExtension interface {
 	NamesDie(fn func(d CustomResourceDefinitionNamesDie)) CustomResourceDefinitionSpecDie
 	VersionDie(name string, fn func(d CustomResourceDefinitionVersionDie)) CustomResourceDefinitionSpecDie
 	ConversionDie(fn func(d CustomResourceConversionDie)) CustomResourceDefinitionSpecDie
@@ -69,7 +69,7 @@ func (d *customResourceDefinitionSpecDie) ConversionDie(fn func(d CustomResource
 // +die
 type _ apiextensionsv1.CustomResourceDefinitionVersion
 
-type customResourceDefinitionVersion interface {
+type customResourceDefinitionVersionDieExtension interface {
 	SchemaDie(fn func(d CustomResourceValidationDie)) CustomResourceDefinitionVersionDie
 	SubresourcesDie(fn func(d CustomResourceSubresourcesDie)) CustomResourceDefinitionVersionDie
 	AdditionalPrinterColumnDie(name string, fn func(d CustomResourceColumnDefinitionDie)) CustomResourceDefinitionVersionDie
@@ -114,7 +114,7 @@ type _ apiextensionsv1.CustomResourceValidation
 // +die
 type _ apiextensionsv1.CustomResourceSubresources
 
-type customResourceSubresources interface {
+type customResourceSubresourcesDieExtension interface {
 	ScaleDie(fn func(d CustomResourceSubresourceScaleDie)) CustomResourceSubresourcesDie
 }
 
@@ -135,7 +135,7 @@ type _ apiextensionsv1.CustomResourceColumnDefinition
 // +die
 type _ apiextensionsv1.CustomResourceConversion
 
-type customResourceConversion interface {
+type customResourceConversionDieExtension interface {
 	WebhookDie(fn func(d WebhookConversionDie)) CustomResourceConversionDie
 }
 
@@ -150,7 +150,7 @@ func (d *customResourceConversionDie) WebhookDie(fn func(d WebhookConversionDie)
 // +die
 type _ apiextensionsv1.WebhookConversion
 
-type webhookConversion interface {
+type webhookConversionDieExtension interface {
 	ClientConfigDie(fn func(d WebhookClientConfigDie)) WebhookConversionDie
 }
 
@@ -165,7 +165,7 @@ func (d *webhookConversionDie) ClientConfigDie(fn func(d WebhookClientConfigDie)
 // +die
 type _ apiextensionsv1.WebhookClientConfig
 
-type webhookClientConfig interface {
+type webhookClientConfigDieExtension interface {
 	ServiceDie(fn func(d ServiceReferenceDie)) WebhookClientConfigDie
 }
 
@@ -183,7 +183,7 @@ type _ apiextensionsv1.ServiceReference
 // +die
 type _ = apiextensionsv1.CustomResourceDefinitionStatus
 
-type customResourceDefinitionStatus interface {
+type customResourceDefinitionStatusDieExtension interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) CustomResourceDefinitionStatusDie
 	AcceptedNamesDie(fn func(d CustomResourceDefinitionNamesDie)) CustomResourceDefinitionStatusDie
 }

@@ -101,7 +101,7 @@ type _ = networkingv1.NetworkPolicyPort
 // +die
 type _ = networkingv1.NetworkPolicyPeer
 
-type networkPolicyPeer interface {
+type networkPolicyPeerDieExtension interface {
 	PodSelectorDie(fn func(d diemetav1.LabelSelectorDie)) NetworkPolicyPeerDie
 	NamespaceSelectorDie(fn func(d diemetav1.LabelSelectorDie)) NetworkPolicyPeerDie
 	IPBlockDie(fn func(d IPBlockDie)) NetworkPolicyPeerDie

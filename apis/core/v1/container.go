@@ -24,7 +24,7 @@ import (
 // +die
 type _ = corev1.Container
 
-type container interface {
+type containerDieExtension interface {
 	PortsDie(ports ...ContainerPortDie) ContainerDie
 	EnvFromDie(prefix string, fn func(d EnvFromSourceDie)) ContainerDie
 	EnvDie(name string, fn func(d EnvVarDie)) ContainerDie
@@ -168,7 +168,7 @@ type _ = corev1.ContainerPort
 // +die
 type _ = corev1.EnvFromSource
 
-type envFromSource interface {
+type envFromSourceDieExtension interface {
 	ConfigMapRefDie(fn func(d ConfigMapEnvSourceDie)) EnvFromSourceDie
 	SecretRefDie(fn func(d SecretEnvSourceDie)) EnvFromSourceDie
 }
@@ -192,7 +192,7 @@ func (d *envFromSourceDie) SecretRefDie(fn func(d SecretEnvSourceDie)) EnvFromSo
 // +die
 type _ = corev1.ConfigMapEnvSource
 
-type configMapEnvSource interface {
+type configMapEnvSourceDieExtension interface {
 	Name(v string) ConfigMapEnvSourceDie
 }
 
@@ -205,7 +205,7 @@ func (d *configMapEnvSourceDie) Name(v string) ConfigMapEnvSourceDie {
 // +die
 type _ = corev1.SecretEnvSource
 
-type secretEnvSource interface {
+type secretEnvSourceDieExtension interface {
 	Name(v string) SecretEnvSourceDie
 }
 
@@ -218,7 +218,7 @@ func (d *secretEnvSourceDie) Name(v string) SecretEnvSourceDie {
 // +die
 type _ = corev1.EnvVar
 
-type envVar interface {
+type envVarDieExtension interface {
 	ValueFromDie(fn func(d EnvVarSourceDie)) EnvVarDie
 }
 
@@ -233,7 +233,7 @@ func (d *envVarDie) ValueFromDie(fn func(d EnvVarSourceDie)) EnvVarDie {
 // +die
 type _ = corev1.EnvVarSource
 
-type envVarSource interface {
+type envVarSourceDieExtension interface {
 	FieldRefDie(fn func(ObjectFieldSelectorDie)) EnvVarSourceDie
 	ResourceFieldRefDie(fn func(ResourceFieldSelectorDie)) EnvVarSourceDie
 	ConfigMapKeyRefDie(fn func(ConfigMapKeySelectorDie)) EnvVarSourceDie
@@ -281,7 +281,7 @@ type _ = corev1.ResourceFieldSelector
 // +die
 type _ = corev1.ConfigMapKeySelector
 
-type configMapKeySelector interface {
+type configMapKeySelectorDieExtension interface {
 	Name(v string) ConfigMapKeySelectorDie
 }
 
@@ -294,7 +294,7 @@ func (d *configMapKeySelectorDie) Name(v string) ConfigMapKeySelectorDie {
 // +die
 type _ = corev1.SecretKeySelector
 
-type secretKeySelector interface {
+type secretKeySelectorDieExtension interface {
 	Name(v string) SecretKeySelectorDie
 }
 
@@ -307,7 +307,7 @@ func (d *secretKeySelectorDie) Name(v string) SecretKeySelectorDie {
 // +die
 type _ = corev1.ResourceRequirements
 
-type resourceRequirements interface {
+type resourceRequirementsDieExtension interface {
 	AddLimit(name corev1.ResourceName, quantity resource.Quantity) ResourceRequirementsDie
 	AddLimitString(name corev1.ResourceName, quantity string) ResourceRequirementsDie
 	AddRequest(name corev1.ResourceName, quantity resource.Quantity) ResourceRequirementsDie
@@ -343,7 +343,7 @@ type _ = corev1.VolumeDevice
 // +die
 type _ = corev1.Probe
 
-type probe interface {
+type probeDieExtension interface {
 	HandlerDie(fn func(d HandlerDie)) ProbeDie
 	ExecDie(fn func(d ExecActionDie)) ProbeDie
 	HTTPGetDie(fn func(d HTTPGetActionDie)) ProbeDie
@@ -391,7 +391,7 @@ func (d *probeDie) TCPSocketDie(fn func(d TCPSocketActionDie)) ProbeDie {
 // +die
 type _ = corev1.Lifecycle
 
-type lifecycle interface {
+type lifecycleDieExtension interface {
 	PostStartDie(fn func(d HandlerDie)) LifecycleDie
 	PreStopDie(fn func(d HandlerDie)) LifecycleDie
 }
@@ -415,7 +415,7 @@ func (d *lifecycleDie) PreStopDie(fn func(d HandlerDie)) LifecycleDie {
 // +die
 type _ = corev1.Handler
 
-type handler interface {
+type handlerDieExtension interface {
 	ExecDie(fn func(d ExecActionDie)) HandlerDie
 	HTTPGetDie(fn func(d HTTPGetActionDie)) HandlerDie
 	TCPSocketDie(fn func(d TCPSocketActionDie)) HandlerDie
@@ -451,11 +451,11 @@ type _ = corev1.ExecAction
 // +die
 type _ = corev1.HTTPGetAction
 
-type hTTPGetAction interface {
+type httpGetActionDieExtension interface {
 	HTTPHeadersDie(headers ...HTTPHeaderDie) HTTPGetActionDie
 }
 
-func (d *hTTPGetActionDie) HTTPHeadersDie(headers ...HTTPHeaderDie) HTTPGetActionDie {
+func (d *httpGetActionDie) HTTPHeadersDie(headers ...HTTPHeaderDie) HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
 		r.HTTPHeaders = make([]corev1.HTTPHeader, len(headers))
 		for i := range headers {
@@ -473,7 +473,7 @@ type _ = corev1.TCPSocketAction
 // +die
 type _ = corev1.SecurityContext
 
-type securityContext interface {
+type securityContextDieExtension interface {
 	CapabilitiesDie(fn func(d CapabilitiesDie)) SecurityContextDie
 	SELinuxOptionsDie(fn func(d SELinuxOptionsDie)) SecurityContextDie
 	WindowsOptionsDie(fn func(d WindowsSecurityContextOptionsDie)) SecurityContextDie
@@ -527,7 +527,7 @@ type _ = corev1.SeccompProfile
 // +die
 type _ = corev1.ContainerStatus
 
-type containerStatus interface {
+type containerStatusDieExtension interface {
 	StateDie(fn func(d ContainerStateDie)) ContainerStatusDie
 	LastTerminationStateDie(fn func(d ContainerStateDie)) ContainerStatusDie
 }
@@ -551,7 +551,7 @@ func (d *containerStatusDie) LastTerminationStateDie(fn func(d ContainerStateDie
 // +die
 type _ = corev1.ContainerState
 
-type containerState interface {
+type containerStateDieExtension interface {
 	WaitingDie(fn func(d ContainerStateWaitingDie)) ContainerStateDie
 	RunningDie(fn func(d ContainerStateRunningDie)) ContainerStateDie
 	TerminatedDie(fn func(d ContainerStateTerminatedDie)) ContainerStateDie

@@ -28,7 +28,7 @@ import (
 // +die
 type _ = metav1.ObjectMeta
 
-type objectMeta interface {
+type objectMetaDieExtension interface {
 	AddLabel(key, value string) ObjectMetaDie
 	AddAnnotation(key, value string) ObjectMetaDie
 	ControlledBy(obj runtime.Object, scheme *runtime.Scheme) ObjectMetaDie

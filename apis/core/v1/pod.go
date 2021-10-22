@@ -28,7 +28,7 @@ type _ = corev1.Pod
 // +die
 type _ = corev1.PodSpec
 
-type podSpec interface {
+type podSpecDieExtension interface {
 	VolumeDie(name string, fn func(d VolumeDie)) PodSpecDie
 	InitContainerDie(name string, fn func(d ContainerDie)) PodSpecDie
 	ContainerDie(name string, fn func(d ContainerDie)) PodSpecDie
@@ -174,7 +174,7 @@ func (d *podSpecDie) TopologySpreadConstraintDie(topologyKey string, fn func(d T
 // +die
 type _ = corev1.PodSecurityContext
 
-type podSecurityContext interface {
+type podSecurityContextDieExtension interface {
 	SELinuxOptionsDie(fn func(d SELinuxOptionsDie)) PodSecurityContextDie
 	WindowsOptionsDie(fn func(d WindowsSecurityContextOptionsDie)) PodSecurityContextDie
 	SysctlsDie(sysctls ...SysctlDie) PodSecurityContextDie
@@ -226,7 +226,7 @@ type _ = corev1.HostAlias
 // +die
 type _ = corev1.PodDNSConfig
 
-type podDNSConfig interface {
+type podDNSConfigDieExtension interface {
 	OptionsDie(options ...PodDNSConfigOptionDie) PodDNSConfigDie
 }
 
@@ -248,7 +248,7 @@ type _ = corev1.PodReadinessGate
 // +die
 type _ = corev1.TopologySpreadConstraint
 
-type topologySpreadConstraint interface {
+type topologySpreadConstraintDieExtension interface {
 	LabelSelectorDie(fn func(d diemetav1.LabelSelectorDie)) TopologySpreadConstraintDie
 }
 
@@ -263,7 +263,7 @@ func (d *topologySpreadConstraintDie) LabelSelectorDie(fn func(d diemetav1.Label
 // +die
 type _ = corev1.PodStatus
 
-type podStatus interface {
+type podStatusDieExtension interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) PodStatusDie
 	InitContainerStatusDie(name string, fn func(d ContainerStatusDie)) PodStatusDie
 	ContainerStatusDie(name string, fn func(d ContainerStatusDie)) PodStatusDie
@@ -340,7 +340,7 @@ func (d *podStatusDie) EphemeralContainerStatusDie(name string, fn func(d Contai
 // +die
 type _ = corev1.PodTemplateSpec
 
-type podTemplateSpec interface {
+type podTemplateSpecDieExtension interface {
 	MetadataDie(fn func(d diemetav1.ObjectMetaDie)) PodTemplateSpecDie
 	SpecDie(fn func(d PodSpecDie)) PodTemplateSpecDie
 }

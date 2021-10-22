@@ -29,7 +29,7 @@ type _ = appsv1.StatefulSet
 // +die
 type _ = appsv1.StatefulSetSpec
 
-type statefulSetSpec interface {
+type statefulSetSpecDieExtension interface {
 	SelectorDie(fn func(d diemetav1.LabelSelectorDie)) StatefulSetSpecDie
 	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) StatefulSetSpecDie
 	VolumeClaimTemplatesDie(volumeClaimTemplates ...diecorev1.PersistentVolumeClaimDie) StatefulSetSpecDie
@@ -72,7 +72,7 @@ func (d *statefulSetSpecDie) UpdateStrategyDie(fn func(d StatefulSetUpdateStrate
 // +die
 type _ = appsv1.StatefulSetUpdateStrategy
 
-type statefulSetUpdateStrategy interface {
+type statefulSetUpdateStrategyDieExtension interface {
 	OnDelete() StatefulSetUpdateStrategyDie
 	RollingUpdateDie(fn func(d RollingUpdateStatefulSetStrategyDie)) StatefulSetUpdateStrategyDie
 }
@@ -99,7 +99,7 @@ type _ = appsv1.RollingUpdateStatefulSetStrategy
 // +die
 type _ = appsv1.StatefulSetStatus
 
-type statefulSetStatus interface {
+type statefulSetStatusDieExtension interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) StatefulSetStatusDie
 }
 

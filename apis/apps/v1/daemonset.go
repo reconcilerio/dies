@@ -29,7 +29,7 @@ type _ = appsv1.DaemonSet
 // +die
 type _ = appsv1.DaemonSetSpec
 
-type daemonSetSpec interface {
+type daemonSetSpecDieExtension interface {
 	SelectorDie(fn func(d diemetav1.LabelSelectorDie)) DaemonSetSpecDie
 	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) DaemonSetSpecDie
 	UpdateStrategyDie(fn func(d DaemonSetUpdateStrategyDie)) DaemonSetSpecDie
@@ -62,7 +62,7 @@ func (d *daemonSetSpecDie) UpdateStrategyDie(fn func(d DaemonSetUpdateStrategyDi
 // +die
 type _ = appsv1.DaemonSetUpdateStrategy
 
-type daemonSetUpdateStrategy interface {
+type daemonSetUpdateStrategyDieExtension interface {
 	OnDelete() DaemonSetUpdateStrategyDie
 	RollingUpdateDie(fn func(d RollingUpdateDaemonSetDie)) DaemonSetUpdateStrategyDie
 }
@@ -89,7 +89,7 @@ type _ = appsv1.RollingUpdateDaemonSet
 // +die
 type _ = appsv1.DaemonSetStatus
 
-type daemonSetStatus interface {
+type daemonSetStatusDieExtension interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) DaemonSetStatusDie
 }
 

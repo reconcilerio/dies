@@ -23,7 +23,7 @@ import (
 // +die:object=true
 type _ = corev1.Endpoints
 
-type endpoints interface {
+type endpointsDieExtension interface {
 	SubsetsDie(subsets ...EndpointSubsetDie) EndpointsDie
 }
 
@@ -39,7 +39,7 @@ func (d *endpointsDie) SubsetsDie(subsets ...EndpointSubsetDie) EndpointsDie {
 // +die
 type _ = corev1.EndpointSubset
 
-type endpointSubset interface {
+type endpointSubsetDieExtension interface {
 	AddressesDie(addresses ...EndpointAddressDie) EndpointSubsetDie
 	NotReadyAddressesDie(addresses ...EndpointAddressDie) EndpointSubsetDie
 	PortsDie(ports ...EndpointPortDie) EndpointSubsetDie
@@ -75,7 +75,7 @@ func (d *endpointSubsetDie) PortsDie(ports ...EndpointPortDie) EndpointSubsetDie
 // +die
 type _ = corev1.EndpointAddress
 
-type endpointAddress interface {
+type endpointAddressDieExtension interface {
 	TargetRefDie(fn func(d ObjectReferenceDie)) EndpointAddressDie
 }
 

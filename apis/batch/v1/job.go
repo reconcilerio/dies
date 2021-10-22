@@ -29,7 +29,7 @@ type _ = batchv1.Job
 // +die
 type _ = batchv1.JobSpec
 
-type jobSpec interface {
+type jobSpecDieExtension interface {
 	SelectorDie(fn func(d diemetav1.LabelSelectorDie)) JobSpecDie
 	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) JobSpecDie
 }
@@ -53,7 +53,7 @@ func (d *jobSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) JobSpe
 // +die
 type _ = batchv1.JobStatus
 
-type jobStatus interface {
+type jobStatusDieExtension interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) JobStatusDie
 	UncountedTerminatedPodsDie(fn func(d UncountedTerminatedPodsDie)) JobStatusDie
 }

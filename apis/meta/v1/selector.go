@@ -23,7 +23,7 @@ import (
 // +die
 type _ = metav1.LabelSelector
 
-type labelSelector interface {
+type labelSelectorDieExtension interface {
 	AddMatchLabel(key, value string) LabelSelectorDie
 	AddMatchExpression(key string, operator metav1.LabelSelectorOperator, values ...string) LabelSelectorDie
 }

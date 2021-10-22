@@ -26,7 +26,7 @@ type _ = autoscalingv1.HorizontalPodAutoscaler
 // +die
 type _ = autoscalingv1.HorizontalPodAutoscalerSpec
 
-type horizontalPodAutoscalerSpec interface {
+type horizontalPodAutoscalerSpecDieExtension interface {
 	ScaleTargetRefDie(fn func(d CrossVersionObjectReferenceDie)) HorizontalPodAutoscalerSpecDie
 }
 

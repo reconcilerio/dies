@@ -27,7 +27,7 @@ type _ = corev1.ResourceQuota
 // +die
 type _ = corev1.ResourceQuotaSpec
 
-type resourceQuotaSpec interface {
+type resourceQuotaSpecDieExtension interface {
 	AddHard(name corev1.ResourceName, quantity resource.Quantity) ResourceQuotaSpecDie
 	AddHardString(name corev1.ResourceName, quantity string) ResourceQuotaSpecDie
 	ScopeSelectorDie(fn func(d ScopeSelectorDie)) ResourceQuotaSpecDie
@@ -54,7 +54,7 @@ func (d *resourceQuotaSpecDie) ScopeSelectorDie(fn func(d ScopeSelectorDie)) Res
 // +die
 type _ = corev1.ScopeSelector
 
-type scopeSelector interface {
+type scopeSelectorDieExtension interface {
 	MatchExpressionDie(scope corev1.ResourceQuotaScope, fn func(d ScopedResourceSelectorRequirementDie)) ScopeSelectorDie
 }
 
@@ -81,7 +81,7 @@ type _ = corev1.ScopedResourceSelectorRequirement
 // +die
 type _ = corev1.ResourceQuotaStatus
 
-type resourceQuotaStatus interface {
+type resourceQuotaStatusDieExtension interface {
 	AddHard(name corev1.ResourceName, quantity resource.Quantity) ResourceQuotaStatusDie
 	AddHardString(name corev1.ResourceName, quantity string) ResourceQuotaStatusDie
 	AddUsed(name corev1.ResourceName, quantity resource.Quantity) ResourceQuotaStatusDie

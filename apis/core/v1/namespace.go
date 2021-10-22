@@ -30,7 +30,7 @@ type _ = corev1.NamespaceSpec
 // +die
 type _ = corev1.NamespaceStatus
 
-type namespaceStatus interface {
+type namespaceStatusDieExtension interface {
 	ConditionsDie(conditions ...diemetav1.ConditionDie) NamespaceStatusDie
 }
 

@@ -47,13 +47,13 @@ type ClusterRoleDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ClusterRoleDie
 
-	clusterRole
+	clusterRoleDieExtension
 	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
 	MetadataDie(fn func(d metav1.ObjectMetaDie)) ClusterRoleDie
 	// Rules holds all the PolicyRules for this ClusterRole
-	Rules(Rules ...rbacv1.PolicyRule) ClusterRoleDie
+	Rules(v ...rbacv1.PolicyRule) ClusterRoleDie
 	// AggregationRule is an optional field that describes how to build the Rules for this ClusterRole. If AggregationRule is set, then the Rules are controller managed and direct changes to Rules will be stomped by the controller.
-	AggregationRule(AggregationRule *rbacv1.AggregationRule) ClusterRoleDie
+	AggregationRule(v *rbacv1.AggregationRule) ClusterRoleDie
 
 	runtime.Object
 	apismetav1.Object
@@ -184,9 +184,9 @@ type AggregationRuleDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() AggregationRuleDie
 
-	aggregationRule
+	aggregationRuleDieExtension
 	// ClusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules. If any of the selectors match, then the ClusterRole's permissions will be added
-	ClusterRoleSelectors(ClusterRoleSelectors ...apismetav1.LabelSelector) AggregationRuleDie
+	ClusterRoleSelectors(v ...apismetav1.LabelSelector) AggregationRuleDie
 }
 
 var _ AggregationRuleDie = (*aggregationRuleDie)(nil)
@@ -272,13 +272,13 @@ type ClusterRoleBindingDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() ClusterRoleBindingDie
 
-	clusterRoleBinding
+	clusterRoleBindingDieExtension
 	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
 	MetadataDie(fn func(d metav1.ObjectMetaDie)) ClusterRoleBindingDie
 	// Subjects holds references to the objects the role applies to.
-	Subjects(Subjects ...rbacv1.Subject) ClusterRoleBindingDie
+	Subjects(v ...rbacv1.Subject) ClusterRoleBindingDie
 	// RoleRef can only reference a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error.
-	RoleRef(RoleRef rbacv1.RoleRef) ClusterRoleBindingDie
+	RoleRef(v rbacv1.RoleRef) ClusterRoleBindingDie
 
 	runtime.Object
 	apismetav1.Object
@@ -409,11 +409,11 @@ type RoleDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() RoleDie
 
-	role
+	roleDieExtension
 	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
 	MetadataDie(fn func(d metav1.ObjectMetaDie)) RoleDie
 	// Rules holds all the PolicyRules for this Role
-	Rules(Rules ...rbacv1.PolicyRule) RoleDie
+	Rules(v ...rbacv1.PolicyRule) RoleDie
 
 	runtime.Object
 	apismetav1.Object
@@ -538,17 +538,17 @@ type PolicyRuleDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() PolicyRuleDie
 
-	policyRule
+	policyRuleDieExtension
 	// Verbs is a list of Verbs that apply to ALL the ResourceKinds and AttributeRestrictions contained in this rule. '*' represents all verbs.
-	Verbs(Verbs ...string) PolicyRuleDie
+	Verbs(v ...string) PolicyRuleDie
 	// APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of the enumerated resources in any API group will be allowed.
-	APIGroups(APIGroups ...string) PolicyRuleDie
+	APIGroups(v ...string) PolicyRuleDie
 	// Resources is a list of resources this rule applies to. '*' represents all resources.
-	Resources(Resources ...string) PolicyRuleDie
+	Resources(v ...string) PolicyRuleDie
 	// ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.
-	ResourceNames(ResourceNames ...string) PolicyRuleDie
+	ResourceNames(v ...string) PolicyRuleDie
 	// NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding. Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
-	NonResourceURLs(NonResourceURLs ...string) PolicyRuleDie
+	NonResourceURLs(v ...string) PolicyRuleDie
 }
 
 var _ PolicyRuleDie = (*policyRuleDie)(nil)
@@ -658,13 +658,13 @@ type RoleBindingDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() RoleBindingDie
 
-	roleBinding
+	roleBindingDieExtension
 	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
 	MetadataDie(fn func(d metav1.ObjectMetaDie)) RoleBindingDie
 	// Subjects holds references to the objects the role applies to.
-	Subjects(Subjects ...rbacv1.Subject) RoleBindingDie
+	Subjects(v ...rbacv1.Subject) RoleBindingDie
 	// RoleRef can reference a Role in the current namespace or a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error.
-	RoleRef(RoleRef rbacv1.RoleRef) RoleBindingDie
+	RoleRef(v rbacv1.RoleRef) RoleBindingDie
 
 	runtime.Object
 	apismetav1.Object
@@ -796,13 +796,13 @@ type SubjectDie interface {
 	DeepCopy() SubjectDie
 
 	// Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount". If the Authorizer does not recognized the kind value, the Authorizer should report an error.
-	Kind(Kind string) SubjectDie
+	Kind(v string) SubjectDie
 	// APIGroup holds the API group of the referenced subject. Defaults to "" for ServiceAccount subjects. Defaults to "rbac.authorization.k8s.io" for User and Group subjects.
-	APIGroup(APIGroup string) SubjectDie
+	APIGroup(v string) SubjectDie
 	// Name of the object being referenced.
-	Name(Name string) SubjectDie
+	Name(v string) SubjectDie
 	// Namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty the Authorizer should report an error.
-	Namespace(Namespace string) SubjectDie
+	Namespace(v string) SubjectDie
 }
 
 var _ SubjectDie = (*subjectDie)(nil)
@@ -907,11 +907,11 @@ type RoleRefDie interface {
 	DeepCopy() RoleRefDie
 
 	// APIGroup is the group for the resource being referenced
-	APIGroup(APIGroup string) RoleRefDie
+	APIGroup(v string) RoleRefDie
 	// Kind is the type of resource being referenced
-	Kind(Kind string) RoleRefDie
+	Kind(v string) RoleRefDie
 	// Name is the name of resource being referenced
-	Name(Name string) RoleRefDie
+	Name(v string) RoleRefDie
 }
 
 var _ RoleRefDie = (*roleRefDie)(nil)

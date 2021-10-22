@@ -54,9 +54,9 @@ type CustomResourceDefinitionDie interface {
 	// StatusDie stamps the resource's status field with a mutable die.
 	StatusDie(fn func(d CustomResourceDefinitionStatusDie)) CustomResourceDefinitionDie
 	// spec describes how the user wants the resources to appear
-	Spec(Spec apiextensionsv1.CustomResourceDefinitionSpec) CustomResourceDefinitionDie
+	Spec(v apiextensionsv1.CustomResourceDefinitionSpec) CustomResourceDefinitionDie
 	// status indicates the actual state of the CustomResourceDefinition
-	Status(Status apiextensionsv1.CustomResourceDefinitionStatus) CustomResourceDefinitionDie
+	Status(v apiextensionsv1.CustomResourceDefinitionStatus) CustomResourceDefinitionDie
 
 	runtime.Object
 	apismetav1.Object
@@ -203,19 +203,19 @@ type CustomResourceDefinitionSpecDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() CustomResourceDefinitionSpecDie
 
-	customResourceDefinitionSpec
+	customResourceDefinitionSpecDieExtension
 	// group is the API group of the defined custom resource. The custom resources are served under `/apis/<group>/...`. Must match the name of the CustomResourceDefinition (in the form `<names.plural>.<group>`).
-	Group(Group string) CustomResourceDefinitionSpecDie
+	Group(v string) CustomResourceDefinitionSpecDie
 	// names specify the resource and kind names for the custom resource.
-	Names(Names apiextensionsv1.CustomResourceDefinitionNames) CustomResourceDefinitionSpecDie
+	Names(v apiextensionsv1.CustomResourceDefinitionNames) CustomResourceDefinitionSpecDie
 	// scope indicates whether the defined custom resource is cluster- or namespace-scoped. Allowed values are `Cluster` and `Namespaced`.
-	Scope(Scope apiextensionsv1.ResourceScope) CustomResourceDefinitionSpecDie
+	Scope(v apiextensionsv1.ResourceScope) CustomResourceDefinitionSpecDie
 	// versions is the list of all API versions of the defined custom resource. Version names are used to compute the order in which served versions are listed in API discovery. If the version string is "kube-like", it will sort above non "kube-like" version strings, which are ordered lexicographically. "Kube-like" versions start with a "v", then are followed by a number (the major version), then optionally the string "alpha" or "beta" and another number (the minor version). These are sorted first by GA > beta > alpha (where GA is a version with no suffix such as beta or alpha), and then by comparing major version, then minor version. An example sorted list of versions: v10, v2, v1, v11beta2, v10beta3, v3beta1, v12alpha1, v11alpha2, foo1, foo10.
-	Versions(Versions ...apiextensionsv1.CustomResourceDefinitionVersion) CustomResourceDefinitionSpecDie
+	Versions(v ...apiextensionsv1.CustomResourceDefinitionVersion) CustomResourceDefinitionSpecDie
 	// conversion defines conversion settings for the CRD.
-	Conversion(Conversion *apiextensionsv1.CustomResourceConversion) CustomResourceDefinitionSpecDie
+	Conversion(v *apiextensionsv1.CustomResourceConversion) CustomResourceDefinitionSpecDie
 	// preserveUnknownFields indicates that object fields which are not specified in the OpenAPI schema should be preserved when persisting to storage. apiVersion, kind, metadata and known fields inside metadata are always preserved. This field is deprecated in favor of setting `x-preserve-unknown-fields` to true in `spec.versions[*].schema.openAPIV3Schema`. See https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/#pruning-versus-preserving-unknown-fields for details.
-	PreserveUnknownFields(PreserveUnknownFields bool) CustomResourceDefinitionSpecDie
+	PreserveUnknownFields(v bool) CustomResourceDefinitionSpecDie
 }
 
 var _ CustomResourceDefinitionSpecDie = (*customResourceDefinitionSpecDie)(nil)
@@ -331,23 +331,23 @@ type CustomResourceDefinitionVersionDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() CustomResourceDefinitionVersionDie
 
-	customResourceDefinitionVersion
+	customResourceDefinitionVersionDieExtension
 	// name is the version name, e.g. “v1”, “v2beta1”, etc. The custom resources are served under this version at `/apis/<group>/<version>/...` if `served` is true.
-	Name(Name string) CustomResourceDefinitionVersionDie
+	Name(v string) CustomResourceDefinitionVersionDie
 	// served is a flag enabling/disabling this version from being served via REST APIs
-	Served(Served bool) CustomResourceDefinitionVersionDie
+	Served(v bool) CustomResourceDefinitionVersionDie
 	// storage indicates this version should be used when persisting custom resources to storage. There must be exactly one version with storage=true.
-	Storage(Storage bool) CustomResourceDefinitionVersionDie
+	Storage(v bool) CustomResourceDefinitionVersionDie
 	// deprecated indicates this version of the custom resource API is deprecated. When set to true, API requests to this version receive a warning header in the server response. Defaults to false.
-	Deprecated(Deprecated bool) CustomResourceDefinitionVersionDie
+	Deprecated(v bool) CustomResourceDefinitionVersionDie
 	// deprecationWarning overrides the default warning returned to API clients. May only be set when `deprecated` is true. The default warning indicates this version is deprecated and recommends use of the newest served version of equal or greater stability, if one exists.
-	DeprecationWarning(DeprecationWarning *string) CustomResourceDefinitionVersionDie
+	DeprecationWarning(v *string) CustomResourceDefinitionVersionDie
 	// schema describes the schema used for validation, pruning, and defaulting of this version of the custom resource.
-	Schema(Schema *apiextensionsv1.CustomResourceValidation) CustomResourceDefinitionVersionDie
+	Schema(v *apiextensionsv1.CustomResourceValidation) CustomResourceDefinitionVersionDie
 	// subresources specify what subresources this version of the defined custom resource have.
-	Subresources(Subresources *apiextensionsv1.CustomResourceSubresources) CustomResourceDefinitionVersionDie
+	Subresources(v *apiextensionsv1.CustomResourceSubresources) CustomResourceDefinitionVersionDie
 	// additionalPrinterColumns specifies additional columns returned in Table output. See https://kubernetes.io/docs/reference/using-api/api-concepts/#receiving-resources-as-tables for details. If no columns are specified, a single column displaying the age of the custom resource is used.
-	AdditionalPrinterColumns(AdditionalPrinterColumns ...apiextensionsv1.CustomResourceColumnDefinition) CustomResourceDefinitionVersionDie
+	AdditionalPrinterColumns(v ...apiextensionsv1.CustomResourceColumnDefinition) CustomResourceDefinitionVersionDie
 }
 
 var _ CustomResourceDefinitionVersionDie = (*customResourceDefinitionVersionDie)(nil)
@@ -476,7 +476,7 @@ type CustomResourceValidationDie interface {
 	DeepCopy() CustomResourceValidationDie
 
 	// openAPIV3Schema is the OpenAPI v3 schema to use for validation and pruning.
-	OpenAPIV3Schema(OpenAPIV3Schema *apiextensionsv1.JSONSchemaProps) CustomResourceValidationDie
+	OpenAPIV3Schema(v *apiextensionsv1.JSONSchemaProps) CustomResourceValidationDie
 }
 
 var _ CustomResourceValidationDie = (*customResourceValidationDie)(nil)
@@ -562,11 +562,11 @@ type CustomResourceSubresourcesDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() CustomResourceSubresourcesDie
 
-	customResourceSubresources
+	customResourceSubresourcesDieExtension
 	// status indicates the custom resource should serve a `/status` subresource. When enabled: 1. requests to the custom resource primary endpoint ignore changes to the `status` stanza of the object. 2. requests to the custom resource `/status` subresource ignore changes to anything other than the `status` stanza of the object.
-	Status(Status *apiextensionsv1.CustomResourceSubresourceStatus) CustomResourceSubresourcesDie
+	Status(v *apiextensionsv1.CustomResourceSubresourceStatus) CustomResourceSubresourcesDie
 	// scale indicates the custom resource should serve a `/scale` subresource that returns an `autoscaling/v1` Scale object.
-	Scale(Scale *apiextensionsv1.CustomResourceSubresourceScale) CustomResourceSubresourcesDie
+	Scale(v *apiextensionsv1.CustomResourceSubresourceScale) CustomResourceSubresourcesDie
 }
 
 var _ CustomResourceSubresourcesDie = (*customResourceSubresourcesDie)(nil)
@@ -659,11 +659,11 @@ type CustomResourceSubresourceScaleDie interface {
 	DeepCopy() CustomResourceSubresourceScaleDie
 
 	// specReplicasPath defines the JSON path inside of a custom resource that corresponds to Scale `spec.replicas`. Only JSON paths without the array notation are allowed. Must be a JSON Path under `.spec`. If there is no value under the given path in the custom resource, the `/scale` subresource will return an error on GET.
-	SpecReplicasPath(SpecReplicasPath string) CustomResourceSubresourceScaleDie
+	SpecReplicasPath(v string) CustomResourceSubresourceScaleDie
 	// statusReplicasPath defines the JSON path inside of a custom resource that corresponds to Scale `status.replicas`. Only JSON paths without the array notation are allowed. Must be a JSON Path under `.status`. If there is no value under the given path in the custom resource, the `status.replicas` value in the `/scale` subresource will default to 0.
-	StatusReplicasPath(StatusReplicasPath string) CustomResourceSubresourceScaleDie
+	StatusReplicasPath(v string) CustomResourceSubresourceScaleDie
 	// labelSelectorPath defines the JSON path inside of a custom resource that corresponds to Scale `status.selector`. Only JSON paths without the array notation are allowed. Must be a JSON Path under `.status` or `.spec`. Must be set to work with HorizontalPodAutoscaler. The field pointed by this JSON path must be a string field (not a complex selector struct) which contains a serialized label selector in string form. More info: https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions#scale-subresource If there is no value under the given path in the custom resource, the `status.selector` value in the `/scale` subresource will default to the empty string.
-	LabelSelectorPath(LabelSelectorPath *string) CustomResourceSubresourceScaleDie
+	LabelSelectorPath(v *string) CustomResourceSubresourceScaleDie
 }
 
 var _ CustomResourceSubresourceScaleDie = (*customResourceSubresourceScaleDie)(nil)
@@ -762,17 +762,17 @@ type CustomResourceColumnDefinitionDie interface {
 	DeepCopy() CustomResourceColumnDefinitionDie
 
 	// name is a human readable name for the column.
-	Name(Name string) CustomResourceColumnDefinitionDie
+	Name(v string) CustomResourceColumnDefinitionDie
 	// type is an OpenAPI type definition for this column. See https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#data-types for details.
-	Type(Type string) CustomResourceColumnDefinitionDie
+	Type(v string) CustomResourceColumnDefinitionDie
 	// format is an optional OpenAPI type definition for this column. The 'name' format is applied to the primary identifier column to assist in clients identifying column is the resource name. See https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#data-types for details.
-	Format(Format string) CustomResourceColumnDefinitionDie
+	Format(v string) CustomResourceColumnDefinitionDie
 	// description is a human readable description of this column.
-	Description(Description string) CustomResourceColumnDefinitionDie
+	Description(v string) CustomResourceColumnDefinitionDie
 	// priority is an integer defining the relative importance of this column compared to others. Lower numbers are considered higher priority. Columns that may be omitted in limited space scenarios should be given a priority greater than 0.
-	Priority(Priority int32) CustomResourceColumnDefinitionDie
+	Priority(v int32) CustomResourceColumnDefinitionDie
 	// jsonPath is a simple JSON path (i.e. with array notation) which is evaluated against each custom resource to produce the value for this column.
-	JSONPath(JSONPath string) CustomResourceColumnDefinitionDie
+	JSONPath(v string) CustomResourceColumnDefinitionDie
 }
 
 var _ CustomResourceColumnDefinitionDie = (*customResourceColumnDefinitionDie)(nil)
@@ -888,11 +888,11 @@ type CustomResourceConversionDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() CustomResourceConversionDie
 
-	customResourceConversion
+	customResourceConversionDieExtension
 	// strategy specifies how custom resources are converted between versions. Allowed values are: - `None`: The converter only change the apiVersion and would not touch any other field in the custom resource. - `Webhook`: API Server will call to an external webhook to do the conversion. Additional information   is needed for this option. This requires spec.preserveUnknownFields to be false, and spec.conversion.webhook to be set.
-	Strategy(Strategy apiextensionsv1.ConversionStrategyType) CustomResourceConversionDie
+	Strategy(v apiextensionsv1.ConversionStrategyType) CustomResourceConversionDie
 	// webhook describes how to call the conversion webhook. Required when `strategy` is set to `Webhook`.
-	Webhook(Webhook *apiextensionsv1.WebhookConversion) CustomResourceConversionDie
+	Webhook(v *apiextensionsv1.WebhookConversion) CustomResourceConversionDie
 }
 
 var _ CustomResourceConversionDie = (*customResourceConversionDie)(nil)
@@ -984,11 +984,11 @@ type WebhookConversionDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() WebhookConversionDie
 
-	webhookConversion
+	webhookConversionDieExtension
 	// clientConfig is the instructions for how to call the webhook if strategy is `Webhook`.
-	ClientConfig(ClientConfig *apiextensionsv1.WebhookClientConfig) WebhookConversionDie
+	ClientConfig(v *apiextensionsv1.WebhookClientConfig) WebhookConversionDie
 	// conversionReviewVersions is an ordered list of preferred `ConversionReview` versions the Webhook expects. The API server will use the first version in the list which it supports. If none of the versions specified in this list are supported by API server, conversion will fail for the custom resource. If a persisted Webhook configuration specifies allowed versions and does not include any versions known to the API Server, calls to the webhook will fail.
-	ConversionReviewVersions(ConversionReviewVersions ...string) WebhookConversionDie
+	ConversionReviewVersions(v ...string) WebhookConversionDie
 }
 
 var _ WebhookConversionDie = (*webhookConversionDie)(nil)
@@ -1080,7 +1080,7 @@ type WebhookClientConfigDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() WebhookClientConfigDie
 
-	webhookClientConfig
+	webhookClientConfigDieExtension
 	// url gives the location of the webhook, in standard URL form (`scheme://host:port/path`). Exactly one of `url` or `service` must be specified.
 	//
 	// The `host` should not refer to a service running in the cluster; use the `service` field instead. The host might be resolved via external DNS in some apiservers (e.g., `kube-apiserver` cannot resolve in-cluster DNS as that would be a layering violation). `host` may also be an IP address.
@@ -1092,13 +1092,13 @@ type WebhookClientConfigDie interface {
 	// A path is optional, and if present may be any string permissible in a URL. You may use the path to pass an arbitrary string to the webhook, for example, a cluster identifier.
 	//
 	// Attempting to use a user or basic auth e.g. "user:password@" is not allowed. Fragments ("#...") and query parameters ("?...") are not allowed, either.
-	URL(URL *string) WebhookClientConfigDie
+	URL(v *string) WebhookClientConfigDie
 	// service is a reference to the service for this webhook. Either service or url must be specified.
 	//
 	// If the webhook is running within the cluster, then you should use `service`.
-	Service(Service *apiextensionsv1.ServiceReference) WebhookClientConfigDie
+	Service(v *apiextensionsv1.ServiceReference) WebhookClientConfigDie
 	// caBundle is a PEM encoded CA bundle which will be used to validate the webhook's server certificate. If unspecified, system trust roots on the apiserver are used.
-	CABundle(CABundle ...byte) WebhookClientConfigDie
+	CABundle(v ...byte) WebhookClientConfigDie
 }
 
 var _ WebhookClientConfigDie = (*webhookClientConfigDie)(nil)
@@ -1197,13 +1197,13 @@ type ServiceReferenceDie interface {
 	DeepCopy() ServiceReferenceDie
 
 	// namespace is the namespace of the service. Required
-	Namespace(Namespace string) ServiceReferenceDie
+	Namespace(v string) ServiceReferenceDie
 	// name is the name of the service. Required
-	Name(Name string) ServiceReferenceDie
+	Name(v string) ServiceReferenceDie
 	// path is an optional URL path at which the webhook will be contacted.
-	Path(Path *string) ServiceReferenceDie
+	Path(v *string) ServiceReferenceDie
 	// port is an optional service port at which the webhook will be contacted. `port` should be a valid port number (1-65535, inclusive). Defaults to 443 for backward compatibility.
-	Port(Port *int32) ServiceReferenceDie
+	Port(v *int32) ServiceReferenceDie
 }
 
 var _ ServiceReferenceDie = (*serviceReferenceDie)(nil)
@@ -1307,13 +1307,13 @@ type CustomResourceDefinitionStatusDie interface {
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 	DeepCopy() CustomResourceDefinitionStatusDie
 
-	customResourceDefinitionStatus
+	customResourceDefinitionStatusDieExtension
 	// conditions indicate state for particular aspects of a CustomResourceDefinition
-	Conditions(Conditions ...apiextensionsv1.CustomResourceDefinitionCondition) CustomResourceDefinitionStatusDie
+	Conditions(v ...apiextensionsv1.CustomResourceDefinitionCondition) CustomResourceDefinitionStatusDie
 	// acceptedNames are the names that are actually being used to serve discovery. They may be different than the names in spec.
-	AcceptedNames(AcceptedNames apiextensionsv1.CustomResourceDefinitionNames) CustomResourceDefinitionStatusDie
+	AcceptedNames(v apiextensionsv1.CustomResourceDefinitionNames) CustomResourceDefinitionStatusDie
 	// storedVersions lists all versions of CustomResources that were ever persisted. Tracking these versions allows a migration path for stored versions in etcd. The field is mutable so a migration controller can finish a migration to another version (ensuring no old objects are left in storage), and then remove the rest of the versions from this list. Versions may not be removed from `spec.versions` while they exist in this list.
-	StoredVersions(StoredVersions ...string) CustomResourceDefinitionStatusDie
+	StoredVersions(v ...string) CustomResourceDefinitionStatusDie
 }
 
 var _ CustomResourceDefinitionStatusDie = (*customResourceDefinitionStatusDie)(nil)
@@ -1412,17 +1412,17 @@ type CustomResourceDefinitionNamesDie interface {
 	DeepCopy() CustomResourceDefinitionNamesDie
 
 	// plural is the plural name of the resource to serve. The custom resources are served under `/apis/<group>/<version>/.../<plural>`. Must match the name of the CustomResourceDefinition (in the form `<names.plural>.<group>`). Must be all lowercase.
-	Plural(Plural string) CustomResourceDefinitionNamesDie
+	Plural(v string) CustomResourceDefinitionNamesDie
 	// singular is the singular name of the resource. It must be all lowercase. Defaults to lowercased `kind`.
-	Singular(Singular string) CustomResourceDefinitionNamesDie
+	Singular(v string) CustomResourceDefinitionNamesDie
 	// shortNames are short names for the resource, exposed in API discovery documents, and used by clients to support invocations like `kubectl get <shortname>`. It must be all lowercase.
-	ShortNames(ShortNames ...string) CustomResourceDefinitionNamesDie
+	ShortNames(v ...string) CustomResourceDefinitionNamesDie
 	// kind is the serialized kind of the resource. It is normally CamelCase and singular. Custom resource instances will use this value as the `kind` attribute in API calls.
-	Kind(Kind string) CustomResourceDefinitionNamesDie
+	Kind(v string) CustomResourceDefinitionNamesDie
 	// listKind is the serialized kind of the list for this resource. Defaults to "`kind`List".
-	ListKind(ListKind string) CustomResourceDefinitionNamesDie
+	ListKind(v string) CustomResourceDefinitionNamesDie
 	// categories is a list of grouped resources this custom resource belongs to (e.g. 'all'). This is published in API discovery documents, and used by clients to support invocations like `kubectl get all`.
-	Categories(Categories ...string) CustomResourceDefinitionNamesDie
+	Categories(v ...string) CustomResourceDefinitionNamesDie
 }
 
 var _ CustomResourceDefinitionNamesDie = (*customResourceDefinitionNamesDie)(nil)

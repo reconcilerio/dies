@@ -23,7 +23,7 @@ import (
 // +die:object=true
 type _ = rbacv1.RoleBinding
 
-type roleBinding interface {
+type roleBindingDieExtension interface {
 	SubjectsDie(subjects ...SubjectDie) RoleBindingDie
 	RoleRefDie(fn func(d RoleRefDie)) RoleBindingDie
 }

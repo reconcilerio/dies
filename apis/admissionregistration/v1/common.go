@@ -23,7 +23,7 @@ import (
 // +die
 type _ = admissionregistrationv1.WebhookClientConfig
 
-type webhookClientConfig interface {
+type webhookClientConfigDieExtension interface {
 	ServiceDie(fn func(d ServiceReferenceDie)) WebhookClientConfigDie
 }
 
@@ -41,7 +41,7 @@ type _ admissionregistrationv1.ServiceReference
 // +die
 type _ admissionregistrationv1.RuleWithOperations
 
-type ruleWithOperations interface {
+type ruleWithOperationsDieExtension interface {
 	APIGroups(v ...string) RuleWithOperationsDie
 	APIVersions(v ...string) RuleWithOperationsDie
 	Resources(v ...string) RuleWithOperationsDie

@@ -23,7 +23,7 @@ import (
 // +die:object=true,ignore={Data,StringData}
 type Secret = corev1.Secret
 
-type secret interface {
+type secretDieExtension interface {
 	Data(v map[string][]byte) SecretDie
 	AddData(key string, value []byte) SecretDie
 	StringData(v map[string]string) SecretDie

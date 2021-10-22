@@ -28,7 +28,7 @@ type _ = corev1.Node
 // +die
 type _ = corev1.NodeSpec
 
-type nodeSpec interface {
+type nodeSpecDieExtension interface {
 	TaintDie(key string, fn func(d TaintDie)) NodeSpecDie
 	ConfigSourceDie(fn func(d NodeConfigSourceDie)) NodeSpecDie
 }
@@ -64,7 +64,7 @@ type _ = corev1.Taint
 // +die
 type _ = corev1.NodeConfigSource
 
-type nodeConfigSource interface {
+type nodeConfigSourceDieExtension interface {
 	ConfigMapDie(fn func(d ConfigMapNodeConfigSourceDie)) NodeConfigSourceDie
 }
 
@@ -82,7 +82,7 @@ type _ = corev1.ConfigMapNodeConfigSource
 // +die
 type _ = corev1.NodeStatus
 
-type nodeStatus interface {
+type nodeStatusDieExtension interface {
 	AddCapacity(name corev1.ResourceName, quantity resource.Quantity) NodeStatusDie
 	AddCapacityString(name corev1.ResourceName, quantity string) NodeStatusDie
 	AddAllocatable(name corev1.ResourceName, quantity resource.Quantity) NodeStatusDie
@@ -197,7 +197,7 @@ type _ = corev1.NodeAddress
 // +die
 type _ = corev1.NodeDaemonEndpoints
 
-type nodeDaemonEndpoints interface {
+type nodeDaemonEndpointsDieExtension interface {
 	KubeletEndpointDie(fn func(d DaemonEndpointDie)) NodeDaemonEndpointsDie
 }
 
@@ -224,7 +224,7 @@ type _ = corev1.AttachedVolume
 // +die
 type _ = corev1.NodeConfigStatus
 
-type nodeConfigStatus interface {
+type nodeConfigStatusDieExtension interface {
 	AssignedDie(fn func(NodeConfigSourceDie)) NodeConfigStatusDie
 	ActiveDie(fn func(NodeConfigSourceDie)) NodeConfigStatusDie
 	LastKnownGoodDie(fn func(NodeConfigSourceDie)) NodeConfigStatusDie

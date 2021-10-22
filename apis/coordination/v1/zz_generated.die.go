@@ -52,7 +52,7 @@ type LeaseDie interface {
 	// SpecDie stamps the resource's spec field with a mutable die.
 	SpecDie(fn func(d LeaseSpecDie)) LeaseDie
 	// Specification of the Lease. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Spec(Spec coordinationv1.LeaseSpec) LeaseDie
+	Spec(v coordinationv1.LeaseSpec) LeaseDie
 
 	runtime.Object
 	apismetav1.Object
@@ -186,15 +186,15 @@ type LeaseSpecDie interface {
 	DeepCopy() LeaseSpecDie
 
 	// holderIdentity contains the identity of the holder of a current lease.
-	HolderIdentity(HolderIdentity *string) LeaseSpecDie
+	HolderIdentity(v *string) LeaseSpecDie
 	// leaseDurationSeconds is a duration that candidates for a lease need to wait to force acquire it. This is measure against time of last observed RenewTime.
-	LeaseDurationSeconds(LeaseDurationSeconds *int32) LeaseSpecDie
+	LeaseDurationSeconds(v *int32) LeaseSpecDie
 	// acquireTime is a time when the current lease was acquired.
-	AcquireTime(AcquireTime *apismetav1.MicroTime) LeaseSpecDie
+	AcquireTime(v *apismetav1.MicroTime) LeaseSpecDie
 	// renewTime is a time when the current holder of a lease has last updated the lease.
-	RenewTime(RenewTime *apismetav1.MicroTime) LeaseSpecDie
+	RenewTime(v *apismetav1.MicroTime) LeaseSpecDie
 	// leaseTransitions is the number of transitions of a lease between holders.
-	LeaseTransitions(LeaseTransitions *int32) LeaseSpecDie
+	LeaseTransitions(v *int32) LeaseSpecDie
 }
 
 var _ LeaseSpecDie = (*leaseSpecDie)(nil)

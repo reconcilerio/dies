@@ -24,7 +24,7 @@ import (
 // +die:object=true
 type _ = admissionregistrationv1.ValidatingWebhookConfiguration
 
-type validatingWebhookConfiguration interface {
+type validatingWebhookConfigurationDieExtension interface {
 	WebhookDie(name string, fn func(d ValidatingWebhookDie)) ValidatingWebhookConfigurationDie
 }
 
@@ -48,7 +48,7 @@ func (d *validatingWebhookConfigurationDie) WebhookDie(name string, fn func(d Va
 // +die
 type _ = admissionregistrationv1.ValidatingWebhook
 
-type validatingWebhook interface {
+type validatingWebhookDieExtension interface {
 	ClientConfigDie(fn func(d WebhookClientConfigDie)) ValidatingWebhookDie
 	RulesDie(rules ...RuleWithOperationsDie) ValidatingWebhookDie
 	NamespaceSelectorDie(fn func(d diemetav1.LabelSelectorDie)) ValidatingWebhookDie
