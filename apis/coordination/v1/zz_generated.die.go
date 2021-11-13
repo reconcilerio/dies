@@ -27,6 +27,7 @@ import (
 	fmtx "fmt"
 	coordinationv1 "k8s.io/api/coordination/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
@@ -42,6 +43,8 @@ type LeaseDie interface {
 	DieRelease() coordinationv1.Lease
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *coordinationv1.Lease
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) LeaseDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -107,6 +110,14 @@ func (d *leaseDie) DieRelease() coordinationv1.Lease {
 func (d *leaseDie) DieReleasePtr() *coordinationv1.Lease {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *leaseDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *leaseDie) DieStamp(fn func(r *coordinationv1.Lease)) LeaseDie {

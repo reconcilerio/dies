@@ -198,6 +198,10 @@ func (c *copyMethodMaker) generateInterface(die Die, fields []Field) {
 	c.Linef("	DieRelease() %s", c.AliasedRef(die.TargetPackage, die.TargetType))
 	c.Linef("	// DieReleasePtr returns a pointer to the resource managed by the die.")
 	c.Linef("	DieReleasePtr() *%s", c.AliasedRef(die.TargetPackage, die.TargetType))
+	if die.Object {
+		c.Linef("	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.")
+		c.Linef("	DieReleaseUnstructured() %s", c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "Unstructured"))
+	}
 	c.Linef("	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).")
 	c.Linef("	DieImmutable(immutable bool) %s", die.Interface)
 	c.Linef("	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.")
@@ -313,6 +317,16 @@ func (c *copyMethodMaker) generateDieReleaseMethodFor(die Die) {
 	c.Linef("	r := d.DieRelease()")
 	c.Linef("	return &r")
 	c.Linef("}")
+	if die.Object {
+		c.Linef("")
+		c.Linef("func (d *%s) DieReleaseUnstructured() %s {", die.Type, c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "Unstructured"))
+		c.Linef("	r := d.DieReleasePtr()")
+		c.Linef("	u, _ := %s.ToUnstructured(r)", c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "DefaultUnstructuredConverter"))
+		c.Linef("	return &%s{", c.AliasedRef("k8s.io/apimachinery/pkg/apis/meta/v1/unstructured", "Unstructured"))
+		c.Linef("		Object: u,")
+		c.Linef("	}")
+		c.Linef("}")
+	}
 }
 
 func (c *copyMethodMaker) generateDieStampMethodFor(die Die) {

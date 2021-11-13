@@ -27,6 +27,7 @@ import (
 	fmtx "fmt"
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
@@ -482,6 +483,8 @@ type MutatingWebhookConfigurationDie interface {
 	DieRelease() admissionregistrationv1.MutatingWebhookConfiguration
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *admissionregistrationv1.MutatingWebhookConfiguration
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) MutatingWebhookConfigurationDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -546,6 +549,14 @@ func (d *mutatingWebhookConfigurationDie) DieRelease() admissionregistrationv1.M
 func (d *mutatingWebhookConfigurationDie) DieReleasePtr() *admissionregistrationv1.MutatingWebhookConfiguration {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *mutatingWebhookConfigurationDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *mutatingWebhookConfigurationDie) DieStamp(fn func(r *admissionregistrationv1.MutatingWebhookConfiguration)) MutatingWebhookConfigurationDie {
@@ -799,6 +810,8 @@ type ValidatingWebhookConfigurationDie interface {
 	DieRelease() admissionregistrationv1.ValidatingWebhookConfiguration
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *admissionregistrationv1.ValidatingWebhookConfiguration
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) ValidatingWebhookConfigurationDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -863,6 +876,14 @@ func (d *validatingWebhookConfigurationDie) DieRelease() admissionregistrationv1
 func (d *validatingWebhookConfigurationDie) DieReleasePtr() *admissionregistrationv1.ValidatingWebhookConfiguration {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *validatingWebhookConfigurationDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *validatingWebhookConfigurationDie) DieStamp(fn func(r *admissionregistrationv1.ValidatingWebhookConfiguration)) ValidatingWebhookConfigurationDie {

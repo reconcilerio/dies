@@ -28,6 +28,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	intstr "k8s.io/apimachinery/pkg/util/intstr"
@@ -44,6 +45,8 @@ type DaemonSetDie interface {
 	DieRelease() appsv1.DaemonSet
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *appsv1.DaemonSet
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) DaemonSetDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -113,6 +116,14 @@ func (d *daemonSetDie) DieRelease() appsv1.DaemonSet {
 func (d *daemonSetDie) DieReleasePtr() *appsv1.DaemonSet {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *daemonSetDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *daemonSetDie) DieStamp(fn func(r *appsv1.DaemonSet)) DaemonSetDie {
@@ -699,6 +710,8 @@ type DeploymentDie interface {
 	DieRelease() appsv1.Deployment
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *appsv1.Deployment
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) DeploymentDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -768,6 +781,14 @@ func (d *deploymentDie) DieRelease() appsv1.Deployment {
 func (d *deploymentDie) DieReleasePtr() *appsv1.Deployment {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *deploymentDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *deploymentDie) DieStamp(fn func(r *appsv1.Deployment)) DeploymentDie {
@@ -1362,6 +1383,8 @@ type ReplicaSetDie interface {
 	DieRelease() appsv1.ReplicaSet
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *appsv1.ReplicaSet
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) ReplicaSetDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1431,6 +1454,14 @@ func (d *replicaSetDie) DieRelease() appsv1.ReplicaSet {
 func (d *replicaSetDie) DieReleasePtr() *appsv1.ReplicaSet {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *replicaSetDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *replicaSetDie) DieStamp(fn func(r *appsv1.ReplicaSet)) ReplicaSetDie {
@@ -1758,6 +1789,8 @@ type StatefulSetDie interface {
 	DieRelease() appsv1.StatefulSet
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *appsv1.StatefulSet
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) StatefulSetDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1827,6 +1860,14 @@ func (d *statefulSetDie) DieRelease() appsv1.StatefulSet {
 func (d *statefulSetDie) DieReleasePtr() *appsv1.StatefulSet {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *statefulSetDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *statefulSetDie) DieStamp(fn func(r *appsv1.StatefulSet)) StatefulSetDie {

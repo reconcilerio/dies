@@ -28,6 +28,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	intstr "k8s.io/apimachinery/pkg/util/intstr"
@@ -44,6 +45,8 @@ type IngressDie interface {
 	DieRelease() networkingv1.Ingress
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *networkingv1.Ingress
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) IngressDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -113,6 +116,14 @@ func (d *ingressDie) DieRelease() networkingv1.Ingress {
 func (d *ingressDie) DieReleasePtr() *networkingv1.Ingress {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *ingressDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *ingressDie) DieStamp(fn func(r *networkingv1.Ingress)) IngressDie {
@@ -1072,6 +1083,8 @@ type IngressClassDie interface {
 	DieRelease() networkingv1.IngressClass
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *networkingv1.IngressClass
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) IngressClassDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1137,6 +1150,14 @@ func (d *ingressClassDie) DieRelease() networkingv1.IngressClass {
 func (d *ingressClassDie) DieReleasePtr() *networkingv1.IngressClass {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *ingressClassDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *ingressClassDie) DieStamp(fn func(r *networkingv1.IngressClass)) IngressClassDie {
@@ -1425,6 +1446,8 @@ type NetworkPolicyDie interface {
 	DieRelease() networkingv1.NetworkPolicy
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *networkingv1.NetworkPolicy
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) NetworkPolicyDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1490,6 +1513,14 @@ func (d *networkPolicyDie) DieRelease() networkingv1.NetworkPolicy {
 func (d *networkPolicyDie) DieReleasePtr() *networkingv1.NetworkPolicy {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *networkPolicyDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *networkPolicyDie) DieStamp(fn func(r *networkingv1.NetworkPolicy)) NetworkPolicyDie {

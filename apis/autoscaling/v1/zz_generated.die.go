@@ -27,6 +27,7 @@ import (
 	fmtx "fmt"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
@@ -42,6 +43,8 @@ type HorizontalPodAutoscalerDie interface {
 	DieRelease() autoscalingv1.HorizontalPodAutoscaler
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *autoscalingv1.HorizontalPodAutoscaler
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) HorizontalPodAutoscalerDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -111,6 +114,14 @@ func (d *horizontalPodAutoscalerDie) DieRelease() autoscalingv1.HorizontalPodAut
 func (d *horizontalPodAutoscalerDie) DieReleasePtr() *autoscalingv1.HorizontalPodAutoscaler {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *horizontalPodAutoscalerDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *horizontalPodAutoscalerDie) DieStamp(fn func(r *autoscalingv1.HorizontalPodAutoscaler)) HorizontalPodAutoscalerDie {

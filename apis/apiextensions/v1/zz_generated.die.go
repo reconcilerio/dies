@@ -27,6 +27,7 @@ import (
 	fmtx "fmt"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
@@ -42,6 +43,8 @@ type CustomResourceDefinitionDie interface {
 	DieRelease() apiextensionsv1.CustomResourceDefinition
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *apiextensionsv1.CustomResourceDefinition
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) CustomResourceDefinitionDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -111,6 +114,14 @@ func (d *customResourceDefinitionDie) DieRelease() apiextensionsv1.CustomResourc
 func (d *customResourceDefinitionDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinition {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *customResourceDefinitionDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *customResourceDefinitionDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinition)) CustomResourceDefinitionDie {

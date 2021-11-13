@@ -148,12 +148,21 @@ Dies marked as implementing `metav1.Object` and `runtime.Object`  generate
 additional methods.
 
 ```go
+import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+    runtime "k8s.io/apimachinery/pkg/runtime"
+)
+
 type <T>Die interface {
     // continued
 
     runtime.Object
     metav1.Object
     metav1.ObjectMetaAccessor
+
+    // DieReleaseUnstructured returns the resource managed by the die as an
+    // unstructured object.
+    func DieReleaseUnstructured() runtime.Unstructured
 
     // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
     func MetadataDie(fn func(d diemetav1.ObjectMetaDie)) <T>Die

@@ -28,6 +28,7 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
@@ -44,6 +45,8 @@ type CronJobDie interface {
 	DieRelease() batchv1.CronJob
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *batchv1.CronJob
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) CronJobDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -113,6 +116,14 @@ func (d *cronJobDie) DieRelease() batchv1.CronJob {
 func (d *cronJobDie) DieReleasePtr() *batchv1.CronJob {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *cronJobDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *cronJobDie) DieStamp(fn func(r *batchv1.CronJob)) CronJobDie {
@@ -439,6 +450,8 @@ type JobDie interface {
 	DieRelease() batchv1.Job
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *batchv1.Job
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) JobDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -508,6 +521,14 @@ func (d *jobDie) DieRelease() batchv1.Job {
 func (d *jobDie) DieReleasePtr() *batchv1.Job {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *jobDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *jobDie) DieStamp(fn func(r *batchv1.Job)) JobDie {

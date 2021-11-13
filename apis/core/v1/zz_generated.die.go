@@ -28,6 +28,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
@@ -45,6 +46,8 @@ type ConfigMapDie interface {
 	DieRelease() corev1.ConfigMap
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *corev1.ConfigMap
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) ConfigMapDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -109,6 +112,14 @@ func (d *configMapDie) DieRelease() corev1.ConfigMap {
 func (d *configMapDie) DieReleasePtr() *corev1.ConfigMap {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *configMapDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *configMapDie) DieStamp(fn func(r *corev1.ConfigMap)) ConfigMapDie {
@@ -3701,6 +3712,8 @@ type EndpointsDie interface {
 	DieRelease() corev1.Endpoints
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *corev1.Endpoints
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) EndpointsDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -3765,6 +3778,14 @@ func (d *endpointsDie) DieRelease() corev1.Endpoints {
 func (d *endpointsDie) DieReleasePtr() *corev1.Endpoints {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *endpointsDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *endpointsDie) DieStamp(fn func(r *corev1.Endpoints)) EndpointsDie {
@@ -4157,6 +4178,8 @@ type EventDie interface {
 	DieRelease() corev1.Event
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *corev1.Event
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) EventDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -4247,6 +4270,14 @@ func (d *eventDie) DieRelease() corev1.Event {
 func (d *eventDie) DieReleasePtr() *corev1.Event {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *eventDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *eventDie) DieStamp(fn func(r *corev1.Event)) EventDie {
@@ -4580,6 +4611,8 @@ type LimitRangeDie interface {
 	DieRelease() corev1.LimitRange
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *corev1.LimitRange
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) LimitRangeDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -4645,6 +4678,14 @@ func (d *limitRangeDie) DieRelease() corev1.LimitRange {
 func (d *limitRangeDie) DieReleasePtr() *corev1.LimitRange {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *limitRangeDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *limitRangeDie) DieStamp(fn func(r *corev1.LimitRange)) LimitRangeDie {
@@ -4934,6 +4975,8 @@ type NamespaceDie interface {
 	DieRelease() corev1.Namespace
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *corev1.Namespace
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) NamespaceDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -5003,6 +5046,14 @@ func (d *namespaceDie) DieRelease() corev1.Namespace {
 func (d *namespaceDie) DieReleasePtr() *corev1.Namespace {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *namespaceDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *namespaceDie) DieStamp(fn func(r *corev1.Namespace)) NamespaceDie {
@@ -5273,6 +5324,8 @@ type NodeDie interface {
 	DieRelease() corev1.Node
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *corev1.Node
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) NodeDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -5342,6 +5395,14 @@ func (d *nodeDie) DieRelease() corev1.Node {
 func (d *nodeDie) DieReleasePtr() *corev1.Node {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *nodeDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *nodeDie) DieStamp(fn func(r *corev1.Node)) NodeDie {
@@ -7202,6 +7263,8 @@ type PersistentVolumeDie interface {
 	DieRelease() corev1.PersistentVolume
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *corev1.PersistentVolume
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) PersistentVolumeDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -7271,6 +7334,14 @@ func (d *persistentVolumeDie) DieRelease() corev1.PersistentVolume {
 func (d *persistentVolumeDie) DieReleasePtr() *corev1.PersistentVolume {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *persistentVolumeDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *persistentVolumeDie) DieStamp(fn func(r *corev1.PersistentVolume)) PersistentVolumeDie {
@@ -9408,6 +9479,8 @@ type PersistentVolumeClaimDie interface {
 	DieRelease() corev1.PersistentVolumeClaim
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *corev1.PersistentVolumeClaim
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) PersistentVolumeClaimDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -9477,6 +9550,14 @@ func (d *persistentVolumeClaimDie) DieRelease() corev1.PersistentVolumeClaim {
 func (d *persistentVolumeClaimDie) DieReleasePtr() *corev1.PersistentVolumeClaim {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *persistentVolumeClaimDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *persistentVolumeClaimDie) DieStamp(fn func(r *corev1.PersistentVolumeClaim)) PersistentVolumeClaimDie {
@@ -9916,6 +9997,8 @@ type PodDie interface {
 	DieRelease() corev1.Pod
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *corev1.Pod
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) PodDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -9985,6 +10068,14 @@ func (d *podDie) DieRelease() corev1.Pod {
 func (d *podDie) DieReleasePtr() *corev1.Pod {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *podDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *podDie) DieStamp(fn func(r *corev1.Pod)) PodDie {
@@ -11586,6 +11677,8 @@ type ResourceQuotaDie interface {
 	DieRelease() corev1.ResourceQuota
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *corev1.ResourceQuota
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) ResourceQuotaDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -11655,6 +11748,14 @@ func (d *resourceQuotaDie) DieRelease() corev1.ResourceQuota {
 func (d *resourceQuotaDie) DieReleasePtr() *corev1.ResourceQuota {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *resourceQuotaDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *resourceQuotaDie) DieStamp(fn func(r *corev1.ResourceQuota)) ResourceQuotaDie {
@@ -12133,6 +12234,8 @@ type SecretDie interface {
 	DieRelease() corev1.Secret
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *corev1.Secret
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) SecretDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -12199,6 +12302,14 @@ func (d *secretDie) DieRelease() corev1.Secret {
 func (d *secretDie) DieReleasePtr() *corev1.Secret {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *secretDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *secretDie) DieStamp(fn func(r *corev1.Secret)) SecretDie {
@@ -12270,6 +12381,8 @@ type ServiceDie interface {
 	DieRelease() corev1.Service
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *corev1.Service
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) ServiceDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -12339,6 +12452,14 @@ func (d *serviceDie) DieRelease() corev1.Service {
 func (d *serviceDie) DieReleasePtr() *corev1.Service {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *serviceDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *serviceDie) DieStamp(fn func(r *corev1.Service)) ServiceDie {
@@ -13368,6 +13489,8 @@ type ServiceAccountDie interface {
 	DieRelease() corev1.ServiceAccount
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *corev1.ServiceAccount
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) ServiceAccountDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -13436,6 +13559,14 @@ func (d *serviceAccountDie) DieRelease() corev1.ServiceAccount {
 func (d *serviceAccountDie) DieReleasePtr() *corev1.ServiceAccount {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *serviceAccountDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *serviceAccountDie) DieStamp(fn func(r *corev1.ServiceAccount)) ServiceAccountDie {

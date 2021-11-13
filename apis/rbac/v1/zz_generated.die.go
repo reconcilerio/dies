@@ -27,6 +27,7 @@ import (
 	fmtx "fmt"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
@@ -42,6 +43,8 @@ type ClusterRoleDie interface {
 	DieRelease() rbacv1.ClusterRole
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *rbacv1.ClusterRole
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) ClusterRoleDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -108,6 +111,14 @@ func (d *clusterRoleDie) DieRelease() rbacv1.ClusterRole {
 func (d *clusterRoleDie) DieReleasePtr() *rbacv1.ClusterRole {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *clusterRoleDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *clusterRoleDie) DieStamp(fn func(r *rbacv1.ClusterRole)) ClusterRoleDie {
@@ -267,6 +278,8 @@ type ClusterRoleBindingDie interface {
 	DieRelease() rbacv1.ClusterRoleBinding
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *rbacv1.ClusterRoleBinding
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) ClusterRoleBindingDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -333,6 +346,14 @@ func (d *clusterRoleBindingDie) DieRelease() rbacv1.ClusterRoleBinding {
 func (d *clusterRoleBindingDie) DieReleasePtr() *rbacv1.ClusterRoleBinding {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *clusterRoleBindingDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *clusterRoleBindingDie) DieStamp(fn func(r *rbacv1.ClusterRoleBinding)) ClusterRoleBindingDie {
@@ -404,6 +425,8 @@ type RoleDie interface {
 	DieRelease() rbacv1.Role
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *rbacv1.Role
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) RoleDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -468,6 +491,14 @@ func (d *roleDie) DieRelease() rbacv1.Role {
 func (d *roleDie) DieReleasePtr() *rbacv1.Role {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *roleDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *roleDie) DieStamp(fn func(r *rbacv1.Role)) RoleDie {
@@ -653,6 +684,8 @@ type RoleBindingDie interface {
 	DieRelease() rbacv1.RoleBinding
 	// DieReleasePtr returns a pointer to the resource managed by the die.
 	DieReleasePtr() *rbacv1.RoleBinding
+	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+	DieReleaseUnstructured() runtime.Unstructured
 	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
 	DieImmutable(immutable bool) RoleBindingDie
 	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -719,6 +752,14 @@ func (d *roleBindingDie) DieRelease() rbacv1.RoleBinding {
 func (d *roleBindingDie) DieReleasePtr() *rbacv1.RoleBinding {
 	r := d.DieRelease()
 	return &r
+}
+
+func (d *roleBindingDie) DieReleaseUnstructured() runtime.Unstructured {
+	r := d.DieReleasePtr()
+	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	return &unstructured.Unstructured{
+		Object: u,
+	}
 }
 
 func (d *roleBindingDie) DieStamp(fn func(r *rbacv1.RoleBinding)) RoleBindingDie {
