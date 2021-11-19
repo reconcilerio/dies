@@ -28,14 +28,7 @@ type _ = corev1.PersistentVolumeClaim
 // +die
 type _ = corev1.PersistentVolumeClaimSpec
 
-type persistentVolumeClaimSpecDieExtension interface {
-	SelectorDie(fn func(d diemetav1.LabelSelectorDie)) PersistentVolumeClaimSpecDie
-	ResourcesDie(fn func(d ResourceRequirementsDie)) PersistentVolumeClaimSpecDie
-	DataSourceDie(fn func(d TypedLocalObjectReferenceDie)) PersistentVolumeClaimSpecDie
-	DataSourceRefDie(fn func(d TypedLocalObjectReferenceDie)) PersistentVolumeClaimSpecDie
-}
-
-func (d *persistentVolumeClaimSpecDie) SelectorDie(fn func(d diemetav1.LabelSelectorDie)) PersistentVolumeClaimSpecDie {
+func (d *PersistentVolumeClaimSpecDie) SelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
 		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
 		fn(d)
@@ -43,7 +36,7 @@ func (d *persistentVolumeClaimSpecDie) SelectorDie(fn func(d diemetav1.LabelSele
 	})
 }
 
-func (d *persistentVolumeClaimSpecDie) ResourcesDie(fn func(d ResourceRequirementsDie)) PersistentVolumeClaimSpecDie {
+func (d *PersistentVolumeClaimSpecDie) ResourcesDie(fn func(d *ResourceRequirementsDie)) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
 		d := ResourceRequirementsBlank.DieImmutable(false).DieFeed(r.Resources)
 		fn(d)
@@ -51,7 +44,7 @@ func (d *persistentVolumeClaimSpecDie) ResourcesDie(fn func(d ResourceRequiremen
 	})
 }
 
-func (d *persistentVolumeClaimSpecDie) DataSourceDie(fn func(d TypedLocalObjectReferenceDie)) PersistentVolumeClaimSpecDie {
+func (d *PersistentVolumeClaimSpecDie) DataSourceDie(fn func(d *TypedLocalObjectReferenceDie)) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
 		d := TypedLocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.DataSource)
 		fn(d)
@@ -59,7 +52,7 @@ func (d *persistentVolumeClaimSpecDie) DataSourceDie(fn func(d TypedLocalObjectR
 	})
 }
 
-func (d *persistentVolumeClaimSpecDie) DataSourceRefDie(fn func(d TypedLocalObjectReferenceDie)) PersistentVolumeClaimSpecDie {
+func (d *PersistentVolumeClaimSpecDie) DataSourceRefDie(fn func(d *TypedLocalObjectReferenceDie)) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
 		d := TypedLocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.DataSourceRef)
 		fn(d)
@@ -70,23 +63,17 @@ func (d *persistentVolumeClaimSpecDie) DataSourceRefDie(fn func(d TypedLocalObje
 // +die
 type _ = corev1.PersistentVolumeClaimStatus
 
-type persistentVolumeClaimStatusDieExtension interface {
-	AddCapacity(name corev1.ResourceName, quantity resource.Quantity) PersistentVolumeClaimStatusDie
-	AddCapacityString(name corev1.ResourceName, quantity string) PersistentVolumeClaimStatusDie
-	ConditionsDie(conditions ...diemetav1.ConditionDie) PersistentVolumeClaimStatusDie
-}
-
-func (d *persistentVolumeClaimStatusDie) AddCapacity(name corev1.ResourceName, quantity resource.Quantity) PersistentVolumeClaimStatusDie {
+func (d *PersistentVolumeClaimStatusDie) AddCapacity(name corev1.ResourceName, quantity resource.Quantity) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		r.Capacity[name] = quantity
 	})
 }
 
-func (d *persistentVolumeClaimStatusDie) AddCapacityString(name corev1.ResourceName, quantity string) PersistentVolumeClaimStatusDie {
+func (d *PersistentVolumeClaimStatusDie) AddCapacityString(name corev1.ResourceName, quantity string) *PersistentVolumeClaimStatusDie {
 	return d.AddCapacity(name, resource.MustParse(quantity))
 }
 
-func (d *persistentVolumeClaimStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) PersistentVolumeClaimStatusDie {
+func (d *PersistentVolumeClaimStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		r.Conditions = make([]corev1.PersistentVolumeClaimCondition, len(conditions))
 		for i := range conditions {
@@ -105,12 +92,7 @@ func (d *persistentVolumeClaimStatusDie) ConditionsDie(conditions ...diemetav1.C
 // +die
 type _ corev1.PersistentVolumeClaimTemplate
 
-type persistentVolumeClaimTemplateDieExtension interface {
-	MetadataDie(fn func(d diemetav1.ObjectMetaDie)) PersistentVolumeClaimTemplateDie
-	SpecDie(fn func(d PersistentVolumeClaimSpecDie)) PersistentVolumeClaimTemplateDie
-}
-
-func (d *persistentVolumeClaimTemplateDie) MetadataDie(fn func(d diemetav1.ObjectMetaDie)) PersistentVolumeClaimTemplateDie {
+func (d *PersistentVolumeClaimTemplateDie) MetadataDie(fn func(d *diemetav1.ObjectMetaDie)) *PersistentVolumeClaimTemplateDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimTemplate) {
 		d := diemetav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
@@ -118,7 +100,7 @@ func (d *persistentVolumeClaimTemplateDie) MetadataDie(fn func(d diemetav1.Objec
 	})
 }
 
-func (d *persistentVolumeClaimTemplateDie) SpecDie(fn func(d PersistentVolumeClaimSpecDie)) PersistentVolumeClaimTemplateDie {
+func (d *PersistentVolumeClaimTemplateDie) SpecDie(fn func(d *PersistentVolumeClaimSpecDie)) *PersistentVolumeClaimTemplateDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimTemplate) {
 		d := PersistentVolumeClaimSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)

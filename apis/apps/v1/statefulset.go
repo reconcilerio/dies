@@ -29,14 +29,7 @@ type _ = appsv1.StatefulSet
 // +die
 type _ = appsv1.StatefulSetSpec
 
-type statefulSetSpecDieExtension interface {
-	SelectorDie(fn func(d diemetav1.LabelSelectorDie)) StatefulSetSpecDie
-	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) StatefulSetSpecDie
-	VolumeClaimTemplatesDie(volumeClaimTemplates ...diecorev1.PersistentVolumeClaimDie) StatefulSetSpecDie
-	UpdateStrategyDie(fn func(d StatefulSetUpdateStrategyDie)) StatefulSetSpecDie
-}
-
-func (d *statefulSetSpecDie) SelectorDie(fn func(d diemetav1.LabelSelectorDie)) StatefulSetSpecDie {
+func (d *StatefulSetSpecDie) SelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
 		fn(d)
@@ -44,7 +37,7 @@ func (d *statefulSetSpecDie) SelectorDie(fn func(d diemetav1.LabelSelectorDie)) 
 	})
 }
 
-func (d *statefulSetSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) StatefulSetSpecDie {
+func (d *StatefulSetSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		d := diecorev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
 		fn(d)
@@ -52,7 +45,7 @@ func (d *statefulSetSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)
 	})
 }
 
-func (d *statefulSetSpecDie) VolumeClaimTemplatesDie(volumeClaimTemplates ...diecorev1.PersistentVolumeClaimDie) StatefulSetSpecDie {
+func (d *StatefulSetSpecDie) VolumeClaimTemplatesDie(volumeClaimTemplates ...*diecorev1.PersistentVolumeClaimDie) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.VolumeClaimTemplates = make([]corev1.PersistentVolumeClaim, len(volumeClaimTemplates))
 		for i, v := range volumeClaimTemplates {
@@ -61,7 +54,7 @@ func (d *statefulSetSpecDie) VolumeClaimTemplatesDie(volumeClaimTemplates ...die
 	})
 }
 
-func (d *statefulSetSpecDie) UpdateStrategyDie(fn func(d StatefulSetUpdateStrategyDie)) StatefulSetSpecDie {
+func (d *StatefulSetSpecDie) UpdateStrategyDie(fn func(d *StatefulSetUpdateStrategyDie)) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		d := StatefulSetUpdateStrategyBlank.DieImmutable(false).DieFeed(r.UpdateStrategy)
 		fn(d)
@@ -72,19 +65,14 @@ func (d *statefulSetSpecDie) UpdateStrategyDie(fn func(d StatefulSetUpdateStrate
 // +die
 type _ = appsv1.StatefulSetUpdateStrategy
 
-type statefulSetUpdateStrategyDieExtension interface {
-	OnDelete() StatefulSetUpdateStrategyDie
-	RollingUpdateDie(fn func(d RollingUpdateStatefulSetStrategyDie)) StatefulSetUpdateStrategyDie
-}
-
-func (d *statefulSetUpdateStrategyDie) OnDelete() StatefulSetUpdateStrategyDie {
+func (d *StatefulSetUpdateStrategyDie) OnDelete() *StatefulSetUpdateStrategyDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetUpdateStrategy) {
 		r.Type = appsv1.OnDeleteStatefulSetStrategyType
 		r.RollingUpdate = nil
 	})
 }
 
-func (d *statefulSetUpdateStrategyDie) RollingUpdateDie(fn func(d RollingUpdateStatefulSetStrategyDie)) StatefulSetUpdateStrategyDie {
+func (d *StatefulSetUpdateStrategyDie) RollingUpdateDie(fn func(d *RollingUpdateStatefulSetStrategyDie)) *StatefulSetUpdateStrategyDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetUpdateStrategy) {
 		r.Type = appsv1.RollingUpdateStatefulSetStrategyType
 		d := RollingUpdateStatefulSetStrategyBlank.DieImmutable(false).DieFeedPtr(r.RollingUpdate)
@@ -99,11 +87,7 @@ type _ = appsv1.RollingUpdateStatefulSetStrategy
 // +die
 type _ = appsv1.StatefulSetStatus
 
-type statefulSetStatusDieExtension interface {
-	ConditionsDie(conditions ...diemetav1.ConditionDie) StatefulSetStatusDie
-}
-
-func (d *statefulSetStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) StatefulSetStatusDie {
+func (d *StatefulSetStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.Conditions = make([]appsv1.StatefulSetCondition, len(conditions))
 		for i := range conditions {

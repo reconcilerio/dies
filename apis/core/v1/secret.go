@@ -23,14 +23,7 @@ import (
 // +die:object=true,ignore={Data,StringData}
 type Secret = corev1.Secret
 
-type secretDieExtension interface {
-	Data(v map[string][]byte) SecretDie
-	AddData(key string, value []byte) SecretDie
-	StringData(v map[string]string) SecretDie
-	AddStringData(key string, value string) SecretDie
-}
-
-func (d *secretDie) Data(v map[string][]byte) SecretDie {
+func (d *SecretDie) Data(v map[string][]byte) *SecretDie {
 	return d.DieStamp(func(r *corev1.Secret) {
 		for k := range v {
 			delete(r.StringData, k)
@@ -39,7 +32,7 @@ func (d *secretDie) Data(v map[string][]byte) SecretDie {
 	})
 }
 
-func (d *secretDie) AddData(key string, value []byte) SecretDie {
+func (d *SecretDie) AddData(key string, value []byte) *SecretDie {
 	return d.DieStamp(func(r *corev1.Secret) {
 		if r.Data == nil {
 			r.Data = map[string][]byte{}
@@ -49,7 +42,7 @@ func (d *secretDie) AddData(key string, value []byte) SecretDie {
 	})
 }
 
-func (d *secretDie) StringData(v map[string]string) SecretDie {
+func (d *SecretDie) StringData(v map[string]string) *SecretDie {
 	return d.DieStamp(func(r *corev1.Secret) {
 		for k := range v {
 			delete(r.Data, k)
@@ -58,7 +51,7 @@ func (d *secretDie) StringData(v map[string]string) SecretDie {
 	})
 }
 
-func (d *secretDie) AddStringData(key string, value string) SecretDie {
+func (d *SecretDie) AddStringData(key string, value string) *SecretDie {
 	return d.DieStamp(func(r *corev1.Secret) {
 		if r.StringData == nil {
 			r.StringData = map[string]string{}

@@ -24,11 +24,7 @@ import (
 // +die:object=true
 type _ = admissionregistrationv1.ValidatingWebhookConfiguration
 
-type validatingWebhookConfigurationDieExtension interface {
-	WebhookDie(name string, fn func(d ValidatingWebhookDie)) ValidatingWebhookConfigurationDie
-}
-
-func (d *validatingWebhookConfigurationDie) WebhookDie(name string, fn func(d ValidatingWebhookDie)) ValidatingWebhookConfigurationDie {
+func (d *ValidatingWebhookConfigurationDie) WebhookDie(name string, fn func(d *ValidatingWebhookDie)) *ValidatingWebhookConfigurationDie {
 	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhookConfiguration) {
 		for i := range r.Webhooks {
 			if name == r.Webhooks[i].Name {
@@ -48,14 +44,7 @@ func (d *validatingWebhookConfigurationDie) WebhookDie(name string, fn func(d Va
 // +die
 type _ = admissionregistrationv1.ValidatingWebhook
 
-type validatingWebhookDieExtension interface {
-	ClientConfigDie(fn func(d WebhookClientConfigDie)) ValidatingWebhookDie
-	RulesDie(rules ...RuleWithOperationsDie) ValidatingWebhookDie
-	NamespaceSelectorDie(fn func(d diemetav1.LabelSelectorDie)) ValidatingWebhookDie
-	ObjectSelectorDie(fn func(d diemetav1.LabelSelectorDie)) ValidatingWebhookDie
-}
-
-func (d *validatingWebhookDie) ClientConfigDie(fn func(d WebhookClientConfigDie)) ValidatingWebhookDie {
+func (d *ValidatingWebhookDie) ClientConfigDie(fn func(d *WebhookClientConfigDie)) *ValidatingWebhookDie {
 	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
 		d := WebhookClientConfigBlank.DieImmutable(false).DieFeed(r.ClientConfig)
 		fn(d)
@@ -63,7 +52,7 @@ func (d *validatingWebhookDie) ClientConfigDie(fn func(d WebhookClientConfigDie)
 	})
 }
 
-func (d *validatingWebhookDie) RulesDie(rules ...RuleWithOperationsDie) ValidatingWebhookDie {
+func (d *ValidatingWebhookDie) RulesDie(rules ...*RuleWithOperationsDie) *ValidatingWebhookDie {
 	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
 		r.Rules = make([]admissionregistrationv1.RuleWithOperations, len(rules))
 		for i := range rules {
@@ -72,7 +61,7 @@ func (d *validatingWebhookDie) RulesDie(rules ...RuleWithOperationsDie) Validati
 	})
 }
 
-func (d *validatingWebhookDie) NamespaceSelectorDie(fn func(d diemetav1.LabelSelectorDie)) ValidatingWebhookDie {
+func (d *ValidatingWebhookDie) NamespaceSelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *ValidatingWebhookDie {
 	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
 		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.NamespaceSelector)
 		fn(d)
@@ -80,7 +69,7 @@ func (d *validatingWebhookDie) NamespaceSelectorDie(fn func(d diemetav1.LabelSel
 	})
 }
 
-func (d *validatingWebhookDie) ObjectSelectorDie(fn func(d diemetav1.LabelSelectorDie)) ValidatingWebhookDie {
+func (d *ValidatingWebhookDie) ObjectSelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *ValidatingWebhookDie {
 	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
 		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.ObjectSelector)
 		fn(d)

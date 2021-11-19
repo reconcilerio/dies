@@ -29,12 +29,7 @@ type _ = appsv1.Deployment
 // +die
 type _ = appsv1.DeploymentSpec
 
-type deploymentSpecDieExtension interface {
-	SelectorDie(fn func(d diemetav1.LabelSelectorDie)) DeploymentSpecDie
-	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) DeploymentSpecDie
-}
-
-func (d *deploymentSpecDie) SelectorDie(fn func(d diemetav1.LabelSelectorDie)) DeploymentSpecDie {
+func (d *DeploymentSpecDie) SelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
 		fn(d)
@@ -42,7 +37,7 @@ func (d *deploymentSpecDie) SelectorDie(fn func(d diemetav1.LabelSelectorDie)) D
 	})
 }
 
-func (d *deploymentSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) DeploymentSpecDie {
+func (d *DeploymentSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		d := diecorev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
 		fn(d)
@@ -50,7 +45,7 @@ func (d *deploymentSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie))
 	})
 }
 
-func (d *deploymentSpecDie) StrategyDie(fn func(d DeploymentStrategyDie)) DeploymentSpecDie {
+func (d *DeploymentSpecDie) StrategyDie(fn func(d *DeploymentStrategyDie)) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		d := DeploymentStrategyBlank.DieImmutable(false).DieFeed(r.Strategy)
 		fn(d)
@@ -61,19 +56,14 @@ func (d *deploymentSpecDie) StrategyDie(fn func(d DeploymentStrategyDie)) Deploy
 // +die
 type _ = appsv1.DeploymentStrategy
 
-type deploymentStrategyDieExtension interface {
-	Recreate() DeploymentStrategyDie
-	RollingUpdateDie(fn func(d RollingUpdateDeploymentDie)) DeploymentStrategyDie
-}
-
-func (d *deploymentStrategyDie) Recreate() DeploymentStrategyDie {
+func (d *DeploymentStrategyDie) Recreate() *DeploymentStrategyDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStrategy) {
 		r.Type = appsv1.RecreateDeploymentStrategyType
 		r.RollingUpdate = nil
 	})
 }
 
-func (d *deploymentStrategyDie) RollingUpdateDie(fn func(d RollingUpdateDeploymentDie)) DeploymentStrategyDie {
+func (d *DeploymentStrategyDie) RollingUpdateDie(fn func(d *RollingUpdateDeploymentDie)) *DeploymentStrategyDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStrategy) {
 		r.Type = appsv1.RollingUpdateDeploymentStrategyType
 		d := RollingUpdateDeploymentBlank.DieImmutable(false).DieFeedPtr(r.RollingUpdate)
@@ -88,11 +78,7 @@ type _ = appsv1.RollingUpdateDeployment
 // +die
 type _ = appsv1.DeploymentStatus
 
-type deploymentStatusDieExtension interface {
-	ConditionsDie(conditions ...diemetav1.ConditionDie) DeploymentStatusDie
-}
-
-func (d *deploymentStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) DeploymentStatusDie {
+func (d *DeploymentStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.Conditions = make([]appsv1.DeploymentCondition, len(conditions))
 		for i := range conditions {

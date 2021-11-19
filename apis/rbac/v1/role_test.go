@@ -29,7 +29,7 @@ import (
 func TestRole(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      dierbacv1.RoleDie
+		die      *dierbacv1.RoleDie
 		expected rbacv1.Role
 	}{
 		{
@@ -40,7 +40,7 @@ func TestRole(t *testing.T) {
 		{
 			name: "object metadata",
 			die: dierbacv1.RoleBlank.
-				MetadataDie(func(d diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),

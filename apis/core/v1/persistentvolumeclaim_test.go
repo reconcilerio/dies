@@ -29,7 +29,7 @@ import (
 func TestPersistentVolumeClaim(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      diecorev1.PersistentVolumeClaimDie
+		die      *diecorev1.PersistentVolumeClaimDie
 		expected corev1.PersistentVolumeClaim
 	}{
 		{
@@ -40,7 +40,7 @@ func TestPersistentVolumeClaim(t *testing.T) {
 		{
 			name: "object metadata",
 			die: diecorev1.PersistentVolumeClaimBlank.
-				MetadataDie(func(d diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),

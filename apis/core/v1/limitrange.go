@@ -27,11 +27,7 @@ type _ = corev1.LimitRange
 // +die
 type _ = corev1.LimitRangeSpec
 
-type limitRangeSpecDieExtension interface {
-	LimitsDie(limits ...LimitRangeItemDie) LimitRangeSpecDie
-}
-
-func (d *limitRangeSpecDie) LimitsDie(limits ...LimitRangeItemDie) LimitRangeSpecDie {
+func (d *LimitRangeSpecDie) LimitsDie(limits ...*LimitRangeItemDie) *LimitRangeSpecDie {
 	return d.DieStamp(func(r *corev1.LimitRangeSpec) {
 		r.Limits = make([]corev1.LimitRangeItem, len(limits))
 		for i := range r.Limits {
@@ -43,65 +39,52 @@ func (d *limitRangeSpecDie) LimitsDie(limits ...LimitRangeItemDie) LimitRangeSpe
 // +die
 type _ = corev1.LimitRangeItem
 
-type limitRangeItemDieExtension interface {
-	AddMax(name corev1.ResourceName, quantity resource.Quantity) LimitRangeItemDie
-	AddMaxString(name corev1.ResourceName, quantity string) LimitRangeItemDie
-	AddMin(name corev1.ResourceName, quantity resource.Quantity) LimitRangeItemDie
-	AddMinString(name corev1.ResourceName, quantity string) LimitRangeItemDie
-	AddDefault(name corev1.ResourceName, quantity resource.Quantity) LimitRangeItemDie
-	AddDefaultString(name corev1.ResourceName, quantity string) LimitRangeItemDie
-	AddDefaultRequest(name corev1.ResourceName, quantity resource.Quantity) LimitRangeItemDie
-	AddDefaultRequestString(name corev1.ResourceName, quantity string) LimitRangeItemDie
-	AddMaxLimitRequestRatio(name corev1.ResourceName, quantity resource.Quantity) LimitRangeItemDie
-	AddMaxLimitRequestRatioString(name corev1.ResourceName, quantity string) LimitRangeItemDie
-}
-
-func (d *limitRangeItemDie) AddMax(name corev1.ResourceName, quantity resource.Quantity) LimitRangeItemDie {
+func (d *LimitRangeItemDie) AddMax(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		r.Max[name] = quantity
 	})
 }
 
-func (d *limitRangeItemDie) AddMaxString(name corev1.ResourceName, quantity string) LimitRangeItemDie {
+func (d *LimitRangeItemDie) AddMaxString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
 	return d.AddMax(name, resource.MustParse(quantity))
 }
 
-func (d *limitRangeItemDie) AddMin(name corev1.ResourceName, quantity resource.Quantity) LimitRangeItemDie {
+func (d *LimitRangeItemDie) AddMin(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		r.Min[name] = quantity
 	})
 }
 
-func (d *limitRangeItemDie) AddMinString(name corev1.ResourceName, quantity string) LimitRangeItemDie {
+func (d *LimitRangeItemDie) AddMinString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
 	return d.AddMin(name, resource.MustParse(quantity))
 }
 
-func (d *limitRangeItemDie) AddDefault(name corev1.ResourceName, quantity resource.Quantity) LimitRangeItemDie {
+func (d *LimitRangeItemDie) AddDefault(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		r.Default[name] = quantity
 	})
 }
 
-func (d *limitRangeItemDie) AddDefaultString(name corev1.ResourceName, quantity string) LimitRangeItemDie {
+func (d *LimitRangeItemDie) AddDefaultString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
 	return d.AddDefault(name, resource.MustParse(quantity))
 }
 
-func (d *limitRangeItemDie) AddDefaultRequest(name corev1.ResourceName, quantity resource.Quantity) LimitRangeItemDie {
+func (d *LimitRangeItemDie) AddDefaultRequest(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		r.DefaultRequest[name] = quantity
 	})
 }
 
-func (d *limitRangeItemDie) AddDefaultRequestString(name corev1.ResourceName, quantity string) LimitRangeItemDie {
+func (d *LimitRangeItemDie) AddDefaultRequestString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
 	return d.AddDefaultRequest(name, resource.MustParse(quantity))
 }
 
-func (d *limitRangeItemDie) AddMaxLimitRequestRatio(name corev1.ResourceName, quantity resource.Quantity) LimitRangeItemDie {
+func (d *LimitRangeItemDie) AddMaxLimitRequestRatio(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		r.MaxLimitRequestRatio[name] = quantity
 	})
 }
 
-func (d *limitRangeItemDie) AddMaxLimitRequestRatioString(name corev1.ResourceName, quantity string) LimitRangeItemDie {
+func (d *LimitRangeItemDie) AddMaxLimitRequestRatioString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
 	return d.AddMaxLimitRequestRatio(name, resource.MustParse(quantity))
 }

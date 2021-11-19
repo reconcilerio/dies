@@ -23,11 +23,7 @@ import (
 // +die
 type _ = admissionregistrationv1.WebhookClientConfig
 
-type webhookClientConfigDieExtension interface {
-	ServiceDie(fn func(d ServiceReferenceDie)) WebhookClientConfigDie
-}
-
-func (d *webhookClientConfigDie) ServiceDie(fn func(d ServiceReferenceDie)) WebhookClientConfigDie {
+func (d *WebhookClientConfigDie) ServiceDie(fn func(d *ServiceReferenceDie)) *WebhookClientConfigDie {
 	return d.DieStamp(func(r *admissionregistrationv1.WebhookClientConfig) {
 		d := ServiceReferenceBlank.DieImmutable(false).DieFeedPtr(r.Service)
 		fn(d)
@@ -41,32 +37,25 @@ type _ admissionregistrationv1.ServiceReference
 // +die
 type _ admissionregistrationv1.RuleWithOperations
 
-type ruleWithOperationsDieExtension interface {
-	APIGroups(v ...string) RuleWithOperationsDie
-	APIVersions(v ...string) RuleWithOperationsDie
-	Resources(v ...string) RuleWithOperationsDie
-	Scope(v *admissionregistrationv1.ScopeType) RuleWithOperationsDie
-}
-
-func (d *ruleWithOperationsDie) APIGroups(v ...string) RuleWithOperationsDie {
+func (d *RuleWithOperationsDie) APIGroups(v ...string) *RuleWithOperationsDie {
 	return d.DieStamp(func(r *admissionregistrationv1.RuleWithOperations) {
 		r.APIGroups = v
 	})
 }
 
-func (d *ruleWithOperationsDie) APIVersions(v ...string) RuleWithOperationsDie {
+func (d *RuleWithOperationsDie) APIVersions(v ...string) *RuleWithOperationsDie {
 	return d.DieStamp(func(r *admissionregistrationv1.RuleWithOperations) {
 		r.APIVersions = v
 	})
 }
 
-func (d *ruleWithOperationsDie) Resources(v ...string) RuleWithOperationsDie {
+func (d *RuleWithOperationsDie) Resources(v ...string) *RuleWithOperationsDie {
 	return d.DieStamp(func(r *admissionregistrationv1.RuleWithOperations) {
 		r.Resources = v
 	})
 }
 
-func (d *ruleWithOperationsDie) Scope(v *admissionregistrationv1.ScopeType) RuleWithOperationsDie {
+func (d *RuleWithOperationsDie) Scope(v *admissionregistrationv1.ScopeType) *RuleWithOperationsDie {
 	return d.DieStamp(func(r *admissionregistrationv1.RuleWithOperations) {
 		r.Scope = v
 	})

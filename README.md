@@ -104,33 +104,33 @@ Additional methods will be added to dies over time to make common operations eas
 
 // <T>Blank is an empty die that mutations can be stamped from. All die blanks
 // are immutable.
-var <T>Blank <T>Die
+var <T>Blank *<T>Die
 
 type <T>Die interface {
     // DieStamp returns a new die with the resource passed to the callback
     // function. The resource is mutable.
-    func DieStamp(fn func(r *<T>)) <T>Die
+    DieStamp(fn func(r *<T>)) *<T>Die
 
     // DieFeed returns a new die with the provided resource.
-    func DieFeed(r <T>) <T>Die
+    DieFeed(r <T>) *<T>Die
 
     // DieFeedPtr returns a new die with the provided resource pointer. If the
     // resource is nil, the empty value is used instead.
-    func DieFeedPtr(r *<T>) <T>Die
+    DieFeedPtr(r *<T>) *<T>Die
 
     // DieRelease returns the resource managed by the die.
-    func DieRelease() <T>
+    DieRelease() <T>
 
     // DieReleasePtr returns a pointer to the resource managed by the die.
-    func DieReleasePtr() *<T>
+    DieReleasePtr() *<T>
 
     // DieImmutable returns a new die for the current die's state that is
     // either mutable (`false`) or immutable (`true`). 
-    func DieImmutable(immutable bool) <T>Die
+    DieImmutable(immutable bool) *<T>Die
 
     // DeepCopy returns a new die with equivalent state. Useful for
     // snapshotting a mutable die.
-    func DeepCopy() <T>Die
+    DeepCopy() *<T>Die
 }
 ```
 
@@ -140,7 +140,7 @@ For each exported field `<F>` on `<T>`, a method is registered to set that field
 type <T>Die interface {
     // continued
 
-    <F>(<T>) <T>Die
+    <F>(<T>) *<T>Die
 }
 ```
 
@@ -162,18 +162,18 @@ type <T>Die interface {
 
     // DieReleaseUnstructured returns the resource managed by the die as an
     // unstructured object.
-    func DieReleaseUnstructured() runtime.Unstructured
+    DieReleaseUnstructured() runtime.Unstructured
 
     // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
-    func MetadataDie(fn func(d diemetav1.ObjectMetaDie)) <T>Die
+    MetadataDie(fn func(d *diemetav1.ObjectMetaDie)) *<T>Die
 
     // SpecDie stamps the resource's spec field with a mutable die. This method
     // is only created if `<T>SpecDie` is defined.
-    func SpecDie(fn func(d <T>SpecDie)) <T>Die
+    SpecDie(fn func(d *<T>SpecDie)) *<T>Die
 
     // StatusDie stamps the resource's status field with a mutable die. This
     // method is only created if `<T>StatusDie` is defined.
-    func StatusDie(fn func(d <T>StatusDie)) <T>Die
+    StatusDie(fn func(d *<T>StatusDie)) *<T>Die
 }
 ```
 
@@ -182,18 +182,13 @@ type <T>Die interface {
 Dies are primarily generated for types from [die markers](#die-markers) using
 [`diegen`](#diegen).
 
-Additional methods can be added to a die to enrich its behavior. Each additional method needs to be defined in a non-exported interface matching the target type.
+Additional methods can be added to a die to enrich its behavior. Each additional method is added to the die struct.
 
 Example dispatching to a nested die to managed the template
 `corev1.PodTemplateSpec` for `DeploymentSpec`:
 
 ```go
-type deploymentSpecDieExtension interface {
-    TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) DeploymentSpecDie
-    // add other methods to contributed to DeploymentSpecDie
-}
-
-func (d *deploymentSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) DeploymentSpecDie {
+func (d *DeploymentSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *DeploymentSpecDie {
     return d.DieStamp(func(r *appsv1.DeploymentSpec) {
         d := diecorev1.PodTemplateSpecBlank.
             DieImmutable(false).
@@ -207,12 +202,7 @@ func (d *deploymentSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie))
 Example adapting `metav1.Condition` dies to `appsv1.DeploymentCondition`:
 
 ```go
-type deploymentStatusDieExtension interface {
-    ConditionsDie(conditions ...diemetav1.ConditionDie) DeploymentStatusDie
-    // add other methods to contributed to DeploymentStatusDie
-}
-
-func (d *deploymentStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) DeploymentStatusDie {
+func (d *DeploymentStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *DeploymentStatusDie {
     return d.DieStamp(func(r *appsv1.DeploymentStatus) {
         r.Conditions = make([]appsv1.DeploymentCondition, len(conditions))
         for i := range conditions {

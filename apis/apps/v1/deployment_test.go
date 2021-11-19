@@ -36,7 +36,7 @@ func TestDeployment(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		die      dieappsv1.DeploymentDie
+		die      *dieappsv1.DeploymentDie
 		expected appsv1.Deployment
 	}{
 		{
@@ -47,7 +47,7 @@ func TestDeployment(t *testing.T) {
 		{
 			name: "object metadata",
 			die: dieappsv1.DeploymentBlank.
-				MetadataDie(func(d diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),
@@ -61,13 +61,13 @@ func TestDeployment(t *testing.T) {
 		{
 			name: "spec template die",
 			die: dieappsv1.DeploymentBlank.
-				SpecDie(func(d dieappsv1.DeploymentSpecDie) {
-					d.TemplateDie(func(d diecorev1.PodTemplateSpecDie) {
-						d.MetadataDie(func(d diemetav1.ObjectMetaDie) {
+				SpecDie(func(d *dieappsv1.DeploymentSpecDie) {
+					d.TemplateDie(func(d *diecorev1.PodTemplateSpecDie) {
+						d.MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 							d.Name("my-name")
 						})
-						d.SpecDie(func(d diecorev1.PodSpecDie) {
-							d.ContainerDie("app", func(d diecorev1.ContainerDie) {
+						d.SpecDie(func(d *diecorev1.PodSpecDie) {
+							d.ContainerDie("app", func(d *diecorev1.ContainerDie) {
 								d.Image("registry.example/image:latest")
 								d.Command("/executable")
 							})
@@ -96,7 +96,7 @@ func TestDeployment(t *testing.T) {
 		{
 			name: "status conditions die",
 			die: dieappsv1.DeploymentBlank.
-				StatusDie(func(d dieappsv1.DeploymentStatusDie) {
+				StatusDie(func(d *dieappsv1.DeploymentStatusDie) {
 					d.ConditionsDie(
 						diemetav1.ConditionBlank.
 							Type(string(appsv1.DeploymentAvailable)).

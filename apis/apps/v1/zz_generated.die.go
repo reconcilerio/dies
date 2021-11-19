@@ -34,91 +34,62 @@ import (
 	intstr "k8s.io/apimachinery/pkg/util/intstr"
 )
 
-type DaemonSetDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.DaemonSet)) DaemonSetDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.DaemonSet) DaemonSetDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.DaemonSet) DaemonSetDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.DaemonSet
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.DaemonSet
-	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-	DieReleaseUnstructured() runtime.Unstructured
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) DaemonSetDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() DaemonSetDie
+var DaemonSetBlank = (&DaemonSetDie{}).DieFeed(appsv1.DaemonSet{})
 
-	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
-	MetadataDie(fn func(d metav1.ObjectMetaDie)) DaemonSetDie
-	// SpecDie stamps the resource's spec field with a mutable die.
-	SpecDie(fn func(d DaemonSetSpecDie)) DaemonSetDie
-	// StatusDie stamps the resource's status field with a mutable die.
-	StatusDie(fn func(d DaemonSetStatusDie)) DaemonSetDie
-	// The desired behavior of this daemon set. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Spec(v appsv1.DaemonSetSpec) DaemonSetDie
-	// The current status of this daemon set. This data may be out of date by some window of time. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Status(v appsv1.DaemonSetStatus) DaemonSetDie
-
-	runtime.Object
-	apismetav1.Object
-	apismetav1.ObjectMetaAccessor
-}
-
-var _ DaemonSetDie = (*daemonSetDie)(nil)
-var DaemonSetBlank = (&daemonSetDie{}).DieFeed(appsv1.DaemonSet{})
-
-type daemonSetDie struct {
+type DaemonSetDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       appsv1.DaemonSet
 }
 
-func (d *daemonSetDie) DieImmutable(immutable bool) DaemonSetDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *DaemonSetDie) DieImmutable(immutable bool) *DaemonSetDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*daemonSetDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *daemonSetDie) DieFeed(r appsv1.DaemonSet) DaemonSetDie {
+// DieFeed returns a new die with the provided resource.
+func (d *DaemonSetDie) DieFeed(r appsv1.DaemonSet) *DaemonSetDie {
 	if d.mutable {
 		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
 		d.r = r
 		return d
 	}
-	return &daemonSetDie{
+	return &DaemonSetDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *daemonSetDie) DieFeedPtr(r *appsv1.DaemonSet) DaemonSetDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *DaemonSetDie) DieFeedPtr(r *appsv1.DaemonSet) *DaemonSetDie {
 	if r == nil {
 		r = &appsv1.DaemonSet{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *daemonSetDie) DieRelease() appsv1.DaemonSet {
+// DieRelease returns the resource managed by the die.
+func (d *DaemonSetDie) DieRelease() appsv1.DaemonSet {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *daemonSetDie) DieReleasePtr() *appsv1.DaemonSet {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *DaemonSetDie) DieReleasePtr() *appsv1.DaemonSet {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *daemonSetDie) DieReleaseUnstructured() runtime.Unstructured {
+// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+func (d *DaemonSetDie) DieReleaseUnstructured() runtime.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -126,45 +97,53 @@ func (d *daemonSetDie) DieReleaseUnstructured() runtime.Unstructured {
 	}
 }
 
-func (d *daemonSetDie) DieStamp(fn func(r *appsv1.DaemonSet)) DaemonSetDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *DaemonSetDie) DieStamp(fn func(r *appsv1.DaemonSet)) *DaemonSetDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *daemonSetDie) DeepCopy() DaemonSetDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *DaemonSetDie) DeepCopy() *DaemonSetDie {
 	r := *d.r.DeepCopy()
-	return &daemonSetDie{
+	return &DaemonSetDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *daemonSetDie) DeepCopyObject() runtime.Object {
+var _ runtime.Object = (*DaemonSetDie)(nil)
+
+func (d *DaemonSetDie) DeepCopyObject() runtime.Object {
 	return d.r.DeepCopy()
 }
 
-func (d *daemonSetDie) GetObjectKind() schema.ObjectKind {
+func (d *DaemonSetDie) GetObjectKind() schema.ObjectKind {
 	r := d.DieRelease()
 	return r.GetObjectKind()
 }
 
-func (d *daemonSetDie) MarshalJSON() ([]byte, error) {
+func (d *DaemonSetDie) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.r)
 }
 
-func (d *daemonSetDie) UnmarshalJSON(b []byte) error {
+func (d *DaemonSetDie) UnmarshalJSON(b []byte) error {
 	if d == DaemonSetBlank {
-		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
+	}
+	if !d.mutable {
+		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
 	r := &appsv1.DaemonSet{}
 	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r).(*daemonSetDie)
+	*d = *d.DieFeed(*r)
 	return err
 }
 
-func (d *daemonSetDie) MetadataDie(fn func(d metav1.ObjectMetaDie)) DaemonSetDie {
+// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+func (d *DaemonSetDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *DaemonSetDie {
 	return d.DieStamp(func(r *appsv1.DaemonSet) {
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
@@ -172,7 +151,8 @@ func (d *daemonSetDie) MetadataDie(fn func(d metav1.ObjectMetaDie)) DaemonSetDie
 	})
 }
 
-func (d *daemonSetDie) SpecDie(fn func(d DaemonSetSpecDie)) DaemonSetDie {
+// SpecDie stamps the resource's spec field with a mutable die.
+func (d *DaemonSetDie) SpecDie(fn func(d *DaemonSetSpecDie)) *DaemonSetDie {
 	return d.DieStamp(func(r *appsv1.DaemonSet) {
 		d := DaemonSetSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
@@ -180,7 +160,8 @@ func (d *daemonSetDie) SpecDie(fn func(d DaemonSetSpecDie)) DaemonSetDie {
 	})
 }
 
-func (d *daemonSetDie) StatusDie(fn func(d DaemonSetStatusDie)) DaemonSetDie {
+// StatusDie stamps the resource's status field with a mutable die.
+func (d *DaemonSetDie) StatusDie(fn func(d *DaemonSetStatusDie)) *DaemonSetDie {
 	return d.DieStamp(func(r *appsv1.DaemonSet) {
 		d := DaemonSetStatusBlank.DieImmutable(false).DieFeed(r.Status)
 		fn(d)
@@ -188,602 +169,505 @@ func (d *daemonSetDie) StatusDie(fn func(d DaemonSetStatusDie)) DaemonSetDie {
 	})
 }
 
-func (d *daemonSetDie) Spec(v appsv1.DaemonSetSpec) DaemonSetDie {
+// The desired behavior of this daemon set. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *DaemonSetDie) Spec(v appsv1.DaemonSetSpec) *DaemonSetDie {
 	return d.DieStamp(func(r *appsv1.DaemonSet) {
 		r.Spec = v
 	})
 }
 
-func (d *daemonSetDie) Status(v appsv1.DaemonSetStatus) DaemonSetDie {
+// The current status of this daemon set. This data may be out of date by some window of time. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *DaemonSetDie) Status(v appsv1.DaemonSetStatus) *DaemonSetDie {
 	return d.DieStamp(func(r *appsv1.DaemonSet) {
 		r.Status = v
 	})
 }
 
-type DaemonSetSpecDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.DaemonSetSpec)) DaemonSetSpecDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.DaemonSetSpec) DaemonSetSpecDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.DaemonSetSpec) DaemonSetSpecDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.DaemonSetSpec
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.DaemonSetSpec
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) DaemonSetSpecDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() DaemonSetSpecDie
+var DaemonSetSpecBlank = (&DaemonSetSpecDie{}).DieFeed(appsv1.DaemonSetSpec{})
 
-	daemonSetSpecDieExtension
-	// A label query over pods that are managed by the daemon set. Must match in order to be controlled. It must match the pod template's labels. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
-	Selector(v *apismetav1.LabelSelector) DaemonSetSpecDie
-	// An object that describes the pod that will be created. The DaemonSet will create exactly one copy of this pod on every node that matches the template's node selector (or on every node if no node selector is specified). More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
-	Template(v corev1.PodTemplateSpec) DaemonSetSpecDie
-	// An update strategy to replace existing DaemonSet pods with new pods.
-	UpdateStrategy(v appsv1.DaemonSetUpdateStrategy) DaemonSetSpecDie
-	// The minimum number of seconds for which a newly created DaemonSet pod should be ready without any of its container crashing, for it to be considered available. Defaults to 0 (pod will be considered available as soon as it is ready).
-	MinReadySeconds(v int32) DaemonSetSpecDie
-	// The number of old history to retain to allow rollback. This is a pointer to distinguish between explicit zero and not specified. Defaults to 10.
-	RevisionHistoryLimit(v *int32) DaemonSetSpecDie
-}
-
-var _ DaemonSetSpecDie = (*daemonSetSpecDie)(nil)
-var DaemonSetSpecBlank = (&daemonSetSpecDie{}).DieFeed(appsv1.DaemonSetSpec{})
-
-type daemonSetSpecDie struct {
+type DaemonSetSpecDie struct {
 	mutable bool
 	r       appsv1.DaemonSetSpec
 }
 
-func (d *daemonSetSpecDie) DieImmutable(immutable bool) DaemonSetSpecDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *DaemonSetSpecDie) DieImmutable(immutable bool) *DaemonSetSpecDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*daemonSetSpecDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *daemonSetSpecDie) DieFeed(r appsv1.DaemonSetSpec) DaemonSetSpecDie {
+// DieFeed returns a new die with the provided resource.
+func (d *DaemonSetSpecDie) DieFeed(r appsv1.DaemonSetSpec) *DaemonSetSpecDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &daemonSetSpecDie{
+	return &DaemonSetSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *daemonSetSpecDie) DieFeedPtr(r *appsv1.DaemonSetSpec) DaemonSetSpecDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *DaemonSetSpecDie) DieFeedPtr(r *appsv1.DaemonSetSpec) *DaemonSetSpecDie {
 	if r == nil {
 		r = &appsv1.DaemonSetSpec{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *daemonSetSpecDie) DieRelease() appsv1.DaemonSetSpec {
+// DieRelease returns the resource managed by the die.
+func (d *DaemonSetSpecDie) DieRelease() appsv1.DaemonSetSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *daemonSetSpecDie) DieReleasePtr() *appsv1.DaemonSetSpec {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *DaemonSetSpecDie) DieReleasePtr() *appsv1.DaemonSetSpec {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *daemonSetSpecDie) DieStamp(fn func(r *appsv1.DaemonSetSpec)) DaemonSetSpecDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *DaemonSetSpecDie) DieStamp(fn func(r *appsv1.DaemonSetSpec)) *DaemonSetSpecDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *daemonSetSpecDie) DeepCopy() DaemonSetSpecDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *DaemonSetSpecDie) DeepCopy() *DaemonSetSpecDie {
 	r := *d.r.DeepCopy()
-	return &daemonSetSpecDie{
+	return &DaemonSetSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *daemonSetSpecDie) Selector(v *apismetav1.LabelSelector) DaemonSetSpecDie {
+// A label query over pods that are managed by the daemon set. Must match in order to be controlled. It must match the pod template's labels. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
+func (d *DaemonSetSpecDie) Selector(v *apismetav1.LabelSelector) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		r.Selector = v
 	})
 }
 
-func (d *daemonSetSpecDie) Template(v corev1.PodTemplateSpec) DaemonSetSpecDie {
+// An object that describes the pod that will be created. The DaemonSet will create exactly one copy of this pod on every node that matches the template's node selector (or on every node if no node selector is specified). More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
+func (d *DaemonSetSpecDie) Template(v corev1.PodTemplateSpec) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		r.Template = v
 	})
 }
 
-func (d *daemonSetSpecDie) UpdateStrategy(v appsv1.DaemonSetUpdateStrategy) DaemonSetSpecDie {
+// An update strategy to replace existing DaemonSet pods with new pods.
+func (d *DaemonSetSpecDie) UpdateStrategy(v appsv1.DaemonSetUpdateStrategy) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		r.UpdateStrategy = v
 	})
 }
 
-func (d *daemonSetSpecDie) MinReadySeconds(v int32) DaemonSetSpecDie {
+// The minimum number of seconds for which a newly created DaemonSet pod should be ready without any of its container crashing, for it to be considered available. Defaults to 0 (pod will be considered available as soon as it is ready).
+func (d *DaemonSetSpecDie) MinReadySeconds(v int32) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		r.MinReadySeconds = v
 	})
 }
 
-func (d *daemonSetSpecDie) RevisionHistoryLimit(v *int32) DaemonSetSpecDie {
+// The number of old history to retain to allow rollback. This is a pointer to distinguish between explicit zero and not specified. Defaults to 10.
+func (d *DaemonSetSpecDie) RevisionHistoryLimit(v *int32) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		r.RevisionHistoryLimit = v
 	})
 }
 
-type DaemonSetUpdateStrategyDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.DaemonSetUpdateStrategy)) DaemonSetUpdateStrategyDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.DaemonSetUpdateStrategy) DaemonSetUpdateStrategyDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.DaemonSetUpdateStrategy) DaemonSetUpdateStrategyDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.DaemonSetUpdateStrategy
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.DaemonSetUpdateStrategy
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) DaemonSetUpdateStrategyDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() DaemonSetUpdateStrategyDie
+var DaemonSetUpdateStrategyBlank = (&DaemonSetUpdateStrategyDie{}).DieFeed(appsv1.DaemonSetUpdateStrategy{})
 
-	daemonSetUpdateStrategyDieExtension
-	// Type of daemon set update. Can be "RollingUpdate" or "OnDelete". Default is RollingUpdate.
-	Type(v appsv1.DaemonSetUpdateStrategyType) DaemonSetUpdateStrategyDie
-	// Rolling update config params. Present only if type = "RollingUpdate". --- TODO: Update this to follow our convention for oneOf, whatever we decide it to be. Same as Deployment `strategy.rollingUpdate`. See https://github.com/kubernetes/kubernetes/issues/35345
-	RollingUpdate(v *appsv1.RollingUpdateDaemonSet) DaemonSetUpdateStrategyDie
-}
-
-var _ DaemonSetUpdateStrategyDie = (*daemonSetUpdateStrategyDie)(nil)
-var DaemonSetUpdateStrategyBlank = (&daemonSetUpdateStrategyDie{}).DieFeed(appsv1.DaemonSetUpdateStrategy{})
-
-type daemonSetUpdateStrategyDie struct {
+type DaemonSetUpdateStrategyDie struct {
 	mutable bool
 	r       appsv1.DaemonSetUpdateStrategy
 }
 
-func (d *daemonSetUpdateStrategyDie) DieImmutable(immutable bool) DaemonSetUpdateStrategyDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *DaemonSetUpdateStrategyDie) DieImmutable(immutable bool) *DaemonSetUpdateStrategyDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*daemonSetUpdateStrategyDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *daemonSetUpdateStrategyDie) DieFeed(r appsv1.DaemonSetUpdateStrategy) DaemonSetUpdateStrategyDie {
+// DieFeed returns a new die with the provided resource.
+func (d *DaemonSetUpdateStrategyDie) DieFeed(r appsv1.DaemonSetUpdateStrategy) *DaemonSetUpdateStrategyDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &daemonSetUpdateStrategyDie{
+	return &DaemonSetUpdateStrategyDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *daemonSetUpdateStrategyDie) DieFeedPtr(r *appsv1.DaemonSetUpdateStrategy) DaemonSetUpdateStrategyDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *DaemonSetUpdateStrategyDie) DieFeedPtr(r *appsv1.DaemonSetUpdateStrategy) *DaemonSetUpdateStrategyDie {
 	if r == nil {
 		r = &appsv1.DaemonSetUpdateStrategy{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *daemonSetUpdateStrategyDie) DieRelease() appsv1.DaemonSetUpdateStrategy {
+// DieRelease returns the resource managed by the die.
+func (d *DaemonSetUpdateStrategyDie) DieRelease() appsv1.DaemonSetUpdateStrategy {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *daemonSetUpdateStrategyDie) DieReleasePtr() *appsv1.DaemonSetUpdateStrategy {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *DaemonSetUpdateStrategyDie) DieReleasePtr() *appsv1.DaemonSetUpdateStrategy {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *daemonSetUpdateStrategyDie) DieStamp(fn func(r *appsv1.DaemonSetUpdateStrategy)) DaemonSetUpdateStrategyDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *DaemonSetUpdateStrategyDie) DieStamp(fn func(r *appsv1.DaemonSetUpdateStrategy)) *DaemonSetUpdateStrategyDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *daemonSetUpdateStrategyDie) DeepCopy() DaemonSetUpdateStrategyDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *DaemonSetUpdateStrategyDie) DeepCopy() *DaemonSetUpdateStrategyDie {
 	r := *d.r.DeepCopy()
-	return &daemonSetUpdateStrategyDie{
+	return &DaemonSetUpdateStrategyDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *daemonSetUpdateStrategyDie) Type(v appsv1.DaemonSetUpdateStrategyType) DaemonSetUpdateStrategyDie {
+// Type of daemon set update. Can be "RollingUpdate" or "OnDelete". Default is RollingUpdate.
+func (d *DaemonSetUpdateStrategyDie) Type(v appsv1.DaemonSetUpdateStrategyType) *DaemonSetUpdateStrategyDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetUpdateStrategy) {
 		r.Type = v
 	})
 }
 
-func (d *daemonSetUpdateStrategyDie) RollingUpdate(v *appsv1.RollingUpdateDaemonSet) DaemonSetUpdateStrategyDie {
+// Rolling update config params. Present only if type = "RollingUpdate". --- TODO: Update this to follow our convention for oneOf, whatever we decide it to be. Same as Deployment `strategy.rollingUpdate`. See https://github.com/kubernetes/kubernetes/issues/35345
+func (d *DaemonSetUpdateStrategyDie) RollingUpdate(v *appsv1.RollingUpdateDaemonSet) *DaemonSetUpdateStrategyDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetUpdateStrategy) {
 		r.RollingUpdate = v
 	})
 }
 
-type RollingUpdateDaemonSetDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.RollingUpdateDaemonSet)) RollingUpdateDaemonSetDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.RollingUpdateDaemonSet) RollingUpdateDaemonSetDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.RollingUpdateDaemonSet) RollingUpdateDaemonSetDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.RollingUpdateDaemonSet
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.RollingUpdateDaemonSet
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) RollingUpdateDaemonSetDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() RollingUpdateDaemonSetDie
+var RollingUpdateDaemonSetBlank = (&RollingUpdateDaemonSetDie{}).DieFeed(appsv1.RollingUpdateDaemonSet{})
 
-	// The maximum number of DaemonSet pods that can be unavailable during the update. Value can be an absolute number (ex: 5) or a percentage of total number of DaemonSet pods at the start of the update (ex: 10%). Absolute number is calculated from percentage by rounding up. This cannot be 0 if MaxSurge is 0 Default value is 1. Example: when this is set to 30%, at most 30% of the total number of nodes that should be running the daemon pod (i.e. status.desiredNumberScheduled) can have their pods stopped for an update at any given time. The update starts by stopping at most 30% of those DaemonSet pods and then brings up new DaemonSet pods in their place. Once the new pods are available, it then proceeds onto other DaemonSet pods, thus ensuring that at least 70% of original number of DaemonSet pods are available at all times during the update.
-	MaxUnavailable(v *intstr.IntOrString) RollingUpdateDaemonSetDie
-	// The maximum number of nodes with an existing available DaemonSet pod that can have an updated DaemonSet pod during during an update. Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%). This can not be 0 if MaxUnavailable is 0. Absolute number is calculated from percentage by rounding up to a minimum of 1. Default value is 0. Example: when this is set to 30%, at most 30% of the total number of nodes that should be running the daemon pod (i.e. status.desiredNumberScheduled) can have their a new pod created before the old pod is marked as deleted. The update starts by launching new pods on 30% of nodes. Once an updated pod is available (Ready for at least minReadySeconds) the old DaemonSet pod on that node is marked deleted. If the old pod becomes unavailable for any reason (Ready transitions to false, is evicted, or is drained) an updated pod is immediatedly created on that node without considering surge limits. Allowing surge implies the possibility that the resources consumed by the daemonset on any given node can double if the readiness check fails, and so resource intensive daemonsets should take into account that they may cause evictions during disruption. This is beta field and enabled/disabled by DaemonSetUpdateSurge feature gate.
-	MaxSurge(v *intstr.IntOrString) RollingUpdateDaemonSetDie
-}
-
-var _ RollingUpdateDaemonSetDie = (*rollingUpdateDaemonSetDie)(nil)
-var RollingUpdateDaemonSetBlank = (&rollingUpdateDaemonSetDie{}).DieFeed(appsv1.RollingUpdateDaemonSet{})
-
-type rollingUpdateDaemonSetDie struct {
+type RollingUpdateDaemonSetDie struct {
 	mutable bool
 	r       appsv1.RollingUpdateDaemonSet
 }
 
-func (d *rollingUpdateDaemonSetDie) DieImmutable(immutable bool) RollingUpdateDaemonSetDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *RollingUpdateDaemonSetDie) DieImmutable(immutable bool) *RollingUpdateDaemonSetDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*rollingUpdateDaemonSetDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *rollingUpdateDaemonSetDie) DieFeed(r appsv1.RollingUpdateDaemonSet) RollingUpdateDaemonSetDie {
+// DieFeed returns a new die with the provided resource.
+func (d *RollingUpdateDaemonSetDie) DieFeed(r appsv1.RollingUpdateDaemonSet) *RollingUpdateDaemonSetDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &rollingUpdateDaemonSetDie{
+	return &RollingUpdateDaemonSetDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *rollingUpdateDaemonSetDie) DieFeedPtr(r *appsv1.RollingUpdateDaemonSet) RollingUpdateDaemonSetDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *RollingUpdateDaemonSetDie) DieFeedPtr(r *appsv1.RollingUpdateDaemonSet) *RollingUpdateDaemonSetDie {
 	if r == nil {
 		r = &appsv1.RollingUpdateDaemonSet{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *rollingUpdateDaemonSetDie) DieRelease() appsv1.RollingUpdateDaemonSet {
+// DieRelease returns the resource managed by the die.
+func (d *RollingUpdateDaemonSetDie) DieRelease() appsv1.RollingUpdateDaemonSet {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *rollingUpdateDaemonSetDie) DieReleasePtr() *appsv1.RollingUpdateDaemonSet {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *RollingUpdateDaemonSetDie) DieReleasePtr() *appsv1.RollingUpdateDaemonSet {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *rollingUpdateDaemonSetDie) DieStamp(fn func(r *appsv1.RollingUpdateDaemonSet)) RollingUpdateDaemonSetDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *RollingUpdateDaemonSetDie) DieStamp(fn func(r *appsv1.RollingUpdateDaemonSet)) *RollingUpdateDaemonSetDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *rollingUpdateDaemonSetDie) DeepCopy() RollingUpdateDaemonSetDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *RollingUpdateDaemonSetDie) DeepCopy() *RollingUpdateDaemonSetDie {
 	r := *d.r.DeepCopy()
-	return &rollingUpdateDaemonSetDie{
+	return &RollingUpdateDaemonSetDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *rollingUpdateDaemonSetDie) MaxUnavailable(v *intstr.IntOrString) RollingUpdateDaemonSetDie {
+// The maximum number of DaemonSet pods that can be unavailable during the update. Value can be an absolute number (ex: 5) or a percentage of total number of DaemonSet pods at the start of the update (ex: 10%). Absolute number is calculated from percentage by rounding up. This cannot be 0 if MaxSurge is 0 Default value is 1. Example: when this is set to 30%, at most 30% of the total number of nodes that should be running the daemon pod (i.e. status.desiredNumberScheduled) can have their pods stopped for an update at any given time. The update starts by stopping at most 30% of those DaemonSet pods and then brings up new DaemonSet pods in their place. Once the new pods are available, it then proceeds onto other DaemonSet pods, thus ensuring that at least 70% of original number of DaemonSet pods are available at all times during the update.
+func (d *RollingUpdateDaemonSetDie) MaxUnavailable(v *intstr.IntOrString) *RollingUpdateDaemonSetDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDaemonSet) {
 		r.MaxUnavailable = v
 	})
 }
 
-func (d *rollingUpdateDaemonSetDie) MaxUnavailableInt(i int) RollingUpdateDaemonSetDie {
+func (d *RollingUpdateDaemonSetDie) MaxUnavailableInt(i int) *RollingUpdateDaemonSetDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDaemonSet) {
 		v := intstr.FromInt(i)
 		r.MaxUnavailable = &v
 	})
 }
 
-func (d *rollingUpdateDaemonSetDie) MaxUnavailableString(s string) RollingUpdateDaemonSetDie {
+func (d *RollingUpdateDaemonSetDie) MaxUnavailableString(s string) *RollingUpdateDaemonSetDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDaemonSet) {
 		v := intstr.FromString(s)
 		r.MaxUnavailable = &v
 	})
 }
 
-func (d *rollingUpdateDaemonSetDie) MaxSurge(v *intstr.IntOrString) RollingUpdateDaemonSetDie {
+// The maximum number of nodes with an existing available DaemonSet pod that can have an updated DaemonSet pod during during an update. Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%). This can not be 0 if MaxUnavailable is 0. Absolute number is calculated from percentage by rounding up to a minimum of 1. Default value is 0. Example: when this is set to 30%, at most 30% of the total number of nodes that should be running the daemon pod (i.e. status.desiredNumberScheduled) can have their a new pod created before the old pod is marked as deleted. The update starts by launching new pods on 30% of nodes. Once an updated pod is available (Ready for at least minReadySeconds) the old DaemonSet pod on that node is marked deleted. If the old pod becomes unavailable for any reason (Ready transitions to false, is evicted, or is drained) an updated pod is immediatedly created on that node without considering surge limits. Allowing surge implies the possibility that the resources consumed by the daemonset on any given node can double if the readiness check fails, and so resource intensive daemonsets should take into account that they may cause evictions during disruption. This is beta field and enabled/disabled by DaemonSetUpdateSurge feature gate.
+func (d *RollingUpdateDaemonSetDie) MaxSurge(v *intstr.IntOrString) *RollingUpdateDaemonSetDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDaemonSet) {
 		r.MaxSurge = v
 	})
 }
 
-func (d *rollingUpdateDaemonSetDie) MaxSurgeInt(i int) RollingUpdateDaemonSetDie {
+func (d *RollingUpdateDaemonSetDie) MaxSurgeInt(i int) *RollingUpdateDaemonSetDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDaemonSet) {
 		v := intstr.FromInt(i)
 		r.MaxSurge = &v
 	})
 }
 
-func (d *rollingUpdateDaemonSetDie) MaxSurgeString(s string) RollingUpdateDaemonSetDie {
+func (d *RollingUpdateDaemonSetDie) MaxSurgeString(s string) *RollingUpdateDaemonSetDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDaemonSet) {
 		v := intstr.FromString(s)
 		r.MaxSurge = &v
 	})
 }
 
-type DaemonSetStatusDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.DaemonSetStatus)) DaemonSetStatusDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.DaemonSetStatus) DaemonSetStatusDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.DaemonSetStatus) DaemonSetStatusDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.DaemonSetStatus
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.DaemonSetStatus
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) DaemonSetStatusDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() DaemonSetStatusDie
+var DaemonSetStatusBlank = (&DaemonSetStatusDie{}).DieFeed(appsv1.DaemonSetStatus{})
 
-	daemonSetStatusDieExtension
-	// The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod. More info: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
-	CurrentNumberScheduled(v int32) DaemonSetStatusDie
-	// The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod. More info: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
-	NumberMisscheduled(v int32) DaemonSetStatusDie
-	// The total number of nodes that should be running the daemon pod (including nodes correctly running the daemon pod). More info: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
-	DesiredNumberScheduled(v int32) DaemonSetStatusDie
-	// The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready.
-	NumberReady(v int32) DaemonSetStatusDie
-	// The most recent generation observed by the daemon set controller.
-	ObservedGeneration(v int64) DaemonSetStatusDie
-	// The total number of nodes that are running updated daemon pod
-	UpdatedNumberScheduled(v int32) DaemonSetStatusDie
-	// The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and available (ready for at least spec.minReadySeconds)
-	NumberAvailable(v int32) DaemonSetStatusDie
-	// The number of nodes that should be running the daemon pod and have none of the daemon pod running and available (ready for at least spec.minReadySeconds)
-	NumberUnavailable(v int32) DaemonSetStatusDie
-	// Count of hash collisions for the DaemonSet. The DaemonSet controller uses this field as a collision avoidance mechanism when it needs to create the name for the newest ControllerRevision.
-	CollisionCount(v *int32) DaemonSetStatusDie
-	// Represents the latest available observations of a DaemonSet's current state.
-	Conditions(v ...appsv1.DaemonSetCondition) DaemonSetStatusDie
-}
-
-var _ DaemonSetStatusDie = (*daemonSetStatusDie)(nil)
-var DaemonSetStatusBlank = (&daemonSetStatusDie{}).DieFeed(appsv1.DaemonSetStatus{})
-
-type daemonSetStatusDie struct {
+type DaemonSetStatusDie struct {
 	mutable bool
 	r       appsv1.DaemonSetStatus
 }
 
-func (d *daemonSetStatusDie) DieImmutable(immutable bool) DaemonSetStatusDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *DaemonSetStatusDie) DieImmutable(immutable bool) *DaemonSetStatusDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*daemonSetStatusDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *daemonSetStatusDie) DieFeed(r appsv1.DaemonSetStatus) DaemonSetStatusDie {
+// DieFeed returns a new die with the provided resource.
+func (d *DaemonSetStatusDie) DieFeed(r appsv1.DaemonSetStatus) *DaemonSetStatusDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &daemonSetStatusDie{
+	return &DaemonSetStatusDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *daemonSetStatusDie) DieFeedPtr(r *appsv1.DaemonSetStatus) DaemonSetStatusDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *DaemonSetStatusDie) DieFeedPtr(r *appsv1.DaemonSetStatus) *DaemonSetStatusDie {
 	if r == nil {
 		r = &appsv1.DaemonSetStatus{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *daemonSetStatusDie) DieRelease() appsv1.DaemonSetStatus {
+// DieRelease returns the resource managed by the die.
+func (d *DaemonSetStatusDie) DieRelease() appsv1.DaemonSetStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *daemonSetStatusDie) DieReleasePtr() *appsv1.DaemonSetStatus {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *DaemonSetStatusDie) DieReleasePtr() *appsv1.DaemonSetStatus {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *daemonSetStatusDie) DieStamp(fn func(r *appsv1.DaemonSetStatus)) DaemonSetStatusDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *DaemonSetStatusDie) DieStamp(fn func(r *appsv1.DaemonSetStatus)) *DaemonSetStatusDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *daemonSetStatusDie) DeepCopy() DaemonSetStatusDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *DaemonSetStatusDie) DeepCopy() *DaemonSetStatusDie {
 	r := *d.r.DeepCopy()
-	return &daemonSetStatusDie{
+	return &DaemonSetStatusDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *daemonSetStatusDie) CurrentNumberScheduled(v int32) DaemonSetStatusDie {
+// The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod. More info: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
+func (d *DaemonSetStatusDie) CurrentNumberScheduled(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.CurrentNumberScheduled = v
 	})
 }
 
-func (d *daemonSetStatusDie) NumberMisscheduled(v int32) DaemonSetStatusDie {
+// The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod. More info: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
+func (d *DaemonSetStatusDie) NumberMisscheduled(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.NumberMisscheduled = v
 	})
 }
 
-func (d *daemonSetStatusDie) DesiredNumberScheduled(v int32) DaemonSetStatusDie {
+// The total number of nodes that should be running the daemon pod (including nodes correctly running the daemon pod). More info: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
+func (d *DaemonSetStatusDie) DesiredNumberScheduled(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.DesiredNumberScheduled = v
 	})
 }
 
-func (d *daemonSetStatusDie) NumberReady(v int32) DaemonSetStatusDie {
+// The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready.
+func (d *DaemonSetStatusDie) NumberReady(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.NumberReady = v
 	})
 }
 
-func (d *daemonSetStatusDie) ObservedGeneration(v int64) DaemonSetStatusDie {
+// The most recent generation observed by the daemon set controller.
+func (d *DaemonSetStatusDie) ObservedGeneration(v int64) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.ObservedGeneration = v
 	})
 }
 
-func (d *daemonSetStatusDie) UpdatedNumberScheduled(v int32) DaemonSetStatusDie {
+// The total number of nodes that are running updated daemon pod
+func (d *DaemonSetStatusDie) UpdatedNumberScheduled(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.UpdatedNumberScheduled = v
 	})
 }
 
-func (d *daemonSetStatusDie) NumberAvailable(v int32) DaemonSetStatusDie {
+// The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and available (ready for at least spec.minReadySeconds)
+func (d *DaemonSetStatusDie) NumberAvailable(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.NumberAvailable = v
 	})
 }
 
-func (d *daemonSetStatusDie) NumberUnavailable(v int32) DaemonSetStatusDie {
+// The number of nodes that should be running the daemon pod and have none of the daemon pod running and available (ready for at least spec.minReadySeconds)
+func (d *DaemonSetStatusDie) NumberUnavailable(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.NumberUnavailable = v
 	})
 }
 
-func (d *daemonSetStatusDie) CollisionCount(v *int32) DaemonSetStatusDie {
+// Count of hash collisions for the DaemonSet. The DaemonSet controller uses this field as a collision avoidance mechanism when it needs to create the name for the newest ControllerRevision.
+func (d *DaemonSetStatusDie) CollisionCount(v *int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.CollisionCount = v
 	})
 }
 
-func (d *daemonSetStatusDie) Conditions(v ...appsv1.DaemonSetCondition) DaemonSetStatusDie {
+// Represents the latest available observations of a DaemonSet's current state.
+func (d *DaemonSetStatusDie) Conditions(v ...appsv1.DaemonSetCondition) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.Conditions = v
 	})
 }
 
-type DeploymentDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.Deployment)) DeploymentDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.Deployment) DeploymentDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.Deployment) DeploymentDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.Deployment
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.Deployment
-	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-	DieReleaseUnstructured() runtime.Unstructured
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) DeploymentDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() DeploymentDie
+var DeploymentBlank = (&DeploymentDie{}).DieFeed(appsv1.Deployment{})
 
-	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
-	MetadataDie(fn func(d metav1.ObjectMetaDie)) DeploymentDie
-	// SpecDie stamps the resource's spec field with a mutable die.
-	SpecDie(fn func(d DeploymentSpecDie)) DeploymentDie
-	// StatusDie stamps the resource's status field with a mutable die.
-	StatusDie(fn func(d DeploymentStatusDie)) DeploymentDie
-	// Specification of the desired behavior of the Deployment.
-	Spec(v appsv1.DeploymentSpec) DeploymentDie
-	// Most recently observed status of the Deployment.
-	Status(v appsv1.DeploymentStatus) DeploymentDie
-
-	runtime.Object
-	apismetav1.Object
-	apismetav1.ObjectMetaAccessor
-}
-
-var _ DeploymentDie = (*deploymentDie)(nil)
-var DeploymentBlank = (&deploymentDie{}).DieFeed(appsv1.Deployment{})
-
-type deploymentDie struct {
+type DeploymentDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       appsv1.Deployment
 }
 
-func (d *deploymentDie) DieImmutable(immutable bool) DeploymentDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *DeploymentDie) DieImmutable(immutable bool) *DeploymentDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*deploymentDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *deploymentDie) DieFeed(r appsv1.Deployment) DeploymentDie {
+// DieFeed returns a new die with the provided resource.
+func (d *DeploymentDie) DieFeed(r appsv1.Deployment) *DeploymentDie {
 	if d.mutable {
 		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
 		d.r = r
 		return d
 	}
-	return &deploymentDie{
+	return &DeploymentDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *deploymentDie) DieFeedPtr(r *appsv1.Deployment) DeploymentDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *DeploymentDie) DieFeedPtr(r *appsv1.Deployment) *DeploymentDie {
 	if r == nil {
 		r = &appsv1.Deployment{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *deploymentDie) DieRelease() appsv1.Deployment {
+// DieRelease returns the resource managed by the die.
+func (d *DeploymentDie) DieRelease() appsv1.Deployment {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *deploymentDie) DieReleasePtr() *appsv1.Deployment {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *DeploymentDie) DieReleasePtr() *appsv1.Deployment {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *deploymentDie) DieReleaseUnstructured() runtime.Unstructured {
+// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+func (d *DeploymentDie) DieReleaseUnstructured() runtime.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -791,45 +675,53 @@ func (d *deploymentDie) DieReleaseUnstructured() runtime.Unstructured {
 	}
 }
 
-func (d *deploymentDie) DieStamp(fn func(r *appsv1.Deployment)) DeploymentDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *DeploymentDie) DieStamp(fn func(r *appsv1.Deployment)) *DeploymentDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *deploymentDie) DeepCopy() DeploymentDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *DeploymentDie) DeepCopy() *DeploymentDie {
 	r := *d.r.DeepCopy()
-	return &deploymentDie{
+	return &DeploymentDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *deploymentDie) DeepCopyObject() runtime.Object {
+var _ runtime.Object = (*DeploymentDie)(nil)
+
+func (d *DeploymentDie) DeepCopyObject() runtime.Object {
 	return d.r.DeepCopy()
 }
 
-func (d *deploymentDie) GetObjectKind() schema.ObjectKind {
+func (d *DeploymentDie) GetObjectKind() schema.ObjectKind {
 	r := d.DieRelease()
 	return r.GetObjectKind()
 }
 
-func (d *deploymentDie) MarshalJSON() ([]byte, error) {
+func (d *DeploymentDie) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.r)
 }
 
-func (d *deploymentDie) UnmarshalJSON(b []byte) error {
+func (d *DeploymentDie) UnmarshalJSON(b []byte) error {
 	if d == DeploymentBlank {
-		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
+	}
+	if !d.mutable {
+		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
 	r := &appsv1.Deployment{}
 	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r).(*deploymentDie)
+	*d = *d.DieFeed(*r)
 	return err
 }
 
-func (d *deploymentDie) MetadataDie(fn func(d metav1.ObjectMetaDie)) DeploymentDie {
+// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+func (d *DeploymentDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *DeploymentDie {
 	return d.DieStamp(func(r *appsv1.Deployment) {
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
@@ -837,7 +729,8 @@ func (d *deploymentDie) MetadataDie(fn func(d metav1.ObjectMetaDie)) DeploymentD
 	})
 }
 
-func (d *deploymentDie) SpecDie(fn func(d DeploymentSpecDie)) DeploymentDie {
+// SpecDie stamps the resource's spec field with a mutable die.
+func (d *DeploymentDie) SpecDie(fn func(d *DeploymentSpecDie)) *DeploymentDie {
 	return d.DieStamp(func(r *appsv1.Deployment) {
 		d := DeploymentSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
@@ -845,7 +738,8 @@ func (d *deploymentDie) SpecDie(fn func(d DeploymentSpecDie)) DeploymentDie {
 	})
 }
 
-func (d *deploymentDie) StatusDie(fn func(d DeploymentStatusDie)) DeploymentDie {
+// StatusDie stamps the resource's status field with a mutable die.
+func (d *DeploymentDie) StatusDie(fn func(d *DeploymentStatusDie)) *DeploymentDie {
 	return d.DieStamp(func(r *appsv1.Deployment) {
 		d := DeploymentStatusBlank.DieImmutable(false).DieFeed(r.Status)
 		fn(d)
@@ -853,610 +747,512 @@ func (d *deploymentDie) StatusDie(fn func(d DeploymentStatusDie)) DeploymentDie 
 	})
 }
 
-func (d *deploymentDie) Spec(v appsv1.DeploymentSpec) DeploymentDie {
+// Specification of the desired behavior of the Deployment.
+func (d *DeploymentDie) Spec(v appsv1.DeploymentSpec) *DeploymentDie {
 	return d.DieStamp(func(r *appsv1.Deployment) {
 		r.Spec = v
 	})
 }
 
-func (d *deploymentDie) Status(v appsv1.DeploymentStatus) DeploymentDie {
+// Most recently observed status of the Deployment.
+func (d *DeploymentDie) Status(v appsv1.DeploymentStatus) *DeploymentDie {
 	return d.DieStamp(func(r *appsv1.Deployment) {
 		r.Status = v
 	})
 }
 
-type DeploymentSpecDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.DeploymentSpec)) DeploymentSpecDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.DeploymentSpec) DeploymentSpecDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.DeploymentSpec) DeploymentSpecDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.DeploymentSpec
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.DeploymentSpec
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) DeploymentSpecDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() DeploymentSpecDie
+var DeploymentSpecBlank = (&DeploymentSpecDie{}).DieFeed(appsv1.DeploymentSpec{})
 
-	deploymentSpecDieExtension
-	// Number of desired pods. This is a pointer to distinguish between explicit zero and not specified. Defaults to 1.
-	Replicas(v *int32) DeploymentSpecDie
-	// Label selector for pods. Existing ReplicaSets whose pods are selected by this will be the ones affected by this deployment. It must match the pod template's labels.
-	Selector(v *apismetav1.LabelSelector) DeploymentSpecDie
-	// Template describes the pods that will be created.
-	Template(v corev1.PodTemplateSpec) DeploymentSpecDie
-	// The deployment strategy to use to replace existing pods with new ones.
-	Strategy(v appsv1.DeploymentStrategy) DeploymentSpecDie
-	// Minimum number of seconds for which a newly created pod should be ready without any of its container crashing, for it to be considered available. Defaults to 0 (pod will be considered available as soon as it is ready)
-	MinReadySeconds(v int32) DeploymentSpecDie
-	// The number of old ReplicaSets to retain to allow rollback. This is a pointer to distinguish between explicit zero and not specified. Defaults to 10.
-	RevisionHistoryLimit(v *int32) DeploymentSpecDie
-	// Indicates that the deployment is paused.
-	Paused(v bool) DeploymentSpecDie
-	// The maximum time in seconds for a deployment to make progress before it is considered to be failed. The deployment controller will continue to process failed deployments and a condition with a ProgressDeadlineExceeded reason will be surfaced in the deployment status. Note that progress will not be estimated during the time a deployment is paused. Defaults to 600s.
-	ProgressDeadlineSeconds(v *int32) DeploymentSpecDie
-}
-
-var _ DeploymentSpecDie = (*deploymentSpecDie)(nil)
-var DeploymentSpecBlank = (&deploymentSpecDie{}).DieFeed(appsv1.DeploymentSpec{})
-
-type deploymentSpecDie struct {
+type DeploymentSpecDie struct {
 	mutable bool
 	r       appsv1.DeploymentSpec
 }
 
-func (d *deploymentSpecDie) DieImmutable(immutable bool) DeploymentSpecDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *DeploymentSpecDie) DieImmutable(immutable bool) *DeploymentSpecDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*deploymentSpecDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *deploymentSpecDie) DieFeed(r appsv1.DeploymentSpec) DeploymentSpecDie {
+// DieFeed returns a new die with the provided resource.
+func (d *DeploymentSpecDie) DieFeed(r appsv1.DeploymentSpec) *DeploymentSpecDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &deploymentSpecDie{
+	return &DeploymentSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *deploymentSpecDie) DieFeedPtr(r *appsv1.DeploymentSpec) DeploymentSpecDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *DeploymentSpecDie) DieFeedPtr(r *appsv1.DeploymentSpec) *DeploymentSpecDie {
 	if r == nil {
 		r = &appsv1.DeploymentSpec{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *deploymentSpecDie) DieRelease() appsv1.DeploymentSpec {
+// DieRelease returns the resource managed by the die.
+func (d *DeploymentSpecDie) DieRelease() appsv1.DeploymentSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *deploymentSpecDie) DieReleasePtr() *appsv1.DeploymentSpec {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *DeploymentSpecDie) DieReleasePtr() *appsv1.DeploymentSpec {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *deploymentSpecDie) DieStamp(fn func(r *appsv1.DeploymentSpec)) DeploymentSpecDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *DeploymentSpecDie) DieStamp(fn func(r *appsv1.DeploymentSpec)) *DeploymentSpecDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *deploymentSpecDie) DeepCopy() DeploymentSpecDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *DeploymentSpecDie) DeepCopy() *DeploymentSpecDie {
 	r := *d.r.DeepCopy()
-	return &deploymentSpecDie{
+	return &DeploymentSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *deploymentSpecDie) Replicas(v *int32) DeploymentSpecDie {
+// Number of desired pods. This is a pointer to distinguish between explicit zero and not specified. Defaults to 1.
+func (d *DeploymentSpecDie) Replicas(v *int32) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.Replicas = v
 	})
 }
 
-func (d *deploymentSpecDie) Selector(v *apismetav1.LabelSelector) DeploymentSpecDie {
+// Label selector for pods. Existing ReplicaSets whose pods are selected by this will be the ones affected by this deployment. It must match the pod template's labels.
+func (d *DeploymentSpecDie) Selector(v *apismetav1.LabelSelector) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.Selector = v
 	})
 }
 
-func (d *deploymentSpecDie) Template(v corev1.PodTemplateSpec) DeploymentSpecDie {
+// Template describes the pods that will be created.
+func (d *DeploymentSpecDie) Template(v corev1.PodTemplateSpec) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.Template = v
 	})
 }
 
-func (d *deploymentSpecDie) Strategy(v appsv1.DeploymentStrategy) DeploymentSpecDie {
+// The deployment strategy to use to replace existing pods with new ones.
+func (d *DeploymentSpecDie) Strategy(v appsv1.DeploymentStrategy) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.Strategy = v
 	})
 }
 
-func (d *deploymentSpecDie) MinReadySeconds(v int32) DeploymentSpecDie {
+// Minimum number of seconds for which a newly created pod should be ready without any of its container crashing, for it to be considered available. Defaults to 0 (pod will be considered available as soon as it is ready)
+func (d *DeploymentSpecDie) MinReadySeconds(v int32) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.MinReadySeconds = v
 	})
 }
 
-func (d *deploymentSpecDie) RevisionHistoryLimit(v *int32) DeploymentSpecDie {
+// The number of old ReplicaSets to retain to allow rollback. This is a pointer to distinguish between explicit zero and not specified. Defaults to 10.
+func (d *DeploymentSpecDie) RevisionHistoryLimit(v *int32) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.RevisionHistoryLimit = v
 	})
 }
 
-func (d *deploymentSpecDie) Paused(v bool) DeploymentSpecDie {
+// Indicates that the deployment is paused.
+func (d *DeploymentSpecDie) Paused(v bool) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.Paused = v
 	})
 }
 
-func (d *deploymentSpecDie) ProgressDeadlineSeconds(v *int32) DeploymentSpecDie {
+// The maximum time in seconds for a deployment to make progress before it is considered to be failed. The deployment controller will continue to process failed deployments and a condition with a ProgressDeadlineExceeded reason will be surfaced in the deployment status. Note that progress will not be estimated during the time a deployment is paused. Defaults to 600s.
+func (d *DeploymentSpecDie) ProgressDeadlineSeconds(v *int32) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.ProgressDeadlineSeconds = v
 	})
 }
 
-type DeploymentStrategyDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.DeploymentStrategy)) DeploymentStrategyDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.DeploymentStrategy) DeploymentStrategyDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.DeploymentStrategy) DeploymentStrategyDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.DeploymentStrategy
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.DeploymentStrategy
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) DeploymentStrategyDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() DeploymentStrategyDie
+var DeploymentStrategyBlank = (&DeploymentStrategyDie{}).DieFeed(appsv1.DeploymentStrategy{})
 
-	deploymentStrategyDieExtension
-	// Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
-	Type(v appsv1.DeploymentStrategyType) DeploymentStrategyDie
-	// Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- TODO: Update this to follow our convention for oneOf, whatever we decide it to be.
-	RollingUpdate(v *appsv1.RollingUpdateDeployment) DeploymentStrategyDie
-}
-
-var _ DeploymentStrategyDie = (*deploymentStrategyDie)(nil)
-var DeploymentStrategyBlank = (&deploymentStrategyDie{}).DieFeed(appsv1.DeploymentStrategy{})
-
-type deploymentStrategyDie struct {
+type DeploymentStrategyDie struct {
 	mutable bool
 	r       appsv1.DeploymentStrategy
 }
 
-func (d *deploymentStrategyDie) DieImmutable(immutable bool) DeploymentStrategyDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *DeploymentStrategyDie) DieImmutable(immutable bool) *DeploymentStrategyDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*deploymentStrategyDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *deploymentStrategyDie) DieFeed(r appsv1.DeploymentStrategy) DeploymentStrategyDie {
+// DieFeed returns a new die with the provided resource.
+func (d *DeploymentStrategyDie) DieFeed(r appsv1.DeploymentStrategy) *DeploymentStrategyDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &deploymentStrategyDie{
+	return &DeploymentStrategyDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *deploymentStrategyDie) DieFeedPtr(r *appsv1.DeploymentStrategy) DeploymentStrategyDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *DeploymentStrategyDie) DieFeedPtr(r *appsv1.DeploymentStrategy) *DeploymentStrategyDie {
 	if r == nil {
 		r = &appsv1.DeploymentStrategy{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *deploymentStrategyDie) DieRelease() appsv1.DeploymentStrategy {
+// DieRelease returns the resource managed by the die.
+func (d *DeploymentStrategyDie) DieRelease() appsv1.DeploymentStrategy {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *deploymentStrategyDie) DieReleasePtr() *appsv1.DeploymentStrategy {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *DeploymentStrategyDie) DieReleasePtr() *appsv1.DeploymentStrategy {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *deploymentStrategyDie) DieStamp(fn func(r *appsv1.DeploymentStrategy)) DeploymentStrategyDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *DeploymentStrategyDie) DieStamp(fn func(r *appsv1.DeploymentStrategy)) *DeploymentStrategyDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *deploymentStrategyDie) DeepCopy() DeploymentStrategyDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *DeploymentStrategyDie) DeepCopy() *DeploymentStrategyDie {
 	r := *d.r.DeepCopy()
-	return &deploymentStrategyDie{
+	return &DeploymentStrategyDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *deploymentStrategyDie) Type(v appsv1.DeploymentStrategyType) DeploymentStrategyDie {
+// Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+func (d *DeploymentStrategyDie) Type(v appsv1.DeploymentStrategyType) *DeploymentStrategyDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStrategy) {
 		r.Type = v
 	})
 }
 
-func (d *deploymentStrategyDie) RollingUpdate(v *appsv1.RollingUpdateDeployment) DeploymentStrategyDie {
+// Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- TODO: Update this to follow our convention for oneOf, whatever we decide it to be.
+func (d *DeploymentStrategyDie) RollingUpdate(v *appsv1.RollingUpdateDeployment) *DeploymentStrategyDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStrategy) {
 		r.RollingUpdate = v
 	})
 }
 
-type RollingUpdateDeploymentDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.RollingUpdateDeployment)) RollingUpdateDeploymentDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.RollingUpdateDeployment) RollingUpdateDeploymentDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.RollingUpdateDeployment) RollingUpdateDeploymentDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.RollingUpdateDeployment
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.RollingUpdateDeployment
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) RollingUpdateDeploymentDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() RollingUpdateDeploymentDie
+var RollingUpdateDeploymentBlank = (&RollingUpdateDeploymentDie{}).DieFeed(appsv1.RollingUpdateDeployment{})
 
-	// The maximum number of pods that can be unavailable during the update. Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%). Absolute number is calculated from percentage by rounding down. This can not be 0 if MaxSurge is 0. Defaults to 25%. Example: when this is set to 30%, the old ReplicaSet can be scaled down to 70% of desired pods immediately when the rolling update starts. Once new pods are ready, old ReplicaSet can be scaled down further, followed by scaling up the new ReplicaSet, ensuring that the total number of pods available at all times during the update is at least 70% of desired pods.
-	MaxUnavailable(v *intstr.IntOrString) RollingUpdateDeploymentDie
-	// The maximum number of pods that can be scheduled above the desired number of pods. Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%). This can not be 0 if MaxUnavailable is 0. Absolute number is calculated from percentage by rounding up. Defaults to 25%. Example: when this is set to 30%, the new ReplicaSet can be scaled up immediately when the rolling update starts, such that the total number of old and new pods do not exceed 130% of desired pods. Once old pods have been killed, new ReplicaSet can be scaled up further, ensuring that total number of pods running at any time during the update is at most 130% of desired pods.
-	MaxSurge(v *intstr.IntOrString) RollingUpdateDeploymentDie
-}
-
-var _ RollingUpdateDeploymentDie = (*rollingUpdateDeploymentDie)(nil)
-var RollingUpdateDeploymentBlank = (&rollingUpdateDeploymentDie{}).DieFeed(appsv1.RollingUpdateDeployment{})
-
-type rollingUpdateDeploymentDie struct {
+type RollingUpdateDeploymentDie struct {
 	mutable bool
 	r       appsv1.RollingUpdateDeployment
 }
 
-func (d *rollingUpdateDeploymentDie) DieImmutable(immutable bool) RollingUpdateDeploymentDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *RollingUpdateDeploymentDie) DieImmutable(immutable bool) *RollingUpdateDeploymentDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*rollingUpdateDeploymentDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *rollingUpdateDeploymentDie) DieFeed(r appsv1.RollingUpdateDeployment) RollingUpdateDeploymentDie {
+// DieFeed returns a new die with the provided resource.
+func (d *RollingUpdateDeploymentDie) DieFeed(r appsv1.RollingUpdateDeployment) *RollingUpdateDeploymentDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &rollingUpdateDeploymentDie{
+	return &RollingUpdateDeploymentDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *rollingUpdateDeploymentDie) DieFeedPtr(r *appsv1.RollingUpdateDeployment) RollingUpdateDeploymentDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *RollingUpdateDeploymentDie) DieFeedPtr(r *appsv1.RollingUpdateDeployment) *RollingUpdateDeploymentDie {
 	if r == nil {
 		r = &appsv1.RollingUpdateDeployment{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *rollingUpdateDeploymentDie) DieRelease() appsv1.RollingUpdateDeployment {
+// DieRelease returns the resource managed by the die.
+func (d *RollingUpdateDeploymentDie) DieRelease() appsv1.RollingUpdateDeployment {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *rollingUpdateDeploymentDie) DieReleasePtr() *appsv1.RollingUpdateDeployment {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *RollingUpdateDeploymentDie) DieReleasePtr() *appsv1.RollingUpdateDeployment {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *rollingUpdateDeploymentDie) DieStamp(fn func(r *appsv1.RollingUpdateDeployment)) RollingUpdateDeploymentDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *RollingUpdateDeploymentDie) DieStamp(fn func(r *appsv1.RollingUpdateDeployment)) *RollingUpdateDeploymentDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *rollingUpdateDeploymentDie) DeepCopy() RollingUpdateDeploymentDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *RollingUpdateDeploymentDie) DeepCopy() *RollingUpdateDeploymentDie {
 	r := *d.r.DeepCopy()
-	return &rollingUpdateDeploymentDie{
+	return &RollingUpdateDeploymentDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *rollingUpdateDeploymentDie) MaxUnavailable(v *intstr.IntOrString) RollingUpdateDeploymentDie {
+// The maximum number of pods that can be unavailable during the update. Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%). Absolute number is calculated from percentage by rounding down. This can not be 0 if MaxSurge is 0. Defaults to 25%. Example: when this is set to 30%, the old ReplicaSet can be scaled down to 70% of desired pods immediately when the rolling update starts. Once new pods are ready, old ReplicaSet can be scaled down further, followed by scaling up the new ReplicaSet, ensuring that the total number of pods available at all times during the update is at least 70% of desired pods.
+func (d *RollingUpdateDeploymentDie) MaxUnavailable(v *intstr.IntOrString) *RollingUpdateDeploymentDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDeployment) {
 		r.MaxUnavailable = v
 	})
 }
 
-func (d *rollingUpdateDeploymentDie) MaxUnavailableInt(i int) RollingUpdateDeploymentDie {
+func (d *RollingUpdateDeploymentDie) MaxUnavailableInt(i int) *RollingUpdateDeploymentDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDeployment) {
 		v := intstr.FromInt(i)
 		r.MaxUnavailable = &v
 	})
 }
 
-func (d *rollingUpdateDeploymentDie) MaxUnavailableString(s string) RollingUpdateDeploymentDie {
+func (d *RollingUpdateDeploymentDie) MaxUnavailableString(s string) *RollingUpdateDeploymentDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDeployment) {
 		v := intstr.FromString(s)
 		r.MaxUnavailable = &v
 	})
 }
 
-func (d *rollingUpdateDeploymentDie) MaxSurge(v *intstr.IntOrString) RollingUpdateDeploymentDie {
+// The maximum number of pods that can be scheduled above the desired number of pods. Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%). This can not be 0 if MaxUnavailable is 0. Absolute number is calculated from percentage by rounding up. Defaults to 25%. Example: when this is set to 30%, the new ReplicaSet can be scaled up immediately when the rolling update starts, such that the total number of old and new pods do not exceed 130% of desired pods. Once old pods have been killed, new ReplicaSet can be scaled up further, ensuring that total number of pods running at any time during the update is at most 130% of desired pods.
+func (d *RollingUpdateDeploymentDie) MaxSurge(v *intstr.IntOrString) *RollingUpdateDeploymentDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDeployment) {
 		r.MaxSurge = v
 	})
 }
 
-func (d *rollingUpdateDeploymentDie) MaxSurgeInt(i int) RollingUpdateDeploymentDie {
+func (d *RollingUpdateDeploymentDie) MaxSurgeInt(i int) *RollingUpdateDeploymentDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDeployment) {
 		v := intstr.FromInt(i)
 		r.MaxSurge = &v
 	})
 }
 
-func (d *rollingUpdateDeploymentDie) MaxSurgeString(s string) RollingUpdateDeploymentDie {
+func (d *RollingUpdateDeploymentDie) MaxSurgeString(s string) *RollingUpdateDeploymentDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDeployment) {
 		v := intstr.FromString(s)
 		r.MaxSurge = &v
 	})
 }
 
-type DeploymentStatusDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.DeploymentStatus)) DeploymentStatusDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.DeploymentStatus) DeploymentStatusDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.DeploymentStatus) DeploymentStatusDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.DeploymentStatus
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.DeploymentStatus
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) DeploymentStatusDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() DeploymentStatusDie
+var DeploymentStatusBlank = (&DeploymentStatusDie{}).DieFeed(appsv1.DeploymentStatus{})
 
-	deploymentStatusDieExtension
-	// The generation observed by the deployment controller.
-	ObservedGeneration(v int64) DeploymentStatusDie
-	// Total number of non-terminated pods targeted by this deployment (their labels match the selector).
-	Replicas(v int32) DeploymentStatusDie
-	// Total number of non-terminated pods targeted by this deployment that have the desired template spec.
-	UpdatedReplicas(v int32) DeploymentStatusDie
-	// Total number of ready pods targeted by this deployment.
-	ReadyReplicas(v int32) DeploymentStatusDie
-	// Total number of available pods (ready for at least minReadySeconds) targeted by this deployment.
-	AvailableReplicas(v int32) DeploymentStatusDie
-	// Total number of unavailable pods targeted by this deployment. This is the total number of pods that are still required for the deployment to have 100% available capacity. They may either be pods that are running but not yet available or pods that still have not been created.
-	UnavailableReplicas(v int32) DeploymentStatusDie
-	// Represents the latest available observations of a deployment's current state.
-	Conditions(v ...appsv1.DeploymentCondition) DeploymentStatusDie
-	// Count of hash collisions for the Deployment. The Deployment controller uses this field as a collision avoidance mechanism when it needs to create the name for the newest ReplicaSet.
-	CollisionCount(v *int32) DeploymentStatusDie
-}
-
-var _ DeploymentStatusDie = (*deploymentStatusDie)(nil)
-var DeploymentStatusBlank = (&deploymentStatusDie{}).DieFeed(appsv1.DeploymentStatus{})
-
-type deploymentStatusDie struct {
+type DeploymentStatusDie struct {
 	mutable bool
 	r       appsv1.DeploymentStatus
 }
 
-func (d *deploymentStatusDie) DieImmutable(immutable bool) DeploymentStatusDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *DeploymentStatusDie) DieImmutable(immutable bool) *DeploymentStatusDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*deploymentStatusDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *deploymentStatusDie) DieFeed(r appsv1.DeploymentStatus) DeploymentStatusDie {
+// DieFeed returns a new die with the provided resource.
+func (d *DeploymentStatusDie) DieFeed(r appsv1.DeploymentStatus) *DeploymentStatusDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &deploymentStatusDie{
+	return &DeploymentStatusDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *deploymentStatusDie) DieFeedPtr(r *appsv1.DeploymentStatus) DeploymentStatusDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *DeploymentStatusDie) DieFeedPtr(r *appsv1.DeploymentStatus) *DeploymentStatusDie {
 	if r == nil {
 		r = &appsv1.DeploymentStatus{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *deploymentStatusDie) DieRelease() appsv1.DeploymentStatus {
+// DieRelease returns the resource managed by the die.
+func (d *DeploymentStatusDie) DieRelease() appsv1.DeploymentStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *deploymentStatusDie) DieReleasePtr() *appsv1.DeploymentStatus {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *DeploymentStatusDie) DieReleasePtr() *appsv1.DeploymentStatus {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *deploymentStatusDie) DieStamp(fn func(r *appsv1.DeploymentStatus)) DeploymentStatusDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *DeploymentStatusDie) DieStamp(fn func(r *appsv1.DeploymentStatus)) *DeploymentStatusDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *deploymentStatusDie) DeepCopy() DeploymentStatusDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *DeploymentStatusDie) DeepCopy() *DeploymentStatusDie {
 	r := *d.r.DeepCopy()
-	return &deploymentStatusDie{
+	return &DeploymentStatusDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *deploymentStatusDie) ObservedGeneration(v int64) DeploymentStatusDie {
+// The generation observed by the deployment controller.
+func (d *DeploymentStatusDie) ObservedGeneration(v int64) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.ObservedGeneration = v
 	})
 }
 
-func (d *deploymentStatusDie) Replicas(v int32) DeploymentStatusDie {
+// Total number of non-terminated pods targeted by this deployment (their labels match the selector).
+func (d *DeploymentStatusDie) Replicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.Replicas = v
 	})
 }
 
-func (d *deploymentStatusDie) UpdatedReplicas(v int32) DeploymentStatusDie {
+// Total number of non-terminated pods targeted by this deployment that have the desired template spec.
+func (d *DeploymentStatusDie) UpdatedReplicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.UpdatedReplicas = v
 	})
 }
 
-func (d *deploymentStatusDie) ReadyReplicas(v int32) DeploymentStatusDie {
+// Total number of ready pods targeted by this deployment.
+func (d *DeploymentStatusDie) ReadyReplicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.ReadyReplicas = v
 	})
 }
 
-func (d *deploymentStatusDie) AvailableReplicas(v int32) DeploymentStatusDie {
+// Total number of available pods (ready for at least minReadySeconds) targeted by this deployment.
+func (d *DeploymentStatusDie) AvailableReplicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.AvailableReplicas = v
 	})
 }
 
-func (d *deploymentStatusDie) UnavailableReplicas(v int32) DeploymentStatusDie {
+// Total number of unavailable pods targeted by this deployment. This is the total number of pods that are still required for the deployment to have 100% available capacity. They may either be pods that are running but not yet available or pods that still have not been created.
+func (d *DeploymentStatusDie) UnavailableReplicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.UnavailableReplicas = v
 	})
 }
 
-func (d *deploymentStatusDie) Conditions(v ...appsv1.DeploymentCondition) DeploymentStatusDie {
+// Represents the latest available observations of a deployment's current state.
+func (d *DeploymentStatusDie) Conditions(v ...appsv1.DeploymentCondition) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.Conditions = v
 	})
 }
 
-func (d *deploymentStatusDie) CollisionCount(v *int32) DeploymentStatusDie {
+// Count of hash collisions for the Deployment. The Deployment controller uses this field as a collision avoidance mechanism when it needs to create the name for the newest ReplicaSet.
+func (d *DeploymentStatusDie) CollisionCount(v *int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.CollisionCount = v
 	})
 }
 
-type ReplicaSetDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.ReplicaSet)) ReplicaSetDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.ReplicaSet) ReplicaSetDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.ReplicaSet) ReplicaSetDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.ReplicaSet
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.ReplicaSet
-	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-	DieReleaseUnstructured() runtime.Unstructured
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) ReplicaSetDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() ReplicaSetDie
+var ReplicaSetBlank = (&ReplicaSetDie{}).DieFeed(appsv1.ReplicaSet{})
 
-	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
-	MetadataDie(fn func(d metav1.ObjectMetaDie)) ReplicaSetDie
-	// SpecDie stamps the resource's spec field with a mutable die.
-	SpecDie(fn func(d ReplicaSetSpecDie)) ReplicaSetDie
-	// StatusDie stamps the resource's status field with a mutable die.
-	StatusDie(fn func(d ReplicaSetStatusDie)) ReplicaSetDie
-	// Spec defines the specification of the desired behavior of the ReplicaSet. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Spec(v appsv1.ReplicaSetSpec) ReplicaSetDie
-	// Status is the most recently observed status of the ReplicaSet. This data may be out of date by some window of time. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	Status(v appsv1.ReplicaSetStatus) ReplicaSetDie
-
-	runtime.Object
-	apismetav1.Object
-	apismetav1.ObjectMetaAccessor
-}
-
-var _ ReplicaSetDie = (*replicaSetDie)(nil)
-var ReplicaSetBlank = (&replicaSetDie{}).DieFeed(appsv1.ReplicaSet{})
-
-type replicaSetDie struct {
+type ReplicaSetDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       appsv1.ReplicaSet
 }
 
-func (d *replicaSetDie) DieImmutable(immutable bool) ReplicaSetDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ReplicaSetDie) DieImmutable(immutable bool) *ReplicaSetDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*replicaSetDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *replicaSetDie) DieFeed(r appsv1.ReplicaSet) ReplicaSetDie {
+// DieFeed returns a new die with the provided resource.
+func (d *ReplicaSetDie) DieFeed(r appsv1.ReplicaSet) *ReplicaSetDie {
 	if d.mutable {
 		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
 		d.r = r
 		return d
 	}
-	return &replicaSetDie{
+	return &ReplicaSetDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *replicaSetDie) DieFeedPtr(r *appsv1.ReplicaSet) ReplicaSetDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ReplicaSetDie) DieFeedPtr(r *appsv1.ReplicaSet) *ReplicaSetDie {
 	if r == nil {
 		r = &appsv1.ReplicaSet{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *replicaSetDie) DieRelease() appsv1.ReplicaSet {
+// DieRelease returns the resource managed by the die.
+func (d *ReplicaSetDie) DieRelease() appsv1.ReplicaSet {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *replicaSetDie) DieReleasePtr() *appsv1.ReplicaSet {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ReplicaSetDie) DieReleasePtr() *appsv1.ReplicaSet {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *replicaSetDie) DieReleaseUnstructured() runtime.Unstructured {
+// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+func (d *ReplicaSetDie) DieReleaseUnstructured() runtime.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -1464,45 +1260,53 @@ func (d *replicaSetDie) DieReleaseUnstructured() runtime.Unstructured {
 	}
 }
 
-func (d *replicaSetDie) DieStamp(fn func(r *appsv1.ReplicaSet)) ReplicaSetDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ReplicaSetDie) DieStamp(fn func(r *appsv1.ReplicaSet)) *ReplicaSetDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *replicaSetDie) DeepCopy() ReplicaSetDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ReplicaSetDie) DeepCopy() *ReplicaSetDie {
 	r := *d.r.DeepCopy()
-	return &replicaSetDie{
+	return &ReplicaSetDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *replicaSetDie) DeepCopyObject() runtime.Object {
+var _ runtime.Object = (*ReplicaSetDie)(nil)
+
+func (d *ReplicaSetDie) DeepCopyObject() runtime.Object {
 	return d.r.DeepCopy()
 }
 
-func (d *replicaSetDie) GetObjectKind() schema.ObjectKind {
+func (d *ReplicaSetDie) GetObjectKind() schema.ObjectKind {
 	r := d.DieRelease()
 	return r.GetObjectKind()
 }
 
-func (d *replicaSetDie) MarshalJSON() ([]byte, error) {
+func (d *ReplicaSetDie) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.r)
 }
 
-func (d *replicaSetDie) UnmarshalJSON(b []byte) error {
+func (d *ReplicaSetDie) UnmarshalJSON(b []byte) error {
 	if d == ReplicaSetBlank {
-		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
+	}
+	if !d.mutable {
+		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
 	r := &appsv1.ReplicaSet{}
 	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r).(*replicaSetDie)
+	*d = *d.DieFeed(*r)
 	return err
 }
 
-func (d *replicaSetDie) MetadataDie(fn func(d metav1.ObjectMetaDie)) ReplicaSetDie {
+// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+func (d *ReplicaSetDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *ReplicaSetDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSet) {
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
@@ -1510,7 +1314,8 @@ func (d *replicaSetDie) MetadataDie(fn func(d metav1.ObjectMetaDie)) ReplicaSetD
 	})
 }
 
-func (d *replicaSetDie) SpecDie(fn func(d ReplicaSetSpecDie)) ReplicaSetDie {
+// SpecDie stamps the resource's spec field with a mutable die.
+func (d *ReplicaSetDie) SpecDie(fn func(d *ReplicaSetSpecDie)) *ReplicaSetDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSet) {
 		d := ReplicaSetSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
@@ -1518,7 +1323,8 @@ func (d *replicaSetDie) SpecDie(fn func(d ReplicaSetSpecDie)) ReplicaSetDie {
 	})
 }
 
-func (d *replicaSetDie) StatusDie(fn func(d ReplicaSetStatusDie)) ReplicaSetDie {
+// StatusDie stamps the resource's status field with a mutable die.
+func (d *ReplicaSetDie) StatusDie(fn func(d *ReplicaSetStatusDie)) *ReplicaSetDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSet) {
 		d := ReplicaSetStatusBlank.DieImmutable(false).DieFeed(r.Status)
 		fn(d)
@@ -1526,343 +1332,280 @@ func (d *replicaSetDie) StatusDie(fn func(d ReplicaSetStatusDie)) ReplicaSetDie 
 	})
 }
 
-func (d *replicaSetDie) Spec(v appsv1.ReplicaSetSpec) ReplicaSetDie {
+// Spec defines the specification of the desired behavior of the ReplicaSet. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *ReplicaSetDie) Spec(v appsv1.ReplicaSetSpec) *ReplicaSetDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSet) {
 		r.Spec = v
 	})
 }
 
-func (d *replicaSetDie) Status(v appsv1.ReplicaSetStatus) ReplicaSetDie {
+// Status is the most recently observed status of the ReplicaSet. This data may be out of date by some window of time. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *ReplicaSetDie) Status(v appsv1.ReplicaSetStatus) *ReplicaSetDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSet) {
 		r.Status = v
 	})
 }
 
-type ReplicaSetSpecDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.ReplicaSetSpec)) ReplicaSetSpecDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.ReplicaSetSpec) ReplicaSetSpecDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.ReplicaSetSpec) ReplicaSetSpecDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.ReplicaSetSpec
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.ReplicaSetSpec
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) ReplicaSetSpecDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() ReplicaSetSpecDie
+var ReplicaSetSpecBlank = (&ReplicaSetSpecDie{}).DieFeed(appsv1.ReplicaSetSpec{})
 
-	replicaSetSpecDieExtension
-	// Replicas is the number of desired replicas. This is a pointer to distinguish between explicit zero and unspecified. Defaults to 1. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/#what-is-a-replicationcontroller
-	Replicas(v *int32) ReplicaSetSpecDie
-	// Minimum number of seconds for which a newly created pod should be ready without any of its container crashing, for it to be considered available. Defaults to 0 (pod will be considered available as soon as it is ready)
-	MinReadySeconds(v int32) ReplicaSetSpecDie
-	// Selector is a label query over pods that should match the replica count. Label keys and values that must match in order to be controlled by this replica set. It must match the pod template's labels. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
-	Selector(v *apismetav1.LabelSelector) ReplicaSetSpecDie
-	// Template is the object that describes the pod that will be created if insufficient replicas are detected. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
-	Template(v corev1.PodTemplateSpec) ReplicaSetSpecDie
-}
-
-var _ ReplicaSetSpecDie = (*replicaSetSpecDie)(nil)
-var ReplicaSetSpecBlank = (&replicaSetSpecDie{}).DieFeed(appsv1.ReplicaSetSpec{})
-
-type replicaSetSpecDie struct {
+type ReplicaSetSpecDie struct {
 	mutable bool
 	r       appsv1.ReplicaSetSpec
 }
 
-func (d *replicaSetSpecDie) DieImmutable(immutable bool) ReplicaSetSpecDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ReplicaSetSpecDie) DieImmutable(immutable bool) *ReplicaSetSpecDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*replicaSetSpecDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *replicaSetSpecDie) DieFeed(r appsv1.ReplicaSetSpec) ReplicaSetSpecDie {
+// DieFeed returns a new die with the provided resource.
+func (d *ReplicaSetSpecDie) DieFeed(r appsv1.ReplicaSetSpec) *ReplicaSetSpecDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &replicaSetSpecDie{
+	return &ReplicaSetSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *replicaSetSpecDie) DieFeedPtr(r *appsv1.ReplicaSetSpec) ReplicaSetSpecDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ReplicaSetSpecDie) DieFeedPtr(r *appsv1.ReplicaSetSpec) *ReplicaSetSpecDie {
 	if r == nil {
 		r = &appsv1.ReplicaSetSpec{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *replicaSetSpecDie) DieRelease() appsv1.ReplicaSetSpec {
+// DieRelease returns the resource managed by the die.
+func (d *ReplicaSetSpecDie) DieRelease() appsv1.ReplicaSetSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *replicaSetSpecDie) DieReleasePtr() *appsv1.ReplicaSetSpec {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ReplicaSetSpecDie) DieReleasePtr() *appsv1.ReplicaSetSpec {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *replicaSetSpecDie) DieStamp(fn func(r *appsv1.ReplicaSetSpec)) ReplicaSetSpecDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ReplicaSetSpecDie) DieStamp(fn func(r *appsv1.ReplicaSetSpec)) *ReplicaSetSpecDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *replicaSetSpecDie) DeepCopy() ReplicaSetSpecDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ReplicaSetSpecDie) DeepCopy() *ReplicaSetSpecDie {
 	r := *d.r.DeepCopy()
-	return &replicaSetSpecDie{
+	return &ReplicaSetSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *replicaSetSpecDie) Replicas(v *int32) ReplicaSetSpecDie {
+// Replicas is the number of desired replicas. This is a pointer to distinguish between explicit zero and unspecified. Defaults to 1. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/#what-is-a-replicationcontroller
+func (d *ReplicaSetSpecDie) Replicas(v *int32) *ReplicaSetSpecDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
 		r.Replicas = v
 	})
 }
 
-func (d *replicaSetSpecDie) MinReadySeconds(v int32) ReplicaSetSpecDie {
+// Minimum number of seconds for which a newly created pod should be ready without any of its container crashing, for it to be considered available. Defaults to 0 (pod will be considered available as soon as it is ready)
+func (d *ReplicaSetSpecDie) MinReadySeconds(v int32) *ReplicaSetSpecDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
 		r.MinReadySeconds = v
 	})
 }
 
-func (d *replicaSetSpecDie) Selector(v *apismetav1.LabelSelector) ReplicaSetSpecDie {
+// Selector is a label query over pods that should match the replica count. Label keys and values that must match in order to be controlled by this replica set. It must match the pod template's labels. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
+func (d *ReplicaSetSpecDie) Selector(v *apismetav1.LabelSelector) *ReplicaSetSpecDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
 		r.Selector = v
 	})
 }
 
-func (d *replicaSetSpecDie) Template(v corev1.PodTemplateSpec) ReplicaSetSpecDie {
+// Template is the object that describes the pod that will be created if insufficient replicas are detected. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
+func (d *ReplicaSetSpecDie) Template(v corev1.PodTemplateSpec) *ReplicaSetSpecDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
 		r.Template = v
 	})
 }
 
-type ReplicaSetStatusDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.ReplicaSetStatus)) ReplicaSetStatusDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.ReplicaSetStatus) ReplicaSetStatusDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.ReplicaSetStatus) ReplicaSetStatusDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.ReplicaSetStatus
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.ReplicaSetStatus
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) ReplicaSetStatusDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() ReplicaSetStatusDie
+var ReplicaSetStatusBlank = (&ReplicaSetStatusDie{}).DieFeed(appsv1.ReplicaSetStatus{})
 
-	replicaSetStatusDieExtension
-	// Replicas is the most recently oberved number of replicas. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/#what-is-a-replicationcontroller
-	Replicas(v int32) ReplicaSetStatusDie
-	// The number of pods that have labels matching the labels of the pod template of the replicaset.
-	FullyLabeledReplicas(v int32) ReplicaSetStatusDie
-	// The number of ready replicas for this replica set.
-	ReadyReplicas(v int32) ReplicaSetStatusDie
-	// The number of available replicas (ready for at least minReadySeconds) for this replica set.
-	AvailableReplicas(v int32) ReplicaSetStatusDie
-	// ObservedGeneration reflects the generation of the most recently observed ReplicaSet.
-	ObservedGeneration(v int64) ReplicaSetStatusDie
-	// Represents the latest available observations of a replica set's current state.
-	Conditions(v ...appsv1.ReplicaSetCondition) ReplicaSetStatusDie
-}
-
-var _ ReplicaSetStatusDie = (*replicaSetStatusDie)(nil)
-var ReplicaSetStatusBlank = (&replicaSetStatusDie{}).DieFeed(appsv1.ReplicaSetStatus{})
-
-type replicaSetStatusDie struct {
+type ReplicaSetStatusDie struct {
 	mutable bool
 	r       appsv1.ReplicaSetStatus
 }
 
-func (d *replicaSetStatusDie) DieImmutable(immutable bool) ReplicaSetStatusDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ReplicaSetStatusDie) DieImmutable(immutable bool) *ReplicaSetStatusDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*replicaSetStatusDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *replicaSetStatusDie) DieFeed(r appsv1.ReplicaSetStatus) ReplicaSetStatusDie {
+// DieFeed returns a new die with the provided resource.
+func (d *ReplicaSetStatusDie) DieFeed(r appsv1.ReplicaSetStatus) *ReplicaSetStatusDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &replicaSetStatusDie{
+	return &ReplicaSetStatusDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *replicaSetStatusDie) DieFeedPtr(r *appsv1.ReplicaSetStatus) ReplicaSetStatusDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ReplicaSetStatusDie) DieFeedPtr(r *appsv1.ReplicaSetStatus) *ReplicaSetStatusDie {
 	if r == nil {
 		r = &appsv1.ReplicaSetStatus{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *replicaSetStatusDie) DieRelease() appsv1.ReplicaSetStatus {
+// DieRelease returns the resource managed by the die.
+func (d *ReplicaSetStatusDie) DieRelease() appsv1.ReplicaSetStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *replicaSetStatusDie) DieReleasePtr() *appsv1.ReplicaSetStatus {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ReplicaSetStatusDie) DieReleasePtr() *appsv1.ReplicaSetStatus {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *replicaSetStatusDie) DieStamp(fn func(r *appsv1.ReplicaSetStatus)) ReplicaSetStatusDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ReplicaSetStatusDie) DieStamp(fn func(r *appsv1.ReplicaSetStatus)) *ReplicaSetStatusDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *replicaSetStatusDie) DeepCopy() ReplicaSetStatusDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ReplicaSetStatusDie) DeepCopy() *ReplicaSetStatusDie {
 	r := *d.r.DeepCopy()
-	return &replicaSetStatusDie{
+	return &ReplicaSetStatusDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *replicaSetStatusDie) Replicas(v int32) ReplicaSetStatusDie {
+// Replicas is the most recently oberved number of replicas. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/#what-is-a-replicationcontroller
+func (d *ReplicaSetStatusDie) Replicas(v int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.Replicas = v
 	})
 }
 
-func (d *replicaSetStatusDie) FullyLabeledReplicas(v int32) ReplicaSetStatusDie {
+// The number of pods that have labels matching the labels of the pod template of the replicaset.
+func (d *ReplicaSetStatusDie) FullyLabeledReplicas(v int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.FullyLabeledReplicas = v
 	})
 }
 
-func (d *replicaSetStatusDie) ReadyReplicas(v int32) ReplicaSetStatusDie {
+// The number of ready replicas for this replica set.
+func (d *ReplicaSetStatusDie) ReadyReplicas(v int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.ReadyReplicas = v
 	})
 }
 
-func (d *replicaSetStatusDie) AvailableReplicas(v int32) ReplicaSetStatusDie {
+// The number of available replicas (ready for at least minReadySeconds) for this replica set.
+func (d *ReplicaSetStatusDie) AvailableReplicas(v int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.AvailableReplicas = v
 	})
 }
 
-func (d *replicaSetStatusDie) ObservedGeneration(v int64) ReplicaSetStatusDie {
+// ObservedGeneration reflects the generation of the most recently observed ReplicaSet.
+func (d *ReplicaSetStatusDie) ObservedGeneration(v int64) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.ObservedGeneration = v
 	})
 }
 
-func (d *replicaSetStatusDie) Conditions(v ...appsv1.ReplicaSetCondition) ReplicaSetStatusDie {
+// Represents the latest available observations of a replica set's current state.
+func (d *ReplicaSetStatusDie) Conditions(v ...appsv1.ReplicaSetCondition) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.Conditions = v
 	})
 }
 
-type StatefulSetDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.StatefulSet)) StatefulSetDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.StatefulSet) StatefulSetDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.StatefulSet) StatefulSetDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.StatefulSet
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.StatefulSet
-	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-	DieReleaseUnstructured() runtime.Unstructured
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) StatefulSetDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() StatefulSetDie
+var StatefulSetBlank = (&StatefulSetDie{}).DieFeed(appsv1.StatefulSet{})
 
-	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
-	MetadataDie(fn func(d metav1.ObjectMetaDie)) StatefulSetDie
-	// SpecDie stamps the resource's spec field with a mutable die.
-	SpecDie(fn func(d StatefulSetSpecDie)) StatefulSetDie
-	// StatusDie stamps the resource's status field with a mutable die.
-	StatusDie(fn func(d StatefulSetStatusDie)) StatefulSetDie
-	// Spec defines the desired identities of pods in this set.
-	Spec(v appsv1.StatefulSetSpec) StatefulSetDie
-	// Status is the current status of Pods in this StatefulSet. This data may be out of date by some window of time.
-	Status(v appsv1.StatefulSetStatus) StatefulSetDie
-
-	runtime.Object
-	apismetav1.Object
-	apismetav1.ObjectMetaAccessor
-}
-
-var _ StatefulSetDie = (*statefulSetDie)(nil)
-var StatefulSetBlank = (&statefulSetDie{}).DieFeed(appsv1.StatefulSet{})
-
-type statefulSetDie struct {
+type StatefulSetDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       appsv1.StatefulSet
 }
 
-func (d *statefulSetDie) DieImmutable(immutable bool) StatefulSetDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *StatefulSetDie) DieImmutable(immutable bool) *StatefulSetDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*statefulSetDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *statefulSetDie) DieFeed(r appsv1.StatefulSet) StatefulSetDie {
+// DieFeed returns a new die with the provided resource.
+func (d *StatefulSetDie) DieFeed(r appsv1.StatefulSet) *StatefulSetDie {
 	if d.mutable {
 		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
 		d.r = r
 		return d
 	}
-	return &statefulSetDie{
+	return &StatefulSetDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *statefulSetDie) DieFeedPtr(r *appsv1.StatefulSet) StatefulSetDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *StatefulSetDie) DieFeedPtr(r *appsv1.StatefulSet) *StatefulSetDie {
 	if r == nil {
 		r = &appsv1.StatefulSet{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *statefulSetDie) DieRelease() appsv1.StatefulSet {
+// DieRelease returns the resource managed by the die.
+func (d *StatefulSetDie) DieRelease() appsv1.StatefulSet {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *statefulSetDie) DieReleasePtr() *appsv1.StatefulSet {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *StatefulSetDie) DieReleasePtr() *appsv1.StatefulSet {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *statefulSetDie) DieReleaseUnstructured() runtime.Unstructured {
+// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+func (d *StatefulSetDie) DieReleaseUnstructured() runtime.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -1870,45 +1613,53 @@ func (d *statefulSetDie) DieReleaseUnstructured() runtime.Unstructured {
 	}
 }
 
-func (d *statefulSetDie) DieStamp(fn func(r *appsv1.StatefulSet)) StatefulSetDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *StatefulSetDie) DieStamp(fn func(r *appsv1.StatefulSet)) *StatefulSetDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *statefulSetDie) DeepCopy() StatefulSetDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *StatefulSetDie) DeepCopy() *StatefulSetDie {
 	r := *d.r.DeepCopy()
-	return &statefulSetDie{
+	return &StatefulSetDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *statefulSetDie) DeepCopyObject() runtime.Object {
+var _ runtime.Object = (*StatefulSetDie)(nil)
+
+func (d *StatefulSetDie) DeepCopyObject() runtime.Object {
 	return d.r.DeepCopy()
 }
 
-func (d *statefulSetDie) GetObjectKind() schema.ObjectKind {
+func (d *StatefulSetDie) GetObjectKind() schema.ObjectKind {
 	r := d.DieRelease()
 	return r.GetObjectKind()
 }
 
-func (d *statefulSetDie) MarshalJSON() ([]byte, error) {
+func (d *StatefulSetDie) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.r)
 }
 
-func (d *statefulSetDie) UnmarshalJSON(b []byte) error {
+func (d *StatefulSetDie) UnmarshalJSON(b []byte) error {
 	if d == StatefulSetBlank {
-		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
+	}
+	if !d.mutable {
+		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
 	r := &appsv1.StatefulSet{}
 	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r).(*statefulSetDie)
+	*d = *d.DieFeed(*r)
 	return err
 }
 
-func (d *statefulSetDie) MetadataDie(fn func(d metav1.ObjectMetaDie)) StatefulSetDie {
+// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+func (d *StatefulSetDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *StatefulSetDie {
 	return d.DieStamp(func(r *appsv1.StatefulSet) {
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
@@ -1916,7 +1667,8 @@ func (d *statefulSetDie) MetadataDie(fn func(d metav1.ObjectMetaDie)) StatefulSe
 	})
 }
 
-func (d *statefulSetDie) SpecDie(fn func(d StatefulSetSpecDie)) StatefulSetDie {
+// SpecDie stamps the resource's spec field with a mutable die.
+func (d *StatefulSetDie) SpecDie(fn func(d *StatefulSetSpecDie)) *StatefulSetDie {
 	return d.DieStamp(func(r *appsv1.StatefulSet) {
 		d := StatefulSetSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
@@ -1924,7 +1676,8 @@ func (d *statefulSetDie) SpecDie(fn func(d StatefulSetSpecDie)) StatefulSetDie {
 	})
 }
 
-func (d *statefulSetDie) StatusDie(fn func(d StatefulSetStatusDie)) StatefulSetDie {
+// StatusDie stamps the resource's status field with a mutable die.
+func (d *StatefulSetDie) StatusDie(fn func(d *StatefulSetStatusDie)) *StatefulSetDie {
 	return d.DieStamp(func(r *appsv1.StatefulSet) {
 		d := StatefulSetStatusBlank.DieImmutable(false).DieFeed(r.Status)
 		fn(d)
@@ -1932,508 +1685,437 @@ func (d *statefulSetDie) StatusDie(fn func(d StatefulSetStatusDie)) StatefulSetD
 	})
 }
 
-func (d *statefulSetDie) Spec(v appsv1.StatefulSetSpec) StatefulSetDie {
+// Spec defines the desired identities of pods in this set.
+func (d *StatefulSetDie) Spec(v appsv1.StatefulSetSpec) *StatefulSetDie {
 	return d.DieStamp(func(r *appsv1.StatefulSet) {
 		r.Spec = v
 	})
 }
 
-func (d *statefulSetDie) Status(v appsv1.StatefulSetStatus) StatefulSetDie {
+// Status is the current status of Pods in this StatefulSet. This data may be out of date by some window of time.
+func (d *StatefulSetDie) Status(v appsv1.StatefulSetStatus) *StatefulSetDie {
 	return d.DieStamp(func(r *appsv1.StatefulSet) {
 		r.Status = v
 	})
 }
 
-type StatefulSetSpecDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.StatefulSetSpec)) StatefulSetSpecDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.StatefulSetSpec) StatefulSetSpecDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.StatefulSetSpec) StatefulSetSpecDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.StatefulSetSpec
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.StatefulSetSpec
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) StatefulSetSpecDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() StatefulSetSpecDie
+var StatefulSetSpecBlank = (&StatefulSetSpecDie{}).DieFeed(appsv1.StatefulSetSpec{})
 
-	statefulSetSpecDieExtension
-	// replicas is the desired number of replicas of the given Template. These are replicas in the sense that they are instantiations of the same Template, but individual replicas also have a consistent identity. If unspecified, defaults to 1. TODO: Consider a rename of this field.
-	Replicas(v *int32) StatefulSetSpecDie
-	// selector is a label query over pods that should match the replica count. It must match the pod template's labels. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
-	Selector(v *apismetav1.LabelSelector) StatefulSetSpecDie
-	// template is the object that describes the pod that will be created if insufficient replicas are detected. Each pod stamped out by the StatefulSet will fulfill this Template, but have a unique identity from the rest of the StatefulSet.
-	Template(v corev1.PodTemplateSpec) StatefulSetSpecDie
-	// volumeClaimTemplates is a list of claims that pods are allowed to reference. The StatefulSet controller is responsible for mapping network identities to claims in a way that maintains the identity of a pod. Every claim in this list must have at least one matching (by name) volumeMount in one container in the template. A claim in this list takes precedence over any volumes in the template, with the same name. TODO: Define the behavior if a claim already exists with the same name.
-	VolumeClaimTemplates(v ...corev1.PersistentVolumeClaim) StatefulSetSpecDie
-	// serviceName is the name of the service that governs this StatefulSet. This service must exist before the StatefulSet, and is responsible for the network identity of the set. Pods get DNS/hostnames that follow the pattern: pod-specific-string.serviceName.default.svc.cluster.local where "pod-specific-string" is managed by the StatefulSet controller.
-	ServiceName(v string) StatefulSetSpecDie
-	// podManagementPolicy controls how pods are created during initial scale up, when replacing pods on nodes, or when scaling down. The default policy is `OrderedReady`, where pods are created in increasing order (pod-0, then pod-1, etc) and the controller will wait until each pod is ready before continuing. When scaling down, the pods are removed in the opposite order. The alternative policy is `Parallel` which will create pods in parallel to match the desired scale without waiting, and on scale down will delete all pods at once.
-	PodManagementPolicy(v appsv1.PodManagementPolicyType) StatefulSetSpecDie
-	// updateStrategy indicates the StatefulSetUpdateStrategy that will be employed to update Pods in the StatefulSet when a revision is made to Template.
-	UpdateStrategy(v appsv1.StatefulSetUpdateStrategy) StatefulSetSpecDie
-	// revisionHistoryLimit is the maximum number of revisions that will be maintained in the StatefulSet's revision history. The revision history consists of all revisions not represented by a currently applied StatefulSetSpec version. The default value is 10.
-	RevisionHistoryLimit(v *int32) StatefulSetSpecDie
-	// Minimum number of seconds for which a newly created pod should be ready without any of its container crashing for it to be considered available. Defaults to 0 (pod will be considered available as soon as it is ready) This is an alpha field and requires enabling StatefulSetMinReadySeconds feature gate.
-	MinReadySeconds(v int32) StatefulSetSpecDie
-}
-
-var _ StatefulSetSpecDie = (*statefulSetSpecDie)(nil)
-var StatefulSetSpecBlank = (&statefulSetSpecDie{}).DieFeed(appsv1.StatefulSetSpec{})
-
-type statefulSetSpecDie struct {
+type StatefulSetSpecDie struct {
 	mutable bool
 	r       appsv1.StatefulSetSpec
 }
 
-func (d *statefulSetSpecDie) DieImmutable(immutable bool) StatefulSetSpecDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *StatefulSetSpecDie) DieImmutable(immutable bool) *StatefulSetSpecDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*statefulSetSpecDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *statefulSetSpecDie) DieFeed(r appsv1.StatefulSetSpec) StatefulSetSpecDie {
+// DieFeed returns a new die with the provided resource.
+func (d *StatefulSetSpecDie) DieFeed(r appsv1.StatefulSetSpec) *StatefulSetSpecDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &statefulSetSpecDie{
+	return &StatefulSetSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *statefulSetSpecDie) DieFeedPtr(r *appsv1.StatefulSetSpec) StatefulSetSpecDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *StatefulSetSpecDie) DieFeedPtr(r *appsv1.StatefulSetSpec) *StatefulSetSpecDie {
 	if r == nil {
 		r = &appsv1.StatefulSetSpec{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *statefulSetSpecDie) DieRelease() appsv1.StatefulSetSpec {
+// DieRelease returns the resource managed by the die.
+func (d *StatefulSetSpecDie) DieRelease() appsv1.StatefulSetSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *statefulSetSpecDie) DieReleasePtr() *appsv1.StatefulSetSpec {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *StatefulSetSpecDie) DieReleasePtr() *appsv1.StatefulSetSpec {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *statefulSetSpecDie) DieStamp(fn func(r *appsv1.StatefulSetSpec)) StatefulSetSpecDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *StatefulSetSpecDie) DieStamp(fn func(r *appsv1.StatefulSetSpec)) *StatefulSetSpecDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *statefulSetSpecDie) DeepCopy() StatefulSetSpecDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *StatefulSetSpecDie) DeepCopy() *StatefulSetSpecDie {
 	r := *d.r.DeepCopy()
-	return &statefulSetSpecDie{
+	return &StatefulSetSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *statefulSetSpecDie) Replicas(v *int32) StatefulSetSpecDie {
+// replicas is the desired number of replicas of the given Template. These are replicas in the sense that they are instantiations of the same Template, but individual replicas also have a consistent identity. If unspecified, defaults to 1. TODO: Consider a rename of this field.
+func (d *StatefulSetSpecDie) Replicas(v *int32) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.Replicas = v
 	})
 }
 
-func (d *statefulSetSpecDie) Selector(v *apismetav1.LabelSelector) StatefulSetSpecDie {
+// selector is a label query over pods that should match the replica count. It must match the pod template's labels. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
+func (d *StatefulSetSpecDie) Selector(v *apismetav1.LabelSelector) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.Selector = v
 	})
 }
 
-func (d *statefulSetSpecDie) Template(v corev1.PodTemplateSpec) StatefulSetSpecDie {
+// template is the object that describes the pod that will be created if insufficient replicas are detected. Each pod stamped out by the StatefulSet will fulfill this Template, but have a unique identity from the rest of the StatefulSet.
+func (d *StatefulSetSpecDie) Template(v corev1.PodTemplateSpec) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.Template = v
 	})
 }
 
-func (d *statefulSetSpecDie) VolumeClaimTemplates(v ...corev1.PersistentVolumeClaim) StatefulSetSpecDie {
+// volumeClaimTemplates is a list of claims that pods are allowed to reference. The StatefulSet controller is responsible for mapping network identities to claims in a way that maintains the identity of a pod. Every claim in this list must have at least one matching (by name) volumeMount in one container in the template. A claim in this list takes precedence over any volumes in the template, with the same name. TODO: Define the behavior if a claim already exists with the same name.
+func (d *StatefulSetSpecDie) VolumeClaimTemplates(v ...corev1.PersistentVolumeClaim) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.VolumeClaimTemplates = v
 	})
 }
 
-func (d *statefulSetSpecDie) ServiceName(v string) StatefulSetSpecDie {
+// serviceName is the name of the service that governs this StatefulSet. This service must exist before the StatefulSet, and is responsible for the network identity of the set. Pods get DNS/hostnames that follow the pattern: pod-specific-string.serviceName.default.svc.cluster.local where "pod-specific-string" is managed by the StatefulSet controller.
+func (d *StatefulSetSpecDie) ServiceName(v string) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.ServiceName = v
 	})
 }
 
-func (d *statefulSetSpecDie) PodManagementPolicy(v appsv1.PodManagementPolicyType) StatefulSetSpecDie {
+// podManagementPolicy controls how pods are created during initial scale up, when replacing pods on nodes, or when scaling down. The default policy is `OrderedReady`, where pods are created in increasing order (pod-0, then pod-1, etc) and the controller will wait until each pod is ready before continuing. When scaling down, the pods are removed in the opposite order. The alternative policy is `Parallel` which will create pods in parallel to match the desired scale without waiting, and on scale down will delete all pods at once.
+func (d *StatefulSetSpecDie) PodManagementPolicy(v appsv1.PodManagementPolicyType) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.PodManagementPolicy = v
 	})
 }
 
-func (d *statefulSetSpecDie) UpdateStrategy(v appsv1.StatefulSetUpdateStrategy) StatefulSetSpecDie {
+// updateStrategy indicates the StatefulSetUpdateStrategy that will be employed to update Pods in the StatefulSet when a revision is made to Template.
+func (d *StatefulSetSpecDie) UpdateStrategy(v appsv1.StatefulSetUpdateStrategy) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.UpdateStrategy = v
 	})
 }
 
-func (d *statefulSetSpecDie) RevisionHistoryLimit(v *int32) StatefulSetSpecDie {
+// revisionHistoryLimit is the maximum number of revisions that will be maintained in the StatefulSet's revision history. The revision history consists of all revisions not represented by a currently applied StatefulSetSpec version. The default value is 10.
+func (d *StatefulSetSpecDie) RevisionHistoryLimit(v *int32) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.RevisionHistoryLimit = v
 	})
 }
 
-func (d *statefulSetSpecDie) MinReadySeconds(v int32) StatefulSetSpecDie {
+// Minimum number of seconds for which a newly created pod should be ready without any of its container crashing for it to be considered available. Defaults to 0 (pod will be considered available as soon as it is ready) This is an alpha field and requires enabling StatefulSetMinReadySeconds feature gate.
+func (d *StatefulSetSpecDie) MinReadySeconds(v int32) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.MinReadySeconds = v
 	})
 }
 
-type StatefulSetUpdateStrategyDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.StatefulSetUpdateStrategy)) StatefulSetUpdateStrategyDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.StatefulSetUpdateStrategy) StatefulSetUpdateStrategyDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.StatefulSetUpdateStrategy) StatefulSetUpdateStrategyDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.StatefulSetUpdateStrategy
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.StatefulSetUpdateStrategy
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) StatefulSetUpdateStrategyDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() StatefulSetUpdateStrategyDie
+var StatefulSetUpdateStrategyBlank = (&StatefulSetUpdateStrategyDie{}).DieFeed(appsv1.StatefulSetUpdateStrategy{})
 
-	statefulSetUpdateStrategyDieExtension
-	// Type indicates the type of the StatefulSetUpdateStrategy. Default is RollingUpdate.
-	Type(v appsv1.StatefulSetUpdateStrategyType) StatefulSetUpdateStrategyDie
-	// RollingUpdate is used to communicate parameters when Type is RollingUpdateStatefulSetStrategyType.
-	RollingUpdate(v *appsv1.RollingUpdateStatefulSetStrategy) StatefulSetUpdateStrategyDie
-}
-
-var _ StatefulSetUpdateStrategyDie = (*statefulSetUpdateStrategyDie)(nil)
-var StatefulSetUpdateStrategyBlank = (&statefulSetUpdateStrategyDie{}).DieFeed(appsv1.StatefulSetUpdateStrategy{})
-
-type statefulSetUpdateStrategyDie struct {
+type StatefulSetUpdateStrategyDie struct {
 	mutable bool
 	r       appsv1.StatefulSetUpdateStrategy
 }
 
-func (d *statefulSetUpdateStrategyDie) DieImmutable(immutable bool) StatefulSetUpdateStrategyDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *StatefulSetUpdateStrategyDie) DieImmutable(immutable bool) *StatefulSetUpdateStrategyDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*statefulSetUpdateStrategyDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *statefulSetUpdateStrategyDie) DieFeed(r appsv1.StatefulSetUpdateStrategy) StatefulSetUpdateStrategyDie {
+// DieFeed returns a new die with the provided resource.
+func (d *StatefulSetUpdateStrategyDie) DieFeed(r appsv1.StatefulSetUpdateStrategy) *StatefulSetUpdateStrategyDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &statefulSetUpdateStrategyDie{
+	return &StatefulSetUpdateStrategyDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *statefulSetUpdateStrategyDie) DieFeedPtr(r *appsv1.StatefulSetUpdateStrategy) StatefulSetUpdateStrategyDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *StatefulSetUpdateStrategyDie) DieFeedPtr(r *appsv1.StatefulSetUpdateStrategy) *StatefulSetUpdateStrategyDie {
 	if r == nil {
 		r = &appsv1.StatefulSetUpdateStrategy{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *statefulSetUpdateStrategyDie) DieRelease() appsv1.StatefulSetUpdateStrategy {
+// DieRelease returns the resource managed by the die.
+func (d *StatefulSetUpdateStrategyDie) DieRelease() appsv1.StatefulSetUpdateStrategy {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *statefulSetUpdateStrategyDie) DieReleasePtr() *appsv1.StatefulSetUpdateStrategy {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *StatefulSetUpdateStrategyDie) DieReleasePtr() *appsv1.StatefulSetUpdateStrategy {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *statefulSetUpdateStrategyDie) DieStamp(fn func(r *appsv1.StatefulSetUpdateStrategy)) StatefulSetUpdateStrategyDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *StatefulSetUpdateStrategyDie) DieStamp(fn func(r *appsv1.StatefulSetUpdateStrategy)) *StatefulSetUpdateStrategyDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *statefulSetUpdateStrategyDie) DeepCopy() StatefulSetUpdateStrategyDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *StatefulSetUpdateStrategyDie) DeepCopy() *StatefulSetUpdateStrategyDie {
 	r := *d.r.DeepCopy()
-	return &statefulSetUpdateStrategyDie{
+	return &StatefulSetUpdateStrategyDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *statefulSetUpdateStrategyDie) Type(v appsv1.StatefulSetUpdateStrategyType) StatefulSetUpdateStrategyDie {
+// Type indicates the type of the StatefulSetUpdateStrategy. Default is RollingUpdate.
+func (d *StatefulSetUpdateStrategyDie) Type(v appsv1.StatefulSetUpdateStrategyType) *StatefulSetUpdateStrategyDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetUpdateStrategy) {
 		r.Type = v
 	})
 }
 
-func (d *statefulSetUpdateStrategyDie) RollingUpdate(v *appsv1.RollingUpdateStatefulSetStrategy) StatefulSetUpdateStrategyDie {
+// RollingUpdate is used to communicate parameters when Type is RollingUpdateStatefulSetStrategyType.
+func (d *StatefulSetUpdateStrategyDie) RollingUpdate(v *appsv1.RollingUpdateStatefulSetStrategy) *StatefulSetUpdateStrategyDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetUpdateStrategy) {
 		r.RollingUpdate = v
 	})
 }
 
-type RollingUpdateStatefulSetStrategyDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.RollingUpdateStatefulSetStrategy)) RollingUpdateStatefulSetStrategyDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.RollingUpdateStatefulSetStrategy) RollingUpdateStatefulSetStrategyDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.RollingUpdateStatefulSetStrategy) RollingUpdateStatefulSetStrategyDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.RollingUpdateStatefulSetStrategy
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.RollingUpdateStatefulSetStrategy
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) RollingUpdateStatefulSetStrategyDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() RollingUpdateStatefulSetStrategyDie
+var RollingUpdateStatefulSetStrategyBlank = (&RollingUpdateStatefulSetStrategyDie{}).DieFeed(appsv1.RollingUpdateStatefulSetStrategy{})
 
-	// Partition indicates the ordinal at which the StatefulSet should be partitioned. Default value is 0.
-	Partition(v *int32) RollingUpdateStatefulSetStrategyDie
-}
-
-var _ RollingUpdateStatefulSetStrategyDie = (*rollingUpdateStatefulSetStrategyDie)(nil)
-var RollingUpdateStatefulSetStrategyBlank = (&rollingUpdateStatefulSetStrategyDie{}).DieFeed(appsv1.RollingUpdateStatefulSetStrategy{})
-
-type rollingUpdateStatefulSetStrategyDie struct {
+type RollingUpdateStatefulSetStrategyDie struct {
 	mutable bool
 	r       appsv1.RollingUpdateStatefulSetStrategy
 }
 
-func (d *rollingUpdateStatefulSetStrategyDie) DieImmutable(immutable bool) RollingUpdateStatefulSetStrategyDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *RollingUpdateStatefulSetStrategyDie) DieImmutable(immutable bool) *RollingUpdateStatefulSetStrategyDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*rollingUpdateStatefulSetStrategyDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *rollingUpdateStatefulSetStrategyDie) DieFeed(r appsv1.RollingUpdateStatefulSetStrategy) RollingUpdateStatefulSetStrategyDie {
+// DieFeed returns a new die with the provided resource.
+func (d *RollingUpdateStatefulSetStrategyDie) DieFeed(r appsv1.RollingUpdateStatefulSetStrategy) *RollingUpdateStatefulSetStrategyDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &rollingUpdateStatefulSetStrategyDie{
+	return &RollingUpdateStatefulSetStrategyDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *rollingUpdateStatefulSetStrategyDie) DieFeedPtr(r *appsv1.RollingUpdateStatefulSetStrategy) RollingUpdateStatefulSetStrategyDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *RollingUpdateStatefulSetStrategyDie) DieFeedPtr(r *appsv1.RollingUpdateStatefulSetStrategy) *RollingUpdateStatefulSetStrategyDie {
 	if r == nil {
 		r = &appsv1.RollingUpdateStatefulSetStrategy{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *rollingUpdateStatefulSetStrategyDie) DieRelease() appsv1.RollingUpdateStatefulSetStrategy {
+// DieRelease returns the resource managed by the die.
+func (d *RollingUpdateStatefulSetStrategyDie) DieRelease() appsv1.RollingUpdateStatefulSetStrategy {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *rollingUpdateStatefulSetStrategyDie) DieReleasePtr() *appsv1.RollingUpdateStatefulSetStrategy {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *RollingUpdateStatefulSetStrategyDie) DieReleasePtr() *appsv1.RollingUpdateStatefulSetStrategy {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *rollingUpdateStatefulSetStrategyDie) DieStamp(fn func(r *appsv1.RollingUpdateStatefulSetStrategy)) RollingUpdateStatefulSetStrategyDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *RollingUpdateStatefulSetStrategyDie) DieStamp(fn func(r *appsv1.RollingUpdateStatefulSetStrategy)) *RollingUpdateStatefulSetStrategyDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *rollingUpdateStatefulSetStrategyDie) DeepCopy() RollingUpdateStatefulSetStrategyDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *RollingUpdateStatefulSetStrategyDie) DeepCopy() *RollingUpdateStatefulSetStrategyDie {
 	r := *d.r.DeepCopy()
-	return &rollingUpdateStatefulSetStrategyDie{
+	return &RollingUpdateStatefulSetStrategyDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *rollingUpdateStatefulSetStrategyDie) Partition(v *int32) RollingUpdateStatefulSetStrategyDie {
+// Partition indicates the ordinal at which the StatefulSet should be partitioned. Default value is 0.
+func (d *RollingUpdateStatefulSetStrategyDie) Partition(v *int32) *RollingUpdateStatefulSetStrategyDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateStatefulSetStrategy) {
 		r.Partition = v
 	})
 }
 
-type StatefulSetStatusDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *appsv1.StatefulSetStatus)) StatefulSetStatusDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r appsv1.StatefulSetStatus) StatefulSetStatusDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *appsv1.StatefulSetStatus) StatefulSetStatusDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() appsv1.StatefulSetStatus
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *appsv1.StatefulSetStatus
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) StatefulSetStatusDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() StatefulSetStatusDie
+var StatefulSetStatusBlank = (&StatefulSetStatusDie{}).DieFeed(appsv1.StatefulSetStatus{})
 
-	statefulSetStatusDieExtension
-	// observedGeneration is the most recent generation observed for this StatefulSet. It corresponds to the StatefulSet's generation, which is updated on mutation by the API Server.
-	ObservedGeneration(v int64) StatefulSetStatusDie
-	// replicas is the number of Pods created by the StatefulSet controller.
-	Replicas(v int32) StatefulSetStatusDie
-	// readyReplicas is the number of Pods created by the StatefulSet controller that have a Ready Condition.
-	ReadyReplicas(v int32) StatefulSetStatusDie
-	// currentReplicas is the number of Pods created by the StatefulSet controller from the StatefulSet version indicated by currentRevision.
-	CurrentReplicas(v int32) StatefulSetStatusDie
-	// updatedReplicas is the number of Pods created by the StatefulSet controller from the StatefulSet version indicated by updateRevision.
-	UpdatedReplicas(v int32) StatefulSetStatusDie
-	// currentRevision, if not empty, indicates the version of the StatefulSet used to generate Pods in the sequence [0,currentReplicas).
-	CurrentRevision(v string) StatefulSetStatusDie
-	// updateRevision, if not empty, indicates the version of the StatefulSet used to generate Pods in the sequence [replicas-updatedReplicas,replicas)
-	UpdateRevision(v string) StatefulSetStatusDie
-	// collisionCount is the count of hash collisions for the StatefulSet. The StatefulSet controller uses this field as a collision avoidance mechanism when it needs to create the name for the newest ControllerRevision.
-	CollisionCount(v *int32) StatefulSetStatusDie
-	// Represents the latest available observations of a statefulset's current state.
-	Conditions(v ...appsv1.StatefulSetCondition) StatefulSetStatusDie
-	// Total number of available pods (ready for at least minReadySeconds) targeted by this statefulset. This is an alpha field and requires enabling StatefulSetMinReadySeconds feature gate. Remove omitempty when graduating to beta
-	AvailableReplicas(v int32) StatefulSetStatusDie
-}
-
-var _ StatefulSetStatusDie = (*statefulSetStatusDie)(nil)
-var StatefulSetStatusBlank = (&statefulSetStatusDie{}).DieFeed(appsv1.StatefulSetStatus{})
-
-type statefulSetStatusDie struct {
+type StatefulSetStatusDie struct {
 	mutable bool
 	r       appsv1.StatefulSetStatus
 }
 
-func (d *statefulSetStatusDie) DieImmutable(immutable bool) StatefulSetStatusDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *StatefulSetStatusDie) DieImmutable(immutable bool) *StatefulSetStatusDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*statefulSetStatusDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *statefulSetStatusDie) DieFeed(r appsv1.StatefulSetStatus) StatefulSetStatusDie {
+// DieFeed returns a new die with the provided resource.
+func (d *StatefulSetStatusDie) DieFeed(r appsv1.StatefulSetStatus) *StatefulSetStatusDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &statefulSetStatusDie{
+	return &StatefulSetStatusDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *statefulSetStatusDie) DieFeedPtr(r *appsv1.StatefulSetStatus) StatefulSetStatusDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *StatefulSetStatusDie) DieFeedPtr(r *appsv1.StatefulSetStatus) *StatefulSetStatusDie {
 	if r == nil {
 		r = &appsv1.StatefulSetStatus{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *statefulSetStatusDie) DieRelease() appsv1.StatefulSetStatus {
+// DieRelease returns the resource managed by the die.
+func (d *StatefulSetStatusDie) DieRelease() appsv1.StatefulSetStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *statefulSetStatusDie) DieReleasePtr() *appsv1.StatefulSetStatus {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *StatefulSetStatusDie) DieReleasePtr() *appsv1.StatefulSetStatus {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *statefulSetStatusDie) DieStamp(fn func(r *appsv1.StatefulSetStatus)) StatefulSetStatusDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *StatefulSetStatusDie) DieStamp(fn func(r *appsv1.StatefulSetStatus)) *StatefulSetStatusDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *statefulSetStatusDie) DeepCopy() StatefulSetStatusDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *StatefulSetStatusDie) DeepCopy() *StatefulSetStatusDie {
 	r := *d.r.DeepCopy()
-	return &statefulSetStatusDie{
+	return &StatefulSetStatusDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *statefulSetStatusDie) ObservedGeneration(v int64) StatefulSetStatusDie {
+// observedGeneration is the most recent generation observed for this StatefulSet. It corresponds to the StatefulSet's generation, which is updated on mutation by the API Server.
+func (d *StatefulSetStatusDie) ObservedGeneration(v int64) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.ObservedGeneration = v
 	})
 }
 
-func (d *statefulSetStatusDie) Replicas(v int32) StatefulSetStatusDie {
+// replicas is the number of Pods created by the StatefulSet controller.
+func (d *StatefulSetStatusDie) Replicas(v int32) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.Replicas = v
 	})
 }
 
-func (d *statefulSetStatusDie) ReadyReplicas(v int32) StatefulSetStatusDie {
+// readyReplicas is the number of Pods created by the StatefulSet controller that have a Ready Condition.
+func (d *StatefulSetStatusDie) ReadyReplicas(v int32) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.ReadyReplicas = v
 	})
 }
 
-func (d *statefulSetStatusDie) CurrentReplicas(v int32) StatefulSetStatusDie {
+// currentReplicas is the number of Pods created by the StatefulSet controller from the StatefulSet version indicated by currentRevision.
+func (d *StatefulSetStatusDie) CurrentReplicas(v int32) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.CurrentReplicas = v
 	})
 }
 
-func (d *statefulSetStatusDie) UpdatedReplicas(v int32) StatefulSetStatusDie {
+// updatedReplicas is the number of Pods created by the StatefulSet controller from the StatefulSet version indicated by updateRevision.
+func (d *StatefulSetStatusDie) UpdatedReplicas(v int32) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.UpdatedReplicas = v
 	})
 }
 
-func (d *statefulSetStatusDie) CurrentRevision(v string) StatefulSetStatusDie {
+// currentRevision, if not empty, indicates the version of the StatefulSet used to generate Pods in the sequence [0,currentReplicas).
+func (d *StatefulSetStatusDie) CurrentRevision(v string) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.CurrentRevision = v
 	})
 }
 
-func (d *statefulSetStatusDie) UpdateRevision(v string) StatefulSetStatusDie {
+// updateRevision, if not empty, indicates the version of the StatefulSet used to generate Pods in the sequence [replicas-updatedReplicas,replicas)
+func (d *StatefulSetStatusDie) UpdateRevision(v string) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.UpdateRevision = v
 	})
 }
 
-func (d *statefulSetStatusDie) CollisionCount(v *int32) StatefulSetStatusDie {
+// collisionCount is the count of hash collisions for the StatefulSet. The StatefulSet controller uses this field as a collision avoidance mechanism when it needs to create the name for the newest ControllerRevision.
+func (d *StatefulSetStatusDie) CollisionCount(v *int32) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.CollisionCount = v
 	})
 }
 
-func (d *statefulSetStatusDie) Conditions(v ...appsv1.StatefulSetCondition) StatefulSetStatusDie {
+// Represents the latest available observations of a statefulset's current state.
+func (d *StatefulSetStatusDie) Conditions(v ...appsv1.StatefulSetCondition) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.Conditions = v
 	})
 }
 
-func (d *statefulSetStatusDie) AvailableReplicas(v int32) StatefulSetStatusDie {
+// Total number of available pods (ready for at least minReadySeconds) targeted by this statefulset. This is an alpha field and requires enabling StatefulSetMinReadySeconds feature gate. Remove omitempty when graduating to beta
+func (d *StatefulSetStatusDie) AvailableReplicas(v int32) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.AvailableReplicas = v
 	})

@@ -23,12 +23,7 @@ import (
 // +die
 type _ = metav1.LabelSelector
 
-type labelSelectorDieExtension interface {
-	AddMatchLabel(key, value string) LabelSelectorDie
-	AddMatchExpression(key string, operator metav1.LabelSelectorOperator, values ...string) LabelSelectorDie
-}
-
-func (d *labelSelectorDie) AddMatchLabel(key, value string) LabelSelectorDie {
+func (d *LabelSelectorDie) AddMatchLabel(key, value string) *LabelSelectorDie {
 	return d.DieStamp(func(r *metav1.LabelSelector) {
 		if r.MatchLabels == nil {
 			r.MatchLabels = map[string]string{}
@@ -37,7 +32,7 @@ func (d *labelSelectorDie) AddMatchLabel(key, value string) LabelSelectorDie {
 	})
 }
 
-func (d *labelSelectorDie) AddMatchExpression(key string, operator metav1.LabelSelectorOperator, values ...string) LabelSelectorDie {
+func (d *LabelSelectorDie) AddMatchExpression(key string, operator metav1.LabelSelectorOperator, values ...string) *LabelSelectorDie {
 	return d.DieStamp(func(r *metav1.LabelSelector) {
 		lsr := metav1.LabelSelectorRequirement{
 			Key:      key,

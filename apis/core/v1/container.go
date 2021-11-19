@@ -24,20 +24,7 @@ import (
 // +die
 type _ = corev1.Container
 
-type containerDieExtension interface {
-	PortsDie(ports ...ContainerPortDie) ContainerDie
-	EnvFromDie(prefix string, fn func(d EnvFromSourceDie)) ContainerDie
-	EnvDie(name string, fn func(d EnvVarDie)) ContainerDie
-	ResourcesDie(fn func(d ResourceRequirementsDie)) ContainerDie
-	VolumeMountDie(name string, fn func(d VolumeMountDie)) ContainerDie
-	LivenessProbeDie(fn func(d ProbeDie)) ContainerDie
-	ReadinessProbeDie(fn func(d ProbeDie)) ContainerDie
-	StartupProbeDie(fn func(d ProbeDie)) ContainerDie
-	LifecycleDie(fn func(d LifecycleDie)) ContainerDie
-	SecurityContextDie(fn func(d SecurityContextDie)) ContainerDie
-}
-
-func (d *containerDie) PortsDie(ports ...ContainerPortDie) ContainerDie {
+func (d *ContainerDie) PortsDie(ports ...*ContainerPortDie) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.Ports = make([]corev1.ContainerPort, len(ports))
 		for i := range ports {
@@ -46,7 +33,7 @@ func (d *containerDie) PortsDie(ports ...ContainerPortDie) ContainerDie {
 	})
 }
 
-func (d *containerDie) EnvFromDie(prefix string, fn func(d EnvFromSourceDie)) ContainerDie {
+func (d *ContainerDie) EnvFromDie(prefix string, fn func(d *EnvFromSourceDie)) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		for i := range r.EnvFrom {
 			if prefix == r.EnvFrom[i].Prefix {
@@ -63,7 +50,7 @@ func (d *containerDie) EnvFromDie(prefix string, fn func(d EnvFromSourceDie)) Co
 	})
 }
 
-func (d *containerDie) EnvDie(name string, fn func(d EnvVarDie)) ContainerDie {
+func (d *ContainerDie) EnvDie(name string, fn func(d *EnvVarDie)) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		for i := range r.Env {
 			if name == r.Env[i].Name {
@@ -80,7 +67,7 @@ func (d *containerDie) EnvDie(name string, fn func(d EnvVarDie)) ContainerDie {
 	})
 }
 
-func (d *containerDie) ResourcesDie(fn func(d ResourceRequirementsDie)) ContainerDie {
+func (d *ContainerDie) ResourcesDie(fn func(d *ResourceRequirementsDie)) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		d := ResourceRequirementsBlank.DieImmutable(false).DieFeed(r.Resources)
 		fn(d)
@@ -88,7 +75,7 @@ func (d *containerDie) ResourcesDie(fn func(d ResourceRequirementsDie)) Containe
 	})
 }
 
-func (d *containerDie) VolumeMountDie(name string, fn func(d VolumeMountDie)) ContainerDie {
+func (d *ContainerDie) VolumeMountDie(name string, fn func(d *VolumeMountDie)) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		for i := range r.VolumeMounts {
 			if name == r.VolumeMounts[i].Name {
@@ -105,7 +92,7 @@ func (d *containerDie) VolumeMountDie(name string, fn func(d VolumeMountDie)) Co
 	})
 }
 
-func (d *containerDie) VolumeDeviceDie(name string, fn func(d VolumeDeviceDie)) ContainerDie {
+func (d *ContainerDie) VolumeDeviceDie(name string, fn func(d *VolumeDeviceDie)) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		for i := range r.VolumeDevices {
 			if name == r.VolumeDevices[i].Name {
@@ -122,7 +109,7 @@ func (d *containerDie) VolumeDeviceDie(name string, fn func(d VolumeDeviceDie)) 
 	})
 }
 
-func (d *containerDie) LivenessProbeDie(fn func(d ProbeDie)) ContainerDie {
+func (d *ContainerDie) LivenessProbeDie(fn func(d *ProbeDie)) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		d := ProbeBlank.DieImmutable(false).DieFeedPtr(r.LivenessProbe)
 		fn(d)
@@ -130,7 +117,7 @@ func (d *containerDie) LivenessProbeDie(fn func(d ProbeDie)) ContainerDie {
 	})
 }
 
-func (d *containerDie) ReadinessProbeDie(fn func(d ProbeDie)) ContainerDie {
+func (d *ContainerDie) ReadinessProbeDie(fn func(d *ProbeDie)) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		d := ProbeBlank.DieImmutable(false).DieFeedPtr(r.ReadinessProbe)
 		fn(d)
@@ -138,7 +125,7 @@ func (d *containerDie) ReadinessProbeDie(fn func(d ProbeDie)) ContainerDie {
 	})
 }
 
-func (d *containerDie) StartupProbeDie(fn func(d ProbeDie)) ContainerDie {
+func (d *ContainerDie) StartupProbeDie(fn func(d *ProbeDie)) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		d := ProbeBlank.DieImmutable(false).DieFeedPtr(r.StartupProbe)
 		fn(d)
@@ -146,7 +133,7 @@ func (d *containerDie) StartupProbeDie(fn func(d ProbeDie)) ContainerDie {
 	})
 }
 
-func (d *containerDie) LifecycleDie(fn func(d LifecycleDie)) ContainerDie {
+func (d *ContainerDie) LifecycleDie(fn func(d *LifecycleDie)) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		d := LifecycleBlank.DieImmutable(false).DieFeedPtr(r.Lifecycle)
 		fn(d)
@@ -154,7 +141,7 @@ func (d *containerDie) LifecycleDie(fn func(d LifecycleDie)) ContainerDie {
 	})
 }
 
-func (d *containerDie) SecurityContextDie(fn func(d SecurityContextDie)) ContainerDie {
+func (d *ContainerDie) SecurityContextDie(fn func(d *SecurityContextDie)) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		d := SecurityContextBlank.DieImmutable(false).DieFeedPtr(r.SecurityContext)
 		fn(d)
@@ -168,12 +155,7 @@ type _ = corev1.ContainerPort
 // +die
 type _ = corev1.EnvFromSource
 
-type envFromSourceDieExtension interface {
-	ConfigMapRefDie(fn func(d ConfigMapEnvSourceDie)) EnvFromSourceDie
-	SecretRefDie(fn func(d SecretEnvSourceDie)) EnvFromSourceDie
-}
-
-func (d *envFromSourceDie) ConfigMapRefDie(fn func(d ConfigMapEnvSourceDie)) EnvFromSourceDie {
+func (d *EnvFromSourceDie) ConfigMapRefDie(fn func(d *ConfigMapEnvSourceDie)) *EnvFromSourceDie {
 	return d.DieStamp(func(r *corev1.EnvFromSource) {
 		d := ConfigMapEnvSourceBlank.DieImmutable(false).DieFeedPtr(r.ConfigMapRef)
 		fn(d)
@@ -181,7 +163,7 @@ func (d *envFromSourceDie) ConfigMapRefDie(fn func(d ConfigMapEnvSourceDie)) Env
 	})
 }
 
-func (d *envFromSourceDie) SecretRefDie(fn func(d SecretEnvSourceDie)) EnvFromSourceDie {
+func (d *EnvFromSourceDie) SecretRefDie(fn func(d *SecretEnvSourceDie)) *EnvFromSourceDie {
 	return d.DieStamp(func(r *corev1.EnvFromSource) {
 		d := SecretEnvSourceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
 		fn(d)
@@ -192,11 +174,7 @@ func (d *envFromSourceDie) SecretRefDie(fn func(d SecretEnvSourceDie)) EnvFromSo
 // +die
 type _ = corev1.ConfigMapEnvSource
 
-type configMapEnvSourceDieExtension interface {
-	Name(v string) ConfigMapEnvSourceDie
-}
-
-func (d *configMapEnvSourceDie) Name(v string) ConfigMapEnvSourceDie {
+func (d *ConfigMapEnvSourceDie) Name(v string) *ConfigMapEnvSourceDie {
 	return d.DieStamp(func(r *corev1.ConfigMapEnvSource) {
 		r.Name = v
 	})
@@ -205,11 +183,7 @@ func (d *configMapEnvSourceDie) Name(v string) ConfigMapEnvSourceDie {
 // +die
 type _ = corev1.SecretEnvSource
 
-type secretEnvSourceDieExtension interface {
-	Name(v string) SecretEnvSourceDie
-}
-
-func (d *secretEnvSourceDie) Name(v string) SecretEnvSourceDie {
+func (d *SecretEnvSourceDie) Name(v string) *SecretEnvSourceDie {
 	return d.DieStamp(func(r *corev1.SecretEnvSource) {
 		r.Name = v
 	})
@@ -218,11 +192,7 @@ func (d *secretEnvSourceDie) Name(v string) SecretEnvSourceDie {
 // +die
 type _ = corev1.EnvVar
 
-type envVarDieExtension interface {
-	ValueFromDie(fn func(d EnvVarSourceDie)) EnvVarDie
-}
-
-func (d *envVarDie) ValueFromDie(fn func(d EnvVarSourceDie)) EnvVarDie {
+func (d *EnvVarDie) ValueFromDie(fn func(d *EnvVarSourceDie)) *EnvVarDie {
 	return d.DieStamp(func(r *corev1.EnvVar) {
 		d := EnvVarSourceBlank.DieImmutable(false).DieFeedPtr(r.ValueFrom)
 		fn(d)
@@ -233,14 +203,7 @@ func (d *envVarDie) ValueFromDie(fn func(d EnvVarSourceDie)) EnvVarDie {
 // +die
 type _ = corev1.EnvVarSource
 
-type envVarSourceDieExtension interface {
-	FieldRefDie(fn func(ObjectFieldSelectorDie)) EnvVarSourceDie
-	ResourceFieldRefDie(fn func(ResourceFieldSelectorDie)) EnvVarSourceDie
-	ConfigMapKeyRefDie(fn func(ConfigMapKeySelectorDie)) EnvVarSourceDie
-	SecretKeyRefDie(fn func(SecretKeySelectorDie)) EnvVarSourceDie
-}
-
-func (d *envVarSourceDie) FieldRefDie(fn func(ObjectFieldSelectorDie)) EnvVarSourceDie {
+func (d *EnvVarSourceDie) FieldRefDie(fn func(d *ObjectFieldSelectorDie)) *EnvVarSourceDie {
 	return d.DieStamp(func(r *corev1.EnvVarSource) {
 		d := ObjectFieldSelectorBlank.DieImmutable(false).DieFeedPtr(r.FieldRef)
 		fn(d)
@@ -248,7 +211,7 @@ func (d *envVarSourceDie) FieldRefDie(fn func(ObjectFieldSelectorDie)) EnvVarSou
 	})
 }
 
-func (d *envVarSourceDie) ResourceFieldRefDie(fn func(ResourceFieldSelectorDie)) EnvVarSourceDie {
+func (d *EnvVarSourceDie) ResourceFieldRefDie(fn func(d *ResourceFieldSelectorDie)) *EnvVarSourceDie {
 	return d.DieStamp(func(r *corev1.EnvVarSource) {
 		d := ResourceFieldSelectorBlank.DieImmutable(false).DieFeedPtr(r.ResourceFieldRef)
 		fn(d)
@@ -256,7 +219,7 @@ func (d *envVarSourceDie) ResourceFieldRefDie(fn func(ResourceFieldSelectorDie))
 	})
 }
 
-func (d *envVarSourceDie) ConfigMapKeyRefDie(fn func(ConfigMapKeySelectorDie)) EnvVarSourceDie {
+func (d *EnvVarSourceDie) ConfigMapKeyRefDie(fn func(d *ConfigMapKeySelectorDie)) *EnvVarSourceDie {
 	return d.DieStamp(func(r *corev1.EnvVarSource) {
 		d := ConfigMapKeySelectorBlank.DieImmutable(false).DieFeedPtr(r.ConfigMapKeyRef)
 		fn(d)
@@ -264,7 +227,7 @@ func (d *envVarSourceDie) ConfigMapKeyRefDie(fn func(ConfigMapKeySelectorDie)) E
 	})
 }
 
-func (d *envVarSourceDie) SecretKeyRefDie(fn func(SecretKeySelectorDie)) EnvVarSourceDie {
+func (d *EnvVarSourceDie) SecretKeyRefDie(fn func(d *SecretKeySelectorDie)) *EnvVarSourceDie {
 	return d.DieStamp(func(r *corev1.EnvVarSource) {
 		d := SecretKeySelectorBlank.DieImmutable(false).DieFeedPtr(r.SecretKeyRef)
 		fn(d)
@@ -281,11 +244,7 @@ type _ = corev1.ResourceFieldSelector
 // +die
 type _ = corev1.ConfigMapKeySelector
 
-type configMapKeySelectorDieExtension interface {
-	Name(v string) ConfigMapKeySelectorDie
-}
-
-func (d *configMapKeySelectorDie) Name(v string) ConfigMapKeySelectorDie {
+func (d *ConfigMapKeySelectorDie) Name(v string) *ConfigMapKeySelectorDie {
 	return d.DieStamp(func(r *corev1.ConfigMapKeySelector) {
 		r.Name = v
 	})
@@ -294,11 +253,7 @@ func (d *configMapKeySelectorDie) Name(v string) ConfigMapKeySelectorDie {
 // +die
 type _ = corev1.SecretKeySelector
 
-type secretKeySelectorDieExtension interface {
-	Name(v string) SecretKeySelectorDie
-}
-
-func (d *secretKeySelectorDie) Name(v string) SecretKeySelectorDie {
+func (d *SecretKeySelectorDie) Name(v string) *SecretKeySelectorDie {
 	return d.DieStamp(func(r *corev1.SecretKeySelector) {
 		r.Name = v
 	})
@@ -307,30 +262,23 @@ func (d *secretKeySelectorDie) Name(v string) SecretKeySelectorDie {
 // +die
 type _ = corev1.ResourceRequirements
 
-type resourceRequirementsDieExtension interface {
-	AddLimit(name corev1.ResourceName, quantity resource.Quantity) ResourceRequirementsDie
-	AddLimitString(name corev1.ResourceName, quantity string) ResourceRequirementsDie
-	AddRequest(name corev1.ResourceName, quantity resource.Quantity) ResourceRequirementsDie
-	AddRequestString(name corev1.ResourceName, quantity string) ResourceRequirementsDie
-}
-
-func (d *resourceRequirementsDie) AddLimit(name corev1.ResourceName, quantity resource.Quantity) ResourceRequirementsDie {
+func (d *ResourceRequirementsDie) AddLimit(name corev1.ResourceName, quantity resource.Quantity) *ResourceRequirementsDie {
 	return d.DieStamp(func(r *corev1.ResourceRequirements) {
 		r.Limits[name] = quantity
 	})
 }
 
-func (d *resourceRequirementsDie) AddLimitString(name corev1.ResourceName, quantity string) ResourceRequirementsDie {
+func (d *ResourceRequirementsDie) AddLimitString(name corev1.ResourceName, quantity string) *ResourceRequirementsDie {
 	return d.AddLimit(name, resource.MustParse(quantity))
 }
 
-func (d *resourceRequirementsDie) AddRequest(name corev1.ResourceName, quantity resource.Quantity) ResourceRequirementsDie {
+func (d *ResourceRequirementsDie) AddRequest(name corev1.ResourceName, quantity resource.Quantity) *ResourceRequirementsDie {
 	return d.DieStamp(func(r *corev1.ResourceRequirements) {
 		r.Requests[name] = quantity
 	})
 }
 
-func (d *resourceRequirementsDie) AddRequestString(name corev1.ResourceName, quantity string) ResourceRequirementsDie {
+func (d *ResourceRequirementsDie) AddRequestString(name corev1.ResourceName, quantity string) *ResourceRequirementsDie {
 	return d.AddRequest(name, resource.MustParse(quantity))
 }
 
@@ -343,14 +291,7 @@ type _ = corev1.VolumeDevice
 // +die
 type _ = corev1.Probe
 
-type probeDieExtension interface {
-	HandlerDie(fn func(d HandlerDie)) ProbeDie
-	ExecDie(fn func(d ExecActionDie)) ProbeDie
-	HTTPGetDie(fn func(d HTTPGetActionDie)) ProbeDie
-	TCPSocketDie(fn func(d TCPSocketActionDie)) ProbeDie
-}
-
-func (d *probeDie) HandlerDie(fn func(d HandlerDie)) ProbeDie {
+func (d *ProbeDie) HandlerDie(fn func(d *HandlerDie)) *ProbeDie {
 	return d.DieStamp(func(r *corev1.Probe) {
 		d := HandlerBlank.DieImmutable(false).DieFeed(r.Handler)
 		fn(d)
@@ -358,7 +299,7 @@ func (d *probeDie) HandlerDie(fn func(d HandlerDie)) ProbeDie {
 	})
 }
 
-func (d *probeDie) ExecDie(fn func(d ExecActionDie)) ProbeDie {
+func (d *ProbeDie) ExecDie(fn func(d *ExecActionDie)) *ProbeDie {
 	return d.DieStamp(func(r *corev1.Probe) {
 		d := ExecActionBlank.DieImmutable(false).DieFeedPtr(r.Exec)
 		fn(d)
@@ -368,7 +309,7 @@ func (d *probeDie) ExecDie(fn func(d ExecActionDie)) ProbeDie {
 	})
 }
 
-func (d *probeDie) HTTPGetDie(fn func(d HTTPGetActionDie)) ProbeDie {
+func (d *ProbeDie) HTTPGetDie(fn func(d *HTTPGetActionDie)) *ProbeDie {
 	return d.DieStamp(func(r *corev1.Probe) {
 		d := HTTPGetActionBlank.DieImmutable(false).DieFeedPtr(r.HTTPGet)
 		fn(d)
@@ -378,7 +319,7 @@ func (d *probeDie) HTTPGetDie(fn func(d HTTPGetActionDie)) ProbeDie {
 	})
 }
 
-func (d *probeDie) TCPSocketDie(fn func(d TCPSocketActionDie)) ProbeDie {
+func (d *ProbeDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *ProbeDie {
 	return d.DieStamp(func(r *corev1.Probe) {
 		d := TCPSocketActionBlank.DieImmutable(false).DieFeedPtr(r.TCPSocket)
 		fn(d)
@@ -391,12 +332,7 @@ func (d *probeDie) TCPSocketDie(fn func(d TCPSocketActionDie)) ProbeDie {
 // +die
 type _ = corev1.Lifecycle
 
-type lifecycleDieExtension interface {
-	PostStartDie(fn func(d HandlerDie)) LifecycleDie
-	PreStopDie(fn func(d HandlerDie)) LifecycleDie
-}
-
-func (d *lifecycleDie) PostStartDie(fn func(d HandlerDie)) LifecycleDie {
+func (d *LifecycleDie) PostStartDie(fn func(d *HandlerDie)) *LifecycleDie {
 	return d.DieStamp(func(r *corev1.Lifecycle) {
 		d := HandlerBlank.DieImmutable(false).DieFeedPtr(r.PostStart)
 		fn(d)
@@ -404,7 +340,7 @@ func (d *lifecycleDie) PostStartDie(fn func(d HandlerDie)) LifecycleDie {
 	})
 }
 
-func (d *lifecycleDie) PreStopDie(fn func(d HandlerDie)) LifecycleDie {
+func (d *LifecycleDie) PreStopDie(fn func(d *HandlerDie)) *LifecycleDie {
 	return d.DieStamp(func(r *corev1.Lifecycle) {
 		d := HandlerBlank.DieImmutable(false).DieFeedPtr(r.PreStop)
 		fn(d)
@@ -415,13 +351,7 @@ func (d *lifecycleDie) PreStopDie(fn func(d HandlerDie)) LifecycleDie {
 // +die
 type _ = corev1.Handler
 
-type handlerDieExtension interface {
-	ExecDie(fn func(d ExecActionDie)) HandlerDie
-	HTTPGetDie(fn func(d HTTPGetActionDie)) HandlerDie
-	TCPSocketDie(fn func(d TCPSocketActionDie)) HandlerDie
-}
-
-func (d *handlerDie) ExecDie(fn func(d ExecActionDie)) HandlerDie {
+func (d *HandlerDie) ExecDie(fn func(d *ExecActionDie)) *HandlerDie {
 	return d.DieStamp(func(r *corev1.Handler) {
 		d := ExecActionBlank.DieImmutable(false).DieFeedPtr(r.Exec)
 		fn(d)
@@ -429,7 +359,7 @@ func (d *handlerDie) ExecDie(fn func(d ExecActionDie)) HandlerDie {
 	})
 }
 
-func (d *handlerDie) HTTPGetDie(fn func(d HTTPGetActionDie)) HandlerDie {
+func (d *HandlerDie) HTTPGetDie(fn func(d *HTTPGetActionDie)) *HandlerDie {
 	return d.DieStamp(func(r *corev1.Handler) {
 		d := HTTPGetActionBlank.DieImmutable(false).DieFeedPtr(r.HTTPGet)
 		fn(d)
@@ -437,7 +367,7 @@ func (d *handlerDie) HTTPGetDie(fn func(d HTTPGetActionDie)) HandlerDie {
 	})
 }
 
-func (d *handlerDie) TCPSocketDie(fn func(d TCPSocketActionDie)) HandlerDie {
+func (d *HandlerDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *HandlerDie {
 	return d.DieStamp(func(r *corev1.Handler) {
 		d := TCPSocketActionBlank.DieImmutable(false).DieFeedPtr(r.TCPSocket)
 		fn(d)
@@ -451,11 +381,7 @@ type _ = corev1.ExecAction
 // +die
 type _ = corev1.HTTPGetAction
 
-type httpGetActionDieExtension interface {
-	HTTPHeadersDie(headers ...HTTPHeaderDie) HTTPGetActionDie
-}
-
-func (d *httpGetActionDie) HTTPHeadersDie(headers ...HTTPHeaderDie) HTTPGetActionDie {
+func (d *HTTPGetActionDie) HTTPHeadersDie(headers ...*HTTPHeaderDie) *HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
 		r.HTTPHeaders = make([]corev1.HTTPHeader, len(headers))
 		for i := range headers {
@@ -473,14 +399,7 @@ type _ = corev1.TCPSocketAction
 // +die
 type _ = corev1.SecurityContext
 
-type securityContextDieExtension interface {
-	CapabilitiesDie(fn func(d CapabilitiesDie)) SecurityContextDie
-	SELinuxOptionsDie(fn func(d SELinuxOptionsDie)) SecurityContextDie
-	WindowsOptionsDie(fn func(d WindowsSecurityContextOptionsDie)) SecurityContextDie
-	SeccompProfileDie(fn func(d SeccompProfileDie)) SecurityContextDie
-}
-
-func (d *securityContextDie) CapabilitiesDie(fn func(d CapabilitiesDie)) SecurityContextDie {
+func (d *SecurityContextDie) CapabilitiesDie(fn func(d *CapabilitiesDie)) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		d := CapabilitiesBlank.DieImmutable(false).DieFeedPtr(r.Capabilities)
 		fn(d)
@@ -488,7 +407,7 @@ func (d *securityContextDie) CapabilitiesDie(fn func(d CapabilitiesDie)) Securit
 	})
 }
 
-func (d *securityContextDie) SELinuxOptionsDie(fn func(d SELinuxOptionsDie)) SecurityContextDie {
+func (d *SecurityContextDie) SELinuxOptionsDie(fn func(d *SELinuxOptionsDie)) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		d := SELinuxOptionsBlank.DieImmutable(false).DieFeedPtr(r.SELinuxOptions)
 		fn(d)
@@ -496,7 +415,7 @@ func (d *securityContextDie) SELinuxOptionsDie(fn func(d SELinuxOptionsDie)) Sec
 	})
 }
 
-func (d *securityContextDie) WindowsOptionsDie(fn func(d WindowsSecurityContextOptionsDie)) SecurityContextDie {
+func (d *SecurityContextDie) WindowsOptionsDie(fn func(d *WindowsSecurityContextOptionsDie)) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		d := WindowsSecurityContextOptionsBlank.DieImmutable(false).DieFeedPtr(r.WindowsOptions)
 		fn(d)
@@ -504,7 +423,7 @@ func (d *securityContextDie) WindowsOptionsDie(fn func(d WindowsSecurityContextO
 	})
 }
 
-func (d *securityContextDie) SeccompProfileDie(fn func(d SeccompProfileDie)) SecurityContextDie {
+func (d *SecurityContextDie) SeccompProfileDie(fn func(d *SeccompProfileDie)) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		d := SeccompProfileBlank.DieImmutable(false).DieFeedPtr(r.SeccompProfile)
 		fn(d)
@@ -527,12 +446,7 @@ type _ = corev1.SeccompProfile
 // +die
 type _ = corev1.ContainerStatus
 
-type containerStatusDieExtension interface {
-	StateDie(fn func(d ContainerStateDie)) ContainerStatusDie
-	LastTerminationStateDie(fn func(d ContainerStateDie)) ContainerStatusDie
-}
-
-func (d *containerStatusDie) StateDie(fn func(d ContainerStateDie)) ContainerStatusDie {
+func (d *ContainerStatusDie) StateDie(fn func(d *ContainerStateDie)) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		d := ContainerStateBlank.DieImmutable(false).DieFeed(r.State)
 		fn(d)
@@ -540,7 +454,7 @@ func (d *containerStatusDie) StateDie(fn func(d ContainerStateDie)) ContainerSta
 	})
 }
 
-func (d *containerStatusDie) LastTerminationStateDie(fn func(d ContainerStateDie)) ContainerStatusDie {
+func (d *ContainerStatusDie) LastTerminationStateDie(fn func(d *ContainerStateDie)) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		d := ContainerStateBlank.DieImmutable(false).DieFeed(r.LastTerminationState)
 		fn(d)
@@ -551,13 +465,7 @@ func (d *containerStatusDie) LastTerminationStateDie(fn func(d ContainerStateDie
 // +die
 type _ = corev1.ContainerState
 
-type containerStateDieExtension interface {
-	WaitingDie(fn func(d ContainerStateWaitingDie)) ContainerStateDie
-	RunningDie(fn func(d ContainerStateRunningDie)) ContainerStateDie
-	TerminatedDie(fn func(d ContainerStateTerminatedDie)) ContainerStateDie
-}
-
-func (d *containerStateDie) WaitingDie(fn func(d ContainerStateWaitingDie)) ContainerStateDie {
+func (d *ContainerStateDie) WaitingDie(fn func(d *ContainerStateWaitingDie)) *ContainerStateDie {
 	return d.DieStamp(func(r *corev1.ContainerState) {
 		d := ContainerStateWaitingBlank.DieImmutable(false).DieFeedPtr(r.Waiting)
 		fn(d)
@@ -565,7 +473,7 @@ func (d *containerStateDie) WaitingDie(fn func(d ContainerStateWaitingDie)) Cont
 	})
 }
 
-func (d *containerStateDie) RunningDie(fn func(d ContainerStateRunningDie)) ContainerStateDie {
+func (d *ContainerStateDie) RunningDie(fn func(d *ContainerStateRunningDie)) *ContainerStateDie {
 	return d.DieStamp(func(r *corev1.ContainerState) {
 		d := ContainerStateRunningBlank.DieImmutable(false).DieFeedPtr(r.Running)
 		fn(d)
@@ -573,7 +481,7 @@ func (d *containerStateDie) RunningDie(fn func(d ContainerStateRunningDie)) Cont
 	})
 }
 
-func (d *containerStateDie) TerminatedDie(fn func(d ContainerStateTerminatedDie)) ContainerStateDie {
+func (d *ContainerStateDie) TerminatedDie(fn func(d *ContainerStateTerminatedDie)) *ContainerStateDie {
 	return d.DieStamp(func(r *corev1.ContainerState) {
 		d := ContainerStateTerminatedBlank.DieImmutable(false).DieFeedPtr(r.Terminated)
 		fn(d)

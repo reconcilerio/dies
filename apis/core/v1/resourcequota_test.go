@@ -29,7 +29,7 @@ import (
 func TestResourceQuota(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      diecorev1.ResourceQuotaDie
+		die      *diecorev1.ResourceQuotaDie
 		expected corev1.ResourceQuota
 	}{
 		{
@@ -40,7 +40,7 @@ func TestResourceQuota(t *testing.T) {
 		{
 			name: "object metadata",
 			die: diecorev1.ResourceQuotaBlank.
-				MetadataDie(func(d diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),

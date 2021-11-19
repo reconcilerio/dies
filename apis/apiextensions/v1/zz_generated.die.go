@@ -26,97 +26,67 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
-	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-type CustomResourceDefinitionDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinition)) CustomResourceDefinitionDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r apiextensionsv1.CustomResourceDefinition) CustomResourceDefinitionDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *apiextensionsv1.CustomResourceDefinition) CustomResourceDefinitionDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() apiextensionsv1.CustomResourceDefinition
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *apiextensionsv1.CustomResourceDefinition
-	// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-	DieReleaseUnstructured() runtime.Unstructured
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) CustomResourceDefinitionDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() CustomResourceDefinitionDie
+var CustomResourceDefinitionBlank = (&CustomResourceDefinitionDie{}).DieFeed(apiextensionsv1.CustomResourceDefinition{})
 
-	// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
-	MetadataDie(fn func(d metav1.ObjectMetaDie)) CustomResourceDefinitionDie
-	// SpecDie stamps the resource's spec field with a mutable die.
-	SpecDie(fn func(d CustomResourceDefinitionSpecDie)) CustomResourceDefinitionDie
-	// StatusDie stamps the resource's status field with a mutable die.
-	StatusDie(fn func(d CustomResourceDefinitionStatusDie)) CustomResourceDefinitionDie
-	// spec describes how the user wants the resources to appear
-	Spec(v apiextensionsv1.CustomResourceDefinitionSpec) CustomResourceDefinitionDie
-	// status indicates the actual state of the CustomResourceDefinition
-	Status(v apiextensionsv1.CustomResourceDefinitionStatus) CustomResourceDefinitionDie
-
-	runtime.Object
-	apismetav1.Object
-	apismetav1.ObjectMetaAccessor
-}
-
-var _ CustomResourceDefinitionDie = (*customResourceDefinitionDie)(nil)
-var CustomResourceDefinitionBlank = (&customResourceDefinitionDie{}).DieFeed(apiextensionsv1.CustomResourceDefinition{})
-
-type customResourceDefinitionDie struct {
+type CustomResourceDefinitionDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       apiextensionsv1.CustomResourceDefinition
 }
 
-func (d *customResourceDefinitionDie) DieImmutable(immutable bool) CustomResourceDefinitionDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *CustomResourceDefinitionDie) DieImmutable(immutable bool) *CustomResourceDefinitionDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*customResourceDefinitionDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *customResourceDefinitionDie) DieFeed(r apiextensionsv1.CustomResourceDefinition) CustomResourceDefinitionDie {
+// DieFeed returns a new die with the provided resource.
+func (d *CustomResourceDefinitionDie) DieFeed(r apiextensionsv1.CustomResourceDefinition) *CustomResourceDefinitionDie {
 	if d.mutable {
 		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
 		d.r = r
 		return d
 	}
-	return &customResourceDefinitionDie{
+	return &CustomResourceDefinitionDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *customResourceDefinitionDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinition) CustomResourceDefinitionDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *CustomResourceDefinitionDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinition) *CustomResourceDefinitionDie {
 	if r == nil {
 		r = &apiextensionsv1.CustomResourceDefinition{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *customResourceDefinitionDie) DieRelease() apiextensionsv1.CustomResourceDefinition {
+// DieRelease returns the resource managed by the die.
+func (d *CustomResourceDefinitionDie) DieRelease() apiextensionsv1.CustomResourceDefinition {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *customResourceDefinitionDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinition {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *CustomResourceDefinitionDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinition {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *customResourceDefinitionDie) DieReleaseUnstructured() runtime.Unstructured {
+// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+func (d *CustomResourceDefinitionDie) DieReleaseUnstructured() runtime.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -124,45 +94,53 @@ func (d *customResourceDefinitionDie) DieReleaseUnstructured() runtime.Unstructu
 	}
 }
 
-func (d *customResourceDefinitionDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinition)) CustomResourceDefinitionDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *CustomResourceDefinitionDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinition)) *CustomResourceDefinitionDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *customResourceDefinitionDie) DeepCopy() CustomResourceDefinitionDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *CustomResourceDefinitionDie) DeepCopy() *CustomResourceDefinitionDie {
 	r := *d.r.DeepCopy()
-	return &customResourceDefinitionDie{
+	return &CustomResourceDefinitionDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
 	}
 }
 
-func (d *customResourceDefinitionDie) DeepCopyObject() runtime.Object {
+var _ runtime.Object = (*CustomResourceDefinitionDie)(nil)
+
+func (d *CustomResourceDefinitionDie) DeepCopyObject() runtime.Object {
 	return d.r.DeepCopy()
 }
 
-func (d *customResourceDefinitionDie) GetObjectKind() schema.ObjectKind {
+func (d *CustomResourceDefinitionDie) GetObjectKind() schema.ObjectKind {
 	r := d.DieRelease()
 	return r.GetObjectKind()
 }
 
-func (d *customResourceDefinitionDie) MarshalJSON() ([]byte, error) {
+func (d *CustomResourceDefinitionDie) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.r)
 }
 
-func (d *customResourceDefinitionDie) UnmarshalJSON(b []byte) error {
+func (d *CustomResourceDefinitionDie) UnmarshalJSON(b []byte) error {
 	if d == CustomResourceDefinitionBlank {
-		return fmtx.Errorf("cannot unmarshal into the root object, create a copy first")
+		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
+	}
+	if !d.mutable {
+		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
 	r := &apiextensionsv1.CustomResourceDefinition{}
 	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r).(*customResourceDefinitionDie)
+	*d = *d.DieFeed(*r)
 	return err
 }
 
-func (d *customResourceDefinitionDie) MetadataDie(fn func(d metav1.ObjectMetaDie)) CustomResourceDefinitionDie {
+// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+func (d *CustomResourceDefinitionDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *CustomResourceDefinitionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinition) {
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
@@ -170,7 +148,8 @@ func (d *customResourceDefinitionDie) MetadataDie(fn func(d metav1.ObjectMetaDie
 	})
 }
 
-func (d *customResourceDefinitionDie) SpecDie(fn func(d CustomResourceDefinitionSpecDie)) CustomResourceDefinitionDie {
+// SpecDie stamps the resource's spec field with a mutable die.
+func (d *CustomResourceDefinitionDie) SpecDie(fn func(d *CustomResourceDefinitionSpecDie)) *CustomResourceDefinitionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinition) {
 		d := CustomResourceDefinitionSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
@@ -178,7 +157,8 @@ func (d *customResourceDefinitionDie) SpecDie(fn func(d CustomResourceDefinition
 	})
 }
 
-func (d *customResourceDefinitionDie) StatusDie(fn func(d CustomResourceDefinitionStatusDie)) CustomResourceDefinitionDie {
+// StatusDie stamps the resource's status field with a mutable die.
+func (d *CustomResourceDefinitionDie) StatusDie(fn func(d *CustomResourceDefinitionStatusDie)) *CustomResourceDefinitionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinition) {
 		d := CustomResourceDefinitionStatusBlank.DieImmutable(false).DieFeed(r.Status)
 		fn(d)
@@ -186,1348 +166,1153 @@ func (d *customResourceDefinitionDie) StatusDie(fn func(d CustomResourceDefiniti
 	})
 }
 
-func (d *customResourceDefinitionDie) Spec(v apiextensionsv1.CustomResourceDefinitionSpec) CustomResourceDefinitionDie {
+// spec describes how the user wants the resources to appear
+func (d *CustomResourceDefinitionDie) Spec(v apiextensionsv1.CustomResourceDefinitionSpec) *CustomResourceDefinitionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinition) {
 		r.Spec = v
 	})
 }
 
-func (d *customResourceDefinitionDie) Status(v apiextensionsv1.CustomResourceDefinitionStatus) CustomResourceDefinitionDie {
+// status indicates the actual state of the CustomResourceDefinition
+func (d *CustomResourceDefinitionDie) Status(v apiextensionsv1.CustomResourceDefinitionStatus) *CustomResourceDefinitionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinition) {
 		r.Status = v
 	})
 }
 
-type CustomResourceDefinitionSpecDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionSpec)) CustomResourceDefinitionSpecDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r apiextensionsv1.CustomResourceDefinitionSpec) CustomResourceDefinitionSpecDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionSpec) CustomResourceDefinitionSpecDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() apiextensionsv1.CustomResourceDefinitionSpec
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionSpec
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) CustomResourceDefinitionSpecDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() CustomResourceDefinitionSpecDie
+var CustomResourceDefinitionSpecBlank = (&CustomResourceDefinitionSpecDie{}).DieFeed(apiextensionsv1.CustomResourceDefinitionSpec{})
 
-	customResourceDefinitionSpecDieExtension
-	// group is the API group of the defined custom resource. The custom resources are served under `/apis/<group>/...`. Must match the name of the CustomResourceDefinition (in the form `<names.plural>.<group>`).
-	Group(v string) CustomResourceDefinitionSpecDie
-	// names specify the resource and kind names for the custom resource.
-	Names(v apiextensionsv1.CustomResourceDefinitionNames) CustomResourceDefinitionSpecDie
-	// scope indicates whether the defined custom resource is cluster- or namespace-scoped. Allowed values are `Cluster` and `Namespaced`.
-	Scope(v apiextensionsv1.ResourceScope) CustomResourceDefinitionSpecDie
-	// versions is the list of all API versions of the defined custom resource. Version names are used to compute the order in which served versions are listed in API discovery. If the version string is "kube-like", it will sort above non "kube-like" version strings, which are ordered lexicographically. "Kube-like" versions start with a "v", then are followed by a number (the major version), then optionally the string "alpha" or "beta" and another number (the minor version). These are sorted first by GA > beta > alpha (where GA is a version with no suffix such as beta or alpha), and then by comparing major version, then minor version. An example sorted list of versions: v10, v2, v1, v11beta2, v10beta3, v3beta1, v12alpha1, v11alpha2, foo1, foo10.
-	Versions(v ...apiextensionsv1.CustomResourceDefinitionVersion) CustomResourceDefinitionSpecDie
-	// conversion defines conversion settings for the CRD.
-	Conversion(v *apiextensionsv1.CustomResourceConversion) CustomResourceDefinitionSpecDie
-	// preserveUnknownFields indicates that object fields which are not specified in the OpenAPI schema should be preserved when persisting to storage. apiVersion, kind, metadata and known fields inside metadata are always preserved. This field is deprecated in favor of setting `x-preserve-unknown-fields` to true in `spec.versions[*].schema.openAPIV3Schema`. See https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/#pruning-versus-preserving-unknown-fields for details.
-	PreserveUnknownFields(v bool) CustomResourceDefinitionSpecDie
-}
-
-var _ CustomResourceDefinitionSpecDie = (*customResourceDefinitionSpecDie)(nil)
-var CustomResourceDefinitionSpecBlank = (&customResourceDefinitionSpecDie{}).DieFeed(apiextensionsv1.CustomResourceDefinitionSpec{})
-
-type customResourceDefinitionSpecDie struct {
+type CustomResourceDefinitionSpecDie struct {
 	mutable bool
 	r       apiextensionsv1.CustomResourceDefinitionSpec
 }
 
-func (d *customResourceDefinitionSpecDie) DieImmutable(immutable bool) CustomResourceDefinitionSpecDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *CustomResourceDefinitionSpecDie) DieImmutable(immutable bool) *CustomResourceDefinitionSpecDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*customResourceDefinitionSpecDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *customResourceDefinitionSpecDie) DieFeed(r apiextensionsv1.CustomResourceDefinitionSpec) CustomResourceDefinitionSpecDie {
+// DieFeed returns a new die with the provided resource.
+func (d *CustomResourceDefinitionSpecDie) DieFeed(r apiextensionsv1.CustomResourceDefinitionSpec) *CustomResourceDefinitionSpecDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &customResourceDefinitionSpecDie{
+	return &CustomResourceDefinitionSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceDefinitionSpecDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionSpec) CustomResourceDefinitionSpecDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *CustomResourceDefinitionSpecDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionSpec) *CustomResourceDefinitionSpecDie {
 	if r == nil {
 		r = &apiextensionsv1.CustomResourceDefinitionSpec{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *customResourceDefinitionSpecDie) DieRelease() apiextensionsv1.CustomResourceDefinitionSpec {
+// DieRelease returns the resource managed by the die.
+func (d *CustomResourceDefinitionSpecDie) DieRelease() apiextensionsv1.CustomResourceDefinitionSpec {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *customResourceDefinitionSpecDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionSpec {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *CustomResourceDefinitionSpecDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionSpec {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *customResourceDefinitionSpecDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionSpec)) CustomResourceDefinitionSpecDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *CustomResourceDefinitionSpecDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionSpec)) *CustomResourceDefinitionSpecDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *customResourceDefinitionSpecDie) DeepCopy() CustomResourceDefinitionSpecDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *CustomResourceDefinitionSpecDie) DeepCopy() *CustomResourceDefinitionSpecDie {
 	r := *d.r.DeepCopy()
-	return &customResourceDefinitionSpecDie{
+	return &CustomResourceDefinitionSpecDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceDefinitionSpecDie) Group(v string) CustomResourceDefinitionSpecDie {
+// group is the API group of the defined custom resource. The custom resources are served under `/apis/<group>/...`. Must match the name of the CustomResourceDefinition (in the form `<names.plural>.<group>`).
+func (d *CustomResourceDefinitionSpecDie) Group(v string) *CustomResourceDefinitionSpecDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
 		r.Group = v
 	})
 }
 
-func (d *customResourceDefinitionSpecDie) Names(v apiextensionsv1.CustomResourceDefinitionNames) CustomResourceDefinitionSpecDie {
+// names specify the resource and kind names for the custom resource.
+func (d *CustomResourceDefinitionSpecDie) Names(v apiextensionsv1.CustomResourceDefinitionNames) *CustomResourceDefinitionSpecDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
 		r.Names = v
 	})
 }
 
-func (d *customResourceDefinitionSpecDie) Scope(v apiextensionsv1.ResourceScope) CustomResourceDefinitionSpecDie {
+// scope indicates whether the defined custom resource is cluster- or namespace-scoped. Allowed values are `Cluster` and `Namespaced`.
+func (d *CustomResourceDefinitionSpecDie) Scope(v apiextensionsv1.ResourceScope) *CustomResourceDefinitionSpecDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
 		r.Scope = v
 	})
 }
 
-func (d *customResourceDefinitionSpecDie) Versions(v ...apiextensionsv1.CustomResourceDefinitionVersion) CustomResourceDefinitionSpecDie {
+// versions is the list of all API versions of the defined custom resource. Version names are used to compute the order in which served versions are listed in API discovery. If the version string is "kube-like", it will sort above non "kube-like" version strings, which are ordered lexicographically. "Kube-like" versions start with a "v", then are followed by a number (the major version), then optionally the string "alpha" or "beta" and another number (the minor version). These are sorted first by GA > beta > alpha (where GA is a version with no suffix such as beta or alpha), and then by comparing major version, then minor version. An example sorted list of versions: v10, v2, v1, v11beta2, v10beta3, v3beta1, v12alpha1, v11alpha2, foo1, foo10.
+func (d *CustomResourceDefinitionSpecDie) Versions(v ...apiextensionsv1.CustomResourceDefinitionVersion) *CustomResourceDefinitionSpecDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
 		r.Versions = v
 	})
 }
 
-func (d *customResourceDefinitionSpecDie) Conversion(v *apiextensionsv1.CustomResourceConversion) CustomResourceDefinitionSpecDie {
+// conversion defines conversion settings for the CRD.
+func (d *CustomResourceDefinitionSpecDie) Conversion(v *apiextensionsv1.CustomResourceConversion) *CustomResourceDefinitionSpecDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
 		r.Conversion = v
 	})
 }
 
-func (d *customResourceDefinitionSpecDie) PreserveUnknownFields(v bool) CustomResourceDefinitionSpecDie {
+// preserveUnknownFields indicates that object fields which are not specified in the OpenAPI schema should be preserved when persisting to storage. apiVersion, kind, metadata and known fields inside metadata are always preserved. This field is deprecated in favor of setting `x-preserve-unknown-fields` to true in `spec.versions[*].schema.openAPIV3Schema`. See https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/#pruning-versus-preserving-unknown-fields for details.
+func (d *CustomResourceDefinitionSpecDie) PreserveUnknownFields(v bool) *CustomResourceDefinitionSpecDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
 		r.PreserveUnknownFields = v
 	})
 }
 
-type CustomResourceDefinitionVersionDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionVersion)) CustomResourceDefinitionVersionDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r apiextensionsv1.CustomResourceDefinitionVersion) CustomResourceDefinitionVersionDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionVersion) CustomResourceDefinitionVersionDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() apiextensionsv1.CustomResourceDefinitionVersion
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionVersion
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) CustomResourceDefinitionVersionDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() CustomResourceDefinitionVersionDie
+var CustomResourceDefinitionVersionBlank = (&CustomResourceDefinitionVersionDie{}).DieFeed(apiextensionsv1.CustomResourceDefinitionVersion{})
 
-	customResourceDefinitionVersionDieExtension
-	// name is the version name, e.g. “v1”, “v2beta1”, etc. The custom resources are served under this version at `/apis/<group>/<version>/...` if `served` is true.
-	Name(v string) CustomResourceDefinitionVersionDie
-	// served is a flag enabling/disabling this version from being served via REST APIs
-	Served(v bool) CustomResourceDefinitionVersionDie
-	// storage indicates this version should be used when persisting custom resources to storage. There must be exactly one version with storage=true.
-	Storage(v bool) CustomResourceDefinitionVersionDie
-	// deprecated indicates this version of the custom resource API is deprecated. When set to true, API requests to this version receive a warning header in the server response. Defaults to false.
-	Deprecated(v bool) CustomResourceDefinitionVersionDie
-	// deprecationWarning overrides the default warning returned to API clients. May only be set when `deprecated` is true. The default warning indicates this version is deprecated and recommends use of the newest served version of equal or greater stability, if one exists.
-	DeprecationWarning(v *string) CustomResourceDefinitionVersionDie
-	// schema describes the schema used for validation, pruning, and defaulting of this version of the custom resource.
-	Schema(v *apiextensionsv1.CustomResourceValidation) CustomResourceDefinitionVersionDie
-	// subresources specify what subresources this version of the defined custom resource have.
-	Subresources(v *apiextensionsv1.CustomResourceSubresources) CustomResourceDefinitionVersionDie
-	// additionalPrinterColumns specifies additional columns returned in Table output. See https://kubernetes.io/docs/reference/using-api/api-concepts/#receiving-resources-as-tables for details. If no columns are specified, a single column displaying the age of the custom resource is used.
-	AdditionalPrinterColumns(v ...apiextensionsv1.CustomResourceColumnDefinition) CustomResourceDefinitionVersionDie
-}
-
-var _ CustomResourceDefinitionVersionDie = (*customResourceDefinitionVersionDie)(nil)
-var CustomResourceDefinitionVersionBlank = (&customResourceDefinitionVersionDie{}).DieFeed(apiextensionsv1.CustomResourceDefinitionVersion{})
-
-type customResourceDefinitionVersionDie struct {
+type CustomResourceDefinitionVersionDie struct {
 	mutable bool
 	r       apiextensionsv1.CustomResourceDefinitionVersion
 }
 
-func (d *customResourceDefinitionVersionDie) DieImmutable(immutable bool) CustomResourceDefinitionVersionDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *CustomResourceDefinitionVersionDie) DieImmutable(immutable bool) *CustomResourceDefinitionVersionDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*customResourceDefinitionVersionDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *customResourceDefinitionVersionDie) DieFeed(r apiextensionsv1.CustomResourceDefinitionVersion) CustomResourceDefinitionVersionDie {
+// DieFeed returns a new die with the provided resource.
+func (d *CustomResourceDefinitionVersionDie) DieFeed(r apiextensionsv1.CustomResourceDefinitionVersion) *CustomResourceDefinitionVersionDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &customResourceDefinitionVersionDie{
+	return &CustomResourceDefinitionVersionDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceDefinitionVersionDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionVersion) CustomResourceDefinitionVersionDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *CustomResourceDefinitionVersionDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionVersion) *CustomResourceDefinitionVersionDie {
 	if r == nil {
 		r = &apiextensionsv1.CustomResourceDefinitionVersion{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *customResourceDefinitionVersionDie) DieRelease() apiextensionsv1.CustomResourceDefinitionVersion {
+// DieRelease returns the resource managed by the die.
+func (d *CustomResourceDefinitionVersionDie) DieRelease() apiextensionsv1.CustomResourceDefinitionVersion {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *customResourceDefinitionVersionDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionVersion {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *CustomResourceDefinitionVersionDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionVersion {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *customResourceDefinitionVersionDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionVersion)) CustomResourceDefinitionVersionDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *CustomResourceDefinitionVersionDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionVersion)) *CustomResourceDefinitionVersionDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *customResourceDefinitionVersionDie) DeepCopy() CustomResourceDefinitionVersionDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *CustomResourceDefinitionVersionDie) DeepCopy() *CustomResourceDefinitionVersionDie {
 	r := *d.r.DeepCopy()
-	return &customResourceDefinitionVersionDie{
+	return &CustomResourceDefinitionVersionDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceDefinitionVersionDie) Name(v string) CustomResourceDefinitionVersionDie {
+// name is the version name, e.g. “v1”, “v2beta1”, etc. The custom resources are served under this version at `/apis/<group>/<version>/...` if `served` is true.
+func (d *CustomResourceDefinitionVersionDie) Name(v string) *CustomResourceDefinitionVersionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
 		r.Name = v
 	})
 }
 
-func (d *customResourceDefinitionVersionDie) Served(v bool) CustomResourceDefinitionVersionDie {
+// served is a flag enabling/disabling this version from being served via REST APIs
+func (d *CustomResourceDefinitionVersionDie) Served(v bool) *CustomResourceDefinitionVersionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
 		r.Served = v
 	})
 }
 
-func (d *customResourceDefinitionVersionDie) Storage(v bool) CustomResourceDefinitionVersionDie {
+// storage indicates this version should be used when persisting custom resources to storage. There must be exactly one version with storage=true.
+func (d *CustomResourceDefinitionVersionDie) Storage(v bool) *CustomResourceDefinitionVersionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
 		r.Storage = v
 	})
 }
 
-func (d *customResourceDefinitionVersionDie) Deprecated(v bool) CustomResourceDefinitionVersionDie {
+// deprecated indicates this version of the custom resource API is deprecated. When set to true, API requests to this version receive a warning header in the server response. Defaults to false.
+func (d *CustomResourceDefinitionVersionDie) Deprecated(v bool) *CustomResourceDefinitionVersionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
 		r.Deprecated = v
 	})
 }
 
-func (d *customResourceDefinitionVersionDie) DeprecationWarning(v *string) CustomResourceDefinitionVersionDie {
+// deprecationWarning overrides the default warning returned to API clients. May only be set when `deprecated` is true. The default warning indicates this version is deprecated and recommends use of the newest served version of equal or greater stability, if one exists.
+func (d *CustomResourceDefinitionVersionDie) DeprecationWarning(v *string) *CustomResourceDefinitionVersionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
 		r.DeprecationWarning = v
 	})
 }
 
-func (d *customResourceDefinitionVersionDie) Schema(v *apiextensionsv1.CustomResourceValidation) CustomResourceDefinitionVersionDie {
+// schema describes the schema used for validation, pruning, and defaulting of this version of the custom resource.
+func (d *CustomResourceDefinitionVersionDie) Schema(v *apiextensionsv1.CustomResourceValidation) *CustomResourceDefinitionVersionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
 		r.Schema = v
 	})
 }
 
-func (d *customResourceDefinitionVersionDie) Subresources(v *apiextensionsv1.CustomResourceSubresources) CustomResourceDefinitionVersionDie {
+// subresources specify what subresources this version of the defined custom resource have.
+func (d *CustomResourceDefinitionVersionDie) Subresources(v *apiextensionsv1.CustomResourceSubresources) *CustomResourceDefinitionVersionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
 		r.Subresources = v
 	})
 }
 
-func (d *customResourceDefinitionVersionDie) AdditionalPrinterColumns(v ...apiextensionsv1.CustomResourceColumnDefinition) CustomResourceDefinitionVersionDie {
+// additionalPrinterColumns specifies additional columns returned in Table output. See https://kubernetes.io/docs/reference/using-api/api-concepts/#receiving-resources-as-tables for details. If no columns are specified, a single column displaying the age of the custom resource is used.
+func (d *CustomResourceDefinitionVersionDie) AdditionalPrinterColumns(v ...apiextensionsv1.CustomResourceColumnDefinition) *CustomResourceDefinitionVersionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
 		r.AdditionalPrinterColumns = v
 	})
 }
 
-type CustomResourceValidationDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *apiextensionsv1.CustomResourceValidation)) CustomResourceValidationDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r apiextensionsv1.CustomResourceValidation) CustomResourceValidationDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *apiextensionsv1.CustomResourceValidation) CustomResourceValidationDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() apiextensionsv1.CustomResourceValidation
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *apiextensionsv1.CustomResourceValidation
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) CustomResourceValidationDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() CustomResourceValidationDie
+var CustomResourceValidationBlank = (&CustomResourceValidationDie{}).DieFeed(apiextensionsv1.CustomResourceValidation{})
 
-	// openAPIV3Schema is the OpenAPI v3 schema to use for validation and pruning.
-	OpenAPIV3Schema(v *apiextensionsv1.JSONSchemaProps) CustomResourceValidationDie
-}
-
-var _ CustomResourceValidationDie = (*customResourceValidationDie)(nil)
-var CustomResourceValidationBlank = (&customResourceValidationDie{}).DieFeed(apiextensionsv1.CustomResourceValidation{})
-
-type customResourceValidationDie struct {
+type CustomResourceValidationDie struct {
 	mutable bool
 	r       apiextensionsv1.CustomResourceValidation
 }
 
-func (d *customResourceValidationDie) DieImmutable(immutable bool) CustomResourceValidationDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *CustomResourceValidationDie) DieImmutable(immutable bool) *CustomResourceValidationDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*customResourceValidationDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *customResourceValidationDie) DieFeed(r apiextensionsv1.CustomResourceValidation) CustomResourceValidationDie {
+// DieFeed returns a new die with the provided resource.
+func (d *CustomResourceValidationDie) DieFeed(r apiextensionsv1.CustomResourceValidation) *CustomResourceValidationDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &customResourceValidationDie{
+	return &CustomResourceValidationDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceValidationDie) DieFeedPtr(r *apiextensionsv1.CustomResourceValidation) CustomResourceValidationDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *CustomResourceValidationDie) DieFeedPtr(r *apiextensionsv1.CustomResourceValidation) *CustomResourceValidationDie {
 	if r == nil {
 		r = &apiextensionsv1.CustomResourceValidation{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *customResourceValidationDie) DieRelease() apiextensionsv1.CustomResourceValidation {
+// DieRelease returns the resource managed by the die.
+func (d *CustomResourceValidationDie) DieRelease() apiextensionsv1.CustomResourceValidation {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *customResourceValidationDie) DieReleasePtr() *apiextensionsv1.CustomResourceValidation {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *CustomResourceValidationDie) DieReleasePtr() *apiextensionsv1.CustomResourceValidation {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *customResourceValidationDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceValidation)) CustomResourceValidationDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *CustomResourceValidationDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceValidation)) *CustomResourceValidationDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *customResourceValidationDie) DeepCopy() CustomResourceValidationDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *CustomResourceValidationDie) DeepCopy() *CustomResourceValidationDie {
 	r := *d.r.DeepCopy()
-	return &customResourceValidationDie{
+	return &CustomResourceValidationDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceValidationDie) OpenAPIV3Schema(v *apiextensionsv1.JSONSchemaProps) CustomResourceValidationDie {
+// openAPIV3Schema is the OpenAPI v3 schema to use for validation and pruning.
+func (d *CustomResourceValidationDie) OpenAPIV3Schema(v *apiextensionsv1.JSONSchemaProps) *CustomResourceValidationDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceValidation) {
 		r.OpenAPIV3Schema = v
 	})
 }
 
-type CustomResourceSubresourcesDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *apiextensionsv1.CustomResourceSubresources)) CustomResourceSubresourcesDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r apiextensionsv1.CustomResourceSubresources) CustomResourceSubresourcesDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *apiextensionsv1.CustomResourceSubresources) CustomResourceSubresourcesDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() apiextensionsv1.CustomResourceSubresources
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *apiextensionsv1.CustomResourceSubresources
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) CustomResourceSubresourcesDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() CustomResourceSubresourcesDie
+var CustomResourceSubresourcesBlank = (&CustomResourceSubresourcesDie{}).DieFeed(apiextensionsv1.CustomResourceSubresources{})
 
-	customResourceSubresourcesDieExtension
-	// status indicates the custom resource should serve a `/status` subresource. When enabled: 1. requests to the custom resource primary endpoint ignore changes to the `status` stanza of the object. 2. requests to the custom resource `/status` subresource ignore changes to anything other than the `status` stanza of the object.
-	Status(v *apiextensionsv1.CustomResourceSubresourceStatus) CustomResourceSubresourcesDie
-	// scale indicates the custom resource should serve a `/scale` subresource that returns an `autoscaling/v1` Scale object.
-	Scale(v *apiextensionsv1.CustomResourceSubresourceScale) CustomResourceSubresourcesDie
-}
-
-var _ CustomResourceSubresourcesDie = (*customResourceSubresourcesDie)(nil)
-var CustomResourceSubresourcesBlank = (&customResourceSubresourcesDie{}).DieFeed(apiextensionsv1.CustomResourceSubresources{})
-
-type customResourceSubresourcesDie struct {
+type CustomResourceSubresourcesDie struct {
 	mutable bool
 	r       apiextensionsv1.CustomResourceSubresources
 }
 
-func (d *customResourceSubresourcesDie) DieImmutable(immutable bool) CustomResourceSubresourcesDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *CustomResourceSubresourcesDie) DieImmutable(immutable bool) *CustomResourceSubresourcesDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*customResourceSubresourcesDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *customResourceSubresourcesDie) DieFeed(r apiextensionsv1.CustomResourceSubresources) CustomResourceSubresourcesDie {
+// DieFeed returns a new die with the provided resource.
+func (d *CustomResourceSubresourcesDie) DieFeed(r apiextensionsv1.CustomResourceSubresources) *CustomResourceSubresourcesDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &customResourceSubresourcesDie{
+	return &CustomResourceSubresourcesDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceSubresourcesDie) DieFeedPtr(r *apiextensionsv1.CustomResourceSubresources) CustomResourceSubresourcesDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *CustomResourceSubresourcesDie) DieFeedPtr(r *apiextensionsv1.CustomResourceSubresources) *CustomResourceSubresourcesDie {
 	if r == nil {
 		r = &apiextensionsv1.CustomResourceSubresources{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *customResourceSubresourcesDie) DieRelease() apiextensionsv1.CustomResourceSubresources {
+// DieRelease returns the resource managed by the die.
+func (d *CustomResourceSubresourcesDie) DieRelease() apiextensionsv1.CustomResourceSubresources {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *customResourceSubresourcesDie) DieReleasePtr() *apiextensionsv1.CustomResourceSubresources {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *CustomResourceSubresourcesDie) DieReleasePtr() *apiextensionsv1.CustomResourceSubresources {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *customResourceSubresourcesDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceSubresources)) CustomResourceSubresourcesDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *CustomResourceSubresourcesDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceSubresources)) *CustomResourceSubresourcesDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *customResourceSubresourcesDie) DeepCopy() CustomResourceSubresourcesDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *CustomResourceSubresourcesDie) DeepCopy() *CustomResourceSubresourcesDie {
 	r := *d.r.DeepCopy()
-	return &customResourceSubresourcesDie{
+	return &CustomResourceSubresourcesDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceSubresourcesDie) Status(v *apiextensionsv1.CustomResourceSubresourceStatus) CustomResourceSubresourcesDie {
+// status indicates the custom resource should serve a `/status` subresource. When enabled: 1. requests to the custom resource primary endpoint ignore changes to the `status` stanza of the object. 2. requests to the custom resource `/status` subresource ignore changes to anything other than the `status` stanza of the object.
+func (d *CustomResourceSubresourcesDie) Status(v *apiextensionsv1.CustomResourceSubresourceStatus) *CustomResourceSubresourcesDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceSubresources) {
 		r.Status = v
 	})
 }
 
-func (d *customResourceSubresourcesDie) Scale(v *apiextensionsv1.CustomResourceSubresourceScale) CustomResourceSubresourcesDie {
+// scale indicates the custom resource should serve a `/scale` subresource that returns an `autoscaling/v1` Scale object.
+func (d *CustomResourceSubresourcesDie) Scale(v *apiextensionsv1.CustomResourceSubresourceScale) *CustomResourceSubresourcesDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceSubresources) {
 		r.Scale = v
 	})
 }
 
-type CustomResourceSubresourceScaleDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *apiextensionsv1.CustomResourceSubresourceScale)) CustomResourceSubresourceScaleDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r apiextensionsv1.CustomResourceSubresourceScale) CustomResourceSubresourceScaleDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *apiextensionsv1.CustomResourceSubresourceScale) CustomResourceSubresourceScaleDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() apiextensionsv1.CustomResourceSubresourceScale
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *apiextensionsv1.CustomResourceSubresourceScale
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) CustomResourceSubresourceScaleDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() CustomResourceSubresourceScaleDie
+var CustomResourceSubresourceScaleBlank = (&CustomResourceSubresourceScaleDie{}).DieFeed(apiextensionsv1.CustomResourceSubresourceScale{})
 
-	// specReplicasPath defines the JSON path inside of a custom resource that corresponds to Scale `spec.replicas`. Only JSON paths without the array notation are allowed. Must be a JSON Path under `.spec`. If there is no value under the given path in the custom resource, the `/scale` subresource will return an error on GET.
-	SpecReplicasPath(v string) CustomResourceSubresourceScaleDie
-	// statusReplicasPath defines the JSON path inside of a custom resource that corresponds to Scale `status.replicas`. Only JSON paths without the array notation are allowed. Must be a JSON Path under `.status`. If there is no value under the given path in the custom resource, the `status.replicas` value in the `/scale` subresource will default to 0.
-	StatusReplicasPath(v string) CustomResourceSubresourceScaleDie
-	// labelSelectorPath defines the JSON path inside of a custom resource that corresponds to Scale `status.selector`. Only JSON paths without the array notation are allowed. Must be a JSON Path under `.status` or `.spec`. Must be set to work with HorizontalPodAutoscaler. The field pointed by this JSON path must be a string field (not a complex selector struct) which contains a serialized label selector in string form. More info: https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions#scale-subresource If there is no value under the given path in the custom resource, the `status.selector` value in the `/scale` subresource will default to the empty string.
-	LabelSelectorPath(v *string) CustomResourceSubresourceScaleDie
-}
-
-var _ CustomResourceSubresourceScaleDie = (*customResourceSubresourceScaleDie)(nil)
-var CustomResourceSubresourceScaleBlank = (&customResourceSubresourceScaleDie{}).DieFeed(apiextensionsv1.CustomResourceSubresourceScale{})
-
-type customResourceSubresourceScaleDie struct {
+type CustomResourceSubresourceScaleDie struct {
 	mutable bool
 	r       apiextensionsv1.CustomResourceSubresourceScale
 }
 
-func (d *customResourceSubresourceScaleDie) DieImmutable(immutable bool) CustomResourceSubresourceScaleDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *CustomResourceSubresourceScaleDie) DieImmutable(immutable bool) *CustomResourceSubresourceScaleDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*customResourceSubresourceScaleDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *customResourceSubresourceScaleDie) DieFeed(r apiextensionsv1.CustomResourceSubresourceScale) CustomResourceSubresourceScaleDie {
+// DieFeed returns a new die with the provided resource.
+func (d *CustomResourceSubresourceScaleDie) DieFeed(r apiextensionsv1.CustomResourceSubresourceScale) *CustomResourceSubresourceScaleDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &customResourceSubresourceScaleDie{
+	return &CustomResourceSubresourceScaleDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceSubresourceScaleDie) DieFeedPtr(r *apiextensionsv1.CustomResourceSubresourceScale) CustomResourceSubresourceScaleDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *CustomResourceSubresourceScaleDie) DieFeedPtr(r *apiextensionsv1.CustomResourceSubresourceScale) *CustomResourceSubresourceScaleDie {
 	if r == nil {
 		r = &apiextensionsv1.CustomResourceSubresourceScale{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *customResourceSubresourceScaleDie) DieRelease() apiextensionsv1.CustomResourceSubresourceScale {
+// DieRelease returns the resource managed by the die.
+func (d *CustomResourceSubresourceScaleDie) DieRelease() apiextensionsv1.CustomResourceSubresourceScale {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *customResourceSubresourceScaleDie) DieReleasePtr() *apiextensionsv1.CustomResourceSubresourceScale {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *CustomResourceSubresourceScaleDie) DieReleasePtr() *apiextensionsv1.CustomResourceSubresourceScale {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *customResourceSubresourceScaleDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceSubresourceScale)) CustomResourceSubresourceScaleDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *CustomResourceSubresourceScaleDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceSubresourceScale)) *CustomResourceSubresourceScaleDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *customResourceSubresourceScaleDie) DeepCopy() CustomResourceSubresourceScaleDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *CustomResourceSubresourceScaleDie) DeepCopy() *CustomResourceSubresourceScaleDie {
 	r := *d.r.DeepCopy()
-	return &customResourceSubresourceScaleDie{
+	return &CustomResourceSubresourceScaleDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceSubresourceScaleDie) SpecReplicasPath(v string) CustomResourceSubresourceScaleDie {
+// specReplicasPath defines the JSON path inside of a custom resource that corresponds to Scale `spec.replicas`. Only JSON paths without the array notation are allowed. Must be a JSON Path under `.spec`. If there is no value under the given path in the custom resource, the `/scale` subresource will return an error on GET.
+func (d *CustomResourceSubresourceScaleDie) SpecReplicasPath(v string) *CustomResourceSubresourceScaleDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceSubresourceScale) {
 		r.SpecReplicasPath = v
 	})
 }
 
-func (d *customResourceSubresourceScaleDie) StatusReplicasPath(v string) CustomResourceSubresourceScaleDie {
+// statusReplicasPath defines the JSON path inside of a custom resource that corresponds to Scale `status.replicas`. Only JSON paths without the array notation are allowed. Must be a JSON Path under `.status`. If there is no value under the given path in the custom resource, the `status.replicas` value in the `/scale` subresource will default to 0.
+func (d *CustomResourceSubresourceScaleDie) StatusReplicasPath(v string) *CustomResourceSubresourceScaleDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceSubresourceScale) {
 		r.StatusReplicasPath = v
 	})
 }
 
-func (d *customResourceSubresourceScaleDie) LabelSelectorPath(v *string) CustomResourceSubresourceScaleDie {
+// labelSelectorPath defines the JSON path inside of a custom resource that corresponds to Scale `status.selector`. Only JSON paths without the array notation are allowed. Must be a JSON Path under `.status` or `.spec`. Must be set to work with HorizontalPodAutoscaler. The field pointed by this JSON path must be a string field (not a complex selector struct) which contains a serialized label selector in string form. More info: https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions#scale-subresource If there is no value under the given path in the custom resource, the `status.selector` value in the `/scale` subresource will default to the empty string.
+func (d *CustomResourceSubresourceScaleDie) LabelSelectorPath(v *string) *CustomResourceSubresourceScaleDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceSubresourceScale) {
 		r.LabelSelectorPath = v
 	})
 }
 
-type CustomResourceColumnDefinitionDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *apiextensionsv1.CustomResourceColumnDefinition)) CustomResourceColumnDefinitionDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r apiextensionsv1.CustomResourceColumnDefinition) CustomResourceColumnDefinitionDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *apiextensionsv1.CustomResourceColumnDefinition) CustomResourceColumnDefinitionDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() apiextensionsv1.CustomResourceColumnDefinition
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *apiextensionsv1.CustomResourceColumnDefinition
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) CustomResourceColumnDefinitionDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() CustomResourceColumnDefinitionDie
+var CustomResourceColumnDefinitionBlank = (&CustomResourceColumnDefinitionDie{}).DieFeed(apiextensionsv1.CustomResourceColumnDefinition{})
 
-	// name is a human readable name for the column.
-	Name(v string) CustomResourceColumnDefinitionDie
-	// type is an OpenAPI type definition for this column. See https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#data-types for details.
-	Type(v string) CustomResourceColumnDefinitionDie
-	// format is an optional OpenAPI type definition for this column. The 'name' format is applied to the primary identifier column to assist in clients identifying column is the resource name. See https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#data-types for details.
-	Format(v string) CustomResourceColumnDefinitionDie
-	// description is a human readable description of this column.
-	Description(v string) CustomResourceColumnDefinitionDie
-	// priority is an integer defining the relative importance of this column compared to others. Lower numbers are considered higher priority. Columns that may be omitted in limited space scenarios should be given a priority greater than 0.
-	Priority(v int32) CustomResourceColumnDefinitionDie
-	// jsonPath is a simple JSON path (i.e. with array notation) which is evaluated against each custom resource to produce the value for this column.
-	JSONPath(v string) CustomResourceColumnDefinitionDie
-}
-
-var _ CustomResourceColumnDefinitionDie = (*customResourceColumnDefinitionDie)(nil)
-var CustomResourceColumnDefinitionBlank = (&customResourceColumnDefinitionDie{}).DieFeed(apiextensionsv1.CustomResourceColumnDefinition{})
-
-type customResourceColumnDefinitionDie struct {
+type CustomResourceColumnDefinitionDie struct {
 	mutable bool
 	r       apiextensionsv1.CustomResourceColumnDefinition
 }
 
-func (d *customResourceColumnDefinitionDie) DieImmutable(immutable bool) CustomResourceColumnDefinitionDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *CustomResourceColumnDefinitionDie) DieImmutable(immutable bool) *CustomResourceColumnDefinitionDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*customResourceColumnDefinitionDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *customResourceColumnDefinitionDie) DieFeed(r apiextensionsv1.CustomResourceColumnDefinition) CustomResourceColumnDefinitionDie {
+// DieFeed returns a new die with the provided resource.
+func (d *CustomResourceColumnDefinitionDie) DieFeed(r apiextensionsv1.CustomResourceColumnDefinition) *CustomResourceColumnDefinitionDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &customResourceColumnDefinitionDie{
+	return &CustomResourceColumnDefinitionDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceColumnDefinitionDie) DieFeedPtr(r *apiextensionsv1.CustomResourceColumnDefinition) CustomResourceColumnDefinitionDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *CustomResourceColumnDefinitionDie) DieFeedPtr(r *apiextensionsv1.CustomResourceColumnDefinition) *CustomResourceColumnDefinitionDie {
 	if r == nil {
 		r = &apiextensionsv1.CustomResourceColumnDefinition{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *customResourceColumnDefinitionDie) DieRelease() apiextensionsv1.CustomResourceColumnDefinition {
+// DieRelease returns the resource managed by the die.
+func (d *CustomResourceColumnDefinitionDie) DieRelease() apiextensionsv1.CustomResourceColumnDefinition {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *customResourceColumnDefinitionDie) DieReleasePtr() *apiextensionsv1.CustomResourceColumnDefinition {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *CustomResourceColumnDefinitionDie) DieReleasePtr() *apiextensionsv1.CustomResourceColumnDefinition {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *customResourceColumnDefinitionDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceColumnDefinition)) CustomResourceColumnDefinitionDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *CustomResourceColumnDefinitionDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceColumnDefinition)) *CustomResourceColumnDefinitionDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *customResourceColumnDefinitionDie) DeepCopy() CustomResourceColumnDefinitionDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *CustomResourceColumnDefinitionDie) DeepCopy() *CustomResourceColumnDefinitionDie {
 	r := *d.r.DeepCopy()
-	return &customResourceColumnDefinitionDie{
+	return &CustomResourceColumnDefinitionDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceColumnDefinitionDie) Name(v string) CustomResourceColumnDefinitionDie {
+// name is a human readable name for the column.
+func (d *CustomResourceColumnDefinitionDie) Name(v string) *CustomResourceColumnDefinitionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceColumnDefinition) {
 		r.Name = v
 	})
 }
 
-func (d *customResourceColumnDefinitionDie) Type(v string) CustomResourceColumnDefinitionDie {
+// type is an OpenAPI type definition for this column. See https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#data-types for details.
+func (d *CustomResourceColumnDefinitionDie) Type(v string) *CustomResourceColumnDefinitionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceColumnDefinition) {
 		r.Type = v
 	})
 }
 
-func (d *customResourceColumnDefinitionDie) Format(v string) CustomResourceColumnDefinitionDie {
+// format is an optional OpenAPI type definition for this column. The 'name' format is applied to the primary identifier column to assist in clients identifying column is the resource name. See https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#data-types for details.
+func (d *CustomResourceColumnDefinitionDie) Format(v string) *CustomResourceColumnDefinitionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceColumnDefinition) {
 		r.Format = v
 	})
 }
 
-func (d *customResourceColumnDefinitionDie) Description(v string) CustomResourceColumnDefinitionDie {
+// description is a human readable description of this column.
+func (d *CustomResourceColumnDefinitionDie) Description(v string) *CustomResourceColumnDefinitionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceColumnDefinition) {
 		r.Description = v
 	})
 }
 
-func (d *customResourceColumnDefinitionDie) Priority(v int32) CustomResourceColumnDefinitionDie {
+// priority is an integer defining the relative importance of this column compared to others. Lower numbers are considered higher priority. Columns that may be omitted in limited space scenarios should be given a priority greater than 0.
+func (d *CustomResourceColumnDefinitionDie) Priority(v int32) *CustomResourceColumnDefinitionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceColumnDefinition) {
 		r.Priority = v
 	})
 }
 
-func (d *customResourceColumnDefinitionDie) JSONPath(v string) CustomResourceColumnDefinitionDie {
+// jsonPath is a simple JSON path (i.e. with array notation) which is evaluated against each custom resource to produce the value for this column.
+func (d *CustomResourceColumnDefinitionDie) JSONPath(v string) *CustomResourceColumnDefinitionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceColumnDefinition) {
 		r.JSONPath = v
 	})
 }
 
-type CustomResourceConversionDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *apiextensionsv1.CustomResourceConversion)) CustomResourceConversionDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r apiextensionsv1.CustomResourceConversion) CustomResourceConversionDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *apiextensionsv1.CustomResourceConversion) CustomResourceConversionDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() apiextensionsv1.CustomResourceConversion
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *apiextensionsv1.CustomResourceConversion
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) CustomResourceConversionDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() CustomResourceConversionDie
+var CustomResourceConversionBlank = (&CustomResourceConversionDie{}).DieFeed(apiextensionsv1.CustomResourceConversion{})
 
-	customResourceConversionDieExtension
-	// strategy specifies how custom resources are converted between versions. Allowed values are: - `None`: The converter only change the apiVersion and would not touch any other field in the custom resource. - `Webhook`: API Server will call to an external webhook to do the conversion. Additional information   is needed for this option. This requires spec.preserveUnknownFields to be false, and spec.conversion.webhook to be set.
-	Strategy(v apiextensionsv1.ConversionStrategyType) CustomResourceConversionDie
-	// webhook describes how to call the conversion webhook. Required when `strategy` is set to `Webhook`.
-	Webhook(v *apiextensionsv1.WebhookConversion) CustomResourceConversionDie
-}
-
-var _ CustomResourceConversionDie = (*customResourceConversionDie)(nil)
-var CustomResourceConversionBlank = (&customResourceConversionDie{}).DieFeed(apiextensionsv1.CustomResourceConversion{})
-
-type customResourceConversionDie struct {
+type CustomResourceConversionDie struct {
 	mutable bool
 	r       apiextensionsv1.CustomResourceConversion
 }
 
-func (d *customResourceConversionDie) DieImmutable(immutable bool) CustomResourceConversionDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *CustomResourceConversionDie) DieImmutable(immutable bool) *CustomResourceConversionDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*customResourceConversionDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *customResourceConversionDie) DieFeed(r apiextensionsv1.CustomResourceConversion) CustomResourceConversionDie {
+// DieFeed returns a new die with the provided resource.
+func (d *CustomResourceConversionDie) DieFeed(r apiextensionsv1.CustomResourceConversion) *CustomResourceConversionDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &customResourceConversionDie{
+	return &CustomResourceConversionDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceConversionDie) DieFeedPtr(r *apiextensionsv1.CustomResourceConversion) CustomResourceConversionDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *CustomResourceConversionDie) DieFeedPtr(r *apiextensionsv1.CustomResourceConversion) *CustomResourceConversionDie {
 	if r == nil {
 		r = &apiextensionsv1.CustomResourceConversion{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *customResourceConversionDie) DieRelease() apiextensionsv1.CustomResourceConversion {
+// DieRelease returns the resource managed by the die.
+func (d *CustomResourceConversionDie) DieRelease() apiextensionsv1.CustomResourceConversion {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *customResourceConversionDie) DieReleasePtr() *apiextensionsv1.CustomResourceConversion {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *CustomResourceConversionDie) DieReleasePtr() *apiextensionsv1.CustomResourceConversion {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *customResourceConversionDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceConversion)) CustomResourceConversionDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *CustomResourceConversionDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceConversion)) *CustomResourceConversionDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *customResourceConversionDie) DeepCopy() CustomResourceConversionDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *CustomResourceConversionDie) DeepCopy() *CustomResourceConversionDie {
 	r := *d.r.DeepCopy()
-	return &customResourceConversionDie{
+	return &CustomResourceConversionDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceConversionDie) Strategy(v apiextensionsv1.ConversionStrategyType) CustomResourceConversionDie {
+// strategy specifies how custom resources are converted between versions. Allowed values are: - `None`: The converter only change the apiVersion and would not touch any other field in the custom resource. - `Webhook`: API Server will call to an external webhook to do the conversion. Additional information   is needed for this option. This requires spec.preserveUnknownFields to be false, and spec.conversion.webhook to be set.
+func (d *CustomResourceConversionDie) Strategy(v apiextensionsv1.ConversionStrategyType) *CustomResourceConversionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceConversion) {
 		r.Strategy = v
 	})
 }
 
-func (d *customResourceConversionDie) Webhook(v *apiextensionsv1.WebhookConversion) CustomResourceConversionDie {
+// webhook describes how to call the conversion webhook. Required when `strategy` is set to `Webhook`.
+func (d *CustomResourceConversionDie) Webhook(v *apiextensionsv1.WebhookConversion) *CustomResourceConversionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceConversion) {
 		r.Webhook = v
 	})
 }
 
-type WebhookConversionDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *apiextensionsv1.WebhookConversion)) WebhookConversionDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r apiextensionsv1.WebhookConversion) WebhookConversionDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *apiextensionsv1.WebhookConversion) WebhookConversionDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() apiextensionsv1.WebhookConversion
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *apiextensionsv1.WebhookConversion
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) WebhookConversionDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() WebhookConversionDie
+var WebhookConversionBlank = (&WebhookConversionDie{}).DieFeed(apiextensionsv1.WebhookConversion{})
 
-	webhookConversionDieExtension
-	// clientConfig is the instructions for how to call the webhook if strategy is `Webhook`.
-	ClientConfig(v *apiextensionsv1.WebhookClientConfig) WebhookConversionDie
-	// conversionReviewVersions is an ordered list of preferred `ConversionReview` versions the Webhook expects. The API server will use the first version in the list which it supports. If none of the versions specified in this list are supported by API server, conversion will fail for the custom resource. If a persisted Webhook configuration specifies allowed versions and does not include any versions known to the API Server, calls to the webhook will fail.
-	ConversionReviewVersions(v ...string) WebhookConversionDie
-}
-
-var _ WebhookConversionDie = (*webhookConversionDie)(nil)
-var WebhookConversionBlank = (&webhookConversionDie{}).DieFeed(apiextensionsv1.WebhookConversion{})
-
-type webhookConversionDie struct {
+type WebhookConversionDie struct {
 	mutable bool
 	r       apiextensionsv1.WebhookConversion
 }
 
-func (d *webhookConversionDie) DieImmutable(immutable bool) WebhookConversionDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *WebhookConversionDie) DieImmutable(immutable bool) *WebhookConversionDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*webhookConversionDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *webhookConversionDie) DieFeed(r apiextensionsv1.WebhookConversion) WebhookConversionDie {
+// DieFeed returns a new die with the provided resource.
+func (d *WebhookConversionDie) DieFeed(r apiextensionsv1.WebhookConversion) *WebhookConversionDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &webhookConversionDie{
+	return &WebhookConversionDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *webhookConversionDie) DieFeedPtr(r *apiextensionsv1.WebhookConversion) WebhookConversionDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *WebhookConversionDie) DieFeedPtr(r *apiextensionsv1.WebhookConversion) *WebhookConversionDie {
 	if r == nil {
 		r = &apiextensionsv1.WebhookConversion{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *webhookConversionDie) DieRelease() apiextensionsv1.WebhookConversion {
+// DieRelease returns the resource managed by the die.
+func (d *WebhookConversionDie) DieRelease() apiextensionsv1.WebhookConversion {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *webhookConversionDie) DieReleasePtr() *apiextensionsv1.WebhookConversion {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *WebhookConversionDie) DieReleasePtr() *apiextensionsv1.WebhookConversion {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *webhookConversionDie) DieStamp(fn func(r *apiextensionsv1.WebhookConversion)) WebhookConversionDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *WebhookConversionDie) DieStamp(fn func(r *apiextensionsv1.WebhookConversion)) *WebhookConversionDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *webhookConversionDie) DeepCopy() WebhookConversionDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *WebhookConversionDie) DeepCopy() *WebhookConversionDie {
 	r := *d.r.DeepCopy()
-	return &webhookConversionDie{
+	return &WebhookConversionDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *webhookConversionDie) ClientConfig(v *apiextensionsv1.WebhookClientConfig) WebhookConversionDie {
+// clientConfig is the instructions for how to call the webhook if strategy is `Webhook`.
+func (d *WebhookConversionDie) ClientConfig(v *apiextensionsv1.WebhookClientConfig) *WebhookConversionDie {
 	return d.DieStamp(func(r *apiextensionsv1.WebhookConversion) {
 		r.ClientConfig = v
 	})
 }
 
-func (d *webhookConversionDie) ConversionReviewVersions(v ...string) WebhookConversionDie {
+// conversionReviewVersions is an ordered list of preferred `ConversionReview` versions the Webhook expects. The API server will use the first version in the list which it supports. If none of the versions specified in this list are supported by API server, conversion will fail for the custom resource. If a persisted Webhook configuration specifies allowed versions and does not include any versions known to the API Server, calls to the webhook will fail.
+func (d *WebhookConversionDie) ConversionReviewVersions(v ...string) *WebhookConversionDie {
 	return d.DieStamp(func(r *apiextensionsv1.WebhookConversion) {
 		r.ConversionReviewVersions = v
 	})
 }
 
-type WebhookClientConfigDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *apiextensionsv1.WebhookClientConfig)) WebhookClientConfigDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r apiextensionsv1.WebhookClientConfig) WebhookClientConfigDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *apiextensionsv1.WebhookClientConfig) WebhookClientConfigDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() apiextensionsv1.WebhookClientConfig
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *apiextensionsv1.WebhookClientConfig
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) WebhookClientConfigDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() WebhookClientConfigDie
+var WebhookClientConfigBlank = (&WebhookClientConfigDie{}).DieFeed(apiextensionsv1.WebhookClientConfig{})
 
-	webhookClientConfigDieExtension
-	// url gives the location of the webhook, in standard URL form (`scheme://host:port/path`). Exactly one of `url` or `service` must be specified.
-	//
-	// The `host` should not refer to a service running in the cluster; use the `service` field instead. The host might be resolved via external DNS in some apiservers (e.g., `kube-apiserver` cannot resolve in-cluster DNS as that would be a layering violation). `host` may also be an IP address.
-	//
-	// Please note that using `localhost` or `127.0.0.1` as a `host` is risky unless you take great care to run this webhook on all hosts which run an apiserver which might need to make calls to this webhook. Such installs are likely to be non-portable, i.e., not easy to turn up in a new cluster.
-	//
-	// The scheme must be "https"; the URL must begin with "https://".
-	//
-	// A path is optional, and if present may be any string permissible in a URL. You may use the path to pass an arbitrary string to the webhook, for example, a cluster identifier.
-	//
-	// Attempting to use a user or basic auth e.g. "user:password@" is not allowed. Fragments ("#...") and query parameters ("?...") are not allowed, either.
-	URL(v *string) WebhookClientConfigDie
-	// service is a reference to the service for this webhook. Either service or url must be specified.
-	//
-	// If the webhook is running within the cluster, then you should use `service`.
-	Service(v *apiextensionsv1.ServiceReference) WebhookClientConfigDie
-	// caBundle is a PEM encoded CA bundle which will be used to validate the webhook's server certificate. If unspecified, system trust roots on the apiserver are used.
-	CABundle(v ...byte) WebhookClientConfigDie
-}
-
-var _ WebhookClientConfigDie = (*webhookClientConfigDie)(nil)
-var WebhookClientConfigBlank = (&webhookClientConfigDie{}).DieFeed(apiextensionsv1.WebhookClientConfig{})
-
-type webhookClientConfigDie struct {
+type WebhookClientConfigDie struct {
 	mutable bool
 	r       apiextensionsv1.WebhookClientConfig
 }
 
-func (d *webhookClientConfigDie) DieImmutable(immutable bool) WebhookClientConfigDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *WebhookClientConfigDie) DieImmutable(immutable bool) *WebhookClientConfigDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*webhookClientConfigDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *webhookClientConfigDie) DieFeed(r apiextensionsv1.WebhookClientConfig) WebhookClientConfigDie {
+// DieFeed returns a new die with the provided resource.
+func (d *WebhookClientConfigDie) DieFeed(r apiextensionsv1.WebhookClientConfig) *WebhookClientConfigDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &webhookClientConfigDie{
+	return &WebhookClientConfigDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *webhookClientConfigDie) DieFeedPtr(r *apiextensionsv1.WebhookClientConfig) WebhookClientConfigDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *WebhookClientConfigDie) DieFeedPtr(r *apiextensionsv1.WebhookClientConfig) *WebhookClientConfigDie {
 	if r == nil {
 		r = &apiextensionsv1.WebhookClientConfig{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *webhookClientConfigDie) DieRelease() apiextensionsv1.WebhookClientConfig {
+// DieRelease returns the resource managed by the die.
+func (d *WebhookClientConfigDie) DieRelease() apiextensionsv1.WebhookClientConfig {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *webhookClientConfigDie) DieReleasePtr() *apiextensionsv1.WebhookClientConfig {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *WebhookClientConfigDie) DieReleasePtr() *apiextensionsv1.WebhookClientConfig {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *webhookClientConfigDie) DieStamp(fn func(r *apiextensionsv1.WebhookClientConfig)) WebhookClientConfigDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *WebhookClientConfigDie) DieStamp(fn func(r *apiextensionsv1.WebhookClientConfig)) *WebhookClientConfigDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *webhookClientConfigDie) DeepCopy() WebhookClientConfigDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *WebhookClientConfigDie) DeepCopy() *WebhookClientConfigDie {
 	r := *d.r.DeepCopy()
-	return &webhookClientConfigDie{
+	return &WebhookClientConfigDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *webhookClientConfigDie) URL(v *string) WebhookClientConfigDie {
+// url gives the location of the webhook, in standard URL form (`scheme://host:port/path`). Exactly one of `url` or `service` must be specified.
+//
+// The `host` should not refer to a service running in the cluster; use the `service` field instead. The host might be resolved via external DNS in some apiservers (e.g., `kube-apiserver` cannot resolve in-cluster DNS as that would be a layering violation). `host` may also be an IP address.
+//
+// Please note that using `localhost` or `127.0.0.1` as a `host` is risky unless you take great care to run this webhook on all hosts which run an apiserver which might need to make calls to this webhook. Such installs are likely to be non-portable, i.e., not easy to turn up in a new cluster.
+//
+// The scheme must be "https"; the URL must begin with "https://".
+//
+// A path is optional, and if present may be any string permissible in a URL. You may use the path to pass an arbitrary string to the webhook, for example, a cluster identifier.
+//
+// Attempting to use a user or basic auth e.g. "user:password@" is not allowed. Fragments ("#...") and query parameters ("?...") are not allowed, either.
+func (d *WebhookClientConfigDie) URL(v *string) *WebhookClientConfigDie {
 	return d.DieStamp(func(r *apiextensionsv1.WebhookClientConfig) {
 		r.URL = v
 	})
 }
 
-func (d *webhookClientConfigDie) Service(v *apiextensionsv1.ServiceReference) WebhookClientConfigDie {
+// service is a reference to the service for this webhook. Either service or url must be specified.
+//
+// If the webhook is running within the cluster, then you should use `service`.
+func (d *WebhookClientConfigDie) Service(v *apiextensionsv1.ServiceReference) *WebhookClientConfigDie {
 	return d.DieStamp(func(r *apiextensionsv1.WebhookClientConfig) {
 		r.Service = v
 	})
 }
 
-func (d *webhookClientConfigDie) CABundle(v ...byte) WebhookClientConfigDie {
+// caBundle is a PEM encoded CA bundle which will be used to validate the webhook's server certificate. If unspecified, system trust roots on the apiserver are used.
+func (d *WebhookClientConfigDie) CABundle(v ...byte) *WebhookClientConfigDie {
 	return d.DieStamp(func(r *apiextensionsv1.WebhookClientConfig) {
 		r.CABundle = v
 	})
 }
 
-type ServiceReferenceDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *apiextensionsv1.ServiceReference)) ServiceReferenceDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r apiextensionsv1.ServiceReference) ServiceReferenceDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *apiextensionsv1.ServiceReference) ServiceReferenceDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() apiextensionsv1.ServiceReference
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *apiextensionsv1.ServiceReference
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) ServiceReferenceDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() ServiceReferenceDie
+var ServiceReferenceBlank = (&ServiceReferenceDie{}).DieFeed(apiextensionsv1.ServiceReference{})
 
-	// namespace is the namespace of the service. Required
-	Namespace(v string) ServiceReferenceDie
-	// name is the name of the service. Required
-	Name(v string) ServiceReferenceDie
-	// path is an optional URL path at which the webhook will be contacted.
-	Path(v *string) ServiceReferenceDie
-	// port is an optional service port at which the webhook will be contacted. `port` should be a valid port number (1-65535, inclusive). Defaults to 443 for backward compatibility.
-	Port(v *int32) ServiceReferenceDie
-}
-
-var _ ServiceReferenceDie = (*serviceReferenceDie)(nil)
-var ServiceReferenceBlank = (&serviceReferenceDie{}).DieFeed(apiextensionsv1.ServiceReference{})
-
-type serviceReferenceDie struct {
+type ServiceReferenceDie struct {
 	mutable bool
 	r       apiextensionsv1.ServiceReference
 }
 
-func (d *serviceReferenceDie) DieImmutable(immutable bool) ServiceReferenceDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ServiceReferenceDie) DieImmutable(immutable bool) *ServiceReferenceDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*serviceReferenceDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *serviceReferenceDie) DieFeed(r apiextensionsv1.ServiceReference) ServiceReferenceDie {
+// DieFeed returns a new die with the provided resource.
+func (d *ServiceReferenceDie) DieFeed(r apiextensionsv1.ServiceReference) *ServiceReferenceDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &serviceReferenceDie{
+	return &ServiceReferenceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *serviceReferenceDie) DieFeedPtr(r *apiextensionsv1.ServiceReference) ServiceReferenceDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ServiceReferenceDie) DieFeedPtr(r *apiextensionsv1.ServiceReference) *ServiceReferenceDie {
 	if r == nil {
 		r = &apiextensionsv1.ServiceReference{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *serviceReferenceDie) DieRelease() apiextensionsv1.ServiceReference {
+// DieRelease returns the resource managed by the die.
+func (d *ServiceReferenceDie) DieRelease() apiextensionsv1.ServiceReference {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *serviceReferenceDie) DieReleasePtr() *apiextensionsv1.ServiceReference {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ServiceReferenceDie) DieReleasePtr() *apiextensionsv1.ServiceReference {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *serviceReferenceDie) DieStamp(fn func(r *apiextensionsv1.ServiceReference)) ServiceReferenceDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ServiceReferenceDie) DieStamp(fn func(r *apiextensionsv1.ServiceReference)) *ServiceReferenceDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *serviceReferenceDie) DeepCopy() ServiceReferenceDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ServiceReferenceDie) DeepCopy() *ServiceReferenceDie {
 	r := *d.r.DeepCopy()
-	return &serviceReferenceDie{
+	return &ServiceReferenceDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *serviceReferenceDie) Namespace(v string) ServiceReferenceDie {
+// namespace is the namespace of the service. Required
+func (d *ServiceReferenceDie) Namespace(v string) *ServiceReferenceDie {
 	return d.DieStamp(func(r *apiextensionsv1.ServiceReference) {
 		r.Namespace = v
 	})
 }
 
-func (d *serviceReferenceDie) Name(v string) ServiceReferenceDie {
+// name is the name of the service. Required
+func (d *ServiceReferenceDie) Name(v string) *ServiceReferenceDie {
 	return d.DieStamp(func(r *apiextensionsv1.ServiceReference) {
 		r.Name = v
 	})
 }
 
-func (d *serviceReferenceDie) Path(v *string) ServiceReferenceDie {
+// path is an optional URL path at which the webhook will be contacted.
+func (d *ServiceReferenceDie) Path(v *string) *ServiceReferenceDie {
 	return d.DieStamp(func(r *apiextensionsv1.ServiceReference) {
 		r.Path = v
 	})
 }
 
-func (d *serviceReferenceDie) Port(v *int32) ServiceReferenceDie {
+// port is an optional service port at which the webhook will be contacted. `port` should be a valid port number (1-65535, inclusive). Defaults to 443 for backward compatibility.
+func (d *ServiceReferenceDie) Port(v *int32) *ServiceReferenceDie {
 	return d.DieStamp(func(r *apiextensionsv1.ServiceReference) {
 		r.Port = v
 	})
 }
 
-type CustomResourceDefinitionStatusDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionStatus)) CustomResourceDefinitionStatusDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r apiextensionsv1.CustomResourceDefinitionStatus) CustomResourceDefinitionStatusDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionStatus) CustomResourceDefinitionStatusDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() apiextensionsv1.CustomResourceDefinitionStatus
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionStatus
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) CustomResourceDefinitionStatusDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() CustomResourceDefinitionStatusDie
+var CustomResourceDefinitionStatusBlank = (&CustomResourceDefinitionStatusDie{}).DieFeed(apiextensionsv1.CustomResourceDefinitionStatus{})
 
-	customResourceDefinitionStatusDieExtension
-	// conditions indicate state for particular aspects of a CustomResourceDefinition
-	Conditions(v ...apiextensionsv1.CustomResourceDefinitionCondition) CustomResourceDefinitionStatusDie
-	// acceptedNames are the names that are actually being used to serve discovery. They may be different than the names in spec.
-	AcceptedNames(v apiextensionsv1.CustomResourceDefinitionNames) CustomResourceDefinitionStatusDie
-	// storedVersions lists all versions of CustomResources that were ever persisted. Tracking these versions allows a migration path for stored versions in etcd. The field is mutable so a migration controller can finish a migration to another version (ensuring no old objects are left in storage), and then remove the rest of the versions from this list. Versions may not be removed from `spec.versions` while they exist in this list.
-	StoredVersions(v ...string) CustomResourceDefinitionStatusDie
-}
-
-var _ CustomResourceDefinitionStatusDie = (*customResourceDefinitionStatusDie)(nil)
-var CustomResourceDefinitionStatusBlank = (&customResourceDefinitionStatusDie{}).DieFeed(apiextensionsv1.CustomResourceDefinitionStatus{})
-
-type customResourceDefinitionStatusDie struct {
+type CustomResourceDefinitionStatusDie struct {
 	mutable bool
 	r       apiextensionsv1.CustomResourceDefinitionStatus
 }
 
-func (d *customResourceDefinitionStatusDie) DieImmutable(immutable bool) CustomResourceDefinitionStatusDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *CustomResourceDefinitionStatusDie) DieImmutable(immutable bool) *CustomResourceDefinitionStatusDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*customResourceDefinitionStatusDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *customResourceDefinitionStatusDie) DieFeed(r apiextensionsv1.CustomResourceDefinitionStatus) CustomResourceDefinitionStatusDie {
+// DieFeed returns a new die with the provided resource.
+func (d *CustomResourceDefinitionStatusDie) DieFeed(r apiextensionsv1.CustomResourceDefinitionStatus) *CustomResourceDefinitionStatusDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &customResourceDefinitionStatusDie{
+	return &CustomResourceDefinitionStatusDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceDefinitionStatusDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionStatus) CustomResourceDefinitionStatusDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *CustomResourceDefinitionStatusDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionStatus) *CustomResourceDefinitionStatusDie {
 	if r == nil {
 		r = &apiextensionsv1.CustomResourceDefinitionStatus{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *customResourceDefinitionStatusDie) DieRelease() apiextensionsv1.CustomResourceDefinitionStatus {
+// DieRelease returns the resource managed by the die.
+func (d *CustomResourceDefinitionStatusDie) DieRelease() apiextensionsv1.CustomResourceDefinitionStatus {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *customResourceDefinitionStatusDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionStatus {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *CustomResourceDefinitionStatusDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionStatus {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *customResourceDefinitionStatusDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionStatus)) CustomResourceDefinitionStatusDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *CustomResourceDefinitionStatusDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionStatus)) *CustomResourceDefinitionStatusDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *customResourceDefinitionStatusDie) DeepCopy() CustomResourceDefinitionStatusDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *CustomResourceDefinitionStatusDie) DeepCopy() *CustomResourceDefinitionStatusDie {
 	r := *d.r.DeepCopy()
-	return &customResourceDefinitionStatusDie{
+	return &CustomResourceDefinitionStatusDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceDefinitionStatusDie) Conditions(v ...apiextensionsv1.CustomResourceDefinitionCondition) CustomResourceDefinitionStatusDie {
+// conditions indicate state for particular aspects of a CustomResourceDefinition
+func (d *CustomResourceDefinitionStatusDie) Conditions(v ...apiextensionsv1.CustomResourceDefinitionCondition) *CustomResourceDefinitionStatusDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionStatus) {
 		r.Conditions = v
 	})
 }
 
-func (d *customResourceDefinitionStatusDie) AcceptedNames(v apiextensionsv1.CustomResourceDefinitionNames) CustomResourceDefinitionStatusDie {
+// acceptedNames are the names that are actually being used to serve discovery. They may be different than the names in spec.
+func (d *CustomResourceDefinitionStatusDie) AcceptedNames(v apiextensionsv1.CustomResourceDefinitionNames) *CustomResourceDefinitionStatusDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionStatus) {
 		r.AcceptedNames = v
 	})
 }
 
-func (d *customResourceDefinitionStatusDie) StoredVersions(v ...string) CustomResourceDefinitionStatusDie {
+// storedVersions lists all versions of CustomResources that were ever persisted. Tracking these versions allows a migration path for stored versions in etcd. The field is mutable so a migration controller can finish a migration to another version (ensuring no old objects are left in storage), and then remove the rest of the versions from this list. Versions may not be removed from `spec.versions` while they exist in this list.
+func (d *CustomResourceDefinitionStatusDie) StoredVersions(v ...string) *CustomResourceDefinitionStatusDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionStatus) {
 		r.StoredVersions = v
 	})
 }
 
-type CustomResourceDefinitionNamesDie interface {
-	// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-	DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionNames)) CustomResourceDefinitionNamesDie
-	// DieFeed returns a new die with the provided resource.
-	DieFeed(r apiextensionsv1.CustomResourceDefinitionNames) CustomResourceDefinitionNamesDie
-	// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-	DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionNames) CustomResourceDefinitionNamesDie
-	// DieRelease returns the resource managed by the die.
-	DieRelease() apiextensionsv1.CustomResourceDefinitionNames
-	// DieReleasePtr returns a pointer to the resource managed by the die.
-	DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionNames
-	// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-	DieImmutable(immutable bool) CustomResourceDefinitionNamesDie
-	// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-	DeepCopy() CustomResourceDefinitionNamesDie
+var CustomResourceDefinitionNamesBlank = (&CustomResourceDefinitionNamesDie{}).DieFeed(apiextensionsv1.CustomResourceDefinitionNames{})
 
-	// plural is the plural name of the resource to serve. The custom resources are served under `/apis/<group>/<version>/.../<plural>`. Must match the name of the CustomResourceDefinition (in the form `<names.plural>.<group>`). Must be all lowercase.
-	Plural(v string) CustomResourceDefinitionNamesDie
-	// singular is the singular name of the resource. It must be all lowercase. Defaults to lowercased `kind`.
-	Singular(v string) CustomResourceDefinitionNamesDie
-	// shortNames are short names for the resource, exposed in API discovery documents, and used by clients to support invocations like `kubectl get <shortname>`. It must be all lowercase.
-	ShortNames(v ...string) CustomResourceDefinitionNamesDie
-	// kind is the serialized kind of the resource. It is normally CamelCase and singular. Custom resource instances will use this value as the `kind` attribute in API calls.
-	Kind(v string) CustomResourceDefinitionNamesDie
-	// listKind is the serialized kind of the list for this resource. Defaults to "`kind`List".
-	ListKind(v string) CustomResourceDefinitionNamesDie
-	// categories is a list of grouped resources this custom resource belongs to (e.g. 'all'). This is published in API discovery documents, and used by clients to support invocations like `kubectl get all`.
-	Categories(v ...string) CustomResourceDefinitionNamesDie
-}
-
-var _ CustomResourceDefinitionNamesDie = (*customResourceDefinitionNamesDie)(nil)
-var CustomResourceDefinitionNamesBlank = (&customResourceDefinitionNamesDie{}).DieFeed(apiextensionsv1.CustomResourceDefinitionNames{})
-
-type customResourceDefinitionNamesDie struct {
+type CustomResourceDefinitionNamesDie struct {
 	mutable bool
 	r       apiextensionsv1.CustomResourceDefinitionNames
 }
 
-func (d *customResourceDefinitionNamesDie) DieImmutable(immutable bool) CustomResourceDefinitionNamesDie {
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *CustomResourceDefinitionNamesDie) DieImmutable(immutable bool) *CustomResourceDefinitionNamesDie {
 	if d.mutable == !immutable {
 		return d
 	}
-	d = d.DeepCopy().(*customResourceDefinitionNamesDie)
+	d = d.DeepCopy()
 	d.mutable = !immutable
 	return d
 }
 
-func (d *customResourceDefinitionNamesDie) DieFeed(r apiextensionsv1.CustomResourceDefinitionNames) CustomResourceDefinitionNamesDie {
+// DieFeed returns a new die with the provided resource.
+func (d *CustomResourceDefinitionNamesDie) DieFeed(r apiextensionsv1.CustomResourceDefinitionNames) *CustomResourceDefinitionNamesDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &customResourceDefinitionNamesDie{
+	return &CustomResourceDefinitionNamesDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceDefinitionNamesDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionNames) CustomResourceDefinitionNamesDie {
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *CustomResourceDefinitionNamesDie) DieFeedPtr(r *apiextensionsv1.CustomResourceDefinitionNames) *CustomResourceDefinitionNamesDie {
 	if r == nil {
 		r = &apiextensionsv1.CustomResourceDefinitionNames{}
 	}
 	return d.DieFeed(*r)
 }
 
-func (d *customResourceDefinitionNamesDie) DieRelease() apiextensionsv1.CustomResourceDefinitionNames {
+// DieRelease returns the resource managed by the die.
+func (d *CustomResourceDefinitionNamesDie) DieRelease() apiextensionsv1.CustomResourceDefinitionNames {
 	if d.mutable {
 		return d.r
 	}
 	return *d.r.DeepCopy()
 }
 
-func (d *customResourceDefinitionNamesDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionNames {
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *CustomResourceDefinitionNamesDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionNames {
 	r := d.DieRelease()
 	return &r
 }
 
-func (d *customResourceDefinitionNamesDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionNames)) CustomResourceDefinitionNamesDie {
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *CustomResourceDefinitionNamesDie) DieStamp(fn func(r *apiextensionsv1.CustomResourceDefinitionNames)) *CustomResourceDefinitionNamesDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
-func (d *customResourceDefinitionNamesDie) DeepCopy() CustomResourceDefinitionNamesDie {
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *CustomResourceDefinitionNamesDie) DeepCopy() *CustomResourceDefinitionNamesDie {
 	r := *d.r.DeepCopy()
-	return &customResourceDefinitionNamesDie{
+	return &CustomResourceDefinitionNamesDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-func (d *customResourceDefinitionNamesDie) Plural(v string) CustomResourceDefinitionNamesDie {
+// plural is the plural name of the resource to serve. The custom resources are served under `/apis/<group>/<version>/.../<plural>`. Must match the name of the CustomResourceDefinition (in the form `<names.plural>.<group>`). Must be all lowercase.
+func (d *CustomResourceDefinitionNamesDie) Plural(v string) *CustomResourceDefinitionNamesDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionNames) {
 		r.Plural = v
 	})
 }
 
-func (d *customResourceDefinitionNamesDie) Singular(v string) CustomResourceDefinitionNamesDie {
+// singular is the singular name of the resource. It must be all lowercase. Defaults to lowercased `kind`.
+func (d *CustomResourceDefinitionNamesDie) Singular(v string) *CustomResourceDefinitionNamesDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionNames) {
 		r.Singular = v
 	})
 }
 
-func (d *customResourceDefinitionNamesDie) ShortNames(v ...string) CustomResourceDefinitionNamesDie {
+// shortNames are short names for the resource, exposed in API discovery documents, and used by clients to support invocations like `kubectl get <shortname>`. It must be all lowercase.
+func (d *CustomResourceDefinitionNamesDie) ShortNames(v ...string) *CustomResourceDefinitionNamesDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionNames) {
 		r.ShortNames = v
 	})
 }
 
-func (d *customResourceDefinitionNamesDie) Kind(v string) CustomResourceDefinitionNamesDie {
+// kind is the serialized kind of the resource. It is normally CamelCase and singular. Custom resource instances will use this value as the `kind` attribute in API calls.
+func (d *CustomResourceDefinitionNamesDie) Kind(v string) *CustomResourceDefinitionNamesDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionNames) {
 		r.Kind = v
 	})
 }
 
-func (d *customResourceDefinitionNamesDie) ListKind(v string) CustomResourceDefinitionNamesDie {
+// listKind is the serialized kind of the list for this resource. Defaults to "`kind`List".
+func (d *CustomResourceDefinitionNamesDie) ListKind(v string) *CustomResourceDefinitionNamesDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionNames) {
 		r.ListKind = v
 	})
 }
 
-func (d *customResourceDefinitionNamesDie) Categories(v ...string) CustomResourceDefinitionNamesDie {
+// categories is a list of grouped resources this custom resource belongs to (e.g. 'all'). This is published in API discovery documents, and used by clients to support invocations like `kubectl get all`.
+func (d *CustomResourceDefinitionNamesDie) Categories(v ...string) *CustomResourceDefinitionNamesDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionNames) {
 		r.Categories = v
 	})

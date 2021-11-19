@@ -23,14 +23,7 @@ import (
 // +die:object=true,ignore={BinaryData,Data}
 type ConfigMap = corev1.ConfigMap
 
-type configMapDieExtension interface {
-	Data(v map[string]string) ConfigMapDie
-	AddData(key, value string) ConfigMapDie
-	BinaryData(v map[string][]byte) ConfigMapDie
-	AddBinaryData(key, value string) ConfigMapDie
-}
-
-func (d *configMapDie) Data(v map[string]string) ConfigMapDie {
+func (d *ConfigMapDie) Data(v map[string]string) *ConfigMapDie {
 	return d.DieStamp(func(r *corev1.ConfigMap) {
 		for k := range v {
 			delete(r.BinaryData, k)
@@ -39,7 +32,7 @@ func (d *configMapDie) Data(v map[string]string) ConfigMapDie {
 	})
 }
 
-func (d *configMapDie) AddData(key, value string) ConfigMapDie {
+func (d *ConfigMapDie) AddData(key, value string) *ConfigMapDie {
 	return d.DieStamp(func(r *corev1.ConfigMap) {
 		if r.Data == nil {
 			r.Data = map[string]string{}
@@ -49,7 +42,7 @@ func (d *configMapDie) AddData(key, value string) ConfigMapDie {
 	})
 }
 
-func (d *configMapDie) BinaryData(v map[string][]byte) ConfigMapDie {
+func (d *ConfigMapDie) BinaryData(v map[string][]byte) *ConfigMapDie {
 	return d.DieStamp(func(r *corev1.ConfigMap) {
 		for k := range v {
 			delete(r.Data, k)
@@ -58,7 +51,7 @@ func (d *configMapDie) BinaryData(v map[string][]byte) ConfigMapDie {
 	})
 }
 
-func (d *configMapDie) AddBinaryData(key, value string) ConfigMapDie {
+func (d *ConfigMapDie) AddBinaryData(key, value string) *ConfigMapDie {
 	return d.DieStamp(func(r *corev1.ConfigMap) {
 		if r.BinaryData == nil {
 			r.BinaryData = map[string][]byte{}

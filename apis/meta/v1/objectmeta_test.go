@@ -36,7 +36,7 @@ func TestObjectMeta(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		die      diemetav1.ObjectMetaDie
+		die      *diemetav1.ObjectMetaDie
 		expected metav1.ObjectMeta
 	}{
 		{
@@ -69,7 +69,7 @@ func TestObjectMeta(t *testing.T) {
 			die: diemetav1.ObjectMetaBlank.
 				ControlledBy(
 					diecorev1.PodBlank.
-						MetadataDie(func(d diemetav1.ObjectMetaDie) {
+						MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 							d.Name("my-name")
 							d.UID("123e4567-e89b-12d3-a456-426614174000")
 						}),

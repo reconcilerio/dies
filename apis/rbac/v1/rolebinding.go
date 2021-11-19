@@ -23,12 +23,7 @@ import (
 // +die:object=true
 type _ = rbacv1.RoleBinding
 
-type roleBindingDieExtension interface {
-	SubjectsDie(subjects ...SubjectDie) RoleBindingDie
-	RoleRefDie(fn func(d RoleRefDie)) RoleBindingDie
-}
-
-func (d *roleBindingDie) SubjectsDie(subjects ...SubjectDie) RoleBindingDie {
+func (d *RoleBindingDie) SubjectsDie(subjects ...*SubjectDie) *RoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.RoleBinding) {
 		r.Subjects = make([]rbacv1.Subject, len(subjects))
 		for i := range subjects {
@@ -37,7 +32,7 @@ func (d *roleBindingDie) SubjectsDie(subjects ...SubjectDie) RoleBindingDie {
 	})
 }
 
-func (d *roleBindingDie) RoleRefDie(fn func(d RoleRefDie)) RoleBindingDie {
+func (d *RoleBindingDie) RoleRefDie(fn func(d *RoleRefDie)) *RoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.RoleBinding) {
 		d := RoleRefBlank.DieImmutable(false).DieFeed(r.RoleRef)
 		fn(d)

@@ -23,12 +23,7 @@ import (
 // +die:object=true
 type _ = corev1.ServiceAccount
 
-type serviceAccountDieExtension interface {
-	SecretsDie(secrets ...ObjectReferenceDie) ServiceAccountDie
-	ImagePullSecretsDie(secrets ...LocalObjectReferenceDie) ServiceAccountDie
-}
-
-func (d *serviceAccountDie) SecretsDie(secrets ...ObjectReferenceDie) ServiceAccountDie {
+func (d *ServiceAccountDie) SecretsDie(secrets ...*ObjectReferenceDie) *ServiceAccountDie {
 	return d.DieStamp(func(r *corev1.ServiceAccount) {
 		r.Secrets = make([]corev1.ObjectReference, len(secrets))
 		for i := range secrets {
@@ -37,7 +32,7 @@ func (d *serviceAccountDie) SecretsDie(secrets ...ObjectReferenceDie) ServiceAcc
 	})
 }
 
-func (d *serviceAccountDie) ImagePullSecretsDie(secrets ...LocalObjectReferenceDie) ServiceAccountDie {
+func (d *ServiceAccountDie) ImagePullSecretsDie(secrets ...*LocalObjectReferenceDie) *ServiceAccountDie {
 	return d.DieStamp(func(r *corev1.ServiceAccount) {
 		r.ImagePullSecrets = make([]corev1.LocalObjectReference, len(secrets))
 		for i := range secrets {

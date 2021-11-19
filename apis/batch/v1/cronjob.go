@@ -26,11 +26,7 @@ type _ = batchv1.CronJob
 // +die
 type _ = batchv1.CronJobSpec
 
-type cronJobSpecDieExtension interface {
-	JobTemplateDie(fn func(d JobDie)) CronJobSpecDie
-}
-
-func (d *cronJobSpecDie) JobTemplateDie(fn func(d JobDie)) CronJobSpecDie {
+func (d *CronJobSpecDie) JobTemplateDie(fn func(d *JobDie)) *CronJobSpecDie {
 	return d.DieStamp(func(r *batchv1.CronJobSpec) {
 		d := JobBlank.DieImmutable(false).DieFeed(batchv1.Job{
 			ObjectMeta: r.JobTemplate.ObjectMeta,

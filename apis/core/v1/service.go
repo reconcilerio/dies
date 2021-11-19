@@ -28,13 +28,7 @@ type _ = corev1.Service
 // +die
 type _ = corev1.ServiceSpec
 
-type serviceSpecDieExtension interface {
-	PortDie(protocol corev1.Protocol, port int32, fn func(d ServicePortDie)) ServiceSpecDie
-	AddSelector(key, value string) ServiceSpecDie
-	SessionAffinityConfigDie(fn func(d SessionAffinityConfigDie)) ServiceSpecDie
-}
-
-func (d *serviceSpecDie) PortDie(protocol corev1.Protocol, port int32, fn func(d ServicePortDie)) ServiceSpecDie {
+func (d *ServiceSpecDie) PortDie(protocol corev1.Protocol, port int32, fn func(d *ServicePortDie)) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		for i := range r.Ports {
 			if protocol == r.Ports[i].Protocol && port == r.Ports[i].Port {
@@ -51,13 +45,13 @@ func (d *serviceSpecDie) PortDie(protocol corev1.Protocol, port int32, fn func(d
 	})
 }
 
-func (d *serviceSpecDie) AddSelector(key, value string) ServiceSpecDie {
+func (d *ServiceSpecDie) AddSelector(key, value string) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.Selector[key] = value
 	})
 }
 
-func (d *serviceSpecDie) SessionAffinityConfigDie(fn func(d SessionAffinityConfigDie)) ServiceSpecDie {
+func (d *ServiceSpecDie) SessionAffinityConfigDie(fn func(d *SessionAffinityConfigDie)) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		d := SessionAffinityConfigBlank.DieImmutable(false).DieFeedPtr(r.SessionAffinityConfig)
 		fn(d)
@@ -71,11 +65,7 @@ type _ = corev1.ServicePort
 // +die
 type _ = corev1.SessionAffinityConfig
 
-type sessionAffinityConfigDieExtensionDieExtension interface {
-	ClientIPDie(fn func(d ClientIPConfigDie)) SessionAffinityConfigDie
-}
-
-func (d *sessionAffinityConfigDie) ClientIPDie(fn func(d ClientIPConfigDie)) SessionAffinityConfigDie {
+func (d *SessionAffinityConfigDie) ClientIPDie(fn func(d *ClientIPConfigDie)) *SessionAffinityConfigDie {
 	return d.DieStamp(func(r *corev1.SessionAffinityConfig) {
 		d := ClientIPConfigBlank.DieImmutable(false).DieFeedPtr(r.ClientIP)
 		fn(d)
@@ -89,12 +79,7 @@ type _ = corev1.ClientIPConfig
 // +die
 type _ = corev1.ServiceStatus
 
-type serviceStatusDieExtension interface {
-	LoadBalancerDie(fn func(d LoadBalancerStatusDie)) ServiceStatusDie
-	ConditionsDie(conditions ...diemetav1.ConditionDie) ServiceStatusDie
-}
-
-func (d *serviceStatusDie) LoadBalancerDie(fn func(d LoadBalancerStatusDie)) ServiceStatusDie {
+func (d *ServiceStatusDie) LoadBalancerDie(fn func(d *LoadBalancerStatusDie)) *ServiceStatusDie {
 	return d.DieStamp(func(r *corev1.ServiceStatus) {
 		d := LoadBalancerStatusBlank.DieImmutable(false).DieFeed(r.LoadBalancer)
 		fn(d)
@@ -102,7 +87,7 @@ func (d *serviceStatusDie) LoadBalancerDie(fn func(d LoadBalancerStatusDie)) Ser
 	})
 }
 
-func (d *serviceStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) ServiceStatusDie {
+func (d *ServiceStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *ServiceStatusDie {
 	return d.DieStamp(func(r *corev1.ServiceStatus) {
 		r.Conditions = make([]metav1.Condition, len(conditions))
 		for i, c := range conditions {
@@ -114,11 +99,7 @@ func (d *serviceStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) S
 // +die
 type _ = corev1.LoadBalancerStatus
 
-type loadBalancerStatusDieExtension interface {
-	LoadBalancerDie(ingress ...LoadBalancerIngressDie) LoadBalancerStatusDie
-}
-
-func (d *loadBalancerStatusDie) LoadBalancerDie(ingress ...LoadBalancerIngressDie) LoadBalancerStatusDie {
+func (d *LoadBalancerStatusDie) LoadBalancerDie(ingress ...*LoadBalancerIngressDie) *LoadBalancerStatusDie {
 	return d.DieStamp(func(r *corev1.LoadBalancerStatus) {
 		r.Ingress = make([]corev1.LoadBalancerIngress, len(ingress))
 		for i := range ingress {
@@ -130,11 +111,7 @@ func (d *loadBalancerStatusDie) LoadBalancerDie(ingress ...LoadBalancerIngressDi
 // +die
 type _ = corev1.LoadBalancerIngress
 
-type loadBalancerIngressDieExtension interface {
-	PortsDie(ports ...PortStatusDie) LoadBalancerIngressDie
-}
-
-func (d *loadBalancerIngressDie) PortsDie(ports ...PortStatusDie) LoadBalancerIngressDie {
+func (d *LoadBalancerIngressDie) PortsDie(ports ...*PortStatusDie) *LoadBalancerIngressDie {
 	return d.DieStamp(func(r *corev1.LoadBalancerIngress) {
 		r.Ports = make([]corev1.PortStatus, len(ports))
 		for i := range ports {

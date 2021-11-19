@@ -23,39 +23,7 @@ import (
 // +die
 type _ = corev1.Volume
 
-type volumeDieExtension interface {
-	HostPathDie(fn func(d HostPathVolumeSourceDie)) VolumeDie
-	EmptyDirDie(fn func(d EmptyDirVolumeSourceDie)) VolumeDie
-	GCEPersistentDiskDie(fn func(d GCEPersistentDiskVolumeSourceDie)) VolumeDie
-	AWSElasticBlockStoreDie(fn func(d AWSElasticBlockStoreVolumeSourceDie)) VolumeDie
-	GitRepoDie(fn func(d GitRepoVolumeSourceDie)) VolumeDie
-	SecretDie(fn func(d SecretVolumeSourceDie)) VolumeDie
-	NFSDie(fn func(d NFSVolumeSourceDie)) VolumeDie
-	ISCSIDie(fn func(d ISCSIVolumeSourceDie)) VolumeDie
-	GlusterfsDie(fn func(d GlusterfsVolumeSourceDie)) VolumeDie
-	PersistentVolumeClaimDie(fn func(d PersistentVolumeClaimVolumeSourceDie)) VolumeDie
-	RBDDie(fn func(d RBDVolumeSourceDie)) VolumeDie
-	FlexVolumeDie(fn func(d FlexVolumeSourceDie)) VolumeDie
-	CinderDie(fn func(d CinderVolumeSourceDie)) VolumeDie
-	CephFSDie(fn func(d CephFSVolumeSourceDie)) VolumeDie
-	FlockerDie(fn func(d FlockerVolumeSourceDie)) VolumeDie
-	DownwardAPIDie(fn func(d DownwardAPIVolumeSourceDie)) VolumeDie
-	FCDie(fn func(d FCVolumeSourceDie)) VolumeDie
-	AzureFileDie(fn func(d AzureFileVolumeSourceDie)) VolumeDie
-	ConfigMapDie(fn func(d ConfigMapVolumeSourceDie)) VolumeDie
-	VsphereVolumeDie(fn func(d VsphereVirtualDiskVolumeSourceDie)) VolumeDie
-	QuobyteDie(fn func(d QuobyteVolumeSourceDie)) VolumeDie
-	AzureDiskDie(fn func(d AzureDiskVolumeSourceDie)) VolumeDie
-	PhotonPersistentDiskDie(fn func(d PhotonPersistentDiskVolumeSourceDie)) VolumeDie
-	ProjectedDie(fn func(d ProjectedVolumeSourceDie)) VolumeDie
-	PortworxVolumeDie(fn func(d PortworxVolumeSourceDie)) VolumeDie
-	ScaleIODie(fn func(d ScaleIOVolumeSourceDie)) VolumeDie
-	StorageOSDie(fn func(d StorageOSVolumeSourceDie)) VolumeDie
-	CSIDie(fn func(d CSIVolumeSourceDie)) VolumeDie
-	EphemeralDie(fn func(d EphemeralVolumeSourceDie)) VolumeDie
-}
-
-func (d *volumeDie) HostPathDie(fn func(d HostPathVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) HostPathDie(fn func(d *HostPathVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := HostPathVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.HostPath)
 		fn(d)
@@ -65,7 +33,7 @@ func (d *volumeDie) HostPathDie(fn func(d HostPathVolumeSourceDie)) VolumeDie {
 	})
 }
 
-func (d *volumeDie) EmptyDirDie(fn func(d EmptyDirVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) EmptyDirDie(fn func(d *EmptyDirVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := EmptyDirVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.EmptyDir)
 		fn(d)
@@ -75,7 +43,7 @@ func (d *volumeDie) EmptyDirDie(fn func(d EmptyDirVolumeSourceDie)) VolumeDie {
 	})
 }
 
-func (d *volumeDie) GCEPersistentDiskDie(fn func(d GCEPersistentDiskVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) GCEPersistentDiskDie(fn func(d *GCEPersistentDiskVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := GCEPersistentDiskVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.GCEPersistentDisk)
 		fn(d)
@@ -85,7 +53,7 @@ func (d *volumeDie) GCEPersistentDiskDie(fn func(d GCEPersistentDiskVolumeSource
 	})
 }
 
-func (d *volumeDie) AWSElasticBlockStoreDie(fn func(d AWSElasticBlockStoreVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) AWSElasticBlockStoreDie(fn func(d *AWSElasticBlockStoreVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := AWSElasticBlockStoreVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.AWSElasticBlockStore)
 		fn(d)
@@ -95,7 +63,7 @@ func (d *volumeDie) AWSElasticBlockStoreDie(fn func(d AWSElasticBlockStoreVolume
 	})
 }
 
-func (d *volumeDie) GitRepoDie(fn func(d GitRepoVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) GitRepoDie(fn func(d *GitRepoVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := GitRepoVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.GitRepo)
 		fn(d)
@@ -105,7 +73,7 @@ func (d *volumeDie) GitRepoDie(fn func(d GitRepoVolumeSourceDie)) VolumeDie {
 	})
 }
 
-func (d *volumeDie) SecretDie(fn func(d SecretVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) SecretDie(fn func(d *SecretVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := SecretVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.Secret)
 		fn(d)
@@ -115,7 +83,7 @@ func (d *volumeDie) SecretDie(fn func(d SecretVolumeSourceDie)) VolumeDie {
 	})
 }
 
-func (d *volumeDie) NFSDie(fn func(d NFSVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) NFSDie(fn func(d *NFSVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := NFSVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.NFS)
 		fn(d)
@@ -125,7 +93,7 @@ func (d *volumeDie) NFSDie(fn func(d NFSVolumeSourceDie)) VolumeDie {
 	})
 }
 
-func (d *volumeDie) ISCSIDie(fn func(d ISCSIVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) ISCSIDie(fn func(d *ISCSIVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := ISCSIVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.ISCSI)
 		fn(d)
@@ -135,7 +103,7 @@ func (d *volumeDie) ISCSIDie(fn func(d ISCSIVolumeSourceDie)) VolumeDie {
 	})
 }
 
-func (d *volumeDie) GlusterfsDie(fn func(d GlusterfsVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) GlusterfsDie(fn func(d *GlusterfsVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := GlusterfsVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.Glusterfs)
 		fn(d)
@@ -145,7 +113,7 @@ func (d *volumeDie) GlusterfsDie(fn func(d GlusterfsVolumeSourceDie)) VolumeDie 
 	})
 }
 
-func (d *volumeDie) PersistentVolumeClaimDie(fn func(d PersistentVolumeClaimVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) PersistentVolumeClaimDie(fn func(d *PersistentVolumeClaimVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := PersistentVolumeClaimVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.PersistentVolumeClaim)
 		fn(d)
@@ -155,7 +123,7 @@ func (d *volumeDie) PersistentVolumeClaimDie(fn func(d PersistentVolumeClaimVolu
 	})
 }
 
-func (d *volumeDie) RBDDie(fn func(d RBDVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) RBDDie(fn func(d *RBDVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := RBDVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.RBD)
 		fn(d)
@@ -165,7 +133,7 @@ func (d *volumeDie) RBDDie(fn func(d RBDVolumeSourceDie)) VolumeDie {
 	})
 }
 
-func (d *volumeDie) FlexVolumeDie(fn func(d FlexVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) FlexVolumeDie(fn func(d *FlexVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := FlexVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.FlexVolume)
 		fn(d)
@@ -175,7 +143,7 @@ func (d *volumeDie) FlexVolumeDie(fn func(d FlexVolumeSourceDie)) VolumeDie {
 	})
 }
 
-func (d *volumeDie) CinderDie(fn func(d CinderVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) CinderDie(fn func(d *CinderVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := CinderVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.Cinder)
 		fn(d)
@@ -185,7 +153,7 @@ func (d *volumeDie) CinderDie(fn func(d CinderVolumeSourceDie)) VolumeDie {
 	})
 }
 
-func (d *volumeDie) CephFSDie(fn func(d CephFSVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) CephFSDie(fn func(d *CephFSVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := CephFSVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.CephFS)
 		fn(d)
@@ -195,7 +163,7 @@ func (d *volumeDie) CephFSDie(fn func(d CephFSVolumeSourceDie)) VolumeDie {
 	})
 }
 
-func (d *volumeDie) FlockerDie(fn func(d FlockerVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) FlockerDie(fn func(d *FlockerVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := FlockerVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.Flocker)
 		fn(d)
@@ -205,7 +173,7 @@ func (d *volumeDie) FlockerDie(fn func(d FlockerVolumeSourceDie)) VolumeDie {
 	})
 }
 
-func (d *volumeDie) DownwardAPIDie(fn func(d DownwardAPIVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) DownwardAPIDie(fn func(d *DownwardAPIVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := DownwardAPIVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.DownwardAPI)
 		fn(d)
@@ -215,7 +183,7 @@ func (d *volumeDie) DownwardAPIDie(fn func(d DownwardAPIVolumeSourceDie)) Volume
 	})
 }
 
-func (d *volumeDie) FCDie(fn func(d FCVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) FCDie(fn func(d *FCVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := FCVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.FC)
 		fn(d)
@@ -225,7 +193,7 @@ func (d *volumeDie) FCDie(fn func(d FCVolumeSourceDie)) VolumeDie {
 	})
 }
 
-func (d *volumeDie) AzureFileDie(fn func(d AzureFileVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) AzureFileDie(fn func(d *AzureFileVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := AzureFileVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.AzureFile)
 		fn(d)
@@ -235,7 +203,7 @@ func (d *volumeDie) AzureFileDie(fn func(d AzureFileVolumeSourceDie)) VolumeDie 
 	})
 }
 
-func (d *volumeDie) ConfigMapDie(fn func(d ConfigMapVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) ConfigMapDie(fn func(d *ConfigMapVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := ConfigMapVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.ConfigMap)
 		fn(d)
@@ -245,7 +213,7 @@ func (d *volumeDie) ConfigMapDie(fn func(d ConfigMapVolumeSourceDie)) VolumeDie 
 	})
 }
 
-func (d *volumeDie) VsphereVolumeDie(fn func(d VsphereVirtualDiskVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) VsphereVolumeDie(fn func(d *VsphereVirtualDiskVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := VsphereVirtualDiskVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.VsphereVolume)
 		fn(d)
@@ -255,7 +223,7 @@ func (d *volumeDie) VsphereVolumeDie(fn func(d VsphereVirtualDiskVolumeSourceDie
 	})
 }
 
-func (d *volumeDie) QuobyteDie(fn func(d QuobyteVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) QuobyteDie(fn func(d *QuobyteVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := QuobyteVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.Quobyte)
 		fn(d)
@@ -265,7 +233,7 @@ func (d *volumeDie) QuobyteDie(fn func(d QuobyteVolumeSourceDie)) VolumeDie {
 	})
 }
 
-func (d *volumeDie) AzureDiskDie(fn func(d AzureDiskVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) AzureDiskDie(fn func(d *AzureDiskVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := AzureDiskVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.AzureDisk)
 		fn(d)
@@ -275,7 +243,7 @@ func (d *volumeDie) AzureDiskDie(fn func(d AzureDiskVolumeSourceDie)) VolumeDie 
 	})
 }
 
-func (d *volumeDie) PhotonPersistentDiskDie(fn func(d PhotonPersistentDiskVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) PhotonPersistentDiskDie(fn func(d *PhotonPersistentDiskVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := PhotonPersistentDiskVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.PhotonPersistentDisk)
 		fn(d)
@@ -285,7 +253,7 @@ func (d *volumeDie) PhotonPersistentDiskDie(fn func(d PhotonPersistentDiskVolume
 	})
 }
 
-func (d *volumeDie) ProjectedDie(fn func(d ProjectedVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) ProjectedDie(fn func(d *ProjectedVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := ProjectedVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.Projected)
 		fn(d)
@@ -295,7 +263,7 @@ func (d *volumeDie) ProjectedDie(fn func(d ProjectedVolumeSourceDie)) VolumeDie 
 	})
 }
 
-func (d *volumeDie) PortworxVolumeDie(fn func(d PortworxVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) PortworxVolumeDie(fn func(d *PortworxVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := PortworxVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.PortworxVolume)
 		fn(d)
@@ -305,7 +273,7 @@ func (d *volumeDie) PortworxVolumeDie(fn func(d PortworxVolumeSourceDie)) Volume
 	})
 }
 
-func (d *volumeDie) ScaleIODie(fn func(d ScaleIOVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) ScaleIODie(fn func(d *ScaleIOVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := ScaleIOVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.ScaleIO)
 		fn(d)
@@ -315,7 +283,7 @@ func (d *volumeDie) ScaleIODie(fn func(d ScaleIOVolumeSourceDie)) VolumeDie {
 	})
 }
 
-func (d *volumeDie) StorageOSDie(fn func(d StorageOSVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) StorageOSDie(fn func(d *StorageOSVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := StorageOSVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.StorageOS)
 		fn(d)
@@ -325,7 +293,7 @@ func (d *volumeDie) StorageOSDie(fn func(d StorageOSVolumeSourceDie)) VolumeDie 
 	})
 }
 
-func (d *volumeDie) CSIDie(fn func(d CSIVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) CSIDie(fn func(d *CSIVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := CSIVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.CSI)
 		fn(d)
@@ -335,7 +303,7 @@ func (d *volumeDie) CSIDie(fn func(d CSIVolumeSourceDie)) VolumeDie {
 	})
 }
 
-func (d *volumeDie) EphemeralDie(fn func(d EphemeralVolumeSourceDie)) VolumeDie {
+func (d *VolumeDie) EphemeralDie(fn func(d *EphemeralVolumeSourceDie)) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		d := EphemeralVolumeSourceBlank.DieImmutable(false).DieFeedPtr(r.Ephemeral)
 		fn(d)
@@ -363,11 +331,7 @@ type _ = corev1.GitRepoVolumeSource
 // +die
 type _ = corev1.SecretVolumeSource
 
-type secretVolumeSourceDieExtension interface {
-	ItemDie(key string, fn func(d KeyToPathDie)) SecretVolumeSourceDie
-}
-
-func (d *secretVolumeSourceDie) ItemDie(key string, fn func(d KeyToPathDie)) SecretVolumeSourceDie {
+func (d *SecretVolumeSourceDie) ItemDie(key string, fn func(d *KeyToPathDie)) *SecretVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.SecretVolumeSource) {
 		for i := range r.Items {
 			if key == r.Items[i].Key {
@@ -390,11 +354,7 @@ type _ = corev1.NFSVolumeSource
 // +die
 type _ = corev1.ISCSIVolumeSource
 
-type iscsiVolumeSourceDieExtension interface {
-	SecretRefDie(fn func(d LocalObjectReferenceDie)) ISCSIVolumeSourceDie
-}
-
-func (d *iscsiVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie)) ISCSIVolumeSourceDie {
+func (d *ISCSIVolumeSourceDie) SecretRefDie(fn func(d *LocalObjectReferenceDie)) *ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
 		fn(d)
@@ -411,11 +371,7 @@ type _ = corev1.PersistentVolumeClaimVolumeSource
 // +die
 type _ = corev1.RBDVolumeSource
 
-type rbdVolumeSourceDieExtension interface {
-	SecretRefDie(fn func(d LocalObjectReferenceDie)) RBDVolumeSourceDie
-}
-
-func (d *rbdVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie)) RBDVolumeSourceDie {
+func (d *RBDVolumeSourceDie) SecretRefDie(fn func(d *LocalObjectReferenceDie)) *RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
 		fn(d)
@@ -426,11 +382,7 @@ func (d *rbdVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie)) RB
 // +die
 type _ = corev1.FlexVolumeSource
 
-type flexVolumeSourceDieExtension interface {
-	SecretRefDie(fn func(d LocalObjectReferenceDie)) FlexVolumeSourceDie
-}
-
-func (d *flexVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie)) FlexVolumeSourceDie {
+func (d *FlexVolumeSourceDie) SecretRefDie(fn func(d *LocalObjectReferenceDie)) *FlexVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FlexVolumeSource) {
 		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
 		fn(d)
@@ -441,11 +393,7 @@ func (d *flexVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie)) F
 // +die
 type _ = corev1.CinderVolumeSource
 
-type cinderVolumeSourceDieExtension interface {
-	SecretRefDie(fn func(d LocalObjectReferenceDie)) CinderVolumeSourceDie
-}
-
-func (d *cinderVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie)) CinderVolumeSourceDie {
+func (d *CinderVolumeSourceDie) SecretRefDie(fn func(d *LocalObjectReferenceDie)) *CinderVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CinderVolumeSource) {
 		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
 		fn(d)
@@ -456,11 +404,7 @@ func (d *cinderVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie))
 // +die
 type _ = corev1.CephFSVolumeSource
 
-type cephFSVolumeSourceDieExtension interface {
-	SecretRefDie(fn func(d LocalObjectReferenceDie)) CephFSVolumeSourceDie
-}
-
-func (d *cephFSVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie)) CephFSVolumeSourceDie {
+func (d *CephFSVolumeSourceDie) SecretRefDie(fn func(d *LocalObjectReferenceDie)) *CephFSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CephFSVolumeSource) {
 		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
 		fn(d)
@@ -474,11 +418,7 @@ type _ = corev1.FlockerVolumeSource
 // +die
 type _ = corev1.DownwardAPIVolumeSource
 
-type downwardAPIVolumeSourceDieExtension interface {
-	ItemDie(path string, fn func(d DownwardAPIVolumeFileDie)) DownwardAPIVolumeSourceDie
-}
-
-func (d *downwardAPIVolumeSourceDie) ItemDie(path string, fn func(d DownwardAPIVolumeFileDie)) DownwardAPIVolumeSourceDie {
+func (d *DownwardAPIVolumeSourceDie) ItemDie(path string, fn func(d *DownwardAPIVolumeFileDie)) *DownwardAPIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeSource) {
 		for i := range r.Items {
 			if path == r.Items[i].Path {
@@ -498,12 +438,7 @@ func (d *downwardAPIVolumeSourceDie) ItemDie(path string, fn func(d DownwardAPIV
 // +die
 type _ = corev1.DownwardAPIVolumeFile
 
-type downwardAPIVolumeFileDieExtension interface {
-	FieldRefDie(fn func(d ObjectFieldSelectorDie)) DownwardAPIVolumeFileDie
-	ResourceFieldRefDie(fn func(d ResourceFieldSelectorDie)) DownwardAPIVolumeFileDie
-}
-
-func (d *downwardAPIVolumeFileDie) FieldRefDie(fn func(d ObjectFieldSelectorDie)) DownwardAPIVolumeFileDie {
+func (d *DownwardAPIVolumeFileDie) FieldRefDie(fn func(d *ObjectFieldSelectorDie)) *DownwardAPIVolumeFileDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
 		d := ObjectFieldSelectorBlank.DieImmutable(false).DieFeedPtr(r.FieldRef)
 		fn(d)
@@ -511,7 +446,7 @@ func (d *downwardAPIVolumeFileDie) FieldRefDie(fn func(d ObjectFieldSelectorDie)
 	})
 }
 
-func (d *downwardAPIVolumeFileDie) ResourceFieldRefDie(fn func(d ResourceFieldSelectorDie)) DownwardAPIVolumeFileDie {
+func (d *DownwardAPIVolumeFileDie) ResourceFieldRefDie(fn func(d *ResourceFieldSelectorDie)) *DownwardAPIVolumeFileDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
 		d := ResourceFieldSelectorBlank.DieImmutable(false).DieFeedPtr(r.ResourceFieldRef)
 		fn(d)
@@ -528,18 +463,13 @@ type _ = corev1.AzureFileVolumeSource
 // +die
 type _ = corev1.ConfigMapVolumeSource
 
-type configMapVolumeSourceDieExtension interface {
-	Name(v string) ConfigMapVolumeSourceDie
-	ItemDie(key string, fn func(d KeyToPathDie)) ConfigMapVolumeSourceDie
-}
-
-func (d *configMapVolumeSourceDie) Name(v string) ConfigMapVolumeSourceDie {
+func (d *ConfigMapVolumeSourceDie) Name(v string) *ConfigMapVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ConfigMapVolumeSource) {
 		r.Name = v
 	})
 }
 
-func (d *configMapVolumeSourceDie) ItemDie(key string, fn func(d KeyToPathDie)) ConfigMapVolumeSourceDie {
+func (d *ConfigMapVolumeSourceDie) ItemDie(key string, fn func(d *KeyToPathDie)) *ConfigMapVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ConfigMapVolumeSource) {
 		for i := range r.Items {
 			if key == r.Items[i].Key {
@@ -571,11 +501,7 @@ type _ = corev1.PhotonPersistentDiskVolumeSource
 // +die
 type _ = corev1.ProjectedVolumeSource
 
-type projectedVolumeSourceDieExtension interface {
-	SourcesDie(sources ...VolumeProjectionDie) ProjectedVolumeSourceDie
-}
-
-func (d *projectedVolumeSourceDie) SourcesDie(sources ...VolumeProjectionDie) ProjectedVolumeSourceDie {
+func (d *ProjectedVolumeSourceDie) SourcesDie(sources ...*VolumeProjectionDie) *ProjectedVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ProjectedVolumeSource) {
 		r.Sources = make([]corev1.VolumeProjection, len(sources))
 		for i := range sources {
@@ -587,14 +513,7 @@ func (d *projectedVolumeSourceDie) SourcesDie(sources ...VolumeProjectionDie) Pr
 // +die
 type _ = corev1.VolumeProjection
 
-type volumeProjectionDieExtension interface {
-	SecretDie(fn func(d SecretProjectionDie)) VolumeProjectionDie
-	DownwardAPIDie(fn func(d DownwardAPIProjectionDie)) VolumeProjectionDie
-	ConfigMapDie(fn func(d ConfigMapProjectionDie)) VolumeProjectionDie
-	ServiceAccountTokenDie(fn func(d ServiceAccountTokenProjectionDie)) VolumeProjectionDie
-}
-
-func (d *volumeProjectionDie) SecretDie(fn func(d SecretProjectionDie)) VolumeProjectionDie {
+func (d *VolumeProjectionDie) SecretDie(fn func(d *SecretProjectionDie)) *VolumeProjectionDie {
 	return d.DieStamp(func(r *corev1.VolumeProjection) {
 		d := SecretProjectionBlank.DieImmutable(false).DieFeedPtr(r.Secret)
 		fn(d)
@@ -602,7 +521,7 @@ func (d *volumeProjectionDie) SecretDie(fn func(d SecretProjectionDie)) VolumePr
 	})
 }
 
-func (d *volumeProjectionDie) DownwardAPIDie(fn func(d DownwardAPIProjectionDie)) VolumeProjectionDie {
+func (d *VolumeProjectionDie) DownwardAPIDie(fn func(d *DownwardAPIProjectionDie)) *VolumeProjectionDie {
 	return d.DieStamp(func(r *corev1.VolumeProjection) {
 		d := DownwardAPIProjectionBlank.DieImmutable(false).DieFeedPtr(r.DownwardAPI)
 		fn(d)
@@ -610,7 +529,7 @@ func (d *volumeProjectionDie) DownwardAPIDie(fn func(d DownwardAPIProjectionDie)
 	})
 }
 
-func (d *volumeProjectionDie) ConfigMapDie(fn func(d ConfigMapProjectionDie)) VolumeProjectionDie {
+func (d *VolumeProjectionDie) ConfigMapDie(fn func(d *ConfigMapProjectionDie)) *VolumeProjectionDie {
 	return d.DieStamp(func(r *corev1.VolumeProjection) {
 		d := ConfigMapProjectionBlank.DieImmutable(false).DieFeedPtr(r.ConfigMap)
 		fn(d)
@@ -618,7 +537,7 @@ func (d *volumeProjectionDie) ConfigMapDie(fn func(d ConfigMapProjectionDie)) Vo
 	})
 }
 
-func (d *volumeProjectionDie) ServiceAccountTokenDie(fn func(d ServiceAccountTokenProjectionDie)) VolumeProjectionDie {
+func (d *VolumeProjectionDie) ServiceAccountTokenDie(fn func(d *ServiceAccountTokenProjectionDie)) *VolumeProjectionDie {
 	return d.DieStamp(func(r *corev1.VolumeProjection) {
 		d := ServiceAccountTokenProjectionBlank.DieImmutable(false).DieFeedPtr(r.ServiceAccountToken)
 		fn(d)
@@ -629,18 +548,13 @@ func (d *volumeProjectionDie) ServiceAccountTokenDie(fn func(d ServiceAccountTok
 // +die
 type _ = corev1.SecretProjection
 
-type secretProjectionDieExtension interface {
-	Name(v string) SecretProjectionDie
-	ItemDie(key string, fn func(d KeyToPathDie)) SecretProjectionDie
-}
-
-func (d *secretProjectionDie) Name(v string) SecretProjectionDie {
+func (d *SecretProjectionDie) Name(v string) *SecretProjectionDie {
 	return d.DieStamp(func(r *corev1.SecretProjection) {
 		r.Name = v
 	})
 }
 
-func (d *secretProjectionDie) ItemDie(key string, fn func(d KeyToPathDie)) SecretProjectionDie {
+func (d *SecretProjectionDie) ItemDie(key string, fn func(d *KeyToPathDie)) *SecretProjectionDie {
 	return d.DieStamp(func(r *corev1.SecretProjection) {
 		for i := range r.Items {
 			if key == r.Items[i].Key {
@@ -660,11 +574,7 @@ func (d *secretProjectionDie) ItemDie(key string, fn func(d KeyToPathDie)) Secre
 // +die
 type _ = corev1.DownwardAPIProjection
 
-type downwardAPIProjectionDieExtension interface {
-	ItemDie(path string, fn func(d DownwardAPIVolumeFileDie)) DownwardAPIProjectionDie
-}
-
-func (d *downwardAPIProjectionDie) ItemDie(path string, fn func(d DownwardAPIVolumeFileDie)) DownwardAPIProjectionDie {
+func (d *DownwardAPIProjectionDie) ItemDie(path string, fn func(d *DownwardAPIVolumeFileDie)) *DownwardAPIProjectionDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIProjection) {
 		for i := range r.Items {
 			if path == r.Items[i].Path {
@@ -684,18 +594,13 @@ func (d *downwardAPIProjectionDie) ItemDie(path string, fn func(d DownwardAPIVol
 // +die
 type _ = corev1.ConfigMapProjection
 
-type configmapProjectionDieExtension interface {
-	Name(v string) ConfigMapProjectionDie
-	ItemDie(key string, fn func(d KeyToPathDie)) ConfigMapProjectionDie
-}
-
-func (d *configMapProjectionDie) Name(v string) ConfigMapProjectionDie {
+func (d *ConfigMapProjectionDie) Name(v string) *ConfigMapProjectionDie {
 	return d.DieStamp(func(r *corev1.ConfigMapProjection) {
 		r.Name = v
 	})
 }
 
-func (d *configMapProjectionDie) ItemDie(key string, fn func(d KeyToPathDie)) ConfigMapProjectionDie {
+func (d *ConfigMapProjectionDie) ItemDie(key string, fn func(d *KeyToPathDie)) *ConfigMapProjectionDie {
 	return d.DieStamp(func(r *corev1.ConfigMapProjection) {
 		for i := range r.Items {
 			if key == r.Items[i].Key {
@@ -721,11 +626,7 @@ type _ = corev1.PortworxVolumeSource
 // +die
 type _ = corev1.ScaleIOVolumeSource
 
-type scaleIOVolumeSourceDieExtension interface {
-	SecretRefDie(fn func(d LocalObjectReferenceDie)) ScaleIOVolumeSourceDie
-}
-
-func (d *scaleIOVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie)) ScaleIOVolumeSourceDie {
+func (d *ScaleIOVolumeSourceDie) SecretRefDie(fn func(d *LocalObjectReferenceDie)) *ScaleIOVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ScaleIOVolumeSource) {
 		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
 		fn(d)
@@ -736,11 +637,7 @@ func (d *scaleIOVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie)
 // +die
 type _ = corev1.StorageOSVolumeSource
 
-type storageOSVolumeSourceDieExtension interface {
-	SecretRefDie(fn func(d LocalObjectReferenceDie)) StorageOSVolumeSourceDie
-}
-
-func (d *storageOSVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDie)) StorageOSVolumeSourceDie {
+func (d *StorageOSVolumeSourceDie) SecretRefDie(fn func(d *LocalObjectReferenceDie)) *StorageOSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.StorageOSVolumeSource) {
 		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
 		fn(d)
@@ -751,18 +648,13 @@ func (d *storageOSVolumeSourceDie) SecretRefDie(fn func(d LocalObjectReferenceDi
 // +die
 type _ = corev1.CSIVolumeSource
 
-type csiVolumeSourceDieExtension interface {
-	VolumeAttribute(key, value string) CSIVolumeSourceDie
-	NodePublishSecretRefDie(fn func(d LocalObjectReferenceDie)) CSIVolumeSourceDie
-}
-
-func (d *csiVolumeSourceDie) VolumeAttribute(key, value string) CSIVolumeSourceDie {
+func (d *CSIVolumeSourceDie) VolumeAttribute(key, value string) *CSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIVolumeSource) {
 		r.VolumeAttributes[key] = value
 	})
 }
 
-func (d *csiVolumeSourceDie) NodePublishSecretRefDie(fn func(d LocalObjectReferenceDie)) CSIVolumeSourceDie {
+func (d *CSIVolumeSourceDie) NodePublishSecretRefDie(fn func(d *LocalObjectReferenceDie)) *CSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIVolumeSource) {
 		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.NodePublishSecretRef)
 		fn(d)
@@ -773,11 +665,7 @@ func (d *csiVolumeSourceDie) NodePublishSecretRefDie(fn func(d LocalObjectRefere
 // +die
 type _ = corev1.EphemeralVolumeSource
 
-type ephemeralVolumeSourceDieExtension interface {
-	VolumeClaimTemplateDie(fn func(d PersistentVolumeClaimTemplateDie)) EphemeralVolumeSourceDie
-}
-
-func (d *ephemeralVolumeSourceDie) VolumeClaimTemplateDie(fn func(d PersistentVolumeClaimTemplateDie)) EphemeralVolumeSourceDie {
+func (d *EphemeralVolumeSourceDie) VolumeClaimTemplateDie(fn func(d *PersistentVolumeClaimTemplateDie)) *EphemeralVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.EphemeralVolumeSource) {
 		d := PersistentVolumeClaimTemplateBlank.DieImmutable(false).DieFeedPtr(r.VolumeClaimTemplate)
 		fn(d)

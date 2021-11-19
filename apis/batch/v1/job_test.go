@@ -36,7 +36,7 @@ func TestJob(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		die      diebatchv1.JobDie
+		die      *diebatchv1.JobDie
 		expected batchv1.Job
 	}{
 		{
@@ -47,7 +47,7 @@ func TestJob(t *testing.T) {
 		{
 			name: "object metadata",
 			die: diebatchv1.JobBlank.
-				MetadataDie(func(d diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),
@@ -61,13 +61,13 @@ func TestJob(t *testing.T) {
 		{
 			name: "spec template die",
 			die: diebatchv1.JobBlank.
-				SpecDie(func(d diebatchv1.JobSpecDie) {
-					d.TemplateDie(func(d diecorev1.PodTemplateSpecDie) {
-						d.MetadataDie(func(d diemetav1.ObjectMetaDie) {
+				SpecDie(func(d *diebatchv1.JobSpecDie) {
+					d.TemplateDie(func(d *diecorev1.PodTemplateSpecDie) {
+						d.MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 							d.Name("my-name")
 						})
-						d.SpecDie(func(d diecorev1.PodSpecDie) {
-							d.ContainerDie("app", func(d diecorev1.ContainerDie) {
+						d.SpecDie(func(d *diecorev1.PodSpecDie) {
+							d.ContainerDie("app", func(d *diecorev1.ContainerDie) {
 								d.Command("/executable")
 							})
 						})
@@ -94,7 +94,7 @@ func TestJob(t *testing.T) {
 		{
 			name: "status conditions die",
 			die: diebatchv1.JobBlank.
-				StatusDie(func(d diebatchv1.JobStatusDie) {
+				StatusDie(func(d *diebatchv1.JobStatusDie) {
 					d.ConditionsDie(
 						diemetav1.ConditionBlank.
 							Type("Ready").

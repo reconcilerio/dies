@@ -29,7 +29,7 @@ import (
 func TestNode(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      diecorev1.NodeDie
+		die      *diecorev1.NodeDie
 		expected corev1.Node
 	}{
 		{
@@ -40,7 +40,7 @@ func TestNode(t *testing.T) {
 		{
 			name: "object metadata",
 			die: diecorev1.NodeBlank.
-				MetadataDie(func(d diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 					d.Name("my-name")
 				}),
 			expected: corev1.Node{

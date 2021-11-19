@@ -27,7 +27,7 @@ import (
 func TestCondition(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      diemetav1.ConditionDie
+		die      *diemetav1.ConditionDie
 		expected metav1.Condition
 	}{
 		{

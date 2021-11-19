@@ -29,13 +29,7 @@ type _ = appsv1.DaemonSet
 // +die
 type _ = appsv1.DaemonSetSpec
 
-type daemonSetSpecDieExtension interface {
-	SelectorDie(fn func(d diemetav1.LabelSelectorDie)) DaemonSetSpecDie
-	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) DaemonSetSpecDie
-	UpdateStrategyDie(fn func(d DaemonSetUpdateStrategyDie)) DaemonSetSpecDie
-}
-
-func (d *daemonSetSpecDie) SelectorDie(fn func(d diemetav1.LabelSelectorDie)) DaemonSetSpecDie {
+func (d *DaemonSetSpecDie) SelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
 		fn(d)
@@ -43,7 +37,7 @@ func (d *daemonSetSpecDie) SelectorDie(fn func(d diemetav1.LabelSelectorDie)) Da
 	})
 }
 
-func (d *daemonSetSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) DaemonSetSpecDie {
+func (d *DaemonSetSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		d := diecorev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
 		fn(d)
@@ -51,7 +45,7 @@ func (d *daemonSetSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) 
 	})
 }
 
-func (d *daemonSetSpecDie) UpdateStrategyDie(fn func(d DaemonSetUpdateStrategyDie)) DaemonSetSpecDie {
+func (d *DaemonSetSpecDie) UpdateStrategyDie(fn func(d *DaemonSetUpdateStrategyDie)) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		d := DaemonSetUpdateStrategyBlank.DieImmutable(false).DieFeed(r.UpdateStrategy)
 		fn(d)
@@ -62,19 +56,14 @@ func (d *daemonSetSpecDie) UpdateStrategyDie(fn func(d DaemonSetUpdateStrategyDi
 // +die
 type _ = appsv1.DaemonSetUpdateStrategy
 
-type daemonSetUpdateStrategyDieExtension interface {
-	OnDelete() DaemonSetUpdateStrategyDie
-	RollingUpdateDie(fn func(d RollingUpdateDaemonSetDie)) DaemonSetUpdateStrategyDie
-}
-
-func (d *daemonSetUpdateStrategyDie) OnDelete() DaemonSetUpdateStrategyDie {
+func (d *DaemonSetUpdateStrategyDie) OnDelete() *DaemonSetUpdateStrategyDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetUpdateStrategy) {
 		r.Type = appsv1.OnDeleteDaemonSetStrategyType
 		r.RollingUpdate = nil
 	})
 }
 
-func (d *daemonSetUpdateStrategyDie) RollingUpdateDie(fn func(d RollingUpdateDaemonSetDie)) DaemonSetUpdateStrategyDie {
+func (d *DaemonSetUpdateStrategyDie) RollingUpdateDie(fn func(d *RollingUpdateDaemonSetDie)) *DaemonSetUpdateStrategyDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetUpdateStrategy) {
 		r.Type = appsv1.RollingUpdateDaemonSetStrategyType
 		d := RollingUpdateDaemonSetBlank.DieImmutable(false).DieFeedPtr(r.RollingUpdate)
@@ -89,11 +78,7 @@ type _ = appsv1.RollingUpdateDaemonSet
 // +die
 type _ = appsv1.DaemonSetStatus
 
-type daemonSetStatusDieExtension interface {
-	ConditionsDie(conditions ...diemetav1.ConditionDie) DaemonSetStatusDie
-}
-
-func (d *daemonSetStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) DaemonSetStatusDie {
+func (d *DaemonSetStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.Conditions = make([]appsv1.DaemonSetCondition, len(conditions))
 		for i := range conditions {

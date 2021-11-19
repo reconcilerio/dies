@@ -29,7 +29,7 @@ import (
 func TestNetworkPolicy(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      dienetworkingv1.NetworkPolicyDie
+		die      *dienetworkingv1.NetworkPolicyDie
 		expected networkingv1.NetworkPolicy
 	}{
 		{
@@ -40,7 +40,7 @@ func TestNetworkPolicy(t *testing.T) {
 		{
 			name: "object metadata",
 			die: dienetworkingv1.NetworkPolicyBlank.
-				MetadataDie(func(d diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),

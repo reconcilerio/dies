@@ -29,7 +29,7 @@ import (
 func TestNamespace(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      diecorev1.NamespaceDie
+		die      *diecorev1.NamespaceDie
 		expected corev1.Namespace
 	}{
 		{
@@ -40,7 +40,7 @@ func TestNamespace(t *testing.T) {
 		{
 			name: "object metadata",
 			die: diecorev1.NamespaceBlank.
-				MetadataDie(func(d diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 					d.Name("my-name")
 				}),
 			expected: corev1.Namespace{

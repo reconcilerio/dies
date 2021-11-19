@@ -23,14 +23,7 @@ import (
 // +die:object=true
 type _ = corev1.Event
 
-type eventDieExtension interface {
-	InvolvedObjectDie(fn func(d ObjectReferenceDie)) EventDie
-	SourceDie(fn func(d EventSourceDie)) EventDie
-	SeriesDie(fn func(d EventSeriesDie)) EventDie
-	RelatedDie(fn func(d ObjectReferenceDie)) EventDie
-}
-
-func (d *eventDie) InvolvedObjectDie(fn func(d ObjectReferenceDie)) EventDie {
+func (d *EventDie) InvolvedObjectDie(fn func(d *ObjectReferenceDie)) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		d := ObjectReferenceBlank.DieImmutable(false).DieFeed(r.InvolvedObject)
 		fn(d)
@@ -38,7 +31,7 @@ func (d *eventDie) InvolvedObjectDie(fn func(d ObjectReferenceDie)) EventDie {
 	})
 }
 
-func (d *eventDie) SourceDie(fn func(d EventSourceDie)) EventDie {
+func (d *EventDie) SourceDie(fn func(d *EventSourceDie)) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		d := EventSourceBlank.DieImmutable(false).DieFeed(r.Source)
 		fn(d)
@@ -46,7 +39,7 @@ func (d *eventDie) SourceDie(fn func(d EventSourceDie)) EventDie {
 	})
 }
 
-func (d *eventDie) SeriesDie(fn func(d EventSeriesDie)) EventDie {
+func (d *EventDie) SeriesDie(fn func(d *EventSeriesDie)) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		d := EventSeriesBlank.DieImmutable(false).DieFeedPtr(r.Series)
 		fn(d)
@@ -54,7 +47,7 @@ func (d *eventDie) SeriesDie(fn func(d EventSeriesDie)) EventDie {
 	})
 }
 
-func (d *eventDie) RelatedDie(fn func(d ObjectReferenceDie)) EventDie {
+func (d *EventDie) RelatedDie(fn func(d *ObjectReferenceDie)) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		d := ObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.Related)
 		fn(d)

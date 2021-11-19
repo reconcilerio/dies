@@ -29,7 +29,7 @@ import (
 func TestServiceAccount(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      diecorev1.ServiceAccountDie
+		die      *diecorev1.ServiceAccountDie
 		expected corev1.ServiceAccount
 	}{
 		{
@@ -40,7 +40,7 @@ func TestServiceAccount(t *testing.T) {
 		{
 			name: "object metadata",
 			die: diecorev1.ServiceAccountBlank.
-				MetadataDie(func(d diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),

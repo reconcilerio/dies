@@ -23,11 +23,7 @@ import (
 // +die:object=true
 type _ = corev1.Endpoints
 
-type endpointsDieExtension interface {
-	SubsetsDie(subsets ...EndpointSubsetDie) EndpointsDie
-}
-
-func (d *endpointsDie) SubsetsDie(subsets ...EndpointSubsetDie) EndpointsDie {
+func (d *EndpointsDie) SubsetsDie(subsets ...*EndpointSubsetDie) *EndpointsDie {
 	return d.DieStamp(func(r *corev1.Endpoints) {
 		r.Subsets = make([]corev1.EndpointSubset, len(subsets))
 		for i := range subsets {
@@ -39,13 +35,7 @@ func (d *endpointsDie) SubsetsDie(subsets ...EndpointSubsetDie) EndpointsDie {
 // +die
 type _ = corev1.EndpointSubset
 
-type endpointSubsetDieExtension interface {
-	AddressesDie(addresses ...EndpointAddressDie) EndpointSubsetDie
-	NotReadyAddressesDie(addresses ...EndpointAddressDie) EndpointSubsetDie
-	PortsDie(ports ...EndpointPortDie) EndpointSubsetDie
-}
-
-func (d *endpointSubsetDie) AddressesDie(addresses ...EndpointAddressDie) EndpointSubsetDie {
+func (d *EndpointSubsetDie) AddressesDie(addresses ...*EndpointAddressDie) *EndpointSubsetDie {
 	return d.DieStamp(func(r *corev1.EndpointSubset) {
 		r.Addresses = make([]corev1.EndpointAddress, len(addresses))
 		for i := range addresses {
@@ -54,7 +44,7 @@ func (d *endpointSubsetDie) AddressesDie(addresses ...EndpointAddressDie) Endpoi
 	})
 }
 
-func (d *endpointSubsetDie) NotReadyAddressesDie(addresses ...EndpointAddressDie) EndpointSubsetDie {
+func (d *EndpointSubsetDie) NotReadyAddressesDie(addresses ...*EndpointAddressDie) *EndpointSubsetDie {
 	return d.DieStamp(func(r *corev1.EndpointSubset) {
 		r.NotReadyAddresses = make([]corev1.EndpointAddress, len(addresses))
 		for i := range addresses {
@@ -63,7 +53,7 @@ func (d *endpointSubsetDie) NotReadyAddressesDie(addresses ...EndpointAddressDie
 	})
 }
 
-func (d *endpointSubsetDie) PortsDie(ports ...EndpointPortDie) EndpointSubsetDie {
+func (d *EndpointSubsetDie) PortsDie(ports ...*EndpointPortDie) *EndpointSubsetDie {
 	return d.DieStamp(func(r *corev1.EndpointSubset) {
 		r.Ports = make([]corev1.EndpointPort, len(ports))
 		for i := range ports {
@@ -75,11 +65,7 @@ func (d *endpointSubsetDie) PortsDie(ports ...EndpointPortDie) EndpointSubsetDie
 // +die
 type _ = corev1.EndpointAddress
 
-type endpointAddressDieExtension interface {
-	TargetRefDie(fn func(d ObjectReferenceDie)) EndpointAddressDie
-}
-
-func (d *endpointAddressDie) TargetRefDie(fn func(d ObjectReferenceDie)) EndpointAddressDie {
+func (d *EndpointAddressDie) TargetRefDie(fn func(d *ObjectReferenceDie)) *EndpointAddressDie {
 	return d.DieStamp(func(r *corev1.EndpointAddress) {
 		d := ObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.TargetRef)
 		fn(d)

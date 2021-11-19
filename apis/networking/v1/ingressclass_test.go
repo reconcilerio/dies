@@ -29,7 +29,7 @@ import (
 func TestIngressClass(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      dienetworkingv1.IngressClassDie
+		die      *dienetworkingv1.IngressClassDie
 		expected networkingv1.IngressClass
 	}{
 		{
@@ -40,7 +40,7 @@ func TestIngressClass(t *testing.T) {
 		{
 			name: "object metadata",
 			die: dienetworkingv1.IngressClassBlank.
-				MetadataDie(func(d diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 					d.Name("my-name")
 				}),
 			expected: networkingv1.IngressClass{

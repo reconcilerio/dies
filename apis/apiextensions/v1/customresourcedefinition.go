@@ -27,13 +27,7 @@ type _ = apiextensionsv1.CustomResourceDefinition
 // +die
 type _ = apiextensionsv1.CustomResourceDefinitionSpec
 
-type customResourceDefinitionSpecDieExtension interface {
-	NamesDie(fn func(d CustomResourceDefinitionNamesDie)) CustomResourceDefinitionSpecDie
-	VersionDie(name string, fn func(d CustomResourceDefinitionVersionDie)) CustomResourceDefinitionSpecDie
-	ConversionDie(fn func(d CustomResourceConversionDie)) CustomResourceDefinitionSpecDie
-}
-
-func (d *customResourceDefinitionSpecDie) NamesDie(fn func(d CustomResourceDefinitionNamesDie)) CustomResourceDefinitionSpecDie {
+func (d *CustomResourceDefinitionSpecDie) NamesDie(fn func(d *CustomResourceDefinitionNamesDie)) *CustomResourceDefinitionSpecDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
 		d := CustomResourceDefinitionNamesBlank.DieImmutable(false).DieFeed(r.Names)
 		fn(d)
@@ -41,7 +35,7 @@ func (d *customResourceDefinitionSpecDie) NamesDie(fn func(d CustomResourceDefin
 	})
 }
 
-func (d *customResourceDefinitionSpecDie) VersionDie(name string, fn func(d CustomResourceDefinitionVersionDie)) CustomResourceDefinitionSpecDie {
+func (d *CustomResourceDefinitionSpecDie) VersionDie(name string, fn func(d *CustomResourceDefinitionVersionDie)) *CustomResourceDefinitionSpecDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
 		for i := range r.Versions {
 			if name == r.Versions[i].Name {
@@ -58,7 +52,7 @@ func (d *customResourceDefinitionSpecDie) VersionDie(name string, fn func(d Cust
 	})
 }
 
-func (d *customResourceDefinitionSpecDie) ConversionDie(fn func(d CustomResourceConversionDie)) CustomResourceDefinitionSpecDie {
+func (d *CustomResourceDefinitionSpecDie) ConversionDie(fn func(d *CustomResourceConversionDie)) *CustomResourceDefinitionSpecDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
 		d := CustomResourceConversionBlank.DieImmutable(false).DieFeedPtr(r.Conversion)
 		fn(d)
@@ -69,13 +63,7 @@ func (d *customResourceDefinitionSpecDie) ConversionDie(fn func(d CustomResource
 // +die
 type _ apiextensionsv1.CustomResourceDefinitionVersion
 
-type customResourceDefinitionVersionDieExtension interface {
-	SchemaDie(fn func(d CustomResourceValidationDie)) CustomResourceDefinitionVersionDie
-	SubresourcesDie(fn func(d CustomResourceSubresourcesDie)) CustomResourceDefinitionVersionDie
-	AdditionalPrinterColumnDie(name string, fn func(d CustomResourceColumnDefinitionDie)) CustomResourceDefinitionVersionDie
-}
-
-func (d *customResourceDefinitionVersionDie) SchemaDie(fn func(d CustomResourceValidationDie)) CustomResourceDefinitionVersionDie {
+func (d *CustomResourceDefinitionVersionDie) SchemaDie(fn func(d *CustomResourceValidationDie)) *CustomResourceDefinitionVersionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
 		d := CustomResourceValidationBlank.DieImmutable(false).DieFeedPtr(r.Schema)
 		fn(d)
@@ -83,7 +71,7 @@ func (d *customResourceDefinitionVersionDie) SchemaDie(fn func(d CustomResourceV
 	})
 }
 
-func (d *customResourceDefinitionVersionDie) SubresourcesDie(fn func(d CustomResourceSubresourcesDie)) CustomResourceDefinitionVersionDie {
+func (d *CustomResourceDefinitionVersionDie) SubresourcesDie(fn func(d *CustomResourceSubresourcesDie)) *CustomResourceDefinitionVersionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
 		d := CustomResourceSubresourcesBlank.DieImmutable(false).DieFeedPtr(r.Subresources)
 		fn(d)
@@ -91,7 +79,7 @@ func (d *customResourceDefinitionVersionDie) SubresourcesDie(fn func(d CustomRes
 	})
 }
 
-func (d *customResourceDefinitionVersionDie) AdditionalPrinterColumnDie(name string, fn func(d CustomResourceColumnDefinitionDie)) CustomResourceDefinitionVersionDie {
+func (d *CustomResourceDefinitionVersionDie) AdditionalPrinterColumnDie(name string, fn func(d *CustomResourceColumnDefinitionDie)) *CustomResourceDefinitionVersionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
 		for i := range r.AdditionalPrinterColumns {
 			if name == r.AdditionalPrinterColumns[i].Name {
@@ -114,11 +102,7 @@ type _ apiextensionsv1.CustomResourceValidation
 // +die
 type _ apiextensionsv1.CustomResourceSubresources
 
-type customResourceSubresourcesDieExtension interface {
-	ScaleDie(fn func(d CustomResourceSubresourceScaleDie)) CustomResourceSubresourcesDie
-}
-
-func (d *customResourceSubresourcesDie) ScaleDie(fn func(d CustomResourceSubresourceScaleDie)) CustomResourceSubresourcesDie {
+func (d *CustomResourceSubresourcesDie) ScaleDie(fn func(d *CustomResourceSubresourceScaleDie)) *CustomResourceSubresourcesDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceSubresources) {
 		d := CustomResourceSubresourceScaleBlank.DieImmutable(false).DieFeedPtr(r.Scale)
 		fn(d)
@@ -135,11 +119,7 @@ type _ apiextensionsv1.CustomResourceColumnDefinition
 // +die
 type _ apiextensionsv1.CustomResourceConversion
 
-type customResourceConversionDieExtension interface {
-	WebhookDie(fn func(d WebhookConversionDie)) CustomResourceConversionDie
-}
-
-func (d *customResourceConversionDie) WebhookDie(fn func(d WebhookConversionDie)) CustomResourceConversionDie {
+func (d *CustomResourceConversionDie) WebhookDie(fn func(d *WebhookConversionDie)) *CustomResourceConversionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceConversion) {
 		d := WebhookConversionBlank.DieImmutable(false).DieFeedPtr(r.Webhook)
 		fn(d)
@@ -150,11 +130,7 @@ func (d *customResourceConversionDie) WebhookDie(fn func(d WebhookConversionDie)
 // +die
 type _ apiextensionsv1.WebhookConversion
 
-type webhookConversionDieExtension interface {
-	ClientConfigDie(fn func(d WebhookClientConfigDie)) WebhookConversionDie
-}
-
-func (d *webhookConversionDie) ClientConfigDie(fn func(d WebhookClientConfigDie)) WebhookConversionDie {
+func (d *WebhookConversionDie) ClientConfigDie(fn func(d *WebhookClientConfigDie)) *WebhookConversionDie {
 	return d.DieStamp(func(r *apiextensionsv1.WebhookConversion) {
 		d := WebhookClientConfigBlank.DieImmutable(false).DieFeedPtr(r.ClientConfig)
 		fn(d)
@@ -165,11 +141,7 @@ func (d *webhookConversionDie) ClientConfigDie(fn func(d WebhookClientConfigDie)
 // +die
 type _ apiextensionsv1.WebhookClientConfig
 
-type webhookClientConfigDieExtension interface {
-	ServiceDie(fn func(d ServiceReferenceDie)) WebhookClientConfigDie
-}
-
-func (d *webhookClientConfigDie) ServiceDie(fn func(d ServiceReferenceDie)) WebhookClientConfigDie {
+func (d *WebhookClientConfigDie) ServiceDie(fn func(d *ServiceReferenceDie)) *WebhookClientConfigDie {
 	return d.DieStamp(func(r *apiextensionsv1.WebhookClientConfig) {
 		d := ServiceReferenceBlank.DieImmutable(false).DieFeedPtr(r.Service)
 		fn(d)
@@ -183,12 +155,7 @@ type _ apiextensionsv1.ServiceReference
 // +die
 type _ = apiextensionsv1.CustomResourceDefinitionStatus
 
-type customResourceDefinitionStatusDieExtension interface {
-	ConditionsDie(conditions ...diemetav1.ConditionDie) CustomResourceDefinitionStatusDie
-	AcceptedNamesDie(fn func(d CustomResourceDefinitionNamesDie)) CustomResourceDefinitionStatusDie
-}
-
-func (d *customResourceDefinitionStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) CustomResourceDefinitionStatusDie {
+func (d *CustomResourceDefinitionStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *CustomResourceDefinitionStatusDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionStatus) {
 		r.Conditions = make([]apiextensionsv1.CustomResourceDefinitionCondition, len(conditions))
 		for i := range conditions {
@@ -204,7 +171,7 @@ func (d *customResourceDefinitionStatusDie) ConditionsDie(conditions ...diemetav
 	})
 }
 
-func (d *customResourceDefinitionStatusDie) AcceptedNamesDie(fn func(d CustomResourceDefinitionNamesDie)) CustomResourceDefinitionStatusDie {
+func (d *CustomResourceDefinitionStatusDie) AcceptedNamesDie(fn func(d *CustomResourceDefinitionNamesDie)) *CustomResourceDefinitionStatusDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionStatus) {
 		d := CustomResourceDefinitionNamesBlank.DieImmutable(false).DieFeed(r.AcceptedNames)
 		fn(d)

@@ -24,11 +24,7 @@ import (
 // +die:object=true
 type _ = admissionregistrationv1.MutatingWebhookConfiguration
 
-type mutatingWebhookConfigurationDieExtension interface {
-	WebhookDie(name string, fn func(d MutatingWebhookDie)) MutatingWebhookConfigurationDie
-}
-
-func (d *mutatingWebhookConfigurationDie) WebhookDie(name string, fn func(d MutatingWebhookDie)) MutatingWebhookConfigurationDie {
+func (d *MutatingWebhookConfigurationDie) WebhookDie(name string, fn func(d *MutatingWebhookDie)) *MutatingWebhookConfigurationDie {
 	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhookConfiguration) {
 		for i := range r.Webhooks {
 			if name == r.Webhooks[i].Name {
@@ -48,14 +44,7 @@ func (d *mutatingWebhookConfigurationDie) WebhookDie(name string, fn func(d Muta
 // +die
 type _ = admissionregistrationv1.MutatingWebhook
 
-type mutatingWebhookDieExtension interface {
-	ClientConfigDie(fn func(d WebhookClientConfigDie)) MutatingWebhookDie
-	RulesDie(rules ...RuleWithOperationsDie) MutatingWebhookDie
-	NamespaceSelectorDie(fn func(d diemetav1.LabelSelectorDie)) MutatingWebhookDie
-	ObjectSelectorDie(fn func(d diemetav1.LabelSelectorDie)) MutatingWebhookDie
-}
-
-func (d *mutatingWebhookDie) ClientConfigDie(fn func(d WebhookClientConfigDie)) MutatingWebhookDie {
+func (d *MutatingWebhookDie) ClientConfigDie(fn func(d *WebhookClientConfigDie)) *MutatingWebhookDie {
 	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
 		d := WebhookClientConfigBlank.DieImmutable(false).DieFeed(r.ClientConfig)
 		fn(d)
@@ -63,7 +52,7 @@ func (d *mutatingWebhookDie) ClientConfigDie(fn func(d WebhookClientConfigDie)) 
 	})
 }
 
-func (d *mutatingWebhookDie) RulesDie(rules ...RuleWithOperationsDie) MutatingWebhookDie {
+func (d *MutatingWebhookDie) RulesDie(rules ...*RuleWithOperationsDie) *MutatingWebhookDie {
 	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
 		r.Rules = make([]admissionregistrationv1.RuleWithOperations, len(rules))
 		for i := range rules {
@@ -72,7 +61,7 @@ func (d *mutatingWebhookDie) RulesDie(rules ...RuleWithOperationsDie) MutatingWe
 	})
 }
 
-func (d *mutatingWebhookDie) NamespaceSelectorDie(fn func(d diemetav1.LabelSelectorDie)) MutatingWebhookDie {
+func (d *MutatingWebhookDie) NamespaceSelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *MutatingWebhookDie {
 	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
 		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.NamespaceSelector)
 		fn(d)
@@ -80,7 +69,7 @@ func (d *mutatingWebhookDie) NamespaceSelectorDie(fn func(d diemetav1.LabelSelec
 	})
 }
 
-func (d *mutatingWebhookDie) ObjectSelectorDie(fn func(d diemetav1.LabelSelectorDie)) MutatingWebhookDie {
+func (d *MutatingWebhookDie) ObjectSelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *MutatingWebhookDie {
 	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
 		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.ObjectSelector)
 		fn(d)

@@ -29,12 +29,7 @@ type _ = batchv1.Job
 // +die
 type _ = batchv1.JobSpec
 
-type jobSpecDieExtension interface {
-	SelectorDie(fn func(d diemetav1.LabelSelectorDie)) JobSpecDie
-	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) JobSpecDie
-}
-
-func (d *jobSpecDie) SelectorDie(fn func(d diemetav1.LabelSelectorDie)) JobSpecDie {
+func (d *JobSpecDie) SelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
 		fn(d)
@@ -42,7 +37,7 @@ func (d *jobSpecDie) SelectorDie(fn func(d diemetav1.LabelSelectorDie)) JobSpecD
 	})
 }
 
-func (d *jobSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) JobSpecDie {
+func (d *JobSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		d := diecorev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
 		fn(d)
@@ -53,12 +48,7 @@ func (d *jobSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) JobSpe
 // +die
 type _ = batchv1.JobStatus
 
-type jobStatusDieExtension interface {
-	ConditionsDie(conditions ...diemetav1.ConditionDie) JobStatusDie
-	UncountedTerminatedPodsDie(fn func(d UncountedTerminatedPodsDie)) JobStatusDie
-}
-
-func (d *jobStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) JobStatusDie {
+func (d *JobStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.Conditions = make([]batchv1.JobCondition, len(conditions))
 		for i := range conditions {
@@ -74,7 +64,7 @@ func (d *jobStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) JobSt
 	})
 }
 
-func (d *jobStatusDie) UncountedTerminatedPodsDie(fn func(d UncountedTerminatedPodsDie)) JobStatusDie {
+func (d *JobStatusDie) UncountedTerminatedPodsDie(fn func(d *UncountedTerminatedPodsDie)) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		d := UncountedTerminatedPodsBlank.DieImmutable(false).DieFeedPtr(r.UncountedTerminatedPods)
 		fn(d)

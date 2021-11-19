@@ -28,21 +28,7 @@ type _ = corev1.Pod
 // +die
 type _ = corev1.PodSpec
 
-type podSpecDieExtension interface {
-	VolumeDie(name string, fn func(d VolumeDie)) PodSpecDie
-	InitContainerDie(name string, fn func(d ContainerDie)) PodSpecDie
-	ContainerDie(name string, fn func(d ContainerDie)) PodSpecDie
-	SecurityContextDie(fn func(d PodSecurityContextDie)) PodSpecDie
-	TolerationDie(key string, fn func(d TolerationDie)) PodSpecDie
-	HostAliasesDie(hosts ...HostAliasDie) PodSpecDie
-	DNSConfigDie(fn func(d PodDNSConfigDie)) PodSpecDie
-	ReadinessGatesDie(gates ...PodReadinessGateDie) PodSpecDie
-	AddOverhead(name corev1.ResourceName, quantity resource.Quantity) PodSpecDie
-	AddOverheadString(name corev1.ResourceName, quantity string) PodSpecDie
-	TopologySpreadConstraintDie(topologyKey string, fn func(d TopologySpreadConstraintDie)) PodSpecDie
-}
-
-func (d *podSpecDie) VolumeDie(name string, fn func(d VolumeDie)) PodSpecDie {
+func (d *PodSpecDie) VolumeDie(name string, fn func(d *VolumeDie)) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		for i := range r.Volumes {
 			if name == r.Volumes[i].Name {
@@ -59,7 +45,7 @@ func (d *podSpecDie) VolumeDie(name string, fn func(d VolumeDie)) PodSpecDie {
 	})
 }
 
-func (d *podSpecDie) InitContainerDie(name string, fn func(d ContainerDie)) PodSpecDie {
+func (d *PodSpecDie) InitContainerDie(name string, fn func(d *ContainerDie)) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		for i := range r.InitContainers {
 			if name == r.InitContainers[i].Name {
@@ -76,7 +62,7 @@ func (d *podSpecDie) InitContainerDie(name string, fn func(d ContainerDie)) PodS
 	})
 }
 
-func (d *podSpecDie) ContainerDie(name string, fn func(d ContainerDie)) PodSpecDie {
+func (d *PodSpecDie) ContainerDie(name string, fn func(d *ContainerDie)) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		for i := range r.Containers {
 			if name == r.Containers[i].Name {
@@ -93,7 +79,7 @@ func (d *podSpecDie) ContainerDie(name string, fn func(d ContainerDie)) PodSpecD
 	})
 }
 
-func (d *podSpecDie) SecurityContextDie(fn func(d PodSecurityContextDie)) PodSpecDie {
+func (d *PodSpecDie) SecurityContextDie(fn func(d *PodSecurityContextDie)) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		d := PodSecurityContextBlank.DieImmutable(false).DieFeedPtr(r.SecurityContext)
 		fn(d)
@@ -101,7 +87,7 @@ func (d *podSpecDie) SecurityContextDie(fn func(d PodSecurityContextDie)) PodSpe
 	})
 }
 
-func (d *podSpecDie) TolerationDie(key string, fn func(d TolerationDie)) PodSpecDie {
+func (d *PodSpecDie) TolerationDie(key string, fn func(d *TolerationDie)) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		for i := range r.Tolerations {
 			if key == r.Tolerations[i].Key {
@@ -118,7 +104,7 @@ func (d *podSpecDie) TolerationDie(key string, fn func(d TolerationDie)) PodSpec
 	})
 }
 
-func (d *podSpecDie) HostAliasesDie(hosts ...HostAliasDie) PodSpecDie {
+func (d *PodSpecDie) HostAliasesDie(hosts ...*HostAliasDie) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.HostAliases = make([]corev1.HostAlias, len(hosts))
 		for i := range hosts {
@@ -127,7 +113,7 @@ func (d *podSpecDie) HostAliasesDie(hosts ...HostAliasDie) PodSpecDie {
 	})
 }
 
-func (d *podSpecDie) DNSConfigDie(fn func(d PodDNSConfigDie)) PodSpecDie {
+func (d *PodSpecDie) DNSConfigDie(fn func(d *PodDNSConfigDie)) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		d := PodDNSConfigBlank.DieImmutable(false).DieFeedPtr(r.DNSConfig)
 		fn(d)
@@ -135,7 +121,7 @@ func (d *podSpecDie) DNSConfigDie(fn func(d PodDNSConfigDie)) PodSpecDie {
 	})
 }
 
-func (d *podSpecDie) ReadinessGatesDie(gates ...PodReadinessGateDie) PodSpecDie {
+func (d *PodSpecDie) ReadinessGatesDie(gates ...*PodReadinessGateDie) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.ReadinessGates = make([]corev1.PodReadinessGate, len(gates))
 		for i := range gates {
@@ -144,17 +130,17 @@ func (d *podSpecDie) ReadinessGatesDie(gates ...PodReadinessGateDie) PodSpecDie 
 	})
 }
 
-func (d *podSpecDie) AddOverhead(name corev1.ResourceName, quantity resource.Quantity) PodSpecDie {
+func (d *PodSpecDie) AddOverhead(name corev1.ResourceName, quantity resource.Quantity) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.Overhead[name] = quantity
 	})
 }
 
-func (d *podSpecDie) AddOverheadString(name corev1.ResourceName, quantity string) PodSpecDie {
+func (d *PodSpecDie) AddOverheadString(name corev1.ResourceName, quantity string) *PodSpecDie {
 	return d.AddOverhead(name, resource.MustParse(quantity))
 }
 
-func (d *podSpecDie) TopologySpreadConstraintDie(topologyKey string, fn func(d TopologySpreadConstraintDie)) PodSpecDie {
+func (d *PodSpecDie) TopologySpreadConstraintDie(topologyKey string, fn func(d *TopologySpreadConstraintDie)) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		for i := range r.TopologySpreadConstraints {
 			if topologyKey == r.TopologySpreadConstraints[i].TopologyKey {
@@ -174,14 +160,7 @@ func (d *podSpecDie) TopologySpreadConstraintDie(topologyKey string, fn func(d T
 // +die
 type _ = corev1.PodSecurityContext
 
-type podSecurityContextDieExtension interface {
-	SELinuxOptionsDie(fn func(d SELinuxOptionsDie)) PodSecurityContextDie
-	WindowsOptionsDie(fn func(d WindowsSecurityContextOptionsDie)) PodSecurityContextDie
-	SysctlsDie(sysctls ...SysctlDie) PodSecurityContextDie
-	SeccompProfileDie(fn func(d SeccompProfileDie)) PodSecurityContextDie
-}
-
-func (d *podSecurityContextDie) SELinuxOptionsDie(fn func(d SELinuxOptionsDie)) PodSecurityContextDie {
+func (d *PodSecurityContextDie) SELinuxOptionsDie(fn func(d *SELinuxOptionsDie)) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		d := SELinuxOptionsBlank.DieImmutable(false).DieFeedPtr(r.SELinuxOptions)
 		fn(d)
@@ -189,7 +168,7 @@ func (d *podSecurityContextDie) SELinuxOptionsDie(fn func(d SELinuxOptionsDie)) 
 	})
 }
 
-func (d *podSecurityContextDie) WindowsOptionsDie(fn func(d WindowsSecurityContextOptionsDie)) PodSecurityContextDie {
+func (d *PodSecurityContextDie) WindowsOptionsDie(fn func(d *WindowsSecurityContextOptionsDie)) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		d := WindowsSecurityContextOptionsBlank.DieImmutable(false).DieFeedPtr(r.WindowsOptions)
 		fn(d)
@@ -197,7 +176,7 @@ func (d *podSecurityContextDie) WindowsOptionsDie(fn func(d WindowsSecurityConte
 	})
 }
 
-func (d *podSecurityContextDie) SysctlsDie(sysctls ...SysctlDie) PodSecurityContextDie {
+func (d *PodSecurityContextDie) SysctlsDie(sysctls ...*SysctlDie) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.Sysctls = make([]corev1.Sysctl, len(sysctls))
 		for i := range sysctls {
@@ -206,7 +185,7 @@ func (d *podSecurityContextDie) SysctlsDie(sysctls ...SysctlDie) PodSecurityCont
 	})
 }
 
-func (d *podSecurityContextDie) SeccompProfileDie(fn func(d SeccompProfileDie)) PodSecurityContextDie {
+func (d *PodSecurityContextDie) SeccompProfileDie(fn func(d *SeccompProfileDie)) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		d := SeccompProfileBlank.DieImmutable(false).DieFeedPtr(r.SeccompProfile)
 		fn(d)
@@ -226,11 +205,7 @@ type _ = corev1.HostAlias
 // +die
 type _ = corev1.PodDNSConfig
 
-type podDNSConfigDieExtension interface {
-	OptionsDie(options ...PodDNSConfigOptionDie) PodDNSConfigDie
-}
-
-func (d *podDNSConfigDie) OptionsDie(options ...PodDNSConfigOptionDie) PodDNSConfigDie {
+func (d *PodDNSConfigDie) OptionsDie(options ...*PodDNSConfigOptionDie) *PodDNSConfigDie {
 	return d.DieStamp(func(r *corev1.PodDNSConfig) {
 		r.Options = make([]corev1.PodDNSConfigOption, len(options))
 		for i := range options {
@@ -248,11 +223,7 @@ type _ = corev1.PodReadinessGate
 // +die
 type _ = corev1.TopologySpreadConstraint
 
-type topologySpreadConstraintDieExtension interface {
-	LabelSelectorDie(fn func(d diemetav1.LabelSelectorDie)) TopologySpreadConstraintDie
-}
-
-func (d *topologySpreadConstraintDie) LabelSelectorDie(fn func(d diemetav1.LabelSelectorDie)) TopologySpreadConstraintDie {
+func (d *TopologySpreadConstraintDie) LabelSelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *TopologySpreadConstraintDie {
 	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
 		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.LabelSelector)
 		fn(d)
@@ -263,14 +234,7 @@ func (d *topologySpreadConstraintDie) LabelSelectorDie(fn func(d diemetav1.Label
 // +die
 type _ = corev1.PodStatus
 
-type podStatusDieExtension interface {
-	ConditionsDie(conditions ...diemetav1.ConditionDie) PodStatusDie
-	InitContainerStatusDie(name string, fn func(d ContainerStatusDie)) PodStatusDie
-	ContainerStatusDie(name string, fn func(d ContainerStatusDie)) PodStatusDie
-	EphemeralContainerStatusDie(name string, fn func(d ContainerStatusDie)) PodStatusDie
-}
-
-func (d *podStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) PodStatusDie {
+func (d *PodStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.Conditions = make([]corev1.PodCondition, len(conditions))
 		for i := range conditions {
@@ -286,7 +250,7 @@ func (d *podStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) PodSt
 	})
 }
 
-func (d *podStatusDie) InitContainerStatusDie(name string, fn func(d ContainerStatusDie)) PodStatusDie {
+func (d *PodStatusDie) InitContainerStatusDie(name string, fn func(d *ContainerStatusDie)) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		for i := range r.InitContainerStatuses {
 			if name == r.InitContainerStatuses[i].Name {
@@ -303,7 +267,7 @@ func (d *podStatusDie) InitContainerStatusDie(name string, fn func(d ContainerSt
 	})
 }
 
-func (d *podStatusDie) ContainerStatusDie(name string, fn func(d ContainerStatusDie)) PodStatusDie {
+func (d *PodStatusDie) ContainerStatusDie(name string, fn func(d *ContainerStatusDie)) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		for i := range r.ContainerStatuses {
 			if name == r.ContainerStatuses[i].Name {
@@ -320,7 +284,7 @@ func (d *podStatusDie) ContainerStatusDie(name string, fn func(d ContainerStatus
 	})
 }
 
-func (d *podStatusDie) EphemeralContainerStatusDie(name string, fn func(d ContainerStatusDie)) PodStatusDie {
+func (d *PodStatusDie) EphemeralContainerStatusDie(name string, fn func(d *ContainerStatusDie)) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		for i := range r.EphemeralContainerStatuses {
 			if name == r.EphemeralContainerStatuses[i].Name {
@@ -340,12 +304,7 @@ func (d *podStatusDie) EphemeralContainerStatusDie(name string, fn func(d Contai
 // +die
 type _ = corev1.PodTemplateSpec
 
-type podTemplateSpecDieExtension interface {
-	MetadataDie(fn func(d diemetav1.ObjectMetaDie)) PodTemplateSpecDie
-	SpecDie(fn func(d PodSpecDie)) PodTemplateSpecDie
-}
-
-func (d *podTemplateSpecDie) MetadataDie(fn func(d diemetav1.ObjectMetaDie)) PodTemplateSpecDie {
+func (d *PodTemplateSpecDie) MetadataDie(fn func(d *diemetav1.ObjectMetaDie)) *PodTemplateSpecDie {
 	return d.DieStamp(func(r *corev1.PodTemplateSpec) {
 		d := diemetav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
@@ -353,7 +312,7 @@ func (d *podTemplateSpecDie) MetadataDie(fn func(d diemetav1.ObjectMetaDie)) Pod
 	})
 }
 
-func (d *podTemplateSpecDie) SpecDie(fn func(d PodSpecDie)) PodTemplateSpecDie {
+func (d *PodTemplateSpecDie) SpecDie(fn func(d *PodSpecDie)) *PodTemplateSpecDie {
 	return d.DieStamp(func(r *corev1.PodTemplateSpec) {
 		d := PodSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)

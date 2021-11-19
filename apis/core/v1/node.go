@@ -28,12 +28,7 @@ type _ = corev1.Node
 // +die
 type _ = corev1.NodeSpec
 
-type nodeSpecDieExtension interface {
-	TaintDie(key string, fn func(d TaintDie)) NodeSpecDie
-	ConfigSourceDie(fn func(d NodeConfigSourceDie)) NodeSpecDie
-}
-
-func (d *nodeSpecDie) TaintDie(key string, fn func(d TaintDie)) NodeSpecDie {
+func (d *NodeSpecDie) TaintDie(key string, fn func(d *TaintDie)) *NodeSpecDie {
 	return d.DieStamp(func(r *corev1.NodeSpec) {
 		for i := range r.Taints {
 			if key == r.Taints[i].Key {
@@ -50,7 +45,7 @@ func (d *nodeSpecDie) TaintDie(key string, fn func(d TaintDie)) NodeSpecDie {
 	})
 }
 
-func (d *nodeSpecDie) ConfigSourceDie(fn func(d NodeConfigSourceDie)) NodeSpecDie {
+func (d *NodeSpecDie) ConfigSourceDie(fn func(d *NodeConfigSourceDie)) *NodeSpecDie {
 	return d.DieStamp(func(r *corev1.NodeSpec) {
 		d := NodeConfigSourceBlank.DieImmutable(false).DieFeedPtr(r.ConfigSource)
 		fn(d)
@@ -64,11 +59,7 @@ type _ = corev1.Taint
 // +die
 type _ = corev1.NodeConfigSource
 
-type nodeConfigSourceDieExtension interface {
-	ConfigMapDie(fn func(d ConfigMapNodeConfigSourceDie)) NodeConfigSourceDie
-}
-
-func (d nodeConfigSourceDie) ConfigMapDie(fn func(d ConfigMapNodeConfigSourceDie)) NodeConfigSourceDie {
+func (d *NodeConfigSourceDie) ConfigMapDie(fn func(d *ConfigMapNodeConfigSourceDie)) *NodeConfigSourceDie {
 	return d.DieStamp(func(r *corev1.NodeConfigSource) {
 		d := ConfigMapNodeConfigSourceBlank.DieImmutable(false).DieFeedPtr(r.ConfigMap)
 		fn(d)
@@ -82,41 +73,27 @@ type _ = corev1.ConfigMapNodeConfigSource
 // +die
 type _ = corev1.NodeStatus
 
-type nodeStatusDieExtension interface {
-	AddCapacity(name corev1.ResourceName, quantity resource.Quantity) NodeStatusDie
-	AddCapacityString(name corev1.ResourceName, quantity string) NodeStatusDie
-	AddAllocatable(name corev1.ResourceName, quantity resource.Quantity) NodeStatusDie
-	AddAllocatableString(name corev1.ResourceName, quantity string) NodeStatusDie
-	ConditionsDie(conditions ...diemetav1.ConditionDie) NodeStatusDie
-	AddresssDie(addresses ...NodeAddressDie) NodeStatusDie
-	DaemonEndpointsDie(fn func(d NodeDaemonEndpointsDie)) NodeStatusDie
-	NodeInfoDie(fn func(d NodeSystemInfoDie)) NodeStatusDie
-	ImagesDie(images ...ContainerImageDie) NodeStatusDie
-	VolumeAttachedDie(name corev1.UniqueVolumeName, fn func(d AttachedVolumeDie)) NodeStatusDie
-	ConfigDie(fn func(d NodeConfigStatusDie)) NodeStatusDie
-}
-
-func (d *nodeStatusDie) AddCapacity(name corev1.ResourceName, quantity resource.Quantity) NodeStatusDie {
+func (d *NodeStatusDie) AddCapacity(name corev1.ResourceName, quantity resource.Quantity) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.Capacity[name] = quantity
 	})
 }
 
-func (d *nodeStatusDie) AddCapacityString(name corev1.ResourceName, quantity string) NodeStatusDie {
+func (d *NodeStatusDie) AddCapacityString(name corev1.ResourceName, quantity string) *NodeStatusDie {
 	return d.AddCapacity(name, resource.MustParse(quantity))
 }
 
-func (d *nodeStatusDie) AddAllocatable(name corev1.ResourceName, quantity resource.Quantity) NodeStatusDie {
+func (d *NodeStatusDie) AddAllocatable(name corev1.ResourceName, quantity resource.Quantity) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.Allocatable[name] = quantity
 	})
 }
 
-func (d *nodeStatusDie) AddAllocatableString(name corev1.ResourceName, quantity string) NodeStatusDie {
+func (d *NodeStatusDie) AddAllocatableString(name corev1.ResourceName, quantity string) *NodeStatusDie {
 	return d.AddAllocatable(name, resource.MustParse(quantity))
 }
 
-func (d *nodeStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) NodeStatusDie {
+func (d *NodeStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.Conditions = make([]corev1.NodeCondition, len(conditions))
 		for i := range conditions {
@@ -132,7 +109,7 @@ func (d *nodeStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) Node
 	})
 }
 
-func (d *nodeStatusDie) AddresssDie(addresses ...NodeAddressDie) NodeStatusDie {
+func (d *NodeStatusDie) AddresssDie(addresses ...*NodeAddressDie) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.Addresses = make([]corev1.NodeAddress, len(addresses))
 		for i := range addresses {
@@ -141,7 +118,7 @@ func (d *nodeStatusDie) AddresssDie(addresses ...NodeAddressDie) NodeStatusDie {
 	})
 }
 
-func (d *nodeStatusDie) DaemonEndpointsDie(fn func(d NodeDaemonEndpointsDie)) NodeStatusDie {
+func (d *NodeStatusDie) DaemonEndpointsDie(fn func(d *NodeDaemonEndpointsDie)) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		d := NodeDaemonEndpointsBlank.DieImmutable(false).DieFeed(r.DaemonEndpoints)
 		fn(d)
@@ -149,7 +126,7 @@ func (d *nodeStatusDie) DaemonEndpointsDie(fn func(d NodeDaemonEndpointsDie)) No
 	})
 }
 
-func (d *nodeStatusDie) NodeInfoDie(fn func(d NodeSystemInfoDie)) NodeStatusDie {
+func (d *NodeStatusDie) NodeInfoDie(fn func(d *NodeSystemInfoDie)) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		d := NodeSystemInfoBlank.DieImmutable(false).DieFeed(r.NodeInfo)
 		fn(d)
@@ -157,7 +134,7 @@ func (d *nodeStatusDie) NodeInfoDie(fn func(d NodeSystemInfoDie)) NodeStatusDie 
 	})
 }
 
-func (d *nodeStatusDie) ImagesDie(images ...ContainerImageDie) NodeStatusDie {
+func (d *NodeStatusDie) ImagesDie(images ...*ContainerImageDie) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.Images = make([]corev1.ContainerImage, len(images))
 		for i := range images {
@@ -166,7 +143,7 @@ func (d *nodeStatusDie) ImagesDie(images ...ContainerImageDie) NodeStatusDie {
 	})
 }
 
-func (d *nodeStatusDie) VolumeAttachedDie(name corev1.UniqueVolumeName, fn func(d AttachedVolumeDie)) NodeStatusDie {
+func (d *NodeStatusDie) VolumeAttachedDie(name corev1.UniqueVolumeName, fn func(d *AttachedVolumeDie)) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		for i := range r.VolumesAttached {
 			if name == r.VolumesAttached[i].Name {
@@ -183,7 +160,7 @@ func (d *nodeStatusDie) VolumeAttachedDie(name corev1.UniqueVolumeName, fn func(
 	})
 }
 
-func (d *nodeStatusDie) ConfigDie(fn func(d NodeConfigStatusDie)) NodeStatusDie {
+func (d *NodeStatusDie) ConfigDie(fn func(d *NodeConfigStatusDie)) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		d := NodeConfigStatusBlank.DieImmutable(false).DieFeedPtr(r.Config)
 		fn(d)
@@ -197,11 +174,7 @@ type _ = corev1.NodeAddress
 // +die
 type _ = corev1.NodeDaemonEndpoints
 
-type nodeDaemonEndpointsDieExtension interface {
-	KubeletEndpointDie(fn func(d DaemonEndpointDie)) NodeDaemonEndpointsDie
-}
-
-func (d *nodeDaemonEndpointsDie) KubeletEndpointDie(fn func(d DaemonEndpointDie)) NodeDaemonEndpointsDie {
+func (d *NodeDaemonEndpointsDie) KubeletEndpointDie(fn func(d *DaemonEndpointDie)) *NodeDaemonEndpointsDie {
 	return d.DieStamp(func(r *corev1.NodeDaemonEndpoints) {
 		d := DaemonEndpointBlank.DieImmutable(false).DieFeed(r.KubeletEndpoint)
 		fn(d)
@@ -224,13 +197,7 @@ type _ = corev1.AttachedVolume
 // +die
 type _ = corev1.NodeConfigStatus
 
-type nodeConfigStatusDieExtension interface {
-	AssignedDie(fn func(NodeConfigSourceDie)) NodeConfigStatusDie
-	ActiveDie(fn func(NodeConfigSourceDie)) NodeConfigStatusDie
-	LastKnownGoodDie(fn func(NodeConfigSourceDie)) NodeConfigStatusDie
-}
-
-func (d *nodeConfigStatusDie) AssignedDie(fn func(NodeConfigSourceDie)) NodeConfigStatusDie {
+func (d *NodeConfigStatusDie) AssignedDie(fn func(d *NodeConfigSourceDie)) *NodeConfigStatusDie {
 	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
 		d := NodeConfigSourceBlank.DieImmutable(false).DieFeedPtr(r.Assigned)
 		fn(d)
@@ -238,7 +205,7 @@ func (d *nodeConfigStatusDie) AssignedDie(fn func(NodeConfigSourceDie)) NodeConf
 	})
 }
 
-func (d *nodeConfigStatusDie) ActiveDie(fn func(NodeConfigSourceDie)) NodeConfigStatusDie {
+func (d *NodeConfigStatusDie) ActiveDie(fn func(d *NodeConfigSourceDie)) *NodeConfigStatusDie {
 	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
 		d := NodeConfigSourceBlank.DieImmutable(false).DieFeedPtr(r.Active)
 		fn(d)
@@ -246,7 +213,7 @@ func (d *nodeConfigStatusDie) ActiveDie(fn func(NodeConfigSourceDie)) NodeConfig
 	})
 }
 
-func (d *nodeConfigStatusDie) LastKnownGoodDie(fn func(NodeConfigSourceDie)) NodeConfigStatusDie {
+func (d *NodeConfigStatusDie) LastKnownGoodDie(fn func(d *NodeConfigSourceDie)) *NodeConfigStatusDie {
 	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
 		d := NodeConfigSourceBlank.DieImmutable(false).DieFeedPtr(r.LastKnownGood)
 		fn(d)

@@ -29,12 +29,7 @@ type _ = appsv1.ReplicaSet
 // +die
 type _ = appsv1.ReplicaSetSpec
 
-type replicaSetSpecDieExtension interface {
-	SelectorDie(fn func(d diemetav1.LabelSelectorDie)) ReplicaSetSpecDie
-	TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) ReplicaSetSpecDie
-}
-
-func (d *replicaSetSpecDie) SelectorDie(fn func(d diemetav1.LabelSelectorDie)) ReplicaSetSpecDie {
+func (d *ReplicaSetSpecDie) SelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *ReplicaSetSpecDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
 		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
 		fn(d)
@@ -42,7 +37,7 @@ func (d *replicaSetSpecDie) SelectorDie(fn func(d diemetav1.LabelSelectorDie)) R
 	})
 }
 
-func (d *replicaSetSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie)) ReplicaSetSpecDie {
+func (d *ReplicaSetSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *ReplicaSetSpecDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
 		d := diecorev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
 		fn(d)
@@ -53,11 +48,7 @@ func (d *replicaSetSpecDie) TemplateDie(fn func(d diecorev1.PodTemplateSpecDie))
 // +die
 type _ = appsv1.ReplicaSetStatus
 
-type replicaSetStatusDieExtension interface {
-	ConditionsDie(conditions ...diemetav1.ConditionDie) ReplicaSetStatusDie
-}
-
-func (d *replicaSetStatusDie) ConditionsDie(conditions ...diemetav1.ConditionDie) ReplicaSetStatusDie {
+func (d *ReplicaSetStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.Conditions = make([]appsv1.ReplicaSetCondition, len(conditions))
 		for i := range conditions {

@@ -30,7 +30,7 @@ import (
 func TestCronJob(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      diebatchv1.CronJobDie
+		die      *diebatchv1.CronJobDie
 		expected batchv1.CronJob
 	}{
 		{
@@ -41,7 +41,7 @@ func TestCronJob(t *testing.T) {
 		{
 			name: "object metadata",
 			die: diebatchv1.CronJobBlank.
-				MetadataDie(func(d diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),
@@ -55,12 +55,12 @@ func TestCronJob(t *testing.T) {
 		{
 			name: "spec job template",
 			die: diebatchv1.CronJobBlank.
-				SpecDie(func(d diebatchv1.CronJobSpecDie) {
-					d.JobTemplateDie(func(d diebatchv1.JobDie) {
-						d.MetadataDie(func(d diemetav1.ObjectMetaDie) {
+				SpecDie(func(d *diebatchv1.CronJobSpecDie) {
+					d.JobTemplateDie(func(d *diebatchv1.JobDie) {
+						d.MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 							d.AddLabel("key", "value")
 						})
-						d.SpecDie(func(d diebatchv1.JobSpecDie) {
+						d.SpecDie(func(d *diebatchv1.JobSpecDie) {
 							d.Parallelism(pointer.Int32(1))
 						})
 					})

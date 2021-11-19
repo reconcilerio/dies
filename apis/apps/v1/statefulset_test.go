@@ -36,7 +36,7 @@ func TestStatefulSet(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		die      dieappsv1.StatefulSetDie
+		die      *dieappsv1.StatefulSetDie
 		expected appsv1.StatefulSet
 	}{
 		{
@@ -47,7 +47,7 @@ func TestStatefulSet(t *testing.T) {
 		{
 			name: "object metadata",
 			die: dieappsv1.StatefulSetBlank.
-				MetadataDie(func(d diemetav1.ObjectMetaDie) {
+				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),
@@ -61,13 +61,13 @@ func TestStatefulSet(t *testing.T) {
 		{
 			name: "spec template die",
 			die: dieappsv1.StatefulSetBlank.
-				SpecDie(func(d dieappsv1.StatefulSetSpecDie) {
-					d.TemplateDie(func(d diecorev1.PodTemplateSpecDie) {
-						d.MetadataDie(func(d diemetav1.ObjectMetaDie) {
+				SpecDie(func(d *dieappsv1.StatefulSetSpecDie) {
+					d.TemplateDie(func(d *diecorev1.PodTemplateSpecDie) {
+						d.MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 							d.Name("my-name")
 						})
-						d.SpecDie(func(d diecorev1.PodSpecDie) {
-							d.ContainerDie("app", func(d diecorev1.ContainerDie) {
+						d.SpecDie(func(d *diecorev1.PodSpecDie) {
+							d.ContainerDie("app", func(d *diecorev1.ContainerDie) {
 								d.Command("/executable")
 							})
 						})
@@ -94,10 +94,10 @@ func TestStatefulSet(t *testing.T) {
 		{
 			name: "spec volume claim templates die",
 			die: dieappsv1.StatefulSetBlank.
-				SpecDie(func(d dieappsv1.StatefulSetSpecDie) {
+				SpecDie(func(d *dieappsv1.StatefulSetSpecDie) {
 					d.VolumeClaimTemplatesDie(
 						diecorev1.PersistentVolumeClaimBlank.
-							SpecDie(func(d diecorev1.PersistentVolumeClaimSpecDie) {
+							SpecDie(func(d *diecorev1.PersistentVolumeClaimSpecDie) {
 								d.VolumeName("my-volume")
 							}),
 					)
@@ -117,7 +117,7 @@ func TestStatefulSet(t *testing.T) {
 		{
 			name: "status conditions die",
 			die: dieappsv1.StatefulSetBlank.
-				StatusDie(func(d dieappsv1.StatefulSetStatusDie) {
+				StatusDie(func(d *dieappsv1.StatefulSetStatusDie) {
 					d.ConditionsDie(
 						diemetav1.ConditionBlank.
 							Type("Ready").

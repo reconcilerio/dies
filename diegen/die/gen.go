@@ -22,7 +22,6 @@ import (
 	"go/ast"
 	"go/format"
 	"io"
-	"regexp"
 	"strings"
 	"unicode"
 
@@ -40,23 +39,19 @@ type Die struct {
 	Object       bool     `marker:"object,optional"`
 	IgnoreFields []string `marker:"ignore,optional"`
 
-	Target                string `marker:",optional"`
-	Name                  string `marker:",optional"`
-	UnexportedName        string `marker:",optional"`
-	ExtensionName         string `marker:",optional"`
-	Type                  string `marker:",optional"`
-	Interface             string `marker:",optional"`
-	TargetPackage         string `marker:",optional"`
-	TargetType            string `marker:",optional"`
-	Blank                 string `marker:",optional"`
-	Doc                   string `marker:",optional"`
-	SpecName              string `marker:",optional"`
-	SpecBlank             string `marker:",optional"`
-	SpecInterface         string `marker:",optional"`
-	StatusName            string `marker:",optional"`
-	StatusBlank           string `marker:",optional"`
-	StatusInterface       string `marker:",optional"`
-	CustomMethodInterface string `marker:",optional"`
+	Target        string `marker:",optional"`
+	Name          string `marker:",optional"`
+	Type          string `marker:",optional"`
+	TargetPackage string `marker:",optional"`
+	TargetType    string `marker:",optional"`
+	Blank         string `marker:",optional"`
+	Doc           string `marker:",optional"`
+	Spec          string `marker:",optional"`
+	SpecType      string `marker:",optional"`
+	SpecBlank     string `marker:",optional"`
+	Status        string `marker:",optional"`
+	StatusType    string `marker:",optional"`
+	StatusBlank   string `marker:",optional"`
 }
 
 func (d *Die) Default() {
@@ -66,44 +61,29 @@ func (d *Die) Default() {
 	if d.Name == "" {
 		d.Name = d.TargetType
 	}
-	if d.UnexportedName == "" {
-		d.UnexportedName = regexp.MustCompile(`^[A-Z]+`).
-			ReplaceAllStringFunc(d.Name, func(s string) string {
-				if len(s) == 1 {
-					return strings.ToLower(s)
-				}
-				return strings.ToLower(s[0:len(s)-1]) + s[len(s)-1:]
-			})
-	}
-	if d.ExtensionName == "" {
-		d.ExtensionName = fmt.Sprintf("%sDieExtension", d.UnexportedName)
-	}
 	if d.Type == "" {
-		d.Type = fmt.Sprintf("%sDie", d.UnexportedName)
-	}
-	if d.Interface == "" {
-		d.Interface = fmt.Sprintf("%sDie", d.Name)
+		d.Type = fmt.Sprintf("%sDie", d.Name)
 	}
 	if d.Blank == "" {
 		d.Blank = fmt.Sprintf("%sBlank", d.Name)
 	}
-	if d.SpecName == "" {
-		d.SpecName = fmt.Sprintf("%sSpec", d.Name)
+	if d.Spec == "" {
+		d.Spec = fmt.Sprintf("%sSpec", d.Name)
+	}
+	if d.SpecType == "" {
+		d.SpecType = fmt.Sprintf("%sDie", d.Spec)
 	}
 	if d.SpecBlank == "" {
-		d.SpecBlank = fmt.Sprintf("%sBlank", d.SpecName)
+		d.SpecBlank = fmt.Sprintf("%sBlank", d.Spec)
 	}
-	if d.SpecInterface == "" {
-		d.SpecInterface = fmt.Sprintf("%sDie", d.SpecName)
+	if d.Status == "" {
+		d.Status = fmt.Sprintf("%sStatus", d.Name)
 	}
-	if d.StatusName == "" {
-		d.StatusName = fmt.Sprintf("%sStatus", d.Name)
+	if d.StatusType == "" {
+		d.StatusType = fmt.Sprintf("%sDie", d.Status)
 	}
 	if d.StatusBlank == "" {
-		d.StatusBlank = fmt.Sprintf("%sBlank", d.StatusName)
-	}
-	if d.StatusInterface == "" {
-		d.StatusInterface = fmt.Sprintf("%sDie", d.StatusName)
+		d.StatusBlank = fmt.Sprintf("%sBlank", d.Status)
 	}
 	if d.IgnoreFields == nil {
 		d.IgnoreFields = []string{}
@@ -263,14 +243,6 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) ([]byte, []byt
 			die := dieMarkers[0].(Die)
 			die.Target = qualifyField(info.RawSpec.Type, root.ID, info.RawFile.Imports)
 			die.Default()
-			if err := markers.EachType(ctx.Collector, root, func(info *markers.TypeInfo) {
-				if info.Name == die.ExtensionName {
-					die.CustomMethodInterface = info.Name
-				}
-			}); err != nil {
-				root.AddError(err)
-				return
-			}
 
 			dies = append(dies, die)
 			dieSet.Insert(die.Name)
