@@ -87,11 +87,15 @@ type FrozenObjectMeta struct {
 
 // methods required to implement metav1.ObjectMetaAccessor
 
+var _ metav1.ObjectMetaAccessor = (*FrozenObjectMeta)(nil)
+
 func (d *FrozenObjectMeta) GetObjectMeta() metav1.Object {
 	return d
 }
 
 // methods required to implement metav1.Object
+
+var _ metav1.Object = (*FrozenObjectMeta)(nil)
 
 func (d *FrozenObjectMeta) GetNamespace() string {
 	return d.r.DeepCopy().GetNamespace()

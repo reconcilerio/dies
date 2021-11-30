@@ -100,47 +100,47 @@ Additional methods will be added to dies over time to make common operations eas
 ### Common methods
 
 ```go
-// for managed type `<T>`
+// for managed type `MyResource`
 
-// <T>Blank is an empty die that mutations can be stamped from. All die blanks
+// MyResourceBlank is an empty die that mutations can be stamped from. All die blanks
 // are immutable.
-var <T>Blank *<T>Die
+var MyResourceBlank *MyResourceDie
 
-type <T>Die interface {
+type MyResourceDie interface {
     // DieStamp returns a new die with the resource passed to the callback
     // function. The resource is mutable.
-    DieStamp(fn func(r *<T>)) *<T>Die
+    DieStamp(fn func(r *MyResource)) *MyResourceDie
 
     // DieFeed returns a new die with the provided resource.
-    DieFeed(r <T>) *<T>Die
+    DieFeed(r MyResource) *MyResourceDie
 
     // DieFeedPtr returns a new die with the provided resource pointer. If the
     // resource is nil, the empty value is used instead.
-    DieFeedPtr(r *<T>) *<T>Die
+    DieFeedPtr(r *MyResource) *MyResourceDie
 
     // DieRelease returns the resource managed by the die.
-    DieRelease() <T>
+    DieRelease() MyResource
 
     // DieReleasePtr returns a pointer to the resource managed by the die.
-    DieReleasePtr() *<T>
+    DieReleasePtr() *MyResource
 
     // DieImmutable returns a new die for the current die's state that is
     // either mutable (`false`) or immutable (`true`). 
-    DieImmutable(immutable bool) *<T>Die
+    DieImmutable(immutable bool) *MyResourceDie
 
     // DeepCopy returns a new die with equivalent state. Useful for
     // snapshotting a mutable die.
-    DeepCopy() *<T>Die
+    DeepCopy() *MyResourceDie
 }
 ```
 
-For each exported field `<F>` on `<T>`, a method is registered to set that field.
+For each exported field `MyField` on `MyResource`, a method is registered to set that field.
 
 ```go
-type <T>Die interface {
+type MyResourceDie interface {
     // continued
 
-    <F>(<T>) *<T>Die
+    MyField(*MyResource) *MyResourceDie
 }
 ```
 
@@ -153,7 +153,7 @@ import (
     runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
-type <T>Die interface {
+type MyResourceDie interface {
     // continued
 
     runtime.Object
@@ -165,15 +165,15 @@ type <T>Die interface {
     DieReleaseUnstructured() runtime.Unstructured
 
     // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
-    MetadataDie(fn func(d *diemetav1.ObjectMetaDie)) *<T>Die
+    MetadataDie(fn func(d *diemetav1.ObjectMetaDie)) *MyResourceDie
 
     // SpecDie stamps the resource's spec field with a mutable die. This method
-    // is only created if `<T>SpecDie` is defined.
-    SpecDie(fn func(d *<T>SpecDie)) *<T>Die
+    // is only created if `MyResourceSpecDie` is defined.
+    SpecDie(fn func(d *MyResourceSpecDie)) *MyResourceDie
 
     // StatusDie stamps the resource's status field with a mutable die. This
-    // method is only created if `<T>StatusDie` is defined.
-    StatusDie(fn func(d *<T>StatusDie)) *<T>Die
+    // method is only created if `MyResourceStatusDie` is defined.
+    StatusDie(fn func(d *MyResourceStatusDie)) *MyResourceDie
 }
 ```
 
