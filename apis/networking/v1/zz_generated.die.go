@@ -1223,7 +1223,7 @@ func (d *IngressClassParametersReferenceDie) Name(v string) *IngressClassParamet
 	})
 }
 
-// Scope represents if this refers to a cluster or namespace scoped resource. This may be set to "Cluster" (default) or "Namespace". Field can be enabled with IngressClassNamespacedParams feature gate.
+// Scope represents if this refers to a cluster or namespace scoped resource. This may be set to "Cluster" (default) or "Namespace".
 func (d *IngressClassParametersReferenceDie) Scope(v *string) *IngressClassParametersReferenceDie {
 	return d.DieStamp(func(r *networkingv1.IngressClassParametersReference) {
 		r.Scope = v

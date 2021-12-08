@@ -179,6 +179,15 @@ func TestRollingUpdateStatefulSetStrategyDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestStatefulSetPersistentVolumeClaimRetentionPolicyDie_MissingMethods(t *testingx.T) {
+	die := StatefulSetPersistentVolumeClaimRetentionPolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for StatefulSetPersistentVolumeClaimRetentionPolicyDie: %s", diff.List())
+	}
+}
+
 func TestStatefulSetStatusDie_MissingMethods(t *testingx.T) {
 	die := StatefulSetStatusBlank
 	ignore := []string{}

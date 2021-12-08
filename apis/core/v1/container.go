@@ -291,11 +291,11 @@ type _ = corev1.VolumeDevice
 // +die
 type _ = corev1.Probe
 
-func (d *ProbeDie) HandlerDie(fn func(d *HandlerDie)) *ProbeDie {
+func (d *ProbeDie) ProbeHandlerDie(fn func(d *ProbeHandlerDie)) *ProbeDie {
 	return d.DieStamp(func(r *corev1.Probe) {
-		d := HandlerBlank.DieImmutable(false).DieFeed(r.Handler)
+		d := ProbeHandlerBlank.DieImmutable(false).DieFeed(r.ProbeHandler)
 		fn(d)
-		r.Handler = d.DieRelease()
+		r.ProbeHandler = d.DieRelease()
 	})
 }
 
@@ -303,7 +303,7 @@ func (d *ProbeDie) ExecDie(fn func(d *ExecActionDie)) *ProbeDie {
 	return d.DieStamp(func(r *corev1.Probe) {
 		d := ExecActionBlank.DieImmutable(false).DieFeedPtr(r.Exec)
 		fn(d)
-		r.Handler = corev1.Handler{
+		r.ProbeHandler = corev1.ProbeHandler{
 			Exec: d.DieReleasePtr(),
 		}
 	})
@@ -313,7 +313,7 @@ func (d *ProbeDie) HTTPGetDie(fn func(d *HTTPGetActionDie)) *ProbeDie {
 	return d.DieStamp(func(r *corev1.Probe) {
 		d := HTTPGetActionBlank.DieImmutable(false).DieFeedPtr(r.HTTPGet)
 		fn(d)
-		r.Handler = corev1.Handler{
+		r.ProbeHandler = corev1.ProbeHandler{
 			HTTPGet: d.DieReleasePtr(),
 		}
 	})
@@ -323,7 +323,7 @@ func (d *ProbeDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *ProbeDie {
 	return d.DieStamp(func(r *corev1.Probe) {
 		d := TCPSocketActionBlank.DieImmutable(false).DieFeedPtr(r.TCPSocket)
 		fn(d)
-		r.Handler = corev1.Handler{
+		r.ProbeHandler = corev1.ProbeHandler{
 			TCPSocket: d.DieReleasePtr(),
 		}
 	})
@@ -332,46 +332,81 @@ func (d *ProbeDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *ProbeDie {
 // +die
 type _ = corev1.Lifecycle
 
-func (d *LifecycleDie) PostStartDie(fn func(d *HandlerDie)) *LifecycleDie {
+func (d *LifecycleDie) PostStartDie(fn func(d *LifecycleHandlerDie)) *LifecycleDie {
 	return d.DieStamp(func(r *corev1.Lifecycle) {
-		d := HandlerBlank.DieImmutable(false).DieFeedPtr(r.PostStart)
+		d := LifecycleHandlerBlank.DieImmutable(false).DieFeedPtr(r.PostStart)
 		fn(d)
 		r.PostStart = d.DieReleasePtr()
 	})
 }
 
-func (d *LifecycleDie) PreStopDie(fn func(d *HandlerDie)) *LifecycleDie {
+func (d *LifecycleDie) PreStopDie(fn func(d *LifecycleHandlerDie)) *LifecycleDie {
 	return d.DieStamp(func(r *corev1.Lifecycle) {
-		d := HandlerBlank.DieImmutable(false).DieFeedPtr(r.PreStop)
+		d := LifecycleHandlerBlank.DieImmutable(false).DieFeedPtr(r.PreStop)
 		fn(d)
 		r.PreStop = d.DieReleasePtr()
 	})
 }
 
 // +die
-type _ = corev1.Handler
+type _ = corev1.LifecycleHandler
 
-func (d *HandlerDie) ExecDie(fn func(d *ExecActionDie)) *HandlerDie {
-	return d.DieStamp(func(r *corev1.Handler) {
+func (d *LifecycleHandlerDie) ExecDie(fn func(d *ExecActionDie)) *LifecycleHandlerDie {
+	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		d := ExecActionBlank.DieImmutable(false).DieFeedPtr(r.Exec)
 		fn(d)
 		r.Exec = d.DieReleasePtr()
 	})
 }
 
-func (d *HandlerDie) HTTPGetDie(fn func(d *HTTPGetActionDie)) *HandlerDie {
-	return d.DieStamp(func(r *corev1.Handler) {
+func (d *LifecycleHandlerDie) HTTPGetDie(fn func(d *HTTPGetActionDie)) *LifecycleHandlerDie {
+	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		d := HTTPGetActionBlank.DieImmutable(false).DieFeedPtr(r.HTTPGet)
 		fn(d)
 		r.HTTPGet = d.DieReleasePtr()
 	})
 }
 
-func (d *HandlerDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *HandlerDie {
-	return d.DieStamp(func(r *corev1.Handler) {
+func (d *LifecycleHandlerDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *LifecycleHandlerDie {
+	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		d := TCPSocketActionBlank.DieImmutable(false).DieFeedPtr(r.TCPSocket)
 		fn(d)
 		r.TCPSocket = d.DieReleasePtr()
+	})
+}
+
+// +die
+type _ = corev1.ProbeHandler
+
+func (d *ProbeHandlerDie) ExecDie(fn func(d *ExecActionDie)) *ProbeHandlerDie {
+	return d.DieStamp(func(r *corev1.ProbeHandler) {
+		d := ExecActionBlank.DieImmutable(false).DieFeedPtr(r.Exec)
+		fn(d)
+		r.Exec = d.DieReleasePtr()
+	})
+}
+
+func (d *ProbeHandlerDie) HTTPGetDie(fn func(d *HTTPGetActionDie)) *ProbeHandlerDie {
+	return d.DieStamp(func(r *corev1.ProbeHandler) {
+		d := HTTPGetActionBlank.DieImmutable(false).DieFeedPtr(r.HTTPGet)
+		fn(d)
+		r.HTTPGet = d.DieReleasePtr()
+	})
+}
+
+func (d *ProbeHandlerDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *ProbeHandlerDie {
+	return d.DieStamp(func(r *corev1.ProbeHandler) {
+		d := TCPSocketActionBlank.DieImmutable(false).DieFeedPtr(r.TCPSocket)
+		fn(d)
+		r.TCPSocket = d.DieReleasePtr()
+	})
+}
+
+func (d *ProbeHandlerDie) GRPCDie(fn func(d *GRPCActionDie)) *ProbeHandlerDie {
+	return d.DieStamp(func(r *corev1.ProbeHandler) {
+		d := GRPCActionBlank.DieImmutable(false).DieFeedPtr(r.GRPC)
+		fn(d)
+		r.GRPC = d.DieReleasePtr()
 	})
 }
 
@@ -395,6 +430,9 @@ type _ = corev1.HTTPHeader
 
 // +die
 type _ = corev1.TCPSocketAction
+
+// +die
+type _ = corev1.GRPCAction
 
 // +die
 type _ = corev1.SecurityContext

@@ -179,12 +179,21 @@ func TestLifecycleDie_MissingMethods(t *testingx.T) {
 	}
 }
 
-func TestHandlerDie_MissingMethods(t *testingx.T) {
-	die := HandlerBlank
+func TestLifecycleHandlerDie_MissingMethods(t *testingx.T) {
+	die := LifecycleHandlerBlank
 	ignore := []string{}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
-		t.Errorf("found missing fields for HandlerDie: %s", diff.List())
+		t.Errorf("found missing fields for LifecycleHandlerDie: %s", diff.List())
+	}
+}
+
+func TestProbeHandlerDie_MissingMethods(t *testingx.T) {
+	die := ProbeHandlerBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ProbeHandlerDie: %s", diff.List())
 	}
 }
 
@@ -221,6 +230,15 @@ func TestTCPSocketActionDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for TCPSocketActionDie: %s", diff.List())
+	}
+}
+
+func TestGRPCActionDie_MissingMethods(t *testingx.T) {
+	die := GRPCActionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for GRPCActionDie: %s", diff.List())
 	}
 }
 
@@ -869,6 +887,15 @@ func TestTopologySpreadConstraintDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for TopologySpreadConstraintDie: %s", diff.List())
+	}
+}
+
+func TestPodOSDie_MissingMethods(t *testingx.T) {
+	die := PodOSBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PodOSDie: %s", diff.List())
 	}
 }
 

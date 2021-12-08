@@ -1599,9 +1599,9 @@ func (d *ProbeDie) DeepCopy() *ProbeDie {
 }
 
 // The action taken to determine the health of a container
-func (d *ProbeDie) Handler(v corev1.Handler) *ProbeDie {
+func (d *ProbeDie) ProbeHandler(v corev1.ProbeHandler) *ProbeDie {
 	return d.DieStamp(func(r *corev1.Probe) {
-		r.Handler = v
+		r.ProbeHandler = v
 	})
 }
 
@@ -1715,28 +1715,28 @@ func (d *LifecycleDie) DeepCopy() *LifecycleDie {
 }
 
 // PostStart is called immediately after a container is created. If the handler fails, the container is terminated and restarted according to its restart policy. Other management of the container blocks until the hook completes. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
-func (d *LifecycleDie) PostStart(v *corev1.Handler) *LifecycleDie {
+func (d *LifecycleDie) PostStart(v *corev1.LifecycleHandler) *LifecycleDie {
 	return d.DieStamp(func(r *corev1.Lifecycle) {
 		r.PostStart = v
 	})
 }
 
-// PreStop is called immediately before a container is terminated due to an API request or management event such as liveness/startup probe failure, preemption, resource contention, etc. The handler is not called if the container crashes or exits. The reason for termination is passed to the handler. The Pod's termination grace period countdown begins before the PreStop hooked is executed. Regardless of the outcome of the handler, the container will eventually terminate within the Pod's termination grace period. Other management of the container blocks until the hook completes or until the termination grace period is reached. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
-func (d *LifecycleDie) PreStop(v *corev1.Handler) *LifecycleDie {
+// PreStop is called immediately before a container is terminated due to an API request or management event such as liveness/startup probe failure, preemption, resource contention, etc. The handler is not called if the container crashes or exits. The Pod's termination grace period countdown begins before the PreStop hook is executed. Regardless of the outcome of the handler, the container will eventually terminate within the Pod's termination grace period (unless delayed by finalizers). Other management of the container blocks until the hook completes or until the termination grace period is reached. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
+func (d *LifecycleDie) PreStop(v *corev1.LifecycleHandler) *LifecycleDie {
 	return d.DieStamp(func(r *corev1.Lifecycle) {
 		r.PreStop = v
 	})
 }
 
-var HandlerBlank = (&HandlerDie{}).DieFeed(corev1.Handler{})
+var LifecycleHandlerBlank = (&LifecycleHandlerDie{}).DieFeed(corev1.LifecycleHandler{})
 
-type HandlerDie struct {
+type LifecycleHandlerDie struct {
 	mutable bool
-	r       corev1.Handler
+	r       corev1.LifecycleHandler
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-func (d *HandlerDie) DieImmutable(immutable bool) *HandlerDie {
+func (d *LifecycleHandlerDie) DieImmutable(immutable bool) *LifecycleHandlerDie {
 	if d.mutable == !immutable {
 		return d
 	}
@@ -1746,27 +1746,27 @@ func (d *HandlerDie) DieImmutable(immutable bool) *HandlerDie {
 }
 
 // DieFeed returns a new die with the provided resource.
-func (d *HandlerDie) DieFeed(r corev1.Handler) *HandlerDie {
+func (d *LifecycleHandlerDie) DieFeed(r corev1.LifecycleHandler) *LifecycleHandlerDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &HandlerDie{
+	return &LifecycleHandlerDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
 // DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-func (d *HandlerDie) DieFeedPtr(r *corev1.Handler) *HandlerDie {
+func (d *LifecycleHandlerDie) DieFeedPtr(r *corev1.LifecycleHandler) *LifecycleHandlerDie {
 	if r == nil {
-		r = &corev1.Handler{}
+		r = &corev1.LifecycleHandler{}
 	}
 	return d.DieFeed(*r)
 }
 
 // DieRelease returns the resource managed by the die.
-func (d *HandlerDie) DieRelease() corev1.Handler {
+func (d *LifecycleHandlerDie) DieRelease() corev1.LifecycleHandler {
 	if d.mutable {
 		return d.r
 	}
@@ -1774,45 +1774,140 @@ func (d *HandlerDie) DieRelease() corev1.Handler {
 }
 
 // DieReleasePtr returns a pointer to the resource managed by the die.
-func (d *HandlerDie) DieReleasePtr() *corev1.Handler {
+func (d *LifecycleHandlerDie) DieReleasePtr() *corev1.LifecycleHandler {
 	r := d.DieRelease()
 	return &r
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-func (d *HandlerDie) DieStamp(fn func(r *corev1.Handler)) *HandlerDie {
+func (d *LifecycleHandlerDie) DieStamp(fn func(r *corev1.LifecycleHandler)) *LifecycleHandlerDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-func (d *HandlerDie) DeepCopy() *HandlerDie {
+func (d *LifecycleHandlerDie) DeepCopy() *LifecycleHandlerDie {
 	r := *d.r.DeepCopy()
-	return &HandlerDie{
+	return &LifecycleHandlerDie{
 		mutable: d.mutable,
 		r:       r,
 	}
 }
 
-// One and only one of the following should be specified. Exec specifies the action to take.
-func (d *HandlerDie) Exec(v *corev1.ExecAction) *HandlerDie {
-	return d.DieStamp(func(r *corev1.Handler) {
+// Exec specifies the action to take.
+func (d *LifecycleHandlerDie) Exec(v *corev1.ExecAction) *LifecycleHandlerDie {
+	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		r.Exec = v
 	})
 }
 
 // HTTPGet specifies the http request to perform.
-func (d *HandlerDie) HTTPGet(v *corev1.HTTPGetAction) *HandlerDie {
-	return d.DieStamp(func(r *corev1.Handler) {
+func (d *LifecycleHandlerDie) HTTPGet(v *corev1.HTTPGetAction) *LifecycleHandlerDie {
+	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		r.HTTPGet = v
 	})
 }
 
-// TCPSocket specifies an action involving a TCP port. TCP hooks not yet supported TODO: implement a realistic TCP lifecycle hook
-func (d *HandlerDie) TCPSocket(v *corev1.TCPSocketAction) *HandlerDie {
-	return d.DieStamp(func(r *corev1.Handler) {
+// Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept for the backward compatibility. There are no validation of this field and lifecycle hooks will fail in runtime when tcp handler is specified.
+func (d *LifecycleHandlerDie) TCPSocket(v *corev1.TCPSocketAction) *LifecycleHandlerDie {
+	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		r.TCPSocket = v
+	})
+}
+
+var ProbeHandlerBlank = (&ProbeHandlerDie{}).DieFeed(corev1.ProbeHandler{})
+
+type ProbeHandlerDie struct {
+	mutable bool
+	r       corev1.ProbeHandler
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ProbeHandlerDie) DieImmutable(immutable bool) *ProbeHandlerDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ProbeHandlerDie) DieFeed(r corev1.ProbeHandler) *ProbeHandlerDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ProbeHandlerDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ProbeHandlerDie) DieFeedPtr(r *corev1.ProbeHandler) *ProbeHandlerDie {
+	if r == nil {
+		r = &corev1.ProbeHandler{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ProbeHandlerDie) DieRelease() corev1.ProbeHandler {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ProbeHandlerDie) DieReleasePtr() *corev1.ProbeHandler {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ProbeHandlerDie) DieStamp(fn func(r *corev1.ProbeHandler)) *ProbeHandlerDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ProbeHandlerDie) DeepCopy() *ProbeHandlerDie {
+	r := *d.r.DeepCopy()
+	return &ProbeHandlerDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Exec specifies the action to take.
+func (d *ProbeHandlerDie) Exec(v *corev1.ExecAction) *ProbeHandlerDie {
+	return d.DieStamp(func(r *corev1.ProbeHandler) {
+		r.Exec = v
+	})
+}
+
+// HTTPGet specifies the http request to perform.
+func (d *ProbeHandlerDie) HTTPGet(v *corev1.HTTPGetAction) *ProbeHandlerDie {
+	return d.DieStamp(func(r *corev1.ProbeHandler) {
+		r.HTTPGet = v
+	})
+}
+
+// TCPSocket specifies an action involving a TCP port.
+func (d *ProbeHandlerDie) TCPSocket(v *corev1.TCPSocketAction) *ProbeHandlerDie {
+	return d.DieStamp(func(r *corev1.ProbeHandler) {
+		r.TCPSocket = v
+	})
+}
+
+// GRPC specifies an action involving a GRPC port. This is an alpha field and requires enabling GRPCContainerProbe feature gate.
+func (d *ProbeHandlerDie) GRPC(v *corev1.GRPCAction) *ProbeHandlerDie {
+	return d.DieStamp(func(r *corev1.ProbeHandler) {
+		r.GRPC = v
 	})
 }
 
@@ -2182,6 +2277,89 @@ func (d *TCPSocketActionDie) Host(v string) *TCPSocketActionDie {
 	})
 }
 
+var GRPCActionBlank = (&GRPCActionDie{}).DieFeed(corev1.GRPCAction{})
+
+type GRPCActionDie struct {
+	mutable bool
+	r       corev1.GRPCAction
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *GRPCActionDie) DieImmutable(immutable bool) *GRPCActionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *GRPCActionDie) DieFeed(r corev1.GRPCAction) *GRPCActionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &GRPCActionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *GRPCActionDie) DieFeedPtr(r *corev1.GRPCAction) *GRPCActionDie {
+	if r == nil {
+		r = &corev1.GRPCAction{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *GRPCActionDie) DieRelease() corev1.GRPCAction {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *GRPCActionDie) DieReleasePtr() *corev1.GRPCAction {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *GRPCActionDie) DieStamp(fn func(r *corev1.GRPCAction)) *GRPCActionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *GRPCActionDie) DeepCopy() *GRPCActionDie {
+	r := *d.r.DeepCopy()
+	return &GRPCActionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Port number of the gRPC service. Number must be in the range 1 to 65535.
+func (d *GRPCActionDie) Port(v int32) *GRPCActionDie {
+	return d.DieStamp(func(r *corev1.GRPCAction) {
+		r.Port = v
+	})
+}
+
+// Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+//
+// If this is not specified, the default behavior is defined by gRPC.
+func (d *GRPCActionDie) Service(v *string) *GRPCActionDie {
+	return d.DieStamp(func(r *corev1.GRPCAction) {
+		r.Service = v
+	})
+}
+
 var SecurityContextBlank = (&SecurityContextDie{}).DieFeed(corev1.SecurityContext{})
 
 type SecurityContextDie struct {
@@ -2249,42 +2427,42 @@ func (d *SecurityContextDie) DeepCopy() *SecurityContextDie {
 	}
 }
 
-// The capabilities to add/drop when running containers. Defaults to the default set of capabilities granted by the container runtime.
+// The capabilities to add/drop when running containers. Defaults to the default set of capabilities granted by the container runtime. Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) Capabilities(v *corev1.Capabilities) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.Capabilities = v
 	})
 }
 
-// Run container in privileged mode. Processes in privileged containers are essentially equivalent to root on the host. Defaults to false.
+// Run container in privileged mode. Processes in privileged containers are essentially equivalent to root on the host. Defaults to false. Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) Privileged(v *bool) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.Privileged = v
 	})
 }
 
-// The SELinux context to be applied to the container. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+// The SELinux context to be applied to the container. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) SELinuxOptions(v *corev1.SELinuxOptions) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.SELinuxOptions = v
 	})
 }
 
-// The Windows specific settings applied to all containers. If unspecified, the options from the PodSecurityContext will be used. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+// The Windows specific settings applied to all containers. If unspecified, the options from the PodSecurityContext will be used. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is linux.
 func (d *SecurityContextDie) WindowsOptions(v *corev1.WindowsSecurityContextOptions) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.WindowsOptions = v
 	})
 }
 
-// The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+// The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) RunAsUser(v *int64) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.RunAsUser = v
 	})
 }
 
-// The GID to run the entrypoint of the container process. Uses runtime default if unset. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+// The GID to run the entrypoint of the container process. Uses runtime default if unset. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) RunAsGroup(v *int64) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.RunAsGroup = v
@@ -2298,28 +2476,28 @@ func (d *SecurityContextDie) RunAsNonRoot(v *bool) *SecurityContextDie {
 	})
 }
 
-// Whether this container has a read-only root filesystem. Default is false.
+// Whether this container has a read-only root filesystem. Default is false. Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) ReadOnlyRootFilesystem(v *bool) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.ReadOnlyRootFilesystem = v
 	})
 }
 
-// AllowPrivilegeEscalation controls whether a process can gain more privileges than its parent process. This bool directly controls if the no_new_privs flag will be set on the container process. AllowPrivilegeEscalation is true always when the container is: 1) run as Privileged 2) has CAP_SYS_ADMIN
+// AllowPrivilegeEscalation controls whether a process can gain more privileges than its parent process. This bool directly controls if the no_new_privs flag will be set on the container process. AllowPrivilegeEscalation is true always when the container is: 1) run as Privileged 2) has CAP_SYS_ADMIN Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) AllowPrivilegeEscalation(v *bool) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.AllowPrivilegeEscalation = v
 	})
 }
 
-// procMount denotes the type of proc mount to use for the containers. The default is DefaultProcMount which uses the container runtime defaults for readonly paths and masked paths. This requires the ProcMountType feature flag to be enabled.
+// procMount denotes the type of proc mount to use for the containers. The default is DefaultProcMount which uses the container runtime defaults for readonly paths and masked paths. This requires the ProcMountType feature flag to be enabled. Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) ProcMount(v *corev1.ProcMountType) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.ProcMount = v
 	})
 }
 
-// The seccomp options to use by this container. If seccomp options are provided at both the pod & container level, the container options override the pod options.
+// The seccomp options to use by this container. If seccomp options are provided at both the pod & container level, the container options override the pod options. Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) SeccompProfile(v *corev1.SeccompProfile) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.SeccompProfile = v
@@ -2775,14 +2953,14 @@ func (d *ContainerStatusDie) Ready(v bool) *ContainerStatusDie {
 	})
 }
 
-// The number of times the container has been restarted, currently based on the number of dead containers that have not yet been removed. Note that this is calculated from dead containers. But those containers are subject to garbage collection. This value will get capped at 5 by GC.
+// The number of times the container has been restarted.
 func (d *ContainerStatusDie) RestartCount(v int32) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.RestartCount = v
 	})
 }
 
-// The image the container is running. More info: https://kubernetes.io/docs/concepts/containers/images TODO(dchen1107): Which image the container is running with?
+// The image the container is running. More info: https://kubernetes.io/docs/concepts/containers/images.
 func (d *ContainerStatusDie) Image(v string) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.Image = v
@@ -7571,7 +7749,7 @@ func (d *LocalVolumeSourceDie) Path(v string) *LocalVolumeSourceDie {
 	})
 }
 
-// Filesystem type to mount. It applies only when the Path is a block device. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". The default value is to auto-select a fileystem if unspecified.
+// Filesystem type to mount. It applies only when the Path is a block device. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". The default value is to auto-select a filesystem if unspecified.
 func (d *LocalVolumeSourceDie) FSType(v *string) *LocalVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.LocalVolumeSource) {
 		r.FSType = v
@@ -8357,7 +8535,7 @@ func (d *PersistentVolumeClaimSpecDie) Selector(v *apismetav1.LabelSelector) *Pe
 	})
 }
 
-// Resources represents the minimum resources the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+// Resources represents the minimum resources the volume should have. If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements that are lower than previous value but must still be higher than capacity recorded in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
 func (d *PersistentVolumeClaimSpecDie) Resources(v corev1.ResourceRequirements) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
 		r.Resources = v
@@ -8491,6 +8669,20 @@ func (d *PersistentVolumeClaimStatusDie) Capacity(v corev1.ResourceList) *Persis
 func (d *PersistentVolumeClaimStatusDie) Conditions(v ...corev1.PersistentVolumeClaimCondition) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		r.Conditions = v
+	})
+}
+
+// The storage resource within AllocatedResources tracks the capacity allocated to a PVC. It may be larger than the actual capacity when a volume expansion operation is requested. For storage quota, the larger value from allocatedResources and PVC.spec.resources is used. If allocatedResources is not set, PVC.spec.resources alone is used for quota calculation. If a volume expansion capacity request is lowered, allocatedResources is only lowered if there are no expansion operations in progress and if the actual volume capacity is equal or lower than the requested capacity. This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature.
+func (d *PersistentVolumeClaimStatusDie) AllocatedResources(v corev1.ResourceList) *PersistentVolumeClaimStatusDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
+		r.AllocatedResources = v
+	})
+}
+
+// ResizeStatus stores status of resize operation. ResizeStatus is not set by default but when expansion is complete resizeStatus is set to empty string by resize controller or kubelet. This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature.
+func (d *PersistentVolumeClaimStatusDie) ResizeStatus(v *corev1.PersistentVolumeClaimResizeStatus) *PersistentVolumeClaimStatusDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
+		r.ResizeStatus = v
 	})
 }
 
@@ -8812,7 +9004,7 @@ func (d *PodSpecDie) Containers(v ...corev1.Container) *PodSpecDie {
 	})
 }
 
-// List of ephemeral containers run in this pod. Ephemeral containers may be run in an existing pod to perform user-initiated actions such as debugging. This list cannot be specified when creating a pod, and it cannot be modified by updating the pod spec. In order to add an ephemeral container to an existing pod, use the pod's ephemeralcontainers subresource. This field is alpha-level and is only honored by servers that enable the EphemeralContainers feature.
+// List of ephemeral containers run in this pod. Ephemeral containers may be run in an existing pod to perform user-initiated actions such as debugging. This list cannot be specified when creating a pod, and it cannot be modified by updating the pod spec. In order to add an ephemeral container to an existing pod, use the pod's ephemeralcontainers subresource. This field is beta-level and available on clusters that haven't disabled the EphemeralContainers feature gate.
 func (d *PodSpecDie) EphemeralContainers(v ...corev1.EphemeralContainer) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.EphemeralContainers = v
@@ -9036,6 +9228,17 @@ func (d *PodSpecDie) SetHostnameAsFQDN(v *bool) *PodSpecDie {
 	})
 }
 
+// Specifies the OS of the containers in the pod. Some pod and container fields are restricted if this is set.
+//
+// If the OS field is set to linux, the following fields must be unset: -securityContext.windowsOptions
+//
+// If the OS field is set to windows, following fields must be unset: - spec.hostPID - spec.hostIPC - spec.securityContext.seLinuxOptions - spec.securityContext.seccompProfile - spec.securityContext.fsGroup - spec.securityContext.fsGroupChangePolicy - spec.securityContext.sysctls - spec.shareProcessNamespace - spec.securityContext.runAsUser - spec.securityContext.runAsGroup - spec.securityContext.supplementalGroups - spec.containers[*].securityContext.seLinuxOptions - spec.containers[*].securityContext.seccompProfile - spec.containers[*].securityContext.capabilities - spec.containers[*].securityContext.readOnlyRootFilesystem - spec.containers[*].securityContext.privileged - spec.containers[*].securityContext.allowPrivilegeEscalation - spec.containers[*].securityContext.procMount - spec.containers[*].securityContext.runAsUser - spec.containers[*].securityContext.runAsGroup This is an alpha field and requires the IdentifyPodOS feature
+func (d *PodSpecDie) OS(v *corev1.PodOS) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		r.OS = v
+	})
+}
+
 var PodSecurityContextBlank = (&PodSecurityContextDie{}).DieFeed(corev1.PodSecurityContext{})
 
 type PodSecurityContextDie struct {
@@ -9103,28 +9306,28 @@ func (d *PodSecurityContextDie) DeepCopy() *PodSecurityContextDie {
 	}
 }
 
-// The SELinux context to be applied to all containers. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container.
+// The SELinux context to be applied to all containers. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) SELinuxOptions(v *corev1.SELinuxOptions) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.SELinuxOptions = v
 	})
 }
 
-// The Windows specific settings applied to all containers. If unspecified, the options within a container's SecurityContext will be used. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+// The Windows specific settings applied to all containers. If unspecified, the options within a container's SecurityContext will be used. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is linux.
 func (d *PodSecurityContextDie) WindowsOptions(v *corev1.WindowsSecurityContextOptions) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.WindowsOptions = v
 	})
 }
 
-// The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container.
+// The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) RunAsUser(v *int64) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.RunAsUser = v
 	})
 }
 
-// The GID to run the entrypoint of the container process. Uses runtime default if unset. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container.
+// The GID to run the entrypoint of the container process. Uses runtime default if unset. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) RunAsGroup(v *int64) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.RunAsGroup = v
@@ -9138,7 +9341,7 @@ func (d *PodSecurityContextDie) RunAsNonRoot(v *bool) *PodSecurityContextDie {
 	})
 }
 
-// A list of groups applied to the first process run in each container, in addition to the container's primary GID.  If unspecified, no groups will be added to any container.
+// A list of groups applied to the first process run in each container, in addition to the container's primary GID.  If unspecified, no groups will be added to any container. Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) SupplementalGroups(v ...int64) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.SupplementalGroups = v
@@ -9149,28 +9352,28 @@ func (d *PodSecurityContextDie) SupplementalGroups(v ...int64) *PodSecurityConte
 //
 // 1. The owning GID will be the FSGroup 2. The setgid bit is set (new files created in the volume will be owned by FSGroup) 3. The permission bits are OR'd with rw-rw----
 //
-// If unset, the Kubelet will not modify the ownership and permissions of any volume.
+// If unset, the Kubelet will not modify the ownership and permissions of any volume. Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) FSGroup(v *int64) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.FSGroup = v
 	})
 }
 
-// Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported sysctls (by the container runtime) might fail to launch.
+// Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported sysctls (by the container runtime) might fail to launch. Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) Sysctls(v ...corev1.Sysctl) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.Sysctls = v
 	})
 }
 
-// fsGroupChangePolicy defines behavior of changing ownership and permission of the volume before being exposed inside Pod. This field will only apply to volume types which support fsGroup based ownership(and permissions). It will have no effect on ephemeral volume types such as: secret, configmaps and emptydir. Valid values are "OnRootMismatch" and "Always". If not specified, "Always" is used.
+// fsGroupChangePolicy defines behavior of changing ownership and permission of the volume before being exposed inside Pod. This field will only apply to volume types which support fsGroup based ownership(and permissions). It will have no effect on ephemeral volume types such as: secret, configmaps and emptydir. Valid values are "OnRootMismatch" and "Always". If not specified, "Always" is used. Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) FSGroupChangePolicy(v *corev1.PodFSGroupChangePolicy) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.FSGroupChangePolicy = v
 	})
 }
 
-// The seccomp options to use by the containers in this pod.
+// The seccomp options to use by the containers in this pod. Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) SeccompProfile(v *corev1.SeccompProfile) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.SeccompProfile = v
@@ -9764,7 +9967,7 @@ func (d *TopologySpreadConstraintDie) TopologyKey(v string) *TopologySpreadConst
 	})
 }
 
-// WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered "Unsatisfiable" for an incoming pod if and only if every possible node assigment for that pod would violate "MaxSkew" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field.
+// WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered "Unsatisfiable" for an incoming pod if and only if every possible node assignment for that pod would violate "MaxSkew" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field.
 func (d *TopologySpreadConstraintDie) WhenUnsatisfiable(v corev1.UnsatisfiableConstraintAction) *TopologySpreadConstraintDie {
 	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
 		r.WhenUnsatisfiable = v
@@ -9775,6 +9978,80 @@ func (d *TopologySpreadConstraintDie) WhenUnsatisfiable(v corev1.UnsatisfiableCo
 func (d *TopologySpreadConstraintDie) LabelSelector(v *apismetav1.LabelSelector) *TopologySpreadConstraintDie {
 	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
 		r.LabelSelector = v
+	})
+}
+
+var PodOSBlank = (&PodOSDie{}).DieFeed(corev1.PodOS{})
+
+type PodOSDie struct {
+	mutable bool
+	r       corev1.PodOS
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *PodOSDie) DieImmutable(immutable bool) *PodOSDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *PodOSDie) DieFeed(r corev1.PodOS) *PodOSDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &PodOSDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *PodOSDie) DieFeedPtr(r *corev1.PodOS) *PodOSDie {
+	if r == nil {
+		r = &corev1.PodOS{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *PodOSDie) DieRelease() corev1.PodOS {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *PodOSDie) DieReleasePtr() *corev1.PodOS {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *PodOSDie) DieStamp(fn func(r *corev1.PodOS)) *PodOSDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *PodOSDie) DeepCopy() *PodOSDie {
+	r := *d.r.DeepCopy()
+	return &PodOSDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Name is the name of the operating system. The currently supported values are linux and windows. Additional value may be defined in future and can be one of: https://github.com/opencontainers/runtime-spec/blob/master/config.md#platform-specific-configuration Clients should expect to handle additional values and treat unrecognized values in this field as os: null
+func (d *PodOSDie) Name(v corev1.OSName) *PodOSDie {
+	return d.DieStamp(func(r *corev1.PodOS) {
+		r.Name = v
 	})
 }
 
@@ -9933,7 +10210,7 @@ func (d *PodStatusDie) QOSClass(v corev1.PodQOSClass) *PodStatusDie {
 	})
 }
 
-// Status for any ephemeral containers that have run in this pod. This field is alpha-level and is only populated by servers that enable the EphemeralContainers feature.
+// Status for any ephemeral containers that have run in this pod. This field is beta-level and available on clusters that haven't disabled the EphemeralContainers feature gate.
 func (d *PodStatusDie) EphemeralContainerStatuses(v ...corev1.ContainerStatus) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.EphemeralContainerStatuses = v
@@ -10625,7 +10902,7 @@ func (d *SecretDie) Immutable(v *bool) *SecretDie {
 	})
 }
 
-// Used to facilitate programmatic handling of secret data.
+// Used to facilitate programmatic handling of secret data. More info: https://kubernetes.io/docs/concepts/configuration/secret/#secret-types
 func (d *SecretDie) Type(v corev1.SecretType) *SecretDie {
 	return d.DieStamp(func(r *corev1.Secret) {
 		r.Type = v
@@ -10871,7 +11148,7 @@ func (d *ServiceSpecDie) ClusterIP(v string) *ServiceSpecDie {
 
 // ClusterIPs is a list of IP addresses assigned to this service, and are usually assigned randomly.  If an address is specified manually, is in-range (as per system configuration), and is not in use, it will be allocated to the service; otherwise creation of the service will fail. This field may not be changed through updates unless the type field is also being changed to ExternalName (which requires this field to be empty) or the type field is being changed from ExternalName (in which case this field may optionally be specified, as describe above).  Valid values are "None", empty string (""), or a valid IP address.  Setting this to "None" makes a "headless service" (no virtual IP), which is useful when direct endpoint connections are preferred and proxying is not required.  Only applies to types ClusterIP, NodePort, and LoadBalancer. If this field is specified when creating a Service of type ExternalName, creation will fail. This field will be wiped when updating a Service to type ExternalName.  If this field is not specified, it will be initialized from the clusterIP field.  If this field is specified, clients must ensure that clusterIPs[0] and clusterIP have the same value.
 //
-// Unless the "IPv6DualStack" feature gate is enabled, this field is limited to one value, which must be the same as the clusterIP field.  If the feature gate is enabled, this field may hold a maximum of two entries (dual-stack IPs, in either order).  These IPs must correspond to the values of the ipFamilies field. Both clusterIPs and ipFamilies are governed by the ipFamilyPolicy field. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+// This field may hold a maximum of two entries (dual-stack IPs, in either order). These IPs must correspond to the values of the ipFamilies field. Both clusterIPs and ipFamilies are governed by the ipFamilyPolicy field. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
 func (d *ServiceSpecDie) ClusterIPs(v ...string) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.ClusterIPs = v
@@ -10948,7 +11225,7 @@ func (d *ServiceSpecDie) SessionAffinityConfig(v *corev1.SessionAffinityConfig) 
 	})
 }
 
-// IPFamilies is a list of IP families (e.g. IPv4, IPv6) assigned to this service, and is gated by the "IPv6DualStack" feature gate.  This field is usually assigned automatically based on cluster configuration and the ipFamilyPolicy field. If this field is specified manually, the requested family is available in the cluster, and ipFamilyPolicy allows it, it will be used; otherwise creation of the service will fail.  This field is conditionally mutable: it allows for adding or removing a secondary IP family, but it does not allow changing the primary IP family of the Service.  Valid values are "IPv4" and "IPv6".  This field only applies to Services of types ClusterIP, NodePort, and LoadBalancer, and does apply to "headless" services.  This field will be wiped when updating a Service to type ExternalName.
+// IPFamilies is a list of IP families (e.g. IPv4, IPv6) assigned to this service. This field is usually assigned automatically based on cluster configuration and the ipFamilyPolicy field. If this field is specified manually, the requested family is available in the cluster, and ipFamilyPolicy allows it, it will be used; otherwise creation of the service will fail. This field is conditionally mutable: it allows for adding or removing a secondary IP family, but it does not allow changing the primary IP family of the Service. Valid values are "IPv4" and "IPv6".  This field only applies to Services of types ClusterIP, NodePort, and LoadBalancer, and does apply to "headless" services. This field will be wiped when updating a Service to type ExternalName.
 //
 // This field may hold a maximum of two entries (dual-stack families, in either order).  These families must correspond to the values of the clusterIPs field, if specified. Both clusterIPs and ipFamilies are governed by the ipFamilyPolicy field.
 func (d *ServiceSpecDie) IPFamilies(v ...corev1.IPFamily) *ServiceSpecDie {
@@ -10957,7 +11234,7 @@ func (d *ServiceSpecDie) IPFamilies(v ...corev1.IPFamily) *ServiceSpecDie {
 	})
 }
 
-// IPFamilyPolicy represents the dual-stack-ness requested or required by this Service, and is gated by the "IPv6DualStack" feature gate.  If there is no value provided, then this field will be set to SingleStack. Services can be "SingleStack" (a single IP family), "PreferDualStack" (two IP families on dual-stack configured clusters or a single IP family on single-stack clusters), or "RequireDualStack" (two IP families on dual-stack configured clusters, otherwise fail). The ipFamilies and clusterIPs fields depend on the value of this field.  This field will be wiped when updating a service to type ExternalName.
+// IPFamilyPolicy represents the dual-stack-ness requested or required by this Service. If there is no value provided, then this field will be set to SingleStack. Services can be "SingleStack" (a single IP family), "PreferDualStack" (two IP families on dual-stack configured clusters or a single IP family on single-stack clusters), or "RequireDualStack" (two IP families on dual-stack configured clusters, otherwise fail). The ipFamilies and clusterIPs fields depend on the value of this field. This field will be wiped when updating a service to type ExternalName.
 func (d *ServiceSpecDie) IPFamilyPolicy(v *corev1.IPFamilyPolicyType) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.IPFamilyPolicy = v

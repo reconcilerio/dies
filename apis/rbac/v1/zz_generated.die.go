@@ -559,7 +559,7 @@ func (d *PolicyRuleDie) DeepCopy() *PolicyRuleDie {
 	}
 }
 
-// Verbs is a list of Verbs that apply to ALL the ResourceKinds and AttributeRestrictions contained in this rule. '*' represents all verbs.
+// Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs.
 func (d *PolicyRuleDie) Verbs(v ...string) *PolicyRuleDie {
 	return d.DieStamp(func(r *rbacv1.PolicyRule) {
 		r.Verbs = v
