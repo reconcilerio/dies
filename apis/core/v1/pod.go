@@ -157,6 +157,14 @@ func (d *PodSpecDie) TopologySpreadConstraintDie(topologyKey string, fn func(d *
 	})
 }
 
+func (d *PodSpecDie) OSDie(fn func(d *PodOSDie)) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		d := PodOSBlank.DieImmutable(false).DieFeedPtr(r.OS)
+		fn(d)
+		r.OS = d.DieReleasePtr()
+	})
+}
+
 // +die
 type _ = corev1.PodSecurityContext
 
@@ -230,6 +238,9 @@ func (d *TopologySpreadConstraintDie) LabelSelectorDie(fn func(d *diemetav1.Labe
 		r.LabelSelector = d.DieReleasePtr()
 	})
 }
+
+// +die
+type _ = corev1.PodOS
 
 // +die
 type _ = corev1.PodStatus

@@ -652,7 +652,7 @@ func (d *JobSpecDie) Template(v corev1.PodTemplateSpec) *JobSpecDie {
 	})
 }
 
-// ttlSecondsAfterFinished limits the lifetime of a Job that has finished execution (either Complete or Failed). If this field is set, ttlSecondsAfterFinished after the Job finishes, it is eligible to be automatically deleted. When the Job is being deleted, its lifecycle guarantees (e.g. finalizers) will be honored. If this field is unset, the Job won't be automatically deleted. If this field is set to zero, the Job becomes eligible to be deleted immediately after it finishes. This field is alpha-level and is only honored by servers that enable the TTLAfterFinished feature.
+// ttlSecondsAfterFinished limits the lifetime of a Job that has finished execution (either Complete or Failed). If this field is set, ttlSecondsAfterFinished after the Job finishes, it is eligible to be automatically deleted. When the Job is being deleted, its lifecycle guarantees (e.g. finalizers) will be honored. If this field is unset, the Job won't be automatically deleted. If this field is set to zero, the Job becomes eligible to be deleted immediately after it finishes.
 func (d *JobSpecDie) TTLSecondsAfterFinished(v *int32) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.TTLSecondsAfterFinished = v
@@ -769,7 +769,7 @@ func (d *JobStatusDie) CompletionTime(v *apismetav1.Time) *JobStatusDie {
 	})
 }
 
-// The number of actively running pods.
+// The number of pending and running pods.
 func (d *JobStatusDie) Active(v int32) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.Active = v
@@ -801,10 +801,19 @@ func (d *JobStatusDie) CompletedIndexes(v string) *JobStatusDie {
 //
 // The job controller creates pods with a finalizer. When a pod terminates (succeeded or failed), the controller does three steps to account for it in the job status: (1) Add the pod UID to the arrays in this field. (2) Remove the pod finalizer. (3) Remove the pod UID from the arrays while increasing the corresponding     counter.
 //
-// This field is alpha-level. The job controller only makes use of this field when the feature gate PodTrackingWithFinalizers is enabled. Old jobs might not be tracked using this field, in which case the field remains null.
+// This field is beta-level. The job controller only makes use of this field when the feature gate JobTrackingWithFinalizers is enabled (enabled by default). Old jobs might not be tracked using this field, in which case the field remains null.
 func (d *JobStatusDie) UncountedTerminatedPods(v *batchv1.UncountedTerminatedPods) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.UncountedTerminatedPods = v
+	})
+}
+
+// The number of pods which have a Ready condition.
+//
+// This field is alpha-level. The job controller populates the field when the feature gate JobReadyPods is enabled (disabled by default).
+func (d *JobStatusDie) Ready(v *int32) *JobStatusDie {
+	return d.DieStamp(func(r *batchv1.JobStatus) {
+		r.Ready = v
 	})
 }
 

@@ -62,6 +62,14 @@ func (d *StatefulSetSpecDie) UpdateStrategyDie(fn func(d *StatefulSetUpdateStrat
 	})
 }
 
+func (d *StatefulSetSpecDie) PersistentVolumeClaimRetentionPolicyDie(fn func(d *StatefulSetPersistentVolumeClaimRetentionPolicyDie)) *StatefulSetSpecDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
+		d := StatefulSetPersistentVolumeClaimRetentionPolicyBlank.DieImmutable(false).DieFeedPtr(r.PersistentVolumeClaimRetentionPolicy)
+		fn(d)
+		r.PersistentVolumeClaimRetentionPolicy = d.DieReleasePtr()
+	})
+}
+
 // +die
 type _ = appsv1.StatefulSetUpdateStrategy
 
@@ -83,6 +91,9 @@ func (d *StatefulSetUpdateStrategyDie) RollingUpdateDie(fn func(d *RollingUpdate
 
 // +die
 type _ = appsv1.RollingUpdateStatefulSetStrategy
+
+// +die
+type _ = appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy
 
 // +die
 type _ = appsv1.StatefulSetStatus

@@ -563,7 +563,7 @@ func (d *DaemonSetStatusDie) DesiredNumberScheduled(v int32) *DaemonSetStatusDie
 	})
 }
 
-// The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready.
+// numberReady is the number of nodes that should be running the daemon pod and have one or more of the daemon pod running with a Ready Condition.
 func (d *DaemonSetStatusDie) NumberReady(v int32) *DaemonSetStatusDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetStatus) {
 		r.NumberReady = v
@@ -1162,7 +1162,7 @@ func (d *DeploymentStatusDie) UpdatedReplicas(v int32) *DeploymentStatusDie {
 	})
 }
 
-// Total number of ready pods targeted by this deployment.
+// readyReplicas is the number of pods targeted by this Deployment with a Ready Condition.
 func (d *DeploymentStatusDie) ReadyReplicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.ReadyReplicas = v
@@ -1522,7 +1522,7 @@ func (d *ReplicaSetStatusDie) FullyLabeledReplicas(v int32) *ReplicaSetStatusDie
 	})
 }
 
-// The number of ready replicas for this replica set.
+// readyReplicas is the number of pods targeted by this ReplicaSet with a Ready Condition.
 func (d *ReplicaSetStatusDie) ReadyReplicas(v int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.ReadyReplicas = v
@@ -1829,6 +1829,13 @@ func (d *StatefulSetSpecDie) MinReadySeconds(v int32) *StatefulSetSpecDie {
 	})
 }
 
+// persistentVolumeClaimRetentionPolicy describes the lifecycle of persistent volume claims created from volumeClaimTemplates. By default, all persistent volume claims are created as needed and retained until manually deleted. This policy allows the lifecycle to be altered, for example by deleting persistent volume claims when their stateful set is deleted, or when their pod is scaled down. This requires the StatefulSetAutoDeletePVC feature gate to be enabled, which is alpha.  +optional
+func (d *StatefulSetSpecDie) PersistentVolumeClaimRetentionPolicy(v *appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy) *StatefulSetSpecDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
+		r.PersistentVolumeClaimRetentionPolicy = v
+	})
+}
+
 var StatefulSetUpdateStrategyBlank = (&StatefulSetUpdateStrategyDie{}).DieFeed(appsv1.StatefulSetUpdateStrategy{})
 
 type StatefulSetUpdateStrategyDie struct {
@@ -1984,6 +1991,87 @@ func (d *RollingUpdateStatefulSetStrategyDie) Partition(v *int32) *RollingUpdate
 	})
 }
 
+var StatefulSetPersistentVolumeClaimRetentionPolicyBlank = (&StatefulSetPersistentVolumeClaimRetentionPolicyDie{}).DieFeed(appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy{})
+
+type StatefulSetPersistentVolumeClaimRetentionPolicyDie struct {
+	mutable bool
+	r       appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieImmutable(immutable bool) *StatefulSetPersistentVolumeClaimRetentionPolicyDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieFeed(r appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy) *StatefulSetPersistentVolumeClaimRetentionPolicyDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &StatefulSetPersistentVolumeClaimRetentionPolicyDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieFeedPtr(r *appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy) *StatefulSetPersistentVolumeClaimRetentionPolicyDie {
+	if r == nil {
+		r = &appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieRelease() appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieReleasePtr() *appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieStamp(fn func(r *appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy)) *StatefulSetPersistentVolumeClaimRetentionPolicyDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DeepCopy() *StatefulSetPersistentVolumeClaimRetentionPolicyDie {
+	r := *d.r.DeepCopy()
+	return &StatefulSetPersistentVolumeClaimRetentionPolicyDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// WhenDeleted specifies what happens to PVCs created from StatefulSet VolumeClaimTemplates when the StatefulSet is deleted. The default policy of `Retain` causes PVCs to not be affected by StatefulSet deletion. The `Delete` policy causes those PVCs to be deleted.
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) WhenDeleted(v appsv1.PersistentVolumeClaimRetentionPolicyType) *StatefulSetPersistentVolumeClaimRetentionPolicyDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy) {
+		r.WhenDeleted = v
+	})
+}
+
+// WhenScaled specifies what happens to PVCs created from StatefulSet VolumeClaimTemplates when the StatefulSet is scaled down. The default policy of `Retain` causes PVCs to not be affected by a scaledown. The `Delete` policy causes the associated PVCs for any excess pods above the replica count to be deleted.
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) WhenScaled(v appsv1.PersistentVolumeClaimRetentionPolicyType) *StatefulSetPersistentVolumeClaimRetentionPolicyDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy) {
+		r.WhenScaled = v
+	})
+}
+
 var StatefulSetStatusBlank = (&StatefulSetStatusDie{}).DieFeed(appsv1.StatefulSetStatus{})
 
 type StatefulSetStatusDie struct {
@@ -2065,7 +2153,7 @@ func (d *StatefulSetStatusDie) Replicas(v int32) *StatefulSetStatusDie {
 	})
 }
 
-// readyReplicas is the number of Pods created by the StatefulSet controller that have a Ready Condition.
+// readyReplicas is the number of pods created for this StatefulSet with a Ready Condition.
 func (d *StatefulSetStatusDie) ReadyReplicas(v int32) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.ReadyReplicas = v
@@ -2114,7 +2202,7 @@ func (d *StatefulSetStatusDie) Conditions(v ...appsv1.StatefulSetCondition) *Sta
 	})
 }
 
-// Total number of available pods (ready for at least minReadySeconds) targeted by this statefulset. This is an alpha field and requires enabling StatefulSetMinReadySeconds feature gate. Remove omitempty when graduating to beta
+// Total number of available pods (ready for at least minReadySeconds) targeted by this statefulset. This is a beta field and enabled/disabled by StatefulSetMinReadySeconds feature gate.
 func (d *StatefulSetStatusDie) AvailableReplicas(v int32) *StatefulSetStatusDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetStatus) {
 		r.AvailableReplicas = v

@@ -89,6 +89,16 @@ func (d *PersistentVolumeClaimStatusDie) ConditionsDie(conditions ...*diemetav1.
 	})
 }
 
+func (d *PersistentVolumeClaimStatusDie) AddAllocatedResources(name corev1.ResourceName, quantity resource.Quantity) *PersistentVolumeClaimStatusDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
+		r.AllocatedResources[name] = quantity
+	})
+}
+
+func (d *PersistentVolumeClaimStatusDie) AddAllocatedResourcesString(name corev1.ResourceName, quantity string) *PersistentVolumeClaimStatusDie {
+	return d.AddAllocatedResources(name, resource.MustParse(quantity))
+}
+
 // +die
 type _ corev1.PersistentVolumeClaimTemplate
 
