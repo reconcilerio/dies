@@ -17,8 +17,34 @@ limitations under the License.
 package v1
 
 import (
+	"fmt"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // +die
 type _ = metav1.Condition
+
+func (d *ConditionDie) True() *ConditionDie {
+	return d.DieStamp(func(r *metav1.Condition) {
+		r.Status = metav1.ConditionTrue
+	})
+}
+
+func (d *ConditionDie) False() *ConditionDie {
+	return d.DieStamp(func(r *metav1.Condition) {
+		r.Status = metav1.ConditionFalse
+	})
+}
+
+func (d *ConditionDie) Unknown() *ConditionDie {
+	return d.DieStamp(func(r *metav1.Condition) {
+		r.Status = metav1.ConditionUnknown
+	})
+}
+
+func (d *ConditionDie) Messagef(format string, a ...interface{}) *ConditionDie {
+	return d.DieStamp(func(r *metav1.Condition) {
+		r.Message = fmt.Sprintf(format, a...)
+	})
+}

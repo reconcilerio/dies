@@ -35,6 +35,26 @@ func TestCondition(t *testing.T) {
 			die:      diemetav1.ConditionBlank,
 			expected: metav1.Condition{},
 		},
+		{
+			name:     "true",
+			die:      diemetav1.ConditionBlank.True(),
+			expected: metav1.Condition{Status: metav1.ConditionTrue},
+		},
+		{
+			name:     "false",
+			die:      diemetav1.ConditionBlank.False(),
+			expected: metav1.Condition{Status: metav1.ConditionFalse},
+		},
+		{
+			name:     "unknowm",
+			die:      diemetav1.ConditionBlank.Unknown(),
+			expected: metav1.Condition{Status: metav1.ConditionUnknown},
+		},
+		{
+			name:     "messagef",
+			die:      diemetav1.ConditionBlank.Messagef("%d coconuts", 10),
+			expected: metav1.Condition{Message: "10 coconuts"},
+		},
 	}
 
 	for _, c := range tests {
