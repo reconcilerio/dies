@@ -311,22 +311,3 @@ func (d *PodStatusDie) EphemeralContainerStatusDie(name string, fn func(d *Conta
 		r.EphemeralContainerStatuses = append(r.EphemeralContainerStatuses, d.DieRelease())
 	})
 }
-
-// +die
-type _ = corev1.PodTemplateSpec
-
-func (d *PodTemplateSpecDie) MetadataDie(fn func(d *diemetav1.ObjectMetaDie)) *PodTemplateSpecDie {
-	return d.DieStamp(func(r *corev1.PodTemplateSpec) {
-		d := diemetav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
-		fn(d)
-		r.ObjectMeta = d.DieRelease()
-	})
-}
-
-func (d *PodTemplateSpecDie) SpecDie(fn func(d *PodSpecDie)) *PodTemplateSpecDie {
-	return d.DieStamp(func(r *corev1.PodTemplateSpec) {
-		d := PodSpecBlank.DieImmutable(false).DieFeed(r.Spec)
-		fn(d)
-		r.Spec = d.DieRelease()
-	})
-}

@@ -1,0 +1,47 @@
+/*
+Copyright 2021 the original author or authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package v1
+
+import (
+	rbacv1 "k8s.io/api/rbac/v1"
+)
+
+// +die:object=true
+type _ = rbacv1.RoleBinding
+
+func (d *RoleBindingDie) SubjectsDie(subjects ...*SubjectDie) *RoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.RoleBinding) {
+		r.Subjects = make([]rbacv1.Subject, len(subjects))
+		for i := range subjects {
+			r.Subjects[i] = subjects[i].DieRelease()
+		}
+	})
+}
+
+func (d *RoleBindingDie) RoleRefDie(fn func(d *RoleRefDie)) *RoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.RoleBinding) {
+		d := RoleRefBlank.DieImmutable(false).DieFeed(r.RoleRef)
+		fn(d)
+		r.RoleRef = d.DieRelease()
+	})
+}
+
+// +die
+type _ = rbacv1.Subject
+
+// +die
+type _ = rbacv1.RoleRef

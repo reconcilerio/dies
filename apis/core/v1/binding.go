@@ -1,5 +1,5 @@
 /*
-Copyright 2021 the original author or authors.
+Copyright 2022 the original author or authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,14 +20,13 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// +die
-type _ = corev1.ObjectReference
+// +die:object=true
+type _ = corev1.Binding
 
-// +die
-type _ = corev1.LocalObjectReference
-
-// +die
-type _ = corev1.TypedLocalObjectReference
-
-// +die
-type _ = corev1.SecretReference
+func (d *BindingDie) TargetDie(fn func(d *ObjectReferenceDie)) *BindingDie {
+	return d.DieStamp(func(r *corev1.Binding) {
+		d := ObjectReferenceBlank.DieImmutable(false).DieFeed(r.Target)
+		fn(d)
+		r.Target = d.DieRelease()
+	})
+}

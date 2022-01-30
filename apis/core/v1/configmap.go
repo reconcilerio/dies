@@ -21,7 +21,7 @@ import (
 )
 
 // +die:object=true,ignore={BinaryData,Data}
-type ConfigMap = corev1.ConfigMap
+type _ = corev1.ConfigMap
 
 func (d *ConfigMapDie) Data(v map[string]string) *ConfigMapDie {
 	return d.DieStamp(func(r *corev1.ConfigMap) {

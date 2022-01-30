@@ -1,5 +1,5 @@
 /*
-Copyright 2021 the original author or authors.
+Copyright 2022 the original author or authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,25 +17,8 @@ limitations under the License.
 package v1
 
 import (
-	rbacv1 "k8s.io/api/rbac/v1"
+	dierbacv1 "dies.dev/apis/authorization/rbac/v1"
 )
 
-// +die:object=true
-type _ = rbacv1.ClusterRoleBinding
-
-func (d *ClusterRoleBindingDie) SubjectsDie(subjects ...*SubjectDie) *ClusterRoleBindingDie {
-	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
-		r.Subjects = make([]rbacv1.Subject, len(subjects))
-		for i := range subjects {
-			r.Subjects[i] = subjects[i].DieRelease()
-		}
-	})
-}
-
-func (d *ClusterRoleBindingDie) RoleRefDie(fn func(d *RoleRefDie)) *ClusterRoleBindingDie {
-	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
-		d := RoleRefBlank.DieImmutable(false).DieFeed(r.RoleRef)
-		fn(d)
-		r.RoleRef = d.DieRelease()
-	})
-}
+// Deprecated ClusterRoleBindingDie, moved to package dies.dev/apis/authorization/rbac/v1
+type ClusterRoleBindingDie = dierbacv1.ClusterRoleBindingDie

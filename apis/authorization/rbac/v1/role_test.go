@@ -19,32 +19,32 @@ package v1_test
 import (
 	"testing"
 
+	dierbacv1 "dies.dev/apis/authorization/rbac/v1"
 	diemetav1 "dies.dev/apis/meta/v1"
-	dierbacv1 "dies.dev/apis/rbac/v1"
 	"github.com/google/go-cmp/cmp"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func TestClusterRoleBinding(t *testing.T) {
+func TestRole(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *dierbacv1.ClusterRoleBindingDie
-		expected rbacv1.ClusterRoleBinding
+		die      *dierbacv1.RoleDie
+		expected rbacv1.Role
 	}{
 		{
 			name:     "empty",
-			die:      dierbacv1.ClusterRoleBindingBlank,
-			expected: rbacv1.ClusterRoleBinding{},
+			die:      dierbacv1.RoleBlank,
+			expected: rbacv1.Role{},
 		},
 		{
 			name: "object metadata",
-			die: dierbacv1.ClusterRoleBindingBlank.
+			die: dierbacv1.RoleBlank.
 				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),
-			expected: rbacv1.ClusterRoleBinding{
+			expected: rbacv1.Role{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: "my-namespace",
 					Name:      "my-name",
