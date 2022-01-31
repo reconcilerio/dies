@@ -243,7 +243,11 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) ([]byte, []byt
 	if err := markers.EachType(ctx.Collector, root, func(info *markers.TypeInfo) {
 		if dieMarkers, ok := info.Markers[dieMarker.Name]; ok {
 			die := dieMarkers[0].(Die)
-			die.Target = qualifyField(info.RawSpec.Type, root.ID, info.RawFile.Imports)
+			if _, ok := info.RawSpec.Type.(*ast.StructType); ok {
+				die.Target = root.ID + "." + info.RawSpec.Name.Name
+			} else {
+				die.Target = qualifyField(info.RawSpec.Type, root.ID, info.RawFile.Imports)
+			}
 			die.Default()
 
 			dies = append(dies, die)
@@ -253,6 +257,9 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) ([]byte, []byt
 
 			// find the target struct
 			rpkg := root.Imports()[die.TargetPackage]
+			if die.TargetPackage == root.ID {
+				rpkg = root
+			}
 			if err := markers.EachType(ctx.Collector, rpkg, func(info *markers.TypeInfo) {
 				if info.Name != die.TargetType {
 					return

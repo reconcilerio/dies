@@ -234,7 +234,7 @@ Create or update the generated dies:
 diegen die:headerFile="hack/boilerplate.go.txt" paths="./..."
 ```
 
-All generated content is created within `zz_generated.die.go` in each package where die markers are found.
+All generated content is created within `zz_generated.die.go` and `zz_generated.die_test.go` in each package where die markers are found.
 
 ### die markers
 
@@ -253,6 +253,30 @@ type _ = appsv1.DeploymentSpec
 
 // +die
 type _ = appsv1.DeploymentStatus
+```
+
+For packages you control, dies can be created in the same package as the resource they model by adding the markers to existing types.
+
+```go
+// +die:object=true
+type MyResource struct {
+    metav1.TypeMeta   `json:",inline"`
+    metav1.ObjectMeta `json:"metadata,omitempty"`
+
+    Spec MyResourceSpec `json:"spec"`
+    // +optional
+    Status MyResourceStatus `json:"status"`
+}
+
+// +die
+type MyResourceSpec struct {
+    // add fields
+}
+
+// +die
+type MyResourceStatus struct {
+    // add fields
+}
 ```
 
 Properties:
