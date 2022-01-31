@@ -1,5 +1,5 @@
 /*
-Copyright 2021 the original author or authors.
+Copyright 2022 the original author or authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,35 +19,33 @@ package v1_test
 import (
 	"testing"
 
+	dieauthorizationv1 "dies.dev/apis/authorization/v1"
 	diemetav1 "dies.dev/apis/meta/v1"
-	dierbacv1 "dies.dev/apis/rbac/v1"
 	"github.com/google/go-cmp/cmp"
-	rbacv1 "k8s.io/api/rbac/v1"
+	authorizationv1 "k8s.io/api/authorization/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func TestRole(t *testing.T) {
+func TestSelfSubjectRulesReview(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *dierbacv1.RoleDie
-		expected rbacv1.Role
+		die      *dieauthorizationv1.SelfSubjectRulesReviewDie
+		expected authorizationv1.SelfSubjectRulesReview
 	}{
 		{
 			name:     "empty",
-			die:      dierbacv1.RoleBlank,
-			expected: rbacv1.Role{},
+			die:      dieauthorizationv1.SelfSubjectRulesReviewBlank,
+			expected: authorizationv1.SelfSubjectRulesReview{},
 		},
 		{
 			name: "object metadata",
-			die: dierbacv1.RoleBlank.
+			die: dieauthorizationv1.SelfSubjectRulesReviewBlank.
 				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
-					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),
-			expected: rbacv1.Role{
+			expected: authorizationv1.SelfSubjectRulesReview{
 				ObjectMeta: metav1.ObjectMeta{
-					Namespace: "my-namespace",
-					Name:      "my-name",
+					Name: "my-name",
 				},
 			},
 		},

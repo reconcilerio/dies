@@ -1,5 +1,5 @@
 /*
-Copyright 2021 the original author or authors.
+Copyright 2022 the original author or authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,34 +20,32 @@ import (
 	"testing"
 
 	diemetav1 "dies.dev/apis/meta/v1"
-	dierbacv1 "dies.dev/apis/rbac/v1"
+	diestoragev1 "dies.dev/apis/storage/v1"
 	"github.com/google/go-cmp/cmp"
-	rbacv1 "k8s.io/api/rbac/v1"
+	storagev1 "k8s.io/api/storage/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func TestClusterRole(t *testing.T) {
+func TestVolumeAttachment(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *dierbacv1.ClusterRoleDie
-		expected rbacv1.ClusterRole
+		die      *diestoragev1.VolumeAttachmentDie
+		expected storagev1.VolumeAttachment
 	}{
 		{
 			name:     "empty",
-			die:      dierbacv1.ClusterRoleBlank,
-			expected: rbacv1.ClusterRole{},
+			die:      diestoragev1.VolumeAttachmentBlank,
+			expected: storagev1.VolumeAttachment{},
 		},
 		{
 			name: "object metadata",
-			die: dierbacv1.ClusterRoleBlank.
+			die: diestoragev1.VolumeAttachmentBlank.
 				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
-					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),
-			expected: rbacv1.ClusterRole{
+			expected: storagev1.VolumeAttachment{
 				ObjectMeta: metav1.ObjectMeta{
-					Namespace: "my-namespace",
-					Name:      "my-name",
+					Name: "my-name",
 				},
 			},
 		},

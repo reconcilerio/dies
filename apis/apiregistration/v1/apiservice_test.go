@@ -1,5 +1,5 @@
 /*
-Copyright 2021 the original author or authors.
+Copyright 2022 the original author or authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,32 +19,32 @@ package v1_test
 import (
 	"testing"
 
+	dieapiregistrationv1 "dies.dev/apis/apiregistration/v1"
 	diemetav1 "dies.dev/apis/meta/v1"
-	dierbacv1 "dies.dev/apis/rbac/v1"
 	"github.com/google/go-cmp/cmp"
-	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	apiregistrationv1 "k8s.io/kube-aggregator/pkg/apis/apiregistration"
 )
 
-func TestRoleBinding(t *testing.T) {
+func TestAPIService(t *testing.T) {
 	tests := []struct {
 		name     string
-		die      *dierbacv1.RoleBindingDie
-		expected rbacv1.RoleBinding
+		die      *dieapiregistrationv1.APIServiceDie
+		expected apiregistrationv1.APIService
 	}{
 		{
 			name:     "empty",
-			die:      dierbacv1.RoleBindingBlank,
-			expected: rbacv1.RoleBinding{},
+			die:      dieapiregistrationv1.APIServiceBlank,
+			expected: apiregistrationv1.APIService{},
 		},
 		{
 			name: "object metadata",
-			die: dierbacv1.RoleBindingBlank.
+			die: dieapiregistrationv1.APIServiceBlank.
 				MetadataDie(func(d *diemetav1.ObjectMetaDie) {
 					d.Namespace("my-namespace")
 					d.Name("my-name")
 				}),
-			expected: rbacv1.RoleBinding{
+			expected: apiregistrationv1.APIService{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: "my-namespace",
 					Name:      "my-name",

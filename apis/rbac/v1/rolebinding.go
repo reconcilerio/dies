@@ -1,5 +1,5 @@
 /*
-Copyright 2021 the original author or authors.
+Copyright 2022 the original author or authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,31 +17,14 @@ limitations under the License.
 package v1
 
 import (
-	rbacv1 "k8s.io/api/rbac/v1"
+	dierbacv1 "dies.dev/apis/authorization/rbac/v1"
 )
 
-// +die:object=true
-type _ = rbacv1.RoleBinding
+// Deprecated RoleBindingDie, moved to package dies.dev/apis/authorization/rbac/v1
+type RoleBindingDie = dierbacv1.RoleBindingDie
 
-func (d *RoleBindingDie) SubjectsDie(subjects ...*SubjectDie) *RoleBindingDie {
-	return d.DieStamp(func(r *rbacv1.RoleBinding) {
-		r.Subjects = make([]rbacv1.Subject, len(subjects))
-		for i := range subjects {
-			r.Subjects[i] = subjects[i].DieRelease()
-		}
-	})
-}
+// Deprecated SubjectDie, moved to package dies.dev/apis/authorization/rbac/v1
+type SubjectDie = dierbacv1.SubjectDie
 
-func (d *RoleBindingDie) RoleRefDie(fn func(d *RoleRefDie)) *RoleBindingDie {
-	return d.DieStamp(func(r *rbacv1.RoleBinding) {
-		d := RoleRefBlank.DieImmutable(false).DieFeed(r.RoleRef)
-		fn(d)
-		r.RoleRef = d.DieRelease()
-	})
-}
-
-// +die
-type _ = rbacv1.Subject
-
-// +die
-type _ = rbacv1.RoleRef
+// Deprecated RoleRefDie, moved to package dies.dev/apis/authorization/rbac/v1
+type RoleRefDie = dierbacv1.RoleRefDie
