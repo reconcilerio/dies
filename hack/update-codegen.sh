@@ -7,7 +7,12 @@ set -o pipefail
 REPO_ROOT=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 
 (cd "${REPO_ROOT}/diegen" ; go build)
-(cd "${REPO_ROOT}" ; "${REPO_ROOT}/diegen/diegen" die:headerFile="hack/boilerplate.go.txt" paths="./apis/...")
-go mod tidy
 
-go test -cover ./apis/...
+# genreate apis
+(cd "${REPO_ROOT}" ; ./diegen/diegen die:headerFile="hack/boilerplate.go.txt" paths="./apis/...")
+(cd "${REPO_ROOT}" ; go mod tidy)
+(cd "${REPO_ROOT}" ; go test -cover ./apis/...)
+
+# genreate diegen testdata
+(cd "${REPO_ROOT}/diegen" ; rm -f testdata/zz_generated.die*)
+(cd "${REPO_ROOT}/diegen" ; ./diegen die:headerFile="../hack/boilerplate.go.txt" paths="./testdata")
