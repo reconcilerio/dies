@@ -109,7 +109,9 @@ func (d *Field) Default() {
 		d.Type = d.Type[i:]
 
 		// spread slices
-		d.TypePrefix = strings.Replace(d.TypePrefix, "[]", "...", 1)
+		if d.Type != "byte" {
+			d.TypePrefix = strings.Replace(d.TypePrefix, "[]", "...", 1)
+		}
 	}
 	if i := strings.LastIndex(d.Type, "."); i >= 0 {
 		d.TypePackage = d.Type[0:i]

@@ -126,7 +126,7 @@ func (d *WebhookClientConfigDie) Service(v *admissionregistrationv1.ServiceRefer
 }
 
 // `caBundle` is a PEM encoded CA bundle which will be used to validate the webhook's server certificate. If unspecified, system trust roots on the apiserver are used.
-func (d *WebhookClientConfigDie) CABundle(v ...byte) *WebhookClientConfigDie {
+func (d *WebhookClientConfigDie) CABundle(v []byte) *WebhookClientConfigDie {
 	return d.DieStamp(func(r *admissionregistrationv1.WebhookClientConfig) {
 		r.CABundle = v
 	})

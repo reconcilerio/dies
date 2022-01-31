@@ -248,7 +248,7 @@ func (d *CertificateSigningRequestSpecDie) DeepCopy() *CertificateSigningRequest
 }
 
 // request contains an x509 certificate signing request encoded in a "CERTIFICATE REQUEST" PEM block. When serialized as JSON or YAML, the data is additionally base64-encoded.
-func (d *CertificateSigningRequestSpecDie) Request(v ...byte) *CertificateSigningRequestSpecDie {
+func (d *CertificateSigningRequestSpecDie) Request(v []byte) *CertificateSigningRequestSpecDie {
 	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequestSpec) {
 		r.Request = v
 	})
@@ -407,7 +407,7 @@ func (d *CertificateSigningRequestStatusDie) Conditions(v ...certificatesv1.Cert
 // When serialized as JSON or YAML, the data is additionally base64-encoded, so it consists of:
 //
 // base64(     -----BEGIN CERTIFICATE-----     ...     -----END CERTIFICATE-----     )
-func (d *CertificateSigningRequestStatusDie) Certificate(v ...byte) *CertificateSigningRequestStatusDie {
+func (d *CertificateSigningRequestStatusDie) Certificate(v []byte) *CertificateSigningRequestStatusDie {
 	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequestStatus) {
 		r.Certificate = v
 	})
