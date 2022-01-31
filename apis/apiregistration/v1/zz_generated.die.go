@@ -276,7 +276,7 @@ func (d *APIServiceSpecDie) InsecureSkipTLSVerify(v bool) *APIServiceSpecDie {
 }
 
 // CABundle is a PEM encoded CA bundle which will be used to validate an API server's serving certificate. If unspecified, system trust roots on the apiserver are used.
-func (d *APIServiceSpecDie) CABundle(v ...byte) *APIServiceSpecDie {
+func (d *APIServiceSpecDie) CABundle(v []byte) *APIServiceSpecDie {
 	return d.DieStamp(func(r *apiregistration.APIServiceSpec) {
 		r.CABundle = v
 	})
