@@ -42,7 +42,9 @@ die := dieappsv1.DeploymentBlank.
             d.SpecDie(func(d *diecorev1.PodSpecDie) {
                 d.ContainerDie("app", func(d *diecorev1.ContainerDie) {
                     d.Image("registry.example/image:latest")
-                    d.AddEnv("MY_VAR", "my-value")
+					d.EnvDie("MY_VAR", func(d *diecorev1.EnvVarDie) {
+						d.Value("my-value")
+					})
                 })
             })
         })
@@ -86,7 +88,9 @@ altDeployment := die.
         d.TemplateDie(func(d *diecorev1.PodTemplateSpecDie) {
             d.SpecDie(func(d *diecorev1.PodSpecDie) {
                 d.ContainerDie("app", func(d *diecorev1.ContainerDie) {
-                    d.AddEnv("MY_VAR", "some-other-value")
+					d.EnvDie("MY_VAR", func(d *diecorev1.EnvVarDie) {
+						d.Value("some-other-value")
+					})
                 })
             })
         })
