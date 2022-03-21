@@ -14,10 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package testdata
+//go:generate go run -tags generate sigs.k8s.io/controller-tools/cmd/controller-gen object:headerFile=./hack/boilerplate.go.txt paths=./...
+//go:generate go run dies.dev/diegen die:headerFile="./hack/boilerplate.go.txt" paths="./..."
 
-// Hello tests generating a die directly for a struct
-// +die
-type Hello struct {
-	World string `json:"world"`
-}
+package dies
