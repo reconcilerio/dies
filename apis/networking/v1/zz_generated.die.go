@@ -669,7 +669,7 @@ func (d *IngressRuleDie) DeepCopy() *IngressRuleDie {
 	}
 }
 
-// Host is the fully qualified domain name of a network host, as defined by RFC 3986. Note the following deviations from the "host" part of the URI as defined in RFC 3986: 1. IPs are not allowed. Currently an IngressRuleValue can only apply to    the IP in the Spec of the parent Ingress. 2. The `:` delimiter is not respected because ports are not allowed. 	  Currently the port of an Ingress is implicitly :80 for http and 	  :443 for https. Both these may change in the future. Incoming requests are matched against the host before the IngressRuleValue. If the host is unspecified, the Ingress routes all traffic based on the specified IngressRuleValue.
+// Host is the fully qualified domain name of a network host, as defined by RFC 3986. Note the following deviations from the "host" part of the URI as defined in RFC 3986: 1. IPs are not allowed. Currently an IngressRuleValue can only apply to the IP in the Spec of the parent Ingress. 2. The `:` delimiter is not respected because ports are not allowed. Currently the port of an Ingress is implicitly :80 for http and :443 for https. Both these may change in the future. Incoming requests are matched against the host before the IngressRuleValue. If the host is unspecified, the Ingress routes all traffic based on the specified IngressRuleValue.
 //
 // Host can be "precise" which is a domain name without the terminating dot of a network host (e.g. "foo.bar.com") or "wildcard", which is a domain name prefixed with a single wildcard label (e.g. "*.foo.com"). The wildcard character '*' must appear by itself as the first DNS label and matches only a single label. You cannot have a wildcard label by itself (e.g. Host == "*"). Requests will be matched against the Host field in the following way: 1. If Host is precise, the request matches this rule if the http host header is equal to Host. 2. If Host is a wildcard, then the request matches this rule if the http host header is to equal to the suffix (removing the first label) of the wildcard rule.
 func (d *IngressRuleDie) Host(v string) *IngressRuleDie {
@@ -833,7 +833,7 @@ func (d *HTTPIngressPathDie) Path(v string) *HTTPIngressPathDie {
 	})
 }
 
-// PathType determines the interpretation of the Path matching. PathType can be one of the following values: * Exact: Matches the URL path exactly. * Prefix: Matches based on a URL path prefix split by '/'. Matching is   done on a path element by element basis. A path element refers is the   list of labels in the path split by the '/' separator. A request is a   match for path p if every p is an element-wise prefix of p of the   request path. Note that if the last element of the path is a substring   of the last element in request path, it is not a match (e.g. /foo/bar   matches /foo/bar/baz, but does not match /foo/barbaz). * ImplementationSpecific: Interpretation of the Path matching is up to   the IngressClass. Implementations can treat this as a separate PathType   or treat it identically to Prefix or Exact path types. Implementations are required to support all path types.
+// PathType determines the interpretation of the Path matching. PathType can be one of the following values: * Exact: Matches the URL path exactly. * Prefix: Matches based on a URL path prefix split by '/'. Matching is done on a path element by element basis. A path element refers is the list of labels in the path split by the '/' separator. A request is a match for path p if every p is an element-wise prefix of p of the request path. Note that if the last element of the path is a substring of the last element in request path, it is not a match (e.g. /foo/bar matches /foo/bar/baz, but does not match /foo/barbaz). * ImplementationSpecific: Interpretation of the Path matching is up to the IngressClass. Implementations can treat this as a separate PathType or treat it identically to Prefix or Exact path types. Implementations are required to support all path types.
 func (d *HTTPIngressPathDie) PathType(v *networkingv1.PathType) *HTTPIngressPathDie {
 	return d.DieStamp(func(r *networkingv1.HTTPIngressPath) {
 		r.PathType = v
@@ -1363,10 +1363,26 @@ func (d *NetworkPolicyDie) SpecDie(fn func(d *NetworkPolicySpecDie)) *NetworkPol
 	})
 }
 
+// StatusDie stamps the resource's status field with a mutable die.
+func (d *NetworkPolicyDie) StatusDie(fn func(d *NetworkPolicyStatusDie)) *NetworkPolicyDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
+		d := NetworkPolicyStatusBlank.DieImmutable(false).DieFeed(r.Status)
+		fn(d)
+		r.Status = d.DieRelease()
+	})
+}
+
 // Specification of the desired behavior for this NetworkPolicy.
 func (d *NetworkPolicyDie) Spec(v networkingv1.NetworkPolicySpec) *NetworkPolicyDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
 		r.Spec = v
+	})
+}
+
+// Status is the current state of the NetworkPolicy. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *NetworkPolicyDie) Status(v networkingv1.NetworkPolicyStatus) *NetworkPolicyDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
+		r.Status = v
 	})
 }
 
@@ -1899,5 +1915,79 @@ func (d *IPBlockDie) CIDR(v string) *IPBlockDie {
 func (d *IPBlockDie) Except(v ...string) *IPBlockDie {
 	return d.DieStamp(func(r *networkingv1.IPBlock) {
 		r.Except = v
+	})
+}
+
+var NetworkPolicyStatusBlank = (&NetworkPolicyStatusDie{}).DieFeed(networkingv1.NetworkPolicyStatus{})
+
+type NetworkPolicyStatusDie struct {
+	mutable bool
+	r       networkingv1.NetworkPolicyStatus
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *NetworkPolicyStatusDie) DieImmutable(immutable bool) *NetworkPolicyStatusDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *NetworkPolicyStatusDie) DieFeed(r networkingv1.NetworkPolicyStatus) *NetworkPolicyStatusDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &NetworkPolicyStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *NetworkPolicyStatusDie) DieFeedPtr(r *networkingv1.NetworkPolicyStatus) *NetworkPolicyStatusDie {
+	if r == nil {
+		r = &networkingv1.NetworkPolicyStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *NetworkPolicyStatusDie) DieRelease() networkingv1.NetworkPolicyStatus {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *NetworkPolicyStatusDie) DieReleasePtr() *networkingv1.NetworkPolicyStatus {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *NetworkPolicyStatusDie) DieStamp(fn func(r *networkingv1.NetworkPolicyStatus)) *NetworkPolicyStatusDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *NetworkPolicyStatusDie) DeepCopy() *NetworkPolicyStatusDie {
+	r := *d.r.DeepCopy()
+	return &NetworkPolicyStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Conditions holds an array of metav1.Condition that describe the state of the NetworkPolicy. Current service state
+func (d *NetworkPolicyStatusDie) Conditions(v ...apismetav1.Condition) *NetworkPolicyStatusDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicyStatus) {
+		r.Conditions = v
 	})
 }

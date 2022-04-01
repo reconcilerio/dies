@@ -257,6 +257,13 @@ func (d *CronJobSpecDie) Schedule(v string) *CronJobSpecDie {
 	})
 }
 
+// The time zone for the given schedule, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones. If not specified, this will rely on the time zone of the kube-controller-manager process. ALPHA: This field is in alpha and must be enabled via the `CronJobTimeZone` feature gate.
+func (d *CronJobSpecDie) TimeZone(v *string) *CronJobSpecDie {
+	return d.DieStamp(func(r *batchv1.CronJobSpec) {
+		r.TimeZone = v
+	})
+}
+
 // Optional deadline in seconds for starting the job if it misses scheduled time for any reason.  Missed jobs executions will be counted as failed ones.
 func (d *CronJobSpecDie) StartingDeadlineSeconds(v *int64) *CronJobSpecDie {
 	return d.DieStamp(func(r *batchv1.CronJobSpec) {
@@ -665,7 +672,7 @@ func (d *JobSpecDie) TTLSecondsAfterFinished(v *int32) *JobSpecDie {
 //
 // `Indexed` means that the Pods of a Job get an associated completion index from 0 to (.spec.completions - 1), available in the annotation batch.kubernetes.io/job-completion-index. The Job is considered complete when there is one successfully completed Pod for each index. When value is `Indexed`, .spec.completions must be specified and `.spec.parallelism` must be less than or equal to 10^5. In addition, The Pod name takes the form `$(job-name)-$(index)-$(random-string)`, the Pod hostname takes the form `$(job-name)-$(index)`.
 //
-// This field is beta-level. More completion modes can be added in the future. If the Job controller observes a mode that it doesn't recognize, the controller skips updates for the Job.
+// More completion modes can be added in the future. If the Job controller observes a mode that it doesn't recognize, which is possible during upgrades due to version skew, the controller skips updates for the Job.
 func (d *JobSpecDie) CompletionMode(v *batchv1.CompletionMode) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.CompletionMode = v
@@ -673,8 +680,6 @@ func (d *JobSpecDie) CompletionMode(v *batchv1.CompletionMode) *JobSpecDie {
 }
 
 // Suspend specifies whether the Job controller should create Pods or not. If a Job is created with suspend set to true, no Pods are created by the Job controller. If a Job is suspended after creation (i.e. the flag goes from false to true), the Job controller will delete all active Pods associated with this Job. Users must design their workload to gracefully handle this. Suspending a Job will reset the StartTime field of the Job, effectively resetting the ActiveDeadlineSeconds timer too. Defaults to false.
-//
-// This field is beta-level, gated by SuspendJob feature flag (enabled by default).
 func (d *JobSpecDie) Suspend(v *bool) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.Suspend = v
@@ -799,7 +804,7 @@ func (d *JobStatusDie) CompletedIndexes(v string) *JobStatusDie {
 
 // UncountedTerminatedPods holds the UIDs of Pods that have terminated but the job controller hasn't yet accounted for in the status counters.
 //
-// The job controller creates pods with a finalizer. When a pod terminates (succeeded or failed), the controller does three steps to account for it in the job status: (1) Add the pod UID to the arrays in this field. (2) Remove the pod finalizer. (3) Remove the pod UID from the arrays while increasing the corresponding     counter.
+// The job controller creates pods with a finalizer. When a pod terminates (succeeded or failed), the controller does three steps to account for it in the job status: (1) Add the pod UID to the arrays in this field. (2) Remove the pod finalizer. (3) Remove the pod UID from the arrays while increasing the corresponding counter.
 //
 // This field is beta-level. The job controller only makes use of this field when the feature gate JobTrackingWithFinalizers is enabled (enabled by default). Old jobs might not be tracked using this field, in which case the field remains null.
 func (d *JobStatusDie) UncountedTerminatedPods(v *batchv1.UncountedTerminatedPods) *JobStatusDie {
@@ -810,7 +815,7 @@ func (d *JobStatusDie) UncountedTerminatedPods(v *batchv1.UncountedTerminatedPod
 
 // The number of pods which have a Ready condition.
 //
-// This field is alpha-level. The job controller populates the field when the feature gate JobReadyPods is enabled (disabled by default).
+// This field is beta-level. The job controller populates the field when the feature gate JobReadyPods is enabled (enabled by default).
 func (d *JobStatusDie) Ready(v *int32) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.Ready = v

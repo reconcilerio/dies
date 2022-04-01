@@ -831,7 +831,7 @@ func (d *CustomResourceConversionDie) DeepCopy() *CustomResourceConversionDie {
 	}
 }
 
-// strategy specifies how custom resources are converted between versions. Allowed values are: - `None`: The converter only change the apiVersion and would not touch any other field in the custom resource. - `Webhook`: API Server will call to an external webhook to do the conversion. Additional information   is needed for this option. This requires spec.preserveUnknownFields to be false, and spec.conversion.webhook to be set.
+// strategy specifies how custom resources are converted between versions. Allowed values are: - `None`: The converter only change the apiVersion and would not touch any other field in the custom resource. - `Webhook`: API Server will call to an external webhook to do the conversion. Additional information is needed for this option. This requires spec.preserveUnknownFields to be false, and spec.conversion.webhook to be set.
 func (d *CustomResourceConversionDie) Strategy(v apiextensionsv1.ConversionStrategyType) *CustomResourceConversionDie {
 	return d.DieStamp(func(r *apiextensionsv1.CustomResourceConversion) {
 		r.Strategy = v

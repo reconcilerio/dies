@@ -156,7 +156,7 @@ func (d *RuntimeClassDie) Handler(v string) *RuntimeClassDie {
 	})
 }
 
-// Overhead represents the resource overhead associated with running a pod for a given RuntimeClass. For more details, see  https://kubernetes.io/docs/concepts/scheduling-eviction/pod-overhead/ This field is in beta starting v1.18 and is only honored by servers that enable the PodOverhead feature.
+// Overhead represents the resource overhead associated with running a pod for a given RuntimeClass. For more details, see https://kubernetes.io/docs/concepts/scheduling-eviction/pod-overhead/
 func (d *RuntimeClassDie) Overhead(v *nodev1.Overhead) *RuntimeClassDie {
 	return d.DieStamp(func(r *nodev1.RuntimeClass) {
 		r.Overhead = v
