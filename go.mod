@@ -4,9 +4,9 @@ go 1.18
 
 require (
 	github.com/google/go-cmp v0.5.7
-	k8s.io/api v0.23.5
-	k8s.io/apiextensions-apiserver v0.23.5
-	k8s.io/apimachinery v0.23.5
+	k8s.io/api v0.23.6
+	k8s.io/apiextensions-apiserver v0.23.6
+	k8s.io/apimachinery v0.23.6
 	k8s.io/kube-aggregator v0.23.5
 	k8s.io/utils v0.0.0-20211116205334-6203023598ed
 )
