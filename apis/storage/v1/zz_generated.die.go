@@ -242,7 +242,7 @@ func (d *CSIDriverSpecDie) AttachRequired(v *bool) *CSIDriverSpecDie {
 	})
 }
 
-// If set to true, podInfoOnMount indicates this CSI volume driver requires additional pod information (like podName, podUID, etc.) during mount operations. If set to false, pod information will not be passed on mount. Default is false. The CSI driver specifies podInfoOnMount as part of driver deployment. If true, Kubelet will pass pod information as VolumeContext in the CSI NodePublishVolume() calls. The CSI driver is responsible for parsing and validating the information passed in as VolumeContext. The following VolumeConext will be passed if podInfoOnMount is set to true. This list might grow, but the prefix will be used. "csi.storage.k8s.io/pod.name": pod.Name "csi.storage.k8s.io/pod.namespace": pod.Namespace "csi.storage.k8s.io/pod.uid": string(pod.UID) "csi.storage.k8s.io/ephemeral": "true" if the volume is an ephemeral inline volume                                 defined by a CSIVolumeSource, otherwise "false"
+// If set to true, podInfoOnMount indicates this CSI volume driver requires additional pod information (like podName, podUID, etc.) during mount operations. If set to false, pod information will not be passed on mount. Default is false. The CSI driver specifies podInfoOnMount as part of driver deployment. If true, Kubelet will pass pod information as VolumeContext in the CSI NodePublishVolume() calls. The CSI driver is responsible for parsing and validating the information passed in as VolumeContext. The following VolumeConext will be passed if podInfoOnMount is set to true. This list might grow, but the prefix will be used. "csi.storage.k8s.io/pod.name": pod.Name "csi.storage.k8s.io/pod.namespace": pod.Namespace "csi.storage.k8s.io/pod.uid": string(pod.UID) "csi.storage.k8s.io/ephemeral": "true" if the volume is an ephemeral inline volume defined by a CSIVolumeSource, otherwise "false"
 //
 // "csi.storage.k8s.io/ephemeral" is a new feature in Kubernetes 1.16. It is only required for drivers which support both the "Persistent" and "Ephemeral" VolumeLifecycleMode. Other drivers can leave pod info disabled and/or ignore this field. As Kubernetes 1.15 doesn't support this field, drivers can only support one mode when deployed on such a cluster and the deployment determines which mode that is, for example via a command line parameter of the driver.
 //
@@ -269,8 +269,6 @@ func (d *CSIDriverSpecDie) VolumeLifecycleModes(v ...storagev1.VolumeLifecycleMo
 // Alternatively, the driver can be deployed with the field unset or false and it can be flipped later when storage capacity information has been published.
 //
 // This field was immutable in Kubernetes <= 1.22 and now is mutable.
-//
-// This is a beta field and only available when the CSIStorageCapacity feature is enabled. The default is false.
 func (d *CSIDriverSpecDie) StorageCapacity(v *bool) *CSIDriverSpecDie {
 	return d.DieStamp(func(r *storagev1.CSIDriverSpec) {
 		r.StorageCapacity = v
@@ -288,7 +286,7 @@ func (d *CSIDriverSpecDie) FSGroupPolicy(v *storagev1.FSGroupPolicy) *CSIDriverS
 	})
 }
 
-// TokenRequests indicates the CSI driver needs pods' service account tokens it is mounting volume for to do necessary authentication. Kubelet will pass the tokens in VolumeContext in the CSI NodePublishVolume calls. The CSI driver should parse and validate the following VolumeContext: "csi.storage.k8s.io/serviceAccount.tokens": {   "<audience>": {     "token": <token>,     "expirationTimestamp": <expiration timestamp in RFC3339>,   },   ... }
+// TokenRequests indicates the CSI driver needs pods' service account tokens it is mounting volume for to do necessary authentication. Kubelet will pass the tokens in VolumeContext in the CSI NodePublishVolume calls. The CSI driver should parse and validate the following VolumeContext: "csi.storage.k8s.io/serviceAccount.tokens": { "<audience>": { "token": <token>, "expirationTimestamp": <expiration timestamp in RFC3339>, }, ... }
 //
 // Note: Audience in each TokenRequest should be different and at most one token is empty string. To receive a new token after expiry, RequiresRepublish can be used to trigger NodePublishVolume periodically.
 func (d *CSIDriverSpecDie) TokenRequests(v ...storagev1.TokenRequest) *CSIDriverSpecDie {

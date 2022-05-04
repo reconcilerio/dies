@@ -791,7 +791,7 @@ func (d *ResourceRuleDie) APIGroups(v ...string) *ResourceRuleDie {
 	})
 }
 
-// Resources is a list of resources this rule applies to.  "*" means all in the specified apiGroups.  "*/foo" represents the subresource 'foo' for all resources in the specified apiGroups.
+// Resources is a list of resources this rule applies to.  "*" means all in the specified apiGroups. "*/foo" represents the subresource 'foo' for all resources in the specified apiGroups.
 func (d *ResourceRuleDie) Resources(v ...string) *ResourceRuleDie {
 	return d.DieStamp(func(r *authorizationv1.ResourceRule) {
 		r.Resources = v

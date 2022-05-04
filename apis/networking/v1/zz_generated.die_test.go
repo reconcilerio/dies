@@ -205,3 +205,12 @@ func TestIPBlockDie_MissingMethods(t *testingx.T) {
 		t.Errorf("found missing fields for IPBlockDie: %s", diff.List())
 	}
 }
+
+func TestNetworkPolicyStatusDie_MissingMethods(t *testingx.T) {
+	die := NetworkPolicyStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NetworkPolicyStatusDie: %s", diff.List())
+	}
+}

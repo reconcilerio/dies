@@ -166,7 +166,7 @@ func (d *CSIStorageCapacityDie) StorageClassName(v string) *CSIStorageCapacityDi
 
 // Capacity is the value reported by the CSI driver in its GetCapacityResponse for a GetCapacityRequest with topology and parameters that match the previous fields.
 //
-// The semantic is currently (CSI spec 1.2) defined as: The available capacity, in bytes, of the storage that can be used to provision volumes. If not set, that information is currently unavailable and treated like zero capacity.
+// The semantic is currently (CSI spec 1.2) defined as: The available capacity, in bytes, of the storage that can be used to provision volumes. If not set, that information is currently unavailable.
 func (d *CSIStorageCapacityDie) Capacity(v *resource.Quantity) *CSIStorageCapacityDie {
 	return d.DieStamp(func(r *storagev1beta1.CSIStorageCapacity) {
 		r.Capacity = v

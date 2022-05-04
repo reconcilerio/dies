@@ -170,7 +170,7 @@ func (d *PriorityClassDie) Description(v string) *PriorityClassDie {
 	})
 }
 
-// PreemptionPolicy is the Policy for preempting pods with lower priority. One of Never, PreemptLowerPriority. Defaults to PreemptLowerPriority if unset. This field is beta-level, gated by the NonPreemptingPriority feature-gate.
+// PreemptionPolicy is the Policy for preempting pods with lower priority. One of Never, PreemptLowerPriority. Defaults to PreemptLowerPriority if unset.
 func (d *PriorityClassDie) PreemptionPolicy(v *corev1.PreemptionPolicy) *PriorityClassDie {
 	return d.DieStamp(func(r *schedulingv1.PriorityClass) {
 		r.PreemptionPolicy = v
