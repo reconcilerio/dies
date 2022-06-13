@@ -71,6 +71,14 @@ func (d *LocalSubjectAccessReviewDie) DieFeedPtr(r *authorizationv1.LocalSubject
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *LocalSubjectAccessReviewDie) DieFeedRawExtension(raw runtime.RawExtension) *LocalSubjectAccessReviewDie {
+	b, _ := json.Marshal(raw)
+	r := authorizationv1.LocalSubjectAccessReview{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *LocalSubjectAccessReviewDie) DieRelease() authorizationv1.LocalSubjectAccessReview {
 	if d.mutable {
@@ -92,6 +100,15 @@ func (d *LocalSubjectAccessReviewDie) DieReleaseUnstructured() runtime.Unstructu
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *LocalSubjectAccessReviewDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -137,6 +154,20 @@ func (d *LocalSubjectAccessReviewDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *LocalSubjectAccessReviewDie) APIVersion(v string) *LocalSubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.LocalSubjectAccessReview) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *LocalSubjectAccessReviewDie) Kind(v string) *LocalSubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.LocalSubjectAccessReview) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -202,6 +233,14 @@ func (d *SelfSubjectAccessReviewDie) DieFeedPtr(r *authorizationv1.SelfSubjectAc
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *SelfSubjectAccessReviewDie) DieFeedRawExtension(raw runtime.RawExtension) *SelfSubjectAccessReviewDie {
+	b, _ := json.Marshal(raw)
+	r := authorizationv1.SelfSubjectAccessReview{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *SelfSubjectAccessReviewDie) DieRelease() authorizationv1.SelfSubjectAccessReview {
 	if d.mutable {
@@ -223,6 +262,15 @@ func (d *SelfSubjectAccessReviewDie) DieReleaseUnstructured() runtime.Unstructur
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *SelfSubjectAccessReviewDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -268,6 +316,20 @@ func (d *SelfSubjectAccessReviewDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *SelfSubjectAccessReviewDie) APIVersion(v string) *SelfSubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SelfSubjectAccessReview) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *SelfSubjectAccessReviewDie) Kind(v string) *SelfSubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SelfSubjectAccessReview) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -348,6 +410,14 @@ func (d *SelfSubjectAccessReviewSpecDie) DieFeedPtr(r *authorizationv1.SelfSubje
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *SelfSubjectAccessReviewSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *SelfSubjectAccessReviewSpecDie {
+	b, _ := json.Marshal(raw)
+	r := authorizationv1.SelfSubjectAccessReviewSpec{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *SelfSubjectAccessReviewSpecDie) DieRelease() authorizationv1.SelfSubjectAccessReviewSpec {
 	if d.mutable {
@@ -360,6 +430,15 @@ func (d *SelfSubjectAccessReviewSpecDie) DieRelease() authorizationv1.SelfSubjec
 func (d *SelfSubjectAccessReviewSpecDie) DieReleasePtr() *authorizationv1.SelfSubjectAccessReviewSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *SelfSubjectAccessReviewSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -432,6 +511,14 @@ func (d *SelfSubjectRulesReviewDie) DieFeedPtr(r *authorizationv1.SelfSubjectRul
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *SelfSubjectRulesReviewDie) DieFeedRawExtension(raw runtime.RawExtension) *SelfSubjectRulesReviewDie {
+	b, _ := json.Marshal(raw)
+	r := authorizationv1.SelfSubjectRulesReview{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *SelfSubjectRulesReviewDie) DieRelease() authorizationv1.SelfSubjectRulesReview {
 	if d.mutable {
@@ -453,6 +540,15 @@ func (d *SelfSubjectRulesReviewDie) DieReleaseUnstructured() runtime.Unstructure
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *SelfSubjectRulesReviewDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -498,6 +594,20 @@ func (d *SelfSubjectRulesReviewDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *SelfSubjectRulesReviewDie) APIVersion(v string) *SelfSubjectRulesReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SelfSubjectRulesReview) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *SelfSubjectRulesReviewDie) Kind(v string) *SelfSubjectRulesReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SelfSubjectRulesReview) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -578,6 +688,14 @@ func (d *SelfSubjectRulesReviewSpecDie) DieFeedPtr(r *authorizationv1.SelfSubjec
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *SelfSubjectRulesReviewSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *SelfSubjectRulesReviewSpecDie {
+	b, _ := json.Marshal(raw)
+	r := authorizationv1.SelfSubjectRulesReviewSpec{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *SelfSubjectRulesReviewSpecDie) DieRelease() authorizationv1.SelfSubjectRulesReviewSpec {
 	if d.mutable {
@@ -590,6 +708,15 @@ func (d *SelfSubjectRulesReviewSpecDie) DieRelease() authorizationv1.SelfSubject
 func (d *SelfSubjectRulesReviewSpecDie) DieReleasePtr() *authorizationv1.SelfSubjectRulesReviewSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *SelfSubjectRulesReviewSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -652,6 +779,14 @@ func (d *SubjectRulesReviewStatusDie) DieFeedPtr(r *authorizationv1.SubjectRules
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *SubjectRulesReviewStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *SubjectRulesReviewStatusDie {
+	b, _ := json.Marshal(raw)
+	r := authorizationv1.SubjectRulesReviewStatus{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *SubjectRulesReviewStatusDie) DieRelease() authorizationv1.SubjectRulesReviewStatus {
 	if d.mutable {
@@ -664,6 +799,15 @@ func (d *SubjectRulesReviewStatusDie) DieRelease() authorizationv1.SubjectRulesR
 func (d *SubjectRulesReviewStatusDie) DieReleasePtr() *authorizationv1.SubjectRulesReviewStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *SubjectRulesReviewStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -747,6 +891,14 @@ func (d *ResourceRuleDie) DieFeedPtr(r *authorizationv1.ResourceRule) *ResourceR
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *ResourceRuleDie) DieFeedRawExtension(raw runtime.RawExtension) *ResourceRuleDie {
+	b, _ := json.Marshal(raw)
+	r := authorizationv1.ResourceRule{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *ResourceRuleDie) DieRelease() authorizationv1.ResourceRule {
 	if d.mutable {
@@ -759,6 +911,15 @@ func (d *ResourceRuleDie) DieRelease() authorizationv1.ResourceRule {
 func (d *ResourceRuleDie) DieReleasePtr() *authorizationv1.ResourceRule {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *ResourceRuleDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -842,6 +1003,14 @@ func (d *NonResourceRuleDie) DieFeedPtr(r *authorizationv1.NonResourceRule) *Non
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *NonResourceRuleDie) DieFeedRawExtension(raw runtime.RawExtension) *NonResourceRuleDie {
+	b, _ := json.Marshal(raw)
+	r := authorizationv1.NonResourceRule{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *NonResourceRuleDie) DieRelease() authorizationv1.NonResourceRule {
 	if d.mutable {
@@ -854,6 +1023,15 @@ func (d *NonResourceRuleDie) DieRelease() authorizationv1.NonResourceRule {
 func (d *NonResourceRuleDie) DieReleasePtr() *authorizationv1.NonResourceRule {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *NonResourceRuleDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -926,6 +1104,14 @@ func (d *SubjectAccessReviewDie) DieFeedPtr(r *authorizationv1.SubjectAccessRevi
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *SubjectAccessReviewDie) DieFeedRawExtension(raw runtime.RawExtension) *SubjectAccessReviewDie {
+	b, _ := json.Marshal(raw)
+	r := authorizationv1.SubjectAccessReview{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *SubjectAccessReviewDie) DieRelease() authorizationv1.SubjectAccessReview {
 	if d.mutable {
@@ -947,6 +1133,15 @@ func (d *SubjectAccessReviewDie) DieReleaseUnstructured() runtime.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *SubjectAccessReviewDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -992,6 +1187,20 @@ func (d *SubjectAccessReviewDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *SubjectAccessReviewDie) APIVersion(v string) *SubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SubjectAccessReview) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *SubjectAccessReviewDie) Kind(v string) *SubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SubjectAccessReview) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -1072,6 +1281,14 @@ func (d *SubjectAccessReviewSpecDie) DieFeedPtr(r *authorizationv1.SubjectAccess
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *SubjectAccessReviewSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *SubjectAccessReviewSpecDie {
+	b, _ := json.Marshal(raw)
+	r := authorizationv1.SubjectAccessReviewSpec{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *SubjectAccessReviewSpecDie) DieRelease() authorizationv1.SubjectAccessReviewSpec {
 	if d.mutable {
@@ -1084,6 +1301,15 @@ func (d *SubjectAccessReviewSpecDie) DieRelease() authorizationv1.SubjectAccessR
 func (d *SubjectAccessReviewSpecDie) DieReleasePtr() *authorizationv1.SubjectAccessReviewSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *SubjectAccessReviewSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1174,6 +1400,14 @@ func (d *ResourceAttributesDie) DieFeedPtr(r *authorizationv1.ResourceAttributes
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *ResourceAttributesDie) DieFeedRawExtension(raw runtime.RawExtension) *ResourceAttributesDie {
+	b, _ := json.Marshal(raw)
+	r := authorizationv1.ResourceAttributes{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *ResourceAttributesDie) DieRelease() authorizationv1.ResourceAttributes {
 	if d.mutable {
@@ -1186,6 +1420,15 @@ func (d *ResourceAttributesDie) DieRelease() authorizationv1.ResourceAttributes 
 func (d *ResourceAttributesDie) DieReleasePtr() *authorizationv1.ResourceAttributes {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *ResourceAttributesDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1290,6 +1533,14 @@ func (d *NonResourceAttributesDie) DieFeedPtr(r *authorizationv1.NonResourceAttr
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *NonResourceAttributesDie) DieFeedRawExtension(raw runtime.RawExtension) *NonResourceAttributesDie {
+	b, _ := json.Marshal(raw)
+	r := authorizationv1.NonResourceAttributes{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *NonResourceAttributesDie) DieRelease() authorizationv1.NonResourceAttributes {
 	if d.mutable {
@@ -1302,6 +1553,15 @@ func (d *NonResourceAttributesDie) DieRelease() authorizationv1.NonResourceAttri
 func (d *NonResourceAttributesDie) DieReleasePtr() *authorizationv1.NonResourceAttributes {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *NonResourceAttributesDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1371,6 +1631,14 @@ func (d *SubjectAccessReviewStatusDie) DieFeedPtr(r *authorizationv1.SubjectAcce
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *SubjectAccessReviewStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *SubjectAccessReviewStatusDie {
+	b, _ := json.Marshal(raw)
+	r := authorizationv1.SubjectAccessReviewStatus{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *SubjectAccessReviewStatusDie) DieRelease() authorizationv1.SubjectAccessReviewStatus {
 	if d.mutable {
@@ -1383,6 +1651,15 @@ func (d *SubjectAccessReviewStatusDie) DieRelease() authorizationv1.SubjectAcces
 func (d *SubjectAccessReviewStatusDie) DieReleasePtr() *authorizationv1.SubjectAccessReviewStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *SubjectAccessReviewStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.

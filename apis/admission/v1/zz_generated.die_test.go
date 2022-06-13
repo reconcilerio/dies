@@ -26,47 +26,29 @@ import (
 	testingx "testing"
 )
 
-func TestTokenReviewDie_MissingMethods(t *testingx.T) {
-	die := TokenReviewBlank
-	ignore := []string{"TypeMeta", "ObjectMeta"}
-	diff := testing.DieFieldDiff(die).Delete(ignore...)
-	if diff.Len() != 0 {
-		t.Errorf("found missing fields for TokenReviewDie: %s", diff.List())
-	}
-}
-
-func TestTokenRequestSpecDie_MissingMethods(t *testingx.T) {
-	die := TokenRequestSpecBlank
+func TestAdmissionRequestDie_MissingMethods(t *testingx.T) {
+	die := AdmissionRequestBlank
 	ignore := []string{}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
-		t.Errorf("found missing fields for TokenRequestSpecDie: %s", diff.List())
+		t.Errorf("found missing fields for AdmissionRequestDie: %s", diff.List())
 	}
 }
 
-func TestBoundObjectReferenceDie_MissingMethods(t *testingx.T) {
-	die := BoundObjectReferenceBlank
+func TestAdmissionResponseDie_MissingMethods(t *testingx.T) {
+	die := AdmissionResponseBlank
 	ignore := []string{}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
-		t.Errorf("found missing fields for BoundObjectReferenceDie: %s", diff.List())
+		t.Errorf("found missing fields for AdmissionResponseDie: %s", diff.List())
 	}
 }
 
-func TestTokenRequestStatusDie_MissingMethods(t *testingx.T) {
-	die := TokenRequestStatusBlank
+func TestAdmissionReviewDie_MissingMethods(t *testingx.T) {
+	die := AdmissionReviewBlank
 	ignore := []string{}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
-		t.Errorf("found missing fields for TokenRequestStatusDie: %s", diff.List())
-	}
-}
-
-func TestUserInfoDie_MissingMethods(t *testingx.T) {
-	die := UserInfoBlank
-	ignore := []string{"Extra"}
-	diff := testing.DieFieldDiff(die).Delete(ignore...)
-	if diff.Len() != 0 {
-		t.Errorf("found missing fields for UserInfoDie: %s", diff.List())
+		t.Errorf("found missing fields for AdmissionReviewDie: %s", diff.List())
 	}
 }

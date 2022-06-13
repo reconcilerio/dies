@@ -71,6 +71,14 @@ func (d *FlowSchemaDie) DieFeedPtr(r *flowcontrolv1beta1.FlowSchema) *FlowSchema
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *FlowSchemaDie) DieFeedRawExtension(raw runtime.RawExtension) *FlowSchemaDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.FlowSchema{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *FlowSchemaDie) DieRelease() flowcontrolv1beta1.FlowSchema {
 	if d.mutable {
@@ -92,6 +100,15 @@ func (d *FlowSchemaDie) DieReleaseUnstructured() runtime.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *FlowSchemaDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -137,6 +154,20 @@ func (d *FlowSchemaDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *FlowSchemaDie) APIVersion(v string) *FlowSchemaDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.FlowSchema) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *FlowSchemaDie) Kind(v string) *FlowSchemaDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.FlowSchema) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -217,6 +248,14 @@ func (d *FlowSchemaSpecDie) DieFeedPtr(r *flowcontrolv1beta1.FlowSchemaSpec) *Fl
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *FlowSchemaSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *FlowSchemaSpecDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.FlowSchemaSpec{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *FlowSchemaSpecDie) DieRelease() flowcontrolv1beta1.FlowSchemaSpec {
 	if d.mutable {
@@ -229,6 +268,15 @@ func (d *FlowSchemaSpecDie) DieRelease() flowcontrolv1beta1.FlowSchemaSpec {
 func (d *FlowSchemaSpecDie) DieReleasePtr() *flowcontrolv1beta1.FlowSchemaSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *FlowSchemaSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -312,6 +360,14 @@ func (d *FlowSchemaStatusDie) DieFeedPtr(r *flowcontrolv1beta1.FlowSchemaStatus)
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *FlowSchemaStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *FlowSchemaStatusDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.FlowSchemaStatus{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *FlowSchemaStatusDie) DieRelease() flowcontrolv1beta1.FlowSchemaStatus {
 	if d.mutable {
@@ -324,6 +380,15 @@ func (d *FlowSchemaStatusDie) DieRelease() flowcontrolv1beta1.FlowSchemaStatus {
 func (d *FlowSchemaStatusDie) DieReleasePtr() *flowcontrolv1beta1.FlowSchemaStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *FlowSchemaStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -386,6 +451,14 @@ func (d *PriorityLevelConfigurationReferenceDie) DieFeedPtr(r *flowcontrolv1beta
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *PriorityLevelConfigurationReferenceDie) DieFeedRawExtension(raw runtime.RawExtension) *PriorityLevelConfigurationReferenceDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.PriorityLevelConfigurationReference{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *PriorityLevelConfigurationReferenceDie) DieRelease() flowcontrolv1beta1.PriorityLevelConfigurationReference {
 	if d.mutable {
@@ -398,6 +471,15 @@ func (d *PriorityLevelConfigurationReferenceDie) DieRelease() flowcontrolv1beta1
 func (d *PriorityLevelConfigurationReferenceDie) DieReleasePtr() *flowcontrolv1beta1.PriorityLevelConfigurationReference {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *PriorityLevelConfigurationReferenceDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -460,6 +542,14 @@ func (d *FlowDistinguisherMethodDie) DieFeedPtr(r *flowcontrolv1beta1.FlowDistin
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *FlowDistinguisherMethodDie) DieFeedRawExtension(raw runtime.RawExtension) *FlowDistinguisherMethodDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.FlowDistinguisherMethod{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *FlowDistinguisherMethodDie) DieRelease() flowcontrolv1beta1.FlowDistinguisherMethod {
 	if d.mutable {
@@ -472,6 +562,15 @@ func (d *FlowDistinguisherMethodDie) DieRelease() flowcontrolv1beta1.FlowDisting
 func (d *FlowDistinguisherMethodDie) DieReleasePtr() *flowcontrolv1beta1.FlowDistinguisherMethod {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *FlowDistinguisherMethodDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -534,6 +633,14 @@ func (d *PolicyRulesWithSubjectsDie) DieFeedPtr(r *flowcontrolv1beta1.PolicyRule
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *PolicyRulesWithSubjectsDie) DieFeedRawExtension(raw runtime.RawExtension) *PolicyRulesWithSubjectsDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.PolicyRulesWithSubjects{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *PolicyRulesWithSubjectsDie) DieRelease() flowcontrolv1beta1.PolicyRulesWithSubjects {
 	if d.mutable {
@@ -546,6 +653,15 @@ func (d *PolicyRulesWithSubjectsDie) DieRelease() flowcontrolv1beta1.PolicyRules
 func (d *PolicyRulesWithSubjectsDie) DieReleasePtr() *flowcontrolv1beta1.PolicyRulesWithSubjects {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *PolicyRulesWithSubjectsDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -622,6 +738,14 @@ func (d *SubjectDie) DieFeedPtr(r *flowcontrolv1beta1.Subject) *SubjectDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *SubjectDie) DieFeedRawExtension(raw runtime.RawExtension) *SubjectDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.Subject{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *SubjectDie) DieRelease() flowcontrolv1beta1.Subject {
 	if d.mutable {
@@ -634,6 +758,15 @@ func (d *SubjectDie) DieRelease() flowcontrolv1beta1.Subject {
 func (d *SubjectDie) DieReleasePtr() *flowcontrolv1beta1.Subject {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *SubjectDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -717,6 +850,14 @@ func (d *UserSubjectDie) DieFeedPtr(r *flowcontrolv1beta1.UserSubject) *UserSubj
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *UserSubjectDie) DieFeedRawExtension(raw runtime.RawExtension) *UserSubjectDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.UserSubject{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *UserSubjectDie) DieRelease() flowcontrolv1beta1.UserSubject {
 	if d.mutable {
@@ -729,6 +870,15 @@ func (d *UserSubjectDie) DieRelease() flowcontrolv1beta1.UserSubject {
 func (d *UserSubjectDie) DieReleasePtr() *flowcontrolv1beta1.UserSubject {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *UserSubjectDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -791,6 +941,14 @@ func (d *GroupSubjectDie) DieFeedPtr(r *flowcontrolv1beta1.GroupSubject) *GroupS
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *GroupSubjectDie) DieFeedRawExtension(raw runtime.RawExtension) *GroupSubjectDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.GroupSubject{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *GroupSubjectDie) DieRelease() flowcontrolv1beta1.GroupSubject {
 	if d.mutable {
@@ -803,6 +961,15 @@ func (d *GroupSubjectDie) DieRelease() flowcontrolv1beta1.GroupSubject {
 func (d *GroupSubjectDie) DieReleasePtr() *flowcontrolv1beta1.GroupSubject {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *GroupSubjectDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -865,6 +1032,14 @@ func (d *ServiceAccountSubjectDie) DieFeedPtr(r *flowcontrolv1beta1.ServiceAccou
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *ServiceAccountSubjectDie) DieFeedRawExtension(raw runtime.RawExtension) *ServiceAccountSubjectDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.ServiceAccountSubject{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *ServiceAccountSubjectDie) DieRelease() flowcontrolv1beta1.ServiceAccountSubject {
 	if d.mutable {
@@ -877,6 +1052,15 @@ func (d *ServiceAccountSubjectDie) DieRelease() flowcontrolv1beta1.ServiceAccoun
 func (d *ServiceAccountSubjectDie) DieReleasePtr() *flowcontrolv1beta1.ServiceAccountSubject {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *ServiceAccountSubjectDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -946,6 +1130,14 @@ func (d *ResourcePolicyRuleDie) DieFeedPtr(r *flowcontrolv1beta1.ResourcePolicyR
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *ResourcePolicyRuleDie) DieFeedRawExtension(raw runtime.RawExtension) *ResourcePolicyRuleDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.ResourcePolicyRule{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *ResourcePolicyRuleDie) DieRelease() flowcontrolv1beta1.ResourcePolicyRule {
 	if d.mutable {
@@ -958,6 +1150,15 @@ func (d *ResourcePolicyRuleDie) DieRelease() flowcontrolv1beta1.ResourcePolicyRu
 func (d *ResourcePolicyRuleDie) DieReleasePtr() *flowcontrolv1beta1.ResourcePolicyRule {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *ResourcePolicyRuleDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1048,6 +1249,14 @@ func (d *NonResourcePolicyRuleDie) DieFeedPtr(r *flowcontrolv1beta1.NonResourceP
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *NonResourcePolicyRuleDie) DieFeedRawExtension(raw runtime.RawExtension) *NonResourcePolicyRuleDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.NonResourcePolicyRule{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *NonResourcePolicyRuleDie) DieRelease() flowcontrolv1beta1.NonResourcePolicyRule {
 	if d.mutable {
@@ -1060,6 +1269,15 @@ func (d *NonResourcePolicyRuleDie) DieRelease() flowcontrolv1beta1.NonResourcePo
 func (d *NonResourcePolicyRuleDie) DieReleasePtr() *flowcontrolv1beta1.NonResourcePolicyRule {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *NonResourcePolicyRuleDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1132,6 +1350,14 @@ func (d *PriorityLevelConfigurationDie) DieFeedPtr(r *flowcontrolv1beta1.Priorit
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *PriorityLevelConfigurationDie) DieFeedRawExtension(raw runtime.RawExtension) *PriorityLevelConfigurationDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.PriorityLevelConfiguration{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *PriorityLevelConfigurationDie) DieRelease() flowcontrolv1beta1.PriorityLevelConfiguration {
 	if d.mutable {
@@ -1153,6 +1379,15 @@ func (d *PriorityLevelConfigurationDie) DieReleaseUnstructured() runtime.Unstruc
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *PriorityLevelConfigurationDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1198,6 +1433,20 @@ func (d *PriorityLevelConfigurationDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *PriorityLevelConfigurationDie) APIVersion(v string) *PriorityLevelConfigurationDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.PriorityLevelConfiguration) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *PriorityLevelConfigurationDie) Kind(v string) *PriorityLevelConfigurationDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.PriorityLevelConfiguration) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -1278,6 +1527,14 @@ func (d *PriorityLevelConfigurationSpecDie) DieFeedPtr(r *flowcontrolv1beta1.Pri
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *PriorityLevelConfigurationSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *PriorityLevelConfigurationSpecDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.PriorityLevelConfigurationSpec{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *PriorityLevelConfigurationSpecDie) DieRelease() flowcontrolv1beta1.PriorityLevelConfigurationSpec {
 	if d.mutable {
@@ -1290,6 +1547,15 @@ func (d *PriorityLevelConfigurationSpecDie) DieRelease() flowcontrolv1beta1.Prio
 func (d *PriorityLevelConfigurationSpecDie) DieReleasePtr() *flowcontrolv1beta1.PriorityLevelConfigurationSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *PriorityLevelConfigurationSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1359,6 +1625,14 @@ func (d *LimitedPriorityLevelConfigurationDie) DieFeedPtr(r *flowcontrolv1beta1.
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *LimitedPriorityLevelConfigurationDie) DieFeedRawExtension(raw runtime.RawExtension) *LimitedPriorityLevelConfigurationDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.LimitedPriorityLevelConfiguration{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *LimitedPriorityLevelConfigurationDie) DieRelease() flowcontrolv1beta1.LimitedPriorityLevelConfiguration {
 	if d.mutable {
@@ -1371,6 +1645,15 @@ func (d *LimitedPriorityLevelConfigurationDie) DieRelease() flowcontrolv1beta1.L
 func (d *LimitedPriorityLevelConfigurationDie) DieReleasePtr() *flowcontrolv1beta1.LimitedPriorityLevelConfiguration {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *LimitedPriorityLevelConfigurationDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1444,6 +1727,14 @@ func (d *LimitResponseDie) DieFeedPtr(r *flowcontrolv1beta1.LimitResponse) *Limi
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *LimitResponseDie) DieFeedRawExtension(raw runtime.RawExtension) *LimitResponseDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.LimitResponse{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *LimitResponseDie) DieRelease() flowcontrolv1beta1.LimitResponse {
 	if d.mutable {
@@ -1456,6 +1747,15 @@ func (d *LimitResponseDie) DieRelease() flowcontrolv1beta1.LimitResponse {
 func (d *LimitResponseDie) DieReleasePtr() *flowcontrolv1beta1.LimitResponse {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *LimitResponseDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1525,6 +1825,14 @@ func (d *QueuingConfigurationDie) DieFeedPtr(r *flowcontrolv1beta1.QueuingConfig
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *QueuingConfigurationDie) DieFeedRawExtension(raw runtime.RawExtension) *QueuingConfigurationDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.QueuingConfiguration{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *QueuingConfigurationDie) DieRelease() flowcontrolv1beta1.QueuingConfiguration {
 	if d.mutable {
@@ -1537,6 +1845,15 @@ func (d *QueuingConfigurationDie) DieRelease() flowcontrolv1beta1.QueuingConfigu
 func (d *QueuingConfigurationDie) DieReleasePtr() *flowcontrolv1beta1.QueuingConfiguration {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *QueuingConfigurationDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1613,6 +1930,14 @@ func (d *PriorityLevelConfigurationStatusDie) DieFeedPtr(r *flowcontrolv1beta1.P
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *PriorityLevelConfigurationStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *PriorityLevelConfigurationStatusDie {
+	b, _ := json.Marshal(raw)
+	r := flowcontrolv1beta1.PriorityLevelConfigurationStatus{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *PriorityLevelConfigurationStatusDie) DieRelease() flowcontrolv1beta1.PriorityLevelConfigurationStatus {
 	if d.mutable {
@@ -1625,6 +1950,15 @@ func (d *PriorityLevelConfigurationStatusDie) DieRelease() flowcontrolv1beta1.Pr
 func (d *PriorityLevelConfigurationStatusDie) DieReleasePtr() *flowcontrolv1beta1.PriorityLevelConfigurationStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *PriorityLevelConfigurationStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.

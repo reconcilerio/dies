@@ -72,6 +72,14 @@ func (d *HorizontalPodAutoscalerDie) DieFeedPtr(r *autoscalingv1.HorizontalPodAu
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *HorizontalPodAutoscalerDie) DieFeedRawExtension(raw runtime.RawExtension) *HorizontalPodAutoscalerDie {
+	b, _ := json.Marshal(raw)
+	r := autoscalingv1.HorizontalPodAutoscaler{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *HorizontalPodAutoscalerDie) DieRelease() autoscalingv1.HorizontalPodAutoscaler {
 	if d.mutable {
@@ -93,6 +101,15 @@ func (d *HorizontalPodAutoscalerDie) DieReleaseUnstructured() runtime.Unstructur
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *HorizontalPodAutoscalerDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -138,6 +155,20 @@ func (d *HorizontalPodAutoscalerDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *HorizontalPodAutoscalerDie) APIVersion(v string) *HorizontalPodAutoscalerDie {
+	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *HorizontalPodAutoscalerDie) Kind(v string) *HorizontalPodAutoscalerDie {
+	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -218,6 +249,14 @@ func (d *HorizontalPodAutoscalerSpecDie) DieFeedPtr(r *autoscalingv1.HorizontalP
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *HorizontalPodAutoscalerSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *HorizontalPodAutoscalerSpecDie {
+	b, _ := json.Marshal(raw)
+	r := autoscalingv1.HorizontalPodAutoscalerSpec{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *HorizontalPodAutoscalerSpecDie) DieRelease() autoscalingv1.HorizontalPodAutoscalerSpec {
 	if d.mutable {
@@ -230,6 +269,15 @@ func (d *HorizontalPodAutoscalerSpecDie) DieRelease() autoscalingv1.HorizontalPo
 func (d *HorizontalPodAutoscalerSpecDie) DieReleasePtr() *autoscalingv1.HorizontalPodAutoscalerSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *HorizontalPodAutoscalerSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -313,6 +361,14 @@ func (d *CrossVersionObjectReferenceDie) DieFeedPtr(r *autoscalingv1.CrossVersio
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CrossVersionObjectReferenceDie) DieFeedRawExtension(raw runtime.RawExtension) *CrossVersionObjectReferenceDie {
+	b, _ := json.Marshal(raw)
+	r := autoscalingv1.CrossVersionObjectReference{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CrossVersionObjectReferenceDie) DieRelease() autoscalingv1.CrossVersionObjectReference {
 	if d.mutable {
@@ -325,6 +381,15 @@ func (d *CrossVersionObjectReferenceDie) DieRelease() autoscalingv1.CrossVersion
 func (d *CrossVersionObjectReferenceDie) DieReleasePtr() *autoscalingv1.CrossVersionObjectReference {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CrossVersionObjectReferenceDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -401,6 +466,14 @@ func (d *HorizontalPodAutoscalerStatusDie) DieFeedPtr(r *autoscalingv1.Horizonta
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *HorizontalPodAutoscalerStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *HorizontalPodAutoscalerStatusDie {
+	b, _ := json.Marshal(raw)
+	r := autoscalingv1.HorizontalPodAutoscalerStatus{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *HorizontalPodAutoscalerStatusDie) DieRelease() autoscalingv1.HorizontalPodAutoscalerStatus {
 	if d.mutable {
@@ -413,6 +486,15 @@ func (d *HorizontalPodAutoscalerStatusDie) DieRelease() autoscalingv1.Horizontal
 func (d *HorizontalPodAutoscalerStatusDie) DieReleasePtr() *autoscalingv1.HorizontalPodAutoscalerStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *HorizontalPodAutoscalerStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.

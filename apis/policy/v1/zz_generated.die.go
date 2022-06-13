@@ -73,6 +73,14 @@ func (d *PodDisruptionBudgetDie) DieFeedPtr(r *policyv1.PodDisruptionBudget) *Po
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodDisruptionBudgetDie) DieFeedRawExtension(raw runtime.RawExtension) *PodDisruptionBudgetDie {
+	b, _ := json.Marshal(raw)
+	r := policyv1.PodDisruptionBudget{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *PodDisruptionBudgetDie) DieRelease() policyv1.PodDisruptionBudget {
 	if d.mutable {
@@ -94,6 +102,15 @@ func (d *PodDisruptionBudgetDie) DieReleaseUnstructured() runtime.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodDisruptionBudgetDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -139,6 +156,20 @@ func (d *PodDisruptionBudgetDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *PodDisruptionBudgetDie) APIVersion(v string) *PodDisruptionBudgetDie {
+	return d.DieStamp(func(r *policyv1.PodDisruptionBudget) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *PodDisruptionBudgetDie) Kind(v string) *PodDisruptionBudgetDie {
+	return d.DieStamp(func(r *policyv1.PodDisruptionBudget) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -219,6 +250,14 @@ func (d *PodDisruptionBudgetSpecDie) DieFeedPtr(r *policyv1.PodDisruptionBudgetS
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodDisruptionBudgetSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *PodDisruptionBudgetSpecDie {
+	b, _ := json.Marshal(raw)
+	r := policyv1.PodDisruptionBudgetSpec{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *PodDisruptionBudgetSpecDie) DieRelease() policyv1.PodDisruptionBudgetSpec {
 	if d.mutable {
@@ -231,6 +270,15 @@ func (d *PodDisruptionBudgetSpecDie) DieRelease() policyv1.PodDisruptionBudgetSp
 func (d *PodDisruptionBudgetSpecDie) DieReleasePtr() *policyv1.PodDisruptionBudgetSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodDisruptionBudgetSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -335,6 +383,14 @@ func (d *PodDisruptionBudgetStatusDie) DieFeedPtr(r *policyv1.PodDisruptionBudge
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodDisruptionBudgetStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *PodDisruptionBudgetStatusDie {
+	b, _ := json.Marshal(raw)
+	r := policyv1.PodDisruptionBudgetStatus{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *PodDisruptionBudgetStatusDie) DieRelease() policyv1.PodDisruptionBudgetStatus {
 	if d.mutable {
@@ -347,6 +403,15 @@ func (d *PodDisruptionBudgetStatusDie) DieRelease() policyv1.PodDisruptionBudget
 func (d *PodDisruptionBudgetStatusDie) DieReleasePtr() *policyv1.PodDisruptionBudgetStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodDisruptionBudgetStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.

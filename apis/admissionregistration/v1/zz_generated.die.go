@@ -69,6 +69,14 @@ func (d *WebhookClientConfigDie) DieFeedPtr(r *admissionregistrationv1.WebhookCl
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *WebhookClientConfigDie) DieFeedRawExtension(raw runtime.RawExtension) *WebhookClientConfigDie {
+	b, _ := json.Marshal(raw)
+	r := admissionregistrationv1.WebhookClientConfig{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *WebhookClientConfigDie) DieRelease() admissionregistrationv1.WebhookClientConfig {
 	if d.mutable {
@@ -81,6 +89,15 @@ func (d *WebhookClientConfigDie) DieRelease() admissionregistrationv1.WebhookCli
 func (d *WebhookClientConfigDie) DieReleasePtr() *admissionregistrationv1.WebhookClientConfig {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *WebhookClientConfigDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -169,6 +186,14 @@ func (d *ServiceReferenceDie) DieFeedPtr(r *admissionregistrationv1.ServiceRefer
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *ServiceReferenceDie) DieFeedRawExtension(raw runtime.RawExtension) *ServiceReferenceDie {
+	b, _ := json.Marshal(raw)
+	r := admissionregistrationv1.ServiceReference{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *ServiceReferenceDie) DieRelease() admissionregistrationv1.ServiceReference {
 	if d.mutable {
@@ -181,6 +206,15 @@ func (d *ServiceReferenceDie) DieRelease() admissionregistrationv1.ServiceRefere
 func (d *ServiceReferenceDie) DieReleasePtr() *admissionregistrationv1.ServiceReference {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *ServiceReferenceDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -264,6 +298,14 @@ func (d *RuleWithOperationsDie) DieFeedPtr(r *admissionregistrationv1.RuleWithOp
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *RuleWithOperationsDie) DieFeedRawExtension(raw runtime.RawExtension) *RuleWithOperationsDie {
+	b, _ := json.Marshal(raw)
+	r := admissionregistrationv1.RuleWithOperations{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *RuleWithOperationsDie) DieRelease() admissionregistrationv1.RuleWithOperations {
 	if d.mutable {
@@ -276,6 +318,15 @@ func (d *RuleWithOperationsDie) DieRelease() admissionregistrationv1.RuleWithOpe
 func (d *RuleWithOperationsDie) DieReleasePtr() *admissionregistrationv1.RuleWithOperations {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *RuleWithOperationsDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -345,6 +396,14 @@ func (d *RuleDie) DieFeedPtr(r *admissionregistrationv1.Rule) *RuleDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *RuleDie) DieFeedRawExtension(raw runtime.RawExtension) *RuleDie {
+	b, _ := json.Marshal(raw)
+	r := admissionregistrationv1.Rule{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *RuleDie) DieRelease() admissionregistrationv1.Rule {
 	if d.mutable {
@@ -357,6 +416,15 @@ func (d *RuleDie) DieRelease() admissionregistrationv1.Rule {
 func (d *RuleDie) DieReleasePtr() *admissionregistrationv1.Rule {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *RuleDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -449,6 +517,14 @@ func (d *MutatingWebhookConfigurationDie) DieFeedPtr(r *admissionregistrationv1.
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *MutatingWebhookConfigurationDie) DieFeedRawExtension(raw runtime.RawExtension) *MutatingWebhookConfigurationDie {
+	b, _ := json.Marshal(raw)
+	r := admissionregistrationv1.MutatingWebhookConfiguration{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *MutatingWebhookConfigurationDie) DieRelease() admissionregistrationv1.MutatingWebhookConfiguration {
 	if d.mutable {
@@ -470,6 +546,15 @@ func (d *MutatingWebhookConfigurationDie) DieReleaseUnstructured() runtime.Unstr
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *MutatingWebhookConfigurationDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -515,6 +600,20 @@ func (d *MutatingWebhookConfigurationDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *MutatingWebhookConfigurationDie) APIVersion(v string) *MutatingWebhookConfigurationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhookConfiguration) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *MutatingWebhookConfigurationDie) Kind(v string) *MutatingWebhookConfigurationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhookConfiguration) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -570,6 +669,14 @@ func (d *MutatingWebhookDie) DieFeedPtr(r *admissionregistrationv1.MutatingWebho
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *MutatingWebhookDie) DieFeedRawExtension(raw runtime.RawExtension) *MutatingWebhookDie {
+	b, _ := json.Marshal(raw)
+	r := admissionregistrationv1.MutatingWebhook{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *MutatingWebhookDie) DieRelease() admissionregistrationv1.MutatingWebhook {
 	if d.mutable {
@@ -582,6 +689,15 @@ func (d *MutatingWebhookDie) DieRelease() admissionregistrationv1.MutatingWebhoo
 func (d *MutatingWebhookDie) DieReleasePtr() *admissionregistrationv1.MutatingWebhook {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *MutatingWebhookDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -737,6 +853,14 @@ func (d *ValidatingWebhookConfigurationDie) DieFeedPtr(r *admissionregistrationv
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *ValidatingWebhookConfigurationDie) DieFeedRawExtension(raw runtime.RawExtension) *ValidatingWebhookConfigurationDie {
+	b, _ := json.Marshal(raw)
+	r := admissionregistrationv1.ValidatingWebhookConfiguration{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *ValidatingWebhookConfigurationDie) DieRelease() admissionregistrationv1.ValidatingWebhookConfiguration {
 	if d.mutable {
@@ -758,6 +882,15 @@ func (d *ValidatingWebhookConfigurationDie) DieReleaseUnstructured() runtime.Uns
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *ValidatingWebhookConfigurationDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -803,6 +936,20 @@ func (d *ValidatingWebhookConfigurationDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *ValidatingWebhookConfigurationDie) APIVersion(v string) *ValidatingWebhookConfigurationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhookConfiguration) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ValidatingWebhookConfigurationDie) Kind(v string) *ValidatingWebhookConfigurationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhookConfiguration) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -858,6 +1005,14 @@ func (d *ValidatingWebhookDie) DieFeedPtr(r *admissionregistrationv1.ValidatingW
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *ValidatingWebhookDie) DieFeedRawExtension(raw runtime.RawExtension) *ValidatingWebhookDie {
+	b, _ := json.Marshal(raw)
+	r := admissionregistrationv1.ValidatingWebhook{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *ValidatingWebhookDie) DieRelease() admissionregistrationv1.ValidatingWebhook {
 	if d.mutable {
@@ -870,6 +1025,15 @@ func (d *ValidatingWebhookDie) DieRelease() admissionregistrationv1.ValidatingWe
 func (d *ValidatingWebhookDie) DieReleasePtr() *admissionregistrationv1.ValidatingWebhook {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *ValidatingWebhookDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.

@@ -72,6 +72,14 @@ func (d *RuntimeClassDie) DieFeedPtr(r *nodev1.RuntimeClass) *RuntimeClassDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *RuntimeClassDie) DieFeedRawExtension(raw runtime.RawExtension) *RuntimeClassDie {
+	b, _ := json.Marshal(raw)
+	r := nodev1.RuntimeClass{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *RuntimeClassDie) DieRelease() nodev1.RuntimeClass {
 	if d.mutable {
@@ -93,6 +101,15 @@ func (d *RuntimeClassDie) DieReleaseUnstructured() runtime.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *RuntimeClassDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -138,6 +155,20 @@ func (d *RuntimeClassDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *RuntimeClassDie) APIVersion(v string) *RuntimeClassDie {
+	return d.DieStamp(func(r *nodev1.RuntimeClass) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *RuntimeClassDie) Kind(v string) *RuntimeClassDie {
+	return d.DieStamp(func(r *nodev1.RuntimeClass) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -207,6 +238,14 @@ func (d *OverheadDie) DieFeedPtr(r *nodev1.Overhead) *OverheadDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *OverheadDie) DieFeedRawExtension(raw runtime.RawExtension) *OverheadDie {
+	b, _ := json.Marshal(raw)
+	r := nodev1.Overhead{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *OverheadDie) DieRelease() nodev1.Overhead {
 	if d.mutable {
@@ -219,6 +258,15 @@ func (d *OverheadDie) DieRelease() nodev1.Overhead {
 func (d *OverheadDie) DieReleasePtr() *nodev1.Overhead {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *OverheadDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -281,6 +329,14 @@ func (d *SchedulingDie) DieFeedPtr(r *nodev1.Scheduling) *SchedulingDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *SchedulingDie) DieFeedRawExtension(raw runtime.RawExtension) *SchedulingDie {
+	b, _ := json.Marshal(raw)
+	r := nodev1.Scheduling{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *SchedulingDie) DieRelease() nodev1.Scheduling {
 	if d.mutable {
@@ -293,6 +349,15 @@ func (d *SchedulingDie) DieRelease() nodev1.Scheduling {
 func (d *SchedulingDie) DieReleasePtr() *nodev1.Scheduling {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *SchedulingDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.

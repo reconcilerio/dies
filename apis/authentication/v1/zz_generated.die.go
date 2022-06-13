@@ -73,6 +73,14 @@ func (d *TokenReviewDie) DieFeedPtr(r *authenticationv1.TokenReview) *TokenRevie
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *TokenReviewDie) DieFeedRawExtension(raw runtime.RawExtension) *TokenReviewDie {
+	b, _ := json.Marshal(raw)
+	r := authenticationv1.TokenReview{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *TokenReviewDie) DieRelease() authenticationv1.TokenReview {
 	if d.mutable {
@@ -94,6 +102,15 @@ func (d *TokenReviewDie) DieReleaseUnstructured() runtime.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *TokenReviewDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -139,6 +156,20 @@ func (d *TokenReviewDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *TokenReviewDie) APIVersion(v string) *TokenReviewDie {
+	return d.DieStamp(func(r *authenticationv1.TokenReview) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *TokenReviewDie) Kind(v string) *TokenReviewDie {
+	return d.DieStamp(func(r *authenticationv1.TokenReview) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -201,6 +232,14 @@ func (d *TokenRequestSpecDie) DieFeedPtr(r *authenticationv1.TokenRequestSpec) *
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *TokenRequestSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *TokenRequestSpecDie {
+	b, _ := json.Marshal(raw)
+	r := authenticationv1.TokenRequestSpec{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *TokenRequestSpecDie) DieRelease() authenticationv1.TokenRequestSpec {
 	if d.mutable {
@@ -213,6 +252,15 @@ func (d *TokenRequestSpecDie) DieRelease() authenticationv1.TokenRequestSpec {
 func (d *TokenRequestSpecDie) DieReleasePtr() *authenticationv1.TokenRequestSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *TokenRequestSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -289,6 +337,14 @@ func (d *BoundObjectReferenceDie) DieFeedPtr(r *authenticationv1.BoundObjectRefe
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *BoundObjectReferenceDie) DieFeedRawExtension(raw runtime.RawExtension) *BoundObjectReferenceDie {
+	b, _ := json.Marshal(raw)
+	r := authenticationv1.BoundObjectReference{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *BoundObjectReferenceDie) DieRelease() authenticationv1.BoundObjectReference {
 	if d.mutable {
@@ -301,6 +357,15 @@ func (d *BoundObjectReferenceDie) DieRelease() authenticationv1.BoundObjectRefer
 func (d *BoundObjectReferenceDie) DieReleasePtr() *authenticationv1.BoundObjectReference {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *BoundObjectReferenceDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -384,6 +449,14 @@ func (d *TokenRequestStatusDie) DieFeedPtr(r *authenticationv1.TokenRequestStatu
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *TokenRequestStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *TokenRequestStatusDie {
+	b, _ := json.Marshal(raw)
+	r := authenticationv1.TokenRequestStatus{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *TokenRequestStatusDie) DieRelease() authenticationv1.TokenRequestStatus {
 	if d.mutable {
@@ -396,6 +469,15 @@ func (d *TokenRequestStatusDie) DieRelease() authenticationv1.TokenRequestStatus
 func (d *TokenRequestStatusDie) DieReleasePtr() *authenticationv1.TokenRequestStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *TokenRequestStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -425,5 +507,110 @@ func (d *TokenRequestStatusDie) Token(v string) *TokenRequestStatusDie {
 func (d *TokenRequestStatusDie) ExpirationTimestamp(v apismetav1.Time) *TokenRequestStatusDie {
 	return d.DieStamp(func(r *authenticationv1.TokenRequestStatus) {
 		r.ExpirationTimestamp = v
+	})
+}
+
+var UserInfoBlank = (&UserInfoDie{}).DieFeed(authenticationv1.UserInfo{})
+
+type UserInfoDie struct {
+	mutable bool
+	r       authenticationv1.UserInfo
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *UserInfoDie) DieImmutable(immutable bool) *UserInfoDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *UserInfoDie) DieFeed(r authenticationv1.UserInfo) *UserInfoDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &UserInfoDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *UserInfoDie) DieFeedPtr(r *authenticationv1.UserInfo) *UserInfoDie {
+	if r == nil {
+		r = &authenticationv1.UserInfo{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *UserInfoDie) DieFeedRawExtension(raw runtime.RawExtension) *UserInfoDie {
+	b, _ := json.Marshal(raw)
+	r := authenticationv1.UserInfo{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *UserInfoDie) DieRelease() authenticationv1.UserInfo {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *UserInfoDie) DieReleasePtr() *authenticationv1.UserInfo {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *UserInfoDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *UserInfoDie) DieStamp(fn func(r *authenticationv1.UserInfo)) *UserInfoDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *UserInfoDie) DeepCopy() *UserInfoDie {
+	r := *d.r.DeepCopy()
+	return &UserInfoDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// The name that uniquely identifies this user among all active users.
+func (d *UserInfoDie) Username(v string) *UserInfoDie {
+	return d.DieStamp(func(r *authenticationv1.UserInfo) {
+		r.Username = v
+	})
+}
+
+// A unique value that identifies this user across time. If this user is deleted and another user by the same name is added, they will have different UIDs.
+func (d *UserInfoDie) UID(v string) *UserInfoDie {
+	return d.DieStamp(func(r *authenticationv1.UserInfo) {
+		r.UID = v
+	})
+}
+
+// The names of groups this user is a part of.
+func (d *UserInfoDie) Groups(v ...string) *UserInfoDie {
+	return d.DieStamp(func(r *authenticationv1.UserInfo) {
+		r.Groups = v
 	})
 }

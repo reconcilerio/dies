@@ -71,6 +71,14 @@ func (d *CertificateSigningRequestDie) DieFeedPtr(r *certificatesv1.CertificateS
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CertificateSigningRequestDie) DieFeedRawExtension(raw runtime.RawExtension) *CertificateSigningRequestDie {
+	b, _ := json.Marshal(raw)
+	r := certificatesv1.CertificateSigningRequest{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CertificateSigningRequestDie) DieRelease() certificatesv1.CertificateSigningRequest {
 	if d.mutable {
@@ -92,6 +100,15 @@ func (d *CertificateSigningRequestDie) DieReleaseUnstructured() runtime.Unstruct
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CertificateSigningRequestDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -137,6 +154,20 @@ func (d *CertificateSigningRequestDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *CertificateSigningRequestDie) APIVersion(v string) *CertificateSigningRequestDie {
+	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequest) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *CertificateSigningRequestDie) Kind(v string) *CertificateSigningRequestDie {
+	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequest) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -217,6 +248,14 @@ func (d *CertificateSigningRequestSpecDie) DieFeedPtr(r *certificatesv1.Certific
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CertificateSigningRequestSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *CertificateSigningRequestSpecDie {
+	b, _ := json.Marshal(raw)
+	r := certificatesv1.CertificateSigningRequestSpec{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CertificateSigningRequestSpecDie) DieRelease() certificatesv1.CertificateSigningRequestSpec {
 	if d.mutable {
@@ -229,6 +268,15 @@ func (d *CertificateSigningRequestSpecDie) DieRelease() certificatesv1.Certifica
 func (d *CertificateSigningRequestSpecDie) DieReleasePtr() *certificatesv1.CertificateSigningRequestSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CertificateSigningRequestSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -355,6 +403,14 @@ func (d *CertificateSigningRequestStatusDie) DieFeedPtr(r *certificatesv1.Certif
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CertificateSigningRequestStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *CertificateSigningRequestStatusDie {
+	b, _ := json.Marshal(raw)
+	r := certificatesv1.CertificateSigningRequestStatus{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CertificateSigningRequestStatusDie) DieRelease() certificatesv1.CertificateSigningRequestStatus {
 	if d.mutable {
@@ -367,6 +423,15 @@ func (d *CertificateSigningRequestStatusDie) DieRelease() certificatesv1.Certifi
 func (d *CertificateSigningRequestStatusDie) DieReleasePtr() *certificatesv1.CertificateSigningRequestStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CertificateSigningRequestStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
