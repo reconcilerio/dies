@@ -74,6 +74,14 @@ func (d *CronJobDie) DieFeedPtr(r *batchv1.CronJob) *CronJobDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CronJobDie) DieFeedRawExtension(raw runtime.RawExtension) *CronJobDie {
+	b, _ := json.Marshal(raw)
+	r := batchv1.CronJob{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CronJobDie) DieRelease() batchv1.CronJob {
 	if d.mutable {
@@ -95,6 +103,15 @@ func (d *CronJobDie) DieReleaseUnstructured() runtime.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CronJobDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -140,6 +157,20 @@ func (d *CronJobDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *CronJobDie) APIVersion(v string) *CronJobDie {
+	return d.DieStamp(func(r *batchv1.CronJob) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *CronJobDie) Kind(v string) *CronJobDie {
+	return d.DieStamp(func(r *batchv1.CronJob) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -220,6 +251,14 @@ func (d *CronJobSpecDie) DieFeedPtr(r *batchv1.CronJobSpec) *CronJobSpecDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CronJobSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *CronJobSpecDie {
+	b, _ := json.Marshal(raw)
+	r := batchv1.CronJobSpec{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CronJobSpecDie) DieRelease() batchv1.CronJobSpec {
 	if d.mutable {
@@ -232,6 +271,15 @@ func (d *CronJobSpecDie) DieRelease() batchv1.CronJobSpec {
 func (d *CronJobSpecDie) DieReleasePtr() *batchv1.CronJobSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CronJobSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -343,6 +391,14 @@ func (d *CronJobStatusDie) DieFeedPtr(r *batchv1.CronJobStatus) *CronJobStatusDi
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CronJobStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *CronJobStatusDie {
+	b, _ := json.Marshal(raw)
+	r := batchv1.CronJobStatus{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CronJobStatusDie) DieRelease() batchv1.CronJobStatus {
 	if d.mutable {
@@ -355,6 +411,15 @@ func (d *CronJobStatusDie) DieRelease() batchv1.CronJobStatus {
 func (d *CronJobStatusDie) DieReleasePtr() *batchv1.CronJobStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CronJobStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -434,6 +499,14 @@ func (d *JobDie) DieFeedPtr(r *batchv1.Job) *JobDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *JobDie) DieFeedRawExtension(raw runtime.RawExtension) *JobDie {
+	b, _ := json.Marshal(raw)
+	r := batchv1.Job{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *JobDie) DieRelease() batchv1.Job {
 	if d.mutable {
@@ -455,6 +528,15 @@ func (d *JobDie) DieReleaseUnstructured() runtime.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *JobDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -500,6 +582,20 @@ func (d *JobDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *JobDie) APIVersion(v string) *JobDie {
+	return d.DieStamp(func(r *batchv1.Job) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *JobDie) Kind(v string) *JobDie {
+	return d.DieStamp(func(r *batchv1.Job) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -580,6 +676,14 @@ func (d *JobSpecDie) DieFeedPtr(r *batchv1.JobSpec) *JobSpecDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *JobSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *JobSpecDie {
+	b, _ := json.Marshal(raw)
+	r := batchv1.JobSpec{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *JobSpecDie) DieRelease() batchv1.JobSpec {
 	if d.mutable {
@@ -592,6 +696,15 @@ func (d *JobSpecDie) DieRelease() batchv1.JobSpec {
 func (d *JobSpecDie) DieReleasePtr() *batchv1.JobSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *JobSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -723,6 +836,14 @@ func (d *JobStatusDie) DieFeedPtr(r *batchv1.JobStatus) *JobStatusDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *JobStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *JobStatusDie {
+	b, _ := json.Marshal(raw)
+	r := batchv1.JobStatus{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *JobStatusDie) DieRelease() batchv1.JobStatus {
 	if d.mutable {
@@ -735,6 +856,15 @@ func (d *JobStatusDie) DieRelease() batchv1.JobStatus {
 func (d *JobStatusDie) DieReleasePtr() *batchv1.JobStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *JobStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -859,6 +989,14 @@ func (d *UncountedTerminatedPodsDie) DieFeedPtr(r *batchv1.UncountedTerminatedPo
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *UncountedTerminatedPodsDie) DieFeedRawExtension(raw runtime.RawExtension) *UncountedTerminatedPodsDie {
+	b, _ := json.Marshal(raw)
+	r := batchv1.UncountedTerminatedPods{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *UncountedTerminatedPodsDie) DieRelease() batchv1.UncountedTerminatedPods {
 	if d.mutable {
@@ -871,6 +1009,15 @@ func (d *UncountedTerminatedPodsDie) DieRelease() batchv1.UncountedTerminatedPod
 func (d *UncountedTerminatedPodsDie) DieReleasePtr() *batchv1.UncountedTerminatedPods {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *UncountedTerminatedPodsDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.

@@ -71,6 +71,14 @@ func (d *CustomResourceDefinitionDie) DieFeedPtr(r *apiextensionsv1.CustomResour
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceDefinitionDie) DieFeedRawExtension(raw runtime.RawExtension) *CustomResourceDefinitionDie {
+	b, _ := json.Marshal(raw)
+	r := apiextensionsv1.CustomResourceDefinition{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CustomResourceDefinitionDie) DieRelease() apiextensionsv1.CustomResourceDefinition {
 	if d.mutable {
@@ -92,6 +100,15 @@ func (d *CustomResourceDefinitionDie) DieReleaseUnstructured() runtime.Unstructu
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceDefinitionDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -137,6 +154,20 @@ func (d *CustomResourceDefinitionDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *CustomResourceDefinitionDie) APIVersion(v string) *CustomResourceDefinitionDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinition) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *CustomResourceDefinitionDie) Kind(v string) *CustomResourceDefinitionDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinition) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -217,6 +248,14 @@ func (d *CustomResourceDefinitionSpecDie) DieFeedPtr(r *apiextensionsv1.CustomRe
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceDefinitionSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *CustomResourceDefinitionSpecDie {
+	b, _ := json.Marshal(raw)
+	r := apiextensionsv1.CustomResourceDefinitionSpec{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CustomResourceDefinitionSpecDie) DieRelease() apiextensionsv1.CustomResourceDefinitionSpec {
 	if d.mutable {
@@ -229,6 +268,15 @@ func (d *CustomResourceDefinitionSpecDie) DieRelease() apiextensionsv1.CustomRes
 func (d *CustomResourceDefinitionSpecDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceDefinitionSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -326,6 +374,14 @@ func (d *CustomResourceDefinitionVersionDie) DieFeedPtr(r *apiextensionsv1.Custo
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceDefinitionVersionDie) DieFeedRawExtension(raw runtime.RawExtension) *CustomResourceDefinitionVersionDie {
+	b, _ := json.Marshal(raw)
+	r := apiextensionsv1.CustomResourceDefinitionVersion{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CustomResourceDefinitionVersionDie) DieRelease() apiextensionsv1.CustomResourceDefinitionVersion {
 	if d.mutable {
@@ -338,6 +394,15 @@ func (d *CustomResourceDefinitionVersionDie) DieRelease() apiextensionsv1.Custom
 func (d *CustomResourceDefinitionVersionDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionVersion {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceDefinitionVersionDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -449,6 +514,14 @@ func (d *CustomResourceValidationDie) DieFeedPtr(r *apiextensionsv1.CustomResour
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceValidationDie) DieFeedRawExtension(raw runtime.RawExtension) *CustomResourceValidationDie {
+	b, _ := json.Marshal(raw)
+	r := apiextensionsv1.CustomResourceValidation{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CustomResourceValidationDie) DieRelease() apiextensionsv1.CustomResourceValidation {
 	if d.mutable {
@@ -461,6 +534,15 @@ func (d *CustomResourceValidationDie) DieRelease() apiextensionsv1.CustomResourc
 func (d *CustomResourceValidationDie) DieReleasePtr() *apiextensionsv1.CustomResourceValidation {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceValidationDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -523,6 +605,14 @@ func (d *CustomResourceSubresourcesDie) DieFeedPtr(r *apiextensionsv1.CustomReso
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceSubresourcesDie) DieFeedRawExtension(raw runtime.RawExtension) *CustomResourceSubresourcesDie {
+	b, _ := json.Marshal(raw)
+	r := apiextensionsv1.CustomResourceSubresources{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CustomResourceSubresourcesDie) DieRelease() apiextensionsv1.CustomResourceSubresources {
 	if d.mutable {
@@ -535,6 +625,15 @@ func (d *CustomResourceSubresourcesDie) DieRelease() apiextensionsv1.CustomResou
 func (d *CustomResourceSubresourcesDie) DieReleasePtr() *apiextensionsv1.CustomResourceSubresources {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceSubresourcesDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -604,6 +703,14 @@ func (d *CustomResourceSubresourceScaleDie) DieFeedPtr(r *apiextensionsv1.Custom
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceSubresourceScaleDie) DieFeedRawExtension(raw runtime.RawExtension) *CustomResourceSubresourceScaleDie {
+	b, _ := json.Marshal(raw)
+	r := apiextensionsv1.CustomResourceSubresourceScale{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CustomResourceSubresourceScaleDie) DieRelease() apiextensionsv1.CustomResourceSubresourceScale {
 	if d.mutable {
@@ -616,6 +723,15 @@ func (d *CustomResourceSubresourceScaleDie) DieRelease() apiextensionsv1.CustomR
 func (d *CustomResourceSubresourceScaleDie) DieReleasePtr() *apiextensionsv1.CustomResourceSubresourceScale {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceSubresourceScaleDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -692,6 +808,14 @@ func (d *CustomResourceColumnDefinitionDie) DieFeedPtr(r *apiextensionsv1.Custom
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceColumnDefinitionDie) DieFeedRawExtension(raw runtime.RawExtension) *CustomResourceColumnDefinitionDie {
+	b, _ := json.Marshal(raw)
+	r := apiextensionsv1.CustomResourceColumnDefinition{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CustomResourceColumnDefinitionDie) DieRelease() apiextensionsv1.CustomResourceColumnDefinition {
 	if d.mutable {
@@ -704,6 +828,15 @@ func (d *CustomResourceColumnDefinitionDie) DieRelease() apiextensionsv1.CustomR
 func (d *CustomResourceColumnDefinitionDie) DieReleasePtr() *apiextensionsv1.CustomResourceColumnDefinition {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceColumnDefinitionDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -801,6 +934,14 @@ func (d *CustomResourceConversionDie) DieFeedPtr(r *apiextensionsv1.CustomResour
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceConversionDie) DieFeedRawExtension(raw runtime.RawExtension) *CustomResourceConversionDie {
+	b, _ := json.Marshal(raw)
+	r := apiextensionsv1.CustomResourceConversion{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CustomResourceConversionDie) DieRelease() apiextensionsv1.CustomResourceConversion {
 	if d.mutable {
@@ -813,6 +954,15 @@ func (d *CustomResourceConversionDie) DieRelease() apiextensionsv1.CustomResourc
 func (d *CustomResourceConversionDie) DieReleasePtr() *apiextensionsv1.CustomResourceConversion {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceConversionDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -882,6 +1032,14 @@ func (d *WebhookConversionDie) DieFeedPtr(r *apiextensionsv1.WebhookConversion) 
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *WebhookConversionDie) DieFeedRawExtension(raw runtime.RawExtension) *WebhookConversionDie {
+	b, _ := json.Marshal(raw)
+	r := apiextensionsv1.WebhookConversion{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *WebhookConversionDie) DieRelease() apiextensionsv1.WebhookConversion {
 	if d.mutable {
@@ -894,6 +1052,15 @@ func (d *WebhookConversionDie) DieRelease() apiextensionsv1.WebhookConversion {
 func (d *WebhookConversionDie) DieReleasePtr() *apiextensionsv1.WebhookConversion {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *WebhookConversionDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -963,6 +1130,14 @@ func (d *WebhookClientConfigDie) DieFeedPtr(r *apiextensionsv1.WebhookClientConf
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *WebhookClientConfigDie) DieFeedRawExtension(raw runtime.RawExtension) *WebhookClientConfigDie {
+	b, _ := json.Marshal(raw)
+	r := apiextensionsv1.WebhookClientConfig{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *WebhookClientConfigDie) DieRelease() apiextensionsv1.WebhookClientConfig {
 	if d.mutable {
@@ -975,6 +1150,15 @@ func (d *WebhookClientConfigDie) DieRelease() apiextensionsv1.WebhookClientConfi
 func (d *WebhookClientConfigDie) DieReleasePtr() *apiextensionsv1.WebhookClientConfig {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *WebhookClientConfigDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1063,6 +1247,14 @@ func (d *ServiceReferenceDie) DieFeedPtr(r *apiextensionsv1.ServiceReference) *S
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *ServiceReferenceDie) DieFeedRawExtension(raw runtime.RawExtension) *ServiceReferenceDie {
+	b, _ := json.Marshal(raw)
+	r := apiextensionsv1.ServiceReference{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *ServiceReferenceDie) DieRelease() apiextensionsv1.ServiceReference {
 	if d.mutable {
@@ -1075,6 +1267,15 @@ func (d *ServiceReferenceDie) DieRelease() apiextensionsv1.ServiceReference {
 func (d *ServiceReferenceDie) DieReleasePtr() *apiextensionsv1.ServiceReference {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *ServiceReferenceDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1158,6 +1359,14 @@ func (d *CustomResourceDefinitionStatusDie) DieFeedPtr(r *apiextensionsv1.Custom
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceDefinitionStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *CustomResourceDefinitionStatusDie {
+	b, _ := json.Marshal(raw)
+	r := apiextensionsv1.CustomResourceDefinitionStatus{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CustomResourceDefinitionStatusDie) DieRelease() apiextensionsv1.CustomResourceDefinitionStatus {
 	if d.mutable {
@@ -1170,6 +1379,15 @@ func (d *CustomResourceDefinitionStatusDie) DieRelease() apiextensionsv1.CustomR
 func (d *CustomResourceDefinitionStatusDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceDefinitionStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1246,6 +1464,14 @@ func (d *CustomResourceDefinitionNamesDie) DieFeedPtr(r *apiextensionsv1.CustomR
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceDefinitionNamesDie) DieFeedRawExtension(raw runtime.RawExtension) *CustomResourceDefinitionNamesDie {
+	b, _ := json.Marshal(raw)
+	r := apiextensionsv1.CustomResourceDefinitionNames{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CustomResourceDefinitionNamesDie) DieRelease() apiextensionsv1.CustomResourceDefinitionNames {
 	if d.mutable {
@@ -1258,6 +1484,15 @@ func (d *CustomResourceDefinitionNamesDie) DieRelease() apiextensionsv1.CustomRe
 func (d *CustomResourceDefinitionNamesDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionNames {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CustomResourceDefinitionNamesDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.

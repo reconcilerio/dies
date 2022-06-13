@@ -253,6 +253,14 @@ func (c *copyMethodMaker) generateDieFeedMethodFor(die Die) {
 	c.Linef("	}")
 	c.Linef("	return d.DieFeed(*r)")
 	c.Linef("}")
+	c.Linef("")
+	c.Linef("// DieFeedRawExtension returns the resource managed by the die as an raw extension.")
+	c.Linef("func (d *%s) DieFeedRawExtension(raw %s) *%s {", die.Type, c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "RawExtension"), die.Type)
+	c.Linef("	b, _ := %s(raw)", c.AliasedRef("encoding/json", "Marshal"))
+	c.Linef("	r := %s{}", c.AliasedRef(die.TargetPackage, die.TargetType))
+	c.Linef("	_ = %s(b, &r)", c.AliasedRef("encoding/json", "Unmarshal"))
+	c.Linef("	return d.DieFeed(r)")
+	c.Linef("}")
 }
 
 func (c *copyMethodMaker) generateDieReleaseMethodFor(die Die) {
@@ -281,6 +289,15 @@ func (c *copyMethodMaker) generateDieReleaseMethodFor(die Die) {
 		c.Linef("	}")
 		c.Linef("}")
 	}
+	c.Linef("")
+	c.Linef("// DieReleaseRawExtension returns the resource managed by the die as an raw extension.")
+	c.Linef("func (d *%s) DieReleaseRawExtension() %s {", die.Type, c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "RawExtension"))
+	c.Linef("	r := d.DieReleasePtr()")
+	c.Linef("	b, _ := %s(r)", c.AliasedRef("encoding/json", "Marshal"))
+	c.Linef("	raw := %s{}", c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "RawExtension"))
+	c.Linef("	_ = %s(b, &raw)", c.AliasedRef("encoding/json", "Unmarshal"))
+	c.Linef("	return raw")
+	c.Linef("}")
 }
 
 func (c *copyMethodMaker) generateDieStampMethodFor(die Die) {
@@ -358,6 +375,22 @@ func (c *copyMethodMaker) generateJSONMethodsFor(die Die) {
 }
 
 func (c *copyMethodMaker) generateMetadataDieMethodFor(die Die) {
+	c.Linef("")
+	c.Linef("// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources")
+	c.Linef("func (d *%s) APIVersion(v string) *%s {", die.Type, die.Type)
+	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
+	c.Linef("		r.APIVersion = v")
+	c.Linef("	})")
+	c.Linef("}")
+
+	c.Linef("")
+	c.Linef("// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds")
+	c.Linef("func (d *%s) Kind(v string) *%s {", die.Type, die.Type)
+	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
+	c.Linef("		r.Kind = v")
+	c.Linef("	})")
+	c.Linef("}")
+
 	c.Linef("")
 	c.Linef("// MetadataDie stamps the resource's ObjectMeta field with a mutable die.")
 	c.Linef("func (d *%s) MetadataDie(fn func(d *%s)) *%s {", die.Type, c.AliasedRef("dies.dev/apis/meta/v1", "ObjectMetaDie"), die.Type)

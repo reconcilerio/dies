@@ -72,6 +72,14 @@ func (d *ClusterRoleDie) DieFeedPtr(r *rbacv1.ClusterRole) *ClusterRoleDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *ClusterRoleDie) DieFeedRawExtension(raw runtime.RawExtension) *ClusterRoleDie {
+	b, _ := json.Marshal(raw)
+	r := rbacv1.ClusterRole{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *ClusterRoleDie) DieRelease() rbacv1.ClusterRole {
 	if d.mutable {
@@ -93,6 +101,15 @@ func (d *ClusterRoleDie) DieReleaseUnstructured() runtime.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *ClusterRoleDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -138,6 +155,20 @@ func (d *ClusterRoleDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *ClusterRoleDie) APIVersion(v string) *ClusterRoleDie {
+	return d.DieStamp(func(r *rbacv1.ClusterRole) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ClusterRoleDie) Kind(v string) *ClusterRoleDie {
+	return d.DieStamp(func(r *rbacv1.ClusterRole) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -200,6 +231,14 @@ func (d *AggregationRuleDie) DieFeedPtr(r *rbacv1.AggregationRule) *AggregationR
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *AggregationRuleDie) DieFeedRawExtension(raw runtime.RawExtension) *AggregationRuleDie {
+	b, _ := json.Marshal(raw)
+	r := rbacv1.AggregationRule{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *AggregationRuleDie) DieRelease() rbacv1.AggregationRule {
 	if d.mutable {
@@ -212,6 +251,15 @@ func (d *AggregationRuleDie) DieRelease() rbacv1.AggregationRule {
 func (d *AggregationRuleDie) DieReleasePtr() *rbacv1.AggregationRule {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *AggregationRuleDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -277,6 +325,14 @@ func (d *ClusterRoleBindingDie) DieFeedPtr(r *rbacv1.ClusterRoleBinding) *Cluste
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *ClusterRoleBindingDie) DieFeedRawExtension(raw runtime.RawExtension) *ClusterRoleBindingDie {
+	b, _ := json.Marshal(raw)
+	r := rbacv1.ClusterRoleBinding{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *ClusterRoleBindingDie) DieRelease() rbacv1.ClusterRoleBinding {
 	if d.mutable {
@@ -298,6 +354,15 @@ func (d *ClusterRoleBindingDie) DieReleaseUnstructured() runtime.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *ClusterRoleBindingDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -343,6 +408,20 @@ func (d *ClusterRoleBindingDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *ClusterRoleBindingDie) APIVersion(v string) *ClusterRoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ClusterRoleBindingDie) Kind(v string) *ClusterRoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -408,6 +487,14 @@ func (d *RoleDie) DieFeedPtr(r *rbacv1.Role) *RoleDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *RoleDie) DieFeedRawExtension(raw runtime.RawExtension) *RoleDie {
+	b, _ := json.Marshal(raw)
+	r := rbacv1.Role{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *RoleDie) DieRelease() rbacv1.Role {
 	if d.mutable {
@@ -429,6 +516,15 @@ func (d *RoleDie) DieReleaseUnstructured() runtime.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *RoleDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -474,6 +570,20 @@ func (d *RoleDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *RoleDie) APIVersion(v string) *RoleDie {
+	return d.DieStamp(func(r *rbacv1.Role) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *RoleDie) Kind(v string) *RoleDie {
+	return d.DieStamp(func(r *rbacv1.Role) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -529,6 +639,14 @@ func (d *PolicyRuleDie) DieFeedPtr(r *rbacv1.PolicyRule) *PolicyRuleDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *PolicyRuleDie) DieFeedRawExtension(raw runtime.RawExtension) *PolicyRuleDie {
+	b, _ := json.Marshal(raw)
+	r := rbacv1.PolicyRule{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *PolicyRuleDie) DieRelease() rbacv1.PolicyRule {
 	if d.mutable {
@@ -541,6 +659,15 @@ func (d *PolicyRuleDie) DieRelease() rbacv1.PolicyRule {
 func (d *PolicyRuleDie) DieReleasePtr() *rbacv1.PolicyRule {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *PolicyRuleDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -634,6 +761,14 @@ func (d *RoleBindingDie) DieFeedPtr(r *rbacv1.RoleBinding) *RoleBindingDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *RoleBindingDie) DieFeedRawExtension(raw runtime.RawExtension) *RoleBindingDie {
+	b, _ := json.Marshal(raw)
+	r := rbacv1.RoleBinding{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *RoleBindingDie) DieRelease() rbacv1.RoleBinding {
 	if d.mutable {
@@ -655,6 +790,15 @@ func (d *RoleBindingDie) DieReleaseUnstructured() runtime.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *RoleBindingDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -700,6 +844,20 @@ func (d *RoleBindingDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *RoleBindingDie) APIVersion(v string) *RoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.RoleBinding) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *RoleBindingDie) Kind(v string) *RoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.RoleBinding) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -762,6 +920,14 @@ func (d *SubjectDie) DieFeedPtr(r *rbacv1.Subject) *SubjectDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *SubjectDie) DieFeedRawExtension(raw runtime.RawExtension) *SubjectDie {
+	b, _ := json.Marshal(raw)
+	r := rbacv1.Subject{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *SubjectDie) DieRelease() rbacv1.Subject {
 	if d.mutable {
@@ -774,6 +940,15 @@ func (d *SubjectDie) DieRelease() rbacv1.Subject {
 func (d *SubjectDie) DieReleasePtr() *rbacv1.Subject {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *SubjectDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -857,6 +1032,14 @@ func (d *RoleRefDie) DieFeedPtr(r *rbacv1.RoleRef) *RoleRefDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *RoleRefDie) DieFeedRawExtension(raw runtime.RawExtension) *RoleRefDie {
+	b, _ := json.Marshal(raw)
+	r := rbacv1.RoleRef{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *RoleRefDie) DieRelease() rbacv1.RoleRef {
 	if d.mutable {
@@ -869,6 +1052,15 @@ func (d *RoleRefDie) DieRelease() rbacv1.RoleRef {
 func (d *RoleRefDie) DieReleasePtr() *rbacv1.RoleRef {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *RoleRefDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.

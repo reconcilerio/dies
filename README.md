@@ -122,11 +122,18 @@ type MyResourceDie interface {
     // resource is nil, the empty value is used instead.
     DieFeedPtr(r *MyResource) *MyResourceDie
 
+    // DieFeedRawExtension returns a new die with the provided raw extension.
+    DieFeedRawExtension(raw runtime.RawExtension) *MyResourceDie
+
     // DieRelease returns the resource managed by the die.
     DieRelease() MyResource
 
     // DieReleasePtr returns a pointer to the resource managed by the die.
     DieReleasePtr() *MyResource
+
+    // DieReleaseRawExtension returns the resource managed by the die as an
+    // raw extension.
+    DieReleaseRawExtension() runtime.RawExtension
 
     // DieImmutable returns a new die for the current die's state that is
     // either mutable (`false`) or immutable (`true`). 

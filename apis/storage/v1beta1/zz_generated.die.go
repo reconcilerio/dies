@@ -73,6 +73,14 @@ func (d *CSIStorageCapacityDie) DieFeedPtr(r *storagev1beta1.CSIStorageCapacity)
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *CSIStorageCapacityDie) DieFeedRawExtension(raw runtime.RawExtension) *CSIStorageCapacityDie {
+	b, _ := json.Marshal(raw)
+	r := storagev1beta1.CSIStorageCapacity{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *CSIStorageCapacityDie) DieRelease() storagev1beta1.CSIStorageCapacity {
 	if d.mutable {
@@ -94,6 +102,15 @@ func (d *CSIStorageCapacityDie) DieReleaseUnstructured() runtime.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *CSIStorageCapacityDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -139,6 +156,20 @@ func (d *CSIStorageCapacityDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *CSIStorageCapacityDie) APIVersion(v string) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1beta1.CSIStorageCapacity) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *CSIStorageCapacityDie) Kind(v string) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1beta1.CSIStorageCapacity) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.

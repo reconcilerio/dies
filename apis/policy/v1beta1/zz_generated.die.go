@@ -72,6 +72,14 @@ func (d *PodSecurityPolicyDie) DieFeedPtr(r *policyv1beta1.PodSecurityPolicy) *P
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodSecurityPolicyDie) DieFeedRawExtension(raw runtime.RawExtension) *PodSecurityPolicyDie {
+	b, _ := json.Marshal(raw)
+	r := policyv1beta1.PodSecurityPolicy{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *PodSecurityPolicyDie) DieRelease() policyv1beta1.PodSecurityPolicy {
 	if d.mutable {
@@ -93,6 +101,15 @@ func (d *PodSecurityPolicyDie) DieReleaseUnstructured() runtime.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodSecurityPolicyDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -138,6 +155,20 @@ func (d *PodSecurityPolicyDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *PodSecurityPolicyDie) APIVersion(v string) *PodSecurityPolicyDie {
+	return d.DieStamp(func(r *policyv1beta1.PodSecurityPolicy) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *PodSecurityPolicyDie) Kind(v string) *PodSecurityPolicyDie {
+	return d.DieStamp(func(r *policyv1beta1.PodSecurityPolicy) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -202,6 +233,14 @@ func (d *PodSecurityPolicySpecDie) DieFeedPtr(r *policyv1beta1.PodSecurityPolicy
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodSecurityPolicySpecDie) DieFeedRawExtension(raw runtime.RawExtension) *PodSecurityPolicySpecDie {
+	b, _ := json.Marshal(raw)
+	r := policyv1beta1.PodSecurityPolicySpec{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *PodSecurityPolicySpecDie) DieRelease() policyv1beta1.PodSecurityPolicySpec {
 	if d.mutable {
@@ -214,6 +253,15 @@ func (d *PodSecurityPolicySpecDie) DieRelease() policyv1beta1.PodSecurityPolicyS
 func (d *PodSecurityPolicySpecDie) DieReleasePtr() *policyv1beta1.PodSecurityPolicySpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodSecurityPolicySpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -441,6 +489,14 @@ func (d *HostPortRangeDie) DieFeedPtr(r *policyv1beta1.HostPortRange) *HostPortR
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *HostPortRangeDie) DieFeedRawExtension(raw runtime.RawExtension) *HostPortRangeDie {
+	b, _ := json.Marshal(raw)
+	r := policyv1beta1.HostPortRange{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *HostPortRangeDie) DieRelease() policyv1beta1.HostPortRange {
 	if d.mutable {
@@ -453,6 +509,15 @@ func (d *HostPortRangeDie) DieRelease() policyv1beta1.HostPortRange {
 func (d *HostPortRangeDie) DieReleasePtr() *policyv1beta1.HostPortRange {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *HostPortRangeDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -522,6 +587,14 @@ func (d *SELinuxStrategyOptionsDie) DieFeedPtr(r *policyv1beta1.SELinuxStrategyO
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *SELinuxStrategyOptionsDie) DieFeedRawExtension(raw runtime.RawExtension) *SELinuxStrategyOptionsDie {
+	b, _ := json.Marshal(raw)
+	r := policyv1beta1.SELinuxStrategyOptions{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *SELinuxStrategyOptionsDie) DieRelease() policyv1beta1.SELinuxStrategyOptions {
 	if d.mutable {
@@ -534,6 +607,15 @@ func (d *SELinuxStrategyOptionsDie) DieRelease() policyv1beta1.SELinuxStrategyOp
 func (d *SELinuxStrategyOptionsDie) DieReleasePtr() *policyv1beta1.SELinuxStrategyOptions {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *SELinuxStrategyOptionsDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -603,6 +685,14 @@ func (d *RunAsUserStrategyOptionsDie) DieFeedPtr(r *policyv1beta1.RunAsUserStrat
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *RunAsUserStrategyOptionsDie) DieFeedRawExtension(raw runtime.RawExtension) *RunAsUserStrategyOptionsDie {
+	b, _ := json.Marshal(raw)
+	r := policyv1beta1.RunAsUserStrategyOptions{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *RunAsUserStrategyOptionsDie) DieRelease() policyv1beta1.RunAsUserStrategyOptions {
 	if d.mutable {
@@ -615,6 +705,15 @@ func (d *RunAsUserStrategyOptionsDie) DieRelease() policyv1beta1.RunAsUserStrate
 func (d *RunAsUserStrategyOptionsDie) DieReleasePtr() *policyv1beta1.RunAsUserStrategyOptions {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *RunAsUserStrategyOptionsDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -684,6 +783,14 @@ func (d *RunAsGroupStrategyOptionsDie) DieFeedPtr(r *policyv1beta1.RunAsGroupStr
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *RunAsGroupStrategyOptionsDie) DieFeedRawExtension(raw runtime.RawExtension) *RunAsGroupStrategyOptionsDie {
+	b, _ := json.Marshal(raw)
+	r := policyv1beta1.RunAsGroupStrategyOptions{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *RunAsGroupStrategyOptionsDie) DieRelease() policyv1beta1.RunAsGroupStrategyOptions {
 	if d.mutable {
@@ -696,6 +803,15 @@ func (d *RunAsGroupStrategyOptionsDie) DieRelease() policyv1beta1.RunAsGroupStra
 func (d *RunAsGroupStrategyOptionsDie) DieReleasePtr() *policyv1beta1.RunAsGroupStrategyOptions {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *RunAsGroupStrategyOptionsDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -765,6 +881,14 @@ func (d *SupplementalGroupsStrategyOptionsDie) DieFeedPtr(r *policyv1beta1.Suppl
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *SupplementalGroupsStrategyOptionsDie) DieFeedRawExtension(raw runtime.RawExtension) *SupplementalGroupsStrategyOptionsDie {
+	b, _ := json.Marshal(raw)
+	r := policyv1beta1.SupplementalGroupsStrategyOptions{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *SupplementalGroupsStrategyOptionsDie) DieRelease() policyv1beta1.SupplementalGroupsStrategyOptions {
 	if d.mutable {
@@ -777,6 +901,15 @@ func (d *SupplementalGroupsStrategyOptionsDie) DieRelease() policyv1beta1.Supple
 func (d *SupplementalGroupsStrategyOptionsDie) DieReleasePtr() *policyv1beta1.SupplementalGroupsStrategyOptions {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *SupplementalGroupsStrategyOptionsDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -846,6 +979,14 @@ func (d *FSGroupStrategyOptionsDie) DieFeedPtr(r *policyv1beta1.FSGroupStrategyO
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *FSGroupStrategyOptionsDie) DieFeedRawExtension(raw runtime.RawExtension) *FSGroupStrategyOptionsDie {
+	b, _ := json.Marshal(raw)
+	r := policyv1beta1.FSGroupStrategyOptions{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *FSGroupStrategyOptionsDie) DieRelease() policyv1beta1.FSGroupStrategyOptions {
 	if d.mutable {
@@ -858,6 +999,15 @@ func (d *FSGroupStrategyOptionsDie) DieRelease() policyv1beta1.FSGroupStrategyOp
 func (d *FSGroupStrategyOptionsDie) DieReleasePtr() *policyv1beta1.FSGroupStrategyOptions {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *FSGroupStrategyOptionsDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -927,6 +1077,14 @@ func (d *AllowedHostPathDie) DieFeedPtr(r *policyv1beta1.AllowedHostPath) *Allow
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *AllowedHostPathDie) DieFeedRawExtension(raw runtime.RawExtension) *AllowedHostPathDie {
+	b, _ := json.Marshal(raw)
+	r := policyv1beta1.AllowedHostPath{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *AllowedHostPathDie) DieRelease() policyv1beta1.AllowedHostPath {
 	if d.mutable {
@@ -939,6 +1097,15 @@ func (d *AllowedHostPathDie) DieRelease() policyv1beta1.AllowedHostPath {
 func (d *AllowedHostPathDie) DieReleasePtr() *policyv1beta1.AllowedHostPath {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *AllowedHostPathDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1010,6 +1177,14 @@ func (d *AllowedFlexVolumeDie) DieFeedPtr(r *policyv1beta1.AllowedFlexVolume) *A
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *AllowedFlexVolumeDie) DieFeedRawExtension(raw runtime.RawExtension) *AllowedFlexVolumeDie {
+	b, _ := json.Marshal(raw)
+	r := policyv1beta1.AllowedFlexVolume{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *AllowedFlexVolumeDie) DieRelease() policyv1beta1.AllowedFlexVolume {
 	if d.mutable {
@@ -1022,6 +1197,15 @@ func (d *AllowedFlexVolumeDie) DieRelease() policyv1beta1.AllowedFlexVolume {
 func (d *AllowedFlexVolumeDie) DieReleasePtr() *policyv1beta1.AllowedFlexVolume {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *AllowedFlexVolumeDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1084,6 +1268,14 @@ func (d *AllowedCSIDriverDie) DieFeedPtr(r *policyv1beta1.AllowedCSIDriver) *All
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *AllowedCSIDriverDie) DieFeedRawExtension(raw runtime.RawExtension) *AllowedCSIDriverDie {
+	b, _ := json.Marshal(raw)
+	r := policyv1beta1.AllowedCSIDriver{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *AllowedCSIDriverDie) DieRelease() policyv1beta1.AllowedCSIDriver {
 	if d.mutable {
@@ -1096,6 +1288,15 @@ func (d *AllowedCSIDriverDie) DieRelease() policyv1beta1.AllowedCSIDriver {
 func (d *AllowedCSIDriverDie) DieReleasePtr() *policyv1beta1.AllowedCSIDriver {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *AllowedCSIDriverDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1158,6 +1359,14 @@ func (d *RuntimeClassStrategyOptionsDie) DieFeedPtr(r *policyv1beta1.RuntimeClas
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *RuntimeClassStrategyOptionsDie) DieFeedRawExtension(raw runtime.RawExtension) *RuntimeClassStrategyOptionsDie {
+	b, _ := json.Marshal(raw)
+	r := policyv1beta1.RuntimeClassStrategyOptions{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *RuntimeClassStrategyOptionsDie) DieRelease() policyv1beta1.RuntimeClassStrategyOptions {
 	if d.mutable {
@@ -1170,6 +1379,15 @@ func (d *RuntimeClassStrategyOptionsDie) DieRelease() policyv1beta1.RuntimeClass
 func (d *RuntimeClassStrategyOptionsDie) DieReleasePtr() *policyv1beta1.RuntimeClassStrategyOptions {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *RuntimeClassStrategyOptionsDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1239,6 +1457,14 @@ func (d *IDRangeDie) DieFeedPtr(r *policyv1beta1.IDRange) *IDRangeDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *IDRangeDie) DieFeedRawExtension(raw runtime.RawExtension) *IDRangeDie {
+	b, _ := json.Marshal(raw)
+	r := policyv1beta1.IDRange{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *IDRangeDie) DieRelease() policyv1beta1.IDRange {
 	if d.mutable {
@@ -1251,6 +1477,15 @@ func (d *IDRangeDie) DieRelease() policyv1beta1.IDRange {
 func (d *IDRangeDie) DieReleasePtr() *policyv1beta1.IDRange {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *IDRangeDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.

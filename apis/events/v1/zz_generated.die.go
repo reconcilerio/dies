@@ -73,6 +73,14 @@ func (d *EventDie) DieFeedPtr(r *eventsv1.Event) *EventDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *EventDie) DieFeedRawExtension(raw runtime.RawExtension) *EventDie {
+	b, _ := json.Marshal(raw)
+	r := eventsv1.Event{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *EventDie) DieRelease() eventsv1.Event {
 	if d.mutable {
@@ -94,6 +102,15 @@ func (d *EventDie) DieReleaseUnstructured() runtime.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *EventDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -139,6 +156,20 @@ func (d *EventDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *EventDie) APIVersion(v string) *EventDie {
+	return d.DieStamp(func(r *eventsv1.Event) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *EventDie) Kind(v string) *EventDie {
+	return d.DieStamp(func(r *eventsv1.Event) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -285,6 +316,14 @@ func (d *EventSeriesDie) DieFeedPtr(r *eventsv1.EventSeries) *EventSeriesDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *EventSeriesDie) DieFeedRawExtension(raw runtime.RawExtension) *EventSeriesDie {
+	b, _ := json.Marshal(raw)
+	r := eventsv1.EventSeries{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *EventSeriesDie) DieRelease() eventsv1.EventSeries {
 	if d.mutable {
@@ -297,6 +336,15 @@ func (d *EventSeriesDie) DieRelease() eventsv1.EventSeries {
 func (d *EventSeriesDie) DieReleasePtr() *eventsv1.EventSeries {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *EventSeriesDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.

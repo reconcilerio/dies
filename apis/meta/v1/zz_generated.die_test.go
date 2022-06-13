@@ -35,6 +35,60 @@ func TestConditionDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestGroupResourceDie_MissingMethods(t *testingx.T) {
+	die := GroupResourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for GroupResourceDie: %s", diff.List())
+	}
+}
+
+func TestGroupVersionDie_MissingMethods(t *testingx.T) {
+	die := GroupVersionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for GroupVersionDie: %s", diff.List())
+	}
+}
+
+func TestGroupVersionKindDie_MissingMethods(t *testingx.T) {
+	die := GroupVersionKindBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for GroupVersionKindDie: %s", diff.List())
+	}
+}
+
+func TestGroupVersionResourceDie_MissingMethods(t *testingx.T) {
+	die := GroupVersionResourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for GroupVersionResourceDie: %s", diff.List())
+	}
+}
+
+func TestGroupVersionForDiscoveryDie_MissingMethods(t *testingx.T) {
+	die := GroupVersionForDiscoveryBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for GroupVersionForDiscoveryDie: %s", diff.List())
+	}
+}
+
+func TestListMetaDie_MissingMethods(t *testingx.T) {
+	die := ListMetaBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ListMetaDie: %s", diff.List())
+	}
+}
+
 func TestObjectMetaDie_MissingMethods(t *testingx.T) {
 	die := ObjectMetaBlank
 	ignore := []string{}
@@ -59,5 +113,32 @@ func TestLabelSelectorDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for LabelSelectorDie: %s", diff.List())
+	}
+}
+
+func TestStatusDie_MissingMethods(t *testingx.T) {
+	die := StatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for StatusDie: %s", diff.List())
+	}
+}
+
+func TestStatusDetailsDie_MissingMethods(t *testingx.T) {
+	die := StatusDetailsBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for StatusDetailsDie: %s", diff.List())
+	}
+}
+
+func TestStatusCauseDie_MissingMethods(t *testingx.T) {
+	die := StatusCauseBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for StatusCauseDie: %s", diff.List())
 	}
 }

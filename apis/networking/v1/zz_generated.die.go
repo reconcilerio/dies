@@ -74,6 +74,14 @@ func (d *IngressDie) DieFeedPtr(r *networkingv1.Ingress) *IngressDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressDie) DieFeedRawExtension(raw runtime.RawExtension) *IngressDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.Ingress{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *IngressDie) DieRelease() networkingv1.Ingress {
 	if d.mutable {
@@ -95,6 +103,15 @@ func (d *IngressDie) DieReleaseUnstructured() runtime.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -140,6 +157,20 @@ func (d *IngressDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *IngressDie) APIVersion(v string) *IngressDie {
+	return d.DieStamp(func(r *networkingv1.Ingress) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *IngressDie) Kind(v string) *IngressDie {
+	return d.DieStamp(func(r *networkingv1.Ingress) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -220,6 +251,14 @@ func (d *IngressSpecDie) DieFeedPtr(r *networkingv1.IngressSpec) *IngressSpecDie
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *IngressSpecDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.IngressSpec{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *IngressSpecDie) DieRelease() networkingv1.IngressSpec {
 	if d.mutable {
@@ -232,6 +271,15 @@ func (d *IngressSpecDie) DieRelease() networkingv1.IngressSpec {
 func (d *IngressSpecDie) DieReleasePtr() *networkingv1.IngressSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -315,6 +363,14 @@ func (d *IngressBackendDie) DieFeedPtr(r *networkingv1.IngressBackend) *IngressB
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressBackendDie) DieFeedRawExtension(raw runtime.RawExtension) *IngressBackendDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.IngressBackend{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *IngressBackendDie) DieRelease() networkingv1.IngressBackend {
 	if d.mutable {
@@ -327,6 +383,15 @@ func (d *IngressBackendDie) DieRelease() networkingv1.IngressBackend {
 func (d *IngressBackendDie) DieReleasePtr() *networkingv1.IngressBackend {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressBackendDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -396,6 +461,14 @@ func (d *IngressServiceBackendDie) DieFeedPtr(r *networkingv1.IngressServiceBack
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressServiceBackendDie) DieFeedRawExtension(raw runtime.RawExtension) *IngressServiceBackendDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.IngressServiceBackend{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *IngressServiceBackendDie) DieRelease() networkingv1.IngressServiceBackend {
 	if d.mutable {
@@ -408,6 +481,15 @@ func (d *IngressServiceBackendDie) DieRelease() networkingv1.IngressServiceBacke
 func (d *IngressServiceBackendDie) DieReleasePtr() *networkingv1.IngressServiceBackend {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressServiceBackendDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -477,6 +559,14 @@ func (d *ServiceBackendPortDie) DieFeedPtr(r *networkingv1.ServiceBackendPort) *
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *ServiceBackendPortDie) DieFeedRawExtension(raw runtime.RawExtension) *ServiceBackendPortDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.ServiceBackendPort{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *ServiceBackendPortDie) DieRelease() networkingv1.ServiceBackendPort {
 	if d.mutable {
@@ -489,6 +579,15 @@ func (d *ServiceBackendPortDie) DieRelease() networkingv1.ServiceBackendPort {
 func (d *ServiceBackendPortDie) DieReleasePtr() *networkingv1.ServiceBackendPort {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *ServiceBackendPortDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -558,6 +657,14 @@ func (d *IngressTLSDie) DieFeedPtr(r *networkingv1.IngressTLS) *IngressTLSDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressTLSDie) DieFeedRawExtension(raw runtime.RawExtension) *IngressTLSDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.IngressTLS{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *IngressTLSDie) DieRelease() networkingv1.IngressTLS {
 	if d.mutable {
@@ -570,6 +677,15 @@ func (d *IngressTLSDie) DieRelease() networkingv1.IngressTLS {
 func (d *IngressTLSDie) DieReleasePtr() *networkingv1.IngressTLS {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressTLSDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -639,6 +755,14 @@ func (d *IngressRuleDie) DieFeedPtr(r *networkingv1.IngressRule) *IngressRuleDie
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressRuleDie) DieFeedRawExtension(raw runtime.RawExtension) *IngressRuleDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.IngressRule{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *IngressRuleDie) DieRelease() networkingv1.IngressRule {
 	if d.mutable {
@@ -651,6 +775,15 @@ func (d *IngressRuleDie) DieRelease() networkingv1.IngressRule {
 func (d *IngressRuleDie) DieReleasePtr() *networkingv1.IngressRule {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressRuleDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -722,6 +855,14 @@ func (d *HTTPIngressRuleValueDie) DieFeedPtr(r *networkingv1.HTTPIngressRuleValu
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *HTTPIngressRuleValueDie) DieFeedRawExtension(raw runtime.RawExtension) *HTTPIngressRuleValueDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.HTTPIngressRuleValue{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *HTTPIngressRuleValueDie) DieRelease() networkingv1.HTTPIngressRuleValue {
 	if d.mutable {
@@ -734,6 +875,15 @@ func (d *HTTPIngressRuleValueDie) DieRelease() networkingv1.HTTPIngressRuleValue
 func (d *HTTPIngressRuleValueDie) DieReleasePtr() *networkingv1.HTTPIngressRuleValue {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *HTTPIngressRuleValueDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -796,6 +946,14 @@ func (d *HTTPIngressPathDie) DieFeedPtr(r *networkingv1.HTTPIngressPath) *HTTPIn
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *HTTPIngressPathDie) DieFeedRawExtension(raw runtime.RawExtension) *HTTPIngressPathDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.HTTPIngressPath{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *HTTPIngressPathDie) DieRelease() networkingv1.HTTPIngressPath {
 	if d.mutable {
@@ -808,6 +966,15 @@ func (d *HTTPIngressPathDie) DieRelease() networkingv1.HTTPIngressPath {
 func (d *HTTPIngressPathDie) DieReleasePtr() *networkingv1.HTTPIngressPath {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *HTTPIngressPathDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -884,6 +1051,14 @@ func (d *IngressStatusDie) DieFeedPtr(r *networkingv1.IngressStatus) *IngressSta
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *IngressStatusDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.IngressStatus{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *IngressStatusDie) DieRelease() networkingv1.IngressStatus {
 	if d.mutable {
@@ -896,6 +1071,15 @@ func (d *IngressStatusDie) DieRelease() networkingv1.IngressStatus {
 func (d *IngressStatusDie) DieReleasePtr() *networkingv1.IngressStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -961,6 +1145,14 @@ func (d *IngressClassDie) DieFeedPtr(r *networkingv1.IngressClass) *IngressClass
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressClassDie) DieFeedRawExtension(raw runtime.RawExtension) *IngressClassDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.IngressClass{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *IngressClassDie) DieRelease() networkingv1.IngressClass {
 	if d.mutable {
@@ -982,6 +1174,15 @@ func (d *IngressClassDie) DieReleaseUnstructured() runtime.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressClassDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1027,6 +1228,20 @@ func (d *IngressClassDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *IngressClassDie) APIVersion(v string) *IngressClassDie {
+	return d.DieStamp(func(r *networkingv1.IngressClass) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *IngressClassDie) Kind(v string) *IngressClassDie {
+	return d.DieStamp(func(r *networkingv1.IngressClass) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -1091,6 +1306,14 @@ func (d *IngressClassSpecDie) DieFeedPtr(r *networkingv1.IngressClassSpec) *Ingr
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressClassSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *IngressClassSpecDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.IngressClassSpec{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *IngressClassSpecDie) DieRelease() networkingv1.IngressClassSpec {
 	if d.mutable {
@@ -1103,6 +1326,15 @@ func (d *IngressClassSpecDie) DieRelease() networkingv1.IngressClassSpec {
 func (d *IngressClassSpecDie) DieReleasePtr() *networkingv1.IngressClassSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressClassSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1172,6 +1404,14 @@ func (d *IngressClassParametersReferenceDie) DieFeedPtr(r *networkingv1.IngressC
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressClassParametersReferenceDie) DieFeedRawExtension(raw runtime.RawExtension) *IngressClassParametersReferenceDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.IngressClassParametersReference{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *IngressClassParametersReferenceDie) DieRelease() networkingv1.IngressClassParametersReference {
 	if d.mutable {
@@ -1184,6 +1424,15 @@ func (d *IngressClassParametersReferenceDie) DieRelease() networkingv1.IngressCl
 func (d *IngressClassParametersReferenceDie) DieReleasePtr() *networkingv1.IngressClassParametersReference {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressClassParametersReferenceDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1277,6 +1526,14 @@ func (d *NetworkPolicyDie) DieFeedPtr(r *networkingv1.NetworkPolicy) *NetworkPol
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *NetworkPolicyDie) DieFeedRawExtension(raw runtime.RawExtension) *NetworkPolicyDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.NetworkPolicy{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *NetworkPolicyDie) DieRelease() networkingv1.NetworkPolicy {
 	if d.mutable {
@@ -1298,6 +1555,15 @@ func (d *NetworkPolicyDie) DieReleaseUnstructured() runtime.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *NetworkPolicyDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1343,6 +1609,20 @@ func (d *NetworkPolicyDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *NetworkPolicyDie) APIVersion(v string) *NetworkPolicyDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *NetworkPolicyDie) Kind(v string) *NetworkPolicyDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
+		r.Kind = v
+	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
@@ -1423,6 +1703,14 @@ func (d *NetworkPolicySpecDie) DieFeedPtr(r *networkingv1.NetworkPolicySpec) *Ne
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *NetworkPolicySpecDie) DieFeedRawExtension(raw runtime.RawExtension) *NetworkPolicySpecDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.NetworkPolicySpec{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *NetworkPolicySpecDie) DieRelease() networkingv1.NetworkPolicySpec {
 	if d.mutable {
@@ -1435,6 +1723,15 @@ func (d *NetworkPolicySpecDie) DieRelease() networkingv1.NetworkPolicySpec {
 func (d *NetworkPolicySpecDie) DieReleasePtr() *networkingv1.NetworkPolicySpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *NetworkPolicySpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1518,6 +1815,14 @@ func (d *NetworkPolicyIngressRuleDie) DieFeedPtr(r *networkingv1.NetworkPolicyIn
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *NetworkPolicyIngressRuleDie) DieFeedRawExtension(raw runtime.RawExtension) *NetworkPolicyIngressRuleDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.NetworkPolicyIngressRule{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *NetworkPolicyIngressRuleDie) DieRelease() networkingv1.NetworkPolicyIngressRule {
 	if d.mutable {
@@ -1530,6 +1835,15 @@ func (d *NetworkPolicyIngressRuleDie) DieRelease() networkingv1.NetworkPolicyIng
 func (d *NetworkPolicyIngressRuleDie) DieReleasePtr() *networkingv1.NetworkPolicyIngressRule {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *NetworkPolicyIngressRuleDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1599,6 +1913,14 @@ func (d *NetworkPolicyEgressRuleDie) DieFeedPtr(r *networkingv1.NetworkPolicyEgr
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *NetworkPolicyEgressRuleDie) DieFeedRawExtension(raw runtime.RawExtension) *NetworkPolicyEgressRuleDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.NetworkPolicyEgressRule{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *NetworkPolicyEgressRuleDie) DieRelease() networkingv1.NetworkPolicyEgressRule {
 	if d.mutable {
@@ -1611,6 +1933,15 @@ func (d *NetworkPolicyEgressRuleDie) DieRelease() networkingv1.NetworkPolicyEgre
 func (d *NetworkPolicyEgressRuleDie) DieReleasePtr() *networkingv1.NetworkPolicyEgressRule {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *NetworkPolicyEgressRuleDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1680,6 +2011,14 @@ func (d *NetworkPolicyPortDie) DieFeedPtr(r *networkingv1.NetworkPolicyPort) *Ne
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *NetworkPolicyPortDie) DieFeedRawExtension(raw runtime.RawExtension) *NetworkPolicyPortDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.NetworkPolicyPort{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *NetworkPolicyPortDie) DieRelease() networkingv1.NetworkPolicyPort {
 	if d.mutable {
@@ -1692,6 +2031,15 @@ func (d *NetworkPolicyPortDie) DieRelease() networkingv1.NetworkPolicyPort {
 func (d *NetworkPolicyPortDie) DieReleasePtr() *networkingv1.NetworkPolicyPort {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *NetworkPolicyPortDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1782,6 +2130,14 @@ func (d *NetworkPolicyPeerDie) DieFeedPtr(r *networkingv1.NetworkPolicyPeer) *Ne
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *NetworkPolicyPeerDie) DieFeedRawExtension(raw runtime.RawExtension) *NetworkPolicyPeerDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.NetworkPolicyPeer{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *NetworkPolicyPeerDie) DieRelease() networkingv1.NetworkPolicyPeer {
 	if d.mutable {
@@ -1794,6 +2150,15 @@ func (d *NetworkPolicyPeerDie) DieRelease() networkingv1.NetworkPolicyPeer {
 func (d *NetworkPolicyPeerDie) DieReleasePtr() *networkingv1.NetworkPolicyPeer {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *NetworkPolicyPeerDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1874,6 +2239,14 @@ func (d *IPBlockDie) DieFeedPtr(r *networkingv1.IPBlock) *IPBlockDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *IPBlockDie) DieFeedRawExtension(raw runtime.RawExtension) *IPBlockDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.IPBlock{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *IPBlockDie) DieRelease() networkingv1.IPBlock {
 	if d.mutable {
@@ -1886,6 +2259,15 @@ func (d *IPBlockDie) DieRelease() networkingv1.IPBlock {
 func (d *IPBlockDie) DieReleasePtr() *networkingv1.IPBlock {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *IPBlockDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
@@ -1955,6 +2337,14 @@ func (d *NetworkPolicyStatusDie) DieFeedPtr(r *networkingv1.NetworkPolicyStatus)
 	return d.DieFeed(*r)
 }
 
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *NetworkPolicyStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *NetworkPolicyStatusDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.NetworkPolicyStatus{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
 // DieRelease returns the resource managed by the die.
 func (d *NetworkPolicyStatusDie) DieRelease() networkingv1.NetworkPolicyStatus {
 	if d.mutable {
@@ -1967,6 +2357,15 @@ func (d *NetworkPolicyStatusDie) DieRelease() networkingv1.NetworkPolicyStatus {
 func (d *NetworkPolicyStatusDie) DieReleasePtr() *networkingv1.NetworkPolicyStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *NetworkPolicyStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
