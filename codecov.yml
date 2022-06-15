@@ -1,7 +1,3 @@
 ignore:
   - "**/zz_generated.*.go"
-coverage:
-  status:
-    project:
-      default:
-        informational: true
+github_checks: false
