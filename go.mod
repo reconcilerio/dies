@@ -6,7 +6,7 @@ require (
 	github.com/google/go-cmp v0.5.8
 	k8s.io/api v0.24.2
 	k8s.io/apiextensions-apiserver v0.24.2
-	k8s.io/apimachinery v0.24.2
+	k8s.io/apimachinery v0.24.3
 	k8s.io/kube-aggregator v0.24.2
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9
 )
