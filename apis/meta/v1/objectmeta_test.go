@@ -128,7 +128,6 @@ func TestFrozenObjectMeta(t *testing.T) {
 				UID:        "123e4567-e89b-12d3-a456-426614174000",
 			},
 		},
-		ZZZ_DeprecatedClusterName: "my-cluster",
 		ManagedFields: []metav1.ManagedFieldsEntry{
 			{
 				Manager:    "kubectl",
@@ -183,9 +182,6 @@ func TestFrozenObjectMeta(t *testing.T) {
 	}
 	if diff := cmp.Diff(metadata.OwnerReferences, frozen.GetOwnerReferences()); diff != "" {
 		t.Errorf("FrozenObjectMeta#GetOwnerReferences (-expected, +actual): %s", diff)
-	}
-	if diff := cmp.Diff(metadata.ZZZ_DeprecatedClusterName, frozen.GetZZZ_DeprecatedClusterName()); diff != "" {
-		t.Errorf("FrozenObjectMeta#GetZZZ_DeprecatedClusterName (-expected, +actual): %s", diff)
 	}
 	if diff := cmp.Diff(metadata.ManagedFields, frozen.GetManagedFields()); diff != "" {
 		t.Errorf("FrozenObjectMeta#GetManagedFields (-expected, +actual): %s", diff)
@@ -250,10 +246,6 @@ func TestFrozenObjectMeta(t *testing.T) {
 		{
 			name:        "set owner references",
 			shouldPanic: func() { frozen.SetOwnerReferences(metadata.OwnerReferences) },
-		},
-		{
-			name:        "set cluster name",
-			shouldPanic: func() { frozen.SetZZZ_DeprecatedClusterName(metadata.ZZZ_DeprecatedClusterName) },
 		},
 		{
 			name:        "set managed fields",

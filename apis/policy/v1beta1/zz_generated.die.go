@@ -413,7 +413,7 @@ func (d *PodSecurityPolicySpecDie) AllowedFlexVolumes(v ...policyv1beta1.Allowed
 	})
 }
 
-// AllowedCSIDrivers is an allowlist of inline CSI drivers that must be explicitly set to be embedded within a pod spec. An empty value indicates that any CSI driver can be used for inline ephemeral volumes. This is a beta field, and is only honored if the API server enables the CSIInlineVolume feature gate.
+// AllowedCSIDrivers is an allowlist of inline CSI drivers that must be explicitly set to be embedded within a pod spec. An empty value indicates that any CSI driver can be used for inline ephemeral volumes.
 func (d *PodSecurityPolicySpecDie) AllowedCSIDrivers(v ...policyv1beta1.AllowedCSIDriver) *PodSecurityPolicySpecDie {
 	return d.DieStamp(func(r *policyv1beta1.PodSecurityPolicySpec) {
 		r.AllowedCSIDrivers = v

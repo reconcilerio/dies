@@ -71,6 +71,42 @@ func TestJobSpecDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestPodFailurePolicyDie_MissingMethods(t *testingx.T) {
+	die := PodFailurePolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PodFailurePolicyDie: %s", diff.List())
+	}
+}
+
+func TestPodFailurePolicyRuleDie_MissingMethods(t *testingx.T) {
+	die := PodFailurePolicyRuleBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PodFailurePolicyRuleDie: %s", diff.List())
+	}
+}
+
+func TestPodFailurePolicyOnExitCodesRequirementDie_MissingMethods(t *testingx.T) {
+	die := PodFailurePolicyOnExitCodesRequirementBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PodFailurePolicyOnExitCodesRequirementDie: %s", diff.List())
+	}
+}
+
+func TestPodFailurePolicyOnPodConditionsPatternDie_MissingMethods(t *testingx.T) {
+	die := PodFailurePolicyOnPodConditionsPatternBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PodFailurePolicyOnPodConditionsPatternDie: %s", diff.List())
+	}
+}
+
 func TestJobStatusDie_MissingMethods(t *testingx.T) {
 	die := JobStatusBlank
 	ignore := []string{}

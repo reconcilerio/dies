@@ -305,7 +305,7 @@ func (d *CronJobSpecDie) Schedule(v string) *CronJobSpecDie {
 	})
 }
 
-// The time zone for the given schedule, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones. If not specified, this will rely on the time zone of the kube-controller-manager process. ALPHA: This field is in alpha and must be enabled via the `CronJobTimeZone` feature gate.
+// The time zone name for the given schedule, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones. If not specified, this will default to the time zone of the kube-controller-manager process. The set of valid time zone names and the time zone offset is loaded from the system-wide time zone database by the API server during CronJob validation and the controller manager during execution. If no system-wide time zone database can be found a bundled version of the database is used instead. If the time zone name becomes invalid during the lifetime of a CronJob or due to a change in host configuration, the controller will stop creating new new Jobs and will create a system event with the reason UnknownTimeZone. More information can be found in https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#time-zones This is beta field and must be enabled via the `CronJobTimeZone` feature gate.
 func (d *CronJobSpecDie) TimeZone(v *string) *CronJobSpecDie {
 	return d.DieStamp(func(r *batchv1.CronJobSpec) {
 		r.TimeZone = v
@@ -744,6 +744,15 @@ func (d *JobSpecDie) ActiveDeadlineSeconds(v *int64) *JobSpecDie {
 	})
 }
 
+// Specifies the policy of handling failed pods. In particular, it allows to specify the set of actions and conditions which need to be satisfied to take the associated action. If empty, the default behaviour applies - the counter of failed pods, represented by the jobs's .status.failed field, is incremented and it is checked against the backoffLimit. This field cannot be used in combination with restartPolicy=OnFailure.
+//
+// This field is alpha-level. To use this field, you must enable the `JobPodFailurePolicy` feature gate (disabled by default).
+func (d *JobSpecDie) PodFailurePolicy(v *batchv1.PodFailurePolicy) *JobSpecDie {
+	return d.DieStamp(func(r *batchv1.JobSpec) {
+		r.PodFailurePolicy = v
+	})
+}
+
 // Specifies the number of retries before marking this job failed. Defaults to 6
 func (d *JobSpecDie) BackoffLimit(v *int32) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
@@ -796,6 +805,405 @@ func (d *JobSpecDie) CompletionMode(v *batchv1.CompletionMode) *JobSpecDie {
 func (d *JobSpecDie) Suspend(v *bool) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.Suspend = v
+	})
+}
+
+var PodFailurePolicyBlank = (&PodFailurePolicyDie{}).DieFeed(batchv1.PodFailurePolicy{})
+
+type PodFailurePolicyDie struct {
+	mutable bool
+	r       batchv1.PodFailurePolicy
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *PodFailurePolicyDie) DieImmutable(immutable bool) *PodFailurePolicyDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *PodFailurePolicyDie) DieFeed(r batchv1.PodFailurePolicy) *PodFailurePolicyDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &PodFailurePolicyDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *PodFailurePolicyDie) DieFeedPtr(r *batchv1.PodFailurePolicy) *PodFailurePolicyDie {
+	if r == nil {
+		r = &batchv1.PodFailurePolicy{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodFailurePolicyDie) DieFeedRawExtension(raw runtime.RawExtension) *PodFailurePolicyDie {
+	b, _ := json.Marshal(raw)
+	r := batchv1.PodFailurePolicy{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *PodFailurePolicyDie) DieRelease() batchv1.PodFailurePolicy {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *PodFailurePolicyDie) DieReleasePtr() *batchv1.PodFailurePolicy {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodFailurePolicyDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *PodFailurePolicyDie) DieStamp(fn func(r *batchv1.PodFailurePolicy)) *PodFailurePolicyDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *PodFailurePolicyDie) DeepCopy() *PodFailurePolicyDie {
+	r := *d.r.DeepCopy()
+	return &PodFailurePolicyDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// A list of pod failure policy rules. The rules are evaluated in order. Once a rule matches a Pod failure, the remaining of the rules are ignored. When no rule matches the Pod failure, the default handling applies - the counter of pod failures is incremented and it is checked against the backoffLimit. At most 20 elements are allowed.
+func (d *PodFailurePolicyDie) Rules(v ...batchv1.PodFailurePolicyRule) *PodFailurePolicyDie {
+	return d.DieStamp(func(r *batchv1.PodFailurePolicy) {
+		r.Rules = v
+	})
+}
+
+var PodFailurePolicyRuleBlank = (&PodFailurePolicyRuleDie{}).DieFeed(batchv1.PodFailurePolicyRule{})
+
+type PodFailurePolicyRuleDie struct {
+	mutable bool
+	r       batchv1.PodFailurePolicyRule
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *PodFailurePolicyRuleDie) DieImmutable(immutable bool) *PodFailurePolicyRuleDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *PodFailurePolicyRuleDie) DieFeed(r batchv1.PodFailurePolicyRule) *PodFailurePolicyRuleDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &PodFailurePolicyRuleDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *PodFailurePolicyRuleDie) DieFeedPtr(r *batchv1.PodFailurePolicyRule) *PodFailurePolicyRuleDie {
+	if r == nil {
+		r = &batchv1.PodFailurePolicyRule{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodFailurePolicyRuleDie) DieFeedRawExtension(raw runtime.RawExtension) *PodFailurePolicyRuleDie {
+	b, _ := json.Marshal(raw)
+	r := batchv1.PodFailurePolicyRule{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *PodFailurePolicyRuleDie) DieRelease() batchv1.PodFailurePolicyRule {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *PodFailurePolicyRuleDie) DieReleasePtr() *batchv1.PodFailurePolicyRule {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodFailurePolicyRuleDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *PodFailurePolicyRuleDie) DieStamp(fn func(r *batchv1.PodFailurePolicyRule)) *PodFailurePolicyRuleDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *PodFailurePolicyRuleDie) DeepCopy() *PodFailurePolicyRuleDie {
+	r := *d.r.DeepCopy()
+	return &PodFailurePolicyRuleDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Specifies the action taken on a pod failure when the requirements are satisfied. Possible values are: - FailJob: indicates that the pod's job is marked as Failed and all running pods are terminated. - Ignore: indicates that the counter towards the .backoffLimit is not incremented and a replacement pod is created. - Count: indicates that the pod is handled in the default way - the counter towards the .backoffLimit is incremented. Additional values are considered to be added in the future. Clients should react to an unknown action by skipping the rule.
+func (d *PodFailurePolicyRuleDie) Action(v batchv1.PodFailurePolicyAction) *PodFailurePolicyRuleDie {
+	return d.DieStamp(func(r *batchv1.PodFailurePolicyRule) {
+		r.Action = v
+	})
+}
+
+// Represents the requirement on the container exit codes.
+func (d *PodFailurePolicyRuleDie) OnExitCodes(v *batchv1.PodFailurePolicyOnExitCodesRequirement) *PodFailurePolicyRuleDie {
+	return d.DieStamp(func(r *batchv1.PodFailurePolicyRule) {
+		r.OnExitCodes = v
+	})
+}
+
+// Represents the requirement on the pod conditions. The requirement is represented as a list of pod condition patterns. The requirement is satisfied if at least one pattern matches an actual pod condition. At most 20 elements are allowed.
+func (d *PodFailurePolicyRuleDie) OnPodConditions(v ...batchv1.PodFailurePolicyOnPodConditionsPattern) *PodFailurePolicyRuleDie {
+	return d.DieStamp(func(r *batchv1.PodFailurePolicyRule) {
+		r.OnPodConditions = v
+	})
+}
+
+var PodFailurePolicyOnExitCodesRequirementBlank = (&PodFailurePolicyOnExitCodesRequirementDie{}).DieFeed(batchv1.PodFailurePolicyOnExitCodesRequirement{})
+
+type PodFailurePolicyOnExitCodesRequirementDie struct {
+	mutable bool
+	r       batchv1.PodFailurePolicyOnExitCodesRequirement
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *PodFailurePolicyOnExitCodesRequirementDie) DieImmutable(immutable bool) *PodFailurePolicyOnExitCodesRequirementDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *PodFailurePolicyOnExitCodesRequirementDie) DieFeed(r batchv1.PodFailurePolicyOnExitCodesRequirement) *PodFailurePolicyOnExitCodesRequirementDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &PodFailurePolicyOnExitCodesRequirementDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *PodFailurePolicyOnExitCodesRequirementDie) DieFeedPtr(r *batchv1.PodFailurePolicyOnExitCodesRequirement) *PodFailurePolicyOnExitCodesRequirementDie {
+	if r == nil {
+		r = &batchv1.PodFailurePolicyOnExitCodesRequirement{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodFailurePolicyOnExitCodesRequirementDie) DieFeedRawExtension(raw runtime.RawExtension) *PodFailurePolicyOnExitCodesRequirementDie {
+	b, _ := json.Marshal(raw)
+	r := batchv1.PodFailurePolicyOnExitCodesRequirement{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *PodFailurePolicyOnExitCodesRequirementDie) DieRelease() batchv1.PodFailurePolicyOnExitCodesRequirement {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *PodFailurePolicyOnExitCodesRequirementDie) DieReleasePtr() *batchv1.PodFailurePolicyOnExitCodesRequirement {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodFailurePolicyOnExitCodesRequirementDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *PodFailurePolicyOnExitCodesRequirementDie) DieStamp(fn func(r *batchv1.PodFailurePolicyOnExitCodesRequirement)) *PodFailurePolicyOnExitCodesRequirementDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *PodFailurePolicyOnExitCodesRequirementDie) DeepCopy() *PodFailurePolicyOnExitCodesRequirementDie {
+	r := *d.r.DeepCopy()
+	return &PodFailurePolicyOnExitCodesRequirementDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Restricts the check for exit codes to the container with the specified name. When null, the rule applies to all containers. When specified, it should match one the container or initContainer names in the pod template.
+func (d *PodFailurePolicyOnExitCodesRequirementDie) ContainerName(v *string) *PodFailurePolicyOnExitCodesRequirementDie {
+	return d.DieStamp(func(r *batchv1.PodFailurePolicyOnExitCodesRequirement) {
+		r.ContainerName = v
+	})
+}
+
+// Represents the relationship between the container exit code(s) and the specified values. Containers completed with success (exit code 0) are excluded from the requirement check. Possible values are: - In: the requirement is satisfied if at least one container exit code (might be multiple if there are multiple containers not restricted by the 'containerName' field) is in the set of specified values. - NotIn: the requirement is satisfied if at least one container exit code (might be multiple if there are multiple containers not restricted by the 'containerName' field) is not in the set of specified values. Additional values are considered to be added in the future. Clients should react to an unknown operator by assuming the requirement is not satisfied.
+func (d *PodFailurePolicyOnExitCodesRequirementDie) Operator(v batchv1.PodFailurePolicyOnExitCodesOperator) *PodFailurePolicyOnExitCodesRequirementDie {
+	return d.DieStamp(func(r *batchv1.PodFailurePolicyOnExitCodesRequirement) {
+		r.Operator = v
+	})
+}
+
+// Specifies the set of values. Each returned container exit code (might be multiple in case of multiple containers) is checked against this set of values with respect to the operator. The list of values must be ordered and must not contain duplicates. Value '0' cannot be used for the In operator. At least one element is required. At most 255 elements are allowed.
+func (d *PodFailurePolicyOnExitCodesRequirementDie) Values(v ...int32) *PodFailurePolicyOnExitCodesRequirementDie {
+	return d.DieStamp(func(r *batchv1.PodFailurePolicyOnExitCodesRequirement) {
+		r.Values = v
+	})
+}
+
+var PodFailurePolicyOnPodConditionsPatternBlank = (&PodFailurePolicyOnPodConditionsPatternDie{}).DieFeed(batchv1.PodFailurePolicyOnPodConditionsPattern{})
+
+type PodFailurePolicyOnPodConditionsPatternDie struct {
+	mutable bool
+	r       batchv1.PodFailurePolicyOnPodConditionsPattern
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *PodFailurePolicyOnPodConditionsPatternDie) DieImmutable(immutable bool) *PodFailurePolicyOnPodConditionsPatternDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *PodFailurePolicyOnPodConditionsPatternDie) DieFeed(r batchv1.PodFailurePolicyOnPodConditionsPattern) *PodFailurePolicyOnPodConditionsPatternDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &PodFailurePolicyOnPodConditionsPatternDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *PodFailurePolicyOnPodConditionsPatternDie) DieFeedPtr(r *batchv1.PodFailurePolicyOnPodConditionsPattern) *PodFailurePolicyOnPodConditionsPatternDie {
+	if r == nil {
+		r = &batchv1.PodFailurePolicyOnPodConditionsPattern{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodFailurePolicyOnPodConditionsPatternDie) DieFeedRawExtension(raw runtime.RawExtension) *PodFailurePolicyOnPodConditionsPatternDie {
+	b, _ := json.Marshal(raw)
+	r := batchv1.PodFailurePolicyOnPodConditionsPattern{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *PodFailurePolicyOnPodConditionsPatternDie) DieRelease() batchv1.PodFailurePolicyOnPodConditionsPattern {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *PodFailurePolicyOnPodConditionsPatternDie) DieReleasePtr() *batchv1.PodFailurePolicyOnPodConditionsPattern {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *PodFailurePolicyOnPodConditionsPatternDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *PodFailurePolicyOnPodConditionsPatternDie) DieStamp(fn func(r *batchv1.PodFailurePolicyOnPodConditionsPattern)) *PodFailurePolicyOnPodConditionsPatternDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *PodFailurePolicyOnPodConditionsPatternDie) DeepCopy() *PodFailurePolicyOnPodConditionsPatternDie {
+	r := *d.r.DeepCopy()
+	return &PodFailurePolicyOnPodConditionsPatternDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Specifies the required Pod condition type. To match a pod condition it is required that specified type equals the pod condition type.
+func (d *PodFailurePolicyOnPodConditionsPatternDie) Type(v corev1.PodConditionType) *PodFailurePolicyOnPodConditionsPatternDie {
+	return d.DieStamp(func(r *batchv1.PodFailurePolicyOnPodConditionsPattern) {
+		r.Type = v
+	})
+}
+
+// Specifies the required Pod condition status. To match a pod condition it is required that the specified status equals the pod condition status. Defaults to True.
+func (d *PodFailurePolicyOnPodConditionsPatternDie) Status(v corev1.ConditionStatus) *PodFailurePolicyOnPodConditionsPatternDie {
+	return d.DieStamp(func(r *batchv1.PodFailurePolicyOnPodConditionsPattern) {
+		r.Status = v
 	})
 }
 
