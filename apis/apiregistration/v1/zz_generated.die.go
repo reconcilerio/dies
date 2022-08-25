@@ -94,7 +94,7 @@ func (d *APIServiceDie) DieReleasePtr() *apiregistration.APIService {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *APIServiceDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *APIServiceDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{

@@ -95,7 +95,7 @@ func (d *LeaseDie) DieReleasePtr() *coordinationv1.Lease {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *LeaseDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *LeaseDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{

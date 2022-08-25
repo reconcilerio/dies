@@ -96,7 +96,7 @@ func (d *TokenReviewDie) DieReleasePtr() *authenticationv1.TokenReview {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *TokenReviewDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *TokenReviewDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{

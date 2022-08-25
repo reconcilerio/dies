@@ -96,7 +96,7 @@ func (d *CSIStorageCapacityDie) DieReleasePtr() *storagev1beta1.CSIStorageCapaci
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *CSIStorageCapacityDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *CSIStorageCapacityDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{

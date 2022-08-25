@@ -94,7 +94,7 @@ func (d *LocalSubjectAccessReviewDie) DieReleasePtr() *authorizationv1.LocalSubj
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *LocalSubjectAccessReviewDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *LocalSubjectAccessReviewDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -256,7 +256,7 @@ func (d *SelfSubjectAccessReviewDie) DieReleasePtr() *authorizationv1.SelfSubjec
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *SelfSubjectAccessReviewDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *SelfSubjectAccessReviewDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -534,7 +534,7 @@ func (d *SelfSubjectRulesReviewDie) DieReleasePtr() *authorizationv1.SelfSubject
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *SelfSubjectRulesReviewDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *SelfSubjectRulesReviewDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -1127,7 +1127,7 @@ func (d *SubjectAccessReviewDie) DieReleasePtr() *authorizationv1.SubjectAccessR
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *SubjectAccessReviewDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *SubjectAccessReviewDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{

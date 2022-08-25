@@ -540,7 +540,7 @@ func (d *MutatingWebhookConfigurationDie) DieReleasePtr() *admissionregistration
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *MutatingWebhookConfigurationDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *MutatingWebhookConfigurationDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -876,7 +876,7 @@ func (d *ValidatingWebhookConfigurationDie) DieReleasePtr() *admissionregistrati
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *ValidatingWebhookConfigurationDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *ValidatingWebhookConfigurationDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{

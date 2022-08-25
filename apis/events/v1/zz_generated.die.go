@@ -96,7 +96,7 @@ func (d *EventDie) DieReleasePtr() *eventsv1.Event {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *EventDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *EventDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{

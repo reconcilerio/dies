@@ -96,7 +96,7 @@ func (d *CSIDriverDie) DieReleasePtr() *storagev1.CSIDriver {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *CSIDriverDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *CSIDriverDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -526,7 +526,7 @@ func (d *CSINodeDie) DieReleasePtr() *storagev1.CSINode {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *CSINodeDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *CSINodeDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -984,7 +984,7 @@ func (d *StorageClassDie) DieReleasePtr() *storagev1.StorageClass {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *StorageClassDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *StorageClassDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -1181,7 +1181,7 @@ func (d *VolumeAttachmentDie) DieReleasePtr() *storagev1.VolumeAttachment {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *VolumeAttachmentDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *VolumeAttachmentDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{

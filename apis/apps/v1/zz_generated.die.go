@@ -97,7 +97,7 @@ func (d *ControllerRevisionDie) DieReleasePtr() *appsv1.ControllerRevision {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *ControllerRevisionDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *ControllerRevisionDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -259,7 +259,7 @@ func (d *DaemonSetDie) DieReleasePtr() *appsv1.DaemonSet {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *DaemonSetDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *DaemonSetDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -936,7 +936,7 @@ func (d *DeploymentDie) DieReleasePtr() *appsv1.Deployment {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *DeploymentDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *DeploymentDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -1620,7 +1620,7 @@ func (d *ReplicaSetDie) DieReleasePtr() *appsv1.ReplicaSet {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *ReplicaSetDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *ReplicaSetDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -2038,7 +2038,7 @@ func (d *StatefulSetDie) DieReleasePtr() *appsv1.StatefulSet {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *StatefulSetDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *StatefulSetDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{

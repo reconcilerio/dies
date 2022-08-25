@@ -94,7 +94,7 @@ func (d *CertificateSigningRequestDie) DieReleasePtr() *certificatesv1.Certifica
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *CertificateSigningRequestDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *CertificateSigningRequestDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
