@@ -94,7 +94,7 @@ func (d *CustomResourceDefinitionDie) DieReleasePtr() *apiextensionsv1.CustomRes
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *CustomResourceDefinitionDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *CustomResourceDefinitionDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{

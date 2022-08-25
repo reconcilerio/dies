@@ -281,7 +281,7 @@ func (c *copyMethodMaker) generateDieReleaseMethodFor(die Die) {
 	if die.Object {
 		c.Linef("")
 		c.Linef("// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.")
-		c.Linef("func (d *%s) DieReleaseUnstructured() %s {", die.Type, c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "Unstructured"))
+		c.Linef("func (d *%s) DieReleaseUnstructured() *%s {", die.Type, c.AliasedRef("k8s.io/apimachinery/pkg/apis/meta/v1/unstructured", "Unstructured"))
 		c.Linef("	r := d.DieReleasePtr()")
 		c.Linef("	u, _ := %s.ToUnstructured(r)", c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "DefaultUnstructuredConverter"))
 		c.Linef("	return &%s{", c.AliasedRef("k8s.io/apimachinery/pkg/apis/meta/v1/unstructured", "Unstructured"))

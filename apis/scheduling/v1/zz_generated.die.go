@@ -95,7 +95,7 @@ func (d *PriorityClassDie) DieReleasePtr() *schedulingv1.PriorityClass {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *PriorityClassDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *PriorityClassDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{

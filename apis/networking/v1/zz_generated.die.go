@@ -97,7 +97,7 @@ func (d *IngressDie) DieReleasePtr() *networkingv1.Ingress {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *IngressDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *IngressDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -1168,7 +1168,7 @@ func (d *IngressClassDie) DieReleasePtr() *networkingv1.IngressClass {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *IngressClassDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *IngressClassDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -1549,7 +1549,7 @@ func (d *NetworkPolicyDie) DieReleasePtr() *networkingv1.NetworkPolicy {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *NetworkPolicyDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *NetworkPolicyDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{

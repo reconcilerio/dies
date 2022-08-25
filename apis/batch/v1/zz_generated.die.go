@@ -97,7 +97,7 @@ func (d *CronJobDie) DieReleasePtr() *batchv1.CronJob {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *CronJobDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *CronJobDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -522,7 +522,7 @@ func (d *JobDie) DieReleasePtr() *batchv1.Job {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *JobDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *JobDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{

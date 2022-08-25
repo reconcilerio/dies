@@ -95,7 +95,7 @@ func (d *ClusterRoleDie) DieReleasePtr() *rbacv1.ClusterRole {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *ClusterRoleDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *ClusterRoleDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -348,7 +348,7 @@ func (d *ClusterRoleBindingDie) DieReleasePtr() *rbacv1.ClusterRoleBinding {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *ClusterRoleBindingDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *ClusterRoleBindingDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -510,7 +510,7 @@ func (d *RoleDie) DieReleasePtr() *rbacv1.Role {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *RoleDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *RoleDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -784,7 +784,7 @@ func (d *RoleBindingDie) DieReleasePtr() *rbacv1.RoleBinding {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *RoleBindingDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *RoleBindingDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{

@@ -95,7 +95,7 @@ func (d *HorizontalPodAutoscalerDie) DieReleasePtr() *autoscalingv1.HorizontalPo
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *HorizontalPodAutoscalerDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *HorizontalPodAutoscalerDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{

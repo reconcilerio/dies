@@ -94,7 +94,7 @@ func (d *FlowSchemaDie) DieReleasePtr() *flowcontrolv1beta1.FlowSchema {
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *FlowSchemaDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *FlowSchemaDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{
@@ -1373,7 +1373,7 @@ func (d *PriorityLevelConfigurationDie) DieReleasePtr() *flowcontrolv1beta1.Prio
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
-func (d *PriorityLevelConfigurationDie) DieReleaseUnstructured() runtime.Unstructured {
+func (d *PriorityLevelConfigurationDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	return &unstructured.Unstructured{

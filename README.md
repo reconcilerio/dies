@@ -173,7 +173,7 @@ type MyResourceDie interface {
 
     // DieReleaseUnstructured returns the resource managed by the die as an
     // unstructured object.
-    DieReleaseUnstructured() runtime.Unstructured
+    DieReleaseUnstructured() *unstructured.Unstructured
 
     // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
     MetadataDie(fn func(d *diemetav1.ObjectMetaDie)) *MyResourceDie
