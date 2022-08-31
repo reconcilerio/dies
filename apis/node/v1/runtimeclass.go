@@ -31,6 +31,9 @@ type _ = nodev1.Overhead
 
 func (d *OverheadDie) AddPodFixed(name corev1.ResourceName, quantity resource.Quantity) *OverheadDie {
 	return d.DieStamp(func(r *nodev1.Overhead) {
+		if r.PodFixed == nil {
+			r.PodFixed = corev1.ResourceList{}
+		}
 		r.PodFixed[name] = quantity
 	})
 }
