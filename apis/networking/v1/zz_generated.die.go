@@ -1099,9 +1099,310 @@ func (d *IngressStatusDie) DeepCopy() *IngressStatusDie {
 }
 
 // LoadBalancer contains the current status of the load-balancer.
-func (d *IngressStatusDie) LoadBalancer(v corev1.LoadBalancerStatus) *IngressStatusDie {
+func (d *IngressStatusDie) LoadBalancer(v networkingv1.IngressLoadBalancerStatus) *IngressStatusDie {
 	return d.DieStamp(func(r *networkingv1.IngressStatus) {
 		r.LoadBalancer = v
+	})
+}
+
+var IngressLoadBalancerStatusBlank = (&IngressLoadBalancerStatusDie{}).DieFeed(networkingv1.IngressLoadBalancerStatus{})
+
+type IngressLoadBalancerStatusDie struct {
+	mutable bool
+	r       networkingv1.IngressLoadBalancerStatus
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *IngressLoadBalancerStatusDie) DieImmutable(immutable bool) *IngressLoadBalancerStatusDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *IngressLoadBalancerStatusDie) DieFeed(r networkingv1.IngressLoadBalancerStatus) *IngressLoadBalancerStatusDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &IngressLoadBalancerStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *IngressLoadBalancerStatusDie) DieFeedPtr(r *networkingv1.IngressLoadBalancerStatus) *IngressLoadBalancerStatusDie {
+	if r == nil {
+		r = &networkingv1.IngressLoadBalancerStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressLoadBalancerStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *IngressLoadBalancerStatusDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.IngressLoadBalancerStatus{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *IngressLoadBalancerStatusDie) DieRelease() networkingv1.IngressLoadBalancerStatus {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *IngressLoadBalancerStatusDie) DieReleasePtr() *networkingv1.IngressLoadBalancerStatus {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressLoadBalancerStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *IngressLoadBalancerStatusDie) DieStamp(fn func(r *networkingv1.IngressLoadBalancerStatus)) *IngressLoadBalancerStatusDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *IngressLoadBalancerStatusDie) DeepCopy() *IngressLoadBalancerStatusDie {
+	r := *d.r.DeepCopy()
+	return &IngressLoadBalancerStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Ingress is a list containing ingress points for the load-balancer.
+func (d *IngressLoadBalancerStatusDie) Ingress(v ...networkingv1.IngressLoadBalancerIngress) *IngressLoadBalancerStatusDie {
+	return d.DieStamp(func(r *networkingv1.IngressLoadBalancerStatus) {
+		r.Ingress = v
+	})
+}
+
+var IngressLoadBalancerIngressBlank = (&IngressLoadBalancerIngressDie{}).DieFeed(networkingv1.IngressLoadBalancerIngress{})
+
+type IngressLoadBalancerIngressDie struct {
+	mutable bool
+	r       networkingv1.IngressLoadBalancerIngress
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *IngressLoadBalancerIngressDie) DieImmutable(immutable bool) *IngressLoadBalancerIngressDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *IngressLoadBalancerIngressDie) DieFeed(r networkingv1.IngressLoadBalancerIngress) *IngressLoadBalancerIngressDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &IngressLoadBalancerIngressDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *IngressLoadBalancerIngressDie) DieFeedPtr(r *networkingv1.IngressLoadBalancerIngress) *IngressLoadBalancerIngressDie {
+	if r == nil {
+		r = &networkingv1.IngressLoadBalancerIngress{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressLoadBalancerIngressDie) DieFeedRawExtension(raw runtime.RawExtension) *IngressLoadBalancerIngressDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.IngressLoadBalancerIngress{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *IngressLoadBalancerIngressDie) DieRelease() networkingv1.IngressLoadBalancerIngress {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *IngressLoadBalancerIngressDie) DieReleasePtr() *networkingv1.IngressLoadBalancerIngress {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressLoadBalancerIngressDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *IngressLoadBalancerIngressDie) DieStamp(fn func(r *networkingv1.IngressLoadBalancerIngress)) *IngressLoadBalancerIngressDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *IngressLoadBalancerIngressDie) DeepCopy() *IngressLoadBalancerIngressDie {
+	r := *d.r.DeepCopy()
+	return &IngressLoadBalancerIngressDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// IP is set for load-balancer ingress points that are IP based.
+func (d *IngressLoadBalancerIngressDie) IP(v string) *IngressLoadBalancerIngressDie {
+	return d.DieStamp(func(r *networkingv1.IngressLoadBalancerIngress) {
+		r.IP = v
+	})
+}
+
+// Hostname is set for load-balancer ingress points that are DNS based.
+func (d *IngressLoadBalancerIngressDie) Hostname(v string) *IngressLoadBalancerIngressDie {
+	return d.DieStamp(func(r *networkingv1.IngressLoadBalancerIngress) {
+		r.Hostname = v
+	})
+}
+
+// Ports provides information about the ports exposed by this LoadBalancer.
+func (d *IngressLoadBalancerIngressDie) Ports(v ...networkingv1.IngressPortStatus) *IngressLoadBalancerIngressDie {
+	return d.DieStamp(func(r *networkingv1.IngressLoadBalancerIngress) {
+		r.Ports = v
+	})
+}
+
+var IngressPortStatusBlank = (&IngressPortStatusDie{}).DieFeed(networkingv1.IngressPortStatus{})
+
+type IngressPortStatusDie struct {
+	mutable bool
+	r       networkingv1.IngressPortStatus
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *IngressPortStatusDie) DieImmutable(immutable bool) *IngressPortStatusDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *IngressPortStatusDie) DieFeed(r networkingv1.IngressPortStatus) *IngressPortStatusDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &IngressPortStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *IngressPortStatusDie) DieFeedPtr(r *networkingv1.IngressPortStatus) *IngressPortStatusDie {
+	if r == nil {
+		r = &networkingv1.IngressPortStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressPortStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *IngressPortStatusDie {
+	b, _ := json.Marshal(raw)
+	r := networkingv1.IngressPortStatus{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *IngressPortStatusDie) DieRelease() networkingv1.IngressPortStatus {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *IngressPortStatusDie) DieReleasePtr() *networkingv1.IngressPortStatus {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *IngressPortStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *IngressPortStatusDie) DieStamp(fn func(r *networkingv1.IngressPortStatus)) *IngressPortStatusDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *IngressPortStatusDie) DeepCopy() *IngressPortStatusDie {
+	r := *d.r.DeepCopy()
+	return &IngressPortStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Port is the port number of the ingress port.
+func (d *IngressPortStatusDie) Port(v int32) *IngressPortStatusDie {
+	return d.DieStamp(func(r *networkingv1.IngressPortStatus) {
+		r.Port = v
+	})
+}
+
+// Protocol is the protocol of the ingress port. The supported values are: "TCP", "UDP", "SCTP"
+func (d *IngressPortStatusDie) Protocol(v corev1.Protocol) *IngressPortStatusDie {
+	return d.DieStamp(func(r *networkingv1.IngressPortStatus) {
+		r.Protocol = v
+	})
+}
+
+// Error is to record the problem with the service port The format of the error shall comply with the following rules: - built-in error values shall be specified in this file and those shall use CamelCase names - cloud provider specific error values must have names that comply with the format foo.example.com/CamelCase. --- The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+func (d *IngressPortStatusDie) Error(v *string) *IngressPortStatusDie {
+	return d.DieStamp(func(r *networkingv1.IngressPortStatus) {
+		r.Error = v
 	})
 }
 
@@ -2286,14 +2587,14 @@ func (d *IPBlockDie) DeepCopy() *IPBlockDie {
 	}
 }
 
-// CIDR is a string representing the IP Block Valid examples are "192.168.1.1/24" or "2001:db9::/64"
+// CIDR is a string representing the IP Block Valid examples are "192.168.1.0/24" or "2001:db8::/64"
 func (d *IPBlockDie) CIDR(v string) *IPBlockDie {
 	return d.DieStamp(func(r *networkingv1.IPBlock) {
 		r.CIDR = v
 	})
 }
 
-// Except is a slice of CIDRs that should not be included within an IP Block Valid examples are "192.168.1.1/24" or "2001:db9::/64" Except values will be rejected if they are outside the CIDR range
+// Except is a slice of CIDRs that should not be included within an IP Block Valid examples are "192.168.1.0/24" or "2001:db8::/64" Except values will be rejected if they are outside the CIDR range
 func (d *IPBlockDie) Except(v ...string) *IPBlockDie {
 	return d.DieStamp(func(r *networkingv1.IPBlock) {
 		r.Except = v

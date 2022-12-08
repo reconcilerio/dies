@@ -1933,7 +1933,7 @@ func (d *ReplicaSetStatusDie) DeepCopy() *ReplicaSetStatusDie {
 	}
 }
 
-// Replicas is the most recently oberved number of replicas. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/#what-is-a-replicationcontroller
+// Replicas is the most recently observed number of replicas. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/#what-is-a-replicationcontroller
 func (d *ReplicaSetStatusDie) Replicas(v int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.Replicas = v
@@ -2253,7 +2253,7 @@ func (d *StatefulSetSpecDie) Selector(v *apismetav1.LabelSelector) *StatefulSetS
 	})
 }
 
-// template is the object that describes the pod that will be created if insufficient replicas are detected. Each pod stamped out by the StatefulSet will fulfill this Template, but have a unique identity from the rest of the StatefulSet.
+// template is the object that describes the pod that will be created if insufficient replicas are detected. Each pod stamped out by the StatefulSet will fulfill this Template, but have a unique identity from the rest of the StatefulSet. Each pod will be named with the format <statefulsetname>-<podindex>. For example, a pod in a StatefulSet named "web" with index number "3" would be named "web-3".
 func (d *StatefulSetSpecDie) Template(v corev1.PodTemplateSpec) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.Template = v
@@ -2306,6 +2306,13 @@ func (d *StatefulSetSpecDie) MinReadySeconds(v int32) *StatefulSetSpecDie {
 func (d *StatefulSetSpecDie) PersistentVolumeClaimRetentionPolicy(v *appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.PersistentVolumeClaimRetentionPolicy = v
+	})
+}
+
+// ordinals controls the numbering of replica indices in a StatefulSet. The default ordinals behavior assigns a "0" index to the first replica and increments the index by one for each additional replica requested. Using the ordinals field requires the StatefulSetStartOrdinal feature gate to be enabled, which is alpha.
+func (d *StatefulSetSpecDie) Ordinals(v *appsv1.StatefulSetOrdinals) *StatefulSetSpecDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
+		r.Ordinals = v
 	})
 }
 
@@ -2614,6 +2621,97 @@ func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) WhenDeleted(v appsv
 func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) WhenScaled(v appsv1.PersistentVolumeClaimRetentionPolicyType) *StatefulSetPersistentVolumeClaimRetentionPolicyDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy) {
 		r.WhenScaled = v
+	})
+}
+
+var StatefulSetOrdinalsBlank = (&StatefulSetOrdinalsDie{}).DieFeed(appsv1.StatefulSetOrdinals{})
+
+type StatefulSetOrdinalsDie struct {
+	mutable bool
+	r       appsv1.StatefulSetOrdinals
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *StatefulSetOrdinalsDie) DieImmutable(immutable bool) *StatefulSetOrdinalsDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *StatefulSetOrdinalsDie) DieFeed(r appsv1.StatefulSetOrdinals) *StatefulSetOrdinalsDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &StatefulSetOrdinalsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *StatefulSetOrdinalsDie) DieFeedPtr(r *appsv1.StatefulSetOrdinals) *StatefulSetOrdinalsDie {
+	if r == nil {
+		r = &appsv1.StatefulSetOrdinals{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension.
+func (d *StatefulSetOrdinalsDie) DieFeedRawExtension(raw runtime.RawExtension) *StatefulSetOrdinalsDie {
+	b, _ := json.Marshal(raw)
+	r := appsv1.StatefulSetOrdinals{}
+	_ = json.Unmarshal(b, &r)
+	return d.DieFeed(r)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *StatefulSetOrdinalsDie) DieRelease() appsv1.StatefulSetOrdinals {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *StatefulSetOrdinalsDie) DieReleasePtr() *appsv1.StatefulSetOrdinals {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
+func (d *StatefulSetOrdinalsDie) DieReleaseRawExtension() runtime.RawExtension {
+	r := d.DieReleasePtr()
+	b, _ := json.Marshal(r)
+	raw := runtime.RawExtension{}
+	_ = json.Unmarshal(b, &raw)
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *StatefulSetOrdinalsDie) DieStamp(fn func(r *appsv1.StatefulSetOrdinals)) *StatefulSetOrdinalsDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *StatefulSetOrdinalsDie) DeepCopy() *StatefulSetOrdinalsDie {
+	r := *d.r.DeepCopy()
+	return &StatefulSetOrdinalsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// start is the number representing the first replica's index. It may be used to number replicas from an alternate index (eg: 1-indexed) over the default 0-indexed names, or to orchestrate progressive movement of replicas from one StatefulSet to another. If set, replica indices will be in the range: [.spec.ordinals.start, .spec.ordinals.start + .spec.replicas). If unset, defaults to 0. Replica indices will be in the range: [0, .spec.replicas).
+func (d *StatefulSetOrdinalsDie) Start(v int32) *StatefulSetOrdinalsDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetOrdinals) {
+		r.Start = v
 	})
 }
 
