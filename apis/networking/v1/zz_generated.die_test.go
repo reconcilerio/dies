@@ -116,6 +116,33 @@ func TestIngressStatusDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestIngressLoadBalancerStatusDie_MissingMethods(t *testingx.T) {
+	die := IngressLoadBalancerStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for IngressLoadBalancerStatusDie: %s", diff.List())
+	}
+}
+
+func TestIngressLoadBalancerIngressDie_MissingMethods(t *testingx.T) {
+	die := IngressLoadBalancerIngressBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for IngressLoadBalancerIngressDie: %s", diff.List())
+	}
+}
+
+func TestIngressPortStatusDie_MissingMethods(t *testingx.T) {
+	die := IngressPortStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for IngressPortStatusDie: %s", diff.List())
+	}
+}
+
 func TestIngressClassDie_MissingMethods(t *testingx.T) {
 	die := IngressClassBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}

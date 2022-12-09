@@ -126,10 +126,37 @@ func (d *HTTPIngressPathDie) BackendDie(fn func(d *IngressBackendDie)) *HTTPIngr
 // +die
 type IngressStatus = networkingv1.IngressStatus
 
-func (d *IngressStatusDie) LoadBalancerDie(fn func(d *diecorev1.LoadBalancerStatusDie)) *IngressStatusDie {
+func (d *IngressStatusDie) LoadBalancerDie(fn func(d *IngressLoadBalancerStatusDie)) *IngressStatusDie {
 	return d.DieStamp(func(r *networkingv1.IngressStatus) {
-		d := diecorev1.LoadBalancerStatusBlank.DieImmutable(false).DieFeed(r.LoadBalancer)
+		d := IngressLoadBalancerStatusBlank.DieImmutable(false).DieFeed(r.LoadBalancer)
 		fn(d)
 		r.LoadBalancer = d.DieRelease()
 	})
 }
+
+// +die
+type IngressLoadBalancerStatus = networkingv1.IngressLoadBalancerStatus
+
+func (d *IngressLoadBalancerStatusDie) IngressDie(ingress ...*IngressLoadBalancerIngressDie) *IngressLoadBalancerStatusDie {
+	return d.DieStamp(func(r *networkingv1.IngressLoadBalancerStatus) {
+		r.Ingress = make([]networkingv1.IngressLoadBalancerIngress, len(ingress))
+		for i := range ingress {
+			r.Ingress[i] = ingress[i].DieRelease()
+		}
+	})
+}
+
+// +die
+type IngressLoadBalancerIngress = networkingv1.IngressLoadBalancerIngress
+
+func (d *IngressLoadBalancerIngressDie) PortsDie(ports ...*IngressPortStatusDie) *IngressLoadBalancerIngressDie {
+	return d.DieStamp(func(r *networkingv1.IngressLoadBalancerIngress) {
+		r.Ports = make([]networkingv1.IngressPortStatus, len(ports))
+		for i := range ports {
+			r.Ports[i] = ports[i].DieRelease()
+		}
+	})
+}
+
+// +die
+type IngressPortStatus = networkingv1.IngressPortStatus

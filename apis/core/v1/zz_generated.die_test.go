@@ -62,6 +62,15 @@ func TestTypedLocalObjectReferenceDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestTypedObjectReferenceDie_MissingMethods(t *testingx.T) {
+	die := TypedObjectReferenceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for TypedObjectReferenceDie: %s", diff.List())
+	}
+}
+
 func TestSecretReferenceDie_MissingMethods(t *testingx.T) {
 	die := SecretReferenceBlank
 	ignore := []string{}
@@ -212,6 +221,15 @@ func TestResourceRequirementsDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for ResourceRequirementsDie: %s", diff.List())
+	}
+}
+
+func TestResourceClaimDie_MissingMethods(t *testingx.T) {
+	die := ResourceClaimBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ResourceClaimDie: %s", diff.List())
 	}
 }
 
@@ -851,6 +869,33 @@ func TestPodSpecDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for PodSpecDie: %s", diff.List())
+	}
+}
+
+func TestPodSchedulingGateDie_MissingMethods(t *testingx.T) {
+	die := PodSchedulingGateBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PodSchedulingGateDie: %s", diff.List())
+	}
+}
+
+func TestPodResourceClaimDie_MissingMethods(t *testingx.T) {
+	die := PodResourceClaimBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PodResourceClaimDie: %s", diff.List())
+	}
+}
+
+func TestClaimSourceDie_MissingMethods(t *testingx.T) {
+	die := ClaimSourceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ClaimSourceDie: %s", diff.List())
 	}
 }
 

@@ -408,7 +408,7 @@ func (d *CrossVersionObjectReferenceDie) DeepCopy() *CrossVersionObjectReference
 	}
 }
 
-// Kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
+// Kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
 func (d *CrossVersionObjectReferenceDie) Kind(v string) *CrossVersionObjectReferenceDie {
 	return d.DieStamp(func(r *autoscalingv1.CrossVersionObjectReference) {
 		r.Kind = v
