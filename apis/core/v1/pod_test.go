@@ -34,9 +34,10 @@ func TestPod(t *testing.T) {
 	}
 
 	tests := []struct {
-		name     string
-		die      *diecorev1.PodDie
-		expected corev1.Pod
+		name         string
+		die          *diecorev1.PodDie
+		yamlFilePath string
+		expected     corev1.Pod
 	}{
 		{
 			name:     "empty",
@@ -326,10 +327,39 @@ func TestPod(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:         "load from yaml",
+			yamlFilePath: "testdata/pod.yaml",
+			expected: corev1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: "v1",
+					Kind:       "Pod",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "nginx",
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  "nginx",
+							Image: "nginx:1.14.2",
+							Ports: []corev1.ContainerPort{
+								{
+									ContainerPort: 80,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, c := range tests {
 		t.Run(c.name, func(t *testing.T) {
+			if name := c.yamlFilePath; name != "" {
+				c.die = diecorev1.PodBlank.DieFeedYAMLFile(name)
+			}
 			actual := c.die.DieRelease()
 			if diff := cmp.Diff(c.expected, actual); diff != "" {
 				t.Errorf("(-expected, +actual): %s", diff)

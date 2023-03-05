@@ -141,7 +141,7 @@ type copyMethodMaker struct {
 	*importsList
 	*codeWriter
 	test *copyMethodMaker
-	dies sets.String
+	dies sets.Set[string]
 }
 
 func (c *copyMethodMaker) GenerateMethodsFor(die Die, fields []Field) {
@@ -253,13 +253,45 @@ func (c *copyMethodMaker) generateDieFeedMethodFor(die Die) {
 	c.Linef("	}")
 	c.Linef("	return d.DieFeed(*r)")
 	c.Linef("}")
+
 	c.Linef("")
-	c.Linef("// DieFeedRawExtension returns the resource managed by the die as an raw extension.")
-	c.Linef("func (d *%s) DieFeedRawExtension(raw %s) *%s {", die.Type, c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "RawExtension"), die.Type)
-	c.Linef("	b, _ := %s(raw)", c.AliasedRef("encoding/json", "Marshal"))
+	c.Linef("// DieFeedJSON returns a new die with the provided JSON. Panics on error.")
+	c.Linef("func (d *%s) DieFeedJSON(j []byte) *%s {", die.Type, die.Type)
 	c.Linef("	r := %s{}", c.AliasedRef(die.TargetPackage, die.TargetType))
-	c.Linef("	_ = %s(b, &r)", c.AliasedRef("encoding/json", "Unmarshal"))
+	c.Linef("	if err := %s(j, &r); err != nil {", c.AliasedRef("encoding/json", "Unmarshal"))
+	c.Linef("		panic(err)")
+	c.Linef("	}")
 	c.Linef("	return d.DieFeed(r)")
+	c.Linef("}")
+
+	c.Linef("")
+	c.Linef("// DieFeedYAML returns a new die with the provided YAML. Panics on error.")
+	c.Linef("func (d *%s) DieFeedYAML(y []byte) *%s {", die.Type, die.Type)
+	c.Linef("	r := %s{}", c.AliasedRef(die.TargetPackage, die.TargetType))
+	c.Linef("	if err := %s(y, &r); err != nil {", c.AliasedRef("sigs.k8s.io/yaml", "Unmarshal"))
+	c.Linef("		panic(err)")
+	c.Linef("	}")
+	c.Linef("	return d.DieFeed(r)")
+	c.Linef("}")
+
+	c.Linef("")
+	c.Linef("// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.")
+	c.Linef("func (d *%s) DieFeedYAMLFile(name string) *%s {", die.Type, die.Type)
+	c.Linef("	y, err := %s(name)", c.AliasedRef("os", "ReadFile"))
+	c.Linef("	if err != nil {")
+	c.Linef("		panic(err)")
+	c.Linef("	}")
+	c.Linef("	return d.DieFeedYAML(y)")
+	c.Linef("}")
+
+	c.Linef("")
+	c.Linef("// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.")
+	c.Linef("func (d *%s) DieFeedRawExtension(raw %s) *%s {", die.Type, c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "RawExtension"), die.Type)
+	c.Linef("	j, err := %s(raw)", c.AliasedRef("encoding/json", "Marshal"))
+	c.Linef("	if err != nil {")
+	c.Linef("		panic(err)")
+	c.Linef("	}")
+	c.Linef("	return d.DieFeedJSON(j)")
 	c.Linef("}")
 }
 
@@ -272,6 +304,7 @@ func (c *copyMethodMaker) generateDieReleaseMethodFor(die Die) {
 	c.Linef("	}")
 	c.Linef("	return *d.r.DeepCopy()")
 	c.Linef("}")
+
 	c.Linef("")
 	c.Linef("// DieReleasePtr returns a pointer to the resource managed by the die.")
 	c.Linef("func (d *%s) DieReleasePtr() *%s {", die.Type, c.AliasedRef(die.TargetPackage, die.TargetType))
@@ -280,22 +313,49 @@ func (c *copyMethodMaker) generateDieReleaseMethodFor(die Die) {
 	c.Linef("}")
 	if die.Object {
 		c.Linef("")
-		c.Linef("// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.")
+		c.Linef("// DieReleaseUnstructured returns the resource managed by the die as an unstructured object. Panics on error.")
 		c.Linef("func (d *%s) DieReleaseUnstructured() *%s {", die.Type, c.AliasedRef("k8s.io/apimachinery/pkg/apis/meta/v1/unstructured", "Unstructured"))
 		c.Linef("	r := d.DieReleasePtr()")
-		c.Linef("	u, _ := %s.ToUnstructured(r)", c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "DefaultUnstructuredConverter"))
+		c.Linef("	u, err := %s.ToUnstructured(r)", c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "DefaultUnstructuredConverter"))
+		c.Linef("	if err != nil {")
+		c.Linef("		panic(err)")
+		c.Linef("	}")
 		c.Linef("	return &%s{", c.AliasedRef("k8s.io/apimachinery/pkg/apis/meta/v1/unstructured", "Unstructured"))
 		c.Linef("		Object: u,")
 		c.Linef("	}")
 		c.Linef("}")
 	}
+
 	c.Linef("")
-	c.Linef("// DieReleaseRawExtension returns the resource managed by the die as an raw extension.")
-	c.Linef("func (d *%s) DieReleaseRawExtension() %s {", die.Type, c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "RawExtension"))
+	c.Linef("// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.")
+	c.Linef("func (d *%s) DieReleaseJSON() []byte {", die.Type)
 	c.Linef("	r := d.DieReleasePtr()")
-	c.Linef("	b, _ := %s(r)", c.AliasedRef("encoding/json", "Marshal"))
+	c.Linef("	j, err := %s(r)", c.AliasedRef("encoding/json", "Marshal"))
+	c.Linef("	if err != nil {")
+	c.Linef("		panic(err)")
+	c.Linef("	}")
+	c.Linef("	return j")
+	c.Linef("}")
+
+	c.Linef("")
+	c.Linef("// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.")
+	c.Linef("func (d *%s) DieReleaseYAML() []byte {", die.Type)
+	c.Linef("	r := d.DieReleasePtr()")
+	c.Linef("	y, err := %s(r)", c.AliasedRef("sigs.k8s.io/yaml", "Marshal"))
+	c.Linef("	if err != nil {")
+	c.Linef("		panic(err)")
+	c.Linef("	}")
+	c.Linef("	return y")
+	c.Linef("}")
+
+	c.Linef("")
+	c.Linef("// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.")
+	c.Linef("func (d *%s) DieReleaseRawExtension() %s {", die.Type, c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "RawExtension"))
+	c.Linef("	j := d.DieReleaseJSON()")
 	c.Linef("	raw := %s{}", c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "RawExtension"))
-	c.Linef("	_ = %s(b, &raw)", c.AliasedRef("encoding/json", "Unmarshal"))
+	c.Linef("	if err := %s(j, &raw); err != nil {", c.AliasedRef("encoding/json", "Unmarshal"))
+	c.Linef("		panic(err)")
+	c.Linef("	}")
 	c.Linef("	return raw")
 	c.Linef("}")
 }
@@ -347,6 +407,7 @@ func (c *copyMethodMaker) generateRuntimeObjectMethodsFor(die Die) {
 	c.Linef("func (d *%s) DeepCopyObject() %s {", die.Type, c.AliasedRef("k8s.io/apimachinery/pkg/runtime", "Object"))
 	c.Linef("	return d.r.DeepCopy()")
 	c.Linef("}")
+
 	c.Linef("")
 	c.Linef("func (d *%s) GetObjectKind() %s {", die.Type, c.AliasedRef("k8s.io/apimachinery/pkg/runtime/schema", "ObjectKind"))
 	c.Linef("	r := d.DieRelease()")
@@ -359,6 +420,7 @@ func (c *copyMethodMaker) generateJSONMethodsFor(die Die) {
 	c.Linef("func (d *%s) MarshalJSON() ([]byte, error) {", die.Type)
 	c.Linef("	return %s(d.r)", c.AliasedRef("encoding/json", "Marshal"))
 	c.Linef("}")
+
 	c.Linef("")
 	c.Linef("func (d *%s) UnmarshalJSON(b []byte) error {", die.Type)
 	c.Linef("	if d == %s {", die.Blank)
