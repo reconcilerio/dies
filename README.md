@@ -122,7 +122,16 @@ type MyResourceDie interface {
     // resource is nil, the empty value is used instead.
     DieFeedPtr(r *MyResource) *MyResourceDie
 
-    // DieFeedRawExtension returns a new die with the provided raw extension.
+    // DieFeedJSON returns a new die with the provided JSON. Panics on error.
+    DieFeedJSON(j []byte) *MyResourceDie
+
+    // DieFeedYAML returns a new die with the provided YAML. Panics on error.
+    DieFeedYAML(y []byte) *MyResourceDie
+
+    // DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+    DieFeedYAMLFile(name string) *MyResourceDie
+
+    // DieFeedRawExtension returns a new die with the provided raw extension. Panics on error.
     DieFeedRawExtension(raw runtime.RawExtension) *MyResourceDie
 
     // DieRelease returns the resource managed by the die.
@@ -131,8 +140,14 @@ type MyResourceDie interface {
     // DieReleasePtr returns a pointer to the resource managed by the die.
     DieReleasePtr() *MyResource
 
+    // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+    DieReleaseJSON() []byte
+
+    // DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+    DieReleaseYAML() []byte
+
     // DieReleaseRawExtension returns the resource managed by the die as an
-    // raw extension.
+    // raw extension. Panics on error.
     DieReleaseRawExtension() runtime.RawExtension
 
     // DieImmutable returns a new die for the current die's state that is

@@ -30,6 +30,8 @@ import (
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	osx "os"
+	yaml "sigs.k8s.io/yaml"
 )
 
 var RuntimeClassBlank = (&RuntimeClassDie{}).DieFeed(nodev1.RuntimeClass{})
@@ -72,12 +74,40 @@ func (d *RuntimeClassDie) DieFeedPtr(r *nodev1.RuntimeClass) *RuntimeClassDie {
 	return d.DieFeed(*r)
 }
 
-// DieFeedRawExtension returns the resource managed by the die as an raw extension.
-func (d *RuntimeClassDie) DieFeedRawExtension(raw runtime.RawExtension) *RuntimeClassDie {
-	b, _ := json.Marshal(raw)
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *RuntimeClassDie) DieFeedJSON(j []byte) *RuntimeClassDie {
 	r := nodev1.RuntimeClass{}
-	_ = json.Unmarshal(b, &r)
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
 	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *RuntimeClassDie) DieFeedYAML(y []byte) *RuntimeClassDie {
+	r := nodev1.RuntimeClass{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *RuntimeClassDie) DieFeedYAMLFile(name string) *RuntimeClassDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *RuntimeClassDie) DieFeedRawExtension(raw runtime.RawExtension) *RuntimeClassDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
 }
 
 // DieRelease returns the resource managed by the die.
@@ -94,21 +124,45 @@ func (d *RuntimeClassDie) DieReleasePtr() *nodev1.RuntimeClass {
 	return &r
 }
 
-// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+// DieReleaseUnstructured returns the resource managed by the die as an unstructured object. Panics on error.
 func (d *RuntimeClassDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
-	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	u, err := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	if err != nil {
+		panic(err)
+	}
 	return &unstructured.Unstructured{
 		Object: u,
 	}
 }
 
-// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
-func (d *RuntimeClassDie) DieReleaseRawExtension() runtime.RawExtension {
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *RuntimeClassDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
-	b, _ := json.Marshal(r)
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *RuntimeClassDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *RuntimeClassDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
-	_ = json.Unmarshal(b, &raw)
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
 	return raw
 }
 
@@ -238,12 +292,40 @@ func (d *OverheadDie) DieFeedPtr(r *nodev1.Overhead) *OverheadDie {
 	return d.DieFeed(*r)
 }
 
-// DieFeedRawExtension returns the resource managed by the die as an raw extension.
-func (d *OverheadDie) DieFeedRawExtension(raw runtime.RawExtension) *OverheadDie {
-	b, _ := json.Marshal(raw)
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *OverheadDie) DieFeedJSON(j []byte) *OverheadDie {
 	r := nodev1.Overhead{}
-	_ = json.Unmarshal(b, &r)
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
 	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *OverheadDie) DieFeedYAML(y []byte) *OverheadDie {
+	r := nodev1.Overhead{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *OverheadDie) DieFeedYAMLFile(name string) *OverheadDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *OverheadDie) DieFeedRawExtension(raw runtime.RawExtension) *OverheadDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
 }
 
 // DieRelease returns the resource managed by the die.
@@ -260,12 +342,33 @@ func (d *OverheadDie) DieReleasePtr() *nodev1.Overhead {
 	return &r
 }
 
-// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
-func (d *OverheadDie) DieReleaseRawExtension() runtime.RawExtension {
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *OverheadDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
-	b, _ := json.Marshal(r)
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *OverheadDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *OverheadDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
-	_ = json.Unmarshal(b, &raw)
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
 	return raw
 }
 
@@ -329,12 +432,40 @@ func (d *SchedulingDie) DieFeedPtr(r *nodev1.Scheduling) *SchedulingDie {
 	return d.DieFeed(*r)
 }
 
-// DieFeedRawExtension returns the resource managed by the die as an raw extension.
-func (d *SchedulingDie) DieFeedRawExtension(raw runtime.RawExtension) *SchedulingDie {
-	b, _ := json.Marshal(raw)
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *SchedulingDie) DieFeedJSON(j []byte) *SchedulingDie {
 	r := nodev1.Scheduling{}
-	_ = json.Unmarshal(b, &r)
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
 	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *SchedulingDie) DieFeedYAML(y []byte) *SchedulingDie {
+	r := nodev1.Scheduling{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *SchedulingDie) DieFeedYAMLFile(name string) *SchedulingDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SchedulingDie) DieFeedRawExtension(raw runtime.RawExtension) *SchedulingDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
 }
 
 // DieRelease returns the resource managed by the die.
@@ -351,12 +482,33 @@ func (d *SchedulingDie) DieReleasePtr() *nodev1.Scheduling {
 	return &r
 }
 
-// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
-func (d *SchedulingDie) DieReleaseRawExtension() runtime.RawExtension {
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *SchedulingDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
-	b, _ := json.Marshal(r)
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *SchedulingDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SchedulingDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
-	_ = json.Unmarshal(b, &raw)
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
 	return raw
 }
 

@@ -29,6 +29,8 @@ import (
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/kube-aggregator/pkg/apis/apiregistration"
+	osx "os"
+	yaml "sigs.k8s.io/yaml"
 )
 
 var APIServiceBlank = (&APIServiceDie{}).DieFeed(apiregistration.APIService{})
@@ -71,12 +73,40 @@ func (d *APIServiceDie) DieFeedPtr(r *apiregistration.APIService) *APIServiceDie
 	return d.DieFeed(*r)
 }
 
-// DieFeedRawExtension returns the resource managed by the die as an raw extension.
-func (d *APIServiceDie) DieFeedRawExtension(raw runtime.RawExtension) *APIServiceDie {
-	b, _ := json.Marshal(raw)
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *APIServiceDie) DieFeedJSON(j []byte) *APIServiceDie {
 	r := apiregistration.APIService{}
-	_ = json.Unmarshal(b, &r)
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
 	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *APIServiceDie) DieFeedYAML(y []byte) *APIServiceDie {
+	r := apiregistration.APIService{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *APIServiceDie) DieFeedYAMLFile(name string) *APIServiceDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *APIServiceDie) DieFeedRawExtension(raw runtime.RawExtension) *APIServiceDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
 }
 
 // DieRelease returns the resource managed by the die.
@@ -93,21 +123,45 @@ func (d *APIServiceDie) DieReleasePtr() *apiregistration.APIService {
 	return &r
 }
 
-// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+// DieReleaseUnstructured returns the resource managed by the die as an unstructured object. Panics on error.
 func (d *APIServiceDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
-	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	u, err := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	if err != nil {
+		panic(err)
+	}
 	return &unstructured.Unstructured{
 		Object: u,
 	}
 }
 
-// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
-func (d *APIServiceDie) DieReleaseRawExtension() runtime.RawExtension {
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *APIServiceDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
-	b, _ := json.Marshal(r)
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *APIServiceDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *APIServiceDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
-	_ = json.Unmarshal(b, &raw)
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
 	return raw
 }
 
@@ -248,12 +302,40 @@ func (d *APIServiceSpecDie) DieFeedPtr(r *apiregistration.APIServiceSpec) *APISe
 	return d.DieFeed(*r)
 }
 
-// DieFeedRawExtension returns the resource managed by the die as an raw extension.
-func (d *APIServiceSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *APIServiceSpecDie {
-	b, _ := json.Marshal(raw)
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *APIServiceSpecDie) DieFeedJSON(j []byte) *APIServiceSpecDie {
 	r := apiregistration.APIServiceSpec{}
-	_ = json.Unmarshal(b, &r)
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
 	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *APIServiceSpecDie) DieFeedYAML(y []byte) *APIServiceSpecDie {
+	r := apiregistration.APIServiceSpec{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *APIServiceSpecDie) DieFeedYAMLFile(name string) *APIServiceSpecDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *APIServiceSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *APIServiceSpecDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
 }
 
 // DieRelease returns the resource managed by the die.
@@ -270,12 +352,33 @@ func (d *APIServiceSpecDie) DieReleasePtr() *apiregistration.APIServiceSpec {
 	return &r
 }
 
-// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
-func (d *APIServiceSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *APIServiceSpecDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
-	b, _ := json.Marshal(r)
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *APIServiceSpecDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *APIServiceSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
-	_ = json.Unmarshal(b, &raw)
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
 	return raw
 }
 
@@ -381,12 +484,40 @@ func (d *ServiceReferenceDie) DieFeedPtr(r *apiregistration.ServiceReference) *S
 	return d.DieFeed(*r)
 }
 
-// DieFeedRawExtension returns the resource managed by the die as an raw extension.
-func (d *ServiceReferenceDie) DieFeedRawExtension(raw runtime.RawExtension) *ServiceReferenceDie {
-	b, _ := json.Marshal(raw)
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ServiceReferenceDie) DieFeedJSON(j []byte) *ServiceReferenceDie {
 	r := apiregistration.ServiceReference{}
-	_ = json.Unmarshal(b, &r)
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
 	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ServiceReferenceDie) DieFeedYAML(y []byte) *ServiceReferenceDie {
+	r := apiregistration.ServiceReference{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ServiceReferenceDie) DieFeedYAMLFile(name string) *ServiceReferenceDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ServiceReferenceDie) DieFeedRawExtension(raw runtime.RawExtension) *ServiceReferenceDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
 }
 
 // DieRelease returns the resource managed by the die.
@@ -403,12 +534,33 @@ func (d *ServiceReferenceDie) DieReleasePtr() *apiregistration.ServiceReference 
 	return &r
 }
 
-// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
-func (d *ServiceReferenceDie) DieReleaseRawExtension() runtime.RawExtension {
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ServiceReferenceDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
-	b, _ := json.Marshal(r)
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ServiceReferenceDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ServiceReferenceDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
-	_ = json.Unmarshal(b, &raw)
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
 	return raw
 }
 
@@ -486,12 +638,40 @@ func (d *APIServiceStatusDie) DieFeedPtr(r *apiregistration.APIServiceStatus) *A
 	return d.DieFeed(*r)
 }
 
-// DieFeedRawExtension returns the resource managed by the die as an raw extension.
-func (d *APIServiceStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *APIServiceStatusDie {
-	b, _ := json.Marshal(raw)
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *APIServiceStatusDie) DieFeedJSON(j []byte) *APIServiceStatusDie {
 	r := apiregistration.APIServiceStatus{}
-	_ = json.Unmarshal(b, &r)
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
 	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *APIServiceStatusDie) DieFeedYAML(y []byte) *APIServiceStatusDie {
+	r := apiregistration.APIServiceStatus{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *APIServiceStatusDie) DieFeedYAMLFile(name string) *APIServiceStatusDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *APIServiceStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *APIServiceStatusDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
 }
 
 // DieRelease returns the resource managed by the die.
@@ -508,12 +688,33 @@ func (d *APIServiceStatusDie) DieReleasePtr() *apiregistration.APIServiceStatus 
 	return &r
 }
 
-// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
-func (d *APIServiceStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *APIServiceStatusDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
-	b, _ := json.Marshal(r)
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *APIServiceStatusDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *APIServiceStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
-	_ = json.Unmarshal(b, &raw)
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
 	return raw
 }
 

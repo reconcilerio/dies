@@ -237,7 +237,7 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) ([]byte, []byt
 	testContent := new(bytes.Buffer)
 
 	dies := []Die{}
-	dieSet := sets.NewString()
+	dieSet := sets.New[string]()
 	fieldMap := map[string][]Field{}
 
 	if err := markers.EachType(ctx.Collector, root, func(info *markers.TypeInfo) {

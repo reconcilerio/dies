@@ -30,6 +30,8 @@ import (
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	osx "os"
+	yaml "sigs.k8s.io/yaml"
 )
 
 var HorizontalPodAutoscalerBlank = (&HorizontalPodAutoscalerDie{}).DieFeed(autoscalingv1.HorizontalPodAutoscaler{})
@@ -72,12 +74,40 @@ func (d *HorizontalPodAutoscalerDie) DieFeedPtr(r *autoscalingv1.HorizontalPodAu
 	return d.DieFeed(*r)
 }
 
-// DieFeedRawExtension returns the resource managed by the die as an raw extension.
-func (d *HorizontalPodAutoscalerDie) DieFeedRawExtension(raw runtime.RawExtension) *HorizontalPodAutoscalerDie {
-	b, _ := json.Marshal(raw)
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *HorizontalPodAutoscalerDie) DieFeedJSON(j []byte) *HorizontalPodAutoscalerDie {
 	r := autoscalingv1.HorizontalPodAutoscaler{}
-	_ = json.Unmarshal(b, &r)
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
 	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *HorizontalPodAutoscalerDie) DieFeedYAML(y []byte) *HorizontalPodAutoscalerDie {
+	r := autoscalingv1.HorizontalPodAutoscaler{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *HorizontalPodAutoscalerDie) DieFeedYAMLFile(name string) *HorizontalPodAutoscalerDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *HorizontalPodAutoscalerDie) DieFeedRawExtension(raw runtime.RawExtension) *HorizontalPodAutoscalerDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
 }
 
 // DieRelease returns the resource managed by the die.
@@ -94,21 +124,45 @@ func (d *HorizontalPodAutoscalerDie) DieReleasePtr() *autoscalingv1.HorizontalPo
 	return &r
 }
 
-// DieReleaseUnstructured returns the resource managed by the die as an unstructured object.
+// DieReleaseUnstructured returns the resource managed by the die as an unstructured object. Panics on error.
 func (d *HorizontalPodAutoscalerDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
-	u, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	u, err := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	if err != nil {
+		panic(err)
+	}
 	return &unstructured.Unstructured{
 		Object: u,
 	}
 }
 
-// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
-func (d *HorizontalPodAutoscalerDie) DieReleaseRawExtension() runtime.RawExtension {
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *HorizontalPodAutoscalerDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
-	b, _ := json.Marshal(r)
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *HorizontalPodAutoscalerDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *HorizontalPodAutoscalerDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
-	_ = json.Unmarshal(b, &raw)
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
 	return raw
 }
 
@@ -249,12 +303,40 @@ func (d *HorizontalPodAutoscalerSpecDie) DieFeedPtr(r *autoscalingv1.HorizontalP
 	return d.DieFeed(*r)
 }
 
-// DieFeedRawExtension returns the resource managed by the die as an raw extension.
-func (d *HorizontalPodAutoscalerSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *HorizontalPodAutoscalerSpecDie {
-	b, _ := json.Marshal(raw)
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *HorizontalPodAutoscalerSpecDie) DieFeedJSON(j []byte) *HorizontalPodAutoscalerSpecDie {
 	r := autoscalingv1.HorizontalPodAutoscalerSpec{}
-	_ = json.Unmarshal(b, &r)
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
 	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *HorizontalPodAutoscalerSpecDie) DieFeedYAML(y []byte) *HorizontalPodAutoscalerSpecDie {
+	r := autoscalingv1.HorizontalPodAutoscalerSpec{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *HorizontalPodAutoscalerSpecDie) DieFeedYAMLFile(name string) *HorizontalPodAutoscalerSpecDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *HorizontalPodAutoscalerSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *HorizontalPodAutoscalerSpecDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
 }
 
 // DieRelease returns the resource managed by the die.
@@ -271,12 +353,33 @@ func (d *HorizontalPodAutoscalerSpecDie) DieReleasePtr() *autoscalingv1.Horizont
 	return &r
 }
 
-// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
-func (d *HorizontalPodAutoscalerSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *HorizontalPodAutoscalerSpecDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
-	b, _ := json.Marshal(r)
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *HorizontalPodAutoscalerSpecDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *HorizontalPodAutoscalerSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
-	_ = json.Unmarshal(b, &raw)
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
 	return raw
 }
 
@@ -361,12 +464,40 @@ func (d *CrossVersionObjectReferenceDie) DieFeedPtr(r *autoscalingv1.CrossVersio
 	return d.DieFeed(*r)
 }
 
-// DieFeedRawExtension returns the resource managed by the die as an raw extension.
-func (d *CrossVersionObjectReferenceDie) DieFeedRawExtension(raw runtime.RawExtension) *CrossVersionObjectReferenceDie {
-	b, _ := json.Marshal(raw)
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *CrossVersionObjectReferenceDie) DieFeedJSON(j []byte) *CrossVersionObjectReferenceDie {
 	r := autoscalingv1.CrossVersionObjectReference{}
-	_ = json.Unmarshal(b, &r)
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
 	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *CrossVersionObjectReferenceDie) DieFeedYAML(y []byte) *CrossVersionObjectReferenceDie {
+	r := autoscalingv1.CrossVersionObjectReference{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *CrossVersionObjectReferenceDie) DieFeedYAMLFile(name string) *CrossVersionObjectReferenceDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *CrossVersionObjectReferenceDie) DieFeedRawExtension(raw runtime.RawExtension) *CrossVersionObjectReferenceDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
 }
 
 // DieRelease returns the resource managed by the die.
@@ -383,12 +514,33 @@ func (d *CrossVersionObjectReferenceDie) DieReleasePtr() *autoscalingv1.CrossVer
 	return &r
 }
 
-// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
-func (d *CrossVersionObjectReferenceDie) DieReleaseRawExtension() runtime.RawExtension {
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *CrossVersionObjectReferenceDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
-	b, _ := json.Marshal(r)
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *CrossVersionObjectReferenceDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *CrossVersionObjectReferenceDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
-	_ = json.Unmarshal(b, &raw)
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
 	return raw
 }
 
@@ -466,12 +618,40 @@ func (d *HorizontalPodAutoscalerStatusDie) DieFeedPtr(r *autoscalingv1.Horizonta
 	return d.DieFeed(*r)
 }
 
-// DieFeedRawExtension returns the resource managed by the die as an raw extension.
-func (d *HorizontalPodAutoscalerStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *HorizontalPodAutoscalerStatusDie {
-	b, _ := json.Marshal(raw)
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *HorizontalPodAutoscalerStatusDie) DieFeedJSON(j []byte) *HorizontalPodAutoscalerStatusDie {
 	r := autoscalingv1.HorizontalPodAutoscalerStatus{}
-	_ = json.Unmarshal(b, &r)
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
 	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *HorizontalPodAutoscalerStatusDie) DieFeedYAML(y []byte) *HorizontalPodAutoscalerStatusDie {
+	r := autoscalingv1.HorizontalPodAutoscalerStatus{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *HorizontalPodAutoscalerStatusDie) DieFeedYAMLFile(name string) *HorizontalPodAutoscalerStatusDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *HorizontalPodAutoscalerStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *HorizontalPodAutoscalerStatusDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
 }
 
 // DieRelease returns the resource managed by the die.
@@ -488,12 +668,33 @@ func (d *HorizontalPodAutoscalerStatusDie) DieReleasePtr() *autoscalingv1.Horizo
 	return &r
 }
 
-// DieReleaseRawExtension returns the resource managed by the die as an raw extension.
-func (d *HorizontalPodAutoscalerStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *HorizontalPodAutoscalerStatusDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
-	b, _ := json.Marshal(r)
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *HorizontalPodAutoscalerStatusDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *HorizontalPodAutoscalerStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
-	_ = json.Unmarshal(b, &raw)
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
 	return raw
 }
 
