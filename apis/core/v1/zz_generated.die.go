@@ -3707,7 +3707,7 @@ func (d *ResourceRequirementsDie) Requests(v corev1.ResourceList) *ResourceRequi
 //
 // This is an alpha field and requires enabling the DynamicResourceAllocation feature gate.
 //
-// This field is immutable.
+// This field is immutable. It can only be set for containers.
 func (d *ResourceRequirementsDie) Claims(v ...corev1.ResourceClaim) *ResourceRequirementsDie {
 	return d.DieStamp(func(r *corev1.ResourceRequirements) {
 		r.Claims = v
