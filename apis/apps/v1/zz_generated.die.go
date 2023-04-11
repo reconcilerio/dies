@@ -687,7 +687,7 @@ func (d *DaemonSetSpecDie) Selector(v *apismetav1.LabelSelector) *DaemonSetSpecD
 	})
 }
 
-// An object that describes the pod that will be created. The DaemonSet will create exactly one copy of this pod on every node that matches the template's node selector (or on every node if no node selector is specified). More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
+// An object that describes the pod that will be created. The DaemonSet will create exactly one copy of this pod on every node that matches the template's node selector (or on every node if no node selector is specified). The only allowed template.spec.restartPolicy value is "Always". More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
 func (d *DaemonSetSpecDie) Template(v corev1.PodTemplateSpec) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		r.Template = v
@@ -1724,7 +1724,7 @@ func (d *DeploymentSpecDie) Selector(v *apismetav1.LabelSelector) *DeploymentSpe
 	})
 }
 
-// Template describes the pods that will be created.
+// Template describes the pods that will be created. The only allowed template.spec.restartPolicy value is "Always".
 func (d *DeploymentSpecDie) Template(v corev1.PodTemplateSpec) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.Template = v
@@ -3392,7 +3392,7 @@ func (d *StatefulSetSpecDie) Selector(v *apismetav1.LabelSelector) *StatefulSetS
 	})
 }
 
-// template is the object that describes the pod that will be created if insufficient replicas are detected. Each pod stamped out by the StatefulSet will fulfill this Template, but have a unique identity from the rest of the StatefulSet. Each pod will be named with the format <statefulsetname>-<podindex>. For example, a pod in a StatefulSet named "web" with index number "3" would be named "web-3".
+// template is the object that describes the pod that will be created if insufficient replicas are detected. Each pod stamped out by the StatefulSet will fulfill this Template, but have a unique identity from the rest of the StatefulSet. Each pod will be named with the format <statefulsetname>-<podindex>. For example, a pod in a StatefulSet named "web" with index number "3" would be named "web-3". The only allowed template.spec.restartPolicy value is "Always".
 func (d *StatefulSetSpecDie) Template(v corev1.PodTemplateSpec) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.Template = v
@@ -3448,7 +3448,7 @@ func (d *StatefulSetSpecDie) PersistentVolumeClaimRetentionPolicy(v *appsv1.Stat
 	})
 }
 
-// ordinals controls the numbering of replica indices in a StatefulSet. The default ordinals behavior assigns a "0" index to the first replica and increments the index by one for each additional replica requested. Using the ordinals field requires the StatefulSetStartOrdinal feature gate to be enabled, which is alpha.
+// ordinals controls the numbering of replica indices in a StatefulSet. The default ordinals behavior assigns a "0" index to the first replica and increments the index by one for each additional replica requested. Using the ordinals field requires the StatefulSetStartOrdinal feature gate to be enabled, which is beta.
 func (d *StatefulSetSpecDie) Ordinals(v *appsv1.StatefulSetOrdinals) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.Ordinals = v

@@ -63,3 +63,6 @@ func (d *RuleWithOperationsDie) Scope(v *admissionregistrationv1.ScopeType) *Rul
 
 // +die
 type _ admissionregistrationv1.Rule
+
+// +die
+type _ = admissionregistrationv1.MatchCondition

@@ -257,7 +257,7 @@ func (d *PriorityClassDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Priori
 	})
 }
 
-// The value of this priority class. This is the actual priority that pods receive when they have the name of this class in their pod spec.
+// value represents the integer value of this priority class. This is the actual priority that pods receive when they have the name of this class in their pod spec.
 func (d *PriorityClassDie) Value(v int32) *PriorityClassDie {
 	return d.DieStamp(func(r *schedulingv1.PriorityClass) {
 		r.Value = v
@@ -278,7 +278,7 @@ func (d *PriorityClassDie) Description(v string) *PriorityClassDie {
 	})
 }
 
-// PreemptionPolicy is the Policy for preempting pods with lower priority. One of Never, PreemptLowerPriority. Defaults to PreemptLowerPriority if unset.
+// preemptionPolicy is the Policy for preempting pods with lower priority. One of Never, PreemptLowerPriority. Defaults to PreemptLowerPriority if unset.
 func (d *PriorityClassDie) PreemptionPolicy(v *corev1.PreemptionPolicy) *PriorityClassDie {
 	return d.DieStamp(func(r *schedulingv1.PriorityClass) {
 		r.PreemptionPolicy = v

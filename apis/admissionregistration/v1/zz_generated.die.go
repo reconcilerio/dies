@@ -761,6 +761,159 @@ func (d *RuleDie) Scope(v *admissionregistrationv1.ScopeType) *RuleDie {
 	})
 }
 
+var MatchConditionBlank = (&MatchConditionDie{}).DieFeed(admissionregistrationv1.MatchCondition{})
+
+type MatchConditionDie struct {
+	mutable bool
+	r       admissionregistrationv1.MatchCondition
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *MatchConditionDie) DieImmutable(immutable bool) *MatchConditionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *MatchConditionDie) DieFeed(r admissionregistrationv1.MatchCondition) *MatchConditionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &MatchConditionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *MatchConditionDie) DieFeedPtr(r *admissionregistrationv1.MatchCondition) *MatchConditionDie {
+	if r == nil {
+		r = &admissionregistrationv1.MatchCondition{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *MatchConditionDie) DieFeedJSON(j []byte) *MatchConditionDie {
+	r := admissionregistrationv1.MatchCondition{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *MatchConditionDie) DieFeedYAML(y []byte) *MatchConditionDie {
+	r := admissionregistrationv1.MatchCondition{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *MatchConditionDie) DieFeedYAMLFile(name string) *MatchConditionDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *MatchConditionDie) DieFeedRawExtension(raw runtime.RawExtension) *MatchConditionDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *MatchConditionDie) DieRelease() admissionregistrationv1.MatchCondition {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *MatchConditionDie) DieReleasePtr() *admissionregistrationv1.MatchCondition {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *MatchConditionDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *MatchConditionDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *MatchConditionDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *MatchConditionDie) DieStamp(fn func(r *admissionregistrationv1.MatchCondition)) *MatchConditionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *MatchConditionDie) DeepCopy() *MatchConditionDie {
+	r := *d.r.DeepCopy()
+	return &MatchConditionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Name is an identifier for this match condition, used for strategic merging of MatchConditions, as well as providing an identifier for logging purposes. A good name should be descriptive of the associated expression. Name must be a qualified name consisting of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric character (e.g. 'MyName',  or 'my.name',  or '123-abc', regex used for validation is '([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]') with an optional DNS subdomain prefix and '/' (e.g. 'example.com/MyName')
+//
+// Required.
+func (d *MatchConditionDie) Name(v string) *MatchConditionDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MatchCondition) {
+		r.Name = v
+	})
+}
+
+// Expression represents the expression which will be evaluated by CEL. Must evaluate to bool. CEL expressions have access to the contents of the AdmissionRequest and Authorizer, organized into CEL variables:
+//
+// 'object' - The object from the incoming request. The value is null for DELETE requests. 'oldObject' - The existing object. The value is null for CREATE requests. 'request' - Attributes of the admission request(/pkg/apis/admission/types.go#AdmissionRequest). 'authorizer' - A CEL Authorizer. May be used to perform authorization checks for the principal (user or service account) of the request. See https://pkg.go.dev/k8s.io/apiserver/pkg/cel/library#Authz 'authorizer.requestResource' - A CEL ResourceCheck constructed from the 'authorizer' and configured with the request resource. Documentation on CEL: https://kubernetes.io/docs/reference/using-api/cel/
+//
+// Required.
+func (d *MatchConditionDie) Expression(v string) *MatchConditionDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MatchCondition) {
+		r.Expression = v
+	})
+}
+
 var MutatingWebhookConfigurationBlank = (&MutatingWebhookConfigurationDie{}).DieFeed(admissionregistrationv1.MutatingWebhookConfiguration{})
 
 type MutatingWebhookConfigurationDie struct {
@@ -1240,6 +1393,17 @@ func (d *MutatingWebhookDie) ReinvocationPolicy(v *admissionregistrationv1.Reinv
 	})
 }
 
+// MatchConditions is a list of conditions that must be met for a request to be sent to this webhook. Match conditions filter requests that have already been matched by the rules, namespaceSelector, and objectSelector. An empty list of matchConditions matches all requests. There are a maximum of 64 match conditions allowed.
+//
+// The exact matching logic is (in order): 1. If ANY matchCondition evaluates to FALSE, the webhook is skipped. 2. If ALL matchConditions evaluate to TRUE, the webhook is called. 3. If any matchCondition evaluates to an error (but none are FALSE): - If failurePolicy=Fail, reject the request - If failurePolicy=Ignore, the error is ignored and the webhook is skipped
+//
+// This is an alpha feature and managed by the AdmissionWebhookMatchConditions feature gate.
+func (d *MutatingWebhookDie) MatchConditions(v ...admissionregistrationv1.MatchCondition) *MutatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
+		r.MatchConditions = v
+	})
+}
+
 var ValidatingWebhookConfigurationBlank = (&ValidatingWebhookConfigurationDie{}).DieFeed(admissionregistrationv1.ValidatingWebhookConfiguration{})
 
 type ValidatingWebhookConfigurationDie struct {
@@ -1703,5 +1867,16 @@ func (d *ValidatingWebhookDie) TimeoutSeconds(v *int32) *ValidatingWebhookDie {
 func (d *ValidatingWebhookDie) AdmissionReviewVersions(v ...string) *ValidatingWebhookDie {
 	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
 		r.AdmissionReviewVersions = v
+	})
+}
+
+// MatchConditions is a list of conditions that must be met for a request to be sent to this webhook. Match conditions filter requests that have already been matched by the rules, namespaceSelector, and objectSelector. An empty list of matchConditions matches all requests. There are a maximum of 64 match conditions allowed.
+//
+// The exact matching logic is (in order): 1. If ANY matchCondition evaluates to FALSE, the webhook is skipped. 2. If ALL matchConditions evaluate to TRUE, the webhook is called. 3. If any matchCondition evaluates to an error (but none are FALSE): - If failurePolicy=Fail, reject the request - If failurePolicy=Ignore, the error is ignored and the webhook is skipped
+//
+// This is an alpha feature and managed by the AdmissionWebhookMatchConditions feature gate.
+func (d *ValidatingWebhookDie) MatchConditions(v ...admissionregistrationv1.MatchCondition) *ValidatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
+		r.MatchConditions = v
 	})
 }

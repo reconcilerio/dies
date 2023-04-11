@@ -267,7 +267,7 @@ func (d *CSIDriverDie) SpecDie(fn func(d *CSIDriverSpecDie)) *CSIDriverDie {
 	})
 }
 
-// Specification of the CSI Driver.
+// spec represents the specification of the CSI Driver.
 func (d *CSIDriverDie) Spec(v storagev1.CSIDriverSpec) *CSIDriverDie {
 	return d.DieStamp(func(r *storagev1.CSIDriver) {
 		r.Spec = v
@@ -437,7 +437,11 @@ func (d *CSIDriverSpecDie) AttachRequired(v *bool) *CSIDriverSpecDie {
 	})
 }
 
-// If set to true, podInfoOnMount indicates this CSI volume driver requires additional pod information (like podName, podUID, etc.) during mount operations. If set to false, pod information will not be passed on mount. Default is false. The CSI driver specifies podInfoOnMount as part of driver deployment. If true, Kubelet will pass pod information as VolumeContext in the CSI NodePublishVolume() calls. The CSI driver is responsible for parsing and validating the information passed in as VolumeContext. The following VolumeConext will be passed if podInfoOnMount is set to true. This list might grow, but the prefix will be used. "csi.storage.k8s.io/pod.name": pod.Name "csi.storage.k8s.io/pod.namespace": pod.Namespace "csi.storage.k8s.io/pod.uid": string(pod.UID) "csi.storage.k8s.io/ephemeral": "true" if the volume is an ephemeral inline volume defined by a CSIVolumeSource, otherwise "false"
+// podInfoOnMount indicates this CSI volume driver requires additional pod information (like podName, podUID, etc.) during mount operations, if set to true. If set to false, pod information will not be passed on mount. Default is false.
+//
+// The CSI driver specifies podInfoOnMount as part of driver deployment. If true, Kubelet will pass pod information as VolumeContext in the CSI NodePublishVolume() calls. The CSI driver is responsible for parsing and validating the information passed in as VolumeContext.
+//
+// The following VolumeConext will be passed if podInfoOnMount is set to true. This list might grow, but the prefix will be used. "csi.storage.k8s.io/pod.name": pod.Name "csi.storage.k8s.io/pod.namespace": pod.Namespace "csi.storage.k8s.io/pod.uid": string(pod.UID) "csi.storage.k8s.io/ephemeral": "true" if the volume is an ephemeral inline volume defined by a CSIVolumeSource, otherwise "false"
 //
 // "csi.storage.k8s.io/ephemeral" is a new feature in Kubernetes 1.16. It is only required for drivers which support both the "Persistent" and "Ephemeral" VolumeLifecycleMode. Other drivers can leave pod info disabled and/or ignore this field. As Kubernetes 1.15 doesn't support this field, drivers can only support one mode when deployed on such a cluster and the deployment determines which mode that is, for example via a command line parameter of the driver.
 //
@@ -448,16 +452,20 @@ func (d *CSIDriverSpecDie) PodInfoOnMount(v *bool) *CSIDriverSpecDie {
 	})
 }
 
-// volumeLifecycleModes defines what kind of volumes this CSI volume driver supports. The default if the list is empty is "Persistent", which is the usage defined by the CSI specification and implemented in Kubernetes via the usual PV/PVC mechanism. The other mode is "Ephemeral". In this mode, volumes are defined inline inside the pod spec with CSIVolumeSource and their lifecycle is tied to the lifecycle of that pod. A driver has to be aware of this because it is only going to get a NodePublishVolume call for such a volume. For more information about implementing this mode, see https://kubernetes-csi.github.io/docs/ephemeral-local-volumes.html A driver can support one or more of these modes and more modes may be added in the future. This field is beta.
+// volumeLifecycleModes defines what kind of volumes this CSI volume driver supports. The default if the list is empty is "Persistent", which is the usage defined by the CSI specification and implemented in Kubernetes via the usual PV/PVC mechanism.
 //
-// This field is immutable.
+// The other mode is "Ephemeral". In this mode, volumes are defined inline inside the pod spec with CSIVolumeSource and their lifecycle is tied to the lifecycle of that pod. A driver has to be aware of this because it is only going to get a NodePublishVolume call for such a volume.
+//
+// For more information about implementing this mode, see https://kubernetes-csi.github.io/docs/ephemeral-local-volumes.html A driver can support one or more of these modes and more modes may be added in the future.
+//
+// This field is beta. This field is immutable.
 func (d *CSIDriverSpecDie) VolumeLifecycleModes(v ...storagev1.VolumeLifecycleMode) *CSIDriverSpecDie {
 	return d.DieStamp(func(r *storagev1.CSIDriverSpec) {
 		r.VolumeLifecycleModes = v
 	})
 }
 
-// If set to true, storageCapacity indicates that the CSI volume driver wants pod scheduling to consider the storage capacity that the driver deployment will report by creating CSIStorageCapacity objects with capacity information.
+// storageCapacity indicates that the CSI volume driver wants pod scheduling to consider the storage capacity that the driver deployment will report by creating CSIStorageCapacity objects with capacity information, if set to true.
 //
 // The check can be enabled immediately when deploying a driver. In that case, provisioning new volumes with late binding will pause until the driver deployment has published some suitable CSIStorageCapacity object.
 //
@@ -470,7 +478,7 @@ func (d *CSIDriverSpecDie) StorageCapacity(v *bool) *CSIDriverSpecDie {
 	})
 }
 
-// Defines if the underlying volume supports changing ownership and permission of the volume before being mounted. Refer to the specific FSGroupPolicy values for additional details.
+// fsGroupPolicy defines if the underlying volume supports changing ownership and permission of the volume before being mounted. Refer to the specific FSGroupPolicy values for additional details.
 //
 // This field is immutable.
 //
@@ -481,7 +489,7 @@ func (d *CSIDriverSpecDie) FSGroupPolicy(v *storagev1.FSGroupPolicy) *CSIDriverS
 	})
 }
 
-// TokenRequests indicates the CSI driver needs pods' service account tokens it is mounting volume for to do necessary authentication. Kubelet will pass the tokens in VolumeContext in the CSI NodePublishVolume calls. The CSI driver should parse and validate the following VolumeContext: "csi.storage.k8s.io/serviceAccount.tokens": { "<audience>": { "token": <token>, "expirationTimestamp": <expiration timestamp in RFC3339>, }, ... }
+// tokenRequests indicates the CSI driver needs pods' service account tokens it is mounting volume for to do necessary authentication. Kubelet will pass the tokens in VolumeContext in the CSI NodePublishVolume calls. The CSI driver should parse and validate the following VolumeContext: "csi.storage.k8s.io/serviceAccount.tokens": { "<audience>": { "token": <token>, "expirationTimestamp": <expiration timestamp in RFC3339>, }, ... }
 //
 // Note: Audience in each TokenRequest should be different and at most one token is empty string. To receive a new token after expiry, RequiresRepublish can be used to trigger NodePublishVolume periodically.
 func (d *CSIDriverSpecDie) TokenRequests(v ...storagev1.TokenRequest) *CSIDriverSpecDie {
@@ -490,7 +498,7 @@ func (d *CSIDriverSpecDie) TokenRequests(v ...storagev1.TokenRequest) *CSIDriver
 	})
 }
 
-// RequiresRepublish indicates the CSI driver wants `NodePublishVolume` being periodically called to reflect any possible change in the mounted volume. This field defaults to false.
+// requiresRepublish indicates the CSI driver wants `NodePublishVolume` being periodically called to reflect any possible change in the mounted volume. This field defaults to false.
 //
 // Note: After a successful initial NodePublishVolume call, subsequent calls to NodePublishVolume should only update the contents of the volume. New mount points will not be seen by a running container.
 func (d *CSIDriverSpecDie) RequiresRepublish(v *bool) *CSIDriverSpecDie {
@@ -499,7 +507,7 @@ func (d *CSIDriverSpecDie) RequiresRepublish(v *bool) *CSIDriverSpecDie {
 	})
 }
 
-// SELinuxMount specifies if the CSI driver supports "-o context" mount option.
+// seLinuxMount specifies if the CSI driver supports "-o context" mount option.
 //
 // When "true", the CSI driver must ensure that all volumes provided by this CSI driver can be mounted separately with different `-o context` options. This is typical for storage backends that provide volumes as filesystems on block devices or as independent shared volumes. Kubernetes will call NodeStage / NodePublish with "-o context=xyz" mount option when mounting a ReadWriteOncePod volume used in Pod that has explicitly set SELinux context. In the future, it may be expanded to other volume AccessModes. In any case, Kubernetes will ensure that the volume is mounted only with a single SELinux context.
 //
@@ -666,14 +674,14 @@ func (d *TokenRequestDie) DeepCopy() *TokenRequestDie {
 	}
 }
 
-// Audience is the intended audience of the token in "TokenRequestSpec". It will default to the audiences of kube apiserver.
+// audience is the intended audience of the token in "TokenRequestSpec". It will default to the audiences of kube apiserver.
 func (d *TokenRequestDie) Audience(v string) *TokenRequestDie {
 	return d.DieStamp(func(r *storagev1.TokenRequest) {
 		r.Audience = v
 	})
 }
 
-// ExpirationSeconds is the duration of validity of the token in "TokenRequestSpec". It has the same default value of "ExpirationSeconds" in "TokenRequestSpec".
+// expirationSeconds is the duration of validity of the token in "TokenRequestSpec". It has the same default value of "ExpirationSeconds" in "TokenRequestSpec".
 func (d *TokenRequestDie) ExpirationSeconds(v *int64) *TokenRequestDie {
 	return d.DieStamp(func(r *storagev1.TokenRequest) {
 		r.ExpirationSeconds = v
@@ -1232,7 +1240,7 @@ func (d *CSINodeDriverDie) DeepCopy() *CSINodeDriverDie {
 	}
 }
 
-// This is the name of the CSI driver that this object refers to. This MUST be the same name returned by the CSI GetPluginName() call for that driver.
+// name represents the name of the CSI driver that this object refers to. This MUST be the same name returned by the CSI GetPluginName() call for that driver.
 func (d *CSINodeDriverDie) Name(v string) *CSINodeDriverDie {
 	return d.DieStamp(func(r *storagev1.CSINodeDriver) {
 		r.Name = v
@@ -1414,7 +1422,7 @@ func (d *VolumeNodeResourcesDie) DeepCopy() *VolumeNodeResourcesDie {
 	}
 }
 
-// Maximum number of unique volumes managed by the CSI driver that can be used on a node. A volume that is both attached and mounted on a node is considered to be used once, not twice. The same rule applies for a unique volume that is shared among multiple pods on the same node. If this field is not specified, then the supported number of volumes on this node is unbounded.
+// count indicates the maximum number of unique volumes managed by the CSI driver that can be used on a node. A volume that is both attached and mounted on a node is considered to be used once, not twice. The same rule applies for a unique volume that is shared among multiple pods on the same node. If this field is not specified, then the supported number of volumes on this node is unbounded.
 func (d *VolumeNodeResourcesDie) Count(v *int32) *VolumeNodeResourcesDie {
 	return d.DieStamp(func(r *storagev1.VolumeNodeResources) {
 		r.Count = v
@@ -1642,49 +1650,49 @@ func (d *StorageClassDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Storage
 	})
 }
 
-// Provisioner indicates the type of the provisioner.
+// provisioner indicates the type of the provisioner.
 func (d *StorageClassDie) Provisioner(v string) *StorageClassDie {
 	return d.DieStamp(func(r *storagev1.StorageClass) {
 		r.Provisioner = v
 	})
 }
 
-// Parameters holds the parameters for the provisioner that should create volumes of this storage class.
+// parameters holds the parameters for the provisioner that should create volumes of this storage class.
 func (d *StorageClassDie) Parameters(v map[string]string) *StorageClassDie {
 	return d.DieStamp(func(r *storagev1.StorageClass) {
 		r.Parameters = v
 	})
 }
 
-// Dynamically provisioned PersistentVolumes of this storage class are created with this reclaimPolicy. Defaults to Delete.
+// reclaimPolicy controls the reclaimPolicy for dynamically provisioned PersistentVolumes of this storage class. Defaults to Delete.
 func (d *StorageClassDie) ReclaimPolicy(v *corev1.PersistentVolumeReclaimPolicy) *StorageClassDie {
 	return d.DieStamp(func(r *storagev1.StorageClass) {
 		r.ReclaimPolicy = v
 	})
 }
 
-// Dynamically provisioned PersistentVolumes of this storage class are created with these mountOptions, e.g. ["ro", "soft"]. Not validated - mount of the PVs will simply fail if one is invalid.
+// mountOptions controls the mountOptions for dynamically provisioned PersistentVolumes of this storage class. e.g. ["ro", "soft"]. Not validated - mount of the PVs will simply fail if one is invalid.
 func (d *StorageClassDie) MountOptions(v ...string) *StorageClassDie {
 	return d.DieStamp(func(r *storagev1.StorageClass) {
 		r.MountOptions = v
 	})
 }
 
-// AllowVolumeExpansion shows whether the storage class allow volume expand
+// allowVolumeExpansion shows whether the storage class allow volume expand.
 func (d *StorageClassDie) AllowVolumeExpansion(v *bool) *StorageClassDie {
 	return d.DieStamp(func(r *storagev1.StorageClass) {
 		r.AllowVolumeExpansion = v
 	})
 }
 
-// VolumeBindingMode indicates how PersistentVolumeClaims should be provisioned and bound.  When unset, VolumeBindingImmediate is used. This field is only honored by servers that enable the VolumeScheduling feature.
+// volumeBindingMode indicates how PersistentVolumeClaims should be provisioned and bound.  When unset, VolumeBindingImmediate is used. This field is only honored by servers that enable the VolumeScheduling feature.
 func (d *StorageClassDie) VolumeBindingMode(v *storagev1.VolumeBindingMode) *StorageClassDie {
 	return d.DieStamp(func(r *storagev1.StorageClass) {
 		r.VolumeBindingMode = v
 	})
 }
 
-// Restrict the node topologies where volumes can be dynamically provisioned. Each volume plugin defines its own supported topology specifications. An empty TopologySelectorTerm list means there is no topology restriction. This field is only honored by servers that enable the VolumeScheduling feature.
+// allowedTopologies restrict the node topologies where volumes can be dynamically provisioned. Each volume plugin defines its own supported topology specifications. An empty TopologySelectorTerm list means there is no topology restriction. This field is only honored by servers that enable the VolumeScheduling feature.
 func (d *StorageClassDie) AllowedTopologies(v ...corev1.TopologySelectorTerm) *StorageClassDie {
 	return d.DieStamp(func(r *storagev1.StorageClass) {
 		r.AllowedTopologies = v
@@ -1930,14 +1938,14 @@ func (d *VolumeAttachmentDie) StatusDie(fn func(d *VolumeAttachmentStatusDie)) *
 	})
 }
 
-// Specification of the desired attach/detach volume behavior. Populated by the Kubernetes system.
+// spec represents specification of the desired attach/detach volume behavior. Populated by the Kubernetes system.
 func (d *VolumeAttachmentDie) Spec(v storagev1.VolumeAttachmentSpec) *VolumeAttachmentDie {
 	return d.DieStamp(func(r *storagev1.VolumeAttachment) {
 		r.Spec = v
 	})
 }
 
-// Status of the VolumeAttachment request. Populated by the entity completing the attach or detach operation, i.e. the external-attacher.
+// status represents status of the VolumeAttachment request. Populated by the entity completing the attach or detach operation, i.e. the external-attacher.
 func (d *VolumeAttachmentDie) Status(v storagev1.VolumeAttachmentStatus) *VolumeAttachmentDie {
 	return d.DieStamp(func(r *storagev1.VolumeAttachment) {
 		r.Status = v
@@ -2098,21 +2106,21 @@ func (d *VolumeAttachmentSpecDie) DeepCopy() *VolumeAttachmentSpecDie {
 	}
 }
 
-// Attacher indicates the name of the volume driver that MUST handle this request. This is the name returned by GetPluginName().
+// attacher indicates the name of the volume driver that MUST handle this request. This is the name returned by GetPluginName().
 func (d *VolumeAttachmentSpecDie) Attacher(v string) *VolumeAttachmentSpecDie {
 	return d.DieStamp(func(r *storagev1.VolumeAttachmentSpec) {
 		r.Attacher = v
 	})
 }
 
-// Source represents the volume that should be attached.
+// source represents the volume that should be attached.
 func (d *VolumeAttachmentSpecDie) Source(v storagev1.VolumeAttachmentSource) *VolumeAttachmentSpecDie {
 	return d.DieStamp(func(r *storagev1.VolumeAttachmentSpec) {
 		r.Source = v
 	})
 }
 
-// The node that the volume should be attached to.
+// nodeName represents the node that the volume should be attached to.
 func (d *VolumeAttachmentSpecDie) NodeName(v string) *VolumeAttachmentSpecDie {
 	return d.DieStamp(func(r *storagev1.VolumeAttachmentSpec) {
 		r.NodeName = v
@@ -2273,7 +2281,7 @@ func (d *VolumeAttachmentSourceDie) DeepCopy() *VolumeAttachmentSourceDie {
 	}
 }
 
-// Name of the persistent volume to attach.
+// persistentVolumeName represents the name of the persistent volume to attach.
 func (d *VolumeAttachmentSourceDie) PersistentVolumeName(v *string) *VolumeAttachmentSourceDie {
 	return d.DieStamp(func(r *storagev1.VolumeAttachmentSource) {
 		r.PersistentVolumeName = v
@@ -2441,28 +2449,28 @@ func (d *VolumeAttachmentStatusDie) DeepCopy() *VolumeAttachmentStatusDie {
 	}
 }
 
-// Indicates the volume is successfully attached. This field must only be set by the entity completing the attach operation, i.e. the external-attacher.
+// attached indicates the volume is successfully attached. This field must only be set by the entity completing the attach operation, i.e. the external-attacher.
 func (d *VolumeAttachmentStatusDie) Attached(v bool) *VolumeAttachmentStatusDie {
 	return d.DieStamp(func(r *storagev1.VolumeAttachmentStatus) {
 		r.Attached = v
 	})
 }
 
-// Upon successful attach, this field is populated with any information returned by the attach operation that must be passed into subsequent WaitForAttach or Mount calls. This field must only be set by the entity completing the attach operation, i.e. the external-attacher.
+// attachmentMetadata is populated with any information returned by the attach operation, upon successful attach, that must be passed into subsequent WaitForAttach or Mount calls. This field must only be set by the entity completing the attach operation, i.e. the external-attacher.
 func (d *VolumeAttachmentStatusDie) AttachmentMetadata(v map[string]string) *VolumeAttachmentStatusDie {
 	return d.DieStamp(func(r *storagev1.VolumeAttachmentStatus) {
 		r.AttachmentMetadata = v
 	})
 }
 
-// The last error encountered during attach operation, if any. This field must only be set by the entity completing the attach operation, i.e. the external-attacher.
+// attachError represents the last error encountered during attach operation, if any. This field must only be set by the entity completing the attach operation, i.e. the external-attacher.
 func (d *VolumeAttachmentStatusDie) AttachError(v *storagev1.VolumeError) *VolumeAttachmentStatusDie {
 	return d.DieStamp(func(r *storagev1.VolumeAttachmentStatus) {
 		r.AttachError = v
 	})
 }
 
-// The last error encountered during detach operation, if any. This field must only be set by the entity completing the detach operation, i.e. the external-attacher.
+// detachError represents the last error encountered during detach operation, if any. This field must only be set by the entity completing the detach operation, i.e. the external-attacher.
 func (d *VolumeAttachmentStatusDie) DetachError(v *storagev1.VolumeError) *VolumeAttachmentStatusDie {
 	return d.DieStamp(func(r *storagev1.VolumeAttachmentStatus) {
 		r.DetachError = v
@@ -2623,14 +2631,14 @@ func (d *VolumeErrorDie) DeepCopy() *VolumeErrorDie {
 	}
 }
 
-// Time the error was encountered.
+// time represents the time the error was encountered.
 func (d *VolumeErrorDie) Time(v apismetav1.Time) *VolumeErrorDie {
 	return d.DieStamp(func(r *storagev1.VolumeError) {
 		r.Time = v
 	})
 }
 
-// String detailing the error encountered during Attach or Detach operation. This string may be logged, so it should not contain sensitive information.
+// message represents the error encountered during Attach or Detach operation. This string may be logged, so it should not contain sensitive information.
 func (d *VolumeErrorDie) Message(v string) *VolumeErrorDie {
 	return d.DieStamp(func(r *storagev1.VolumeError) {
 		r.Message = v

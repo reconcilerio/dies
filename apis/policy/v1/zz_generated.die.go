@@ -503,7 +503,7 @@ func (d *PodDisruptionBudgetSpecDie) MaxUnavailableString(s string) *PodDisrupti
 //
 // Additional policies may be added in the future. Clients making eviction decisions should disallow eviction of unhealthy pods if they encounter an unrecognized policy in this field.
 //
-// This field is alpha-level. The eviction API uses this field when the feature gate PDBUnhealthyPodEvictionPolicy is enabled (disabled by default).
+// This field is beta-level. The eviction API uses this field when the feature gate PDBUnhealthyPodEvictionPolicy is enabled (enabled by default).
 func (d *PodDisruptionBudgetSpecDie) UnhealthyPodEvictionPolicy(v *policyv1.UnhealthyPodEvictionPolicyType) *PodDisruptionBudgetSpecDie {
 	return d.DieStamp(func(r *policyv1.PodDisruptionBudgetSpec) {
 		r.UnhealthyPodEvictionPolicy = v

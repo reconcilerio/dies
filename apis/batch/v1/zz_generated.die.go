@@ -452,7 +452,7 @@ func (d *CronJobSpecDie) Schedule(v string) *CronJobSpecDie {
 	})
 }
 
-// The time zone name for the given schedule, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones. If not specified, this will default to the time zone of the kube-controller-manager process. The set of valid time zone names and the time zone offset is loaded from the system-wide time zone database by the API server during CronJob validation and the controller manager during execution. If no system-wide time zone database can be found a bundled version of the database is used instead. If the time zone name becomes invalid during the lifetime of a CronJob or due to a change in host configuration, the controller will stop creating new new Jobs and will create a system event with the reason UnknownTimeZone. More information can be found in https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#time-zones This is beta field and must be enabled via the `CronJobTimeZone` feature gate.
+// The time zone name for the given schedule, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones. If not specified, this will default to the time zone of the kube-controller-manager process. The set of valid time zone names and the time zone offset is loaded from the system-wide time zone database by the API server during CronJob validation and the controller manager during execution. If no system-wide time zone database can be found a bundled version of the database is used instead. If the time zone name becomes invalid during the lifetime of a CronJob or due to a change in host configuration, the controller will stop creating new new Jobs and will create a system event with the reason UnknownTimeZone. More information can be found in https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#time-zones
 func (d *CronJobSpecDie) TimeZone(v *string) *CronJobSpecDie {
 	return d.DieStamp(func(r *batchv1.CronJobSpec) {
 		r.TimeZone = v
@@ -466,7 +466,9 @@ func (d *CronJobSpecDie) StartingDeadlineSeconds(v *int64) *CronJobSpecDie {
 	})
 }
 
-// Specifies how to treat concurrent executions of a Job. Valid values are: - "Allow" (default): allows CronJobs to run concurrently; - "Forbid": forbids concurrent runs, skipping next run if previous run hasn't finished yet; - "Replace": cancels currently running job and replaces it with a new one
+// Specifies how to treat concurrent executions of a Job. Valid values are:
+//
+// - "Allow" (default): allows CronJobs to run concurrently; - "Forbid": forbids concurrent runs, skipping next run if previous run hasn't finished yet; - "Replace": cancels currently running job and replaces it with a new one
 func (d *CronJobSpecDie) ConcurrencyPolicy(v batchv1.ConcurrencyPolicy) *CronJobSpecDie {
 	return d.DieStamp(func(r *batchv1.CronJobSpec) {
 		r.ConcurrencyPolicy = v
@@ -1090,7 +1092,7 @@ func (d *JobSpecDie) Parallelism(v *int32) *JobSpecDie {
 	})
 }
 
-// Specifies the desired number of successfully finished pods the job should be run with.  Setting to nil means that the success of any pod signals the success of all pods, and allows parallelism to have any positive value.  Setting to 1 means that parallelism is limited to 1 and the success of that pod signals the success of the job. More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
+// Specifies the desired number of successfully finished pods the job should be run with.  Setting to null means that the success of any pod signals the success of all pods, and allows parallelism to have any positive value.  Setting to 1 means that parallelism is limited to 1 and the success of that pod signals the success of the job. More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
 func (d *JobSpecDie) Completions(v *int32) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.Completions = v
@@ -1134,7 +1136,7 @@ func (d *JobSpecDie) ManualSelector(v *bool) *JobSpecDie {
 	})
 }
 
-// Describes the pod that will be created when executing a job. More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
+// Describes the pod that will be created when executing a job. The only allowed template.spec.restartPolicy values are "Never" or "OnFailure". More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
 func (d *JobSpecDie) Template(v corev1.PodTemplateSpec) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.Template = v
@@ -1148,7 +1150,7 @@ func (d *JobSpecDie) TTLSecondsAfterFinished(v *int32) *JobSpecDie {
 	})
 }
 
-// CompletionMode specifies how Pod completions are tracked. It can be `NonIndexed` (default) or `Indexed`.
+// completionMode specifies how Pod completions are tracked. It can be `NonIndexed` (default) or `Indexed`.
 //
 // `NonIndexed` means that the Job is considered complete when there have been .spec.completions successfully completed Pods. Each Pod completion is homologous to each other.
 //
@@ -1161,7 +1163,7 @@ func (d *JobSpecDie) CompletionMode(v *batchv1.CompletionMode) *JobSpecDie {
 	})
 }
 
-// Suspend specifies whether the Job controller should create Pods or not. If a Job is created with suspend set to true, no Pods are created by the Job controller. If a Job is suspended after creation (i.e. the flag goes from false to true), the Job controller will delete all active Pods associated with this Job. Users must design their workload to gracefully handle this. Suspending a Job will reset the StartTime field of the Job, effectively resetting the ActiveDeadlineSeconds timer too. Defaults to false.
+// suspend specifies whether the Job controller should create Pods or not. If a Job is created with suspend set to true, no Pods are created by the Job controller. If a Job is suspended after creation (i.e. the flag goes from false to true), the Job controller will delete all active Pods associated with this Job. Users must design their workload to gracefully handle this. Suspending a Job will reset the StartTime field of the Job, effectively resetting the ActiveDeadlineSeconds timer too. Defaults to false.
 func (d *JobSpecDie) Suspend(v *bool) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.Suspend = v
@@ -1483,7 +1485,9 @@ func (d *PodFailurePolicyRuleDie) DeepCopy() *PodFailurePolicyRuleDie {
 	}
 }
 
-// Specifies the action taken on a pod failure when the requirements are satisfied. Possible values are: - FailJob: indicates that the pod's job is marked as Failed and all running pods are terminated. - Ignore: indicates that the counter towards the .backoffLimit is not incremented and a replacement pod is created. - Count: indicates that the pod is handled in the default way - the counter towards the .backoffLimit is incremented. Additional values are considered to be added in the future. Clients should react to an unknown action by skipping the rule.
+// Specifies the action taken on a pod failure when the requirements are satisfied. Possible values are:
+//
+// - FailJob: indicates that the pod's job is marked as Failed and all running pods are terminated. - Ignore: indicates that the counter towards the .backoffLimit is not incremented and a replacement pod is created. - Count: indicates that the pod is handled in the default way - the counter towards the .backoffLimit is incremented. Additional values are considered to be added in the future. Clients should react to an unknown action by skipping the rule.
 func (d *PodFailurePolicyRuleDie) Action(v batchv1.PodFailurePolicyAction) *PodFailurePolicyRuleDie {
 	return d.DieStamp(func(r *batchv1.PodFailurePolicyRule) {
 		r.Action = v
@@ -1665,7 +1669,9 @@ func (d *PodFailurePolicyOnExitCodesRequirementDie) ContainerName(v *string) *Po
 	})
 }
 
-// Represents the relationship between the container exit code(s) and the specified values. Containers completed with success (exit code 0) are excluded from the requirement check. Possible values are: - In: the requirement is satisfied if at least one container exit code (might be multiple if there are multiple containers not restricted by the 'containerName' field) is in the set of specified values. - NotIn: the requirement is satisfied if at least one container exit code (might be multiple if there are multiple containers not restricted by the 'containerName' field) is not in the set of specified values. Additional values are considered to be added in the future. Clients should react to an unknown operator by assuming the requirement is not satisfied.
+// Represents the relationship between the container exit code(s) and the specified values. Containers completed with success (exit code 0) are excluded from the requirement check. Possible values are:
+//
+// - In: the requirement is satisfied if at least one container exit code (might be multiple if there are multiple containers not restricted by the 'containerName' field) is in the set of specified values. - NotIn: the requirement is satisfied if at least one container exit code (might be multiple if there are multiple containers not restricted by the 'containerName' field) is not in the set of specified values. Additional values are considered to be added in the future. Clients should react to an unknown operator by assuming the requirement is not satisfied.
 func (d *PodFailurePolicyOnExitCodesRequirementDie) Operator(v batchv1.PodFailurePolicyOnExitCodesOperator) *PodFailurePolicyOnExitCodesRequirementDie {
 	return d.DieStamp(func(r *batchv1.PodFailurePolicyOnExitCodesRequirement) {
 		r.Operator = v
@@ -2043,16 +2049,18 @@ func (d *JobStatusDie) Failed(v int32) *JobStatusDie {
 	})
 }
 
-// CompletedIndexes holds the completed indexes when .spec.completionMode = "Indexed" in a text format. The indexes are represented as decimal integers separated by commas. The numbers are listed in increasing order. Three or more consecutive numbers are compressed and represented by the first and last element of the series, separated by a hyphen. For example, if the completed indexes are 1, 3, 4, 5 and 7, they are represented as "1,3-5,7".
+// completedIndexes holds the completed indexes when .spec.completionMode = "Indexed" in a text format. The indexes are represented as decimal integers separated by commas. The numbers are listed in increasing order. Three or more consecutive numbers are compressed and represented by the first and last element of the series, separated by a hyphen. For example, if the completed indexes are 1, 3, 4, 5 and 7, they are represented as "1,3-5,7".
 func (d *JobStatusDie) CompletedIndexes(v string) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.CompletedIndexes = v
 	})
 }
 
-// UncountedTerminatedPods holds the UIDs of Pods that have terminated but the job controller hasn't yet accounted for in the status counters.
+// uncountedTerminatedPods holds the UIDs of Pods that have terminated but the job controller hasn't yet accounted for in the status counters.
 //
-// The job controller creates pods with a finalizer. When a pod terminates (succeeded or failed), the controller does three steps to account for it in the job status: (1) Add the pod UID to the arrays in this field. (2) Remove the pod finalizer. (3) Remove the pod UID from the arrays while increasing the corresponding counter.
+// The job controller creates pods with a finalizer. When a pod terminates (succeeded or failed), the controller does three steps to account for it in the job status:
+//
+// 1. Add the pod UID to the arrays in this field. 2. Remove the pod finalizer. 3. Remove the pod UID from the arrays while increasing the corresponding counter.
 //
 // Old jobs might not be tracked using this field, in which case the field remains null.
 func (d *JobStatusDie) UncountedTerminatedPods(v *batchv1.UncountedTerminatedPods) *JobStatusDie {
@@ -2224,14 +2232,14 @@ func (d *UncountedTerminatedPodsDie) DeepCopy() *UncountedTerminatedPodsDie {
 	}
 }
 
-// Succeeded holds UIDs of succeeded Pods.
+// succeeded holds UIDs of succeeded Pods.
 func (d *UncountedTerminatedPodsDie) Succeeded(v ...types.UID) *UncountedTerminatedPodsDie {
 	return d.DieStamp(func(r *batchv1.UncountedTerminatedPods) {
 		r.Succeeded = v
 	})
 }
 
-// Failed holds UIDs of failed Pods.
+// failed holds UIDs of failed Pods.
 func (d *UncountedTerminatedPodsDie) Failed(v ...types.UID) *UncountedTerminatedPodsDie {
 	return d.DieStamp(func(r *batchv1.UncountedTerminatedPods) {
 		r.Failed = v
