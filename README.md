@@ -115,6 +115,15 @@ type MyResourceDie interface {
     // function. The resource is mutable.
     DieStamp(fn func(r *MyResource)) *MyResourceDie
 
+    // Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/)
+    // expression to stamp portions of the resource. The callback is invoked with each
+    // JSON path match. Panics if the callback function does not accept a single argument
+    // of the same type as found on the resource at the target location. 
+    //
+    // Future iterations will improve type coercion from the resource to the callback
+    // argument.
+    DieStampAt(jp string, fn interface{}) *MyResourceDie
+
     // DieFeed returns a new die with the provided resource.
     DieFeed(r MyResource) *MyResourceDie
 
