@@ -3,7 +3,7 @@ module dies.dev/diegen
 go 1.19
 
 require (
-	k8s.io/apimachinery v0.27.0-rc.1
+	k8s.io/apimachinery v0.27.0
 	sigs.k8s.io/controller-tools v0.8.0
 )
 

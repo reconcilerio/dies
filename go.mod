@@ -4,11 +4,11 @@ go 1.19
 
 require (
 	github.com/google/go-cmp v0.5.9
-	k8s.io/api v0.27.0-rc.1
-	k8s.io/apiextensions-apiserver v0.27.0-rc.1
-	k8s.io/apimachinery v0.27.0-rc.1
-	k8s.io/client-go v0.27.0-rc.1
-	k8s.io/kube-aggregator v0.27.0-rc.1
+	k8s.io/api v0.27.0
+	k8s.io/apiextensions-apiserver v0.27.0
+	k8s.io/apimachinery v0.27.0
+	k8s.io/client-go v0.27.0
+	k8s.io/kube-aggregator v0.27.0
 	k8s.io/utils v0.0.0-20230209194617-a36077c30491
 	sigs.k8s.io/yaml v1.3.0
 )
