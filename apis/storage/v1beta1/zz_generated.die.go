@@ -258,21 +258,21 @@ func (d *CSIStorageCapacityDie) MetadataDie(fn func(d *v1.ObjectMetaDie)) *CSISt
 	})
 }
 
-// NodeTopology defines which nodes have access to the storage for which capacity was reported. If not set, the storage is not accessible from any node in the cluster. If empty, the storage is accessible from all nodes. This field is immutable.
+// nodeTopology defines which nodes have access to the storage for which capacity was reported. If not set, the storage is not accessible from any node in the cluster. If empty, the storage is accessible from all nodes. This field is immutable.
 func (d *CSIStorageCapacityDie) NodeTopology(v *metav1.LabelSelector) *CSIStorageCapacityDie {
 	return d.DieStamp(func(r *storagev1beta1.CSIStorageCapacity) {
 		r.NodeTopology = v
 	})
 }
 
-// The name of the StorageClass that the reported capacity applies to. It must meet the same requirements as the name of a StorageClass object (non-empty, DNS subdomain). If that object no longer exists, the CSIStorageCapacity object is obsolete and should be removed by its creator. This field is immutable.
+// storageClassName represents the name of the StorageClass that the reported capacity applies to. It must meet the same requirements as the name of a StorageClass object (non-empty, DNS subdomain). If that object no longer exists, the CSIStorageCapacity object is obsolete and should be removed by its creator. This field is immutable.
 func (d *CSIStorageCapacityDie) StorageClassName(v string) *CSIStorageCapacityDie {
 	return d.DieStamp(func(r *storagev1beta1.CSIStorageCapacity) {
 		r.StorageClassName = v
 	})
 }
 
-// Capacity is the value reported by the CSI driver in its GetCapacityResponse for a GetCapacityRequest with topology and parameters that match the previous fields.
+// capacity is the value reported by the CSI driver in its GetCapacityResponse for a GetCapacityRequest with topology and parameters that match the previous fields.
 //
 // The semantic is currently (CSI spec 1.2) defined as: The available capacity, in bytes, of the storage that can be used to provision volumes. If not set, that information is currently unavailable.
 func (d *CSIStorageCapacityDie) Capacity(v *resource.Quantity) *CSIStorageCapacityDie {
@@ -281,7 +281,7 @@ func (d *CSIStorageCapacityDie) Capacity(v *resource.Quantity) *CSIStorageCapaci
 	})
 }
 
-// MaximumVolumeSize is the value reported by the CSI driver in its GetCapacityResponse for a GetCapacityRequest with topology and parameters that match the previous fields.
+// maximumVolumeSize is the value reported by the CSI driver in its GetCapacityResponse for a GetCapacityRequest with topology and parameters that match the previous fields.
 //
 // This is defined since CSI spec 1.4.0 as the largest size that may be used in a CreateVolumeRequest.capacity_range.required_bytes field to create a volume with the same parameters as those in GetCapacityRequest. The corresponding value in the Kubernetes API is ResourceRequirements.Requests in a volume claim.
 func (d *CSIStorageCapacityDie) MaximumVolumeSize(v *resource.Quantity) *CSIStorageCapacityDie {

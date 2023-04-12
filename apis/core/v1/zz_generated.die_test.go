@@ -233,6 +233,15 @@ func TestResourceClaimDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestContainerResizePolicyDie_MissingMethods(t *testingx.T) {
+	die := ContainerResizePolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ContainerResizePolicyDie: %s", diff.List())
+	}
+}
+
 func TestVolumeMountDie_MissingMethods(t *testingx.T) {
 	die := VolumeMountBlank
 	ignore := []string{}

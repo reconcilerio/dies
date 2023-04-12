@@ -257,21 +257,21 @@ func (d *RuntimeClassDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Runtime
 	})
 }
 
-// Handler specifies the underlying runtime and configuration that the CRI implementation will use to handle pods of this class. The possible values are specific to the node & CRI configuration.  It is assumed that all handlers are available on every node, and handlers of the same name are equivalent on every node. For example, a handler called "runc" might specify that the runc OCI runtime (using native Linux containers) will be used to run the containers in a pod. The Handler must be lowercase, conform to the DNS Label (RFC 1123) requirements, and is immutable.
+// handler specifies the underlying runtime and configuration that the CRI implementation will use to handle pods of this class. The possible values are specific to the node & CRI configuration.  It is assumed that all handlers are available on every node, and handlers of the same name are equivalent on every node. For example, a handler called "runc" might specify that the runc OCI runtime (using native Linux containers) will be used to run the containers in a pod. The Handler must be lowercase, conform to the DNS Label (RFC 1123) requirements, and is immutable.
 func (d *RuntimeClassDie) Handler(v string) *RuntimeClassDie {
 	return d.DieStamp(func(r *nodev1.RuntimeClass) {
 		r.Handler = v
 	})
 }
 
-// Overhead represents the resource overhead associated with running a pod for a given RuntimeClass. For more details, see https://kubernetes.io/docs/concepts/scheduling-eviction/pod-overhead/
+// overhead represents the resource overhead associated with running a pod for a given RuntimeClass. For more details, see https://kubernetes.io/docs/concepts/scheduling-eviction/pod-overhead/
 func (d *RuntimeClassDie) Overhead(v *nodev1.Overhead) *RuntimeClassDie {
 	return d.DieStamp(func(r *nodev1.RuntimeClass) {
 		r.Overhead = v
 	})
 }
 
-// Scheduling holds the scheduling constraints to ensure that pods running with this RuntimeClass are scheduled to nodes that support it. If scheduling is nil, this RuntimeClass is assumed to be supported by all nodes.
+// scheduling holds the scheduling constraints to ensure that pods running with this RuntimeClass are scheduled to nodes that support it. If scheduling is nil, this RuntimeClass is assumed to be supported by all nodes.
 func (d *RuntimeClassDie) Scheduling(v *nodev1.Scheduling) *RuntimeClassDie {
 	return d.DieStamp(func(r *nodev1.RuntimeClass) {
 		r.Scheduling = v
@@ -432,7 +432,7 @@ func (d *OverheadDie) DeepCopy() *OverheadDie {
 	}
 }
 
-// PodFixed represents the fixed resource overhead associated with running a pod.
+// podFixed represents the fixed resource overhead associated with running a pod.
 func (d *OverheadDie) PodFixed(v corev1.ResourceList) *OverheadDie {
 	return d.DieStamp(func(r *nodev1.Overhead) {
 		r.PodFixed = v

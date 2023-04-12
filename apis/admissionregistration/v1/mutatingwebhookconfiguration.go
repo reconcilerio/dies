@@ -76,3 +76,20 @@ func (d *MutatingWebhookDie) ObjectSelectorDie(fn func(d *diemetav1.LabelSelecto
 		r.ObjectSelector = d.DieReleasePtr()
 	})
 }
+
+func (d *MutatingWebhookDie) MatchConditionDie(name string, fn func(d *MatchConditionDie)) *MutatingWebhookDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
+		for i := range r.MatchConditions {
+			if name == r.MatchConditions[i].Name {
+				d := MatchConditionBlank.DieImmutable(false).DieFeed(r.MatchConditions[i])
+				fn(d)
+				r.MatchConditions[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := MatchConditionBlank.DieImmutable(false).DieFeed(admissionregistrationv1.MatchCondition{Name: name})
+		fn(d)
+		r.MatchConditions = append(r.MatchConditions, d.DieRelease())
+	})
+}

@@ -266,7 +266,7 @@ func (d *LeaseDie) SpecDie(fn func(d *LeaseSpecDie)) *LeaseDie {
 	})
 }
 
-// Specification of the Lease. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// spec contains the specification of the Lease. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *LeaseDie) Spec(v coordinationv1.LeaseSpec) *LeaseDie {
 	return d.DieStamp(func(r *coordinationv1.Lease) {
 		r.Spec = v
@@ -434,7 +434,7 @@ func (d *LeaseSpecDie) HolderIdentity(v *string) *LeaseSpecDie {
 	})
 }
 
-// leaseDurationSeconds is a duration that candidates for a lease need to wait to force acquire it. This is measure against time of last observed RenewTime.
+// leaseDurationSeconds is a duration that candidates for a lease need to wait to force acquire it. This is measure against time of last observed renewTime.
 func (d *LeaseSpecDie) LeaseDurationSeconds(v *int32) *LeaseSpecDie {
 	return d.DieStamp(func(r *coordinationv1.LeaseSpec) {
 		r.LeaseDurationSeconds = v

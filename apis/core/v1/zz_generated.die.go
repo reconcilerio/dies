@@ -2158,6 +2158,13 @@ func (d *ContainerDie) Resources(v corev1.ResourceRequirements) *ContainerDie {
 	})
 }
 
+// Resources resize policy for the container.
+func (d *ContainerDie) ResizePolicy(v ...corev1.ContainerResizePolicy) *ContainerDie {
+	return d.DieStamp(func(r *corev1.Container) {
+		r.ResizePolicy = v
+	})
+}
+
 // Pod volumes to mount into the container's filesystem. Cannot be updated.
 func (d *ContainerDie) VolumeMounts(v ...corev1.VolumeMount) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
@@ -4160,7 +4167,7 @@ func (d *ResourceRequirementsDie) Limits(v corev1.ResourceList) *ResourceRequire
 	})
 }
 
-// Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+// Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 func (d *ResourceRequirementsDie) Requests(v corev1.ResourceList) *ResourceRequirementsDie {
 	return d.DieStamp(func(r *corev1.ResourceRequirements) {
 		r.Requests = v
@@ -4336,6 +4343,174 @@ func (d *ResourceClaimDie) DeepCopy() *ResourceClaimDie {
 func (d *ResourceClaimDie) Name(v string) *ResourceClaimDie {
 	return d.DieStamp(func(r *corev1.ResourceClaim) {
 		r.Name = v
+	})
+}
+
+var ContainerResizePolicyBlank = (&ContainerResizePolicyDie{}).DieFeed(corev1.ContainerResizePolicy{})
+
+type ContainerResizePolicyDie struct {
+	mutable bool
+	r       corev1.ContainerResizePolicy
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ContainerResizePolicyDie) DieImmutable(immutable bool) *ContainerResizePolicyDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ContainerResizePolicyDie) DieFeed(r corev1.ContainerResizePolicy) *ContainerResizePolicyDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ContainerResizePolicyDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ContainerResizePolicyDie) DieFeedPtr(r *corev1.ContainerResizePolicy) *ContainerResizePolicyDie {
+	if r == nil {
+		r = &corev1.ContainerResizePolicy{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ContainerResizePolicyDie) DieFeedJSON(j []byte) *ContainerResizePolicyDie {
+	r := corev1.ContainerResizePolicy{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ContainerResizePolicyDie) DieFeedYAML(y []byte) *ContainerResizePolicyDie {
+	r := corev1.ContainerResizePolicy{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ContainerResizePolicyDie) DieFeedYAMLFile(name string) *ContainerResizePolicyDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ContainerResizePolicyDie) DieFeedRawExtension(raw runtime.RawExtension) *ContainerResizePolicyDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ContainerResizePolicyDie) DieRelease() corev1.ContainerResizePolicy {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ContainerResizePolicyDie) DieReleasePtr() *corev1.ContainerResizePolicy {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ContainerResizePolicyDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ContainerResizePolicyDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ContainerResizePolicyDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ContainerResizePolicyDie) DieStamp(fn func(r *corev1.ContainerResizePolicy)) *ContainerResizePolicyDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ContainerResizePolicyDie) DieStampAt(jp string, fn interface{}) *ContainerResizePolicyDie {
+	return d.DieStamp(func(r *corev1.ContainerResizePolicy) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ContainerResizePolicyDie) DeepCopy() *ContainerResizePolicyDie {
+	r := *d.r.DeepCopy()
+	return &ContainerResizePolicyDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Name of the resource to which this resource resize policy applies. Supported values: cpu, memory.
+func (d *ContainerResizePolicyDie) ResourceName(v corev1.ResourceName) *ContainerResizePolicyDie {
+	return d.DieStamp(func(r *corev1.ContainerResizePolicy) {
+		r.ResourceName = v
+	})
+}
+
+// Restart policy to apply when specified resource is resized. If not specified, it defaults to NotRequired.
+func (d *ContainerResizePolicyDie) RestartPolicy(v corev1.ResourceResizeRestartPolicy) *ContainerResizePolicyDie {
+	return d.DieStamp(func(r *corev1.ContainerResizePolicy) {
+		r.RestartPolicy = v
 	})
 }
 
@@ -5424,7 +5599,7 @@ func (d *ProbeHandlerDie) TCPSocket(v *corev1.TCPSocketAction) *ProbeHandlerDie 
 	})
 }
 
-// GRPC specifies an action involving a GRPC port. This is a beta field and requires enabling GRPCContainerProbe feature gate.
+// GRPC specifies an action involving a GRPC port.
 func (d *ProbeHandlerDie) GRPC(v *corev1.GRPCAction) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
 		r.GRPC = v
@@ -7402,66 +7577,82 @@ func (d *ContainerStatusDie) DeepCopy() *ContainerStatusDie {
 	}
 }
 
-// This must be a DNS_LABEL. Each container in a pod must have a unique name. Cannot be updated.
+// Name is a DNS_LABEL representing the unique name of the container. Each container in a pod must have a unique name across all container types. Cannot be updated.
 func (d *ContainerStatusDie) Name(v string) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.Name = v
 	})
 }
 
-// Details about the container's current condition.
+// State holds details about the container's current condition.
 func (d *ContainerStatusDie) State(v corev1.ContainerState) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.State = v
 	})
 }
 
-// Details about the container's last termination condition.
+// LastTerminationState holds the last termination state of the container to help debug container crashes and restarts. This field is not populated if the container is still running and RestartCount is 0.
 func (d *ContainerStatusDie) LastTerminationState(v corev1.ContainerState) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.LastTerminationState = v
 	})
 }
 
-// Specifies whether the container has passed its readiness probe.
+// Ready specifies whether the container is currently passing its readiness check. The value will change as readiness probes keep executing. If no readiness probes are specified, this field defaults to true once the container is fully started (see Started field).
+//
+// The value is typically used to determine whether a container is ready to accept traffic.
 func (d *ContainerStatusDie) Ready(v bool) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.Ready = v
 	})
 }
 
-// The number of times the container has been restarted.
+// RestartCount holds the number of times the container has been restarted. Kubelet makes an effort to always increment the value, but there are cases when the state may be lost due to node restarts and then the value may be reset to 0. The value is never negative.
 func (d *ContainerStatusDie) RestartCount(v int32) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.RestartCount = v
 	})
 }
 
-// The image the container is running. More info: https://kubernetes.io/docs/concepts/containers/images.
+// Image is the name of container image that the container is running. The container image may not match the image used in the PodSpec, as it may have been resolved by the runtime. More info: https://kubernetes.io/docs/concepts/containers/images.
 func (d *ContainerStatusDie) Image(v string) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.Image = v
 	})
 }
 
-// ImageID of the container's image.
+// ImageID is the image ID of the container's image. The image ID may not match the image ID of the image used in the PodSpec, as it may have been resolved by the runtime.
 func (d *ContainerStatusDie) ImageID(v string) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.ImageID = v
 	})
 }
 
-// Container's ID in the format '<type>://<container_id>'.
+// ContainerID is the ID of the container in the format '<type>://<container_id>'. Where type is a container runtime identifier, returned from Version call of CRI API (for example "containerd").
 func (d *ContainerStatusDie) ContainerID(v string) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.ContainerID = v
 	})
 }
 
-// Specifies whether the container has passed its startup probe. Initialized as false, becomes true after startupProbe is considered successful. Resets to false when the container is restarted, or if kubelet loses state temporarily. Is always true when no startupProbe is defined.
+// Started indicates whether the container has finished its postStart lifecycle hook and passed its startup probe. Initialized as false, becomes true after startupProbe is considered successful. Resets to false when the container is restarted, or if kubelet loses state temporarily. In both cases, startup probes will run again. Is always true when no startupProbe is defined and container is running and has passed the postStart lifecycle hook. The null value must be treated the same as false.
 func (d *ContainerStatusDie) Started(v *bool) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.Started = v
+	})
+}
+
+// AllocatedResources represents the compute resources allocated for this container by the node. Kubelet sets this value to Container.Resources.Requests upon successful pod admission and after successfully admitting desired pod resize.
+func (d *ContainerStatusDie) AllocatedResources(v corev1.ResourceList) *ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		r.AllocatedResources = v
+	})
+}
+
+// Resources represents the compute resource requests and limits that have been successfully enacted on the running container after it has been started or has been successfully resized.
+func (d *ContainerStatusDie) Resources(v *corev1.ResourceRequirements) *ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		r.Resources = v
 	})
 }
 
@@ -8729,7 +8920,7 @@ func (d *EndpointAddressDie) DeepCopy() *EndpointAddressDie {
 	}
 }
 
-// The IP of this endpoint. May not be loopback (127.0.0.0/8), link-local (169.254.0.0/16), or link-local multicast ((224.0.0.0/24). IPv6 is also accepted but not fully supported on all platforms. Also, certain kubernetes components, like kube-proxy, are not IPv6 ready. TODO: This should allow hostname or IP, See #4447.
+// The IP of this endpoint. May not be loopback (127.0.0.0/8 or ::1), link-local (169.254.0.0/16 or fe80::/10), or link-local multicast (224.0.0.0/24 or ff02::/16).
 func (d *EndpointAddressDie) IP(v string) *EndpointAddressDie {
 	return d.DieStamp(func(r *corev1.EndpointAddress) {
 		r.IP = v
@@ -8932,7 +9123,13 @@ func (d *EndpointPortDie) Protocol(v corev1.Protocol) *EndpointPortDie {
 	})
 }
 
-// The application protocol for this port. This field follows standard Kubernetes label syntax. Un-prefixed names are reserved for IANA standard service names (as per RFC-6335 and https://www.iana.org/assignments/service-names). Non-standard protocols should use prefixed names such as mycompany.com/my-custom-protocol.
+// The application protocol for this port. This is used as a hint for implementations to offer richer behavior for protocols that they understand. This field follows standard Kubernetes label syntax. Valid values are either:
+//
+// * Un-prefixed protocol names - reserved for IANA standard service names (as per RFC-6335 and https://www.iana.org/assignments/service-names).
+//
+// * Kubernetes-defined prefixed names: * 'kubernetes.io/h2c' - HTTP/2 over cleartext as described in https://www.rfc-editor.org/rfc/rfc7540
+//
+// * Other protocols should use implementation-defined prefixed names such as mycompany.com/my-custom-protocol.
 func (d *EndpointPortDie) AppProtocol(v *string) *EndpointPortDie {
 	return d.DieStamp(func(r *corev1.EndpointPort) {
 		r.AppProtocol = v
@@ -11940,7 +12137,7 @@ func (d *NodeStatusDie) Conditions(v ...corev1.NodeCondition) *NodeStatusDie {
 	})
 }
 
-// List of addresses reachable to the node. Queried from cloud provider, if available. More info: https://kubernetes.io/docs/concepts/nodes/node/#addresses Note: This field is declared as mergeable, but the merge key is not sufficiently unique, which can cause data corruption when it is merged. Callers should instead use a full-replacement patch. See https://pr.k8s.io/79391 for an example.
+// List of addresses reachable to the node. Queried from cloud provider, if available. More info: https://kubernetes.io/docs/concepts/nodes/node/#addresses Note: This field is declared as mergeable, but the merge key is not sufficiently unique, which can cause data corruption when it is merged. Callers should instead use a full-replacement patch. See https://pr.k8s.io/79391 for an example. Consumers should assume that addresses can change during the lifetime of a Node. However, there are some exceptions where this may not be possible, such as Pods that inherit a Node's address in its own status or consumers of the downward API (status.hostIP).
 func (d *NodeStatusDie) Addresses(v ...corev1.NodeAddress) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.Addresses = v
@@ -16029,14 +16226,14 @@ func (d *CSIPersistentVolumeSourceDie) NodePublishSecretRef(v *corev1.SecretRefe
 	})
 }
 
-// controllerExpandSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI ControllerExpandVolume call. This is an beta field and requires enabling ExpandCSIVolumes feature gate. This field is optional, and may be empty if no secret is required. If the secret object contains more than one secret, all secrets are passed.
+// controllerExpandSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI ControllerExpandVolume call. This field is optional, and may be empty if no secret is required. If the secret object contains more than one secret, all secrets are passed.
 func (d *CSIPersistentVolumeSourceDie) ControllerExpandSecretRef(v *corev1.SecretReference) *CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.ControllerExpandSecretRef = v
 	})
 }
 
-// nodeExpandSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodeExpandVolume call. This is an alpha field and requires enabling CSINodeExpandSecret feature gate. This field is optional, may be omitted if no secret is required. If the secret object contains more than one secret, all secrets are passed.
+// nodeExpandSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodeExpandVolume call. This is a beta field which is enabled default by CSINodeExpandSecret feature gate. This field is optional, may be omitted if no secret is required. If the secret object contains more than one secret, all secrets are passed.
 func (d *CSIPersistentVolumeSourceDie) NodeExpandSecretRef(v *corev1.SecretReference) *CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.NodeExpandSecretRef = v
@@ -17970,7 +18167,7 @@ func (d *PodSpecDie) EphemeralContainers(v ...corev1.EphemeralContainer) *PodSpe
 	})
 }
 
-// Restart policy for all containers within the pod. One of Always, OnFailure, Never. Default to Always. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy
+// Restart policy for all containers within the pod. One of Always, OnFailure, Never. In some contexts, only a subset of those values may be permitted. Default to Always. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy
 func (d *PodSpecDie) RestartPolicy(v corev1.RestartPolicy) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.RestartPolicy = v
@@ -18205,9 +18402,11 @@ func (d *PodSpecDie) HostUsers(v *bool) *PodSpecDie {
 	})
 }
 
-// SchedulingGates is an opaque list of values that if specified will block scheduling the pod. More info:  https://git.k8s.io/enhancements/keps/sig-scheduling/3521-pod-scheduling-readiness.
+// SchedulingGates is an opaque list of values that if specified will block scheduling the pod. If schedulingGates is not empty, the pod will stay in the SchedulingGated state and the scheduler will not attempt to schedule the pod.
 //
-// This is an alpha-level feature enabled by PodSchedulingReadiness feature gate.
+// SchedulingGates can only be set at pod creation time, and be removed only afterwards.
+//
+// This is a beta feature enabled by the PodSchedulingReadiness feature gate.
 func (d *PodSpecDie) SchedulingGates(v ...corev1.PodSchedulingGate) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.SchedulingGates = v
@@ -20195,7 +20394,9 @@ func (d *TopologySpreadConstraintDie) NodeTaintsPolicy(v *corev1.NodeInclusionPo
 	})
 }
 
-// MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated. The keys are used to lookup values from the incoming pod labels, those key-value labels are ANDed with labelSelector to select the group of existing pods over which spreading will be calculated for the incoming pod. Keys that don't exist in the incoming pod labels will be ignored. A null or empty list means only match against labelSelector.
+// MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated. The keys are used to lookup values from the incoming pod labels, those key-value labels are ANDed with labelSelector to select the group of existing pods over which spreading will be calculated for the incoming pod. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. MatchLabelKeys cannot be set when LabelSelector isn't set. Keys that don't exist in the incoming pod labels will be ignored. A null or empty list means only match against labelSelector.
+//
+// This is a beta field and requires the MatchLabelKeysInPodTopologySpread feature gate to be enabled (enabled by default).
 func (d *TopologySpreadConstraintDie) MatchLabelKeys(v ...string) *TopologySpreadConstraintDie {
 	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
 		r.MatchLabelKeys = v
@@ -20598,7 +20799,7 @@ func (d *PodStatusDie) ContainerStatuses(v ...corev1.ContainerStatus) *PodStatus
 	})
 }
 
-// The Quality of Service (QOS) classification assigned to the pod based on resource requirements See PodQOSClass type for available QOS classes More info: https://git.k8s.io/community/contributors/design-proposals/node/resource-qos.md
+// The Quality of Service (QOS) classification assigned to the pod based on resource requirements See PodQOSClass type for available QOS classes More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/#quality-of-service-classes
 func (d *PodStatusDie) QOSClass(v corev1.PodQOSClass) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.QOSClass = v
@@ -20609,6 +20810,13 @@ func (d *PodStatusDie) QOSClass(v corev1.PodQOSClass) *PodStatusDie {
 func (d *PodStatusDie) EphemeralContainerStatuses(v ...corev1.ContainerStatus) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.EphemeralContainerStatuses = v
+	})
+}
+
+// Status of resources resize desired for pod's containers. It is empty if no resources resize is pending. Any changes to container resources will automatically set this to "Proposed"
+func (d *PodStatusDie) Resize(v corev1.PodResizeStatus) *PodStatusDie {
+	return d.DieStamp(func(r *corev1.PodStatus) {
+		r.Resize = v
 	})
 }
 
@@ -21436,7 +21644,7 @@ func (d *ReplicationControllerSpecDie) Selector(v map[string]string) *Replicatio
 	})
 }
 
-// Template is the object that describes the pod that will be created if insufficient replicas are detected. This takes precedence over a TemplateRef. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
+// Template is the object that describes the pod that will be created if insufficient replicas are detected. This takes precedence over a TemplateRef. The only allowed template.spec.restartPolicy value is "Always". More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
 func (d *ReplicationControllerSpecDie) Template(v *corev1.PodTemplateSpec) *ReplicationControllerSpecDie {
 	return d.DieStamp(func(r *corev1.ReplicationControllerSpec) {
 		r.Template = v
@@ -23286,7 +23494,7 @@ func (d *ServiceSpecDie) ExternalName(v string) *ServiceSpecDie {
 }
 
 // externalTrafficPolicy describes how nodes distribute service traffic they receive on one of the Service's "externally-facing" addresses (NodePorts, ExternalIPs, and LoadBalancer IPs). If set to "Local", the proxy will configure the service in a way that assumes that external load balancers will take care of balancing the service traffic between nodes, and so each node will deliver traffic only to the node-local endpoints of the service, without masquerading the client source IP. (Traffic mistakenly sent to a node with no endpoints will be dropped.) The default value, "Cluster", uses the standard behavior of routing to all endpoints evenly (possibly modified by topology and other features). Note that traffic sent to an External IP or LoadBalancer IP from within the cluster will always get "Cluster" semantics, but clients sending to a NodePort from within the cluster may need to take traffic policy into account when picking a node.
-func (d *ServiceSpecDie) ExternalTrafficPolicy(v corev1.ServiceExternalTrafficPolicyType) *ServiceSpecDie {
+func (d *ServiceSpecDie) ExternalTrafficPolicy(v corev1.ServiceExternalTrafficPolicy) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.ExternalTrafficPolicy = v
 	})
@@ -23344,7 +23552,7 @@ func (d *ServiceSpecDie) LoadBalancerClass(v *string) *ServiceSpecDie {
 }
 
 // InternalTrafficPolicy describes how nodes distribute service traffic they receive on the ClusterIP. If set to "Local", the proxy will assume that pods only want to talk to endpoints of the service on the same node as the pod, dropping the traffic if there are no local endpoints. The default value, "Cluster", uses the standard behavior of routing to all endpoints evenly (possibly modified by topology and other features).
-func (d *ServiceSpecDie) InternalTrafficPolicy(v *corev1.ServiceInternalTrafficPolicyType) *ServiceSpecDie {
+func (d *ServiceSpecDie) InternalTrafficPolicy(v *corev1.ServiceInternalTrafficPolicy) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.InternalTrafficPolicy = v
 	})
@@ -25300,7 +25508,7 @@ func (d *EmptyDirVolumeSourceDie) Medium(v corev1.StorageMedium) *EmptyDirVolume
 	})
 }
 
-// sizeLimit is the total amount of local storage required for this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. The default is nil which means that the limit is undefined. More info: http://kubernetes.io/docs/user-guide/volumes#emptydir
+// sizeLimit is the total amount of local storage required for this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. The default is nil which means that the limit is undefined. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
 func (d *EmptyDirVolumeSourceDie) SizeLimit(v *resource.Quantity) *EmptyDirVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.EmptyDirVolumeSource) {
 		r.SizeLimit = v

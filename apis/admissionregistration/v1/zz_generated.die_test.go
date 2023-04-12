@@ -62,6 +62,15 @@ func TestRuleDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestMatchConditionDie_MissingMethods(t *testingx.T) {
+	die := MatchConditionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for MatchConditionDie: %s", diff.List())
+	}
+}
+
 func TestMutatingWebhookConfigurationDie_MissingMethods(t *testingx.T) {
 	die := MutatingWebhookConfigurationBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
