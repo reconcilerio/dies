@@ -32,7 +32,9 @@ import (
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	intstr "k8s.io/apimachinery/pkg/util/intstr"
+	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
+	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )
 
@@ -173,6 +175,27 @@ func (d *IngressDie) DieStamp(fn func(r *networkingv1.Ingress)) *IngressDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *IngressDie) DieStampAt(jp string, fn interface{}) *IngressDie {
+	return d.DieStamp(func(r *networkingv1.Ingress) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -392,6 +415,27 @@ func (d *IngressSpecDie) DieStamp(fn func(r *networkingv1.IngressSpec)) *Ingress
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *IngressSpecDie) DieStampAt(jp string, fn interface{}) *IngressSpecDie {
+	return d.DieStamp(func(r *networkingv1.IngressSpec) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *IngressSpecDie) DeepCopy() *IngressSpecDie {
 	r := *d.r.DeepCopy()
@@ -553,6 +597,27 @@ func (d *IngressBackendDie) DieStamp(fn func(r *networkingv1.IngressBackend)) *I
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *IngressBackendDie) DieStampAt(jp string, fn interface{}) *IngressBackendDie {
+	return d.DieStamp(func(r *networkingv1.IngressBackend) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *IngressBackendDie) DeepCopy() *IngressBackendDie {
 	r := *d.r.DeepCopy()
@@ -698,6 +763,27 @@ func (d *IngressServiceBackendDie) DieStamp(fn func(r *networkingv1.IngressServi
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *IngressServiceBackendDie) DieStampAt(jp string, fn interface{}) *IngressServiceBackendDie {
+	return d.DieStamp(func(r *networkingv1.IngressServiceBackend) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -847,6 +933,27 @@ func (d *ServiceBackendPortDie) DieStamp(fn func(r *networkingv1.ServiceBackendP
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ServiceBackendPortDie) DieStampAt(jp string, fn interface{}) *ServiceBackendPortDie {
+	return d.DieStamp(func(r *networkingv1.ServiceBackendPort) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ServiceBackendPortDie) DeepCopy() *ServiceBackendPortDie {
 	r := *d.r.DeepCopy()
@@ -994,6 +1101,27 @@ func (d *IngressTLSDie) DieStamp(fn func(r *networkingv1.IngressTLS)) *IngressTL
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *IngressTLSDie) DieStampAt(jp string, fn interface{}) *IngressTLSDie {
+	return d.DieStamp(func(r *networkingv1.IngressTLS) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *IngressTLSDie) DeepCopy() *IngressTLSDie {
 	r := *d.r.DeepCopy()
@@ -1139,6 +1267,27 @@ func (d *IngressRuleDie) DieStamp(fn func(r *networkingv1.IngressRule)) *Ingress
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *IngressRuleDie) DieStampAt(jp string, fn interface{}) *IngressRuleDie {
+	return d.DieStamp(func(r *networkingv1.IngressRule) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1290,6 +1439,27 @@ func (d *HTTPIngressRuleValueDie) DieStamp(fn func(r *networkingv1.HTTPIngressRu
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *HTTPIngressRuleValueDie) DieStampAt(jp string, fn interface{}) *HTTPIngressRuleValueDie {
+	return d.DieStamp(func(r *networkingv1.HTTPIngressRuleValue) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *HTTPIngressRuleValueDie) DeepCopy() *HTTPIngressRuleValueDie {
 	r := *d.r.DeepCopy()
@@ -1428,6 +1598,27 @@ func (d *HTTPIngressPathDie) DieStamp(fn func(r *networkingv1.HTTPIngressPath)) 
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *HTTPIngressPathDie) DieStampAt(jp string, fn interface{}) *HTTPIngressPathDie {
+	return d.DieStamp(func(r *networkingv1.HTTPIngressPath) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1584,6 +1775,27 @@ func (d *IngressStatusDie) DieStamp(fn func(r *networkingv1.IngressStatus)) *Ing
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *IngressStatusDie) DieStampAt(jp string, fn interface{}) *IngressStatusDie {
+	return d.DieStamp(func(r *networkingv1.IngressStatus) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *IngressStatusDie) DeepCopy() *IngressStatusDie {
 	r := *d.r.DeepCopy()
@@ -1724,6 +1936,27 @@ func (d *IngressLoadBalancerStatusDie) DieStamp(fn func(r *networkingv1.IngressL
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *IngressLoadBalancerStatusDie) DieStampAt(jp string, fn interface{}) *IngressLoadBalancerStatusDie {
+	return d.DieStamp(func(r *networkingv1.IngressLoadBalancerStatus) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *IngressLoadBalancerStatusDie) DeepCopy() *IngressLoadBalancerStatusDie {
 	r := *d.r.DeepCopy()
@@ -1862,6 +2095,27 @@ func (d *IngressLoadBalancerIngressDie) DieStamp(fn func(r *networkingv1.Ingress
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *IngressLoadBalancerIngressDie) DieStampAt(jp string, fn interface{}) *IngressLoadBalancerIngressDie {
+	return d.DieStamp(func(r *networkingv1.IngressLoadBalancerIngress) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -2016,6 +2270,27 @@ func (d *IngressPortStatusDie) DieStamp(fn func(r *networkingv1.IngressPortStatu
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *IngressPortStatusDie) DieStampAt(jp string, fn interface{}) *IngressPortStatusDie {
+	return d.DieStamp(func(r *networkingv1.IngressPortStatus) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -2185,6 +2460,27 @@ func (d *IngressClassDie) DieStamp(fn func(r *networkingv1.IngressClass)) *Ingre
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *IngressClassDie) DieStampAt(jp string, fn interface{}) *IngressClassDie {
+	return d.DieStamp(func(r *networkingv1.IngressClass) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -2388,6 +2684,27 @@ func (d *IngressClassSpecDie) DieStamp(fn func(r *networkingv1.IngressClassSpec)
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *IngressClassSpecDie) DieStampAt(jp string, fn interface{}) *IngressClassSpecDie {
+	return d.DieStamp(func(r *networkingv1.IngressClassSpec) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *IngressClassSpecDie) DeepCopy() *IngressClassSpecDie {
 	r := *d.r.DeepCopy()
@@ -2533,6 +2850,27 @@ func (d *IngressClassParametersReferenceDie) DieStamp(fn func(r *networkingv1.In
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *IngressClassParametersReferenceDie) DieStampAt(jp string, fn interface{}) *IngressClassParametersReferenceDie {
+	return d.DieStamp(func(r *networkingv1.IngressClassParametersReference) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -2716,6 +3054,27 @@ func (d *NetworkPolicyDie) DieStamp(fn func(r *networkingv1.NetworkPolicy)) *Net
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *NetworkPolicyDie) DieStampAt(jp string, fn interface{}) *NetworkPolicyDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -2935,6 +3294,27 @@ func (d *NetworkPolicySpecDie) DieStamp(fn func(r *networkingv1.NetworkPolicySpe
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *NetworkPolicySpecDie) DieStampAt(jp string, fn interface{}) *NetworkPolicySpecDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *NetworkPolicySpecDie) DeepCopy() *NetworkPolicySpecDie {
 	r := *d.r.DeepCopy()
@@ -3096,6 +3476,27 @@ func (d *NetworkPolicyIngressRuleDie) DieStamp(fn func(r *networkingv1.NetworkPo
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *NetworkPolicyIngressRuleDie) DieStampAt(jp string, fn interface{}) *NetworkPolicyIngressRuleDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicyIngressRule) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *NetworkPolicyIngressRuleDie) DeepCopy() *NetworkPolicyIngressRuleDie {
 	r := *d.r.DeepCopy()
@@ -3243,6 +3644,27 @@ func (d *NetworkPolicyEgressRuleDie) DieStamp(fn func(r *networkingv1.NetworkPol
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *NetworkPolicyEgressRuleDie) DieStampAt(jp string, fn interface{}) *NetworkPolicyEgressRuleDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicyEgressRule) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *NetworkPolicyEgressRuleDie) DeepCopy() *NetworkPolicyEgressRuleDie {
 	r := *d.r.DeepCopy()
@@ -3388,6 +3810,27 @@ func (d *NetworkPolicyPortDie) DieStamp(fn func(r *networkingv1.NetworkPolicyPor
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *NetworkPolicyPortDie) DieStampAt(jp string, fn interface{}) *NetworkPolicyPortDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicyPort) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -3558,6 +4001,27 @@ func (d *NetworkPolicyPeerDie) DieStamp(fn func(r *networkingv1.NetworkPolicyPee
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *NetworkPolicyPeerDie) DieStampAt(jp string, fn interface{}) *NetworkPolicyPeerDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicyPeer) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *NetworkPolicyPeerDie) DeepCopy() *NetworkPolicyPeerDie {
 	r := *d.r.DeepCopy()
@@ -3716,6 +4180,27 @@ func (d *IPBlockDie) DieStamp(fn func(r *networkingv1.IPBlock)) *IPBlockDie {
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *IPBlockDie) DieStampAt(jp string, fn interface{}) *IPBlockDie {
+	return d.DieStamp(func(r *networkingv1.IPBlock) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *IPBlockDie) DeepCopy() *IPBlockDie {
 	r := *d.r.DeepCopy()
@@ -3861,6 +4346,27 @@ func (d *NetworkPolicyStatusDie) DieStamp(fn func(r *networkingv1.NetworkPolicyS
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *NetworkPolicyStatusDie) DieStampAt(jp string, fn interface{}) *NetworkPolicyStatusDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicyStatus) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.

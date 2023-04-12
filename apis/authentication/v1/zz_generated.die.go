@@ -31,7 +31,9 @@ import (
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
+	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
+	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )
 
@@ -172,6 +174,27 @@ func (d *TokenReviewDie) DieStamp(fn func(r *authenticationv1.TokenReview)) *Tok
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *TokenReviewDie) DieStampAt(jp string, fn interface{}) *TokenReviewDie {
+	return d.DieStamp(func(r *authenticationv1.TokenReview) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -373,6 +396,27 @@ func (d *TokenRequestSpecDie) DieStamp(fn func(r *authenticationv1.TokenRequestS
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *TokenRequestSpecDie) DieStampAt(jp string, fn interface{}) *TokenRequestSpecDie {
+	return d.DieStamp(func(r *authenticationv1.TokenRequestSpec) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *TokenRequestSpecDie) DeepCopy() *TokenRequestSpecDie {
 	r := *d.r.DeepCopy()
@@ -525,6 +569,27 @@ func (d *BoundObjectReferenceDie) DieStamp(fn func(r *authenticationv1.BoundObje
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *BoundObjectReferenceDie) DieStampAt(jp string, fn interface{}) *BoundObjectReferenceDie {
+	return d.DieStamp(func(r *authenticationv1.BoundObjectReference) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -688,6 +753,27 @@ func (d *TokenRequestStatusDie) DieStamp(fn func(r *authenticationv1.TokenReques
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *TokenRequestStatusDie) DieStampAt(jp string, fn interface{}) *TokenRequestStatusDie {
+	return d.DieStamp(func(r *authenticationv1.TokenRequestStatus) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *TokenRequestStatusDie) DeepCopy() *TokenRequestStatusDie {
 	r := *d.r.DeepCopy()
@@ -833,6 +919,27 @@ func (d *UserInfoDie) DieStamp(fn func(r *authenticationv1.UserInfo)) *UserInfoD
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *UserInfoDie) DieStampAt(jp string, fn interface{}) *UserInfoDie {
+	return d.DieStamp(func(r *authenticationv1.UserInfo) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.

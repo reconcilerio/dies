@@ -23,10 +23,13 @@ package v1
 
 import (
 	"encoding/json"
+	fmtx "fmt"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
+	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )
 
@@ -152,6 +155,27 @@ func (d *ConditionDie) DieStamp(fn func(r *metav1.Condition)) *ConditionDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ConditionDie) DieStampAt(jp string, fn interface{}) *ConditionDie {
+	return d.DieStamp(func(r *metav1.Condition) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -329,6 +353,27 @@ func (d *GroupResourceDie) DieStamp(fn func(r *metav1.GroupResource)) *GroupReso
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *GroupResourceDie) DieStampAt(jp string, fn interface{}) *GroupResourceDie {
+	return d.DieStamp(func(r *metav1.GroupResource) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *GroupResourceDie) DeepCopy() *GroupResourceDie {
 	r := *d.r.DeepCopy()
@@ -474,6 +519,27 @@ func (d *GroupVersionDie) DieStamp(fn func(r *metav1.GroupVersion)) *GroupVersio
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *GroupVersionDie) DieStampAt(jp string, fn interface{}) *GroupVersionDie {
+	return d.DieStamp(func(r *metav1.GroupVersion) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *GroupVersionDie) DeepCopy() *GroupVersionDie {
 	r := *d.r.DeepCopy()
@@ -617,6 +683,27 @@ func (d *GroupVersionKindDie) DieStamp(fn func(r *metav1.GroupVersionKind)) *Gro
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *GroupVersionKindDie) DieStampAt(jp string, fn interface{}) *GroupVersionKindDie {
+	return d.DieStamp(func(r *metav1.GroupVersionKind) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -770,6 +857,27 @@ func (d *GroupVersionResourceDie) DieStamp(fn func(r *metav1.GroupVersionResourc
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *GroupVersionResourceDie) DieStampAt(jp string, fn interface{}) *GroupVersionResourceDie {
+	return d.DieStamp(func(r *metav1.GroupVersionResource) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *GroupVersionResourceDie) DeepCopy() *GroupVersionResourceDie {
 	r := *d.r.DeepCopy()
@@ -921,6 +1029,27 @@ func (d *GroupVersionForDiscoveryDie) DieStamp(fn func(r *metav1.GroupVersionFor
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *GroupVersionForDiscoveryDie) DieStampAt(jp string, fn interface{}) *GroupVersionForDiscoveryDie {
+	return d.DieStamp(func(r *metav1.GroupVersionForDiscovery) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *GroupVersionForDiscoveryDie) DeepCopy() *GroupVersionForDiscoveryDie {
 	r := *d.r.DeepCopy()
@@ -1066,6 +1195,27 @@ func (d *ListMetaDie) DieStamp(fn func(r *metav1.ListMeta)) *ListMetaDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ListMetaDie) DieStampAt(jp string, fn interface{}) *ListMetaDie {
+	return d.DieStamp(func(r *metav1.ListMeta) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1227,6 +1377,27 @@ func (d *ObjectMetaDie) DieStamp(fn func(r *metav1.ObjectMeta)) *ObjectMetaDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ObjectMetaDie) DieStampAt(jp string, fn interface{}) *ObjectMetaDie {
+	return d.DieStamp(func(r *metav1.ObjectMeta) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1481,6 +1652,27 @@ func (d *ManagedFieldsEntryDie) DieStamp(fn func(r *metav1.ManagedFieldsEntry)) 
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ManagedFieldsEntryDie) DieStampAt(jp string, fn interface{}) *ManagedFieldsEntryDie {
+	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ManagedFieldsEntryDie) DeepCopy() *ManagedFieldsEntryDie {
 	r := *d.r.DeepCopy()
@@ -1663,6 +1855,27 @@ func (d *LabelSelectorDie) DieStamp(fn func(r *metav1.LabelSelector)) *LabelSele
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *LabelSelectorDie) DieStampAt(jp string, fn interface{}) *LabelSelectorDie {
+	return d.DieStamp(func(r *metav1.LabelSelector) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *LabelSelectorDie) DeepCopy() *LabelSelectorDie {
 	r := *d.r.DeepCopy()
@@ -1808,6 +2021,27 @@ func (d *StatusDie) DieStamp(fn func(r *metav1.Status)) *StatusDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *StatusDie) DieStampAt(jp string, fn interface{}) *StatusDie {
+	return d.DieStamp(func(r *metav1.Status) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1991,6 +2225,27 @@ func (d *StatusDetailsDie) DieStamp(fn func(r *metav1.StatusDetails)) *StatusDet
 	return d.DieFeed(r)
 }
 
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *StatusDetailsDie) DieStampAt(jp string, fn interface{}) *StatusDetailsDie {
+	return d.DieStamp(func(r *metav1.StatusDetails) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *StatusDetailsDie) DeepCopy() *StatusDetailsDie {
 	r := *d.r.DeepCopy()
@@ -2164,6 +2419,27 @@ func (d *StatusCauseDie) DieStamp(fn func(r *metav1.StatusCause)) *StatusCauseDi
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *StatusCauseDie) DieStampAt(jp string, fn interface{}) *StatusCauseDie {
+	return d.DieStamp(func(r *metav1.StatusCause) {
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			args := []reflectx.Value{cv}
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.

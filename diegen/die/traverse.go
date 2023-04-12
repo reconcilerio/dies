@@ -368,6 +368,28 @@ func (c *copyMethodMaker) generateDieStampMethodFor(die Die) {
 	c.Linef("	fn(&r)")
 	c.Linef("	return d.DieFeed(r)")
 	c.Linef("}")
+
+	c.Linef("")
+	c.Linef("// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.")
+	c.Linef("//")
+	c.Linef("// Future iterations will improve type coercion from the resource to the callback argument.")
+	c.Linef("func (d *%s) DieStampAt(jp string, fn interface{}) *%s {", die.Type, die.Type)
+	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
+	c.Linef("		cp := %s(\"\")", c.AliasedRef("k8s.io/client-go/util/jsonpath", "New"))
+	c.Linef("		if err := cp.Parse(%s(\"{%%s}\", jp)); err != nil {", c.AliasedRef("fmt", "Sprintf"))
+	c.Linef("			panic(err)")
+	c.Linef("		}")
+	c.Linef("		cr, err := cp.FindResults(r)")
+	c.Linef("		if err != nil {")
+	c.Linef("			// errors are expected if a path is not found")
+	c.Linef("			return")
+	c.Linef("		}")
+	c.Linef("		for _, cv := range cr[0] {")
+	c.Linef("			args := []%s{cv}", c.AliasedRef("reflect", "Value"))
+	c.Linef("			%s(fn).Call(args)", c.AliasedRef("reflect", "ValueOf"))
+	c.Linef("		}")
+	c.Linef("	})")
+	c.Linef("}")
 }
 
 func (c *copyMethodMaker) generateDeepCopyMethodFor(die Die) {

@@ -328,6 +328,49 @@ func TestPod(t *testing.T) {
 			},
 		},
 		{
+			name: "json path",
+			die: diecorev1.PodBlank.
+				SpecDie(func(d *diecorev1.PodSpecDie) {
+					d.ContainerDie("workload", func(d *diecorev1.ContainerDie) {
+						d.EnvDie("VAR", func(d *diecorev1.EnvVarDie) {
+							d.Value("default")
+						})
+					})
+					d.ContainerDie("sidecar", func(d *diecorev1.ContainerDie) {
+						d.EnvDie("VAR", func(d *diecorev1.EnvVarDie) {
+							d.Value("default")
+						})
+					})
+				}).
+				DieStampAt("$.spec.containers[?(@.name == 'sidecar')]", func(r corev1.Container) {
+					r.Env[0].Value = "sidecar"
+				}),
+			expected: corev1.Pod{
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name: "workload",
+							Env: []corev1.EnvVar{
+								{
+									Name:  "VAR",
+									Value: "default",
+								},
+							},
+						},
+						{
+							Name: "sidecar",
+							Env: []corev1.EnvVar{
+								{
+									Name:  "VAR",
+									Value: "sidecar",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
 			name:         "load from yaml",
 			yamlFilePath: "testdata/pod.yaml",
 			expected: corev1.Pod{
