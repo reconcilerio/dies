@@ -196,6 +196,13 @@ func (d *PriorityClassDie) DieStampAt(jp string, fn interface{}) *PriorityClassD
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PriorityClassDie) DieWith(fn func(d *PriorityClassDie)) *PriorityClassDie {
+	nd := PriorityClassBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PriorityClassDie) DeepCopy() *PriorityClassDie {
 	r := *d.r.DeepCopy()

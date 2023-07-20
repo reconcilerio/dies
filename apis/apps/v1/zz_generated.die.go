@@ -198,6 +198,13 @@ func (d *ControllerRevisionDie) DieStampAt(jp string, fn interface{}) *Controlle
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ControllerRevisionDie) DieWith(fn func(d *ControllerRevisionDie)) *ControllerRevisionDie {
+	nd := ControllerRevisionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ControllerRevisionDie) DeepCopy() *ControllerRevisionDie {
 	r := *d.r.DeepCopy()
@@ -431,6 +438,13 @@ func (d *DaemonSetDie) DieStampAt(jp string, fn interface{}) *DaemonSetDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *DaemonSetDie) DieWith(fn func(d *DaemonSetDie)) *DaemonSetDie {
+	nd := DaemonSetBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -671,6 +685,13 @@ func (d *DaemonSetSpecDie) DieStampAt(jp string, fn interface{}) *DaemonSetSpecD
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *DaemonSetSpecDie) DieWith(fn func(d *DaemonSetSpecDie)) *DaemonSetSpecDie {
+	nd := DaemonSetSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *DaemonSetSpecDie) DeepCopy() *DaemonSetSpecDie {
 	r := *d.r.DeepCopy()
@@ -860,6 +881,13 @@ func (d *DaemonSetUpdateStrategyDie) DieStampAt(jp string, fn interface{}) *Daem
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *DaemonSetUpdateStrategyDie) DieWith(fn func(d *DaemonSetUpdateStrategyDie)) *DaemonSetUpdateStrategyDie {
+	nd := DaemonSetUpdateStrategyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *DaemonSetUpdateStrategyDie) DeepCopy() *DaemonSetUpdateStrategyDie {
 	r := *d.r.DeepCopy()
@@ -1026,6 +1054,13 @@ func (d *RollingUpdateDaemonSetDie) DieStampAt(jp string, fn interface{}) *Rolli
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *RollingUpdateDaemonSetDie) DieWith(fn func(d *RollingUpdateDaemonSetDie)) *RollingUpdateDaemonSetDie {
+	nd := RollingUpdateDaemonSetBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1222,6 +1257,13 @@ func (d *DaemonSetStatusDie) DieStampAt(jp string, fn interface{}) *DaemonSetSta
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *DaemonSetStatusDie) DieWith(fn func(d *DaemonSetStatusDie)) *DaemonSetStatusDie {
+	nd := DaemonSetStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1463,6 +1505,13 @@ func (d *DeploymentDie) DieStampAt(jp string, fn interface{}) *DeploymentDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *DeploymentDie) DieWith(fn func(d *DeploymentDie)) *DeploymentDie {
+	nd := DeploymentBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *DeploymentDie) DeepCopy() *DeploymentDie {
 	r := *d.r.DeepCopy()
@@ -1701,6 +1750,13 @@ func (d *DeploymentSpecDie) DieStampAt(jp string, fn interface{}) *DeploymentSpe
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *DeploymentSpecDie) DieWith(fn func(d *DeploymentSpecDie)) *DeploymentSpecDie {
+	nd := DeploymentSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *DeploymentSpecDie) DeepCopy() *DeploymentSpecDie {
 	r := *d.r.DeepCopy()
@@ -1911,6 +1967,13 @@ func (d *DeploymentStrategyDie) DieStampAt(jp string, fn interface{}) *Deploymen
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *DeploymentStrategyDie) DieWith(fn func(d *DeploymentStrategyDie)) *DeploymentStrategyDie {
+	nd := DeploymentStrategyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *DeploymentStrategyDie) DeepCopy() *DeploymentStrategyDie {
 	r := *d.r.DeepCopy()
@@ -2077,6 +2140,13 @@ func (d *RollingUpdateDeploymentDie) DieStampAt(jp string, fn interface{}) *Roll
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *RollingUpdateDeploymentDie) DieWith(fn func(d *RollingUpdateDeploymentDie)) *RollingUpdateDeploymentDie {
+	nd := RollingUpdateDeploymentBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -2273,6 +2343,13 @@ func (d *DeploymentStatusDie) DieStampAt(jp string, fn interface{}) *DeploymentS
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *DeploymentStatusDie) DieWith(fn func(d *DeploymentStatusDie)) *DeploymentStatusDie {
+	nd := DeploymentStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -2498,6 +2575,13 @@ func (d *ReplicaSetDie) DieStampAt(jp string, fn interface{}) *ReplicaSetDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ReplicaSetDie) DieWith(fn func(d *ReplicaSetDie)) *ReplicaSetDie {
+	nd := ReplicaSetBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -2738,6 +2822,13 @@ func (d *ReplicaSetSpecDie) DieStampAt(jp string, fn interface{}) *ReplicaSetSpe
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ReplicaSetSpecDie) DieWith(fn func(d *ReplicaSetSpecDie)) *ReplicaSetSpecDie {
+	nd := ReplicaSetSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ReplicaSetSpecDie) DeepCopy() *ReplicaSetSpecDie {
 	r := *d.r.DeepCopy()
@@ -2918,6 +3009,13 @@ func (d *ReplicaSetStatusDie) DieStampAt(jp string, fn interface{}) *ReplicaSetS
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ReplicaSetStatusDie) DieWith(fn func(d *ReplicaSetStatusDie)) *ReplicaSetStatusDie {
+	nd := ReplicaSetStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -3129,6 +3227,13 @@ func (d *StatefulSetDie) DieStampAt(jp string, fn interface{}) *StatefulSetDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *StatefulSetDie) DieWith(fn func(d *StatefulSetDie)) *StatefulSetDie {
+	nd := StatefulSetBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -3369,6 +3474,13 @@ func (d *StatefulSetSpecDie) DieStampAt(jp string, fn interface{}) *StatefulSetS
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *StatefulSetSpecDie) DieWith(fn func(d *StatefulSetSpecDie)) *StatefulSetSpecDie {
+	nd := StatefulSetSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *StatefulSetSpecDie) DeepCopy() *StatefulSetSpecDie {
 	r := *d.r.DeepCopy()
@@ -3600,6 +3712,13 @@ func (d *StatefulSetUpdateStrategyDie) DieStampAt(jp string, fn interface{}) *St
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *StatefulSetUpdateStrategyDie) DieWith(fn func(d *StatefulSetUpdateStrategyDie)) *StatefulSetUpdateStrategyDie {
+	nd := StatefulSetUpdateStrategyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *StatefulSetUpdateStrategyDie) DeepCopy() *StatefulSetUpdateStrategyDie {
 	r := *d.r.DeepCopy()
@@ -3766,6 +3885,13 @@ func (d *RollingUpdateStatefulSetStrategyDie) DieStampAt(jp string, fn interface
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *RollingUpdateStatefulSetStrategyDie) DieWith(fn func(d *RollingUpdateStatefulSetStrategyDie)) *RollingUpdateStatefulSetStrategyDie {
+	nd := RollingUpdateStatefulSetStrategyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -3950,6 +4076,13 @@ func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieStampAt(jp strin
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieWith(fn func(d *StatefulSetPersistentVolumeClaimRetentionPolicyDie)) *StatefulSetPersistentVolumeClaimRetentionPolicyDie {
+	nd := StatefulSetPersistentVolumeClaimRetentionPolicyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DeepCopy() *StatefulSetPersistentVolumeClaimRetentionPolicyDie {
 	r := *d.r.DeepCopy()
@@ -4118,6 +4251,13 @@ func (d *StatefulSetOrdinalsDie) DieStampAt(jp string, fn interface{}) *Stateful
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *StatefulSetOrdinalsDie) DieWith(fn func(d *StatefulSetOrdinalsDie)) *StatefulSetOrdinalsDie {
+	nd := StatefulSetOrdinalsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *StatefulSetOrdinalsDie) DeepCopy() *StatefulSetOrdinalsDie {
 	r := *d.r.DeepCopy()
@@ -4277,6 +4417,13 @@ func (d *StatefulSetStatusDie) DieStampAt(jp string, fn interface{}) *StatefulSe
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *StatefulSetStatusDie) DieWith(fn func(d *StatefulSetStatusDie)) *StatefulSetStatusDie {
+	nd := StatefulSetStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.

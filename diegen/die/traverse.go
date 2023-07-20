@@ -207,6 +207,7 @@ func (c *copyMethodMaker) generateDieFor(die Die) {
 	c.generateDieFeedMethodFor(die)
 	c.generateDieReleaseMethodFor(die)
 	c.generateDieStampMethodFor(die)
+	c.generateDieWithMethodFor(die)
 	c.generateDeepCopyMethodFor(die)
 
 	c.test.generateMissingFieldTestFor(die)
@@ -389,6 +390,16 @@ func (c *copyMethodMaker) generateDieStampMethodFor(die Die) {
 	c.Linef("			%s(fn).Call(args)", c.AliasedRef("reflect", "ValueOf"))
 	c.Linef("		}")
 	c.Linef("	})")
+	c.Linef("}")
+}
+
+func (c *copyMethodMaker) generateDieWithMethodFor(die Die) {
+	c.Linef("")
+	c.Linef("// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.")
+	c.Linef("func (d *%s) DieWith(fn func(d *%s)) *%s {", die.Type, die.Type, die.Type)
+	c.Linef("	nd := %s.DieFeed(d.DieRelease()).DieImmutable(false)", die.Blank)
+	c.Linef("	fn(nd)")
+	c.Linef("	return d.DieFeed(nd.DieRelease())")
 	c.Linef("}")
 }
 

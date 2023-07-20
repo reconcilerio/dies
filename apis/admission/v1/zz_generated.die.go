@@ -180,6 +180,13 @@ func (d *AdmissionRequestDie) DieStampAt(jp string, fn interface{}) *AdmissionRe
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *AdmissionRequestDie) DieWith(fn func(d *AdmissionRequestDie)) *AdmissionRequestDie {
+	nd := AdmissionRequestBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *AdmissionRequestDie) DeepCopy() *AdmissionRequestDie {
 	r := *d.r.DeepCopy()
@@ -447,6 +454,13 @@ func (d *AdmissionResponseDie) DieStampAt(jp string, fn interface{}) *AdmissionR
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *AdmissionResponseDie) DieWith(fn func(d *AdmissionResponseDie)) *AdmissionResponseDie {
+	nd := AdmissionResponseBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *AdmissionResponseDie) DeepCopy() *AdmissionResponseDie {
 	r := *d.r.DeepCopy()
@@ -648,6 +662,13 @@ func (d *AdmissionReviewDie) DieStampAt(jp string, fn interface{}) *AdmissionRev
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *AdmissionReviewDie) DieWith(fn func(d *AdmissionReviewDie)) *AdmissionReviewDie {
+	nd := AdmissionReviewBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.

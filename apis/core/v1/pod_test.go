@@ -371,6 +371,20 @@ func TestPod(t *testing.T) {
 			},
 		},
 		{
+			name: "with",
+			die: diecorev1.PodBlank.
+				DieWith(func(d *diecorev1.PodDie) {
+					d.APIVersion("v1")
+					d.Kind("Pod")
+				}),
+			expected: corev1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: "v1",
+					Kind:       "Pod",
+				},
+			},
+		},
+		{
 			name:         "load from yaml",
 			yamlFilePath: "testdata/pod.yaml",
 			expected: corev1.Pod{

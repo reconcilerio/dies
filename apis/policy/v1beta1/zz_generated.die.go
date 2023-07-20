@@ -196,6 +196,13 @@ func (d *PodSecurityPolicyDie) DieStampAt(jp string, fn interface{}) *PodSecurit
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodSecurityPolicyDie) DieWith(fn func(d *PodSecurityPolicyDie)) *PodSecurityPolicyDie {
+	nd := PodSecurityPolicyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PodSecurityPolicyDie) DeepCopy() *PodSecurityPolicyDie {
 	r := *d.r.DeepCopy()
@@ -416,6 +423,13 @@ func (d *PodSecurityPolicySpecDie) DieStampAt(jp string, fn interface{}) *PodSec
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodSecurityPolicySpecDie) DieWith(fn func(d *PodSecurityPolicySpecDie)) *PodSecurityPolicySpecDie {
+	nd := PodSecurityPolicySpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -744,6 +758,13 @@ func (d *HostPortRangeDie) DieStampAt(jp string, fn interface{}) *HostPortRangeD
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *HostPortRangeDie) DieWith(fn func(d *HostPortRangeDie)) *HostPortRangeDie {
+	nd := HostPortRangeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *HostPortRangeDie) DeepCopy() *HostPortRangeDie {
 	r := *d.r.DeepCopy()
@@ -910,6 +931,13 @@ func (d *SELinuxStrategyOptionsDie) DieStampAt(jp string, fn interface{}) *SELin
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SELinuxStrategyOptionsDie) DieWith(fn func(d *SELinuxStrategyOptionsDie)) *SELinuxStrategyOptionsDie {
+	nd := SELinuxStrategyOptionsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1080,6 +1108,13 @@ func (d *RunAsUserStrategyOptionsDie) DieStampAt(jp string, fn interface{}) *Run
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *RunAsUserStrategyOptionsDie) DieWith(fn func(d *RunAsUserStrategyOptionsDie)) *RunAsUserStrategyOptionsDie {
+	nd := RunAsUserStrategyOptionsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *RunAsUserStrategyOptionsDie) DeepCopy() *RunAsUserStrategyOptionsDie {
 	r := *d.r.DeepCopy()
@@ -1246,6 +1281,13 @@ func (d *RunAsGroupStrategyOptionsDie) DieStampAt(jp string, fn interface{}) *Ru
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *RunAsGroupStrategyOptionsDie) DieWith(fn func(d *RunAsGroupStrategyOptionsDie)) *RunAsGroupStrategyOptionsDie {
+	nd := RunAsGroupStrategyOptionsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1416,6 +1458,13 @@ func (d *SupplementalGroupsStrategyOptionsDie) DieStampAt(jp string, fn interfac
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SupplementalGroupsStrategyOptionsDie) DieWith(fn func(d *SupplementalGroupsStrategyOptionsDie)) *SupplementalGroupsStrategyOptionsDie {
+	nd := SupplementalGroupsStrategyOptionsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *SupplementalGroupsStrategyOptionsDie) DeepCopy() *SupplementalGroupsStrategyOptionsDie {
 	r := *d.r.DeepCopy()
@@ -1584,6 +1633,13 @@ func (d *FSGroupStrategyOptionsDie) DieStampAt(jp string, fn interface{}) *FSGro
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *FSGroupStrategyOptionsDie) DieWith(fn func(d *FSGroupStrategyOptionsDie)) *FSGroupStrategyOptionsDie {
+	nd := FSGroupStrategyOptionsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *FSGroupStrategyOptionsDie) DeepCopy() *FSGroupStrategyOptionsDie {
 	r := *d.r.DeepCopy()
@@ -1750,6 +1806,13 @@ func (d *AllowedHostPathDie) DieStampAt(jp string, fn interface{}) *AllowedHostP
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *AllowedHostPathDie) DieWith(fn func(d *AllowedHostPathDie)) *AllowedHostPathDie {
+	nd := AllowedHostPathBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1922,6 +1985,13 @@ func (d *AllowedFlexVolumeDie) DieStampAt(jp string, fn interface{}) *AllowedFle
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *AllowedFlexVolumeDie) DieWith(fn func(d *AllowedFlexVolumeDie)) *AllowedFlexVolumeDie {
+	nd := AllowedFlexVolumeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *AllowedFlexVolumeDie) DeepCopy() *AllowedFlexVolumeDie {
 	r := *d.r.DeepCopy()
@@ -2083,6 +2153,13 @@ func (d *AllowedCSIDriverDie) DieStampAt(jp string, fn interface{}) *AllowedCSID
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *AllowedCSIDriverDie) DieWith(fn func(d *AllowedCSIDriverDie)) *AllowedCSIDriverDie {
+	nd := AllowedCSIDriverBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *AllowedCSIDriverDie) DeepCopy() *AllowedCSIDriverDie {
 	r := *d.r.DeepCopy()
@@ -2242,6 +2319,13 @@ func (d *RuntimeClassStrategyOptionsDie) DieStampAt(jp string, fn interface{}) *
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *RuntimeClassStrategyOptionsDie) DieWith(fn func(d *RuntimeClassStrategyOptionsDie)) *RuntimeClassStrategyOptionsDie {
+	nd := RuntimeClassStrategyOptionsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -2410,6 +2494,13 @@ func (d *IDRangeDie) DieStampAt(jp string, fn interface{}) *IDRangeDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *IDRangeDie) DieWith(fn func(d *IDRangeDie)) *IDRangeDie {
+	nd := IDRangeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.

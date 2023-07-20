@@ -198,6 +198,13 @@ func (d *IngressDie) DieStampAt(jp string, fn interface{}) *IngressDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *IngressDie) DieWith(fn func(d *IngressDie)) *IngressDie {
+	nd := IngressBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *IngressDie) DeepCopy() *IngressDie {
 	r := *d.r.DeepCopy()
@@ -436,6 +443,13 @@ func (d *IngressSpecDie) DieStampAt(jp string, fn interface{}) *IngressSpecDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *IngressSpecDie) DieWith(fn func(d *IngressSpecDie)) *IngressSpecDie {
+	nd := IngressSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *IngressSpecDie) DeepCopy() *IngressSpecDie {
 	r := *d.r.DeepCopy()
@@ -618,6 +632,13 @@ func (d *IngressBackendDie) DieStampAt(jp string, fn interface{}) *IngressBacken
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *IngressBackendDie) DieWith(fn func(d *IngressBackendDie)) *IngressBackendDie {
+	nd := IngressBackendBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *IngressBackendDie) DeepCopy() *IngressBackendDie {
 	r := *d.r.DeepCopy()
@@ -784,6 +805,13 @@ func (d *IngressServiceBackendDie) DieStampAt(jp string, fn interface{}) *Ingres
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *IngressServiceBackendDie) DieWith(fn func(d *IngressServiceBackendDie)) *IngressServiceBackendDie {
+	nd := IngressServiceBackendBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -954,6 +982,13 @@ func (d *ServiceBackendPortDie) DieStampAt(jp string, fn interface{}) *ServiceBa
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ServiceBackendPortDie) DieWith(fn func(d *ServiceBackendPortDie)) *ServiceBackendPortDie {
+	nd := ServiceBackendPortBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ServiceBackendPortDie) DeepCopy() *ServiceBackendPortDie {
 	r := *d.r.DeepCopy()
@@ -1122,6 +1157,13 @@ func (d *IngressTLSDie) DieStampAt(jp string, fn interface{}) *IngressTLSDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *IngressTLSDie) DieWith(fn func(d *IngressTLSDie)) *IngressTLSDie {
+	nd := IngressTLSBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *IngressTLSDie) DeepCopy() *IngressTLSDie {
 	r := *d.r.DeepCopy()
@@ -1288,6 +1330,13 @@ func (d *IngressRuleDie) DieStampAt(jp string, fn interface{}) *IngressRuleDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *IngressRuleDie) DieWith(fn func(d *IngressRuleDie)) *IngressRuleDie {
+	nd := IngressRuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1460,6 +1509,13 @@ func (d *HTTPIngressRuleValueDie) DieStampAt(jp string, fn interface{}) *HTTPIng
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *HTTPIngressRuleValueDie) DieWith(fn func(d *HTTPIngressRuleValueDie)) *HTTPIngressRuleValueDie {
+	nd := HTTPIngressRuleValueBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *HTTPIngressRuleValueDie) DeepCopy() *HTTPIngressRuleValueDie {
 	r := *d.r.DeepCopy()
@@ -1619,6 +1675,13 @@ func (d *HTTPIngressPathDie) DieStampAt(jp string, fn interface{}) *HTTPIngressP
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *HTTPIngressPathDie) DieWith(fn func(d *HTTPIngressPathDie)) *HTTPIngressPathDie {
+	nd := HTTPIngressPathBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1796,6 +1859,13 @@ func (d *IngressStatusDie) DieStampAt(jp string, fn interface{}) *IngressStatusD
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *IngressStatusDie) DieWith(fn func(d *IngressStatusDie)) *IngressStatusDie {
+	nd := IngressStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *IngressStatusDie) DeepCopy() *IngressStatusDie {
 	r := *d.r.DeepCopy()
@@ -1957,6 +2027,13 @@ func (d *IngressLoadBalancerStatusDie) DieStampAt(jp string, fn interface{}) *In
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *IngressLoadBalancerStatusDie) DieWith(fn func(d *IngressLoadBalancerStatusDie)) *IngressLoadBalancerStatusDie {
+	nd := IngressLoadBalancerStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *IngressLoadBalancerStatusDie) DeepCopy() *IngressLoadBalancerStatusDie {
 	r := *d.r.DeepCopy()
@@ -2116,6 +2193,13 @@ func (d *IngressLoadBalancerIngressDie) DieStampAt(jp string, fn interface{}) *I
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *IngressLoadBalancerIngressDie) DieWith(fn func(d *IngressLoadBalancerIngressDie)) *IngressLoadBalancerIngressDie {
+	nd := IngressLoadBalancerIngressBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -2291,6 +2375,13 @@ func (d *IngressPortStatusDie) DieStampAt(jp string, fn interface{}) *IngressPor
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *IngressPortStatusDie) DieWith(fn func(d *IngressPortStatusDie)) *IngressPortStatusDie {
+	nd := IngressPortStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -2481,6 +2572,13 @@ func (d *IngressClassDie) DieStampAt(jp string, fn interface{}) *IngressClassDie
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *IngressClassDie) DieWith(fn func(d *IngressClassDie)) *IngressClassDie {
+	nd := IngressClassBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -2705,6 +2803,13 @@ func (d *IngressClassSpecDie) DieStampAt(jp string, fn interface{}) *IngressClas
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *IngressClassSpecDie) DieWith(fn func(d *IngressClassSpecDie)) *IngressClassSpecDie {
+	nd := IngressClassSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *IngressClassSpecDie) DeepCopy() *IngressClassSpecDie {
 	r := *d.r.DeepCopy()
@@ -2871,6 +2976,13 @@ func (d *IngressClassParametersReferenceDie) DieStampAt(jp string, fn interface{
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *IngressClassParametersReferenceDie) DieWith(fn func(d *IngressClassParametersReferenceDie)) *IngressClassParametersReferenceDie {
+	nd := IngressClassParametersReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -3075,6 +3187,13 @@ func (d *NetworkPolicyDie) DieStampAt(jp string, fn interface{}) *NetworkPolicyD
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NetworkPolicyDie) DieWith(fn func(d *NetworkPolicyDie)) *NetworkPolicyDie {
+	nd := NetworkPolicyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -3315,6 +3434,13 @@ func (d *NetworkPolicySpecDie) DieStampAt(jp string, fn interface{}) *NetworkPol
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NetworkPolicySpecDie) DieWith(fn func(d *NetworkPolicySpecDie)) *NetworkPolicySpecDie {
+	nd := NetworkPolicySpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *NetworkPolicySpecDie) DeepCopy() *NetworkPolicySpecDie {
 	r := *d.r.DeepCopy()
@@ -3497,6 +3623,13 @@ func (d *NetworkPolicyIngressRuleDie) DieStampAt(jp string, fn interface{}) *Net
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NetworkPolicyIngressRuleDie) DieWith(fn func(d *NetworkPolicyIngressRuleDie)) *NetworkPolicyIngressRuleDie {
+	nd := NetworkPolicyIngressRuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *NetworkPolicyIngressRuleDie) DeepCopy() *NetworkPolicyIngressRuleDie {
 	r := *d.r.DeepCopy()
@@ -3665,6 +3798,13 @@ func (d *NetworkPolicyEgressRuleDie) DieStampAt(jp string, fn interface{}) *Netw
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NetworkPolicyEgressRuleDie) DieWith(fn func(d *NetworkPolicyEgressRuleDie)) *NetworkPolicyEgressRuleDie {
+	nd := NetworkPolicyEgressRuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *NetworkPolicyEgressRuleDie) DeepCopy() *NetworkPolicyEgressRuleDie {
 	r := *d.r.DeepCopy()
@@ -3831,6 +3971,13 @@ func (d *NetworkPolicyPortDie) DieStampAt(jp string, fn interface{}) *NetworkPol
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NetworkPolicyPortDie) DieWith(fn func(d *NetworkPolicyPortDie)) *NetworkPolicyPortDie {
+	nd := NetworkPolicyPortBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -4022,6 +4169,13 @@ func (d *NetworkPolicyPeerDie) DieStampAt(jp string, fn interface{}) *NetworkPol
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NetworkPolicyPeerDie) DieWith(fn func(d *NetworkPolicyPeerDie)) *NetworkPolicyPeerDie {
+	nd := NetworkPolicyPeerBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *NetworkPolicyPeerDie) DeepCopy() *NetworkPolicyPeerDie {
 	r := *d.r.DeepCopy()
@@ -4201,6 +4355,13 @@ func (d *IPBlockDie) DieStampAt(jp string, fn interface{}) *IPBlockDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *IPBlockDie) DieWith(fn func(d *IPBlockDie)) *IPBlockDie {
+	nd := IPBlockBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *IPBlockDie) DeepCopy() *IPBlockDie {
 	r := *d.r.DeepCopy()
@@ -4367,6 +4528,13 @@ func (d *NetworkPolicyStatusDie) DieStampAt(jp string, fn interface{}) *NetworkP
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NetworkPolicyStatusDie) DieWith(fn func(d *NetworkPolicyStatusDie)) *NetworkPolicyStatusDie {
+	nd := NetworkPolicyStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.

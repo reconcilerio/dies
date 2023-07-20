@@ -196,6 +196,13 @@ func (d *HorizontalPodAutoscalerDie) DieStampAt(jp string, fn interface{}) *Hori
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *HorizontalPodAutoscalerDie) DieWith(fn func(d *HorizontalPodAutoscalerDie)) *HorizontalPodAutoscalerDie {
+	nd := HorizontalPodAutoscalerBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *HorizontalPodAutoscalerDie) DeepCopy() *HorizontalPodAutoscalerDie {
 	r := *d.r.DeepCopy()
@@ -434,6 +441,13 @@ func (d *HorizontalPodAutoscalerSpecDie) DieStampAt(jp string, fn interface{}) *
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *HorizontalPodAutoscalerSpecDie) DieWith(fn func(d *HorizontalPodAutoscalerSpecDie)) *HorizontalPodAutoscalerSpecDie {
+	nd := HorizontalPodAutoscalerSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *HorizontalPodAutoscalerSpecDie) DeepCopy() *HorizontalPodAutoscalerSpecDie {
 	r := *d.r.DeepCopy()
@@ -616,6 +630,13 @@ func (d *CrossVersionObjectReferenceDie) DieStampAt(jp string, fn interface{}) *
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CrossVersionObjectReferenceDie) DieWith(fn func(d *CrossVersionObjectReferenceDie)) *CrossVersionObjectReferenceDie {
+	nd := CrossVersionObjectReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *CrossVersionObjectReferenceDie) DeepCopy() *CrossVersionObjectReferenceDie {
 	r := *d.r.DeepCopy()
@@ -789,6 +810,13 @@ func (d *HorizontalPodAutoscalerStatusDie) DieStampAt(jp string, fn interface{})
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *HorizontalPodAutoscalerStatusDie) DieWith(fn func(d *HorizontalPodAutoscalerStatusDie)) *HorizontalPodAutoscalerStatusDie {
+	nd := HorizontalPodAutoscalerStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.

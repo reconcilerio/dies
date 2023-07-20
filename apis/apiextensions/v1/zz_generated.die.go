@@ -195,6 +195,13 @@ func (d *CustomResourceDefinitionDie) DieStampAt(jp string, fn interface{}) *Cus
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CustomResourceDefinitionDie) DieWith(fn func(d *CustomResourceDefinitionDie)) *CustomResourceDefinitionDie {
+	nd := CustomResourceDefinitionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *CustomResourceDefinitionDie) DeepCopy() *CustomResourceDefinitionDie {
 	r := *d.r.DeepCopy()
@@ -433,6 +440,13 @@ func (d *CustomResourceDefinitionSpecDie) DieStampAt(jp string, fn interface{}) 
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CustomResourceDefinitionSpecDie) DieWith(fn func(d *CustomResourceDefinitionSpecDie)) *CustomResourceDefinitionSpecDie {
+	nd := CustomResourceDefinitionSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *CustomResourceDefinitionSpecDie) DeepCopy() *CustomResourceDefinitionSpecDie {
 	r := *d.r.DeepCopy()
@@ -627,6 +641,13 @@ func (d *CustomResourceDefinitionVersionDie) DieStampAt(jp string, fn interface{
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CustomResourceDefinitionVersionDie) DieWith(fn func(d *CustomResourceDefinitionVersionDie)) *CustomResourceDefinitionVersionDie {
+	nd := CustomResourceDefinitionVersionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -839,6 +860,13 @@ func (d *CustomResourceValidationDie) DieStampAt(jp string, fn interface{}) *Cus
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CustomResourceValidationDie) DieWith(fn func(d *CustomResourceValidationDie)) *CustomResourceValidationDie {
+	nd := CustomResourceValidationBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *CustomResourceValidationDie) DeepCopy() *CustomResourceValidationDie {
 	r := *d.r.DeepCopy()
@@ -998,6 +1026,13 @@ func (d *CustomResourceSubresourcesDie) DieStampAt(jp string, fn interface{}) *C
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CustomResourceSubresourcesDie) DieWith(fn func(d *CustomResourceSubresourcesDie)) *CustomResourceSubresourcesDie {
+	nd := CustomResourceSubresourcesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1166,6 +1201,13 @@ func (d *CustomResourceSubresourceScaleDie) DieStampAt(jp string, fn interface{}
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CustomResourceSubresourceScaleDie) DieWith(fn func(d *CustomResourceSubresourceScaleDie)) *CustomResourceSubresourceScaleDie {
+	nd := CustomResourceSubresourceScaleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1341,6 +1383,13 @@ func (d *CustomResourceColumnDefinitionDie) DieStampAt(jp string, fn interface{}
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CustomResourceColumnDefinitionDie) DieWith(fn func(d *CustomResourceColumnDefinitionDie)) *CustomResourceColumnDefinitionDie {
+	nd := CustomResourceColumnDefinitionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1539,6 +1588,13 @@ func (d *CustomResourceConversionDie) DieStampAt(jp string, fn interface{}) *Cus
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CustomResourceConversionDie) DieWith(fn func(d *CustomResourceConversionDie)) *CustomResourceConversionDie {
+	nd := CustomResourceConversionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *CustomResourceConversionDie) DeepCopy() *CustomResourceConversionDie {
 	r := *d.r.DeepCopy()
@@ -1707,6 +1763,13 @@ func (d *WebhookConversionDie) DieStampAt(jp string, fn interface{}) *WebhookCon
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *WebhookConversionDie) DieWith(fn func(d *WebhookConversionDie)) *WebhookConversionDie {
+	nd := WebhookConversionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *WebhookConversionDie) DeepCopy() *WebhookConversionDie {
 	r := *d.r.DeepCopy()
@@ -1873,6 +1936,13 @@ func (d *WebhookClientConfigDie) DieStampAt(jp string, fn interface{}) *WebhookC
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *WebhookClientConfigDie) DieWith(fn func(d *WebhookClientConfigDie)) *WebhookClientConfigDie {
+	nd := WebhookClientConfigBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -2062,6 +2132,13 @@ func (d *ServiceReferenceDie) DieStampAt(jp string, fn interface{}) *ServiceRefe
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ServiceReferenceDie) DieWith(fn func(d *ServiceReferenceDie)) *ServiceReferenceDie {
+	nd := ServiceReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ServiceReferenceDie) DeepCopy() *ServiceReferenceDie {
 	r := *d.r.DeepCopy()
@@ -2244,6 +2321,13 @@ func (d *CustomResourceDefinitionStatusDie) DieStampAt(jp string, fn interface{}
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CustomResourceDefinitionStatusDie) DieWith(fn func(d *CustomResourceDefinitionStatusDie)) *CustomResourceDefinitionStatusDie {
+	nd := CustomResourceDefinitionStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *CustomResourceDefinitionStatusDie) DeepCopy() *CustomResourceDefinitionStatusDie {
 	r := *d.r.DeepCopy()
@@ -2417,6 +2501,13 @@ func (d *CustomResourceDefinitionNamesDie) DieStampAt(jp string, fn interface{})
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CustomResourceDefinitionNamesDie) DieWith(fn func(d *CustomResourceDefinitionNamesDie)) *CustomResourceDefinitionNamesDie {
+	nd := CustomResourceDefinitionNamesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
