@@ -197,6 +197,13 @@ func (d *CSIStorageCapacityDie) DieStampAt(jp string, fn interface{}) *CSIStorag
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CSIStorageCapacityDie) DieWith(fn func(d *CSIStorageCapacityDie)) *CSIStorageCapacityDie {
+	nd := CSIStorageCapacityBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *CSIStorageCapacityDie) DeepCopy() *CSIStorageCapacityDie {
 	r := *d.r.DeepCopy()

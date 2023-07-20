@@ -176,6 +176,13 @@ func (d *DirectDie) DieStampAt(jp string, fn interface{}) *DirectDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *DirectDie) DieWith(fn func(d *DirectDie)) *DirectDie {
+	nd := DirectBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *DirectDie) DeepCopy() *DirectDie {
 	r := *d.r.DeepCopy()

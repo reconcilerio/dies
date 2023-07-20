@@ -197,6 +197,13 @@ func (d *PodDisruptionBudgetDie) DieStampAt(jp string, fn interface{}) *PodDisru
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodDisruptionBudgetDie) DieWith(fn func(d *PodDisruptionBudgetDie)) *PodDisruptionBudgetDie {
+	nd := PodDisruptionBudgetBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PodDisruptionBudgetDie) DeepCopy() *PodDisruptionBudgetDie {
 	r := *d.r.DeepCopy()
@@ -435,6 +442,13 @@ func (d *PodDisruptionBudgetSpecDie) DieStampAt(jp string, fn interface{}) *PodD
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodDisruptionBudgetSpecDie) DieWith(fn func(d *PodDisruptionBudgetSpecDie)) *PodDisruptionBudgetSpecDie {
+	nd := PodDisruptionBudgetSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PodDisruptionBudgetSpecDie) DeepCopy() *PodDisruptionBudgetSpecDie {
 	r := *d.r.DeepCopy()
@@ -653,6 +667,13 @@ func (d *PodDisruptionBudgetStatusDie) DieStampAt(jp string, fn interface{}) *Po
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodDisruptionBudgetStatusDie) DieWith(fn func(d *PodDisruptionBudgetStatusDie)) *PodDisruptionBudgetStatusDie {
+	nd := PodDisruptionBudgetStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.

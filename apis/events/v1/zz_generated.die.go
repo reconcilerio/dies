@@ -197,6 +197,13 @@ func (d *EventDie) DieStampAt(jp string, fn interface{}) *EventDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *EventDie) DieWith(fn func(d *EventDie)) *EventDie {
+	nd := EventBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *EventDie) DeepCopy() *EventDie {
 	r := *d.r.DeepCopy()
@@ -499,6 +506,13 @@ func (d *EventSeriesDie) DieStampAt(jp string, fn interface{}) *EventSeriesDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *EventSeriesDie) DieWith(fn func(d *EventSeriesDie)) *EventSeriesDie {
+	nd := EventSeriesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.

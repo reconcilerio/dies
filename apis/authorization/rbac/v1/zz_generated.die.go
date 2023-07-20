@@ -196,6 +196,13 @@ func (d *ClusterRoleDie) DieStampAt(jp string, fn interface{}) *ClusterRoleDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ClusterRoleDie) DieWith(fn func(d *ClusterRoleDie)) *ClusterRoleDie {
+	nd := ClusterRoleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ClusterRoleDie) DeepCopy() *ClusterRoleDie {
 	r := *d.r.DeepCopy()
@@ -416,6 +423,13 @@ func (d *AggregationRuleDie) DieStampAt(jp string, fn interface{}) *AggregationR
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *AggregationRuleDie) DieWith(fn func(d *AggregationRuleDie)) *AggregationRuleDie {
+	nd := AggregationRuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *AggregationRuleDie) DeepCopy() *AggregationRuleDie {
 	r := *d.r.DeepCopy()
@@ -590,6 +604,13 @@ func (d *ClusterRoleBindingDie) DieStampAt(jp string, fn interface{}) *ClusterRo
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ClusterRoleBindingDie) DieWith(fn func(d *ClusterRoleBindingDie)) *ClusterRoleBindingDie {
+	nd := ClusterRoleBindingBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -827,6 +848,13 @@ func (d *RoleDie) DieStampAt(jp string, fn interface{}) *RoleDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *RoleDie) DieWith(fn func(d *RoleDie)) *RoleDie {
+	nd := RoleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *RoleDie) DeepCopy() *RoleDie {
 	r := *d.r.DeepCopy()
@@ -1040,6 +1068,13 @@ func (d *PolicyRuleDie) DieStampAt(jp string, fn interface{}) *PolicyRuleDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PolicyRuleDie) DieWith(fn func(d *PolicyRuleDie)) *PolicyRuleDie {
+	nd := PolicyRuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PolicyRuleDie) DeepCopy() *PolicyRuleDie {
 	r := *d.r.DeepCopy()
@@ -1242,6 +1277,13 @@ func (d *RoleBindingDie) DieStampAt(jp string, fn interface{}) *RoleBindingDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *RoleBindingDie) DieWith(fn func(d *RoleBindingDie)) *RoleBindingDie {
+	nd := RoleBindingBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1464,6 +1506,13 @@ func (d *SubjectDie) DieStampAt(jp string, fn interface{}) *SubjectDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SubjectDie) DieWith(fn func(d *SubjectDie)) *SubjectDie {
+	nd := SubjectBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *SubjectDie) DeepCopy() *SubjectDie {
 	r := *d.r.DeepCopy()
@@ -1644,6 +1693,13 @@ func (d *RoleRefDie) DieStampAt(jp string, fn interface{}) *RoleRefDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *RoleRefDie) DieWith(fn func(d *RoleRefDie)) *RoleRefDie {
+	nd := RoleRefBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.

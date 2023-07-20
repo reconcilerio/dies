@@ -195,6 +195,13 @@ func (d *LocalSubjectAccessReviewDie) DieStampAt(jp string, fn interface{}) *Loc
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *LocalSubjectAccessReviewDie) DieWith(fn func(d *LocalSubjectAccessReviewDie)) *LocalSubjectAccessReviewDie {
+	nd := LocalSubjectAccessReviewBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *LocalSubjectAccessReviewDie) DeepCopy() *LocalSubjectAccessReviewDie {
 	r := *d.r.DeepCopy()
@@ -428,6 +435,13 @@ func (d *SelfSubjectAccessReviewDie) DieStampAt(jp string, fn interface{}) *Self
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SelfSubjectAccessReviewDie) DieWith(fn func(d *SelfSubjectAccessReviewDie)) *SelfSubjectAccessReviewDie {
+	nd := SelfSubjectAccessReviewBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -668,6 +682,13 @@ func (d *SelfSubjectAccessReviewSpecDie) DieStampAt(jp string, fn interface{}) *
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SelfSubjectAccessReviewSpecDie) DieWith(fn func(d *SelfSubjectAccessReviewSpecDie)) *SelfSubjectAccessReviewSpecDie {
+	nd := SelfSubjectAccessReviewSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *SelfSubjectAccessReviewSpecDie) DeepCopy() *SelfSubjectAccessReviewSpecDie {
 	r := *d.r.DeepCopy()
@@ -849,6 +870,13 @@ func (d *SelfSubjectRulesReviewDie) DieStampAt(jp string, fn interface{}) *SelfS
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SelfSubjectRulesReviewDie) DieWith(fn func(d *SelfSubjectRulesReviewDie)) *SelfSubjectRulesReviewDie {
+	nd := SelfSubjectRulesReviewBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1089,6 +1117,13 @@ func (d *SelfSubjectRulesReviewSpecDie) DieStampAt(jp string, fn interface{}) *S
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SelfSubjectRulesReviewSpecDie) DieWith(fn func(d *SelfSubjectRulesReviewSpecDie)) *SelfSubjectRulesReviewSpecDie {
+	nd := SelfSubjectRulesReviewSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *SelfSubjectRulesReviewSpecDie) DeepCopy() *SelfSubjectRulesReviewSpecDie {
 	r := *d.r.DeepCopy()
@@ -1248,6 +1283,13 @@ func (d *SubjectRulesReviewStatusDie) DieStampAt(jp string, fn interface{}) *Sub
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SubjectRulesReviewStatusDie) DieWith(fn func(d *SubjectRulesReviewStatusDie)) *SubjectRulesReviewStatusDie {
+	nd := SubjectRulesReviewStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1432,6 +1474,13 @@ func (d *ResourceRuleDie) DieStampAt(jp string, fn interface{}) *ResourceRuleDie
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ResourceRuleDie) DieWith(fn func(d *ResourceRuleDie)) *ResourceRuleDie {
+	nd := ResourceRuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ResourceRuleDie) DeepCopy() *ResourceRuleDie {
 	r := *d.r.DeepCopy()
@@ -1612,6 +1661,13 @@ func (d *NonResourceRuleDie) DieStampAt(jp string, fn interface{}) *NonResourceR
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NonResourceRuleDie) DieWith(fn func(d *NonResourceRuleDie)) *NonResourceRuleDie {
+	nd := NonResourceRuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1795,6 +1851,13 @@ func (d *SubjectAccessReviewDie) DieStampAt(jp string, fn interface{}) *SubjectA
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SubjectAccessReviewDie) DieWith(fn func(d *SubjectAccessReviewDie)) *SubjectAccessReviewDie {
+	nd := SubjectAccessReviewBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -2035,6 +2098,13 @@ func (d *SubjectAccessReviewSpecDie) DieStampAt(jp string, fn interface{}) *Subj
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SubjectAccessReviewSpecDie) DieWith(fn func(d *SubjectAccessReviewSpecDie)) *SubjectAccessReviewSpecDie {
+	nd := SubjectAccessReviewSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *SubjectAccessReviewSpecDie) DeepCopy() *SubjectAccessReviewSpecDie {
 	r := *d.r.DeepCopy()
@@ -2222,6 +2292,13 @@ func (d *ResourceAttributesDie) DieStampAt(jp string, fn interface{}) *ResourceA
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ResourceAttributesDie) DieWith(fn func(d *ResourceAttributesDie)) *ResourceAttributesDie {
+	nd := ResourceAttributesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -2427,6 +2504,13 @@ func (d *NonResourceAttributesDie) DieStampAt(jp string, fn interface{}) *NonRes
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NonResourceAttributesDie) DieWith(fn func(d *NonResourceAttributesDie)) *NonResourceAttributesDie {
+	nd := NonResourceAttributesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *NonResourceAttributesDie) DeepCopy() *NonResourceAttributesDie {
 	r := *d.r.DeepCopy()
@@ -2593,6 +2677,13 @@ func (d *SubjectAccessReviewStatusDie) DieStampAt(jp string, fn interface{}) *Su
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SubjectAccessReviewStatusDie) DieWith(fn func(d *SubjectAccessReviewStatusDie)) *SubjectAccessReviewStatusDie {
+	nd := SubjectAccessReviewStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.

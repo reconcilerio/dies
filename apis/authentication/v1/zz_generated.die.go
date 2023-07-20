@@ -197,6 +197,13 @@ func (d *TokenReviewDie) DieStampAt(jp string, fn interface{}) *TokenReviewDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *TokenReviewDie) DieWith(fn func(d *TokenReviewDie)) *TokenReviewDie {
+	nd := TokenReviewBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *TokenReviewDie) DeepCopy() *TokenReviewDie {
 	r := *d.r.DeepCopy()
@@ -417,6 +424,13 @@ func (d *TokenRequestSpecDie) DieStampAt(jp string, fn interface{}) *TokenReques
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *TokenRequestSpecDie) DieWith(fn func(d *TokenRequestSpecDie)) *TokenRequestSpecDie {
+	nd := TokenRequestSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *TokenRequestSpecDie) DeepCopy() *TokenRequestSpecDie {
 	r := *d.r.DeepCopy()
@@ -590,6 +604,13 @@ func (d *BoundObjectReferenceDie) DieStampAt(jp string, fn interface{}) *BoundOb
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *BoundObjectReferenceDie) DieWith(fn func(d *BoundObjectReferenceDie)) *BoundObjectReferenceDie {
+	nd := BoundObjectReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -774,6 +795,13 @@ func (d *TokenRequestStatusDie) DieStampAt(jp string, fn interface{}) *TokenRequ
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *TokenRequestStatusDie) DieWith(fn func(d *TokenRequestStatusDie)) *TokenRequestStatusDie {
+	nd := TokenRequestStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *TokenRequestStatusDie) DeepCopy() *TokenRequestStatusDie {
 	r := *d.r.DeepCopy()
@@ -940,6 +968,13 @@ func (d *UserInfoDie) DieStampAt(jp string, fn interface{}) *UserInfoDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *UserInfoDie) DieWith(fn func(d *UserInfoDie)) *UserInfoDie {
+	nd := UserInfoBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.

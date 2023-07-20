@@ -195,6 +195,13 @@ func (d *APIServiceDie) DieStampAt(jp string, fn interface{}) *APIServiceDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *APIServiceDie) DieWith(fn func(d *APIServiceDie)) *APIServiceDie {
+	nd := APIServiceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *APIServiceDie) DeepCopy() *APIServiceDie {
 	r := *d.r.DeepCopy()
@@ -433,6 +440,13 @@ func (d *APIServiceSpecDie) DieStampAt(jp string, fn interface{}) *APIServiceSpe
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *APIServiceSpecDie) DieWith(fn func(d *APIServiceSpecDie)) *APIServiceSpecDie {
+	nd := APIServiceSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *APIServiceSpecDie) DeepCopy() *APIServiceSpecDie {
 	r := *d.r.DeepCopy()
@@ -636,6 +650,13 @@ func (d *ServiceReferenceDie) DieStampAt(jp string, fn interface{}) *ServiceRefe
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ServiceReferenceDie) DieWith(fn func(d *ServiceReferenceDie)) *ServiceReferenceDie {
+	nd := ServiceReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ServiceReferenceDie) DeepCopy() *ServiceReferenceDie {
 	r := *d.r.DeepCopy()
@@ -809,6 +830,13 @@ func (d *APIServiceStatusDie) DieStampAt(jp string, fn interface{}) *APIServiceS
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *APIServiceStatusDie) DieWith(fn func(d *APIServiceStatusDie)) *APIServiceStatusDie {
+	nd := APIServiceStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.

@@ -196,6 +196,13 @@ func (d *RuntimeClassDie) DieStampAt(jp string, fn interface{}) *RuntimeClassDie
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *RuntimeClassDie) DieWith(fn func(d *RuntimeClassDie)) *RuntimeClassDie {
+	nd := RuntimeClassBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *RuntimeClassDie) DeepCopy() *RuntimeClassDie {
 	r := *d.r.DeepCopy()
@@ -423,6 +430,13 @@ func (d *OverheadDie) DieStampAt(jp string, fn interface{}) *OverheadDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *OverheadDie) DieWith(fn func(d *OverheadDie)) *OverheadDie {
+	nd := OverheadBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *OverheadDie) DeepCopy() *OverheadDie {
 	r := *d.r.DeepCopy()
@@ -582,6 +596,13 @@ func (d *SchedulingDie) DieStampAt(jp string, fn interface{}) *SchedulingDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SchedulingDie) DieWith(fn func(d *SchedulingDie)) *SchedulingDie {
+	nd := SchedulingBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.

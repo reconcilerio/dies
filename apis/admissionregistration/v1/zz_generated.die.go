@@ -181,6 +181,13 @@ func (d *WebhookClientConfigDie) DieStampAt(jp string, fn interface{}) *WebhookC
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *WebhookClientConfigDie) DieWith(fn func(d *WebhookClientConfigDie)) *WebhookClientConfigDie {
+	nd := WebhookClientConfigBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *WebhookClientConfigDie) DeepCopy() *WebhookClientConfigDie {
 	r := *d.r.DeepCopy()
@@ -368,6 +375,13 @@ func (d *ServiceReferenceDie) DieStampAt(jp string, fn interface{}) *ServiceRefe
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ServiceReferenceDie) DieWith(fn func(d *ServiceReferenceDie)) *ServiceReferenceDie {
+	nd := ServiceReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ServiceReferenceDie) DeepCopy() *ServiceReferenceDie {
 	r := *d.r.DeepCopy()
@@ -550,6 +564,13 @@ func (d *RuleWithOperationsDie) DieStampAt(jp string, fn interface{}) *RuleWithO
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *RuleWithOperationsDie) DieWith(fn func(d *RuleWithOperationsDie)) *RuleWithOperationsDie {
+	nd := RuleWithOperationsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *RuleWithOperationsDie) DeepCopy() *RuleWithOperationsDie {
 	r := *d.r.DeepCopy()
@@ -716,6 +737,13 @@ func (d *RuleDie) DieStampAt(jp string, fn interface{}) *RuleDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *RuleDie) DieWith(fn func(d *RuleDie)) *RuleDie {
+	nd := RuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -906,6 +934,13 @@ func (d *MatchConditionDie) DieStampAt(jp string, fn interface{}) *MatchConditio
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *MatchConditionDie) DieWith(fn func(d *MatchConditionDie)) *MatchConditionDie {
+	nd := MatchConditionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *MatchConditionDie) DeepCopy() *MatchConditionDie {
 	r := *d.r.DeepCopy()
@@ -1093,6 +1128,13 @@ func (d *MutatingWebhookConfigurationDie) DieStampAt(jp string, fn interface{}) 
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *MutatingWebhookConfigurationDie) DieWith(fn func(d *MutatingWebhookConfigurationDie)) *MutatingWebhookConfigurationDie {
+	nd := MutatingWebhookConfigurationBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1306,6 +1348,13 @@ func (d *MutatingWebhookDie) DieStampAt(jp string, fn interface{}) *MutatingWebh
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *MutatingWebhookDie) DieWith(fn func(d *MutatingWebhookDie)) *MutatingWebhookDie {
+	nd := MutatingWebhookBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1585,6 +1634,13 @@ func (d *ValidatingWebhookConfigurationDie) DieStampAt(jp string, fn interface{}
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ValidatingWebhookConfigurationDie) DieWith(fn func(d *ValidatingWebhookConfigurationDie)) *ValidatingWebhookConfigurationDie {
+	nd := ValidatingWebhookConfigurationBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ValidatingWebhookConfigurationDie) DeepCopy() *ValidatingWebhookConfigurationDie {
 	r := *d.r.DeepCopy()
@@ -1796,6 +1852,13 @@ func (d *ValidatingWebhookDie) DieStampAt(jp string, fn interface{}) *Validating
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ValidatingWebhookDie) DieWith(fn func(d *ValidatingWebhookDie)) *ValidatingWebhookDie {
+	nd := ValidatingWebhookBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.

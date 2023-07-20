@@ -196,6 +196,13 @@ func (d *LeaseDie) DieStampAt(jp string, fn interface{}) *LeaseDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *LeaseDie) DieWith(fn func(d *LeaseDie)) *LeaseDie {
+	nd := LeaseBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *LeaseDie) DeepCopy() *LeaseDie {
 	r := *d.r.DeepCopy()
@@ -416,6 +423,13 @@ func (d *LeaseSpecDie) DieStampAt(jp string, fn interface{}) *LeaseSpecDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *LeaseSpecDie) DieWith(fn func(d *LeaseSpecDie)) *LeaseSpecDie {
+	nd := LeaseSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.

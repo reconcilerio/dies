@@ -199,6 +199,13 @@ func (d *BindingDie) DieStampAt(jp string, fn interface{}) *BindingDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *BindingDie) DieWith(fn func(d *BindingDie)) *BindingDie {
+	nd := BindingBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *BindingDie) DeepCopy() *BindingDie {
 	r := *d.r.DeepCopy()
@@ -412,6 +419,13 @@ func (d *ObjectReferenceDie) DieStampAt(jp string, fn interface{}) *ObjectRefere
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ObjectReferenceDie) DieWith(fn func(d *ObjectReferenceDie)) *ObjectReferenceDie {
+	nd := ObjectReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ObjectReferenceDie) DeepCopy() *ObjectReferenceDie {
 	r := *d.r.DeepCopy()
@@ -615,6 +629,13 @@ func (d *LocalObjectReferenceDie) DieStampAt(jp string, fn interface{}) *LocalOb
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *LocalObjectReferenceDie) DieWith(fn func(d *LocalObjectReferenceDie)) *LocalObjectReferenceDie {
+	nd := LocalObjectReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *LocalObjectReferenceDie) DeepCopy() *LocalObjectReferenceDie {
 	r := *d.r.DeepCopy()
@@ -774,6 +795,13 @@ func (d *TypedLocalObjectReferenceDie) DieStampAt(jp string, fn interface{}) *Ty
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *TypedLocalObjectReferenceDie) DieWith(fn func(d *TypedLocalObjectReferenceDie)) *TypedLocalObjectReferenceDie {
+	nd := TypedLocalObjectReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -949,6 +977,13 @@ func (d *TypedObjectReferenceDie) DieStampAt(jp string, fn interface{}) *TypedOb
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *TypedObjectReferenceDie) DieWith(fn func(d *TypedObjectReferenceDie)) *TypedObjectReferenceDie {
+	nd := TypedObjectReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1133,6 +1168,13 @@ func (d *SecretReferenceDie) DieStampAt(jp string, fn interface{}) *SecretRefere
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SecretReferenceDie) DieWith(fn func(d *SecretReferenceDie)) *SecretReferenceDie {
+	nd := SecretReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *SecretReferenceDie) DeepCopy() *SecretReferenceDie {
 	r := *d.r.DeepCopy()
@@ -1301,6 +1343,13 @@ func (d *TopologySelectorTermDie) DieStampAt(jp string, fn interface{}) *Topolog
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *TopologySelectorTermDie) DieWith(fn func(d *TopologySelectorTermDie)) *TopologySelectorTermDie {
+	nd := TopologySelectorTermBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *TopologySelectorTermDie) DeepCopy() *TopologySelectorTermDie {
 	r := *d.r.DeepCopy()
@@ -1460,6 +1509,13 @@ func (d *TopologySelectorLabelRequirementDie) DieStampAt(jp string, fn interface
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *TopologySelectorLabelRequirementDie) DieWith(fn func(d *TopologySelectorLabelRequirementDie)) *TopologySelectorLabelRequirementDie {
+	nd := TopologySelectorLabelRequirementBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1643,6 +1699,13 @@ func (d *ComponentStatusDie) DieStampAt(jp string, fn interface{}) *ComponentSta
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ComponentStatusDie) DieWith(fn func(d *ComponentStatusDie)) *ComponentStatusDie {
+	nd := ComponentStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -1873,6 +1936,13 @@ func (d *ConfigMapDie) DieStampAt(jp string, fn interface{}) *ConfigMapDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ConfigMapDie) DieWith(fn func(d *ConfigMapDie)) *ConfigMapDie {
+	nd := ConfigMapBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ConfigMapDie) DeepCopy() *ConfigMapDie {
 	r := *d.r.DeepCopy()
@@ -2084,6 +2154,13 @@ func (d *ContainerDie) DieStampAt(jp string, fn interface{}) *ContainerDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ContainerDie) DieWith(fn func(d *ContainerDie)) *ContainerDie {
+	nd := ContainerBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -2401,6 +2478,13 @@ func (d *ContainerPortDie) DieStampAt(jp string, fn interface{}) *ContainerPortD
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ContainerPortDie) DieWith(fn func(d *ContainerPortDie)) *ContainerPortDie {
+	nd := ContainerPortBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ContainerPortDie) DeepCopy() *ContainerPortDie {
 	r := *d.r.DeepCopy()
@@ -2590,6 +2674,13 @@ func (d *EnvFromSourceDie) DieStampAt(jp string, fn interface{}) *EnvFromSourceD
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *EnvFromSourceDie) DieWith(fn func(d *EnvFromSourceDie)) *EnvFromSourceDie {
+	nd := EnvFromSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *EnvFromSourceDie) DeepCopy() *EnvFromSourceDie {
 	r := *d.r.DeepCopy()
@@ -2765,6 +2856,13 @@ func (d *ConfigMapEnvSourceDie) DieStampAt(jp string, fn interface{}) *ConfigMap
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ConfigMapEnvSourceDie) DieWith(fn func(d *ConfigMapEnvSourceDie)) *ConfigMapEnvSourceDie {
+	nd := ConfigMapEnvSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ConfigMapEnvSourceDie) DeepCopy() *ConfigMapEnvSourceDie {
 	r := *d.r.DeepCopy()
@@ -2933,6 +3031,13 @@ func (d *SecretEnvSourceDie) DieStampAt(jp string, fn interface{}) *SecretEnvSou
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SecretEnvSourceDie) DieWith(fn func(d *SecretEnvSourceDie)) *SecretEnvSourceDie {
+	nd := SecretEnvSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *SecretEnvSourceDie) DeepCopy() *SecretEnvSourceDie {
 	r := *d.r.DeepCopy()
@@ -3099,6 +3204,13 @@ func (d *EnvVarDie) DieStampAt(jp string, fn interface{}) *EnvVarDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *EnvVarDie) DieWith(fn func(d *EnvVarDie)) *EnvVarDie {
+	nd := EnvVarBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -3274,6 +3386,13 @@ func (d *EnvVarSourceDie) DieStampAt(jp string, fn interface{}) *EnvVarSourceDie
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *EnvVarSourceDie) DieWith(fn func(d *EnvVarSourceDie)) *EnvVarSourceDie {
+	nd := EnvVarSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -3458,6 +3577,13 @@ func (d *ObjectFieldSelectorDie) DieStampAt(jp string, fn interface{}) *ObjectFi
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ObjectFieldSelectorDie) DieWith(fn func(d *ObjectFieldSelectorDie)) *ObjectFieldSelectorDie {
+	nd := ObjectFieldSelectorBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ObjectFieldSelectorDie) DeepCopy() *ObjectFieldSelectorDie {
 	r := *d.r.DeepCopy()
@@ -3624,6 +3750,13 @@ func (d *ResourceFieldSelectorDie) DieStampAt(jp string, fn interface{}) *Resour
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ResourceFieldSelectorDie) DieWith(fn func(d *ResourceFieldSelectorDie)) *ResourceFieldSelectorDie {
+	nd := ResourceFieldSelectorBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -3801,6 +3934,13 @@ func (d *ConfigMapKeySelectorDie) DieStampAt(jp string, fn interface{}) *ConfigM
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ConfigMapKeySelectorDie) DieWith(fn func(d *ConfigMapKeySelectorDie)) *ConfigMapKeySelectorDie {
+	nd := ConfigMapKeySelectorBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ConfigMapKeySelectorDie) DeepCopy() *ConfigMapKeySelectorDie {
 	r := *d.r.DeepCopy()
@@ -3976,6 +4116,13 @@ func (d *SecretKeySelectorDie) DieStampAt(jp string, fn interface{}) *SecretKeyS
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SecretKeySelectorDie) DieWith(fn func(d *SecretKeySelectorDie)) *SecretKeySelectorDie {
+	nd := SecretKeySelectorBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *SecretKeySelectorDie) DeepCopy() *SecretKeySelectorDie {
 	r := *d.r.DeepCopy()
@@ -4149,6 +4296,13 @@ func (d *ResourceRequirementsDie) DieStampAt(jp string, fn interface{}) *Resourc
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ResourceRequirementsDie) DieWith(fn func(d *ResourceRequirementsDie)) *ResourceRequirementsDie {
+	nd := ResourceRequirementsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -4330,6 +4484,13 @@ func (d *ResourceClaimDie) DieStampAt(jp string, fn interface{}) *ResourceClaimD
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ResourceClaimDie) DieWith(fn func(d *ResourceClaimDie)) *ResourceClaimDie {
+	nd := ResourceClaimBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ResourceClaimDie) DeepCopy() *ResourceClaimDie {
 	r := *d.r.DeepCopy()
@@ -4489,6 +4650,13 @@ func (d *ContainerResizePolicyDie) DieStampAt(jp string, fn interface{}) *Contai
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ContainerResizePolicyDie) DieWith(fn func(d *ContainerResizePolicyDie)) *ContainerResizePolicyDie {
+	nd := ContainerResizePolicyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -4657,6 +4825,13 @@ func (d *VolumeMountDie) DieStampAt(jp string, fn interface{}) *VolumeMountDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *VolumeMountDie) DieWith(fn func(d *VolumeMountDie)) *VolumeMountDie {
+	nd := VolumeMountBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -4855,6 +5030,13 @@ func (d *VolumeDeviceDie) DieStampAt(jp string, fn interface{}) *VolumeDeviceDie
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *VolumeDeviceDie) DieWith(fn func(d *VolumeDeviceDie)) *VolumeDeviceDie {
+	nd := VolumeDeviceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *VolumeDeviceDie) DeepCopy() *VolumeDeviceDie {
 	r := *d.r.DeepCopy()
@@ -5021,6 +5203,13 @@ func (d *ProbeDie) DieStampAt(jp string, fn interface{}) *ProbeDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ProbeDie) DieWith(fn func(d *ProbeDie)) *ProbeDie {
+	nd := ProbeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -5226,6 +5415,13 @@ func (d *LifecycleDie) DieStampAt(jp string, fn interface{}) *LifecycleDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *LifecycleDie) DieWith(fn func(d *LifecycleDie)) *LifecycleDie {
+	nd := LifecycleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *LifecycleDie) DeepCopy() *LifecycleDie {
 	r := *d.r.DeepCopy()
@@ -5392,6 +5588,13 @@ func (d *LifecycleHandlerDie) DieStampAt(jp string, fn interface{}) *LifecycleHa
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *LifecycleHandlerDie) DieWith(fn func(d *LifecycleHandlerDie)) *LifecycleHandlerDie {
+	nd := LifecycleHandlerBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -5567,6 +5770,13 @@ func (d *ProbeHandlerDie) DieStampAt(jp string, fn interface{}) *ProbeHandlerDie
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ProbeHandlerDie) DieWith(fn func(d *ProbeHandlerDie)) *ProbeHandlerDie {
+	nd := ProbeHandlerBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -5751,6 +5961,13 @@ func (d *ExecActionDie) DieStampAt(jp string, fn interface{}) *ExecActionDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ExecActionDie) DieWith(fn func(d *ExecActionDie)) *ExecActionDie {
+	nd := ExecActionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ExecActionDie) DeepCopy() *ExecActionDie {
 	r := *d.r.DeepCopy()
@@ -5910,6 +6127,13 @@ func (d *HTTPGetActionDie) DieStampAt(jp string, fn interface{}) *HTTPGetActionD
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *HTTPGetActionDie) DieWith(fn func(d *HTTPGetActionDie)) *HTTPGetActionDie {
+	nd := HTTPGetActionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -6115,6 +6339,13 @@ func (d *HTTPHeaderDie) DieStampAt(jp string, fn interface{}) *HTTPHeaderDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *HTTPHeaderDie) DieWith(fn func(d *HTTPHeaderDie)) *HTTPHeaderDie {
+	nd := HTTPHeaderBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *HTTPHeaderDie) DeepCopy() *HTTPHeaderDie {
 	r := *d.r.DeepCopy()
@@ -6281,6 +6512,13 @@ func (d *TCPSocketActionDie) DieStampAt(jp string, fn interface{}) *TCPSocketAct
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *TCPSocketActionDie) DieWith(fn func(d *TCPSocketActionDie)) *TCPSocketActionDie {
+	nd := TCPSocketActionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -6465,6 +6703,13 @@ func (d *GRPCActionDie) DieStampAt(jp string, fn interface{}) *GRPCActionDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *GRPCActionDie) DieWith(fn func(d *GRPCActionDie)) *GRPCActionDie {
+	nd := GRPCActionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *GRPCActionDie) DeepCopy() *GRPCActionDie {
 	r := *d.r.DeepCopy()
@@ -6633,6 +6878,13 @@ func (d *SecurityContextDie) DieStampAt(jp string, fn interface{}) *SecurityCont
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SecurityContextDie) DieWith(fn func(d *SecurityContextDie)) *SecurityContextDie {
+	nd := SecurityContextBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -6866,6 +7118,13 @@ func (d *CapabilitiesDie) DieStampAt(jp string, fn interface{}) *CapabilitiesDie
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CapabilitiesDie) DieWith(fn func(d *CapabilitiesDie)) *CapabilitiesDie {
+	nd := CapabilitiesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *CapabilitiesDie) DeepCopy() *CapabilitiesDie {
 	r := *d.r.DeepCopy()
@@ -7032,6 +7291,13 @@ func (d *SELinuxOptionsDie) DieStampAt(jp string, fn interface{}) *SELinuxOption
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SELinuxOptionsDie) DieWith(fn func(d *SELinuxOptionsDie)) *SELinuxOptionsDie {
+	nd := SELinuxOptionsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -7216,6 +7482,13 @@ func (d *WindowsSecurityContextOptionsDie) DieStampAt(jp string, fn interface{})
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *WindowsSecurityContextOptionsDie) DieWith(fn func(d *WindowsSecurityContextOptionsDie)) *WindowsSecurityContextOptionsDie {
+	nd := WindowsSecurityContextOptionsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *WindowsSecurityContextOptionsDie) DeepCopy() *WindowsSecurityContextOptionsDie {
 	r := *d.r.DeepCopy()
@@ -7398,6 +7671,13 @@ func (d *SeccompProfileDie) DieStampAt(jp string, fn interface{}) *SeccompProfil
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SeccompProfileDie) DieWith(fn func(d *SeccompProfileDie)) *SeccompProfileDie {
+	nd := SeccompProfileBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *SeccompProfileDie) DeepCopy() *SeccompProfileDie {
 	r := *d.r.DeepCopy()
@@ -7566,6 +7846,13 @@ func (d *ContainerStatusDie) DieStampAt(jp string, fn interface{}) *ContainerSta
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ContainerStatusDie) DieWith(fn func(d *ContainerStatusDie)) *ContainerStatusDie {
+	nd := ContainerStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -7801,6 +8088,13 @@ func (d *ContainerStateDie) DieStampAt(jp string, fn interface{}) *ContainerStat
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ContainerStateDie) DieWith(fn func(d *ContainerStateDie)) *ContainerStateDie {
+	nd := ContainerStateBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ContainerStateDie) DeepCopy() *ContainerStateDie {
 	r := *d.r.DeepCopy()
@@ -7976,6 +8270,13 @@ func (d *ContainerStateWaitingDie) DieStampAt(jp string, fn interface{}) *Contai
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ContainerStateWaitingDie) DieWith(fn func(d *ContainerStateWaitingDie)) *ContainerStateWaitingDie {
+	nd := ContainerStateWaitingBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ContainerStateWaitingDie) DeepCopy() *ContainerStateWaitingDie {
 	r := *d.r.DeepCopy()
@@ -8144,6 +8445,13 @@ func (d *ContainerStateRunningDie) DieStampAt(jp string, fn interface{}) *Contai
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ContainerStateRunningDie) DieWith(fn func(d *ContainerStateRunningDie)) *ContainerStateRunningDie {
+	nd := ContainerStateRunningBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ContainerStateRunningDie) DeepCopy() *ContainerStateRunningDie {
 	r := *d.r.DeepCopy()
@@ -8303,6 +8611,13 @@ func (d *ContainerStateTerminatedDie) DieStampAt(jp string, fn interface{}) *Con
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ContainerStateTerminatedDie) DieWith(fn func(d *ContainerStateTerminatedDie)) *ContainerStateTerminatedDie {
+	nd := ContainerStateTerminatedBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -8523,6 +8838,13 @@ func (d *EndpointsDie) DieStampAt(jp string, fn interface{}) *EndpointsDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *EndpointsDie) DieWith(fn func(d *EndpointsDie)) *EndpointsDie {
+	nd := EndpointsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *EndpointsDie) DeepCopy() *EndpointsDie {
 	r := *d.r.DeepCopy()
@@ -8736,6 +9058,13 @@ func (d *EndpointSubsetDie) DieStampAt(jp string, fn interface{}) *EndpointSubse
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *EndpointSubsetDie) DieWith(fn func(d *EndpointSubsetDie)) *EndpointSubsetDie {
+	nd := EndpointSubsetBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *EndpointSubsetDie) DeepCopy() *EndpointSubsetDie {
 	r := *d.r.DeepCopy()
@@ -8909,6 +9238,13 @@ func (d *EndpointAddressDie) DieStampAt(jp string, fn interface{}) *EndpointAddr
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *EndpointAddressDie) DieWith(fn func(d *EndpointAddressDie)) *EndpointAddressDie {
+	nd := EndpointAddressBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -9091,6 +9427,13 @@ func (d *EndpointPortDie) DieStampAt(jp string, fn interface{}) *EndpointPortDie
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *EndpointPortDie) DieWith(fn func(d *EndpointPortDie)) *EndpointPortDie {
+	nd := EndpointPortBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -9294,6 +9637,13 @@ func (d *EventDie) DieStampAt(jp string, fn interface{}) *EventDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *EventDie) DieWith(fn func(d *EventDie)) *EventDie {
+	nd := EventBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -9600,6 +9950,13 @@ func (d *EventSourceDie) DieStampAt(jp string, fn interface{}) *EventSourceDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *EventSourceDie) DieWith(fn func(d *EventSourceDie)) *EventSourceDie {
+	nd := EventSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *EventSourceDie) DeepCopy() *EventSourceDie {
 	r := *d.r.DeepCopy()
@@ -9766,6 +10123,13 @@ func (d *EventSeriesDie) DieStampAt(jp string, fn interface{}) *EventSeriesDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *EventSeriesDie) DieWith(fn func(d *EventSeriesDie)) *EventSeriesDie {
+	nd := EventSeriesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -9949,6 +10313,13 @@ func (d *LimitRangeDie) DieStampAt(jp string, fn interface{}) *LimitRangeDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *LimitRangeDie) DieWith(fn func(d *LimitRangeDie)) *LimitRangeDie {
+	nd := LimitRangeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -10173,6 +10544,13 @@ func (d *LimitRangeSpecDie) DieStampAt(jp string, fn interface{}) *LimitRangeSpe
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *LimitRangeSpecDie) DieWith(fn func(d *LimitRangeSpecDie)) *LimitRangeSpecDie {
+	nd := LimitRangeSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *LimitRangeSpecDie) DeepCopy() *LimitRangeSpecDie {
 	r := *d.r.DeepCopy()
@@ -10332,6 +10710,13 @@ func (d *LimitRangeItemDie) DieStampAt(jp string, fn interface{}) *LimitRangeIte
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *LimitRangeItemDie) DieWith(fn func(d *LimitRangeItemDie)) *LimitRangeItemDie {
+	nd := LimitRangeItemBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -10543,6 +10928,13 @@ func (d *NamespaceDie) DieStampAt(jp string, fn interface{}) *NamespaceDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NamespaceDie) DieWith(fn func(d *NamespaceDie)) *NamespaceDie {
+	nd := NamespaceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -10783,6 +11175,13 @@ func (d *NamespaceSpecDie) DieStampAt(jp string, fn interface{}) *NamespaceSpecD
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NamespaceSpecDie) DieWith(fn func(d *NamespaceSpecDie)) *NamespaceSpecDie {
+	nd := NamespaceSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *NamespaceSpecDie) DeepCopy() *NamespaceSpecDie {
 	r := *d.r.DeepCopy()
@@ -10942,6 +11341,13 @@ func (d *NamespaceStatusDie) DieStampAt(jp string, fn interface{}) *NamespaceSta
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NamespaceStatusDie) DieWith(fn func(d *NamespaceStatusDie)) *NamespaceStatusDie {
+	nd := NamespaceStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -11125,6 +11531,13 @@ func (d *NodeDie) DieStampAt(jp string, fn interface{}) *NodeDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeDie) DieWith(fn func(d *NodeDie)) *NodeDie {
+	nd := NodeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -11365,6 +11778,13 @@ func (d *NodeSpecDie) DieStampAt(jp string, fn interface{}) *NodeSpecDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeSpecDie) DieWith(fn func(d *NodeSpecDie)) *NodeSpecDie {
+	nd := NodeSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *NodeSpecDie) DeepCopy() *NodeSpecDie {
 	r := *d.r.DeepCopy()
@@ -11568,6 +11988,13 @@ func (d *TaintDie) DieStampAt(jp string, fn interface{}) *TaintDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *TaintDie) DieWith(fn func(d *TaintDie)) *TaintDie {
+	nd := TaintBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *TaintDie) DeepCopy() *TaintDie {
 	r := *d.r.DeepCopy()
@@ -11750,6 +12177,13 @@ func (d *NodeConfigSourceDie) DieStampAt(jp string, fn interface{}) *NodeConfigS
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeConfigSourceDie) DieWith(fn func(d *NodeConfigSourceDie)) *NodeConfigSourceDie {
+	nd := NodeConfigSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *NodeConfigSourceDie) DeepCopy() *NodeConfigSourceDie {
 	r := *d.r.DeepCopy()
@@ -11909,6 +12343,13 @@ func (d *ConfigMapNodeConfigSourceDie) DieStampAt(jp string, fn interface{}) *Co
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ConfigMapNodeConfigSourceDie) DieWith(fn func(d *ConfigMapNodeConfigSourceDie)) *ConfigMapNodeConfigSourceDie {
+	nd := ConfigMapNodeConfigSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -12098,6 +12539,13 @@ func (d *NodeStatusDie) DieStampAt(jp string, fn interface{}) *NodeStatusDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeStatusDie) DieWith(fn func(d *NodeStatusDie)) *NodeStatusDie {
+	nd := NodeStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -12331,6 +12779,13 @@ func (d *NodeAddressDie) DieStampAt(jp string, fn interface{}) *NodeAddressDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeAddressDie) DieWith(fn func(d *NodeAddressDie)) *NodeAddressDie {
+	nd := NodeAddressBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *NodeAddressDie) DeepCopy() *NodeAddressDie {
 	r := *d.r.DeepCopy()
@@ -12499,6 +12954,13 @@ func (d *NodeDaemonEndpointsDie) DieStampAt(jp string, fn interface{}) *NodeDaem
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeDaemonEndpointsDie) DieWith(fn func(d *NodeDaemonEndpointsDie)) *NodeDaemonEndpointsDie {
+	nd := NodeDaemonEndpointsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *NodeDaemonEndpointsDie) DeepCopy() *NodeDaemonEndpointsDie {
 	r := *d.r.DeepCopy()
@@ -12660,6 +13122,13 @@ func (d *DaemonEndpointDie) DieStampAt(jp string, fn interface{}) *DaemonEndpoin
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *DaemonEndpointDie) DieWith(fn func(d *DaemonEndpointDie)) *DaemonEndpointDie {
+	nd := DaemonEndpointBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *DaemonEndpointDie) DeepCopy() *DaemonEndpointDie {
 	r := *d.r.DeepCopy()
@@ -12819,6 +13288,13 @@ func (d *NodeSystemInfoDie) DieStampAt(jp string, fn interface{}) *NodeSystemInf
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeSystemInfoDie) DieWith(fn func(d *NodeSystemInfoDie)) *NodeSystemInfoDie {
+	nd := NodeSystemInfoBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -13045,6 +13521,13 @@ func (d *ContainerImageDie) DieStampAt(jp string, fn interface{}) *ContainerImag
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ContainerImageDie) DieWith(fn func(d *ContainerImageDie)) *ContainerImageDie {
+	nd := ContainerImageBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ContainerImageDie) DeepCopy() *ContainerImageDie {
 	r := *d.r.DeepCopy()
@@ -13213,6 +13696,13 @@ func (d *AttachedVolumeDie) DieStampAt(jp string, fn interface{}) *AttachedVolum
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *AttachedVolumeDie) DieWith(fn func(d *AttachedVolumeDie)) *AttachedVolumeDie {
+	nd := AttachedVolumeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *AttachedVolumeDie) DeepCopy() *AttachedVolumeDie {
 	r := *d.r.DeepCopy()
@@ -13379,6 +13869,13 @@ func (d *NodeConfigStatusDie) DieStampAt(jp string, fn interface{}) *NodeConfigS
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeConfigStatusDie) DieWith(fn func(d *NodeConfigStatusDie)) *NodeConfigStatusDie {
+	nd := NodeConfigStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -13576,6 +14073,13 @@ func (d *PersistentVolumeDie) DieStampAt(jp string, fn interface{}) *PersistentV
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PersistentVolumeDie) DieWith(fn func(d *PersistentVolumeDie)) *PersistentVolumeDie {
+	nd := PersistentVolumeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -13816,6 +14320,13 @@ func (d *PersistentVolumeSpecDie) DieStampAt(jp string, fn interface{}) *Persist
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PersistentVolumeSpecDie) DieWith(fn func(d *PersistentVolumeSpecDie)) *PersistentVolumeSpecDie {
+	nd := PersistentVolumeSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PersistentVolumeSpecDie) DeepCopy() *PersistentVolumeSpecDie {
 	r := *d.r.DeepCopy()
@@ -14033,6 +14544,13 @@ func (d *PersistentVolumeStatusDie) DieStampAt(jp string, fn interface{}) *Persi
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PersistentVolumeStatusDie) DieWith(fn func(d *PersistentVolumeStatusDie)) *PersistentVolumeStatusDie {
+	nd := PersistentVolumeStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PersistentVolumeStatusDie) DeepCopy() *PersistentVolumeStatusDie {
 	r := *d.r.DeepCopy()
@@ -14206,6 +14724,13 @@ func (d *GlusterfsPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *GlusterfsPersistentVolumeSourceDie) DieWith(fn func(d *GlusterfsPersistentVolumeSourceDie)) *GlusterfsPersistentVolumeSourceDie {
+	nd := GlusterfsPersistentVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -14388,6 +14913,13 @@ func (d *RBDPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *RB
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *RBDPersistentVolumeSourceDie) DieWith(fn func(d *RBDPersistentVolumeSourceDie)) *RBDPersistentVolumeSourceDie {
+	nd := RBDPersistentVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -14598,6 +15130,13 @@ func (d *ISCSIPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ISCSIPersistentVolumeSourceDie) DieWith(fn func(d *ISCSIPersistentVolumeSourceDie)) *ISCSIPersistentVolumeSourceDie {
+	nd := ISCSIPersistentVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -14831,6 +15370,13 @@ func (d *CinderPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) 
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CinderPersistentVolumeSourceDie) DieWith(fn func(d *CinderPersistentVolumeSourceDie)) *CinderPersistentVolumeSourceDie {
+	nd := CinderPersistentVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *CinderPersistentVolumeSourceDie) DeepCopy() *CinderPersistentVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -15011,6 +15557,13 @@ func (d *CephFSPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) 
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CephFSPersistentVolumeSourceDie) DieWith(fn func(d *CephFSPersistentVolumeSourceDie)) *CephFSPersistentVolumeSourceDie {
+	nd := CephFSPersistentVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -15209,6 +15762,13 @@ func (d *FlexPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *F
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *FlexPersistentVolumeSourceDie) DieWith(fn func(d *FlexPersistentVolumeSourceDie)) *FlexPersistentVolumeSourceDie {
+	nd := FlexPersistentVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *FlexPersistentVolumeSourceDie) DeepCopy() *FlexPersistentVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -15398,6 +15958,13 @@ func (d *AzureFilePersistentVolumeSourceDie) DieStampAt(jp string, fn interface{
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *AzureFilePersistentVolumeSourceDie) DieWith(fn func(d *AzureFilePersistentVolumeSourceDie)) *AzureFilePersistentVolumeSourceDie {
+	nd := AzureFilePersistentVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *AzureFilePersistentVolumeSourceDie) DeepCopy() *AzureFilePersistentVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -15578,6 +16145,13 @@ func (d *ScaleIOPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{})
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ScaleIOPersistentVolumeSourceDie) DieWith(fn func(d *ScaleIOPersistentVolumeSourceDie)) *ScaleIOPersistentVolumeSourceDie {
+	nd := ScaleIOPersistentVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -15804,6 +16378,13 @@ func (d *LocalVolumeSourceDie) DieStampAt(jp string, fn interface{}) *LocalVolum
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *LocalVolumeSourceDie) DieWith(fn func(d *LocalVolumeSourceDie)) *LocalVolumeSourceDie {
+	nd := LocalVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *LocalVolumeSourceDie) DeepCopy() *LocalVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -15970,6 +16551,13 @@ func (d *StorageOSPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *StorageOSPersistentVolumeSourceDie) DieWith(fn func(d *StorageOSPersistentVolumeSourceDie)) *StorageOSPersistentVolumeSourceDie {
+	nd := StorageOSPersistentVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -16159,6 +16747,13 @@ func (d *CSIPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *CS
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CSIPersistentVolumeSourceDie) DieWith(fn func(d *CSIPersistentVolumeSourceDie)) *CSIPersistentVolumeSourceDie {
+	nd := CSIPersistentVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -16385,6 +16980,13 @@ func (d *VolumeNodeAffinityDie) DieStampAt(jp string, fn interface{}) *VolumeNod
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *VolumeNodeAffinityDie) DieWith(fn func(d *VolumeNodeAffinityDie)) *VolumeNodeAffinityDie {
+	nd := VolumeNodeAffinityBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *VolumeNodeAffinityDie) DeepCopy() *VolumeNodeAffinityDie {
 	r := *d.r.DeepCopy()
@@ -16546,6 +17148,13 @@ func (d *NodeSelectorDie) DieStampAt(jp string, fn interface{}) *NodeSelectorDie
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeSelectorDie) DieWith(fn func(d *NodeSelectorDie)) *NodeSelectorDie {
+	nd := NodeSelectorBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *NodeSelectorDie) DeepCopy() *NodeSelectorDie {
 	r := *d.r.DeepCopy()
@@ -16705,6 +17314,13 @@ func (d *NodeSelectorTermDie) DieStampAt(jp string, fn interface{}) *NodeSelecto
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeSelectorTermDie) DieWith(fn func(d *NodeSelectorTermDie)) *NodeSelectorTermDie {
+	nd := NodeSelectorTermBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -16873,6 +17489,13 @@ func (d *NodeSelectorRequirementDie) DieStampAt(jp string, fn interface{}) *Node
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeSelectorRequirementDie) DieWith(fn func(d *NodeSelectorRequirementDie)) *NodeSelectorRequirementDie {
+	nd := NodeSelectorRequirementBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -17063,6 +17686,13 @@ func (d *PersistentVolumeClaimDie) DieStampAt(jp string, fn interface{}) *Persis
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PersistentVolumeClaimDie) DieWith(fn func(d *PersistentVolumeClaimDie)) *PersistentVolumeClaimDie {
+	nd := PersistentVolumeClaimBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -17303,6 +17933,13 @@ func (d *PersistentVolumeClaimSpecDie) DieStampAt(jp string, fn interface{}) *Pe
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PersistentVolumeClaimSpecDie) DieWith(fn func(d *PersistentVolumeClaimSpecDie)) *PersistentVolumeClaimSpecDie {
+	nd := PersistentVolumeClaimSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PersistentVolumeClaimSpecDie) DeepCopy() *PersistentVolumeClaimSpecDie {
 	r := *d.r.DeepCopy()
@@ -17513,6 +18150,13 @@ func (d *PersistentVolumeClaimStatusDie) DieStampAt(jp string, fn interface{}) *
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PersistentVolumeClaimStatusDie) DieWith(fn func(d *PersistentVolumeClaimStatusDie)) *PersistentVolumeClaimStatusDie {
+	nd := PersistentVolumeClaimStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PersistentVolumeClaimStatusDie) DeepCopy() *PersistentVolumeClaimStatusDie {
 	r := *d.r.DeepCopy()
@@ -17709,6 +18353,13 @@ func (d *PersistentVolumeClaimTemplateDie) DieStampAt(jp string, fn interface{})
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PersistentVolumeClaimTemplateDie) DieWith(fn func(d *PersistentVolumeClaimTemplateDie)) *PersistentVolumeClaimTemplateDie {
+	nd := PersistentVolumeClaimTemplateBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PersistentVolumeClaimTemplateDie) DeepCopy() *PersistentVolumeClaimTemplateDie {
 	r := *d.r.DeepCopy()
@@ -17890,6 +18541,13 @@ func (d *PodDie) DieStampAt(jp string, fn interface{}) *PodDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodDie) DieWith(fn func(d *PodDie)) *PodDie {
+	nd := PodBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -18128,6 +18786,13 @@ func (d *PodSpecDie) DieStampAt(jp string, fn interface{}) *PodSpecDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodSpecDie) DieWith(fn func(d *PodSpecDie)) *PodSpecDie {
+	nd := PodSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -18569,6 +19234,13 @@ func (d *PodSchedulingGateDie) DieStampAt(jp string, fn interface{}) *PodSchedul
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodSchedulingGateDie) DieWith(fn func(d *PodSchedulingGateDie)) *PodSchedulingGateDie {
+	nd := PodSchedulingGateBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PodSchedulingGateDie) DeepCopy() *PodSchedulingGateDie {
 	r := *d.r.DeepCopy()
@@ -18728,6 +19400,13 @@ func (d *PodResourceClaimDie) DieStampAt(jp string, fn interface{}) *PodResource
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodResourceClaimDie) DieWith(fn func(d *PodResourceClaimDie)) *PodResourceClaimDie {
+	nd := PodResourceClaimBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -18896,6 +19575,13 @@ func (d *ClaimSourceDie) DieStampAt(jp string, fn interface{}) *ClaimSourceDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ClaimSourceDie) DieWith(fn func(d *ClaimSourceDie)) *ClaimSourceDie {
+	nd := ClaimSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -19070,6 +19756,13 @@ func (d *PodSecurityContextDie) DieStampAt(jp string, fn interface{}) *PodSecuri
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodSecurityContextDie) DieWith(fn func(d *PodSecurityContextDie)) *PodSecurityContextDie {
+	nd := PodSecurityContextBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -19300,6 +19993,13 @@ func (d *SysctlDie) DieStampAt(jp string, fn interface{}) *SysctlDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SysctlDie) DieWith(fn func(d *SysctlDie)) *SysctlDie {
+	nd := SysctlBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *SysctlDie) DeepCopy() *SysctlDie {
 	r := *d.r.DeepCopy()
@@ -19466,6 +20166,13 @@ func (d *TolerationDie) DieStampAt(jp string, fn interface{}) *TolerationDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *TolerationDie) DieWith(fn func(d *TolerationDie)) *TolerationDie {
+	nd := TolerationBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -19657,6 +20364,13 @@ func (d *HostAliasDie) DieStampAt(jp string, fn interface{}) *HostAliasDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *HostAliasDie) DieWith(fn func(d *HostAliasDie)) *HostAliasDie {
+	nd := HostAliasBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *HostAliasDie) DeepCopy() *HostAliasDie {
 	r := *d.r.DeepCopy()
@@ -19823,6 +20537,13 @@ func (d *PodDNSConfigDie) DieStampAt(jp string, fn interface{}) *PodDNSConfigDie
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodDNSConfigDie) DieWith(fn func(d *PodDNSConfigDie)) *PodDNSConfigDie {
+	nd := PodDNSConfigBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -20000,6 +20721,13 @@ func (d *PodDNSConfigOptionDie) DieStampAt(jp string, fn interface{}) *PodDNSCon
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodDNSConfigOptionDie) DieWith(fn func(d *PodDNSConfigOptionDie)) *PodDNSConfigOptionDie {
+	nd := PodDNSConfigOptionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PodDNSConfigOptionDie) DeepCopy() *PodDNSConfigOptionDie {
 	r := *d.r.DeepCopy()
@@ -20167,6 +20895,13 @@ func (d *PodReadinessGateDie) DieStampAt(jp string, fn interface{}) *PodReadines
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodReadinessGateDie) DieWith(fn func(d *PodReadinessGateDie)) *PodReadinessGateDie {
+	nd := PodReadinessGateBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PodReadinessGateDie) DeepCopy() *PodReadinessGateDie {
 	r := *d.r.DeepCopy()
@@ -20326,6 +21061,13 @@ func (d *TopologySpreadConstraintDie) DieStampAt(jp string, fn interface{}) *Top
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *TopologySpreadConstraintDie) DieWith(fn func(d *TopologySpreadConstraintDie)) *TopologySpreadConstraintDie {
+	nd := TopologySpreadConstraintBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -20548,6 +21290,13 @@ func (d *PodOSDie) DieStampAt(jp string, fn interface{}) *PodOSDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodOSDie) DieWith(fn func(d *PodOSDie)) *PodOSDie {
+	nd := PodOSBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PodOSDie) DeepCopy() *PodOSDie {
 	r := *d.r.DeepCopy()
@@ -20707,6 +21456,13 @@ func (d *PodStatusDie) DieStampAt(jp string, fn interface{}) *PodStatusDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodStatusDie) DieWith(fn func(d *PodStatusDie)) *PodStatusDie {
+	nd := PodStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -20980,6 +21736,13 @@ func (d *PodTemplateDie) DieStampAt(jp string, fn interface{}) *PodTemplateDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodTemplateDie) DieWith(fn func(d *PodTemplateDie)) *PodTemplateDie {
+	nd := PodTemplateBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PodTemplateDie) DeepCopy() *PodTemplateDie {
 	r := *d.r.DeepCopy()
@@ -21193,6 +21956,13 @@ func (d *PodTemplateSpecDie) DieStampAt(jp string, fn interface{}) *PodTemplateS
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PodTemplateSpecDie) DieWith(fn func(d *PodTemplateSpecDie)) *PodTemplateSpecDie {
+	nd := PodTemplateSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PodTemplateSpecDie) DeepCopy() *PodTemplateSpecDie {
 	r := *d.r.DeepCopy()
@@ -21374,6 +22144,13 @@ func (d *ReplicationControllerDie) DieStampAt(jp string, fn interface{}) *Replic
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ReplicationControllerDie) DieWith(fn func(d *ReplicationControllerDie)) *ReplicationControllerDie {
+	nd := ReplicationControllerBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -21614,6 +22391,13 @@ func (d *ReplicationControllerSpecDie) DieStampAt(jp string, fn interface{}) *Re
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ReplicationControllerSpecDie) DieWith(fn func(d *ReplicationControllerSpecDie)) *ReplicationControllerSpecDie {
+	nd := ReplicationControllerSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ReplicationControllerSpecDie) DeepCopy() *ReplicationControllerSpecDie {
 	r := *d.r.DeepCopy()
@@ -21794,6 +22578,13 @@ func (d *ReplicationControllerStatusDie) DieStampAt(jp string, fn interface{}) *
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ReplicationControllerStatusDie) DieWith(fn func(d *ReplicationControllerStatusDie)) *ReplicationControllerStatusDie {
+	nd := ReplicationControllerStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -22005,6 +22796,13 @@ func (d *ResourceQuotaDie) DieStampAt(jp string, fn interface{}) *ResourceQuotaD
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ResourceQuotaDie) DieWith(fn func(d *ResourceQuotaDie)) *ResourceQuotaDie {
+	nd := ResourceQuotaBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -22245,6 +23043,13 @@ func (d *ResourceQuotaSpecDie) DieStampAt(jp string, fn interface{}) *ResourceQu
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ResourceQuotaSpecDie) DieWith(fn func(d *ResourceQuotaSpecDie)) *ResourceQuotaSpecDie {
+	nd := ResourceQuotaSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ResourceQuotaSpecDie) DeepCopy() *ResourceQuotaSpecDie {
 	r := *d.r.DeepCopy()
@@ -22420,6 +23225,13 @@ func (d *ScopeSelectorDie) DieStampAt(jp string, fn interface{}) *ScopeSelectorD
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ScopeSelectorDie) DieWith(fn func(d *ScopeSelectorDie)) *ScopeSelectorDie {
+	nd := ScopeSelectorBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ScopeSelectorDie) DeepCopy() *ScopeSelectorDie {
 	r := *d.r.DeepCopy()
@@ -22579,6 +23391,13 @@ func (d *ScopedResourceSelectorRequirementDie) DieStampAt(jp string, fn interfac
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ScopedResourceSelectorRequirementDie) DieWith(fn func(d *ScopedResourceSelectorRequirementDie)) *ScopedResourceSelectorRequirementDie {
+	nd := ScopedResourceSelectorRequirementBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -22754,6 +23573,13 @@ func (d *ResourceQuotaStatusDie) DieStampAt(jp string, fn interface{}) *Resource
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ResourceQuotaStatusDie) DieWith(fn func(d *ResourceQuotaStatusDie)) *ResourceQuotaStatusDie {
+	nd := ResourceQuotaStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -22937,6 +23763,13 @@ func (d *SecretDie) DieStampAt(jp string, fn interface{}) *SecretDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SecretDie) DieWith(fn func(d *SecretDie)) *SecretDie {
+	nd := SecretBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -23172,6 +24005,13 @@ func (d *ServiceDie) DieStampAt(jp string, fn interface{}) *ServiceDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ServiceDie) DieWith(fn func(d *ServiceDie)) *ServiceDie {
+	nd := ServiceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -23410,6 +24250,13 @@ func (d *ServiceSpecDie) DieStampAt(jp string, fn interface{}) *ServiceSpecDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ServiceSpecDie) DieWith(fn func(d *ServiceSpecDie)) *ServiceSpecDie {
+	nd := ServiceSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -23703,6 +24550,13 @@ func (d *ServicePortDie) DieStampAt(jp string, fn interface{}) *ServicePortDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ServicePortDie) DieWith(fn func(d *ServicePortDie)) *ServicePortDie {
+	nd := ServicePortBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ServicePortDie) DeepCopy() *ServicePortDie {
 	r := *d.r.DeepCopy()
@@ -23913,6 +24767,13 @@ func (d *SessionAffinityConfigDie) DieStampAt(jp string, fn interface{}) *Sessio
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SessionAffinityConfigDie) DieWith(fn func(d *SessionAffinityConfigDie)) *SessionAffinityConfigDie {
+	nd := SessionAffinityConfigBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *SessionAffinityConfigDie) DeepCopy() *SessionAffinityConfigDie {
 	r := *d.r.DeepCopy()
@@ -24074,6 +24935,13 @@ func (d *ClientIPConfigDie) DieStampAt(jp string, fn interface{}) *ClientIPConfi
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ClientIPConfigDie) DieWith(fn func(d *ClientIPConfigDie)) *ClientIPConfigDie {
+	nd := ClientIPConfigBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ClientIPConfigDie) DeepCopy() *ClientIPConfigDie {
 	r := *d.r.DeepCopy()
@@ -24233,6 +25101,13 @@ func (d *ServiceStatusDie) DieStampAt(jp string, fn interface{}) *ServiceStatusD
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ServiceStatusDie) DieWith(fn func(d *ServiceStatusDie)) *ServiceStatusDie {
+	nd := ServiceStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -24403,6 +25278,13 @@ func (d *LoadBalancerStatusDie) DieStampAt(jp string, fn interface{}) *LoadBalan
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *LoadBalancerStatusDie) DieWith(fn func(d *LoadBalancerStatusDie)) *LoadBalancerStatusDie {
+	nd := LoadBalancerStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *LoadBalancerStatusDie) DeepCopy() *LoadBalancerStatusDie {
 	r := *d.r.DeepCopy()
@@ -24562,6 +25444,13 @@ func (d *LoadBalancerIngressDie) DieStampAt(jp string, fn interface{}) *LoadBala
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *LoadBalancerIngressDie) DieWith(fn func(d *LoadBalancerIngressDie)) *LoadBalancerIngressDie {
+	nd := LoadBalancerIngressBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -24737,6 +25626,13 @@ func (d *PortStatusDie) DieStampAt(jp string, fn interface{}) *PortStatusDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PortStatusDie) DieWith(fn func(d *PortStatusDie)) *PortStatusDie {
+	nd := PortStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -24927,6 +25823,13 @@ func (d *ServiceAccountDie) DieStampAt(jp string, fn interface{}) *ServiceAccoun
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ServiceAccountDie) DieWith(fn func(d *ServiceAccountDie)) *ServiceAccountDie {
+	nd := ServiceAccountBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -25156,6 +26059,13 @@ func (d *VolumeDie) DieStampAt(jp string, fn interface{}) *VolumeDie {
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *VolumeDie) DieWith(fn func(d *VolumeDie)) *VolumeDie {
+	nd := VolumeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *VolumeDie) DeepCopy() *VolumeDie {
 	r := *d.r.DeepCopy()
@@ -25322,6 +26232,13 @@ func (d *HostPathVolumeSourceDie) DieStampAt(jp string, fn interface{}) *HostPat
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *HostPathVolumeSourceDie) DieWith(fn func(d *HostPathVolumeSourceDie)) *HostPathVolumeSourceDie {
+	nd := HostPathVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -25492,6 +26409,13 @@ func (d *EmptyDirVolumeSourceDie) DieStampAt(jp string, fn interface{}) *EmptyDi
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *EmptyDirVolumeSourceDie) DieWith(fn func(d *EmptyDirVolumeSourceDie)) *EmptyDirVolumeSourceDie {
+	nd := EmptyDirVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *EmptyDirVolumeSourceDie) DeepCopy() *EmptyDirVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -25658,6 +26582,13 @@ func (d *GCEPersistentDiskVolumeSourceDie) DieStampAt(jp string, fn interface{})
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *GCEPersistentDiskVolumeSourceDie) DieWith(fn func(d *GCEPersistentDiskVolumeSourceDie)) *GCEPersistentDiskVolumeSourceDie {
+	nd := GCEPersistentDiskVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -25842,6 +26773,13 @@ func (d *AWSElasticBlockStoreVolumeSourceDie) DieStampAt(jp string, fn interface
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *AWSElasticBlockStoreVolumeSourceDie) DieWith(fn func(d *AWSElasticBlockStoreVolumeSourceDie)) *AWSElasticBlockStoreVolumeSourceDie {
+	nd := AWSElasticBlockStoreVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *AWSElasticBlockStoreVolumeSourceDie) DeepCopy() *AWSElasticBlockStoreVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -26024,6 +26962,13 @@ func (d *GitRepoVolumeSourceDie) DieStampAt(jp string, fn interface{}) *GitRepoV
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *GitRepoVolumeSourceDie) DieWith(fn func(d *GitRepoVolumeSourceDie)) *GitRepoVolumeSourceDie {
+	nd := GitRepoVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *GitRepoVolumeSourceDie) DeepCopy() *GitRepoVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -26197,6 +27142,13 @@ func (d *SecretVolumeSourceDie) DieStampAt(jp string, fn interface{}) *SecretVol
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SecretVolumeSourceDie) DieWith(fn func(d *SecretVolumeSourceDie)) *SecretVolumeSourceDie {
+	nd := SecretVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -26381,6 +27333,13 @@ func (d *NFSVolumeSourceDie) DieStampAt(jp string, fn interface{}) *NFSVolumeSou
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NFSVolumeSourceDie) DieWith(fn func(d *NFSVolumeSourceDie)) *NFSVolumeSourceDie {
+	nd := NFSVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *NFSVolumeSourceDie) DeepCopy() *NFSVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -26554,6 +27513,13 @@ func (d *ISCSIVolumeSourceDie) DieStampAt(jp string, fn interface{}) *ISCSIVolum
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ISCSIVolumeSourceDie) DieWith(fn func(d *ISCSIVolumeSourceDie)) *ISCSIVolumeSourceDie {
+	nd := ISCSIVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -26787,6 +27753,13 @@ func (d *GlusterfsVolumeSourceDie) DieStampAt(jp string, fn interface{}) *Gluste
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *GlusterfsVolumeSourceDie) DieWith(fn func(d *GlusterfsVolumeSourceDie)) *GlusterfsVolumeSourceDie {
+	nd := GlusterfsVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *GlusterfsVolumeSourceDie) DeepCopy() *GlusterfsVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -26962,6 +27935,13 @@ func (d *PersistentVolumeClaimVolumeSourceDie) DieStampAt(jp string, fn interfac
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PersistentVolumeClaimVolumeSourceDie) DieWith(fn func(d *PersistentVolumeClaimVolumeSourceDie)) *PersistentVolumeClaimVolumeSourceDie {
+	nd := PersistentVolumeClaimVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PersistentVolumeClaimVolumeSourceDie) DeepCopy() *PersistentVolumeClaimVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -27128,6 +28108,13 @@ func (d *RBDVolumeSourceDie) DieStampAt(jp string, fn interface{}) *RBDVolumeSou
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *RBDVolumeSourceDie) DieWith(fn func(d *RBDVolumeSourceDie)) *RBDVolumeSourceDie {
+	nd := RBDVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -27340,6 +28327,13 @@ func (d *FlexVolumeSourceDie) DieStampAt(jp string, fn interface{}) *FlexVolumeS
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *FlexVolumeSourceDie) DieWith(fn func(d *FlexVolumeSourceDie)) *FlexVolumeSourceDie {
+	nd := FlexVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *FlexVolumeSourceDie) DeepCopy() *FlexVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -27529,6 +28523,13 @@ func (d *CinderVolumeSourceDie) DieStampAt(jp string, fn interface{}) *CinderVol
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CinderVolumeSourceDie) DieWith(fn func(d *CinderVolumeSourceDie)) *CinderVolumeSourceDie {
+	nd := CinderVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *CinderVolumeSourceDie) DeepCopy() *CinderVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -27709,6 +28710,13 @@ func (d *CephFSVolumeSourceDie) DieStampAt(jp string, fn interface{}) *CephFSVol
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CephFSVolumeSourceDie) DieWith(fn func(d *CephFSVolumeSourceDie)) *CephFSVolumeSourceDie {
+	nd := CephFSVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -27907,6 +28915,13 @@ func (d *FlockerVolumeSourceDie) DieStampAt(jp string, fn interface{}) *FlockerV
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *FlockerVolumeSourceDie) DieWith(fn func(d *FlockerVolumeSourceDie)) *FlockerVolumeSourceDie {
+	nd := FlockerVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *FlockerVolumeSourceDie) DeepCopy() *FlockerVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -28075,6 +29090,13 @@ func (d *DownwardAPIVolumeSourceDie) DieStampAt(jp string, fn interface{}) *Down
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *DownwardAPIVolumeSourceDie) DieWith(fn func(d *DownwardAPIVolumeSourceDie)) *DownwardAPIVolumeSourceDie {
+	nd := DownwardAPIVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *DownwardAPIVolumeSourceDie) DeepCopy() *DownwardAPIVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -28241,6 +29263,13 @@ func (d *DownwardAPIVolumeFileDie) DieStampAt(jp string, fn interface{}) *Downwa
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *DownwardAPIVolumeFileDie) DieWith(fn func(d *DownwardAPIVolumeFileDie)) *DownwardAPIVolumeFileDie {
+	nd := DownwardAPIVolumeFileBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -28423,6 +29452,13 @@ func (d *FCVolumeSourceDie) DieStampAt(jp string, fn interface{}) *FCVolumeSourc
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *FCVolumeSourceDie) DieWith(fn func(d *FCVolumeSourceDie)) *FCVolumeSourceDie {
+	nd := FCVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -28614,6 +29650,13 @@ func (d *AzureFileVolumeSourceDie) DieStampAt(jp string, fn interface{}) *AzureF
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *AzureFileVolumeSourceDie) DieWith(fn func(d *AzureFileVolumeSourceDie)) *AzureFileVolumeSourceDie {
+	nd := AzureFileVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *AzureFileVolumeSourceDie) DeepCopy() *AzureFileVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -28787,6 +29830,13 @@ func (d *ConfigMapVolumeSourceDie) DieStampAt(jp string, fn interface{}) *Config
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ConfigMapVolumeSourceDie) DieWith(fn func(d *ConfigMapVolumeSourceDie)) *ConfigMapVolumeSourceDie {
+	nd := ConfigMapVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -28970,6 +30020,13 @@ func (d *VsphereVirtualDiskVolumeSourceDie) DieStampAt(jp string, fn interface{}
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *VsphereVirtualDiskVolumeSourceDie) DieWith(fn func(d *VsphereVirtualDiskVolumeSourceDie)) *VsphereVirtualDiskVolumeSourceDie {
+	nd := VsphereVirtualDiskVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *VsphereVirtualDiskVolumeSourceDie) DeepCopy() *VsphereVirtualDiskVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -29150,6 +30207,13 @@ func (d *QuobyteVolumeSourceDie) DieStampAt(jp string, fn interface{}) *QuobyteV
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *QuobyteVolumeSourceDie) DieWith(fn func(d *QuobyteVolumeSourceDie)) *QuobyteVolumeSourceDie {
+	nd := QuobyteVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -29348,6 +30412,13 @@ func (d *AzureDiskVolumeSourceDie) DieStampAt(jp string, fn interface{}) *AzureD
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *AzureDiskVolumeSourceDie) DieWith(fn func(d *AzureDiskVolumeSourceDie)) *AzureDiskVolumeSourceDie {
+	nd := AzureDiskVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *AzureDiskVolumeSourceDie) DeepCopy() *AzureDiskVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -29544,6 +30615,13 @@ func (d *PhotonPersistentDiskVolumeSourceDie) DieStampAt(jp string, fn interface
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PhotonPersistentDiskVolumeSourceDie) DieWith(fn func(d *PhotonPersistentDiskVolumeSourceDie)) *PhotonPersistentDiskVolumeSourceDie {
+	nd := PhotonPersistentDiskVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PhotonPersistentDiskVolumeSourceDie) DeepCopy() *PhotonPersistentDiskVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -29712,6 +30790,13 @@ func (d *ProjectedVolumeSourceDie) DieStampAt(jp string, fn interface{}) *Projec
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ProjectedVolumeSourceDie) DieWith(fn func(d *ProjectedVolumeSourceDie)) *ProjectedVolumeSourceDie {
+	nd := ProjectedVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *ProjectedVolumeSourceDie) DeepCopy() *ProjectedVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -29878,6 +30963,13 @@ func (d *VolumeProjectionDie) DieStampAt(jp string, fn interface{}) *VolumeProje
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *VolumeProjectionDie) DieWith(fn func(d *VolumeProjectionDie)) *VolumeProjectionDie {
+	nd := VolumeProjectionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -30062,6 +31154,13 @@ func (d *SecretProjectionDie) DieStampAt(jp string, fn interface{}) *SecretProje
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SecretProjectionDie) DieWith(fn func(d *SecretProjectionDie)) *SecretProjectionDie {
+	nd := SecretProjectionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *SecretProjectionDie) DeepCopy() *SecretProjectionDie {
 	r := *d.r.DeepCopy()
@@ -30236,6 +31335,13 @@ func (d *DownwardAPIProjectionDie) DieStampAt(jp string, fn interface{}) *Downwa
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *DownwardAPIProjectionDie) DieWith(fn func(d *DownwardAPIProjectionDie)) *DownwardAPIProjectionDie {
+	nd := DownwardAPIProjectionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *DownwardAPIProjectionDie) DeepCopy() *DownwardAPIProjectionDie {
 	r := *d.r.DeepCopy()
@@ -30395,6 +31501,13 @@ func (d *ConfigMapProjectionDie) DieStampAt(jp string, fn interface{}) *ConfigMa
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ConfigMapProjectionDie) DieWith(fn func(d *ConfigMapProjectionDie)) *ConfigMapProjectionDie {
+	nd := ConfigMapProjectionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -30569,6 +31682,13 @@ func (d *ServiceAccountTokenProjectionDie) DieStampAt(jp string, fn interface{})
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ServiceAccountTokenProjectionDie) DieWith(fn func(d *ServiceAccountTokenProjectionDie)) *ServiceAccountTokenProjectionDie {
+	nd := ServiceAccountTokenProjectionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -30746,6 +31866,13 @@ func (d *PortworxVolumeSourceDie) DieStampAt(jp string, fn interface{}) *Portwor
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *PortworxVolumeSourceDie) DieWith(fn func(d *PortworxVolumeSourceDie)) *PortworxVolumeSourceDie {
+	nd := PortworxVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *PortworxVolumeSourceDie) DeepCopy() *PortworxVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -30919,6 +32046,13 @@ func (d *ScaleIOVolumeSourceDie) DieStampAt(jp string, fn interface{}) *ScaleIOV
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ScaleIOVolumeSourceDie) DieWith(fn func(d *ScaleIOVolumeSourceDie)) *ScaleIOVolumeSourceDie {
+	nd := ScaleIOVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -31145,6 +32279,13 @@ func (d *StorageOSVolumeSourceDie) DieStampAt(jp string, fn interface{}) *Storag
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *StorageOSVolumeSourceDie) DieWith(fn func(d *StorageOSVolumeSourceDie)) *StorageOSVolumeSourceDie {
+	nd := StorageOSVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *StorageOSVolumeSourceDie) DeepCopy() *StorageOSVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -31332,6 +32473,13 @@ func (d *CSIVolumeSourceDie) DieStampAt(jp string, fn interface{}) *CSIVolumeSou
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CSIVolumeSourceDie) DieWith(fn func(d *CSIVolumeSourceDie)) *CSIVolumeSourceDie {
+	nd := CSIVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
@@ -31523,6 +32671,13 @@ func (d *EphemeralVolumeSourceDie) DieStampAt(jp string, fn interface{}) *Epheme
 	})
 }
 
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *EphemeralVolumeSourceDie) DieWith(fn func(d *EphemeralVolumeSourceDie)) *EphemeralVolumeSourceDie {
+	nd := EphemeralVolumeSourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
+}
+
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
 func (d *EphemeralVolumeSourceDie) DeepCopy() *EphemeralVolumeSourceDie {
 	r := *d.r.DeepCopy()
@@ -31688,6 +32843,13 @@ func (d *KeyToPathDie) DieStampAt(jp string, fn interface{}) *KeyToPathDie {
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *KeyToPathDie) DieWith(fn func(d *KeyToPathDie)) *KeyToPathDie {
+	nd := KeyToPathBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	fn(nd)
+	return d.DieFeed(nd.DieRelease())
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
