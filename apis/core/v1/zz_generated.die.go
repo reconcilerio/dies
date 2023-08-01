@@ -178,11 +178,18 @@ func (d *BindingDie) DieStamp(fn func(r *corev1.Binding)) *BindingDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *BindingDie) DieStampAt(jp string, fn interface{}) *BindingDie {
 	return d.DieStamp(func(r *corev1.Binding) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -193,7 +200,17 @@ func (d *BindingDie) DieStampAt(jp string, fn interface{}) *BindingDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -398,11 +415,18 @@ func (d *ObjectReferenceDie) DieStamp(fn func(r *corev1.ObjectReference)) *Objec
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ObjectReferenceDie) DieStampAt(jp string, fn interface{}) *ObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.ObjectReference) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -413,7 +437,17 @@ func (d *ObjectReferenceDie) DieStampAt(jp string, fn interface{}) *ObjectRefere
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -608,11 +642,18 @@ func (d *LocalObjectReferenceDie) DieStamp(fn func(r *corev1.LocalObjectReferenc
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *LocalObjectReferenceDie) DieStampAt(jp string, fn interface{}) *LocalObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.LocalObjectReference) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -623,7 +664,17 @@ func (d *LocalObjectReferenceDie) DieStampAt(jp string, fn interface{}) *LocalOb
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -776,11 +827,18 @@ func (d *TypedLocalObjectReferenceDie) DieStamp(fn func(r *corev1.TypedLocalObje
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *TypedLocalObjectReferenceDie) DieStampAt(jp string, fn interface{}) *TypedLocalObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.TypedLocalObjectReference) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -791,7 +849,17 @@ func (d *TypedLocalObjectReferenceDie) DieStampAt(jp string, fn interface{}) *Ty
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -958,11 +1026,18 @@ func (d *TypedObjectReferenceDie) DieStamp(fn func(r *corev1.TypedObjectReferenc
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *TypedObjectReferenceDie) DieStampAt(jp string, fn interface{}) *TypedObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.TypedObjectReference) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -973,7 +1048,17 @@ func (d *TypedObjectReferenceDie) DieStampAt(jp string, fn interface{}) *TypedOb
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -1147,11 +1232,18 @@ func (d *SecretReferenceDie) DieStamp(fn func(r *corev1.SecretReference)) *Secre
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *SecretReferenceDie) DieStampAt(jp string, fn interface{}) *SecretReferenceDie {
 	return d.DieStamp(func(r *corev1.SecretReference) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -1162,7 +1254,17 @@ func (d *SecretReferenceDie) DieStampAt(jp string, fn interface{}) *SecretRefere
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -1322,11 +1424,18 @@ func (d *TopologySelectorTermDie) DieStamp(fn func(r *corev1.TopologySelectorTer
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *TopologySelectorTermDie) DieStampAt(jp string, fn interface{}) *TopologySelectorTermDie {
 	return d.DieStamp(func(r *corev1.TopologySelectorTerm) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -1337,7 +1446,17 @@ func (d *TopologySelectorTermDie) DieStampAt(jp string, fn interface{}) *Topolog
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -1490,11 +1609,18 @@ func (d *TopologySelectorLabelRequirementDie) DieStamp(fn func(r *corev1.Topolog
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *TopologySelectorLabelRequirementDie) DieStampAt(jp string, fn interface{}) *TopologySelectorLabelRequirementDie {
 	return d.DieStamp(func(r *corev1.TopologySelectorLabelRequirement) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -1505,7 +1631,17 @@ func (d *TopologySelectorLabelRequirementDie) DieStampAt(jp string, fn interface
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -1680,11 +1816,18 @@ func (d *ComponentStatusDie) DieStamp(fn func(r *corev1.ComponentStatus)) *Compo
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ComponentStatusDie) DieStampAt(jp string, fn interface{}) *ComponentStatusDie {
 	return d.DieStamp(func(r *corev1.ComponentStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -1695,7 +1838,17 @@ func (d *ComponentStatusDie) DieStampAt(jp string, fn interface{}) *ComponentSta
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -1915,11 +2068,18 @@ func (d *ConfigMapDie) DieStamp(fn func(r *corev1.ConfigMap)) *ConfigMapDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ConfigMapDie) DieStampAt(jp string, fn interface{}) *ConfigMapDie {
 	return d.DieStamp(func(r *corev1.ConfigMap) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -1930,7 +2090,17 @@ func (d *ConfigMapDie) DieStampAt(jp string, fn interface{}) *ConfigMapDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -2135,11 +2305,18 @@ func (d *ContainerDie) DieStamp(fn func(r *corev1.Container)) *ContainerDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ContainerDie) DieStampAt(jp string, fn interface{}) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -2150,7 +2327,17 @@ func (d *ContainerDie) DieStampAt(jp string, fn interface{}) *ContainerDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -2457,11 +2644,18 @@ func (d *ContainerPortDie) DieStamp(fn func(r *corev1.ContainerPort)) *Container
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ContainerPortDie) DieStampAt(jp string, fn interface{}) *ContainerPortDie {
 	return d.DieStamp(func(r *corev1.ContainerPort) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -2472,7 +2666,17 @@ func (d *ContainerPortDie) DieStampAt(jp string, fn interface{}) *ContainerPortD
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -2653,11 +2857,18 @@ func (d *EnvFromSourceDie) DieStamp(fn func(r *corev1.EnvFromSource)) *EnvFromSo
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *EnvFromSourceDie) DieStampAt(jp string, fn interface{}) *EnvFromSourceDie {
 	return d.DieStamp(func(r *corev1.EnvFromSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -2668,7 +2879,17 @@ func (d *EnvFromSourceDie) DieStampAt(jp string, fn interface{}) *EnvFromSourceD
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -2835,11 +3056,18 @@ func (d *ConfigMapEnvSourceDie) DieStamp(fn func(r *corev1.ConfigMapEnvSource)) 
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ConfigMapEnvSourceDie) DieStampAt(jp string, fn interface{}) *ConfigMapEnvSourceDie {
 	return d.DieStamp(func(r *corev1.ConfigMapEnvSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -2850,7 +3078,17 @@ func (d *ConfigMapEnvSourceDie) DieStampAt(jp string, fn interface{}) *ConfigMap
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -3010,11 +3248,18 @@ func (d *SecretEnvSourceDie) DieStamp(fn func(r *corev1.SecretEnvSource)) *Secre
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *SecretEnvSourceDie) DieStampAt(jp string, fn interface{}) *SecretEnvSourceDie {
 	return d.DieStamp(func(r *corev1.SecretEnvSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -3025,7 +3270,17 @@ func (d *SecretEnvSourceDie) DieStampAt(jp string, fn interface{}) *SecretEnvSou
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -3185,11 +3440,18 @@ func (d *EnvVarDie) DieStamp(fn func(r *corev1.EnvVar)) *EnvVarDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *EnvVarDie) DieStampAt(jp string, fn interface{}) *EnvVarDie {
 	return d.DieStamp(func(r *corev1.EnvVar) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -3200,7 +3462,17 @@ func (d *EnvVarDie) DieStampAt(jp string, fn interface{}) *EnvVarDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -3367,11 +3639,18 @@ func (d *EnvVarSourceDie) DieStamp(fn func(r *corev1.EnvVarSource)) *EnvVarSourc
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *EnvVarSourceDie) DieStampAt(jp string, fn interface{}) *EnvVarSourceDie {
 	return d.DieStamp(func(r *corev1.EnvVarSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -3382,7 +3661,17 @@ func (d *EnvVarSourceDie) DieStampAt(jp string, fn interface{}) *EnvVarSourceDie
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -3556,11 +3845,18 @@ func (d *ObjectFieldSelectorDie) DieStamp(fn func(r *corev1.ObjectFieldSelector)
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ObjectFieldSelectorDie) DieStampAt(jp string, fn interface{}) *ObjectFieldSelectorDie {
 	return d.DieStamp(func(r *corev1.ObjectFieldSelector) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -3571,7 +3867,17 @@ func (d *ObjectFieldSelectorDie) DieStampAt(jp string, fn interface{}) *ObjectFi
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -3731,11 +4037,18 @@ func (d *ResourceFieldSelectorDie) DieStamp(fn func(r *corev1.ResourceFieldSelec
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ResourceFieldSelectorDie) DieStampAt(jp string, fn interface{}) *ResourceFieldSelectorDie {
 	return d.DieStamp(func(r *corev1.ResourceFieldSelector) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -3746,7 +4059,17 @@ func (d *ResourceFieldSelectorDie) DieStampAt(jp string, fn interface{}) *Resour
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -3913,11 +4236,18 @@ func (d *ConfigMapKeySelectorDie) DieStamp(fn func(r *corev1.ConfigMapKeySelecto
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ConfigMapKeySelectorDie) DieStampAt(jp string, fn interface{}) *ConfigMapKeySelectorDie {
 	return d.DieStamp(func(r *corev1.ConfigMapKeySelector) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -3928,7 +4258,17 @@ func (d *ConfigMapKeySelectorDie) DieStampAt(jp string, fn interface{}) *ConfigM
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -4095,11 +4435,18 @@ func (d *SecretKeySelectorDie) DieStamp(fn func(r *corev1.SecretKeySelector)) *S
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *SecretKeySelectorDie) DieStampAt(jp string, fn interface{}) *SecretKeySelectorDie {
 	return d.DieStamp(func(r *corev1.SecretKeySelector) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -4110,7 +4457,17 @@ func (d *SecretKeySelectorDie) DieStampAt(jp string, fn interface{}) *SecretKeyS
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -4277,11 +4634,18 @@ func (d *ResourceRequirementsDie) DieStamp(fn func(r *corev1.ResourceRequirement
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ResourceRequirementsDie) DieStampAt(jp string, fn interface{}) *ResourceRequirementsDie {
 	return d.DieStamp(func(r *corev1.ResourceRequirements) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -4292,7 +4656,17 @@ func (d *ResourceRequirementsDie) DieStampAt(jp string, fn interface{}) *Resourc
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -4463,11 +4837,18 @@ func (d *ResourceClaimDie) DieStamp(fn func(r *corev1.ResourceClaim)) *ResourceC
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ResourceClaimDie) DieStampAt(jp string, fn interface{}) *ResourceClaimDie {
 	return d.DieStamp(func(r *corev1.ResourceClaim) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -4478,7 +4859,17 @@ func (d *ResourceClaimDie) DieStampAt(jp string, fn interface{}) *ResourceClaimD
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -4631,11 +5022,18 @@ func (d *ContainerResizePolicyDie) DieStamp(fn func(r *corev1.ContainerResizePol
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ContainerResizePolicyDie) DieStampAt(jp string, fn interface{}) *ContainerResizePolicyDie {
 	return d.DieStamp(func(r *corev1.ContainerResizePolicy) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -4646,7 +5044,17 @@ func (d *ContainerResizePolicyDie) DieStampAt(jp string, fn interface{}) *Contai
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -4806,11 +5214,18 @@ func (d *VolumeMountDie) DieStamp(fn func(r *corev1.VolumeMount)) *VolumeMountDi
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *VolumeMountDie) DieStampAt(jp string, fn interface{}) *VolumeMountDie {
 	return d.DieStamp(func(r *corev1.VolumeMount) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -4821,7 +5236,17 @@ func (d *VolumeMountDie) DieStampAt(jp string, fn interface{}) *VolumeMountDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -5009,11 +5434,18 @@ func (d *VolumeDeviceDie) DieStamp(fn func(r *corev1.VolumeDevice)) *VolumeDevic
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *VolumeDeviceDie) DieStampAt(jp string, fn interface{}) *VolumeDeviceDie {
 	return d.DieStamp(func(r *corev1.VolumeDevice) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -5024,7 +5456,17 @@ func (d *VolumeDeviceDie) DieStampAt(jp string, fn interface{}) *VolumeDeviceDie
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -5184,11 +5626,18 @@ func (d *ProbeDie) DieStamp(fn func(r *corev1.Probe)) *ProbeDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ProbeDie) DieStampAt(jp string, fn interface{}) *ProbeDie {
 	return d.DieStamp(func(r *corev1.Probe) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -5199,7 +5648,17 @@ func (d *ProbeDie) DieStampAt(jp string, fn interface{}) *ProbeDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -5394,11 +5853,18 @@ func (d *LifecycleDie) DieStamp(fn func(r *corev1.Lifecycle)) *LifecycleDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *LifecycleDie) DieStampAt(jp string, fn interface{}) *LifecycleDie {
 	return d.DieStamp(func(r *corev1.Lifecycle) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -5409,7 +5875,17 @@ func (d *LifecycleDie) DieStampAt(jp string, fn interface{}) *LifecycleDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -5569,11 +6045,18 @@ func (d *LifecycleHandlerDie) DieStamp(fn func(r *corev1.LifecycleHandler)) *Lif
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *LifecycleHandlerDie) DieStampAt(jp string, fn interface{}) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -5584,7 +6067,17 @@ func (d *LifecycleHandlerDie) DieStampAt(jp string, fn interface{}) *LifecycleHa
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -5751,11 +6244,18 @@ func (d *ProbeHandlerDie) DieStamp(fn func(r *corev1.ProbeHandler)) *ProbeHandle
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ProbeHandlerDie) DieStampAt(jp string, fn interface{}) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -5766,7 +6266,17 @@ func (d *ProbeHandlerDie) DieStampAt(jp string, fn interface{}) *ProbeHandlerDie
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -5940,11 +6450,18 @@ func (d *ExecActionDie) DieStamp(fn func(r *corev1.ExecAction)) *ExecActionDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ExecActionDie) DieStampAt(jp string, fn interface{}) *ExecActionDie {
 	return d.DieStamp(func(r *corev1.ExecAction) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -5955,7 +6472,17 @@ func (d *ExecActionDie) DieStampAt(jp string, fn interface{}) *ExecActionDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -6108,11 +6635,18 @@ func (d *HTTPGetActionDie) DieStamp(fn func(r *corev1.HTTPGetAction)) *HTTPGetAc
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *HTTPGetActionDie) DieStampAt(jp string, fn interface{}) *HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -6123,7 +6657,17 @@ func (d *HTTPGetActionDie) DieStampAt(jp string, fn interface{}) *HTTPGetActionD
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -6318,11 +6862,18 @@ func (d *HTTPHeaderDie) DieStamp(fn func(r *corev1.HTTPHeader)) *HTTPHeaderDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *HTTPHeaderDie) DieStampAt(jp string, fn interface{}) *HTTPHeaderDie {
 	return d.DieStamp(func(r *corev1.HTTPHeader) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -6333,7 +6884,17 @@ func (d *HTTPHeaderDie) DieStampAt(jp string, fn interface{}) *HTTPHeaderDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -6493,11 +7054,18 @@ func (d *TCPSocketActionDie) DieStamp(fn func(r *corev1.TCPSocketAction)) *TCPSo
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *TCPSocketActionDie) DieStampAt(jp string, fn interface{}) *TCPSocketActionDie {
 	return d.DieStamp(func(r *corev1.TCPSocketAction) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -6508,7 +7076,17 @@ func (d *TCPSocketActionDie) DieStampAt(jp string, fn interface{}) *TCPSocketAct
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -6682,11 +7260,18 @@ func (d *GRPCActionDie) DieStamp(fn func(r *corev1.GRPCAction)) *GRPCActionDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *GRPCActionDie) DieStampAt(jp string, fn interface{}) *GRPCActionDie {
 	return d.DieStamp(func(r *corev1.GRPCAction) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -6697,7 +7282,17 @@ func (d *GRPCActionDie) DieStampAt(jp string, fn interface{}) *GRPCActionDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -6859,11 +7454,18 @@ func (d *SecurityContextDie) DieStamp(fn func(r *corev1.SecurityContext)) *Secur
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *SecurityContextDie) DieStampAt(jp string, fn interface{}) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -6874,7 +7476,17 @@ func (d *SecurityContextDie) DieStampAt(jp string, fn interface{}) *SecurityCont
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -7097,11 +7709,18 @@ func (d *CapabilitiesDie) DieStamp(fn func(r *corev1.Capabilities)) *Capabilitie
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *CapabilitiesDie) DieStampAt(jp string, fn interface{}) *CapabilitiesDie {
 	return d.DieStamp(func(r *corev1.Capabilities) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -7112,7 +7731,17 @@ func (d *CapabilitiesDie) DieStampAt(jp string, fn interface{}) *CapabilitiesDie
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -7272,11 +7901,18 @@ func (d *SELinuxOptionsDie) DieStamp(fn func(r *corev1.SELinuxOptions)) *SELinux
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *SELinuxOptionsDie) DieStampAt(jp string, fn interface{}) *SELinuxOptionsDie {
 	return d.DieStamp(func(r *corev1.SELinuxOptions) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -7287,7 +7923,17 @@ func (d *SELinuxOptionsDie) DieStampAt(jp string, fn interface{}) *SELinuxOption
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -7461,11 +8107,18 @@ func (d *WindowsSecurityContextOptionsDie) DieStamp(fn func(r *corev1.WindowsSec
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *WindowsSecurityContextOptionsDie) DieStampAt(jp string, fn interface{}) *WindowsSecurityContextOptionsDie {
 	return d.DieStamp(func(r *corev1.WindowsSecurityContextOptions) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -7476,7 +8129,17 @@ func (d *WindowsSecurityContextOptionsDie) DieStampAt(jp string, fn interface{})
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -7650,11 +8313,18 @@ func (d *SeccompProfileDie) DieStamp(fn func(r *corev1.SeccompProfile)) *Seccomp
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *SeccompProfileDie) DieStampAt(jp string, fn interface{}) *SeccompProfileDie {
 	return d.DieStamp(func(r *corev1.SeccompProfile) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -7665,7 +8335,17 @@ func (d *SeccompProfileDie) DieStampAt(jp string, fn interface{}) *SeccompProfil
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -7827,11 +8507,18 @@ func (d *ContainerStatusDie) DieStamp(fn func(r *corev1.ContainerStatus)) *Conta
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ContainerStatusDie) DieStampAt(jp string, fn interface{}) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -7842,7 +8529,17 @@ func (d *ContainerStatusDie) DieStampAt(jp string, fn interface{}) *ContainerSta
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -8067,11 +8764,18 @@ func (d *ContainerStateDie) DieStamp(fn func(r *corev1.ContainerState)) *Contain
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ContainerStateDie) DieStampAt(jp string, fn interface{}) *ContainerStateDie {
 	return d.DieStamp(func(r *corev1.ContainerState) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -8082,7 +8786,17 @@ func (d *ContainerStateDie) DieStampAt(jp string, fn interface{}) *ContainerStat
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -8249,11 +8963,18 @@ func (d *ContainerStateWaitingDie) DieStamp(fn func(r *corev1.ContainerStateWait
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ContainerStateWaitingDie) DieStampAt(jp string, fn interface{}) *ContainerStateWaitingDie {
 	return d.DieStamp(func(r *corev1.ContainerStateWaiting) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -8264,7 +8985,17 @@ func (d *ContainerStateWaitingDie) DieStampAt(jp string, fn interface{}) *Contai
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -8424,11 +9155,18 @@ func (d *ContainerStateRunningDie) DieStamp(fn func(r *corev1.ContainerStateRunn
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ContainerStateRunningDie) DieStampAt(jp string, fn interface{}) *ContainerStateRunningDie {
 	return d.DieStamp(func(r *corev1.ContainerStateRunning) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -8439,7 +9177,17 @@ func (d *ContainerStateRunningDie) DieStampAt(jp string, fn interface{}) *Contai
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -8592,11 +9340,18 @@ func (d *ContainerStateTerminatedDie) DieStamp(fn func(r *corev1.ContainerStateT
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ContainerStateTerminatedDie) DieStampAt(jp string, fn interface{}) *ContainerStateTerminatedDie {
 	return d.DieStamp(func(r *corev1.ContainerStateTerminated) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -8607,7 +9362,17 @@ func (d *ContainerStateTerminatedDie) DieStampAt(jp string, fn interface{}) *Con
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -8817,11 +9582,18 @@ func (d *EndpointsDie) DieStamp(fn func(r *corev1.Endpoints)) *EndpointsDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *EndpointsDie) DieStampAt(jp string, fn interface{}) *EndpointsDie {
 	return d.DieStamp(func(r *corev1.Endpoints) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -8832,7 +9604,17 @@ func (d *EndpointsDie) DieStampAt(jp string, fn interface{}) *EndpointsDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -9037,11 +9819,18 @@ func (d *EndpointSubsetDie) DieStamp(fn func(r *corev1.EndpointSubset)) *Endpoin
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *EndpointSubsetDie) DieStampAt(jp string, fn interface{}) *EndpointSubsetDie {
 	return d.DieStamp(func(r *corev1.EndpointSubset) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -9052,7 +9841,17 @@ func (d *EndpointSubsetDie) DieStampAt(jp string, fn interface{}) *EndpointSubse
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -9219,11 +10018,18 @@ func (d *EndpointAddressDie) DieStamp(fn func(r *corev1.EndpointAddress)) *Endpo
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *EndpointAddressDie) DieStampAt(jp string, fn interface{}) *EndpointAddressDie {
 	return d.DieStamp(func(r *corev1.EndpointAddress) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -9234,7 +10040,17 @@ func (d *EndpointAddressDie) DieStampAt(jp string, fn interface{}) *EndpointAddr
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -9408,11 +10224,18 @@ func (d *EndpointPortDie) DieStamp(fn func(r *corev1.EndpointPort)) *EndpointPor
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *EndpointPortDie) DieStampAt(jp string, fn interface{}) *EndpointPortDie {
 	return d.DieStamp(func(r *corev1.EndpointPort) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -9423,7 +10246,17 @@ func (d *EndpointPortDie) DieStampAt(jp string, fn interface{}) *EndpointPortDie
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -9618,11 +10451,18 @@ func (d *EventDie) DieStamp(fn func(r *corev1.Event)) *EventDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *EventDie) DieStampAt(jp string, fn interface{}) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -9633,7 +10473,17 @@ func (d *EventDie) DieStampAt(jp string, fn interface{}) *EventDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -9929,11 +10779,18 @@ func (d *EventSourceDie) DieStamp(fn func(r *corev1.EventSource)) *EventSourceDi
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *EventSourceDie) DieStampAt(jp string, fn interface{}) *EventSourceDie {
 	return d.DieStamp(func(r *corev1.EventSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -9944,7 +10801,17 @@ func (d *EventSourceDie) DieStampAt(jp string, fn interface{}) *EventSourceDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -10104,11 +10971,18 @@ func (d *EventSeriesDie) DieStamp(fn func(r *corev1.EventSeries)) *EventSeriesDi
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *EventSeriesDie) DieStampAt(jp string, fn interface{}) *EventSeriesDie {
 	return d.DieStamp(func(r *corev1.EventSeries) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -10119,7 +10993,17 @@ func (d *EventSeriesDie) DieStampAt(jp string, fn interface{}) *EventSeriesDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -10294,11 +11178,18 @@ func (d *LimitRangeDie) DieStamp(fn func(r *corev1.LimitRange)) *LimitRangeDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *LimitRangeDie) DieStampAt(jp string, fn interface{}) *LimitRangeDie {
 	return d.DieStamp(func(r *corev1.LimitRange) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -10309,7 +11200,17 @@ func (d *LimitRangeDie) DieStampAt(jp string, fn interface{}) *LimitRangeDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -10523,11 +11424,18 @@ func (d *LimitRangeSpecDie) DieStamp(fn func(r *corev1.LimitRangeSpec)) *LimitRa
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *LimitRangeSpecDie) DieStampAt(jp string, fn interface{}) *LimitRangeSpecDie {
 	return d.DieStamp(func(r *corev1.LimitRangeSpec) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -10538,7 +11446,17 @@ func (d *LimitRangeSpecDie) DieStampAt(jp string, fn interface{}) *LimitRangeSpe
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -10691,11 +11609,18 @@ func (d *LimitRangeItemDie) DieStamp(fn func(r *corev1.LimitRangeItem)) *LimitRa
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *LimitRangeItemDie) DieStampAt(jp string, fn interface{}) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -10706,7 +11631,17 @@ func (d *LimitRangeItemDie) DieStampAt(jp string, fn interface{}) *LimitRangeIte
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -10909,11 +11844,18 @@ func (d *NamespaceDie) DieStamp(fn func(r *corev1.Namespace)) *NamespaceDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *NamespaceDie) DieStampAt(jp string, fn interface{}) *NamespaceDie {
 	return d.DieStamp(func(r *corev1.Namespace) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -10924,7 +11866,17 @@ func (d *NamespaceDie) DieStampAt(jp string, fn interface{}) *NamespaceDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -11154,11 +12106,18 @@ func (d *NamespaceSpecDie) DieStamp(fn func(r *corev1.NamespaceSpec)) *Namespace
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *NamespaceSpecDie) DieStampAt(jp string, fn interface{}) *NamespaceSpecDie {
 	return d.DieStamp(func(r *corev1.NamespaceSpec) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -11169,7 +12128,17 @@ func (d *NamespaceSpecDie) DieStampAt(jp string, fn interface{}) *NamespaceSpecD
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -11322,11 +12291,18 @@ func (d *NamespaceStatusDie) DieStamp(fn func(r *corev1.NamespaceStatus)) *Names
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *NamespaceStatusDie) DieStampAt(jp string, fn interface{}) *NamespaceStatusDie {
 	return d.DieStamp(func(r *corev1.NamespaceStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -11337,7 +12313,17 @@ func (d *NamespaceStatusDie) DieStampAt(jp string, fn interface{}) *NamespaceSta
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -11512,11 +12498,18 @@ func (d *NodeDie) DieStamp(fn func(r *corev1.Node)) *NodeDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *NodeDie) DieStampAt(jp string, fn interface{}) *NodeDie {
 	return d.DieStamp(func(r *corev1.Node) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -11527,7 +12520,17 @@ func (d *NodeDie) DieStampAt(jp string, fn interface{}) *NodeDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -11757,11 +12760,18 @@ func (d *NodeSpecDie) DieStamp(fn func(r *corev1.NodeSpec)) *NodeSpecDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *NodeSpecDie) DieStampAt(jp string, fn interface{}) *NodeSpecDie {
 	return d.DieStamp(func(r *corev1.NodeSpec) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -11772,7 +12782,17 @@ func (d *NodeSpecDie) DieStampAt(jp string, fn interface{}) *NodeSpecDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -11967,11 +12987,18 @@ func (d *TaintDie) DieStamp(fn func(r *corev1.Taint)) *TaintDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *TaintDie) DieStampAt(jp string, fn interface{}) *TaintDie {
 	return d.DieStamp(func(r *corev1.Taint) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -11982,7 +13009,17 @@ func (d *TaintDie) DieStampAt(jp string, fn interface{}) *TaintDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -12156,11 +13193,18 @@ func (d *NodeConfigSourceDie) DieStamp(fn func(r *corev1.NodeConfigSource)) *Nod
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *NodeConfigSourceDie) DieStampAt(jp string, fn interface{}) *NodeConfigSourceDie {
 	return d.DieStamp(func(r *corev1.NodeConfigSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -12171,7 +13215,17 @@ func (d *NodeConfigSourceDie) DieStampAt(jp string, fn interface{}) *NodeConfigS
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -12324,11 +13378,18 @@ func (d *ConfigMapNodeConfigSourceDie) DieStamp(fn func(r *corev1.ConfigMapNodeC
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ConfigMapNodeConfigSourceDie) DieStampAt(jp string, fn interface{}) *ConfigMapNodeConfigSourceDie {
 	return d.DieStamp(func(r *corev1.ConfigMapNodeConfigSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -12339,7 +13400,17 @@ func (d *ConfigMapNodeConfigSourceDie) DieStampAt(jp string, fn interface{}) *Co
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -12520,11 +13591,18 @@ func (d *NodeStatusDie) DieStamp(fn func(r *corev1.NodeStatus)) *NodeStatusDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *NodeStatusDie) DieStampAt(jp string, fn interface{}) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -12535,7 +13613,17 @@ func (d *NodeStatusDie) DieStampAt(jp string, fn interface{}) *NodeStatusDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -12758,11 +13846,18 @@ func (d *NodeAddressDie) DieStamp(fn func(r *corev1.NodeAddress)) *NodeAddressDi
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *NodeAddressDie) DieStampAt(jp string, fn interface{}) *NodeAddressDie {
 	return d.DieStamp(func(r *corev1.NodeAddress) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -12773,7 +13868,17 @@ func (d *NodeAddressDie) DieStampAt(jp string, fn interface{}) *NodeAddressDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -12933,11 +14038,18 @@ func (d *NodeDaemonEndpointsDie) DieStamp(fn func(r *corev1.NodeDaemonEndpoints)
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *NodeDaemonEndpointsDie) DieStampAt(jp string, fn interface{}) *NodeDaemonEndpointsDie {
 	return d.DieStamp(func(r *corev1.NodeDaemonEndpoints) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -12948,7 +14060,17 @@ func (d *NodeDaemonEndpointsDie) DieStampAt(jp string, fn interface{}) *NodeDaem
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -13101,11 +14223,18 @@ func (d *DaemonEndpointDie) DieStamp(fn func(r *corev1.DaemonEndpoint)) *DaemonE
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *DaemonEndpointDie) DieStampAt(jp string, fn interface{}) *DaemonEndpointDie {
 	return d.DieStamp(func(r *corev1.DaemonEndpoint) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -13116,7 +14245,17 @@ func (d *DaemonEndpointDie) DieStampAt(jp string, fn interface{}) *DaemonEndpoin
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -13269,11 +14408,18 @@ func (d *NodeSystemInfoDie) DieStamp(fn func(r *corev1.NodeSystemInfo)) *NodeSys
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *NodeSystemInfoDie) DieStampAt(jp string, fn interface{}) *NodeSystemInfoDie {
 	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -13284,7 +14430,17 @@ func (d *NodeSystemInfoDie) DieStampAt(jp string, fn interface{}) *NodeSystemInf
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -13500,11 +14656,18 @@ func (d *ContainerImageDie) DieStamp(fn func(r *corev1.ContainerImage)) *Contain
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ContainerImageDie) DieStampAt(jp string, fn interface{}) *ContainerImageDie {
 	return d.DieStamp(func(r *corev1.ContainerImage) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -13515,7 +14678,17 @@ func (d *ContainerImageDie) DieStampAt(jp string, fn interface{}) *ContainerImag
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -13675,11 +14848,18 @@ func (d *AttachedVolumeDie) DieStamp(fn func(r *corev1.AttachedVolume)) *Attache
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *AttachedVolumeDie) DieStampAt(jp string, fn interface{}) *AttachedVolumeDie {
 	return d.DieStamp(func(r *corev1.AttachedVolume) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -13690,7 +14870,17 @@ func (d *AttachedVolumeDie) DieStampAt(jp string, fn interface{}) *AttachedVolum
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -13850,11 +15040,18 @@ func (d *NodeConfigStatusDie) DieStamp(fn func(r *corev1.NodeConfigStatus)) *Nod
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *NodeConfigStatusDie) DieStampAt(jp string, fn interface{}) *NodeConfigStatusDie {
 	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -13865,7 +15062,17 @@ func (d *NodeConfigStatusDie) DieStampAt(jp string, fn interface{}) *NodeConfigS
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -14054,11 +15261,18 @@ func (d *PersistentVolumeDie) DieStamp(fn func(r *corev1.PersistentVolume)) *Per
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PersistentVolumeDie) DieStampAt(jp string, fn interface{}) *PersistentVolumeDie {
 	return d.DieStamp(func(r *corev1.PersistentVolume) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -14069,7 +15283,17 @@ func (d *PersistentVolumeDie) DieStampAt(jp string, fn interface{}) *PersistentV
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -14299,11 +15523,18 @@ func (d *PersistentVolumeSpecDie) DieStamp(fn func(r *corev1.PersistentVolumeSpe
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PersistentVolumeSpecDie) DieStampAt(jp string, fn interface{}) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -14314,7 +15545,17 @@ func (d *PersistentVolumeSpecDie) DieStampAt(jp string, fn interface{}) *Persist
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -14523,11 +15764,18 @@ func (d *PersistentVolumeStatusDie) DieStamp(fn func(r *corev1.PersistentVolumeS
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PersistentVolumeStatusDie) DieStampAt(jp string, fn interface{}) *PersistentVolumeStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -14538,7 +15786,17 @@ func (d *PersistentVolumeStatusDie) DieStampAt(jp string, fn interface{}) *Persi
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -14705,11 +15963,18 @@ func (d *GlusterfsPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.Glusterf
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *GlusterfsPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *GlusterfsPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GlusterfsPersistentVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -14720,7 +15985,17 @@ func (d *GlusterfsPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -14894,11 +16169,18 @@ func (d *RBDPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.RBDPersistentV
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *RBDPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -14909,7 +16191,17 @@ func (d *RBDPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *RB
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -15111,11 +16403,18 @@ func (d *ISCSIPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.ISCSIPersist
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ISCSIPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -15126,7 +16425,17 @@ func (d *ISCSIPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -15349,11 +16658,18 @@ func (d *CinderPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.CinderPersi
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *CinderPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *CinderPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CinderPersistentVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -15364,7 +16680,17 @@ func (d *CinderPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) 
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -15538,11 +16864,18 @@ func (d *CephFSPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.CephFSPersi
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *CephFSPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *CephFSPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CephFSPersistentVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -15553,7 +16886,17 @@ func (d *CephFSPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) 
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -15741,11 +17084,18 @@ func (d *FlexPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.FlexPersisten
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *FlexPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *FlexPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FlexPersistentVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -15756,7 +17106,17 @@ func (d *FlexPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *F
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -15937,11 +17297,18 @@ func (d *AzureFilePersistentVolumeSourceDie) DieStamp(fn func(r *corev1.AzureFil
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *AzureFilePersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *AzureFilePersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.AzureFilePersistentVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -15952,7 +17319,17 @@ func (d *AzureFilePersistentVolumeSourceDie) DieStampAt(jp string, fn interface{
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -16126,11 +17503,18 @@ func (d *ScaleIOPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.ScaleIOPer
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ScaleIOPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *ScaleIOPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ScaleIOPersistentVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -16141,7 +17525,17 @@ func (d *ScaleIOPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{})
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -16357,11 +17751,18 @@ func (d *LocalVolumeSourceDie) DieStamp(fn func(r *corev1.LocalVolumeSource)) *L
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *LocalVolumeSourceDie) DieStampAt(jp string, fn interface{}) *LocalVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.LocalVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -16372,7 +17773,17 @@ func (d *LocalVolumeSourceDie) DieStampAt(jp string, fn interface{}) *LocalVolum
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -16532,11 +17943,18 @@ func (d *StorageOSPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.StorageO
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *StorageOSPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *StorageOSPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.StorageOSPersistentVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -16547,7 +17965,17 @@ func (d *StorageOSPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -16728,11 +18156,18 @@ func (d *CSIPersistentVolumeSourceDie) DieStamp(fn func(r *corev1.CSIPersistentV
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *CSIPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -16743,7 +18178,17 @@ func (d *CSIPersistentVolumeSourceDie) DieStampAt(jp string, fn interface{}) *CS
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -16959,11 +18404,18 @@ func (d *VolumeNodeAffinityDie) DieStamp(fn func(r *corev1.VolumeNodeAffinity)) 
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *VolumeNodeAffinityDie) DieStampAt(jp string, fn interface{}) *VolumeNodeAffinityDie {
 	return d.DieStamp(func(r *corev1.VolumeNodeAffinity) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -16974,7 +18426,17 @@ func (d *VolumeNodeAffinityDie) DieStampAt(jp string, fn interface{}) *VolumeNod
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -17127,11 +18589,18 @@ func (d *NodeSelectorDie) DieStamp(fn func(r *corev1.NodeSelector)) *NodeSelecto
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *NodeSelectorDie) DieStampAt(jp string, fn interface{}) *NodeSelectorDie {
 	return d.DieStamp(func(r *corev1.NodeSelector) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -17142,7 +18611,17 @@ func (d *NodeSelectorDie) DieStampAt(jp string, fn interface{}) *NodeSelectorDie
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -17295,11 +18774,18 @@ func (d *NodeSelectorTermDie) DieStamp(fn func(r *corev1.NodeSelectorTerm)) *Nod
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *NodeSelectorTermDie) DieStampAt(jp string, fn interface{}) *NodeSelectorTermDie {
 	return d.DieStamp(func(r *corev1.NodeSelectorTerm) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -17310,7 +18796,17 @@ func (d *NodeSelectorTermDie) DieStampAt(jp string, fn interface{}) *NodeSelecto
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -17470,11 +18966,18 @@ func (d *NodeSelectorRequirementDie) DieStamp(fn func(r *corev1.NodeSelectorRequ
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *NodeSelectorRequirementDie) DieStampAt(jp string, fn interface{}) *NodeSelectorRequirementDie {
 	return d.DieStamp(func(r *corev1.NodeSelectorRequirement) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -17485,7 +18988,17 @@ func (d *NodeSelectorRequirementDie) DieStampAt(jp string, fn interface{}) *Node
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -17667,11 +19180,18 @@ func (d *PersistentVolumeClaimDie) DieStamp(fn func(r *corev1.PersistentVolumeCl
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PersistentVolumeClaimDie) DieStampAt(jp string, fn interface{}) *PersistentVolumeClaimDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaim) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -17682,7 +19202,17 @@ func (d *PersistentVolumeClaimDie) DieStampAt(jp string, fn interface{}) *Persis
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -17912,11 +19442,18 @@ func (d *PersistentVolumeClaimSpecDie) DieStamp(fn func(r *corev1.PersistentVolu
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PersistentVolumeClaimSpecDie) DieStampAt(jp string, fn interface{}) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -17927,7 +19464,17 @@ func (d *PersistentVolumeClaimSpecDie) DieStampAt(jp string, fn interface{}) *Pe
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -18129,11 +19676,18 @@ func (d *PersistentVolumeClaimStatusDie) DieStamp(fn func(r *corev1.PersistentVo
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PersistentVolumeClaimStatusDie) DieStampAt(jp string, fn interface{}) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -18144,7 +19698,17 @@ func (d *PersistentVolumeClaimStatusDie) DieStampAt(jp string, fn interface{}) *
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -18332,11 +19896,18 @@ func (d *PersistentVolumeClaimTemplateDie) DieStamp(fn func(r *corev1.Persistent
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PersistentVolumeClaimTemplateDie) DieStampAt(jp string, fn interface{}) *PersistentVolumeClaimTemplateDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimTemplate) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -18347,7 +19918,17 @@ func (d *PersistentVolumeClaimTemplateDie) DieStampAt(jp string, fn interface{})
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -18522,11 +20103,18 @@ func (d *PodDie) DieStamp(fn func(r *corev1.Pod)) *PodDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PodDie) DieStampAt(jp string, fn interface{}) *PodDie {
 	return d.DieStamp(func(r *corev1.Pod) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -18537,7 +20125,17 @@ func (d *PodDie) DieStampAt(jp string, fn interface{}) *PodDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -18767,11 +20365,18 @@ func (d *PodSpecDie) DieStamp(fn func(r *corev1.PodSpec)) *PodSpecDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PodSpecDie) DieStampAt(jp string, fn interface{}) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -18782,7 +20387,17 @@ func (d *PodSpecDie) DieStampAt(jp string, fn interface{}) *PodSpecDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -19213,11 +20828,18 @@ func (d *PodSchedulingGateDie) DieStamp(fn func(r *corev1.PodSchedulingGate)) *P
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PodSchedulingGateDie) DieStampAt(jp string, fn interface{}) *PodSchedulingGateDie {
 	return d.DieStamp(func(r *corev1.PodSchedulingGate) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -19228,7 +20850,17 @@ func (d *PodSchedulingGateDie) DieStampAt(jp string, fn interface{}) *PodSchedul
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -19381,11 +21013,18 @@ func (d *PodResourceClaimDie) DieStamp(fn func(r *corev1.PodResourceClaim)) *Pod
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PodResourceClaimDie) DieStampAt(jp string, fn interface{}) *PodResourceClaimDie {
 	return d.DieStamp(func(r *corev1.PodResourceClaim) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -19396,7 +21035,17 @@ func (d *PodResourceClaimDie) DieStampAt(jp string, fn interface{}) *PodResource
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -19556,11 +21205,18 @@ func (d *ClaimSourceDie) DieStamp(fn func(r *corev1.ClaimSource)) *ClaimSourceDi
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ClaimSourceDie) DieStampAt(jp string, fn interface{}) *ClaimSourceDie {
 	return d.DieStamp(func(r *corev1.ClaimSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -19571,7 +21227,17 @@ func (d *ClaimSourceDie) DieStampAt(jp string, fn interface{}) *ClaimSourceDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -19737,11 +21403,18 @@ func (d *PodSecurityContextDie) DieStamp(fn func(r *corev1.PodSecurityContext)) 
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PodSecurityContextDie) DieStampAt(jp string, fn interface{}) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -19752,7 +21425,17 @@ func (d *PodSecurityContextDie) DieStampAt(jp string, fn interface{}) *PodSecuri
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -19972,11 +21655,18 @@ func (d *SysctlDie) DieStamp(fn func(r *corev1.Sysctl)) *SysctlDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *SysctlDie) DieStampAt(jp string, fn interface{}) *SysctlDie {
 	return d.DieStamp(func(r *corev1.Sysctl) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -19987,7 +21677,17 @@ func (d *SysctlDie) DieStampAt(jp string, fn interface{}) *SysctlDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -20147,11 +21847,18 @@ func (d *TolerationDie) DieStamp(fn func(r *corev1.Toleration)) *TolerationDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *TolerationDie) DieStampAt(jp string, fn interface{}) *TolerationDie {
 	return d.DieStamp(func(r *corev1.Toleration) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -20162,7 +21869,17 @@ func (d *TolerationDie) DieStampAt(jp string, fn interface{}) *TolerationDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -20343,11 +22060,18 @@ func (d *HostAliasDie) DieStamp(fn func(r *corev1.HostAlias)) *HostAliasDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *HostAliasDie) DieStampAt(jp string, fn interface{}) *HostAliasDie {
 	return d.DieStamp(func(r *corev1.HostAlias) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -20358,7 +22082,17 @@ func (d *HostAliasDie) DieStampAt(jp string, fn interface{}) *HostAliasDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -20518,11 +22252,18 @@ func (d *PodDNSConfigDie) DieStamp(fn func(r *corev1.PodDNSConfig)) *PodDNSConfi
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PodDNSConfigDie) DieStampAt(jp string, fn interface{}) *PodDNSConfigDie {
 	return d.DieStamp(func(r *corev1.PodDNSConfig) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -20533,7 +22274,17 @@ func (d *PodDNSConfigDie) DieStampAt(jp string, fn interface{}) *PodDNSConfigDie
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -20700,11 +22451,18 @@ func (d *PodDNSConfigOptionDie) DieStamp(fn func(r *corev1.PodDNSConfigOption)) 
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PodDNSConfigOptionDie) DieStampAt(jp string, fn interface{}) *PodDNSConfigOptionDie {
 	return d.DieStamp(func(r *corev1.PodDNSConfigOption) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -20715,7 +22473,17 @@ func (d *PodDNSConfigOptionDie) DieStampAt(jp string, fn interface{}) *PodDNSCon
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -20874,11 +22642,18 @@ func (d *PodReadinessGateDie) DieStamp(fn func(r *corev1.PodReadinessGate)) *Pod
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PodReadinessGateDie) DieStampAt(jp string, fn interface{}) *PodReadinessGateDie {
 	return d.DieStamp(func(r *corev1.PodReadinessGate) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -20889,7 +22664,17 @@ func (d *PodReadinessGateDie) DieStampAt(jp string, fn interface{}) *PodReadines
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -21042,11 +22827,18 @@ func (d *TopologySpreadConstraintDie) DieStamp(fn func(r *corev1.TopologySpreadC
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *TopologySpreadConstraintDie) DieStampAt(jp string, fn interface{}) *TopologySpreadConstraintDie {
 	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -21057,7 +22849,17 @@ func (d *TopologySpreadConstraintDie) DieStampAt(jp string, fn interface{}) *Top
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -21269,11 +23071,18 @@ func (d *PodOSDie) DieStamp(fn func(r *corev1.PodOS)) *PodOSDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PodOSDie) DieStampAt(jp string, fn interface{}) *PodOSDie {
 	return d.DieStamp(func(r *corev1.PodOS) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -21284,7 +23093,17 @@ func (d *PodOSDie) DieStampAt(jp string, fn interface{}) *PodOSDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -21437,11 +23256,18 @@ func (d *PodStatusDie) DieStamp(fn func(r *corev1.PodStatus)) *PodStatusDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PodStatusDie) DieStampAt(jp string, fn interface{}) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -21452,7 +23278,17 @@ func (d *PodStatusDie) DieStampAt(jp string, fn interface{}) *PodStatusDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -21715,11 +23551,18 @@ func (d *PodTemplateDie) DieStamp(fn func(r *corev1.PodTemplate)) *PodTemplateDi
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PodTemplateDie) DieStampAt(jp string, fn interface{}) *PodTemplateDie {
 	return d.DieStamp(func(r *corev1.PodTemplate) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -21730,7 +23573,17 @@ func (d *PodTemplateDie) DieStampAt(jp string, fn interface{}) *PodTemplateDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -21935,11 +23788,18 @@ func (d *PodTemplateSpecDie) DieStamp(fn func(r *corev1.PodTemplateSpec)) *PodTe
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PodTemplateSpecDie) DieStampAt(jp string, fn interface{}) *PodTemplateSpecDie {
 	return d.DieStamp(func(r *corev1.PodTemplateSpec) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -21950,7 +23810,17 @@ func (d *PodTemplateSpecDie) DieStampAt(jp string, fn interface{}) *PodTemplateS
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -22125,11 +23995,18 @@ func (d *ReplicationControllerDie) DieStamp(fn func(r *corev1.ReplicationControl
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ReplicationControllerDie) DieStampAt(jp string, fn interface{}) *ReplicationControllerDie {
 	return d.DieStamp(func(r *corev1.ReplicationController) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -22140,7 +24017,17 @@ func (d *ReplicationControllerDie) DieStampAt(jp string, fn interface{}) *Replic
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -22370,11 +24257,18 @@ func (d *ReplicationControllerSpecDie) DieStamp(fn func(r *corev1.ReplicationCon
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ReplicationControllerSpecDie) DieStampAt(jp string, fn interface{}) *ReplicationControllerSpecDie {
 	return d.DieStamp(func(r *corev1.ReplicationControllerSpec) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -22385,7 +24279,17 @@ func (d *ReplicationControllerSpecDie) DieStampAt(jp string, fn interface{}) *Re
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -22559,11 +24463,18 @@ func (d *ReplicationControllerStatusDie) DieStamp(fn func(r *corev1.ReplicationC
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ReplicationControllerStatusDie) DieStampAt(jp string, fn interface{}) *ReplicationControllerStatusDie {
 	return d.DieStamp(func(r *corev1.ReplicationControllerStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -22574,7 +24485,17 @@ func (d *ReplicationControllerStatusDie) DieStampAt(jp string, fn interface{}) *
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -22777,11 +24698,18 @@ func (d *ResourceQuotaDie) DieStamp(fn func(r *corev1.ResourceQuota)) *ResourceQ
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ResourceQuotaDie) DieStampAt(jp string, fn interface{}) *ResourceQuotaDie {
 	return d.DieStamp(func(r *corev1.ResourceQuota) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -22792,7 +24720,17 @@ func (d *ResourceQuotaDie) DieStampAt(jp string, fn interface{}) *ResourceQuotaD
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -23022,11 +24960,18 @@ func (d *ResourceQuotaSpecDie) DieStamp(fn func(r *corev1.ResourceQuotaSpec)) *R
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ResourceQuotaSpecDie) DieStampAt(jp string, fn interface{}) *ResourceQuotaSpecDie {
 	return d.DieStamp(func(r *corev1.ResourceQuotaSpec) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -23037,7 +24982,17 @@ func (d *ResourceQuotaSpecDie) DieStampAt(jp string, fn interface{}) *ResourceQu
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -23204,11 +25159,18 @@ func (d *ScopeSelectorDie) DieStamp(fn func(r *corev1.ScopeSelector)) *ScopeSele
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ScopeSelectorDie) DieStampAt(jp string, fn interface{}) *ScopeSelectorDie {
 	return d.DieStamp(func(r *corev1.ScopeSelector) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -23219,7 +25181,17 @@ func (d *ScopeSelectorDie) DieStampAt(jp string, fn interface{}) *ScopeSelectorD
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -23372,11 +25344,18 @@ func (d *ScopedResourceSelectorRequirementDie) DieStamp(fn func(r *corev1.Scoped
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ScopedResourceSelectorRequirementDie) DieStampAt(jp string, fn interface{}) *ScopedResourceSelectorRequirementDie {
 	return d.DieStamp(func(r *corev1.ScopedResourceSelectorRequirement) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -23387,7 +25366,17 @@ func (d *ScopedResourceSelectorRequirementDie) DieStampAt(jp string, fn interfac
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -23554,11 +25543,18 @@ func (d *ResourceQuotaStatusDie) DieStamp(fn func(r *corev1.ResourceQuotaStatus)
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ResourceQuotaStatusDie) DieStampAt(jp string, fn interface{}) *ResourceQuotaStatusDie {
 	return d.DieStamp(func(r *corev1.ResourceQuotaStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -23569,7 +25565,17 @@ func (d *ResourceQuotaStatusDie) DieStampAt(jp string, fn interface{}) *Resource
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -23744,11 +25750,18 @@ func (d *SecretDie) DieStamp(fn func(r *corev1.Secret)) *SecretDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *SecretDie) DieStampAt(jp string, fn interface{}) *SecretDie {
 	return d.DieStamp(func(r *corev1.Secret) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -23759,7 +25772,17 @@ func (d *SecretDie) DieStampAt(jp string, fn interface{}) *SecretDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -23986,11 +26009,18 @@ func (d *ServiceDie) DieStamp(fn func(r *corev1.Service)) *ServiceDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ServiceDie) DieStampAt(jp string, fn interface{}) *ServiceDie {
 	return d.DieStamp(func(r *corev1.Service) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -24001,7 +26031,17 @@ func (d *ServiceDie) DieStampAt(jp string, fn interface{}) *ServiceDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -24231,11 +26271,18 @@ func (d *ServiceSpecDie) DieStamp(fn func(r *corev1.ServiceSpec)) *ServiceSpecDi
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ServiceSpecDie) DieStampAt(jp string, fn interface{}) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -24246,7 +26293,17 @@ func (d *ServiceSpecDie) DieStampAt(jp string, fn interface{}) *ServiceSpecDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -24529,11 +26586,18 @@ func (d *ServicePortDie) DieStamp(fn func(r *corev1.ServicePort)) *ServicePortDi
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ServicePortDie) DieStampAt(jp string, fn interface{}) *ServicePortDie {
 	return d.DieStamp(func(r *corev1.ServicePort) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -24544,7 +26608,17 @@ func (d *ServicePortDie) DieStampAt(jp string, fn interface{}) *ServicePortDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -24746,11 +26820,18 @@ func (d *SessionAffinityConfigDie) DieStamp(fn func(r *corev1.SessionAffinityCon
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *SessionAffinityConfigDie) DieStampAt(jp string, fn interface{}) *SessionAffinityConfigDie {
 	return d.DieStamp(func(r *corev1.SessionAffinityConfig) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -24761,7 +26842,17 @@ func (d *SessionAffinityConfigDie) DieStampAt(jp string, fn interface{}) *Sessio
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -24914,11 +27005,18 @@ func (d *ClientIPConfigDie) DieStamp(fn func(r *corev1.ClientIPConfig)) *ClientI
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ClientIPConfigDie) DieStampAt(jp string, fn interface{}) *ClientIPConfigDie {
 	return d.DieStamp(func(r *corev1.ClientIPConfig) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -24929,7 +27027,17 @@ func (d *ClientIPConfigDie) DieStampAt(jp string, fn interface{}) *ClientIPConfi
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -25082,11 +27190,18 @@ func (d *ServiceStatusDie) DieStamp(fn func(r *corev1.ServiceStatus)) *ServiceSt
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ServiceStatusDie) DieStampAt(jp string, fn interface{}) *ServiceStatusDie {
 	return d.DieStamp(func(r *corev1.ServiceStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -25097,7 +27212,17 @@ func (d *ServiceStatusDie) DieStampAt(jp string, fn interface{}) *ServiceStatusD
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -25257,11 +27382,18 @@ func (d *LoadBalancerStatusDie) DieStamp(fn func(r *corev1.LoadBalancerStatus)) 
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *LoadBalancerStatusDie) DieStampAt(jp string, fn interface{}) *LoadBalancerStatusDie {
 	return d.DieStamp(func(r *corev1.LoadBalancerStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -25272,7 +27404,17 @@ func (d *LoadBalancerStatusDie) DieStampAt(jp string, fn interface{}) *LoadBalan
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -25425,11 +27567,18 @@ func (d *LoadBalancerIngressDie) DieStamp(fn func(r *corev1.LoadBalancerIngress)
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *LoadBalancerIngressDie) DieStampAt(jp string, fn interface{}) *LoadBalancerIngressDie {
 	return d.DieStamp(func(r *corev1.LoadBalancerIngress) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -25440,7 +27589,17 @@ func (d *LoadBalancerIngressDie) DieStampAt(jp string, fn interface{}) *LoadBala
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -25607,11 +27766,18 @@ func (d *PortStatusDie) DieStamp(fn func(r *corev1.PortStatus)) *PortStatusDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PortStatusDie) DieStampAt(jp string, fn interface{}) *PortStatusDie {
 	return d.DieStamp(func(r *corev1.PortStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -25622,7 +27788,17 @@ func (d *PortStatusDie) DieStampAt(jp string, fn interface{}) *PortStatusDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -25804,11 +27980,18 @@ func (d *ServiceAccountDie) DieStamp(fn func(r *corev1.ServiceAccount)) *Service
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ServiceAccountDie) DieStampAt(jp string, fn interface{}) *ServiceAccountDie {
 	return d.DieStamp(func(r *corev1.ServiceAccount) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -25819,7 +28002,17 @@ func (d *ServiceAccountDie) DieStampAt(jp string, fn interface{}) *ServiceAccoun
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -26038,11 +28231,18 @@ func (d *VolumeDie) DieStamp(fn func(r *corev1.Volume)) *VolumeDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *VolumeDie) DieStampAt(jp string, fn interface{}) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -26053,7 +28253,17 @@ func (d *VolumeDie) DieStampAt(jp string, fn interface{}) *VolumeDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -26213,11 +28423,18 @@ func (d *HostPathVolumeSourceDie) DieStamp(fn func(r *corev1.HostPathVolumeSourc
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *HostPathVolumeSourceDie) DieStampAt(jp string, fn interface{}) *HostPathVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.HostPathVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -26228,7 +28445,17 @@ func (d *HostPathVolumeSourceDie) DieStampAt(jp string, fn interface{}) *HostPat
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -26388,11 +28615,18 @@ func (d *EmptyDirVolumeSourceDie) DieStamp(fn func(r *corev1.EmptyDirVolumeSourc
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *EmptyDirVolumeSourceDie) DieStampAt(jp string, fn interface{}) *EmptyDirVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.EmptyDirVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -26403,7 +28637,17 @@ func (d *EmptyDirVolumeSourceDie) DieStampAt(jp string, fn interface{}) *EmptyDi
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -26563,11 +28807,18 @@ func (d *GCEPersistentDiskVolumeSourceDie) DieStamp(fn func(r *corev1.GCEPersist
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *GCEPersistentDiskVolumeSourceDie) DieStampAt(jp string, fn interface{}) *GCEPersistentDiskVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GCEPersistentDiskVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -26578,7 +28829,17 @@ func (d *GCEPersistentDiskVolumeSourceDie) DieStampAt(jp string, fn interface{})
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -26752,11 +29013,18 @@ func (d *AWSElasticBlockStoreVolumeSourceDie) DieStamp(fn func(r *corev1.AWSElas
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *AWSElasticBlockStoreVolumeSourceDie) DieStampAt(jp string, fn interface{}) *AWSElasticBlockStoreVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.AWSElasticBlockStoreVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -26767,7 +29035,17 @@ func (d *AWSElasticBlockStoreVolumeSourceDie) DieStampAt(jp string, fn interface
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -26941,11 +29219,18 @@ func (d *GitRepoVolumeSourceDie) DieStamp(fn func(r *corev1.GitRepoVolumeSource)
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *GitRepoVolumeSourceDie) DieStampAt(jp string, fn interface{}) *GitRepoVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GitRepoVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -26956,7 +29241,17 @@ func (d *GitRepoVolumeSourceDie) DieStampAt(jp string, fn interface{}) *GitRepoV
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -27123,11 +29418,18 @@ func (d *SecretVolumeSourceDie) DieStamp(fn func(r *corev1.SecretVolumeSource)) 
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *SecretVolumeSourceDie) DieStampAt(jp string, fn interface{}) *SecretVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.SecretVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -27138,7 +29440,17 @@ func (d *SecretVolumeSourceDie) DieStampAt(jp string, fn interface{}) *SecretVol
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -27312,11 +29624,18 @@ func (d *NFSVolumeSourceDie) DieStamp(fn func(r *corev1.NFSVolumeSource)) *NFSVo
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *NFSVolumeSourceDie) DieStampAt(jp string, fn interface{}) *NFSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.NFSVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -27327,7 +29646,17 @@ func (d *NFSVolumeSourceDie) DieStampAt(jp string, fn interface{}) *NFSVolumeSou
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -27494,11 +29823,18 @@ func (d *ISCSIVolumeSourceDie) DieStamp(fn func(r *corev1.ISCSIVolumeSource)) *I
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ISCSIVolumeSourceDie) DieStampAt(jp string, fn interface{}) *ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -27509,7 +29845,17 @@ func (d *ISCSIVolumeSourceDie) DieStampAt(jp string, fn interface{}) *ISCSIVolum
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -27732,11 +30078,18 @@ func (d *GlusterfsVolumeSourceDie) DieStamp(fn func(r *corev1.GlusterfsVolumeSou
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *GlusterfsVolumeSourceDie) DieStampAt(jp string, fn interface{}) *GlusterfsVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GlusterfsVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -27747,7 +30100,17 @@ func (d *GlusterfsVolumeSourceDie) DieStampAt(jp string, fn interface{}) *Gluste
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -27914,11 +30277,18 @@ func (d *PersistentVolumeClaimVolumeSourceDie) DieStamp(fn func(r *corev1.Persis
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PersistentVolumeClaimVolumeSourceDie) DieStampAt(jp string, fn interface{}) *PersistentVolumeClaimVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -27929,7 +30299,17 @@ func (d *PersistentVolumeClaimVolumeSourceDie) DieStampAt(jp string, fn interfac
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -28089,11 +30469,18 @@ func (d *RBDVolumeSourceDie) DieStamp(fn func(r *corev1.RBDVolumeSource)) *RBDVo
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *RBDVolumeSourceDie) DieStampAt(jp string, fn interface{}) *RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -28104,7 +30491,17 @@ func (d *RBDVolumeSourceDie) DieStampAt(jp string, fn interface{}) *RBDVolumeSou
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -28306,11 +30703,18 @@ func (d *FlexVolumeSourceDie) DieStamp(fn func(r *corev1.FlexVolumeSource)) *Fle
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *FlexVolumeSourceDie) DieStampAt(jp string, fn interface{}) *FlexVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FlexVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -28321,7 +30725,17 @@ func (d *FlexVolumeSourceDie) DieStampAt(jp string, fn interface{}) *FlexVolumeS
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -28502,11 +30916,18 @@ func (d *CinderVolumeSourceDie) DieStamp(fn func(r *corev1.CinderVolumeSource)) 
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *CinderVolumeSourceDie) DieStampAt(jp string, fn interface{}) *CinderVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CinderVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -28517,7 +30938,17 @@ func (d *CinderVolumeSourceDie) DieStampAt(jp string, fn interface{}) *CinderVol
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -28691,11 +31122,18 @@ func (d *CephFSVolumeSourceDie) DieStamp(fn func(r *corev1.CephFSVolumeSource)) 
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *CephFSVolumeSourceDie) DieStampAt(jp string, fn interface{}) *CephFSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CephFSVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -28706,7 +31144,17 @@ func (d *CephFSVolumeSourceDie) DieStampAt(jp string, fn interface{}) *CephFSVol
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -28894,11 +31342,18 @@ func (d *FlockerVolumeSourceDie) DieStamp(fn func(r *corev1.FlockerVolumeSource)
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *FlockerVolumeSourceDie) DieStampAt(jp string, fn interface{}) *FlockerVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FlockerVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -28909,7 +31364,17 @@ func (d *FlockerVolumeSourceDie) DieStampAt(jp string, fn interface{}) *FlockerV
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -29069,11 +31534,18 @@ func (d *DownwardAPIVolumeSourceDie) DieStamp(fn func(r *corev1.DownwardAPIVolum
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *DownwardAPIVolumeSourceDie) DieStampAt(jp string, fn interface{}) *DownwardAPIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -29084,7 +31556,17 @@ func (d *DownwardAPIVolumeSourceDie) DieStampAt(jp string, fn interface{}) *Down
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -29244,11 +31726,18 @@ func (d *DownwardAPIVolumeFileDie) DieStamp(fn func(r *corev1.DownwardAPIVolumeF
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *DownwardAPIVolumeFileDie) DieStampAt(jp string, fn interface{}) *DownwardAPIVolumeFileDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -29259,7 +31748,17 @@ func (d *DownwardAPIVolumeFileDie) DieStampAt(jp string, fn interface{}) *Downwa
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -29433,11 +31932,18 @@ func (d *FCVolumeSourceDie) DieStamp(fn func(r *corev1.FCVolumeSource)) *FCVolum
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *FCVolumeSourceDie) DieStampAt(jp string, fn interface{}) *FCVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FCVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -29448,7 +31954,17 @@ func (d *FCVolumeSourceDie) DieStampAt(jp string, fn interface{}) *FCVolumeSourc
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -29629,11 +32145,18 @@ func (d *AzureFileVolumeSourceDie) DieStamp(fn func(r *corev1.AzureFileVolumeSou
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *AzureFileVolumeSourceDie) DieStampAt(jp string, fn interface{}) *AzureFileVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.AzureFileVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -29644,7 +32167,17 @@ func (d *AzureFileVolumeSourceDie) DieStampAt(jp string, fn interface{}) *AzureF
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -29811,11 +32344,18 @@ func (d *ConfigMapVolumeSourceDie) DieStamp(fn func(r *corev1.ConfigMapVolumeSou
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ConfigMapVolumeSourceDie) DieStampAt(jp string, fn interface{}) *ConfigMapVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ConfigMapVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -29826,7 +32366,17 @@ func (d *ConfigMapVolumeSourceDie) DieStampAt(jp string, fn interface{}) *Config
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -29999,11 +32549,18 @@ func (d *VsphereVirtualDiskVolumeSourceDie) DieStamp(fn func(r *corev1.VsphereVi
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *VsphereVirtualDiskVolumeSourceDie) DieStampAt(jp string, fn interface{}) *VsphereVirtualDiskVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.VsphereVirtualDiskVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -30014,7 +32571,17 @@ func (d *VsphereVirtualDiskVolumeSourceDie) DieStampAt(jp string, fn interface{}
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -30188,11 +32755,18 @@ func (d *QuobyteVolumeSourceDie) DieStamp(fn func(r *corev1.QuobyteVolumeSource)
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *QuobyteVolumeSourceDie) DieStampAt(jp string, fn interface{}) *QuobyteVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.QuobyteVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -30203,7 +32777,17 @@ func (d *QuobyteVolumeSourceDie) DieStampAt(jp string, fn interface{}) *QuobyteV
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -30391,11 +32975,18 @@ func (d *AzureDiskVolumeSourceDie) DieStamp(fn func(r *corev1.AzureDiskVolumeSou
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *AzureDiskVolumeSourceDie) DieStampAt(jp string, fn interface{}) *AzureDiskVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.AzureDiskVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -30406,7 +32997,17 @@ func (d *AzureDiskVolumeSourceDie) DieStampAt(jp string, fn interface{}) *AzureD
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -30594,11 +33195,18 @@ func (d *PhotonPersistentDiskVolumeSourceDie) DieStamp(fn func(r *corev1.PhotonP
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PhotonPersistentDiskVolumeSourceDie) DieStampAt(jp string, fn interface{}) *PhotonPersistentDiskVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.PhotonPersistentDiskVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -30609,7 +33217,17 @@ func (d *PhotonPersistentDiskVolumeSourceDie) DieStampAt(jp string, fn interface
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -30769,11 +33387,18 @@ func (d *ProjectedVolumeSourceDie) DieStamp(fn func(r *corev1.ProjectedVolumeSou
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ProjectedVolumeSourceDie) DieStampAt(jp string, fn interface{}) *ProjectedVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ProjectedVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -30784,7 +33409,17 @@ func (d *ProjectedVolumeSourceDie) DieStampAt(jp string, fn interface{}) *Projec
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -30944,11 +33579,18 @@ func (d *VolumeProjectionDie) DieStamp(fn func(r *corev1.VolumeProjection)) *Vol
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *VolumeProjectionDie) DieStampAt(jp string, fn interface{}) *VolumeProjectionDie {
 	return d.DieStamp(func(r *corev1.VolumeProjection) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -30959,7 +33601,17 @@ func (d *VolumeProjectionDie) DieStampAt(jp string, fn interface{}) *VolumeProje
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -31133,11 +33785,18 @@ func (d *SecretProjectionDie) DieStamp(fn func(r *corev1.SecretProjection)) *Sec
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *SecretProjectionDie) DieStampAt(jp string, fn interface{}) *SecretProjectionDie {
 	return d.DieStamp(func(r *corev1.SecretProjection) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -31148,7 +33807,17 @@ func (d *SecretProjectionDie) DieStampAt(jp string, fn interface{}) *SecretProje
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -31314,11 +33983,18 @@ func (d *DownwardAPIProjectionDie) DieStamp(fn func(r *corev1.DownwardAPIProject
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *DownwardAPIProjectionDie) DieStampAt(jp string, fn interface{}) *DownwardAPIProjectionDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIProjection) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -31329,7 +34005,17 @@ func (d *DownwardAPIProjectionDie) DieStampAt(jp string, fn interface{}) *Downwa
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -31482,11 +34168,18 @@ func (d *ConfigMapProjectionDie) DieStamp(fn func(r *corev1.ConfigMapProjection)
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ConfigMapProjectionDie) DieStampAt(jp string, fn interface{}) *ConfigMapProjectionDie {
 	return d.DieStamp(func(r *corev1.ConfigMapProjection) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -31497,7 +34190,17 @@ func (d *ConfigMapProjectionDie) DieStampAt(jp string, fn interface{}) *ConfigMa
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -31663,11 +34366,18 @@ func (d *ServiceAccountTokenProjectionDie) DieStamp(fn func(r *corev1.ServiceAcc
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ServiceAccountTokenProjectionDie) DieStampAt(jp string, fn interface{}) *ServiceAccountTokenProjectionDie {
 	return d.DieStamp(func(r *corev1.ServiceAccountTokenProjection) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -31678,7 +34388,17 @@ func (d *ServiceAccountTokenProjectionDie) DieStampAt(jp string, fn interface{})
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -31845,11 +34565,18 @@ func (d *PortworxVolumeSourceDie) DieStamp(fn func(r *corev1.PortworxVolumeSourc
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *PortworxVolumeSourceDie) DieStampAt(jp string, fn interface{}) *PortworxVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.PortworxVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -31860,7 +34587,17 @@ func (d *PortworxVolumeSourceDie) DieStampAt(jp string, fn interface{}) *Portwor
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -32027,11 +34764,18 @@ func (d *ScaleIOVolumeSourceDie) DieStamp(fn func(r *corev1.ScaleIOVolumeSource)
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *ScaleIOVolumeSourceDie) DieStampAt(jp string, fn interface{}) *ScaleIOVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ScaleIOVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -32042,7 +34786,17 @@ func (d *ScaleIOVolumeSourceDie) DieStampAt(jp string, fn interface{}) *ScaleIOV
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -32258,11 +35012,18 @@ func (d *StorageOSVolumeSourceDie) DieStamp(fn func(r *corev1.StorageOSVolumeSou
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *StorageOSVolumeSourceDie) DieStampAt(jp string, fn interface{}) *StorageOSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.StorageOSVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -32273,7 +35034,17 @@ func (d *StorageOSVolumeSourceDie) DieStampAt(jp string, fn interface{}) *Storag
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -32454,11 +35225,18 @@ func (d *CSIVolumeSourceDie) DieStamp(fn func(r *corev1.CSIVolumeSource)) *CSIVo
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *CSIVolumeSourceDie) DieStampAt(jp string, fn interface{}) *CSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -32469,7 +35247,17 @@ func (d *CSIVolumeSourceDie) DieStampAt(jp string, fn interface{}) *CSIVolumeSou
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -32650,11 +35438,18 @@ func (d *EphemeralVolumeSourceDie) DieStamp(fn func(r *corev1.EphemeralVolumeSou
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *EphemeralVolumeSourceDie) DieStampAt(jp string, fn interface{}) *EphemeralVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.EphemeralVolumeSource) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -32665,7 +35460,17 @@ func (d *EphemeralVolumeSourceDie) DieStampAt(jp string, fn interface{}) *Epheme
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})
@@ -32824,11 +35629,18 @@ func (d *KeyToPathDie) DieStamp(fn func(r *corev1.KeyToPath)) *KeyToPathDie {
 	return d.DieFeed(r)
 }
 
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type as found on the resource at the target location.
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
 func (d *KeyToPathDie) DieStampAt(jp string, fn interface{}) *KeyToPathDie {
 	return d.DieStamp(func(r *corev1.KeyToPath) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
 		cp := jsonpath.New("")
 		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
 			panic(err)
@@ -32839,7 +35651,17 @@ func (d *KeyToPathDie) DieStampAt(jp string, fn interface{}) *KeyToPathDie {
 			return
 		}
 		for _, cv := range cr[0] {
-			args := []reflectx.Value{cv}
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
 			reflectx.ValueOf(fn).Call(args)
 		}
 	})

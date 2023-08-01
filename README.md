@@ -118,7 +118,8 @@ type MyResourceDie interface {
     // Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/)
     // expression to stamp portions of the resource. The callback is invoked with each
     // JSON path match. Panics if the callback function does not accept a single argument
-    // of the same type as found on the resource at the target location. 
+    // of the same type or a pointer to that type as found on the resource at the target
+    // location.
     //
     // Future iterations will improve type coercion from the resource to the callback
     // argument.

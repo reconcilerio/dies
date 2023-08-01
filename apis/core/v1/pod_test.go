@@ -371,6 +371,92 @@ func TestPod(t *testing.T) {
 			},
 		},
 		{
+			name: "json path, slice item",
+			die: diecorev1.PodBlank.
+				SpecDie(func(d *diecorev1.PodSpecDie) {
+					d.ContainerDie("workload", func(d *diecorev1.ContainerDie) {
+						d.EnvDie("VAR", func(d *diecorev1.EnvVarDie) {
+							d.Value("default")
+						})
+					})
+					d.ContainerDie("sidecar", func(d *diecorev1.ContainerDie) {
+						d.EnvDie("VAR", func(d *diecorev1.EnvVarDie) {
+							d.Value("default")
+						})
+					})
+				}).
+				DieStampAt("$.spec.containers[?(@.name == 'sidecar')].env[0]", func(r *corev1.EnvVar) {
+					r.Value = "sidecar"
+				}),
+			expected: corev1.Pod{
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name: "workload",
+							Env: []corev1.EnvVar{
+								{
+									Name:  "VAR",
+									Value: "default",
+								},
+							},
+						},
+						{
+							Name: "sidecar",
+							Env: []corev1.EnvVar{
+								{
+									Name:  "VAR",
+									Value: "sidecar",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "json path, value",
+			die: diecorev1.PodBlank.
+				SpecDie(func(d *diecorev1.PodSpecDie) {
+					d.ContainerDie("workload", func(d *diecorev1.ContainerDie) {
+						d.EnvDie("VAR", func(d *diecorev1.EnvVarDie) {
+							d.Value("default")
+						})
+					})
+					d.ContainerDie("sidecar", func(d *diecorev1.ContainerDie) {
+						d.EnvDie("VAR", func(d *diecorev1.EnvVarDie) {
+							d.Value("default")
+						})
+					})
+				}).
+				DieStampAt("$.spec.containers[?(@.name == 'sidecar')].env[0].value", func(r *string) {
+					*r = "sidecar"
+				}),
+			expected: corev1.Pod{
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name: "workload",
+							Env: []corev1.EnvVar{
+								{
+									Name:  "VAR",
+									Value: "default",
+								},
+							},
+						},
+						{
+							Name: "sidecar",
+							Env: []corev1.EnvVar{
+								{
+									Name:  "VAR",
+									Value: "sidecar",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
 			name: "with",
 			die: diecorev1.PodBlank.
 				DieWith(func(d *diecorev1.PodDie) {
