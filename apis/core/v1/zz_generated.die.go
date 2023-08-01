@@ -2473,6 +2473,13 @@ func (d *ContainerDie) ResizePolicy(v ...corev1.ContainerResizePolicy) *Containe
 	})
 }
 
+// RestartPolicy defines the restart behavior of individual containers in a pod. This field may only be set for init containers, and the only allowed value is "Always". For non-init containers or when this field is not specified, the restart behavior is defined by the Pod's restart policy and the container type. Setting the RestartPolicy as "Always" for the init container will have the following effect: this init container will be continually restarted on exit until all regular containers have terminated. Once all regular containers have completed, all init containers with restartPolicy "Always" will be shut down. This lifecycle differs from normal init containers and is often referred to as a "sidecar" container. Although this init container still starts in the init container sequence, it does not wait for the container to complete before proceeding to the next init container. Instead, the next init container starts immediately after this init container is started, or after any startupProbe has successfully completed.
+func (d *ContainerDie) RestartPolicy(v *corev1.ContainerRestartPolicy) *ContainerDie {
+	return d.DieStamp(func(r *corev1.Container) {
+		r.RestartPolicy = v
+	})
+}
+
 // Pod volumes to mount into the container's filesystem. Cannot be updated.
 func (d *ContainerDie) VolumeMounts(v ...corev1.VolumeMount) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
@@ -7048,7 +7055,7 @@ func (d *HTTPHeaderDie) DeepCopy() *HTTPHeaderDie {
 	}
 }
 
-// The header field name
+// The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header.
 func (d *HTTPHeaderDie) Name(v string) *HTTPHeaderDie {
 	return d.DieStamp(func(r *corev1.HTTPHeader) {
 		r.Name = v
@@ -8338,7 +8345,7 @@ func (d *WindowsSecurityContextOptionsDie) RunAsUserName(v *string) *WindowsSecu
 	})
 }
 
-// HostProcess determines if a container should be run as a 'Host Process' container. This field is alpha-level and will only be honored by components that enable the WindowsHostProcessContainers feature flag. Setting this field without the feature flag will result in errors when validating the Pod. All of a Pod's containers must have the same effective HostProcess value (it is not allowed to have a mix of HostProcess containers and non-HostProcess containers).  In addition, if HostProcess is true then HostNetwork must also be set to true.
+// HostProcess determines if a container should be run as a 'Host Process' container. All of a Pod's containers must have the same effective HostProcess value (it is not allowed to have a mix of HostProcess containers and non-HostProcess containers). In addition, if HostProcess is true then HostNetwork must also be set to true.
 func (d *WindowsSecurityContextOptionsDie) HostProcess(v *bool) *WindowsSecurityContextOptionsDie {
 	return d.DieStamp(func(r *corev1.WindowsSecurityContextOptions) {
 		r.HostProcess = v
@@ -8536,7 +8543,7 @@ func (d *SeccompProfileDie) Type(v corev1.SeccompProfileType) *SeccompProfileDie
 	})
 }
 
-// localhostProfile indicates a profile defined in a file on the node should be used. The profile must be preconfigured on the node to work. Must be a descending path, relative to the kubelet's configured seccomp profile location. Must only be set if type is "Localhost".
+// localhostProfile indicates a profile defined in a file on the node should be used. The profile must be preconfigured on the node to work. Must be a descending path, relative to the kubelet's configured seccomp profile location. Must be set if type is "Localhost". Must NOT be set for any other type.
 func (d *SeccompProfileDie) LocalhostProfile(v *string) *SeccompProfileDie {
 	return d.DieStamp(func(r *corev1.SeccompProfile) {
 		r.LocalhostProfile = v
@@ -10499,7 +10506,7 @@ func (d *EndpointPortDie) Protocol(v corev1.Protocol) *EndpointPortDie {
 //
 // * Un-prefixed protocol names - reserved for IANA standard service names (as per RFC-6335 and https://www.iana.org/assignments/service-names).
 //
-// * Kubernetes-defined prefixed names: * 'kubernetes.io/h2c' - HTTP/2 over cleartext as described in https://www.rfc-editor.org/rfc/rfc7540
+// * Kubernetes-defined prefixed names: * 'kubernetes.io/h2c' - HTTP/2 over cleartext as described in https://www.rfc-editor.org/rfc/rfc7540 * 'kubernetes.io/ws'  - WebSocket over cleartext as described in https://www.rfc-editor.org/rfc/rfc6455 * 'kubernetes.io/wss' - WebSocket over TLS as described in https://www.rfc-editor.org/rfc/rfc6455
 //
 // * Other protocols should use implementation-defined prefixed names such as mycompany.com/my-custom-protocol.
 func (d *EndpointPortDie) AppProtocol(v *string) *EndpointPortDie {
@@ -16135,6 +16142,13 @@ func (d *PersistentVolumeStatusDie) Reason(v string) *PersistentVolumeStatusDie 
 	})
 }
 
+// lastPhaseTransitionTime is the time the phase transitioned from one to another and automatically resets to current time everytime a volume phase transitions. This is an alpha field and requires enabling PersistentVolumeLastPhaseTransitionTime feature.
+func (d *PersistentVolumeStatusDie) LastPhaseTransitionTime(v *apismetav1.Time) *PersistentVolumeStatusDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeStatus) {
+		r.LastPhaseTransitionTime = v
+	})
+}
+
 var GlusterfsPersistentVolumeSourceBlank = (&GlusterfsPersistentVolumeSourceDie{}).DieFeed(corev1.GlusterfsPersistentVolumeSource{})
 
 type GlusterfsPersistentVolumeSourceDie struct {
@@ -20126,17 +20140,16 @@ func (d *PersistentVolumeClaimStatusDie) Conditions(v ...corev1.PersistentVolume
 	})
 }
 
-// allocatedResources is the storage resource within AllocatedResources tracks the capacity allocated to a PVC. It may be larger than the actual capacity when a volume expansion operation is requested. For storage quota, the larger value from allocatedResources and PVC.spec.resources is used. If allocatedResources is not set, PVC.spec.resources alone is used for quota calculation. If a volume expansion capacity request is lowered, allocatedResources is only lowered if there are no expansion operations in progress and if the actual volume capacity is equal or lower than the requested capacity. This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature.
+// allocatedResources tracks the resources allocated to a PVC including its capacity. Key names follow standard Kubernetes label syntax. Valid values are either: * Un-prefixed keys: - storage - the capacity of the volume. * Custom resources must use implementation-defined prefixed names such as "example.com/my-custom-resource" Apart from above values - keys that are unprefixed or have kubernetes.io prefix are considered reserved and hence may not be used.
+//
+// Capacity reported here may be larger than the actual capacity when a volume expansion operation is requested. For storage quota, the larger value from allocatedResources and PVC.spec.resources is used. If allocatedResources is not set, PVC.spec.resources alone is used for quota calculation. If a volume expansion capacity request is lowered, allocatedResources is only lowered if there are no expansion operations in progress and if the actual volume capacity is equal or lower than the requested capacity.
+//
+// A controller that receives PVC update with previously unknown resourceName should ignore the update for the purpose it was designed. For example - a controller that only is responsible for resizing capacity of the volume, should ignore PVC updates that change other valid resources associated with PVC.
+//
+// This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature.
 func (d *PersistentVolumeClaimStatusDie) AllocatedResources(v corev1.ResourceList) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		r.AllocatedResources = v
-	})
-}
-
-// resizeStatus stores status of resize operation. ResizeStatus is not set by default but when expansion is complete resizeStatus is set to empty string by resize controller or kubelet. This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature.
-func (d *PersistentVolumeClaimStatusDie) ResizeStatus(v *corev1.PersistentVolumeClaimResizeStatus) *PersistentVolumeClaimStatusDie {
-	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
-		r.ResizeStatus = v
 	})
 }
 
@@ -21660,9 +21673,7 @@ func (d *ClaimSourceDie) ResourceClaimName(v *string) *ClaimSourceDie {
 
 // ResourceClaimTemplateName is the name of a ResourceClaimTemplate object in the same namespace as this pod.
 //
-// The template will be used to create a new ResourceClaim, which will be bound to this pod. When this pod is deleted, the ResourceClaim will also be deleted. The name of the ResourceClaim will be <pod name>-<resource name>, where <resource name> is the PodResourceClaim.Name. Pod validation will reject the pod if the concatenated name is not valid for a ResourceClaim (e.g. too long).
-//
-// An existing ResourceClaim with that name that is not owned by the pod will not be used for the pod to avoid using an unrelated resource by mistake. Scheduling and pod startup are then blocked until the unrelated ResourceClaim is removed.
+// The template will be used to create a new ResourceClaim, which will be bound to this pod. When this pod is deleted, the ResourceClaim will also be deleted. The pod name and resource name, along with a generated component, will be used to form a unique name for the ResourceClaim, which will be recorded in pod.status.resourceClaimStatuses.
 //
 // This field is immutable and no changes will be made to the corresponding ResourceClaim by the control plane after creating the ResourceClaim.
 func (d *ClaimSourceDie) ResourceClaimTemplateName(v *string) *ClaimSourceDie {
@@ -23781,14 +23792,21 @@ func (d *PodStatusDie) NominatedNodeName(v string) *PodStatusDie {
 	})
 }
 
-// IP address of the host to which the pod is assigned. Empty if not yet scheduled.
+// hostIP holds the IP address of the host to which the pod is assigned. Empty if the pod has not started yet. A pod can be assigned to a node that has a problem in kubelet which in turns mean that HostIP will not be updated even if there is a node is assigned to pod
 func (d *PodStatusDie) HostIP(v string) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.HostIP = v
 	})
 }
 
-// IP address allocated to the pod. Routable at least within the cluster. Empty if not yet allocated.
+// hostIPs holds the IP addresses allocated to the host. If this field is specified, the first entry must match the hostIP field. This list is empty if the pod has not started yet. A pod can be assigned to a node that has a problem in kubelet which in turns means that HostIPs will not be updated even if there is a node is assigned to this pod.
+func (d *PodStatusDie) HostIPs(v ...corev1.HostIP) *PodStatusDie {
+	return d.DieStamp(func(r *corev1.PodStatus) {
+		r.HostIPs = v
+	})
+}
+
+// podIP address allocated to the pod. Routable at least within the cluster. Empty if not yet allocated.
 func (d *PodStatusDie) PodIP(v string) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.PodIP = v
@@ -23841,6 +23859,13 @@ func (d *PodStatusDie) EphemeralContainerStatuses(v ...corev1.ContainerStatus) *
 func (d *PodStatusDie) Resize(v corev1.PodResizeStatus) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.Resize = v
+	})
+}
+
+// Status of resource claims.
+func (d *PodStatusDie) ResourceClaimStatuses(v ...corev1.PodResourceClaimStatus) *PodStatusDie {
+	return d.DieStamp(func(r *corev1.PodStatus) {
+		r.ResourceClaimStatuses = v
 	})
 }
 
@@ -26860,7 +26885,7 @@ func (d *ServiceSpecDie) SessionAffinity(v corev1.ServiceAffinity) *ServiceSpecD
 	})
 }
 
-// Only applies to Service Type: LoadBalancer. This feature depends on whether the underlying cloud-provider supports specifying the loadBalancerIP when a load balancer is created. This field will be ignored if the cloud-provider does not support the feature. Deprecated: This field was under-specified and its meaning varies across implementations, and it cannot support dual-stack. As of Kubernetes v1.24, users are encouraged to use implementation-specific annotations when available. This field may be removed in a future API version.
+// Only applies to Service Type: LoadBalancer. This feature depends on whether the underlying cloud-provider supports specifying the loadBalancerIP when a load balancer is created. This field will be ignored if the cloud-provider does not support the feature. Deprecated: This field was under-specified and its meaning varies across implementations. Using it is non-portable and it may not support dual-stack. Users are encouraged to use implementation-specific annotations when available.
 func (d *ServiceSpecDie) LoadBalancerIP(v string) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.LoadBalancerIP = v
@@ -27142,7 +27167,13 @@ func (d *ServicePortDie) Protocol(v corev1.Protocol) *ServicePortDie {
 	})
 }
 
-// The application protocol for this port. This field follows standard Kubernetes label syntax. Un-prefixed names are reserved for IANA standard service names (as per RFC-6335 and https://www.iana.org/assignments/service-names). Non-standard protocols should use prefixed names such as mycompany.com/my-custom-protocol.
+// The application protocol for this port. This is used as a hint for implementations to offer richer behavior for protocols that they understand. This field follows standard Kubernetes label syntax. Valid values are either:
+//
+// * Un-prefixed protocol names - reserved for IANA standard service names (as per RFC-6335 and https://www.iana.org/assignments/service-names).
+//
+// * Kubernetes-defined prefixed names: * 'kubernetes.io/h2c' - HTTP/2 over cleartext as described in https://www.rfc-editor.org/rfc/rfc7540 * 'kubernetes.io/ws'  - WebSocket over cleartext as described in https://www.rfc-editor.org/rfc/rfc6455 * 'kubernetes.io/wss' - WebSocket over TLS as described in https://www.rfc-editor.org/rfc/rfc6455
+//
+// * Other protocols should use implementation-defined prefixed names such as mycompany.com/my-custom-protocol.
 func (d *ServicePortDie) AppProtocol(v *string) *ServicePortDie {
 	return d.DieStamp(func(r *corev1.ServicePort) {
 		r.AppProtocol = v

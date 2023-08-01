@@ -19,7 +19,6 @@ package v1
 import (
 	diemetav1 "dies.dev/apis/meta/v1"
 	networkingv1 "k8s.io/api/networking/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // +die:object=true
@@ -128,15 +127,3 @@ func (d *NetworkPolicyPeerDie) IPBlockDie(fn func(d *IPBlockDie)) *NetworkPolicy
 
 // +die
 type _ = networkingv1.IPBlock
-
-// +die
-type _ = networkingv1.NetworkPolicyStatus
-
-func (d *NetworkPolicyStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *NetworkPolicyStatusDie {
-	return d.DieStamp(func(r *networkingv1.NetworkPolicyStatus) {
-		r.Conditions = make([]metav1.Condition, len(conditions))
-		for i := range conditions {
-			r.Conditions[i] = conditions[i].DieRelease()
-		}
-	})
-}

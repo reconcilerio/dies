@@ -2970,6 +2970,13 @@ func (d *PriorityLevelConfigurationSpecDie) Limited(v *flowcontrolv1beta1.Limite
 	})
 }
 
+// `exempt` specifies how requests are handled for an exempt priority level. This field MUST be empty if `type` is `"Limited"`. This field MAY be non-empty if `type` is `"Exempt"`. If empty and `type` is `"Exempt"` then the default values for `ExemptPriorityLevelConfiguration` apply.
+func (d *PriorityLevelConfigurationSpecDie) Exempt(v *flowcontrolv1beta1.ExemptPriorityLevelConfiguration) *PriorityLevelConfigurationSpecDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.PriorityLevelConfigurationSpec) {
+		r.Exempt = v
+	})
+}
+
 var LimitedPriorityLevelConfigurationBlank = (&LimitedPriorityLevelConfigurationDie{}).DieFeed(flowcontrolv1beta1.LimitedPriorityLevelConfiguration{})
 
 type LimitedPriorityLevelConfigurationDie struct {
@@ -3383,6 +3390,208 @@ func (d *LimitResponseDie) Type(v flowcontrolv1beta1.LimitResponseType) *LimitRe
 func (d *LimitResponseDie) Queuing(v *flowcontrolv1beta1.QueuingConfiguration) *LimitResponseDie {
 	return d.DieStamp(func(r *flowcontrolv1beta1.LimitResponse) {
 		r.Queuing = v
+	})
+}
+
+var ExemptPriorityLevelConfigurationBlank = (&ExemptPriorityLevelConfigurationDie{}).DieFeed(flowcontrolv1beta1.ExemptPriorityLevelConfiguration{})
+
+type ExemptPriorityLevelConfigurationDie struct {
+	mutable bool
+	r       flowcontrolv1beta1.ExemptPriorityLevelConfiguration
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ExemptPriorityLevelConfigurationDie) DieImmutable(immutable bool) *ExemptPriorityLevelConfigurationDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ExemptPriorityLevelConfigurationDie) DieFeed(r flowcontrolv1beta1.ExemptPriorityLevelConfiguration) *ExemptPriorityLevelConfigurationDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ExemptPriorityLevelConfigurationDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ExemptPriorityLevelConfigurationDie) DieFeedPtr(r *flowcontrolv1beta1.ExemptPriorityLevelConfiguration) *ExemptPriorityLevelConfigurationDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.ExemptPriorityLevelConfiguration{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ExemptPriorityLevelConfigurationDie) DieFeedJSON(j []byte) *ExemptPriorityLevelConfigurationDie {
+	r := flowcontrolv1beta1.ExemptPriorityLevelConfiguration{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ExemptPriorityLevelConfigurationDie) DieFeedYAML(y []byte) *ExemptPriorityLevelConfigurationDie {
+	r := flowcontrolv1beta1.ExemptPriorityLevelConfiguration{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ExemptPriorityLevelConfigurationDie) DieFeedYAMLFile(name string) *ExemptPriorityLevelConfigurationDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ExemptPriorityLevelConfigurationDie) DieFeedRawExtension(raw runtime.RawExtension) *ExemptPriorityLevelConfigurationDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ExemptPriorityLevelConfigurationDie) DieRelease() flowcontrolv1beta1.ExemptPriorityLevelConfiguration {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ExemptPriorityLevelConfigurationDie) DieReleasePtr() *flowcontrolv1beta1.ExemptPriorityLevelConfiguration {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ExemptPriorityLevelConfigurationDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ExemptPriorityLevelConfigurationDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ExemptPriorityLevelConfigurationDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ExemptPriorityLevelConfigurationDie) DieStamp(fn func(r *flowcontrolv1beta1.ExemptPriorityLevelConfiguration)) *ExemptPriorityLevelConfigurationDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ExemptPriorityLevelConfigurationDie) DieStampAt(jp string, fn interface{}) *ExemptPriorityLevelConfigurationDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.ExemptPriorityLevelConfiguration) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ExemptPriorityLevelConfigurationDie) DieWith(fns ...func(d *ExemptPriorityLevelConfigurationDie)) *ExemptPriorityLevelConfigurationDie {
+	nd := ExemptPriorityLevelConfigurationBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ExemptPriorityLevelConfigurationDie) DeepCopy() *ExemptPriorityLevelConfigurationDie {
+	r := *d.r.DeepCopy()
+	return &ExemptPriorityLevelConfigurationDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// `nominalConcurrencyShares` (NCS) contributes to the computation of the NominalConcurrencyLimit (NominalCL) of this level. This is the number of execution seats nominally reserved for this priority level. This DOES NOT limit the dispatching from this priority level but affects the other priority levels through the borrowing mechanism. The server's concurrency limit (ServerCL) is divided among all the priority levels in proportion to their NCS values:
+//
+// NominalCL(i)  = ceil( ServerCL * NCS(i) / sum_ncs ) sum_ncs = sum[priority level k] NCS(k)
+//
+// Bigger numbers mean a larger nominal concurrency limit, at the expense of every other priority level. This field has a default value of zero.
+func (d *ExemptPriorityLevelConfigurationDie) NominalConcurrencyShares(v *int32) *ExemptPriorityLevelConfigurationDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.ExemptPriorityLevelConfiguration) {
+		r.NominalConcurrencyShares = v
+	})
+}
+
+// `lendablePercent` prescribes the fraction of the level's NominalCL that can be borrowed by other priority levels.  This value of this field must be between 0 and 100, inclusive, and it defaults to 0. The number of seats that other levels can borrow from this level, known as this level's LendableConcurrencyLimit (LendableCL), is defined as follows.
+//
+// LendableCL(i) = round( NominalCL(i) * lendablePercent(i)/100.0 )
+func (d *ExemptPriorityLevelConfigurationDie) LendablePercent(v *int32) *ExemptPriorityLevelConfigurationDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.ExemptPriorityLevelConfiguration) {
+		r.LendablePercent = v
 	})
 }
 

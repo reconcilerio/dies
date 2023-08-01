@@ -744,7 +744,7 @@ func (d *ClusterRoleBindingDie) Subjects(v ...rbacv1.Subject) *ClusterRoleBindin
 	})
 }
 
-// RoleRef can only reference a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error.
+// RoleRef can only reference a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error. This field is immutable.
 func (d *ClusterRoleBindingDie) RoleRef(v rbacv1.RoleRef) *ClusterRoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
 		r.RoleRef = v
@@ -1480,7 +1480,7 @@ func (d *RoleBindingDie) Subjects(v ...rbacv1.Subject) *RoleBindingDie {
 	})
 }
 
-// RoleRef can reference a Role in the current namespace or a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error.
+// RoleRef can reference a Role in the current namespace or a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error. This field is immutable.
 func (d *RoleBindingDie) RoleRef(v rbacv1.RoleRef) *RoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.RoleBinding) {
 		r.RoleRef = v

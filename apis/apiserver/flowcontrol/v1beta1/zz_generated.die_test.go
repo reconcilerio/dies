@@ -170,6 +170,15 @@ func TestLimitResponseDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestExemptPriorityLevelConfigurationDie_MissingMethods(t *testingx.T) {
+	die := ExemptPriorityLevelConfigurationBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ExemptPriorityLevelConfigurationDie: %s", diff.List())
+	}
+}
+
 func TestQueuingConfigurationDie_MissingMethods(t *testingx.T) {
 	die := QueuingConfigurationBlank
 	ignore := []string{}
