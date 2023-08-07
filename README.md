@@ -42,9 +42,9 @@ die := dieappsv1.DeploymentBlank.
             d.SpecDie(func(d *diecorev1.PodSpecDie) {
                 d.ContainerDie("app", func(d *diecorev1.ContainerDie) {
                     d.Image("registry.example/image:latest")
-					d.EnvDie("MY_VAR", func(d *diecorev1.EnvVarDie) {
-						d.Value("my-value")
-					})
+                    d.EnvDie("MY_VAR", func(d *diecorev1.EnvVarDie) {
+                        d.Value("my-value")
+                    })
                 })
             })
         })
@@ -88,9 +88,9 @@ altDeployment := die.
         d.TemplateDie(func(d *diecorev1.PodTemplateSpecDie) {
             d.SpecDie(func(d *diecorev1.PodSpecDie) {
                 d.ContainerDie("app", func(d *diecorev1.ContainerDie) {
-					d.EnvDie("MY_VAR", func(d *diecorev1.EnvVarDie) {
-						d.Value("some-other-value")
-					})
+                    d.EnvDie("MY_VAR", func(d *diecorev1.EnvVarDie) {
+                        d.Value("some-other-value")
+                    })
                 })
             })
         })
@@ -189,7 +189,7 @@ additional methods.
 
 ```go
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+    metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
     runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
