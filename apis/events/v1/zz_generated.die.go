@@ -215,9 +215,13 @@ func (d *EventDie) DieStampAt(jp string, fn interface{}) *EventDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *EventDie) DieWith(fn func(d *EventDie)) *EventDie {
+func (d *EventDie) DieWith(fns ...func(d *EventDie)) *EventDie {
 	nd := EventBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -543,9 +547,13 @@ func (d *EventSeriesDie) DieStampAt(jp string, fn interface{}) *EventSeriesDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *EventSeriesDie) DieWith(fn func(d *EventSeriesDie)) *EventSeriesDie {
+func (d *EventSeriesDie) DieWith(fns ...func(d *EventSeriesDie)) *EventSeriesDie {
 	nd := EventSeriesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

@@ -198,9 +198,13 @@ func (d *AdmissionRequestDie) DieStampAt(jp string, fn interface{}) *AdmissionRe
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *AdmissionRequestDie) DieWith(fn func(d *AdmissionRequestDie)) *AdmissionRequestDie {
+func (d *AdmissionRequestDie) DieWith(fns ...func(d *AdmissionRequestDie)) *AdmissionRequestDie {
 	nd := AdmissionRequestBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -489,9 +493,13 @@ func (d *AdmissionResponseDie) DieStampAt(jp string, fn interface{}) *AdmissionR
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *AdmissionResponseDie) DieWith(fn func(d *AdmissionResponseDie)) *AdmissionResponseDie {
+func (d *AdmissionResponseDie) DieWith(fns ...func(d *AdmissionResponseDie)) *AdmissionResponseDie {
 	nd := AdmissionResponseBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -716,9 +724,13 @@ func (d *AdmissionReviewDie) DieStampAt(jp string, fn interface{}) *AdmissionRev
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *AdmissionReviewDie) DieWith(fn func(d *AdmissionReviewDie)) *AdmissionReviewDie {
+func (d *AdmissionReviewDie) DieWith(fns ...func(d *AdmissionReviewDie)) *AdmissionReviewDie {
 	nd := AdmissionReviewBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

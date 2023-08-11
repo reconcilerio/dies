@@ -166,7 +166,7 @@ type MyResourceDie interface {
 
     // DieWith returns a new die after passing the current die to the callback
     // function. The passed die is mutable.
-    DieWith(fn func(d *MyResourceDie)) *MyResourceDie
+    DieWith(fn ...func(d *MyResourceDie)) *MyResourceDie
 
     // DeepCopy returns a new die with equivalent state. Useful for
     // snapshotting a mutable die.

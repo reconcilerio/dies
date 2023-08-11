@@ -215,9 +215,13 @@ func (d *PodDisruptionBudgetDie) DieStampAt(jp string, fn interface{}) *PodDisru
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *PodDisruptionBudgetDie) DieWith(fn func(d *PodDisruptionBudgetDie)) *PodDisruptionBudgetDie {
+func (d *PodDisruptionBudgetDie) DieWith(fns ...func(d *PodDisruptionBudgetDie)) *PodDisruptionBudgetDie {
 	nd := PodDisruptionBudgetBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -477,9 +481,13 @@ func (d *PodDisruptionBudgetSpecDie) DieStampAt(jp string, fn interface{}) *PodD
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *PodDisruptionBudgetSpecDie) DieWith(fn func(d *PodDisruptionBudgetSpecDie)) *PodDisruptionBudgetSpecDie {
+func (d *PodDisruptionBudgetSpecDie) DieWith(fns ...func(d *PodDisruptionBudgetSpecDie)) *PodDisruptionBudgetSpecDie {
 	nd := PodDisruptionBudgetSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -721,9 +729,13 @@ func (d *PodDisruptionBudgetStatusDie) DieStampAt(jp string, fn interface{}) *Po
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *PodDisruptionBudgetStatusDie) DieWith(fn func(d *PodDisruptionBudgetStatusDie)) *PodDisruptionBudgetStatusDie {
+func (d *PodDisruptionBudgetStatusDie) DieWith(fns ...func(d *PodDisruptionBudgetStatusDie)) *PodDisruptionBudgetStatusDie {
 	nd := PodDisruptionBudgetStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

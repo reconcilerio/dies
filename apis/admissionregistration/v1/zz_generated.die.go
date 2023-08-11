@@ -199,9 +199,13 @@ func (d *WebhookClientConfigDie) DieStampAt(jp string, fn interface{}) *WebhookC
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *WebhookClientConfigDie) DieWith(fn func(d *WebhookClientConfigDie)) *WebhookClientConfigDie {
+func (d *WebhookClientConfigDie) DieWith(fns ...func(d *WebhookClientConfigDie)) *WebhookClientConfigDie {
 	nd := WebhookClientConfigBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -410,9 +414,13 @@ func (d *ServiceReferenceDie) DieStampAt(jp string, fn interface{}) *ServiceRefe
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *ServiceReferenceDie) DieWith(fn func(d *ServiceReferenceDie)) *ServiceReferenceDie {
+func (d *ServiceReferenceDie) DieWith(fns ...func(d *ServiceReferenceDie)) *ServiceReferenceDie {
 	nd := ServiceReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -616,9 +624,13 @@ func (d *RuleWithOperationsDie) DieStampAt(jp string, fn interface{}) *RuleWithO
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *RuleWithOperationsDie) DieWith(fn func(d *RuleWithOperationsDie)) *RuleWithOperationsDie {
+func (d *RuleWithOperationsDie) DieWith(fns ...func(d *RuleWithOperationsDie)) *RuleWithOperationsDie {
 	nd := RuleWithOperationsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -808,9 +820,13 @@ func (d *RuleDie) DieStampAt(jp string, fn interface{}) *RuleDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *RuleDie) DieWith(fn func(d *RuleDie)) *RuleDie {
+func (d *RuleDie) DieWith(fns ...func(d *RuleDie)) *RuleDie {
 	nd := RuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1020,9 +1036,13 @@ func (d *MatchConditionDie) DieStampAt(jp string, fn interface{}) *MatchConditio
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *MatchConditionDie) DieWith(fn func(d *MatchConditionDie)) *MatchConditionDie {
+func (d *MatchConditionDie) DieWith(fns ...func(d *MatchConditionDie)) *MatchConditionDie {
 	nd := MatchConditionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1233,9 +1253,13 @@ func (d *MutatingWebhookConfigurationDie) DieStampAt(jp string, fn interface{}) 
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *MutatingWebhookConfigurationDie) DieWith(fn func(d *MutatingWebhookConfigurationDie)) *MutatingWebhookConfigurationDie {
+func (d *MutatingWebhookConfigurationDie) DieWith(fns ...func(d *MutatingWebhookConfigurationDie)) *MutatingWebhookConfigurationDie {
 	nd := MutatingWebhookConfigurationBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1470,9 +1494,13 @@ func (d *MutatingWebhookDie) DieStampAt(jp string, fn interface{}) *MutatingWebh
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *MutatingWebhookDie) DieWith(fn func(d *MutatingWebhookDie)) *MutatingWebhookDie {
+func (d *MutatingWebhookDie) DieWith(fns ...func(d *MutatingWebhookDie)) *MutatingWebhookDie {
 	nd := MutatingWebhookBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1771,9 +1799,13 @@ func (d *ValidatingWebhookConfigurationDie) DieStampAt(jp string, fn interface{}
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *ValidatingWebhookConfigurationDie) DieWith(fn func(d *ValidatingWebhookConfigurationDie)) *ValidatingWebhookConfigurationDie {
+func (d *ValidatingWebhookConfigurationDie) DieWith(fns ...func(d *ValidatingWebhookConfigurationDie)) *ValidatingWebhookConfigurationDie {
 	nd := ValidatingWebhookConfigurationBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2008,9 +2040,13 @@ func (d *ValidatingWebhookDie) DieStampAt(jp string, fn interface{}) *Validating
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *ValidatingWebhookDie) DieWith(fn func(d *ValidatingWebhookDie)) *ValidatingWebhookDie {
+func (d *ValidatingWebhookDie) DieWith(fns ...func(d *ValidatingWebhookDie)) *ValidatingWebhookDie {
 	nd := ValidatingWebhookBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

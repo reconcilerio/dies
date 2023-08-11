@@ -213,9 +213,13 @@ func (d *LocalSubjectAccessReviewDie) DieStampAt(jp string, fn interface{}) *Loc
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *LocalSubjectAccessReviewDie) DieWith(fn func(d *LocalSubjectAccessReviewDie)) *LocalSubjectAccessReviewDie {
+func (d *LocalSubjectAccessReviewDie) DieWith(fns ...func(d *LocalSubjectAccessReviewDie)) *LocalSubjectAccessReviewDie {
 	nd := LocalSubjectAccessReviewBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -472,9 +476,13 @@ func (d *SelfSubjectAccessReviewDie) DieStampAt(jp string, fn interface{}) *Self
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *SelfSubjectAccessReviewDie) DieWith(fn func(d *SelfSubjectAccessReviewDie)) *SelfSubjectAccessReviewDie {
+func (d *SelfSubjectAccessReviewDie) DieWith(fns ...func(d *SelfSubjectAccessReviewDie)) *SelfSubjectAccessReviewDie {
 	nd := SelfSubjectAccessReviewBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -734,9 +742,13 @@ func (d *SelfSubjectAccessReviewSpecDie) DieStampAt(jp string, fn interface{}) *
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *SelfSubjectAccessReviewSpecDie) DieWith(fn func(d *SelfSubjectAccessReviewSpecDie)) *SelfSubjectAccessReviewSpecDie {
+func (d *SelfSubjectAccessReviewSpecDie) DieWith(fns ...func(d *SelfSubjectAccessReviewSpecDie)) *SelfSubjectAccessReviewSpecDie {
 	nd := SelfSubjectAccessReviewSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -941,9 +953,13 @@ func (d *SelfSubjectRulesReviewDie) DieStampAt(jp string, fn interface{}) *SelfS
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *SelfSubjectRulesReviewDie) DieWith(fn func(d *SelfSubjectRulesReviewDie)) *SelfSubjectRulesReviewDie {
+func (d *SelfSubjectRulesReviewDie) DieWith(fns ...func(d *SelfSubjectRulesReviewDie)) *SelfSubjectRulesReviewDie {
 	nd := SelfSubjectRulesReviewBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1203,9 +1219,13 @@ func (d *SelfSubjectRulesReviewSpecDie) DieStampAt(jp string, fn interface{}) *S
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *SelfSubjectRulesReviewSpecDie) DieWith(fn func(d *SelfSubjectRulesReviewSpecDie)) *SelfSubjectRulesReviewSpecDie {
+func (d *SelfSubjectRulesReviewSpecDie) DieWith(fns ...func(d *SelfSubjectRulesReviewSpecDie)) *SelfSubjectRulesReviewSpecDie {
 	nd := SelfSubjectRulesReviewSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1388,9 +1408,13 @@ func (d *SubjectRulesReviewStatusDie) DieStampAt(jp string, fn interface{}) *Sub
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *SubjectRulesReviewStatusDie) DieWith(fn func(d *SubjectRulesReviewStatusDie)) *SubjectRulesReviewStatusDie {
+func (d *SubjectRulesReviewStatusDie) DieWith(fns ...func(d *SubjectRulesReviewStatusDie)) *SubjectRulesReviewStatusDie {
 	nd := SubjectRulesReviewStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1594,9 +1618,13 @@ func (d *ResourceRuleDie) DieStampAt(jp string, fn interface{}) *ResourceRuleDie
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *ResourceRuleDie) DieWith(fn func(d *ResourceRuleDie)) *ResourceRuleDie {
+func (d *ResourceRuleDie) DieWith(fns ...func(d *ResourceRuleDie)) *ResourceRuleDie {
 	nd := ResourceRuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1800,9 +1828,13 @@ func (d *NonResourceRuleDie) DieStampAt(jp string, fn interface{}) *NonResourceR
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *NonResourceRuleDie) DieWith(fn func(d *NonResourceRuleDie)) *NonResourceRuleDie {
+func (d *NonResourceRuleDie) DieWith(fns ...func(d *NonResourceRuleDie)) *NonResourceRuleDie {
 	nd := NonResourceRuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2007,9 +2039,13 @@ func (d *SubjectAccessReviewDie) DieStampAt(jp string, fn interface{}) *SubjectA
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *SubjectAccessReviewDie) DieWith(fn func(d *SubjectAccessReviewDie)) *SubjectAccessReviewDie {
+func (d *SubjectAccessReviewDie) DieWith(fns ...func(d *SubjectAccessReviewDie)) *SubjectAccessReviewDie {
 	nd := SubjectAccessReviewBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2269,9 +2305,13 @@ func (d *SubjectAccessReviewSpecDie) DieStampAt(jp string, fn interface{}) *Subj
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *SubjectAccessReviewSpecDie) DieWith(fn func(d *SubjectAccessReviewSpecDie)) *SubjectAccessReviewSpecDie {
+func (d *SubjectAccessReviewSpecDie) DieWith(fns ...func(d *SubjectAccessReviewSpecDie)) *SubjectAccessReviewSpecDie {
 	nd := SubjectAccessReviewSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2482,9 +2522,13 @@ func (d *ResourceAttributesDie) DieStampAt(jp string, fn interface{}) *ResourceA
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *ResourceAttributesDie) DieWith(fn func(d *ResourceAttributesDie)) *ResourceAttributesDie {
+func (d *ResourceAttributesDie) DieWith(fns ...func(d *ResourceAttributesDie)) *ResourceAttributesDie {
 	nd := ResourceAttributesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2709,9 +2753,13 @@ func (d *NonResourceAttributesDie) DieStampAt(jp string, fn interface{}) *NonRes
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *NonResourceAttributesDie) DieWith(fn func(d *NonResourceAttributesDie)) *NonResourceAttributesDie {
+func (d *NonResourceAttributesDie) DieWith(fns ...func(d *NonResourceAttributesDie)) *NonResourceAttributesDie {
 	nd := NonResourceAttributesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2901,9 +2949,13 @@ func (d *SubjectAccessReviewStatusDie) DieStampAt(jp string, fn interface{}) *Su
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *SubjectAccessReviewStatusDie) DieWith(fn func(d *SubjectAccessReviewStatusDie)) *SubjectAccessReviewStatusDie {
+func (d *SubjectAccessReviewStatusDie) DieWith(fns ...func(d *SubjectAccessReviewStatusDie)) *SubjectAccessReviewStatusDie {
 	nd := SubjectAccessReviewStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

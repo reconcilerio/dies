@@ -213,9 +213,13 @@ func (d *APIServiceDie) DieStampAt(jp string, fn interface{}) *APIServiceDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *APIServiceDie) DieWith(fn func(d *APIServiceDie)) *APIServiceDie {
+func (d *APIServiceDie) DieWith(fns ...func(d *APIServiceDie)) *APIServiceDie {
 	nd := APIServiceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -475,9 +479,13 @@ func (d *APIServiceSpecDie) DieStampAt(jp string, fn interface{}) *APIServiceSpe
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *APIServiceSpecDie) DieWith(fn func(d *APIServiceSpecDie)) *APIServiceSpecDie {
+func (d *APIServiceSpecDie) DieWith(fns ...func(d *APIServiceSpecDie)) *APIServiceSpecDie {
 	nd := APIServiceSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -702,9 +710,13 @@ func (d *ServiceReferenceDie) DieStampAt(jp string, fn interface{}) *ServiceRefe
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *ServiceReferenceDie) DieWith(fn func(d *ServiceReferenceDie)) *ServiceReferenceDie {
+func (d *ServiceReferenceDie) DieWith(fns ...func(d *ServiceReferenceDie)) *ServiceReferenceDie {
 	nd := ServiceReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -901,9 +913,13 @@ func (d *APIServiceStatusDie) DieStampAt(jp string, fn interface{}) *APIServiceS
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *APIServiceStatusDie) DieWith(fn func(d *APIServiceStatusDie)) *APIServiceStatusDie {
+func (d *APIServiceStatusDie) DieWith(fns ...func(d *APIServiceStatusDie)) *APIServiceStatusDie {
 	nd := APIServiceStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
