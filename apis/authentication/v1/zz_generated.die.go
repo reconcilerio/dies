@@ -215,9 +215,13 @@ func (d *TokenReviewDie) DieStampAt(jp string, fn interface{}) *TokenReviewDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *TokenReviewDie) DieWith(fn func(d *TokenReviewDie)) *TokenReviewDie {
+func (d *TokenReviewDie) DieWith(fns ...func(d *TokenReviewDie)) *TokenReviewDie {
 	nd := TokenReviewBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -459,9 +463,13 @@ func (d *TokenRequestSpecDie) DieStampAt(jp string, fn interface{}) *TokenReques
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *TokenRequestSpecDie) DieWith(fn func(d *TokenRequestSpecDie)) *TokenRequestSpecDie {
+func (d *TokenRequestSpecDie) DieWith(fns ...func(d *TokenRequestSpecDie)) *TokenRequestSpecDie {
 	nd := TokenRequestSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -658,9 +666,13 @@ func (d *BoundObjectReferenceDie) DieStampAt(jp string, fn interface{}) *BoundOb
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *BoundObjectReferenceDie) DieWith(fn func(d *BoundObjectReferenceDie)) *BoundObjectReferenceDie {
+func (d *BoundObjectReferenceDie) DieWith(fns ...func(d *BoundObjectReferenceDie)) *BoundObjectReferenceDie {
 	nd := BoundObjectReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -864,9 +876,13 @@ func (d *TokenRequestStatusDie) DieStampAt(jp string, fn interface{}) *TokenRequ
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *TokenRequestStatusDie) DieWith(fn func(d *TokenRequestStatusDie)) *TokenRequestStatusDie {
+func (d *TokenRequestStatusDie) DieWith(fns ...func(d *TokenRequestStatusDie)) *TokenRequestStatusDie {
 	nd := TokenRequestStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1056,9 +1072,13 @@ func (d *UserInfoDie) DieStampAt(jp string, fn interface{}) *UserInfoDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *UserInfoDie) DieWith(fn func(d *UserInfoDie)) *UserInfoDie {
+func (d *UserInfoDie) DieWith(fns ...func(d *UserInfoDie)) *UserInfoDie {
 	nd := UserInfoBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

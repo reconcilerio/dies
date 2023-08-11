@@ -194,9 +194,13 @@ func (d *DirectDie) DieStampAt(jp string, fn interface{}) *DirectDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *DirectDie) DieWith(fn func(d *DirectDie)) *DirectDie {
+func (d *DirectDie) DieWith(fns ...func(d *DirectDie)) *DirectDie {
 	nd := DirectBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

@@ -216,9 +216,13 @@ func (d *IngressDie) DieStampAt(jp string, fn interface{}) *IngressDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *IngressDie) DieWith(fn func(d *IngressDie)) *IngressDie {
+func (d *IngressDie) DieWith(fns ...func(d *IngressDie)) *IngressDie {
 	nd := IngressBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -478,9 +482,13 @@ func (d *IngressSpecDie) DieStampAt(jp string, fn interface{}) *IngressSpecDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *IngressSpecDie) DieWith(fn func(d *IngressSpecDie)) *IngressSpecDie {
+func (d *IngressSpecDie) DieWith(fns ...func(d *IngressSpecDie)) *IngressSpecDie {
 	nd := IngressSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -684,9 +692,13 @@ func (d *IngressBackendDie) DieStampAt(jp string, fn interface{}) *IngressBacken
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *IngressBackendDie) DieWith(fn func(d *IngressBackendDie)) *IngressBackendDie {
+func (d *IngressBackendDie) DieWith(fns ...func(d *IngressBackendDie)) *IngressBackendDie {
 	nd := IngressBackendBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -876,9 +888,13 @@ func (d *IngressServiceBackendDie) DieStampAt(jp string, fn interface{}) *Ingres
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *IngressServiceBackendDie) DieWith(fn func(d *IngressServiceBackendDie)) *IngressServiceBackendDie {
+func (d *IngressServiceBackendDie) DieWith(fns ...func(d *IngressServiceBackendDie)) *IngressServiceBackendDie {
 	nd := IngressServiceBackendBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1068,9 +1084,13 @@ func (d *ServiceBackendPortDie) DieStampAt(jp string, fn interface{}) *ServiceBa
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *ServiceBackendPortDie) DieWith(fn func(d *ServiceBackendPortDie)) *ServiceBackendPortDie {
+func (d *ServiceBackendPortDie) DieWith(fns ...func(d *ServiceBackendPortDie)) *ServiceBackendPortDie {
 	nd := ServiceBackendPortBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1260,9 +1280,13 @@ func (d *IngressTLSDie) DieStampAt(jp string, fn interface{}) *IngressTLSDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *IngressTLSDie) DieWith(fn func(d *IngressTLSDie)) *IngressTLSDie {
+func (d *IngressTLSDie) DieWith(fns ...func(d *IngressTLSDie)) *IngressTLSDie {
 	nd := IngressTLSBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1452,9 +1476,13 @@ func (d *IngressRuleDie) DieStampAt(jp string, fn interface{}) *IngressRuleDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *IngressRuleDie) DieWith(fn func(d *IngressRuleDie)) *IngressRuleDie {
+func (d *IngressRuleDie) DieWith(fns ...func(d *IngressRuleDie)) *IngressRuleDie {
 	nd := IngressRuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1646,9 +1674,13 @@ func (d *HTTPIngressRuleValueDie) DieStampAt(jp string, fn interface{}) *HTTPIng
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *HTTPIngressRuleValueDie) DieWith(fn func(d *HTTPIngressRuleValueDie)) *HTTPIngressRuleValueDie {
+func (d *HTTPIngressRuleValueDie) DieWith(fns ...func(d *HTTPIngressRuleValueDie)) *HTTPIngressRuleValueDie {
 	nd := HTTPIngressRuleValueBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1831,9 +1863,13 @@ func (d *HTTPIngressPathDie) DieStampAt(jp string, fn interface{}) *HTTPIngressP
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *HTTPIngressPathDie) DieWith(fn func(d *HTTPIngressPathDie)) *HTTPIngressPathDie {
+func (d *HTTPIngressPathDie) DieWith(fns ...func(d *HTTPIngressPathDie)) *HTTPIngressPathDie {
 	nd := HTTPIngressPathBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2030,9 +2066,13 @@ func (d *IngressStatusDie) DieStampAt(jp string, fn interface{}) *IngressStatusD
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *IngressStatusDie) DieWith(fn func(d *IngressStatusDie)) *IngressStatusDie {
+func (d *IngressStatusDie) DieWith(fns ...func(d *IngressStatusDie)) *IngressStatusDie {
 	nd := IngressStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2215,9 +2255,13 @@ func (d *IngressLoadBalancerStatusDie) DieStampAt(jp string, fn interface{}) *In
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *IngressLoadBalancerStatusDie) DieWith(fn func(d *IngressLoadBalancerStatusDie)) *IngressLoadBalancerStatusDie {
+func (d *IngressLoadBalancerStatusDie) DieWith(fns ...func(d *IngressLoadBalancerStatusDie)) *IngressLoadBalancerStatusDie {
 	nd := IngressLoadBalancerStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2400,9 +2444,13 @@ func (d *IngressLoadBalancerIngressDie) DieStampAt(jp string, fn interface{}) *I
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *IngressLoadBalancerIngressDie) DieWith(fn func(d *IngressLoadBalancerIngressDie)) *IngressLoadBalancerIngressDie {
+func (d *IngressLoadBalancerIngressDie) DieWith(fns ...func(d *IngressLoadBalancerIngressDie)) *IngressLoadBalancerIngressDie {
 	nd := IngressLoadBalancerIngressBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2599,9 +2647,13 @@ func (d *IngressPortStatusDie) DieStampAt(jp string, fn interface{}) *IngressPor
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *IngressPortStatusDie) DieWith(fn func(d *IngressPortStatusDie)) *IngressPortStatusDie {
+func (d *IngressPortStatusDie) DieWith(fns ...func(d *IngressPortStatusDie)) *IngressPortStatusDie {
 	nd := IngressPortStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2813,9 +2865,13 @@ func (d *IngressClassDie) DieStampAt(jp string, fn interface{}) *IngressClassDie
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *IngressClassDie) DieWith(fn func(d *IngressClassDie)) *IngressClassDie {
+func (d *IngressClassDie) DieWith(fns ...func(d *IngressClassDie)) *IngressClassDie {
 	nd := IngressClassBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -3059,9 +3115,13 @@ func (d *IngressClassSpecDie) DieStampAt(jp string, fn interface{}) *IngressClas
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *IngressClassSpecDie) DieWith(fn func(d *IngressClassSpecDie)) *IngressClassSpecDie {
+func (d *IngressClassSpecDie) DieWith(fns ...func(d *IngressClassSpecDie)) *IngressClassSpecDie {
 	nd := IngressClassSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -3251,9 +3311,13 @@ func (d *IngressClassParametersReferenceDie) DieStampAt(jp string, fn interface{
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *IngressClassParametersReferenceDie) DieWith(fn func(d *IngressClassParametersReferenceDie)) *IngressClassParametersReferenceDie {
+func (d *IngressClassParametersReferenceDie) DieWith(fns ...func(d *IngressClassParametersReferenceDie)) *IngressClassParametersReferenceDie {
 	nd := IngressClassParametersReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -3479,9 +3543,13 @@ func (d *NetworkPolicyDie) DieStampAt(jp string, fn interface{}) *NetworkPolicyD
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *NetworkPolicyDie) DieWith(fn func(d *NetworkPolicyDie)) *NetworkPolicyDie {
+func (d *NetworkPolicyDie) DieWith(fns ...func(d *NetworkPolicyDie)) *NetworkPolicyDie {
 	nd := NetworkPolicyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -3741,9 +3809,13 @@ func (d *NetworkPolicySpecDie) DieStampAt(jp string, fn interface{}) *NetworkPol
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *NetworkPolicySpecDie) DieWith(fn func(d *NetworkPolicySpecDie)) *NetworkPolicySpecDie {
+func (d *NetworkPolicySpecDie) DieWith(fns ...func(d *NetworkPolicySpecDie)) *NetworkPolicySpecDie {
 	nd := NetworkPolicySpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -3947,9 +4019,13 @@ func (d *NetworkPolicyIngressRuleDie) DieStampAt(jp string, fn interface{}) *Net
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *NetworkPolicyIngressRuleDie) DieWith(fn func(d *NetworkPolicyIngressRuleDie)) *NetworkPolicyIngressRuleDie {
+func (d *NetworkPolicyIngressRuleDie) DieWith(fns ...func(d *NetworkPolicyIngressRuleDie)) *NetworkPolicyIngressRuleDie {
 	nd := NetworkPolicyIngressRuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -4139,9 +4215,13 @@ func (d *NetworkPolicyEgressRuleDie) DieStampAt(jp string, fn interface{}) *Netw
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *NetworkPolicyEgressRuleDie) DieWith(fn func(d *NetworkPolicyEgressRuleDie)) *NetworkPolicyEgressRuleDie {
+func (d *NetworkPolicyEgressRuleDie) DieWith(fns ...func(d *NetworkPolicyEgressRuleDie)) *NetworkPolicyEgressRuleDie {
 	nd := NetworkPolicyEgressRuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -4331,9 +4411,13 @@ func (d *NetworkPolicyPortDie) DieStampAt(jp string, fn interface{}) *NetworkPol
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *NetworkPolicyPortDie) DieWith(fn func(d *NetworkPolicyPortDie)) *NetworkPolicyPortDie {
+func (d *NetworkPolicyPortDie) DieWith(fns ...func(d *NetworkPolicyPortDie)) *NetworkPolicyPortDie {
 	nd := NetworkPolicyPortBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -4544,9 +4628,13 @@ func (d *NetworkPolicyPeerDie) DieStampAt(jp string, fn interface{}) *NetworkPol
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *NetworkPolicyPeerDie) DieWith(fn func(d *NetworkPolicyPeerDie)) *NetworkPolicyPeerDie {
+func (d *NetworkPolicyPeerDie) DieWith(fns ...func(d *NetworkPolicyPeerDie)) *NetworkPolicyPeerDie {
 	nd := NetworkPolicyPeerBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -4747,9 +4835,13 @@ func (d *IPBlockDie) DieStampAt(jp string, fn interface{}) *IPBlockDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *IPBlockDie) DieWith(fn func(d *IPBlockDie)) *IPBlockDie {
+func (d *IPBlockDie) DieWith(fns ...func(d *IPBlockDie)) *IPBlockDie {
 	nd := IPBlockBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -4939,9 +5031,13 @@ func (d *NetworkPolicyStatusDie) DieStampAt(jp string, fn interface{}) *NetworkP
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *NetworkPolicyStatusDie) DieWith(fn func(d *NetworkPolicyStatusDie)) *NetworkPolicyStatusDie {
+func (d *NetworkPolicyStatusDie) DieWith(fns ...func(d *NetworkPolicyStatusDie)) *NetworkPolicyStatusDie {
 	nd := NetworkPolicyStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

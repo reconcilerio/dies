@@ -213,9 +213,13 @@ func (d *CustomResourceDefinitionDie) DieStampAt(jp string, fn interface{}) *Cus
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CustomResourceDefinitionDie) DieWith(fn func(d *CustomResourceDefinitionDie)) *CustomResourceDefinitionDie {
+func (d *CustomResourceDefinitionDie) DieWith(fns ...func(d *CustomResourceDefinitionDie)) *CustomResourceDefinitionDie {
 	nd := CustomResourceDefinitionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -475,9 +479,13 @@ func (d *CustomResourceDefinitionSpecDie) DieStampAt(jp string, fn interface{}) 
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CustomResourceDefinitionSpecDie) DieWith(fn func(d *CustomResourceDefinitionSpecDie)) *CustomResourceDefinitionSpecDie {
+func (d *CustomResourceDefinitionSpecDie) DieWith(fns ...func(d *CustomResourceDefinitionSpecDie)) *CustomResourceDefinitionSpecDie {
 	nd := CustomResourceDefinitionSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -695,9 +703,13 @@ func (d *CustomResourceDefinitionVersionDie) DieStampAt(jp string, fn interface{
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CustomResourceDefinitionVersionDie) DieWith(fn func(d *CustomResourceDefinitionVersionDie)) *CustomResourceDefinitionVersionDie {
+func (d *CustomResourceDefinitionVersionDie) DieWith(fns ...func(d *CustomResourceDefinitionVersionDie)) *CustomResourceDefinitionVersionDie {
 	nd := CustomResourceDefinitionVersionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -929,9 +941,13 @@ func (d *CustomResourceValidationDie) DieStampAt(jp string, fn interface{}) *Cus
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CustomResourceValidationDie) DieWith(fn func(d *CustomResourceValidationDie)) *CustomResourceValidationDie {
+func (d *CustomResourceValidationDie) DieWith(fns ...func(d *CustomResourceValidationDie)) *CustomResourceValidationDie {
 	nd := CustomResourceValidationBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1114,9 +1130,13 @@ func (d *CustomResourceSubresourcesDie) DieStampAt(jp string, fn interface{}) *C
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CustomResourceSubresourcesDie) DieWith(fn func(d *CustomResourceSubresourcesDie)) *CustomResourceSubresourcesDie {
+func (d *CustomResourceSubresourcesDie) DieWith(fns ...func(d *CustomResourceSubresourcesDie)) *CustomResourceSubresourcesDie {
 	nd := CustomResourceSubresourcesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1306,9 +1326,13 @@ func (d *CustomResourceSubresourceScaleDie) DieStampAt(jp string, fn interface{}
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CustomResourceSubresourceScaleDie) DieWith(fn func(d *CustomResourceSubresourceScaleDie)) *CustomResourceSubresourceScaleDie {
+func (d *CustomResourceSubresourceScaleDie) DieWith(fns ...func(d *CustomResourceSubresourceScaleDie)) *CustomResourceSubresourceScaleDie {
 	nd := CustomResourceSubresourceScaleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1505,9 +1529,13 @@ func (d *CustomResourceColumnDefinitionDie) DieStampAt(jp string, fn interface{}
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CustomResourceColumnDefinitionDie) DieWith(fn func(d *CustomResourceColumnDefinitionDie)) *CustomResourceColumnDefinitionDie {
+func (d *CustomResourceColumnDefinitionDie) DieWith(fns ...func(d *CustomResourceColumnDefinitionDie)) *CustomResourceColumnDefinitionDie {
 	nd := CustomResourceColumnDefinitionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1725,9 +1753,13 @@ func (d *CustomResourceConversionDie) DieStampAt(jp string, fn interface{}) *Cus
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CustomResourceConversionDie) DieWith(fn func(d *CustomResourceConversionDie)) *CustomResourceConversionDie {
+func (d *CustomResourceConversionDie) DieWith(fns ...func(d *CustomResourceConversionDie)) *CustomResourceConversionDie {
 	nd := CustomResourceConversionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1917,9 +1949,13 @@ func (d *WebhookConversionDie) DieStampAt(jp string, fn interface{}) *WebhookCon
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *WebhookConversionDie) DieWith(fn func(d *WebhookConversionDie)) *WebhookConversionDie {
+func (d *WebhookConversionDie) DieWith(fns ...func(d *WebhookConversionDie)) *WebhookConversionDie {
 	nd := WebhookConversionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2109,9 +2145,13 @@ func (d *WebhookClientConfigDie) DieStampAt(jp string, fn interface{}) *WebhookC
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *WebhookClientConfigDie) DieWith(fn func(d *WebhookClientConfigDie)) *WebhookClientConfigDie {
+func (d *WebhookClientConfigDie) DieWith(fns ...func(d *WebhookClientConfigDie)) *WebhookClientConfigDie {
 	nd := WebhookClientConfigBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2320,9 +2360,13 @@ func (d *ServiceReferenceDie) DieStampAt(jp string, fn interface{}) *ServiceRefe
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *ServiceReferenceDie) DieWith(fn func(d *ServiceReferenceDie)) *ServiceReferenceDie {
+func (d *ServiceReferenceDie) DieWith(fns ...func(d *ServiceReferenceDie)) *ServiceReferenceDie {
 	nd := ServiceReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2526,9 +2570,13 @@ func (d *CustomResourceDefinitionStatusDie) DieStampAt(jp string, fn interface{}
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CustomResourceDefinitionStatusDie) DieWith(fn func(d *CustomResourceDefinitionStatusDie)) *CustomResourceDefinitionStatusDie {
+func (d *CustomResourceDefinitionStatusDie) DieWith(fns ...func(d *CustomResourceDefinitionStatusDie)) *CustomResourceDefinitionStatusDie {
 	nd := CustomResourceDefinitionStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2725,9 +2773,13 @@ func (d *CustomResourceDefinitionNamesDie) DieStampAt(jp string, fn interface{})
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CustomResourceDefinitionNamesDie) DieWith(fn func(d *CustomResourceDefinitionNamesDie)) *CustomResourceDefinitionNamesDie {
+func (d *CustomResourceDefinitionNamesDie) DieWith(fns ...func(d *CustomResourceDefinitionNamesDie)) *CustomResourceDefinitionNamesDie {
 	nd := CustomResourceDefinitionNamesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

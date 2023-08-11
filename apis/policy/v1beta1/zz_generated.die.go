@@ -214,9 +214,13 @@ func (d *PodSecurityPolicyDie) DieStampAt(jp string, fn interface{}) *PodSecurit
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *PodSecurityPolicyDie) DieWith(fn func(d *PodSecurityPolicyDie)) *PodSecurityPolicyDie {
+func (d *PodSecurityPolicyDie) DieWith(fns ...func(d *PodSecurityPolicyDie)) *PodSecurityPolicyDie {
 	nd := PodSecurityPolicyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -460,9 +464,13 @@ func (d *PodSecurityPolicySpecDie) DieStampAt(jp string, fn interface{}) *PodSec
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *PodSecurityPolicySpecDie) DieWith(fn func(d *PodSecurityPolicySpecDie)) *PodSecurityPolicySpecDie {
+func (d *PodSecurityPolicySpecDie) DieWith(fns ...func(d *PodSecurityPolicySpecDie)) *PodSecurityPolicySpecDie {
 	nd := PodSecurityPolicySpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -810,9 +818,13 @@ func (d *HostPortRangeDie) DieStampAt(jp string, fn interface{}) *HostPortRangeD
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *HostPortRangeDie) DieWith(fn func(d *HostPortRangeDie)) *HostPortRangeDie {
+func (d *HostPortRangeDie) DieWith(fns ...func(d *HostPortRangeDie)) *HostPortRangeDie {
 	nd := HostPortRangeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1002,9 +1014,13 @@ func (d *SELinuxStrategyOptionsDie) DieStampAt(jp string, fn interface{}) *SELin
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *SELinuxStrategyOptionsDie) DieWith(fn func(d *SELinuxStrategyOptionsDie)) *SELinuxStrategyOptionsDie {
+func (d *SELinuxStrategyOptionsDie) DieWith(fns ...func(d *SELinuxStrategyOptionsDie)) *SELinuxStrategyOptionsDie {
 	nd := SELinuxStrategyOptionsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1194,9 +1210,13 @@ func (d *RunAsUserStrategyOptionsDie) DieStampAt(jp string, fn interface{}) *Run
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *RunAsUserStrategyOptionsDie) DieWith(fn func(d *RunAsUserStrategyOptionsDie)) *RunAsUserStrategyOptionsDie {
+func (d *RunAsUserStrategyOptionsDie) DieWith(fns ...func(d *RunAsUserStrategyOptionsDie)) *RunAsUserStrategyOptionsDie {
 	nd := RunAsUserStrategyOptionsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1386,9 +1406,13 @@ func (d *RunAsGroupStrategyOptionsDie) DieStampAt(jp string, fn interface{}) *Ru
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *RunAsGroupStrategyOptionsDie) DieWith(fn func(d *RunAsGroupStrategyOptionsDie)) *RunAsGroupStrategyOptionsDie {
+func (d *RunAsGroupStrategyOptionsDie) DieWith(fns ...func(d *RunAsGroupStrategyOptionsDie)) *RunAsGroupStrategyOptionsDie {
 	nd := RunAsGroupStrategyOptionsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1578,9 +1602,13 @@ func (d *SupplementalGroupsStrategyOptionsDie) DieStampAt(jp string, fn interfac
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *SupplementalGroupsStrategyOptionsDie) DieWith(fn func(d *SupplementalGroupsStrategyOptionsDie)) *SupplementalGroupsStrategyOptionsDie {
+func (d *SupplementalGroupsStrategyOptionsDie) DieWith(fns ...func(d *SupplementalGroupsStrategyOptionsDie)) *SupplementalGroupsStrategyOptionsDie {
 	nd := SupplementalGroupsStrategyOptionsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1770,9 +1798,13 @@ func (d *FSGroupStrategyOptionsDie) DieStampAt(jp string, fn interface{}) *FSGro
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *FSGroupStrategyOptionsDie) DieWith(fn func(d *FSGroupStrategyOptionsDie)) *FSGroupStrategyOptionsDie {
+func (d *FSGroupStrategyOptionsDie) DieWith(fns ...func(d *FSGroupStrategyOptionsDie)) *FSGroupStrategyOptionsDie {
 	nd := FSGroupStrategyOptionsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1962,9 +1994,13 @@ func (d *AllowedHostPathDie) DieStampAt(jp string, fn interface{}) *AllowedHostP
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *AllowedHostPathDie) DieWith(fn func(d *AllowedHostPathDie)) *AllowedHostPathDie {
+func (d *AllowedHostPathDie) DieWith(fns ...func(d *AllowedHostPathDie)) *AllowedHostPathDie {
 	nd := AllowedHostPathBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2156,9 +2192,13 @@ func (d *AllowedFlexVolumeDie) DieStampAt(jp string, fn interface{}) *AllowedFle
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *AllowedFlexVolumeDie) DieWith(fn func(d *AllowedFlexVolumeDie)) *AllowedFlexVolumeDie {
+func (d *AllowedFlexVolumeDie) DieWith(fns ...func(d *AllowedFlexVolumeDie)) *AllowedFlexVolumeDie {
 	nd := AllowedFlexVolumeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2341,9 +2381,13 @@ func (d *AllowedCSIDriverDie) DieStampAt(jp string, fn interface{}) *AllowedCSID
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *AllowedCSIDriverDie) DieWith(fn func(d *AllowedCSIDriverDie)) *AllowedCSIDriverDie {
+func (d *AllowedCSIDriverDie) DieWith(fns ...func(d *AllowedCSIDriverDie)) *AllowedCSIDriverDie {
 	nd := AllowedCSIDriverBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2526,9 +2570,13 @@ func (d *RuntimeClassStrategyOptionsDie) DieStampAt(jp string, fn interface{}) *
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *RuntimeClassStrategyOptionsDie) DieWith(fn func(d *RuntimeClassStrategyOptionsDie)) *RuntimeClassStrategyOptionsDie {
+func (d *RuntimeClassStrategyOptionsDie) DieWith(fns ...func(d *RuntimeClassStrategyOptionsDie)) *RuntimeClassStrategyOptionsDie {
 	nd := RuntimeClassStrategyOptionsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2718,9 +2766,13 @@ func (d *IDRangeDie) DieStampAt(jp string, fn interface{}) *IDRangeDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *IDRangeDie) DieWith(fn func(d *IDRangeDie)) *IDRangeDie {
+func (d *IDRangeDie) DieWith(fns ...func(d *IDRangeDie)) *IDRangeDie {
 	nd := IDRangeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

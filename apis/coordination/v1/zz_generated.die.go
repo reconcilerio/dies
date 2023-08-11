@@ -214,9 +214,13 @@ func (d *LeaseDie) DieStampAt(jp string, fn interface{}) *LeaseDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *LeaseDie) DieWith(fn func(d *LeaseDie)) *LeaseDie {
+func (d *LeaseDie) DieWith(fns ...func(d *LeaseDie)) *LeaseDie {
 	nd := LeaseBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -460,9 +464,13 @@ func (d *LeaseSpecDie) DieStampAt(jp string, fn interface{}) *LeaseSpecDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *LeaseSpecDie) DieWith(fn func(d *LeaseSpecDie)) *LeaseSpecDie {
+func (d *LeaseSpecDie) DieWith(fns ...func(d *LeaseSpecDie)) *LeaseSpecDie {
 	nd := LeaseSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

@@ -214,9 +214,13 @@ func (d *RuntimeClassDie) DieStampAt(jp string, fn interface{}) *RuntimeClassDie
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *RuntimeClassDie) DieWith(fn func(d *RuntimeClassDie)) *RuntimeClassDie {
+func (d *RuntimeClassDie) DieWith(fns ...func(d *RuntimeClassDie)) *RuntimeClassDie {
 	nd := RuntimeClassBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -465,9 +469,13 @@ func (d *OverheadDie) DieStampAt(jp string, fn interface{}) *OverheadDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *OverheadDie) DieWith(fn func(d *OverheadDie)) *OverheadDie {
+func (d *OverheadDie) DieWith(fns ...func(d *OverheadDie)) *OverheadDie {
 	nd := OverheadBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -650,9 +658,13 @@ func (d *SchedulingDie) DieStampAt(jp string, fn interface{}) *SchedulingDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *SchedulingDie) DieWith(fn func(d *SchedulingDie)) *SchedulingDie {
+func (d *SchedulingDie) DieWith(fns ...func(d *SchedulingDie)) *SchedulingDie {
 	nd := SchedulingBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

@@ -213,9 +213,13 @@ func (d *CertificateSigningRequestDie) DieStampAt(jp string, fn interface{}) *Ce
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CertificateSigningRequestDie) DieWith(fn func(d *CertificateSigningRequestDie)) *CertificateSigningRequestDie {
+func (d *CertificateSigningRequestDie) DieWith(fns ...func(d *CertificateSigningRequestDie)) *CertificateSigningRequestDie {
 	nd := CertificateSigningRequestBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -475,9 +479,13 @@ func (d *CertificateSigningRequestSpecDie) DieStampAt(jp string, fn interface{})
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CertificateSigningRequestSpecDie) DieWith(fn func(d *CertificateSigningRequestSpecDie)) *CertificateSigningRequestSpecDie {
+func (d *CertificateSigningRequestSpecDie) DieWith(fns ...func(d *CertificateSigningRequestSpecDie)) *CertificateSigningRequestSpecDie {
 	nd := CertificateSigningRequestSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -724,9 +732,13 @@ func (d *CertificateSigningRequestStatusDie) DieStampAt(jp string, fn interface{
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CertificateSigningRequestStatusDie) DieWith(fn func(d *CertificateSigningRequestStatusDie)) *CertificateSigningRequestStatusDie {
+func (d *CertificateSigningRequestStatusDie) DieWith(fns ...func(d *CertificateSigningRequestStatusDie)) *CertificateSigningRequestStatusDie {
 	nd := CertificateSigningRequestStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

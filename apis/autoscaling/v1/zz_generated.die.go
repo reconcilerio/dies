@@ -214,9 +214,13 @@ func (d *HorizontalPodAutoscalerDie) DieStampAt(jp string, fn interface{}) *Hori
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *HorizontalPodAutoscalerDie) DieWith(fn func(d *HorizontalPodAutoscalerDie)) *HorizontalPodAutoscalerDie {
+func (d *HorizontalPodAutoscalerDie) DieWith(fns ...func(d *HorizontalPodAutoscalerDie)) *HorizontalPodAutoscalerDie {
 	nd := HorizontalPodAutoscalerBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -476,9 +480,13 @@ func (d *HorizontalPodAutoscalerSpecDie) DieStampAt(jp string, fn interface{}) *
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *HorizontalPodAutoscalerSpecDie) DieWith(fn func(d *HorizontalPodAutoscalerSpecDie)) *HorizontalPodAutoscalerSpecDie {
+func (d *HorizontalPodAutoscalerSpecDie) DieWith(fns ...func(d *HorizontalPodAutoscalerSpecDie)) *HorizontalPodAutoscalerSpecDie {
 	nd := HorizontalPodAutoscalerSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -682,9 +690,13 @@ func (d *CrossVersionObjectReferenceDie) DieStampAt(jp string, fn interface{}) *
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CrossVersionObjectReferenceDie) DieWith(fn func(d *CrossVersionObjectReferenceDie)) *CrossVersionObjectReferenceDie {
+func (d *CrossVersionObjectReferenceDie) DieWith(fns ...func(d *CrossVersionObjectReferenceDie)) *CrossVersionObjectReferenceDie {
 	nd := CrossVersionObjectReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -881,9 +893,13 @@ func (d *HorizontalPodAutoscalerStatusDie) DieStampAt(jp string, fn interface{})
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *HorizontalPodAutoscalerStatusDie) DieWith(fn func(d *HorizontalPodAutoscalerStatusDie)) *HorizontalPodAutoscalerStatusDie {
+func (d *HorizontalPodAutoscalerStatusDie) DieWith(fns ...func(d *HorizontalPodAutoscalerStatusDie)) *HorizontalPodAutoscalerStatusDie {
 	nd := HorizontalPodAutoscalerStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

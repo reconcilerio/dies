@@ -413,9 +413,13 @@ func (c *copyMethodMaker) generateDieStampMethodFor(die Die) {
 func (c *copyMethodMaker) generateDieWithMethodFor(die Die) {
 	c.Linef("")
 	c.Linef("// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.")
-	c.Linef("func (d *%s) DieWith(fn func(d *%s)) *%s {", die.Type, die.Type, die.Type)
+	c.Linef("func (d *%s) DieWith(fns ...func(d *%s)) *%s {", die.Type, die.Type, die.Type)
 	c.Linef("	nd := %s.DieFeed(d.DieRelease()).DieImmutable(false)", die.Blank)
-	c.Linef("	fn(nd)")
+	c.Linef("	for _, fn := range fns {")
+	c.Linef("		if fn != nil {")
+	c.Linef("			fn(nd)")
+	c.Linef("		}")
+	c.Linef("	}")
 	c.Linef("	return d.DieFeed(nd.DieRelease())")
 	c.Linef("}")
 }

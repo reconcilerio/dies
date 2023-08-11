@@ -214,9 +214,13 @@ func (d *PriorityClassDie) DieStampAt(jp string, fn interface{}) *PriorityClassD
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *PriorityClassDie) DieWith(fn func(d *PriorityClassDie)) *PriorityClassDie {
+func (d *PriorityClassDie) DieWith(fns ...func(d *PriorityClassDie)) *PriorityClassDie {
 	nd := PriorityClassBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

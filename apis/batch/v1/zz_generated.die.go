@@ -216,9 +216,13 @@ func (d *CronJobDie) DieStampAt(jp string, fn interface{}) *CronJobDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CronJobDie) DieWith(fn func(d *CronJobDie)) *CronJobDie {
+func (d *CronJobDie) DieWith(fns ...func(d *CronJobDie)) *CronJobDie {
 	nd := CronJobBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -478,9 +482,13 @@ func (d *CronJobSpecDie) DieStampAt(jp string, fn interface{}) *CronJobSpecDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CronJobSpecDie) DieWith(fn func(d *CronJobSpecDie)) *CronJobSpecDie {
+func (d *CronJobSpecDie) DieWith(fns ...func(d *CronJobSpecDie)) *CronJobSpecDie {
 	nd := CronJobSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -714,9 +722,13 @@ func (d *CronJobStatusDie) DieStampAt(jp string, fn interface{}) *CronJobStatusD
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CronJobStatusDie) DieWith(fn func(d *CronJobStatusDie)) *CronJobStatusDie {
+func (d *CronJobStatusDie) DieWith(fns ...func(d *CronJobStatusDie)) *CronJobStatusDie {
 	nd := CronJobStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -928,9 +940,13 @@ func (d *JobDie) DieStampAt(jp string, fn interface{}) *JobDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *JobDie) DieWith(fn func(d *JobDie)) *JobDie {
+func (d *JobDie) DieWith(fns ...func(d *JobDie)) *JobDie {
 	nd := JobBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1190,9 +1206,13 @@ func (d *JobSpecDie) DieStampAt(jp string, fn interface{}) *JobSpecDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *JobSpecDie) DieWith(fn func(d *JobSpecDie)) *JobSpecDie {
+func (d *JobSpecDie) DieWith(fns ...func(d *JobSpecDie)) *JobSpecDie {
 	nd := JobSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1453,9 +1473,13 @@ func (d *PodFailurePolicyDie) DieStampAt(jp string, fn interface{}) *PodFailureP
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *PodFailurePolicyDie) DieWith(fn func(d *PodFailurePolicyDie)) *PodFailurePolicyDie {
+func (d *PodFailurePolicyDie) DieWith(fns ...func(d *PodFailurePolicyDie)) *PodFailurePolicyDie {
 	nd := PodFailurePolicyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1638,9 +1662,13 @@ func (d *PodFailurePolicyRuleDie) DieStampAt(jp string, fn interface{}) *PodFail
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *PodFailurePolicyRuleDie) DieWith(fn func(d *PodFailurePolicyRuleDie)) *PodFailurePolicyRuleDie {
+func (d *PodFailurePolicyRuleDie) DieWith(fns ...func(d *PodFailurePolicyRuleDie)) *PodFailurePolicyRuleDie {
 	nd := PodFailurePolicyRuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1839,9 +1867,13 @@ func (d *PodFailurePolicyOnExitCodesRequirementDie) DieStampAt(jp string, fn int
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *PodFailurePolicyOnExitCodesRequirementDie) DieWith(fn func(d *PodFailurePolicyOnExitCodesRequirementDie)) *PodFailurePolicyOnExitCodesRequirementDie {
+func (d *PodFailurePolicyOnExitCodesRequirementDie) DieWith(fns ...func(d *PodFailurePolicyOnExitCodesRequirementDie)) *PodFailurePolicyOnExitCodesRequirementDie {
 	nd := PodFailurePolicyOnExitCodesRequirementBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2040,9 +2072,13 @@ func (d *PodFailurePolicyOnPodConditionsPatternDie) DieStampAt(jp string, fn int
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *PodFailurePolicyOnPodConditionsPatternDie) DieWith(fn func(d *PodFailurePolicyOnPodConditionsPatternDie)) *PodFailurePolicyOnPodConditionsPatternDie {
+func (d *PodFailurePolicyOnPodConditionsPatternDie) DieWith(fns ...func(d *PodFailurePolicyOnPodConditionsPatternDie)) *PodFailurePolicyOnPodConditionsPatternDie {
 	nd := PodFailurePolicyOnPodConditionsPatternBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2232,9 +2268,13 @@ func (d *JobStatusDie) DieStampAt(jp string, fn interface{}) *JobStatusDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *JobStatusDie) DieWith(fn func(d *JobStatusDie)) *JobStatusDie {
+func (d *JobStatusDie) DieWith(fns ...func(d *JobStatusDie)) *JobStatusDie {
 	nd := JobStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2481,9 +2521,13 @@ func (d *UncountedTerminatedPodsDie) DieStampAt(jp string, fn interface{}) *Unco
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *UncountedTerminatedPodsDie) DieWith(fn func(d *UncountedTerminatedPodsDie)) *UncountedTerminatedPodsDie {
+func (d *UncountedTerminatedPodsDie) DieWith(fns ...func(d *UncountedTerminatedPodsDie)) *UncountedTerminatedPodsDie {
 	nd := UncountedTerminatedPodsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

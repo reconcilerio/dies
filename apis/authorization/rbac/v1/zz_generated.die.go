@@ -214,9 +214,13 @@ func (d *ClusterRoleDie) DieStampAt(jp string, fn interface{}) *ClusterRoleDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *ClusterRoleDie) DieWith(fn func(d *ClusterRoleDie)) *ClusterRoleDie {
+func (d *ClusterRoleDie) DieWith(fns ...func(d *ClusterRoleDie)) *ClusterRoleDie {
 	nd := ClusterRoleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -458,9 +462,13 @@ func (d *AggregationRuleDie) DieStampAt(jp string, fn interface{}) *AggregationR
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *AggregationRuleDie) DieWith(fn func(d *AggregationRuleDie)) *AggregationRuleDie {
+func (d *AggregationRuleDie) DieWith(fns ...func(d *AggregationRuleDie)) *AggregationRuleDie {
 	nd := AggregationRuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -658,9 +666,13 @@ func (d *ClusterRoleBindingDie) DieStampAt(jp string, fn interface{}) *ClusterRo
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *ClusterRoleBindingDie) DieWith(fn func(d *ClusterRoleBindingDie)) *ClusterRoleBindingDie {
+func (d *ClusterRoleBindingDie) DieWith(fns ...func(d *ClusterRoleBindingDie)) *ClusterRoleBindingDie {
 	nd := ClusterRoleBindingBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -917,9 +929,13 @@ func (d *RoleDie) DieStampAt(jp string, fn interface{}) *RoleDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *RoleDie) DieWith(fn func(d *RoleDie)) *RoleDie {
+func (d *RoleDie) DieWith(fns ...func(d *RoleDie)) *RoleDie {
 	nd := RoleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1154,9 +1170,13 @@ func (d *PolicyRuleDie) DieStampAt(jp string, fn interface{}) *PolicyRuleDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *PolicyRuleDie) DieWith(fn func(d *PolicyRuleDie)) *PolicyRuleDie {
+func (d *PolicyRuleDie) DieWith(fns ...func(d *PolicyRuleDie)) *PolicyRuleDie {
 	nd := PolicyRuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1382,9 +1402,13 @@ func (d *RoleBindingDie) DieStampAt(jp string, fn interface{}) *RoleBindingDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *RoleBindingDie) DieWith(fn func(d *RoleBindingDie)) *RoleBindingDie {
+func (d *RoleBindingDie) DieWith(fns ...func(d *RoleBindingDie)) *RoleBindingDie {
 	nd := RoleBindingBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1626,9 +1650,13 @@ func (d *SubjectDie) DieStampAt(jp string, fn interface{}) *SubjectDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *SubjectDie) DieWith(fn func(d *SubjectDie)) *SubjectDie {
+func (d *SubjectDie) DieWith(fns ...func(d *SubjectDie)) *SubjectDie {
 	nd := SubjectBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1832,9 +1860,13 @@ func (d *RoleRefDie) DieStampAt(jp string, fn interface{}) *RoleRefDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *RoleRefDie) DieWith(fn func(d *RoleRefDie)) *RoleRefDie {
+func (d *RoleRefDie) DieWith(fns ...func(d *RoleRefDie)) *RoleRefDie {
 	nd := RoleRefBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

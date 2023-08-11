@@ -216,9 +216,13 @@ func (d *ControllerRevisionDie) DieStampAt(jp string, fn interface{}) *Controlle
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *ControllerRevisionDie) DieWith(fn func(d *ControllerRevisionDie)) *ControllerRevisionDie {
+func (d *ControllerRevisionDie) DieWith(fns ...func(d *ControllerRevisionDie)) *ControllerRevisionDie {
 	nd := ControllerRevisionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -475,9 +479,13 @@ func (d *DaemonSetDie) DieStampAt(jp string, fn interface{}) *DaemonSetDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *DaemonSetDie) DieWith(fn func(d *DaemonSetDie)) *DaemonSetDie {
+func (d *DaemonSetDie) DieWith(fns ...func(d *DaemonSetDie)) *DaemonSetDie {
 	nd := DaemonSetBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -737,9 +745,13 @@ func (d *DaemonSetSpecDie) DieStampAt(jp string, fn interface{}) *DaemonSetSpecD
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *DaemonSetSpecDie) DieWith(fn func(d *DaemonSetSpecDie)) *DaemonSetSpecDie {
+func (d *DaemonSetSpecDie) DieWith(fns ...func(d *DaemonSetSpecDie)) *DaemonSetSpecDie {
 	nd := DaemonSetSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -950,9 +962,13 @@ func (d *DaemonSetUpdateStrategyDie) DieStampAt(jp string, fn interface{}) *Daem
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *DaemonSetUpdateStrategyDie) DieWith(fn func(d *DaemonSetUpdateStrategyDie)) *DaemonSetUpdateStrategyDie {
+func (d *DaemonSetUpdateStrategyDie) DieWith(fns ...func(d *DaemonSetUpdateStrategyDie)) *DaemonSetUpdateStrategyDie {
 	nd := DaemonSetUpdateStrategyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1142,9 +1158,13 @@ func (d *RollingUpdateDaemonSetDie) DieStampAt(jp string, fn interface{}) *Rolli
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *RollingUpdateDaemonSetDie) DieWith(fn func(d *RollingUpdateDaemonSetDie)) *RollingUpdateDaemonSetDie {
+func (d *RollingUpdateDaemonSetDie) DieWith(fns ...func(d *RollingUpdateDaemonSetDie)) *RollingUpdateDaemonSetDie {
 	nd := RollingUpdateDaemonSetBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1362,9 +1382,13 @@ func (d *DaemonSetStatusDie) DieStampAt(jp string, fn interface{}) *DaemonSetSta
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *DaemonSetStatusDie) DieWith(fn func(d *DaemonSetStatusDie)) *DaemonSetStatusDie {
+func (d *DaemonSetStatusDie) DieWith(fns ...func(d *DaemonSetStatusDie)) *DaemonSetStatusDie {
 	nd := DaemonSetStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1625,9 +1649,13 @@ func (d *DeploymentDie) DieStampAt(jp string, fn interface{}) *DeploymentDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *DeploymentDie) DieWith(fn func(d *DeploymentDie)) *DeploymentDie {
+func (d *DeploymentDie) DieWith(fns ...func(d *DeploymentDie)) *DeploymentDie {
 	nd := DeploymentBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -1887,9 +1915,13 @@ func (d *DeploymentSpecDie) DieStampAt(jp string, fn interface{}) *DeploymentSpe
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *DeploymentSpecDie) DieWith(fn func(d *DeploymentSpecDie)) *DeploymentSpecDie {
+func (d *DeploymentSpecDie) DieWith(fns ...func(d *DeploymentSpecDie)) *DeploymentSpecDie {
 	nd := DeploymentSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2121,9 +2153,13 @@ func (d *DeploymentStrategyDie) DieStampAt(jp string, fn interface{}) *Deploymen
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *DeploymentStrategyDie) DieWith(fn func(d *DeploymentStrategyDie)) *DeploymentStrategyDie {
+func (d *DeploymentStrategyDie) DieWith(fns ...func(d *DeploymentStrategyDie)) *DeploymentStrategyDie {
 	nd := DeploymentStrategyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2313,9 +2349,13 @@ func (d *RollingUpdateDeploymentDie) DieStampAt(jp string, fn interface{}) *Roll
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *RollingUpdateDeploymentDie) DieWith(fn func(d *RollingUpdateDeploymentDie)) *RollingUpdateDeploymentDie {
+func (d *RollingUpdateDeploymentDie) DieWith(fns ...func(d *RollingUpdateDeploymentDie)) *RollingUpdateDeploymentDie {
 	nd := RollingUpdateDeploymentBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2533,9 +2573,13 @@ func (d *DeploymentStatusDie) DieStampAt(jp string, fn interface{}) *DeploymentS
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *DeploymentStatusDie) DieWith(fn func(d *DeploymentStatusDie)) *DeploymentStatusDie {
+func (d *DeploymentStatusDie) DieWith(fns ...func(d *DeploymentStatusDie)) *DeploymentStatusDie {
 	nd := DeploymentStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -2782,9 +2826,13 @@ func (d *ReplicaSetDie) DieStampAt(jp string, fn interface{}) *ReplicaSetDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *ReplicaSetDie) DieWith(fn func(d *ReplicaSetDie)) *ReplicaSetDie {
+func (d *ReplicaSetDie) DieWith(fns ...func(d *ReplicaSetDie)) *ReplicaSetDie {
 	nd := ReplicaSetBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -3044,9 +3092,13 @@ func (d *ReplicaSetSpecDie) DieStampAt(jp string, fn interface{}) *ReplicaSetSpe
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *ReplicaSetSpecDie) DieWith(fn func(d *ReplicaSetSpecDie)) *ReplicaSetSpecDie {
+func (d *ReplicaSetSpecDie) DieWith(fns ...func(d *ReplicaSetSpecDie)) *ReplicaSetSpecDie {
 	nd := ReplicaSetSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -3250,9 +3302,13 @@ func (d *ReplicaSetStatusDie) DieStampAt(jp string, fn interface{}) *ReplicaSetS
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *ReplicaSetStatusDie) DieWith(fn func(d *ReplicaSetStatusDie)) *ReplicaSetStatusDie {
+func (d *ReplicaSetStatusDie) DieWith(fns ...func(d *ReplicaSetStatusDie)) *ReplicaSetStatusDie {
 	nd := ReplicaSetStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -3485,9 +3541,13 @@ func (d *StatefulSetDie) DieStampAt(jp string, fn interface{}) *StatefulSetDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *StatefulSetDie) DieWith(fn func(d *StatefulSetDie)) *StatefulSetDie {
+func (d *StatefulSetDie) DieWith(fns ...func(d *StatefulSetDie)) *StatefulSetDie {
 	nd := StatefulSetBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -3747,9 +3807,13 @@ func (d *StatefulSetSpecDie) DieStampAt(jp string, fn interface{}) *StatefulSetS
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *StatefulSetSpecDie) DieWith(fn func(d *StatefulSetSpecDie)) *StatefulSetSpecDie {
+func (d *StatefulSetSpecDie) DieWith(fns ...func(d *StatefulSetSpecDie)) *StatefulSetSpecDie {
 	nd := StatefulSetSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -4002,9 +4066,13 @@ func (d *StatefulSetUpdateStrategyDie) DieStampAt(jp string, fn interface{}) *St
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *StatefulSetUpdateStrategyDie) DieWith(fn func(d *StatefulSetUpdateStrategyDie)) *StatefulSetUpdateStrategyDie {
+func (d *StatefulSetUpdateStrategyDie) DieWith(fns ...func(d *StatefulSetUpdateStrategyDie)) *StatefulSetUpdateStrategyDie {
 	nd := StatefulSetUpdateStrategyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -4194,9 +4262,13 @@ func (d *RollingUpdateStatefulSetStrategyDie) DieStampAt(jp string, fn interface
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *RollingUpdateStatefulSetStrategyDie) DieWith(fn func(d *RollingUpdateStatefulSetStrategyDie)) *RollingUpdateStatefulSetStrategyDie {
+func (d *RollingUpdateStatefulSetStrategyDie) DieWith(fns ...func(d *RollingUpdateStatefulSetStrategyDie)) *RollingUpdateStatefulSetStrategyDie {
 	nd := RollingUpdateStatefulSetStrategyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -4400,9 +4472,13 @@ func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieStampAt(jp strin
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieWith(fn func(d *StatefulSetPersistentVolumeClaimRetentionPolicyDie)) *StatefulSetPersistentVolumeClaimRetentionPolicyDie {
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieWith(fns ...func(d *StatefulSetPersistentVolumeClaimRetentionPolicyDie)) *StatefulSetPersistentVolumeClaimRetentionPolicyDie {
 	nd := StatefulSetPersistentVolumeClaimRetentionPolicyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -4592,9 +4668,13 @@ func (d *StatefulSetOrdinalsDie) DieStampAt(jp string, fn interface{}) *Stateful
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *StatefulSetOrdinalsDie) DieWith(fn func(d *StatefulSetOrdinalsDie)) *StatefulSetOrdinalsDie {
+func (d *StatefulSetOrdinalsDie) DieWith(fns ...func(d *StatefulSetOrdinalsDie)) *StatefulSetOrdinalsDie {
 	nd := StatefulSetOrdinalsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
@@ -4777,9 +4857,13 @@ func (d *StatefulSetStatusDie) DieStampAt(jp string, fn interface{}) *StatefulSe
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *StatefulSetStatusDie) DieWith(fn func(d *StatefulSetStatusDie)) *StatefulSetStatusDie {
+func (d *StatefulSetStatusDie) DieWith(fns ...func(d *StatefulSetStatusDie)) *StatefulSetStatusDie {
 	nd := StatefulSetStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 

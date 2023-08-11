@@ -215,9 +215,13 @@ func (d *CSIStorageCapacityDie) DieStampAt(jp string, fn interface{}) *CSIStorag
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *CSIStorageCapacityDie) DieWith(fn func(d *CSIStorageCapacityDie)) *CSIStorageCapacityDie {
+func (d *CSIStorageCapacityDie) DieWith(fns ...func(d *CSIStorageCapacityDie)) *CSIStorageCapacityDie {
 	nd := CSIStorageCapacityBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	fn(nd)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
 	return d.DieFeed(nd.DieRelease())
 }
 
