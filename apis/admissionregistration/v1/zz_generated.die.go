@@ -1614,7 +1614,7 @@ func (d *MutatingWebhookDie) ReinvocationPolicy(v *admissionregistrationv1.Reinv
 //
 // The exact matching logic is (in order): 1. If ANY matchCondition evaluates to FALSE, the webhook is skipped. 2. If ALL matchConditions evaluate to TRUE, the webhook is called. 3. If any matchCondition evaluates to an error (but none are FALSE): - If failurePolicy=Fail, reject the request - If failurePolicy=Ignore, the error is ignored and the webhook is skipped
 //
-// This is an alpha feature and managed by the AdmissionWebhookMatchConditions feature gate.
+// This is a beta feature and managed by the AdmissionWebhookMatchConditions feature gate.
 func (d *MutatingWebhookDie) MatchConditions(v ...admissionregistrationv1.MatchCondition) *MutatingWebhookDie {
 	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
 		r.MatchConditions = v
@@ -2147,7 +2147,7 @@ func (d *ValidatingWebhookDie) AdmissionReviewVersions(v ...string) *ValidatingW
 //
 // The exact matching logic is (in order): 1. If ANY matchCondition evaluates to FALSE, the webhook is skipped. 2. If ALL matchConditions evaluate to TRUE, the webhook is called. 3. If any matchCondition evaluates to an error (but none are FALSE): - If failurePolicy=Fail, reject the request - If failurePolicy=Ignore, the error is ignored and the webhook is skipped
 //
-// This is an alpha feature and managed by the AdmissionWebhookMatchConditions feature gate.
+// This is a beta feature and managed by the AdmissionWebhookMatchConditions feature gate.
 func (d *ValidatingWebhookDie) MatchConditions(v ...admissionregistrationv1.MatchCondition) *ValidatingWebhookDie {
 	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
 		r.MatchConditions = v

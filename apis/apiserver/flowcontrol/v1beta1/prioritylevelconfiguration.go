@@ -35,6 +35,14 @@ func (d *PriorityLevelConfigurationSpecDie) LimitedDie(fn func(d *LimitedPriorit
 	})
 }
 
+func (d *PriorityLevelConfigurationSpecDie) ExemptDie(fn func(d *ExemptPriorityLevelConfigurationDie)) *PriorityLevelConfigurationSpecDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.PriorityLevelConfigurationSpec) {
+		d := ExemptPriorityLevelConfigurationBlank.DieImmutable(false).DieFeedPtr(r.Exempt)
+		fn(d)
+		r.Exempt = d.DieReleasePtr()
+	})
+}
+
 // +die
 type _ = flowcontrolv1beta1.LimitedPriorityLevelConfiguration
 
@@ -56,6 +64,9 @@ func (d *LimitResponseDie) QueuingDie(fn func(d *QueuingConfigurationDie)) *Limi
 		r.Queuing = d.DieReleasePtr()
 	})
 }
+
+// +die
+type _ = flowcontrolv1beta1.ExemptPriorityLevelConfiguration
 
 // +die
 type _ = flowcontrolv1beta1.QueuingConfiguration
