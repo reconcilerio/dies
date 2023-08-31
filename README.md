@@ -321,4 +321,4 @@ type MyResourceStatus struct {
 
 Properties:
 - **object** `bool` (optional): indicates the target type implements `metav1.Object` and `runtime.Object`
-- **ignores** `[]string` (optional): set of fields to ignore on the type
+- **ignore** `[]string` (optional): set of fields to ignore on the type
