@@ -23,7 +23,7 @@ jobs:
     - name: Test
       run: go test ./... -coverprofile cover.out
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
     - name: Update the release with Kubernetes resources
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
