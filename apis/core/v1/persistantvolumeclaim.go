@@ -28,6 +28,9 @@ type _ = corev1.PersistentVolumeClaim
 // +die
 type _ = corev1.PersistentVolumeClaimSpec
 
+// +die
+type _ = corev1.VolumeResourceRequirements
+
 func (d *PersistentVolumeClaimSpecDie) SelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
 		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
@@ -38,8 +41,7 @@ func (d *PersistentVolumeClaimSpecDie) SelectorDie(fn func(d *diemetav1.LabelSel
 
 func (d *PersistentVolumeClaimSpecDie) ResourcesDie(fn func(d *ResourceRequirementsDie)) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
-		d := ResourceRequirementsBlank.DieImmutable(false).DieFeed(r.Resources)
-		fn(d)
+		d := VolumeResourceRequirementsBlank.DieImmutable(false).DieFeed(r.Resources)
 		r.Resources = d.DieRelease()
 	})
 }

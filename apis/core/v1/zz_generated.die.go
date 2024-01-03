@@ -6243,6 +6243,13 @@ func (d *LifecycleHandlerDie) TCPSocket(v *corev1.TCPSocketAction) *LifecycleHan
 	})
 }
 
+// Sleep represents the duration that the container should sleep before being terminated.
+func (d *LifecycleHandlerDie) Sleep(v *corev1.SleepAction) *LifecycleHandlerDie {
+	return d.DieStamp(func(r *corev1.LifecycleHandler) {
+		r.Sleep = v
+	})
+}
+
 var ProbeHandlerBlank = (&ProbeHandlerDie{}).DieFeed(corev1.ProbeHandler{})
 
 type ProbeHandlerDie struct {
@@ -10506,7 +10513,7 @@ func (d *EndpointPortDie) Protocol(v corev1.Protocol) *EndpointPortDie {
 //
 // * Un-prefixed protocol names - reserved for IANA standard service names (as per RFC-6335 and https://www.iana.org/assignments/service-names).
 //
-// * Kubernetes-defined prefixed names: * 'kubernetes.io/h2c' - HTTP/2 over cleartext as described in https://www.rfc-editor.org/rfc/rfc7540 * 'kubernetes.io/ws'  - WebSocket over cleartext as described in https://www.rfc-editor.org/rfc/rfc6455 * 'kubernetes.io/wss' - WebSocket over TLS as described in https://www.rfc-editor.org/rfc/rfc6455
+// * Kubernetes-defined prefixed names: * 'kubernetes.io/h2c' - HTTP/2 prior knowledge over cleartext as described in https://www.rfc-editor.org/rfc/rfc9113.html#name-starting-http-2-with-prior- * 'kubernetes.io/ws'  - WebSocket over cleartext as described in https://www.rfc-editor.org/rfc/rfc6455 * 'kubernetes.io/wss' - WebSocket over TLS as described in https://www.rfc-editor.org/rfc/rfc6455
 //
 // * Other protocols should use implementation-defined prefixed names such as mycompany.com/my-custom-protocol.
 func (d *EndpointPortDie) AppProtocol(v *string) *EndpointPortDie {
@@ -15939,6 +15946,13 @@ func (d *PersistentVolumeSpecDie) NodeAffinity(v *corev1.VolumeNodeAffinity) *Pe
 	})
 }
 
+// Name of VolumeAttributesClass to which this persistent volume belongs. Empty value is not allowed. When this field is not set, it indicates that this volume does not belong to any VolumeAttributesClass. This field is mutable and can be changed by the CSI driver after a volume has been updated successfully to a new class. For an unbound PersistentVolume, the volumeAttributesClassName will be matched with unbound PersistentVolumeClaims during the binding process. This is an alpha field and requires enabling VolumeAttributesClass feature.
+func (d *PersistentVolumeSpecDie) VolumeAttributesClassName(v *string) *PersistentVolumeSpecDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
+		r.VolumeAttributesClassName = v
+	})
+}
+
 var PersistentVolumeStatusBlank = (&PersistentVolumeStatusDie{}).DieFeed(corev1.PersistentVolumeStatus{})
 
 type PersistentVolumeStatusDie struct {
@@ -18627,7 +18641,7 @@ func (d *CSIPersistentVolumeSourceDie) ControllerExpandSecretRef(v *corev1.Secre
 	})
 }
 
-// nodeExpandSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodeExpandVolume call. This is a beta field which is enabled default by CSINodeExpandSecret feature gate. This field is optional, may be omitted if no secret is required. If the secret object contains more than one secret, all secrets are passed.
+// nodeExpandSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodeExpandVolume call. This field is optional, may be omitted if no secret is required. If the secret object contains more than one secret, all secrets are passed.
 func (d *CSIPersistentVolumeSourceDie) NodeExpandSecretRef(v *corev1.SecretReference) *CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.NodeExpandSecretRef = v
@@ -19889,7 +19903,7 @@ func (d *PersistentVolumeClaimSpecDie) Selector(v *apismetav1.LabelSelector) *Pe
 }
 
 // resources represents the minimum resources the volume should have. If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements that are lower than previous value but must still be higher than capacity recorded in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
-func (d *PersistentVolumeClaimSpecDie) Resources(v corev1.ResourceRequirements) *PersistentVolumeClaimSpecDie {
+func (d *PersistentVolumeClaimSpecDie) Resources(v corev1.VolumeResourceRequirements) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
 		r.Resources = v
 	})
@@ -19927,6 +19941,209 @@ func (d *PersistentVolumeClaimSpecDie) DataSource(v *corev1.TypedLocalObjectRefe
 func (d *PersistentVolumeClaimSpecDie) DataSourceRef(v *corev1.TypedObjectReference) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
 		r.DataSourceRef = v
+	})
+}
+
+// volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim. If specified, the CSI driver will create or update the volume with the attributes defined in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName, it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass will be applied to the claim but it's not allowed to reset this field to empty string once it is set. If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass will be set by the persistentvolume controller if it exists. If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource exists. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#volumeattributesclass (Alpha) Using this field requires the VolumeAttributesClass feature gate to be enabled.
+func (d *PersistentVolumeClaimSpecDie) VolumeAttributesClassName(v *string) *PersistentVolumeClaimSpecDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
+		r.VolumeAttributesClassName = v
+	})
+}
+
+var VolumeResourceRequirementsBlank = (&VolumeResourceRequirementsDie{}).DieFeed(corev1.VolumeResourceRequirements{})
+
+type VolumeResourceRequirementsDie struct {
+	mutable bool
+	r       corev1.VolumeResourceRequirements
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *VolumeResourceRequirementsDie) DieImmutable(immutable bool) *VolumeResourceRequirementsDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *VolumeResourceRequirementsDie) DieFeed(r corev1.VolumeResourceRequirements) *VolumeResourceRequirementsDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &VolumeResourceRequirementsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *VolumeResourceRequirementsDie) DieFeedPtr(r *corev1.VolumeResourceRequirements) *VolumeResourceRequirementsDie {
+	if r == nil {
+		r = &corev1.VolumeResourceRequirements{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *VolumeResourceRequirementsDie) DieFeedJSON(j []byte) *VolumeResourceRequirementsDie {
+	r := corev1.VolumeResourceRequirements{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *VolumeResourceRequirementsDie) DieFeedYAML(y []byte) *VolumeResourceRequirementsDie {
+	r := corev1.VolumeResourceRequirements{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *VolumeResourceRequirementsDie) DieFeedYAMLFile(name string) *VolumeResourceRequirementsDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *VolumeResourceRequirementsDie) DieFeedRawExtension(raw runtime.RawExtension) *VolumeResourceRequirementsDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *VolumeResourceRequirementsDie) DieRelease() corev1.VolumeResourceRequirements {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *VolumeResourceRequirementsDie) DieReleasePtr() *corev1.VolumeResourceRequirements {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *VolumeResourceRequirementsDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *VolumeResourceRequirementsDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *VolumeResourceRequirementsDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *VolumeResourceRequirementsDie) DieStamp(fn func(r *corev1.VolumeResourceRequirements)) *VolumeResourceRequirementsDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *VolumeResourceRequirementsDie) DieStampAt(jp string, fn interface{}) *VolumeResourceRequirementsDie {
+	return d.DieStamp(func(r *corev1.VolumeResourceRequirements) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *VolumeResourceRequirementsDie) DieWith(fns ...func(d *VolumeResourceRequirementsDie)) *VolumeResourceRequirementsDie {
+	nd := VolumeResourceRequirementsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *VolumeResourceRequirementsDie) DeepCopy() *VolumeResourceRequirementsDie {
+	r := *d.r.DeepCopy()
+	return &VolumeResourceRequirementsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+func (d *VolumeResourceRequirementsDie) Limits(v corev1.ResourceList) *VolumeResourceRequirementsDie {
+	return d.DieStamp(func(r *corev1.VolumeResourceRequirements) {
+		r.Limits = v
+	})
+}
+
+// Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+func (d *VolumeResourceRequirementsDie) Requests(v corev1.ResourceList) *VolumeResourceRequirementsDie {
+	return d.DieStamp(func(r *corev1.VolumeResourceRequirements) {
+		r.Requests = v
 	})
 }
 
@@ -20150,6 +20367,20 @@ func (d *PersistentVolumeClaimStatusDie) Conditions(v ...corev1.PersistentVolume
 func (d *PersistentVolumeClaimStatusDie) AllocatedResources(v corev1.ResourceList) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		r.AllocatedResources = v
+	})
+}
+
+// currentVolumeAttributesClassName is the current name of the VolumeAttributesClass the PVC is using. When unset, there is no VolumeAttributeClass applied to this PersistentVolumeClaim This is an alpha field and requires enabling VolumeAttributesClass feature.
+func (d *PersistentVolumeClaimStatusDie) CurrentVolumeAttributesClassName(v *string) *PersistentVolumeClaimStatusDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
+		r.CurrentVolumeAttributesClassName = v
+	})
+}
+
+// ModifyVolumeStatus represents the status object of ControllerModifyVolume operation. When this is unset, there is no ModifyVolume operation being attempted. This is an alpha field and requires enabling VolumeAttributesClass feature.
+func (d *PersistentVolumeClaimStatusDie) ModifyVolumeStatus(v *corev1.ModifyVolumeStatus) *PersistentVolumeClaimStatusDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
+		r.ModifyVolumeStatus = v
 	})
 }
 
@@ -27171,7 +27402,7 @@ func (d *ServicePortDie) Protocol(v corev1.Protocol) *ServicePortDie {
 //
 // * Un-prefixed protocol names - reserved for IANA standard service names (as per RFC-6335 and https://www.iana.org/assignments/service-names).
 //
-// * Kubernetes-defined prefixed names: * 'kubernetes.io/h2c' - HTTP/2 over cleartext as described in https://www.rfc-editor.org/rfc/rfc7540 * 'kubernetes.io/ws'  - WebSocket over cleartext as described in https://www.rfc-editor.org/rfc/rfc6455 * 'kubernetes.io/wss' - WebSocket over TLS as described in https://www.rfc-editor.org/rfc/rfc6455
+// * Kubernetes-defined prefixed names: * 'kubernetes.io/h2c' - HTTP/2 prior knowledge over cleartext as described in https://www.rfc-editor.org/rfc/rfc9113.html#name-starting-http-2-with-prior- * 'kubernetes.io/ws'  - WebSocket over cleartext as described in https://www.rfc-editor.org/rfc/rfc6455 * 'kubernetes.io/wss' - WebSocket over TLS as described in https://www.rfc-editor.org/rfc/rfc6455
 //
 // * Other protocols should use implementation-defined prefixed names such as mycompany.com/my-custom-protocol.
 func (d *ServicePortDie) AppProtocol(v *string) *ServicePortDie {
@@ -28171,6 +28402,13 @@ func (d *LoadBalancerIngressDie) IP(v string) *LoadBalancerIngressDie {
 func (d *LoadBalancerIngressDie) Hostname(v string) *LoadBalancerIngressDie {
 	return d.DieStamp(func(r *corev1.LoadBalancerIngress) {
 		r.Hostname = v
+	})
+}
+
+// IPMode specifies how the load-balancer IP behaves, and may only be specified when the ip field is specified. Setting this to "VIP" indicates that traffic is delivered to the node with the destination set to the load-balancer's IP and port. Setting this to "Proxy" indicates that traffic is delivered to the node or pod with the destination set to the node's IP and node port or the pod's IP and port. Service implementations may use this information to adjust traffic routing.
+func (d *LoadBalancerIngressDie) IPMode(v *corev1.LoadBalancerIPMode) *LoadBalancerIngressDie {
+	return d.DieStamp(func(r *corev1.LoadBalancerIngress) {
+		r.IPMode = v
 	})
 }
 
@@ -34313,6 +34551,19 @@ func (d *VolumeProjectionDie) ConfigMap(v *corev1.ConfigMapProjection) *VolumePr
 func (d *VolumeProjectionDie) ServiceAccountToken(v *corev1.ServiceAccountTokenProjection) *VolumeProjectionDie {
 	return d.DieStamp(func(r *corev1.VolumeProjection) {
 		r.ServiceAccountToken = v
+	})
+}
+
+// ClusterTrustBundle allows a pod to access the `.spec.trustBundle` field of ClusterTrustBundle objects in an auto-updating file.
+//
+// Alpha, gated by the ClusterTrustBundleProjection feature gate.
+//
+// ClusterTrustBundle objects can either be selected by name, or by the combination of signer name and a label selector.
+//
+// Kubelet performs aggressive normalization of the PEM contents written into the pod filesystem.  Esoteric PEM features such as inter-block comments and block headers are stripped.  Certificates are deduplicated. The ordering of certificates within the file is arbitrary, and Kubelet may change the order over time.
+func (d *VolumeProjectionDie) ClusterTrustBundle(v *corev1.ClusterTrustBundleProjection) *VolumeProjectionDie {
+	return d.DieStamp(func(r *corev1.VolumeProjection) {
+		r.ClusterTrustBundle = v
 	})
 }
 

@@ -845,6 +845,15 @@ func TestPersistentVolumeClaimSpecDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestVolumeResourceRequirementsDie_MissingMethods(t *testingx.T) {
+	die := VolumeResourceRequirementsBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for VolumeResourceRequirementsDie: %s", diff.List())
+	}
+}
+
 func TestPersistentVolumeClaimStatusDie_MissingMethods(t *testingx.T) {
 	die := PersistentVolumeClaimStatusBlank
 	ignore := []string{"AllocatedResourceStatuses"}
