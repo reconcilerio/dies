@@ -1262,14 +1262,14 @@ func (d *JobSpecDie) BackoffLimit(v *int32) *JobSpecDie {
 	})
 }
 
-// Specifies the limit for the number of retries within an index before marking this index as failed. When enabled the number of failures per index is kept in the pod's batch.kubernetes.io/job-index-failure-count annotation. It can only be set when Job's completionMode=Indexed, and the Pod's restart policy is Never. The field is immutable. This field is alpha-level. It can be used when the `JobBackoffLimitPerIndex` feature gate is enabled (disabled by default).
+// Specifies the limit for the number of retries within an index before marking this index as failed. When enabled the number of failures per index is kept in the pod's batch.kubernetes.io/job-index-failure-count annotation. It can only be set when Job's completionMode=Indexed, and the Pod's restart policy is Never. The field is immutable. This field is beta-level. It can be used when the `JobBackoffLimitPerIndex` feature gate is enabled (enabled by default).
 func (d *JobSpecDie) BackoffLimitPerIndex(v *int32) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.BackoffLimitPerIndex = v
 	})
 }
 
-// Specifies the maximal number of failed indexes before marking the Job as failed, when backoffLimitPerIndex is set. Once the number of failed indexes exceeds this number the entire Job is marked as Failed and its execution is terminated. When left as null the job continues execution of all of its indexes and is marked with the `Complete` Job condition. It can only be specified when backoffLimitPerIndex is set. It can be null or up to completions. It is required and must be less than or equal to 10^4 when is completions greater than 10^5. This field is alpha-level. It can be used when the `JobBackoffLimitPerIndex` feature gate is enabled (disabled by default).
+// Specifies the maximal number of failed indexes before marking the Job as failed, when backoffLimitPerIndex is set. Once the number of failed indexes exceeds this number the entire Job is marked as Failed and its execution is terminated. When left as null the job continues execution of all of its indexes and is marked with the `Complete` Job condition. It can only be specified when backoffLimitPerIndex is set. It can be null or up to completions. It is required and must be less than or equal to 10^4 when is completions greater than 10^5. This field is beta-level. It can be used when the `JobBackoffLimitPerIndex` feature gate is enabled (enabled by default).
 func (d *JobSpecDie) MaxFailedIndexes(v *int32) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.MaxFailedIndexes = v
@@ -1326,7 +1326,7 @@ func (d *JobSpecDie) Suspend(v *bool) *JobSpecDie {
 
 // podReplacementPolicy specifies when to create replacement Pods. Possible values are: - TerminatingOrFailed means that we recreate pods when they are terminating (has a metadata.deletionTimestamp) or failed. - Failed means to wait until a previously created Pod is fully terminated (has phase Failed or Succeeded) before creating a replacement Pod.
 //
-// When using podFailurePolicy, Failed is the the only allowed value. TerminatingOrFailed and Failed are allowed values when podFailurePolicy is not in use. This is an alpha field. Enable JobPodReplacementPolicy to be able to use this field.
+// When using podFailurePolicy, Failed is the the only allowed value. TerminatingOrFailed and Failed are allowed values when podFailurePolicy is not in use. This is an beta field. To use this, enable the JobPodReplacementPolicy feature toggle. This is on by default.
 func (d *JobSpecDie) PodReplacementPolicy(v *batchv1.PodReplacementPolicy) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.PodReplacementPolicy = v
@@ -1706,7 +1706,7 @@ func (d *PodFailurePolicyRuleDie) DeepCopy() *PodFailurePolicyRuleDie {
 
 // Specifies the action taken on a pod failure when the requirements are satisfied. Possible values are:
 //
-// - FailJob: indicates that the pod's job is marked as Failed and all running pods are terminated. - FailIndex: indicates that the pod's index is marked as Failed and will not be restarted. This value is alpha-level. It can be used when the `JobBackoffLimitPerIndex` feature gate is enabled (disabled by default). - Ignore: indicates that the counter towards the .backoffLimit is not incremented and a replacement pod is created. - Count: indicates that the pod is handled in the default way - the counter towards the .backoffLimit is incremented. Additional values are considered to be added in the future. Clients should react to an unknown action by skipping the rule.
+// - FailJob: indicates that the pod's job is marked as Failed and all running pods are terminated. - FailIndex: indicates that the pod's index is marked as Failed and will not be restarted. This value is beta-level. It can be used when the `JobBackoffLimitPerIndex` feature gate is enabled (enabled by default). - Ignore: indicates that the counter towards the .backoffLimit is not incremented and a replacement pod is created. - Count: indicates that the pod is handled in the default way - the counter towards the .backoffLimit is incremented. Additional values are considered to be added in the future. Clients should react to an unknown action by skipping the rule.
 func (d *PodFailurePolicyRuleDie) Action(v batchv1.PodFailurePolicyAction) *PodFailurePolicyRuleDie {
 	return d.DieStamp(func(r *batchv1.PodFailurePolicyRule) {
 		r.Action = v
@@ -2354,7 +2354,7 @@ func (d *JobStatusDie) Failed(v int32) *JobStatusDie {
 
 // The number of pods which are terminating (in phase Pending or Running and have a deletionTimestamp).
 //
-// This field is alpha-level. The job controller populates the field when the feature gate JobPodReplacementPolicy is enabled (disabled by default).
+// This field is beta-level. The job controller populates the field when the feature gate JobPodReplacementPolicy is enabled (enabled by default).
 func (d *JobStatusDie) Terminating(v *int32) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.Terminating = v
@@ -2368,7 +2368,7 @@ func (d *JobStatusDie) CompletedIndexes(v string) *JobStatusDie {
 	})
 }
 
-// FailedIndexes holds the failed indexes when backoffLimitPerIndex=true. The indexes are represented in the text format analogous as for the `completedIndexes` field, ie. they are kept as decimal integers separated by commas. The numbers are listed in increasing order. Three or more consecutive numbers are compressed and represented by the first and last element of the series, separated by a hyphen. For example, if the failed indexes are 1, 3, 4, 5 and 7, they are represented as "1,3-5,7". This field is alpha-level. It can be used when the `JobBackoffLimitPerIndex` feature gate is enabled (disabled by default).
+// FailedIndexes holds the failed indexes when backoffLimitPerIndex=true. The indexes are represented in the text format analogous as for the `completedIndexes` field, ie. they are kept as decimal integers separated by commas. The numbers are listed in increasing order. Three or more consecutive numbers are compressed and represented by the first and last element of the series, separated by a hyphen. For example, if the failed indexes are 1, 3, 4, 5 and 7, they are represented as "1,3-5,7". This field is beta-level. It can be used when the `JobBackoffLimitPerIndex` feature gate is enabled (enabled by default).
 func (d *JobStatusDie) FailedIndexes(v *string) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.FailedIndexes = v
@@ -2389,8 +2389,6 @@ func (d *JobStatusDie) UncountedTerminatedPods(v *batchv1.UncountedTerminatedPod
 }
 
 // The number of pods which have a Ready condition.
-//
-// This field is beta-level. The job controller populates the field when the feature gate JobReadyPods is enabled (enabled by default).
 func (d *JobStatusDie) Ready(v *int32) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.Ready = v

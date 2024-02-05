@@ -36,9 +36,9 @@ func (d *PersistentVolumeClaimSpecDie) SelectorDie(fn func(d *diemetav1.LabelSel
 	})
 }
 
-func (d *PersistentVolumeClaimSpecDie) ResourcesDie(fn func(d *ResourceRequirementsDie)) *PersistentVolumeClaimSpecDie {
+func (d *PersistentVolumeClaimSpecDie) ResourcesDie(fn func(d *VolumeResourceRequirementsDie)) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
-		d := ResourceRequirementsBlank.DieImmutable(false).DieFeed(r.Resources)
+		d := VolumeResourceRequirementsBlank.DieImmutable(false).DieFeed(r.Resources)
 		fn(d)
 		r.Resources = d.DieRelease()
 	})
@@ -58,6 +58,35 @@ func (d *PersistentVolumeClaimSpecDie) DataSourceRefDie(fn func(d *TypedObjectRe
 		fn(d)
 		r.DataSourceRef = d.DieReleasePtr()
 	})
+}
+
+// +die
+type _ = corev1.VolumeResourceRequirements
+
+func (d *VolumeResourceRequirementsDie) AddLimit(name corev1.ResourceName, quantity resource.Quantity) *VolumeResourceRequirementsDie {
+	return d.DieStamp(func(r *corev1.VolumeResourceRequirements) {
+		if r.Limits == nil {
+			r.Limits = corev1.ResourceList{}
+		}
+		r.Limits[name] = quantity
+	})
+}
+
+func (d *VolumeResourceRequirementsDie) AddLimitString(name corev1.ResourceName, quantity string) *VolumeResourceRequirementsDie {
+	return d.AddLimit(name, resource.MustParse(quantity))
+}
+
+func (d *VolumeResourceRequirementsDie) AddRequest(name corev1.ResourceName, quantity resource.Quantity) *VolumeResourceRequirementsDie {
+	return d.DieStamp(func(r *corev1.VolumeResourceRequirements) {
+		if r.Requests == nil {
+			r.Requests = corev1.ResourceList{}
+		}
+		r.Requests[name] = quantity
+	})
+}
+
+func (d *VolumeResourceRequirementsDie) AddRequestString(name corev1.ResourceName, quantity string) *VolumeResourceRequirementsDie {
+	return d.AddRequest(name, resource.MustParse(quantity))
 }
 
 // +die:ignore={AllocatedResourceStatuses}
@@ -157,6 +186,17 @@ func (d *PersistentVolumeClaimStatusDie) AddAllocatedResourceStatus(name corev1.
 		r.AllocatedResourceStatuses[name] = status
 	})
 }
+
+func (d *PersistentVolumeClaimStatusDie) ModifyVolumeStatusDie(fn func(d *ModifyVolumeStatusDie)) *PersistentVolumeClaimStatusDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
+		d := ModifyVolumeStatusBlank.DieImmutable(false).DieFeedPtr(r.ModifyVolumeStatus)
+		fn(d)
+		r.ModifyVolumeStatus = d.DieReleasePtr()
+	})
+}
+
+// +die
+type _ corev1.ModifyVolumeStatus
 
 // +die
 type _ corev1.PersistentVolumeClaimTemplate
