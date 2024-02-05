@@ -7484,6 +7484,195 @@ func (d *GRPCActionDie) Service(v *string) *GRPCActionDie {
 	})
 }
 
+var SleepActionBlank = (&SleepActionDie{}).DieFeed(corev1.SleepAction{})
+
+type SleepActionDie struct {
+	mutable bool
+	r       corev1.SleepAction
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *SleepActionDie) DieImmutable(immutable bool) *SleepActionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *SleepActionDie) DieFeed(r corev1.SleepAction) *SleepActionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &SleepActionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *SleepActionDie) DieFeedPtr(r *corev1.SleepAction) *SleepActionDie {
+	if r == nil {
+		r = &corev1.SleepAction{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *SleepActionDie) DieFeedJSON(j []byte) *SleepActionDie {
+	r := corev1.SleepAction{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *SleepActionDie) DieFeedYAML(y []byte) *SleepActionDie {
+	r := corev1.SleepAction{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *SleepActionDie) DieFeedYAMLFile(name string) *SleepActionDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SleepActionDie) DieFeedRawExtension(raw runtime.RawExtension) *SleepActionDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *SleepActionDie) DieRelease() corev1.SleepAction {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *SleepActionDie) DieReleasePtr() *corev1.SleepAction {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *SleepActionDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *SleepActionDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SleepActionDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *SleepActionDie) DieStamp(fn func(r *corev1.SleepAction)) *SleepActionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *SleepActionDie) DieStampAt(jp string, fn interface{}) *SleepActionDie {
+	return d.DieStamp(func(r *corev1.SleepAction) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SleepActionDie) DieWith(fns ...func(d *SleepActionDie)) *SleepActionDie {
+	nd := SleepActionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *SleepActionDie) DeepCopy() *SleepActionDie {
+	r := *d.r.DeepCopy()
+	return &SleepActionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Seconds is the number of seconds to sleep.
+func (d *SleepActionDie) Seconds(v int64) *SleepActionDie {
+	return d.DieStamp(func(r *corev1.SleepAction) {
+		r.Seconds = v
+	})
+}
+
 var SecurityContextBlank = (&SecurityContextDie{}).DieFeed(corev1.SecurityContext{})
 
 type SecurityContextDie struct {
@@ -20381,6 +20570,202 @@ func (d *PersistentVolumeClaimStatusDie) CurrentVolumeAttributesClassName(v *str
 func (d *PersistentVolumeClaimStatusDie) ModifyVolumeStatus(v *corev1.ModifyVolumeStatus) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		r.ModifyVolumeStatus = v
+	})
+}
+
+var ModifyVolumeStatusBlank = (&ModifyVolumeStatusDie{}).DieFeed(corev1.ModifyVolumeStatus{})
+
+type ModifyVolumeStatusDie struct {
+	mutable bool
+	r       corev1.ModifyVolumeStatus
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ModifyVolumeStatusDie) DieImmutable(immutable bool) *ModifyVolumeStatusDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ModifyVolumeStatusDie) DieFeed(r corev1.ModifyVolumeStatus) *ModifyVolumeStatusDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ModifyVolumeStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ModifyVolumeStatusDie) DieFeedPtr(r *corev1.ModifyVolumeStatus) *ModifyVolumeStatusDie {
+	if r == nil {
+		r = &corev1.ModifyVolumeStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ModifyVolumeStatusDie) DieFeedJSON(j []byte) *ModifyVolumeStatusDie {
+	r := corev1.ModifyVolumeStatus{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ModifyVolumeStatusDie) DieFeedYAML(y []byte) *ModifyVolumeStatusDie {
+	r := corev1.ModifyVolumeStatus{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ModifyVolumeStatusDie) DieFeedYAMLFile(name string) *ModifyVolumeStatusDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ModifyVolumeStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *ModifyVolumeStatusDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ModifyVolumeStatusDie) DieRelease() corev1.ModifyVolumeStatus {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ModifyVolumeStatusDie) DieReleasePtr() *corev1.ModifyVolumeStatus {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ModifyVolumeStatusDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ModifyVolumeStatusDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ModifyVolumeStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ModifyVolumeStatusDie) DieStamp(fn func(r *corev1.ModifyVolumeStatus)) *ModifyVolumeStatusDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ModifyVolumeStatusDie) DieStampAt(jp string, fn interface{}) *ModifyVolumeStatusDie {
+	return d.DieStamp(func(r *corev1.ModifyVolumeStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ModifyVolumeStatusDie) DieWith(fns ...func(d *ModifyVolumeStatusDie)) *ModifyVolumeStatusDie {
+	nd := ModifyVolumeStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ModifyVolumeStatusDie) DeepCopy() *ModifyVolumeStatusDie {
+	r := *d.r.DeepCopy()
+	return &ModifyVolumeStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// targetVolumeAttributesClassName is the name of the VolumeAttributesClass the PVC currently being reconciled
+func (d *ModifyVolumeStatusDie) TargetVolumeAttributesClassName(v string) *ModifyVolumeStatusDie {
+	return d.DieStamp(func(r *corev1.ModifyVolumeStatus) {
+		r.TargetVolumeAttributesClassName = v
+	})
+}
+
+// status is the status of the ControllerModifyVolume operation. It can be in any of following states: - Pending Pending indicates that the PersistentVolumeClaim cannot be modified due to unmet requirements, such as the specified VolumeAttributesClass not existing. - InProgress InProgress indicates that the volume is being modified. - Infeasible Infeasible indicates that the request has been rejected as invalid by the CSI driver. To resolve the error, a valid VolumeAttributesClass needs to be specified. Note: New statuses can be added in the future. Consumers should check for unknown statuses and fail appropriately.
+func (d *ModifyVolumeStatusDie) Status(v corev1.PersistentVolumeClaimModifyVolumeStatus) *ModifyVolumeStatusDie {
+	return d.DieStamp(func(r *corev1.ModifyVolumeStatus) {
+		r.Status = v
 	})
 }
 
@@ -35359,6 +35744,223 @@ func (d *ServiceAccountTokenProjectionDie) ExpirationSeconds(v *int64) *ServiceA
 // path is the path relative to the mount point of the file to project the token into.
 func (d *ServiceAccountTokenProjectionDie) Path(v string) *ServiceAccountTokenProjectionDie {
 	return d.DieStamp(func(r *corev1.ServiceAccountTokenProjection) {
+		r.Path = v
+	})
+}
+
+var ClusterTrustBundleProjectionBlank = (&ClusterTrustBundleProjectionDie{}).DieFeed(corev1.ClusterTrustBundleProjection{})
+
+type ClusterTrustBundleProjectionDie struct {
+	mutable bool
+	r       corev1.ClusterTrustBundleProjection
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ClusterTrustBundleProjectionDie) DieImmutable(immutable bool) *ClusterTrustBundleProjectionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ClusterTrustBundleProjectionDie) DieFeed(r corev1.ClusterTrustBundleProjection) *ClusterTrustBundleProjectionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ClusterTrustBundleProjectionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ClusterTrustBundleProjectionDie) DieFeedPtr(r *corev1.ClusterTrustBundleProjection) *ClusterTrustBundleProjectionDie {
+	if r == nil {
+		r = &corev1.ClusterTrustBundleProjection{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ClusterTrustBundleProjectionDie) DieFeedJSON(j []byte) *ClusterTrustBundleProjectionDie {
+	r := corev1.ClusterTrustBundleProjection{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ClusterTrustBundleProjectionDie) DieFeedYAML(y []byte) *ClusterTrustBundleProjectionDie {
+	r := corev1.ClusterTrustBundleProjection{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ClusterTrustBundleProjectionDie) DieFeedYAMLFile(name string) *ClusterTrustBundleProjectionDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ClusterTrustBundleProjectionDie) DieFeedRawExtension(raw runtime.RawExtension) *ClusterTrustBundleProjectionDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ClusterTrustBundleProjectionDie) DieRelease() corev1.ClusterTrustBundleProjection {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ClusterTrustBundleProjectionDie) DieReleasePtr() *corev1.ClusterTrustBundleProjection {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ClusterTrustBundleProjectionDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ClusterTrustBundleProjectionDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ClusterTrustBundleProjectionDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ClusterTrustBundleProjectionDie) DieStamp(fn func(r *corev1.ClusterTrustBundleProjection)) *ClusterTrustBundleProjectionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ClusterTrustBundleProjectionDie) DieStampAt(jp string, fn interface{}) *ClusterTrustBundleProjectionDie {
+	return d.DieStamp(func(r *corev1.ClusterTrustBundleProjection) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ClusterTrustBundleProjectionDie) DieWith(fns ...func(d *ClusterTrustBundleProjectionDie)) *ClusterTrustBundleProjectionDie {
+	nd := ClusterTrustBundleProjectionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ClusterTrustBundleProjectionDie) DeepCopy() *ClusterTrustBundleProjectionDie {
+	r := *d.r.DeepCopy()
+	return &ClusterTrustBundleProjectionDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Select a single ClusterTrustBundle by object name.  Mutually-exclusive with signerName and labelSelector.
+func (d *ClusterTrustBundleProjectionDie) Name(v *string) *ClusterTrustBundleProjectionDie {
+	return d.DieStamp(func(r *corev1.ClusterTrustBundleProjection) {
+		r.Name = v
+	})
+}
+
+// Select all ClusterTrustBundles that match this signer name. Mutually-exclusive with name.  The contents of all selected ClusterTrustBundles will be unified and deduplicated.
+func (d *ClusterTrustBundleProjectionDie) SignerName(v *string) *ClusterTrustBundleProjectionDie {
+	return d.DieStamp(func(r *corev1.ClusterTrustBundleProjection) {
+		r.SignerName = v
+	})
+}
+
+// Select all ClusterTrustBundles that match this label selector.  Only has effect if signerName is set.  Mutually-exclusive with name.  If unset, interpreted as "match nothing".  If set but empty, interpreted as "match everything".
+func (d *ClusterTrustBundleProjectionDie) LabelSelector(v *apismetav1.LabelSelector) *ClusterTrustBundleProjectionDie {
+	return d.DieStamp(func(r *corev1.ClusterTrustBundleProjection) {
+		r.LabelSelector = v
+	})
+}
+
+// If true, don't block pod startup if the referenced ClusterTrustBundle(s) aren't available.  If using name, then the named ClusterTrustBundle is allowed not to exist.  If using signerName, then the combination of signerName and labelSelector is allowed to match zero ClusterTrustBundles.
+func (d *ClusterTrustBundleProjectionDie) Optional(v *bool) *ClusterTrustBundleProjectionDie {
+	return d.DieStamp(func(r *corev1.ClusterTrustBundleProjection) {
+		r.Optional = v
+	})
+}
+
+// Relative path from the volume root to write the bundle.
+func (d *ClusterTrustBundleProjectionDie) Path(v string) *ClusterTrustBundleProjectionDie {
+	return d.DieStamp(func(r *corev1.ClusterTrustBundleProjection) {
 		r.Path = v
 	})
 }

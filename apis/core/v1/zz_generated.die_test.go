@@ -341,6 +341,15 @@ func TestGRPCActionDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestSleepActionDie_MissingMethods(t *testingx.T) {
+	die := SleepActionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SleepActionDie: %s", diff.List())
+	}
+}
+
 func TestSecurityContextDie_MissingMethods(t *testingx.T) {
 	die := SecurityContextBlank
 	ignore := []string{}
@@ -860,6 +869,15 @@ func TestPersistentVolumeClaimStatusDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for PersistentVolumeClaimStatusDie: %s", diff.List())
+	}
+}
+
+func TestModifyVolumeStatusDie_MissingMethods(t *testingx.T) {
+	die := ModifyVolumeStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ModifyVolumeStatusDie: %s", diff.List())
 	}
 }
 
@@ -1472,6 +1490,15 @@ func TestServiceAccountTokenProjectionDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for ServiceAccountTokenProjectionDie: %s", diff.List())
+	}
+}
+
+func TestClusterTrustBundleProjectionDie_MissingMethods(t *testingx.T) {
+	die := ClusterTrustBundleProjectionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ClusterTrustBundleProjectionDie: %s", diff.List())
 	}
 }
 

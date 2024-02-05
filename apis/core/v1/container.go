@@ -413,6 +413,14 @@ func (d *LifecycleHandlerDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *Life
 	})
 }
 
+func (d *LifecycleHandlerDie) SleepDie(fn func(d *SleepActionDie)) *LifecycleHandlerDie {
+	return d.DieStamp(func(r *corev1.LifecycleHandler) {
+		d := SleepActionBlank.DieImmutable(false).DieFeedPtr(r.Sleep)
+		fn(d)
+		r.Sleep = d.DieReleasePtr()
+	})
+}
+
 // +die
 type _ = corev1.ProbeHandler
 
@@ -471,6 +479,9 @@ type _ = corev1.TCPSocketAction
 
 // +die
 type _ = corev1.GRPCAction
+
+// +die
+type _ = corev1.SleepAction
 
 // +die
 type _ = corev1.SecurityContext
