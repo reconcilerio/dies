@@ -302,14 +302,20 @@ func (d *CertificateSigningRequestDie) StatusDie(fn func(d *CertificateSigningRe
 	})
 }
 
-// spec contains the certificate request, and is immutable after creation. Only the request, signerName, expirationSeconds, and usages fields can be set on creation. Other fields are derived by Kubernetes and cannot be modified by users.
+// spec contains the certificate request, and is immutable after creation.
+//
+// Only the request, signerName, expirationSeconds, and usages fields can be set on creation.
+//
+// Other fields are derived by Kubernetes and cannot be modified by users.
 func (d *CertificateSigningRequestDie) Spec(v certificatesv1.CertificateSigningRequestSpec) *CertificateSigningRequestDie {
 	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequest) {
 		r.Spec = v
 	})
 }
 
-// status contains information about whether the request is approved or denied, and the certificate issued by the signer, or the failure condition indicating signer failure.
+// status contains information about whether the request is approved or denied,
+//
+// and the certificate issued by the signer, or the failure condition indicating signer failure.
 func (d *CertificateSigningRequestDie) Status(v certificatesv1.CertificateSigningRequestStatus) *CertificateSigningRequestDie {
 	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequest) {
 		r.Status = v
@@ -498,7 +504,9 @@ func (d *CertificateSigningRequestSpecDie) DeepCopy() *CertificateSigningRequest
 	}
 }
 
-// request contains an x509 certificate signing request encoded in a "CERTIFICATE REQUEST" PEM block. When serialized as JSON or YAML, the data is additionally base64-encoded.
+// request contains an x509 certificate signing request encoded in a "CERTIFICATE REQUEST" PEM block.
+//
+// When serialized as JSON or YAML, the data is additionally base64-encoded.
 func (d *CertificateSigningRequestSpecDie) Request(v []byte) *CertificateSigningRequestSpecDie {
 	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequestSpec) {
 		r.Request = v
@@ -509,24 +517,66 @@ func (d *CertificateSigningRequestSpecDie) Request(v []byte) *CertificateSigning
 //
 // List/watch requests for CertificateSigningRequests can filter on this field using a "spec.signerName=NAME" fieldSelector.
 //
-// Well-known Kubernetes signers are: 1. "kubernetes.io/kube-apiserver-client": issues client certificates that can be used to authenticate to kube-apiserver. Requests for this signer are never auto-approved by kube-controller-manager, can be issued by the "csrsigning" controller in kube-controller-manager. 2. "kubernetes.io/kube-apiserver-client-kubelet": issues client certificates that kubelets use to authenticate to kube-apiserver. Requests for this signer can be auto-approved by the "csrapproving" controller in kube-controller-manager, and can be issued by the "csrsigning" controller in kube-controller-manager. 3. "kubernetes.io/kubelet-serving" issues serving certificates that kubelets use to serve TLS endpoints, which kube-apiserver can connect to securely. Requests for this signer are never auto-approved by kube-controller-manager, and can be issued by the "csrsigning" controller in kube-controller-manager.
+// Well-known Kubernetes signers are:
+//
+// 1. "kubernetes.io/kube-apiserver-client": issues client certificates that can be used to authenticate to kube-apiserver.
+//
+// Requests for this signer are never auto-approved by kube-controller-manager, can be issued by the "csrsigning" controller in kube-controller-manager.
+//
+// 2. "kubernetes.io/kube-apiserver-client-kubelet": issues client certificates that kubelets use to authenticate to kube-apiserver.
+//
+// Requests for this signer can be auto-approved by the "csrapproving" controller in kube-controller-manager, and can be issued by the "csrsigning" controller in kube-controller-manager.
+//
+// 3. "kubernetes.io/kubelet-serving" issues serving certificates that kubelets use to serve TLS endpoints, which kube-apiserver can connect to securely.
+//
+// Requests for this signer are never auto-approved by kube-controller-manager, and can be issued by the "csrsigning" controller in kube-controller-manager.
 //
 // More details are available at https://k8s.io/docs/reference/access-authn-authz/certificate-signing-requests/#kubernetes-signers
 //
-// Custom signerNames can also be specified. The signer defines: 1. Trust distribution: how trust (CA bundles) are distributed. 2. Permitted subjects: and behavior when a disallowed subject is requested. 3. Required, permitted, or forbidden x509 extensions in the request (including whether subjectAltNames are allowed, which types, restrictions on allowed values) and behavior when a disallowed extension is requested. 4. Required, permitted, or forbidden key usages / extended key usages. 5. Expiration/certificate lifetime: whether it is fixed by the signer, configurable by the admin. 6. Whether or not requests for CA certificates are allowed.
+// Custom signerNames can also be specified. The signer defines:
+//
+// 1. Trust distribution: how trust (CA bundles) are distributed.
+//
+// 2. Permitted subjects: and behavior when a disallowed subject is requested.
+//
+// 3. Required, permitted, or forbidden x509 extensions in the request (including whether subjectAltNames are allowed, which types, restrictions on allowed values) and behavior when a disallowed extension is requested.
+//
+// 4. Required, permitted, or forbidden key usages / extended key usages.
+//
+// 5. Expiration/certificate lifetime: whether it is fixed by the signer, configurable by the admin.
+//
+// 6. Whether or not requests for CA certificates are allowed.
 func (d *CertificateSigningRequestSpecDie) SignerName(v string) *CertificateSigningRequestSpecDie {
 	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequestSpec) {
 		r.SignerName = v
 	})
 }
 
-// expirationSeconds is the requested duration of validity of the issued certificate. The certificate signer may issue a certificate with a different validity duration so a client must check the delta between the notBefore and and notAfter fields in the issued certificate to determine the actual duration.
+// expirationSeconds is the requested duration of validity of the issued
 //
-// The v1.22+ in-tree implementations of the well-known Kubernetes signers will honor this field as long as the requested duration is not greater than the maximum duration they will honor per the --cluster-signing-duration CLI flag to the Kubernetes controller manager.
+// certificate. The certificate signer may issue a certificate with a different
+//
+// validity duration so a client must check the delta between the notBefore and
+//
+// and notAfter fields in the issued certificate to determine the actual duration.
+//
+// The v1.22+ in-tree implementations of the well-known Kubernetes signers will
+//
+// honor this field as long as the requested duration is not greater than the
+//
+// maximum duration they will honor per the --cluster-signing-duration CLI
+//
+// flag to the Kubernetes controller manager.
 //
 // Certificate signers may not honor this field for various reasons:
 //
-// 1. Old signer that is unaware of the field (such as the in-tree implementations prior to v1.22) 2. Signer whose configured maximum is shorter than the requested duration 3. Signer whose configured minimum is longer than the requested duration
+// 1. Old signer that is unaware of the field (such as the in-tree
+//
+// implementations prior to v1.22)
+//
+// 2. Signer whose configured maximum is shorter than the requested duration
+//
+// 3. Signer whose configured minimum is longer than the requested duration
 //
 // The minimum valid value for expirationSeconds is 600, i.e. 10 minutes.
 func (d *CertificateSigningRequestSpecDie) ExpirationSeconds(v *int32) *CertificateSigningRequestSpecDie {
@@ -541,28 +591,48 @@ func (d *CertificateSigningRequestSpecDie) ExpirationSeconds(v *int32) *Certific
 //
 // Requests for TLS serving certificates typically request: "key encipherment", "digital signature", "server auth".
 //
-// Valid values are: "signing", "digital signature", "content commitment", "key encipherment", "key agreement", "data encipherment", "cert sign", "crl sign", "encipher only", "decipher only", "any", "server auth", "client auth", "code signing", "email protection", "s/mime", "ipsec end system", "ipsec tunnel", "ipsec user", "timestamping", "ocsp signing", "microsoft sgc", "netscape sgc"
+// Valid values are:
+//
+// "signing", "digital signature", "content commitment",
+//
+// "key encipherment", "key agreement", "data encipherment",
+//
+// "cert sign", "crl sign", "encipher only", "decipher only", "any",
+//
+// "server auth", "client auth",
+//
+// "code signing", "email protection", "s/mime",
+//
+// "ipsec end system", "ipsec tunnel", "ipsec user",
+//
+// "timestamping", "ocsp signing", "microsoft sgc", "netscape sgc"
 func (d *CertificateSigningRequestSpecDie) Usages(v ...certificatesv1.KeyUsage) *CertificateSigningRequestSpecDie {
 	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequestSpec) {
 		r.Usages = v
 	})
 }
 
-// username contains the name of the user that created the CertificateSigningRequest. Populated by the API server on creation and immutable.
+// username contains the name of the user that created the CertificateSigningRequest.
+//
+// Populated by the API server on creation and immutable.
 func (d *CertificateSigningRequestSpecDie) Username(v string) *CertificateSigningRequestSpecDie {
 	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequestSpec) {
 		r.Username = v
 	})
 }
 
-// uid contains the uid of the user that created the CertificateSigningRequest. Populated by the API server on creation and immutable.
+// uid contains the uid of the user that created the CertificateSigningRequest.
+//
+// Populated by the API server on creation and immutable.
 func (d *CertificateSigningRequestSpecDie) UID(v string) *CertificateSigningRequestSpecDie {
 	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequestSpec) {
 		r.UID = v
 	})
 }
 
-// groups contains group membership of the user that created the CertificateSigningRequest. Populated by the API server on creation and immutable.
+// groups contains group membership of the user that created the CertificateSigningRequest.
+//
+// Populated by the API server on creation and immutable.
 func (d *CertificateSigningRequestSpecDie) Groups(v ...string) *CertificateSigningRequestSpecDie {
 	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequestSpec) {
 		r.Groups = v
@@ -758,19 +828,45 @@ func (d *CertificateSigningRequestStatusDie) Conditions(v ...certificatesv1.Cert
 	})
 }
 
-// certificate is populated with an issued certificate by the signer after an Approved condition is present. This field is set via the /status subresource. Once populated, this field is immutable.
+// certificate is populated with an issued certificate by the signer after an Approved condition is present.
 //
-// If the certificate signing request is denied, a condition of type "Denied" is added and this field remains empty. If the signer cannot issue the certificate, a condition of type "Failed" is added and this field remains empty.
+// This field is set via the /status subresource. Once populated, this field is immutable.
 //
-// Validation requirements: 1. certificate must contain one or more PEM blocks. 2. All PEM blocks must have the "CERTIFICATE" label, contain no headers, and the encoded data must be a BER-encoded ASN.1 Certificate structure as described in section 4 of RFC5280. 3. Non-PEM content may appear before or after the "CERTIFICATE" PEM blocks and is unvalidated, to allow for explanatory text as described in section 5.2 of RFC7468.
+// If the certificate signing request is denied, a condition of type "Denied" is added and this field remains empty.
 //
-// If more than one PEM block is present, and the definition of the requested spec.signerName does not indicate otherwise, the first block is the issued certificate, and subsequent blocks should be treated as intermediate certificates and presented in TLS handshakes.
+// If the signer cannot issue the certificate, a condition of type "Failed" is added and this field remains empty.
+//
+// Validation requirements:
+//
+// 1. certificate must contain one or more PEM blocks.
+//
+// 2. All PEM blocks must have the "CERTIFICATE" label, contain no headers, and the encoded data
+//
+// must be a BER-encoded ASN.1 Certificate structure as described in section 4 of RFC5280.
+//
+// 3. Non-PEM content may appear before or after the "CERTIFICATE" PEM blocks and is unvalidated,
+//
+// to allow for explanatory text as described in section 5.2 of RFC7468.
+//
+// # If more than one PEM block is present, and the definition of the requested spec.signerName
+//
+// does not indicate otherwise, the first block is the issued certificate,
+//
+// and subsequent blocks should be treated as intermediate certificates and presented in TLS handshakes.
 //
 // The certificate is encoded in PEM format.
 //
 // When serialized as JSON or YAML, the data is additionally base64-encoded, so it consists of:
 //
-// base64( -----BEGIN CERTIFICATE----- ... -----END CERTIFICATE----- )
+// base64(
+//
+// -----BEGIN CERTIFICATE-----
+//
+// ...
+//
+// -----END CERTIFICATE-----
+//
+// )
 func (d *CertificateSigningRequestStatusDie) Certificate(v []byte) *CertificateSigningRequestStatusDie {
 	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequestStatus) {
 		r.Certificate = v

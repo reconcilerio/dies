@@ -477,28 +477,36 @@ func (d *ObjectReferenceDie) DeepCopy() *ObjectReferenceDie {
 	}
 }
 
-// Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+// Kind of the referent.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
 func (d *ObjectReferenceDie) Kind(v string) *ObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.ObjectReference) {
 		r.Kind = v
 	})
 }
 
-// Namespace of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
+// Namespace of the referent.
+//
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
 func (d *ObjectReferenceDie) Namespace(v string) *ObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.ObjectReference) {
 		r.Namespace = v
 	})
 }
 
-// Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+// Name of the referent.
+//
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 func (d *ObjectReferenceDie) Name(v string) *ObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.ObjectReference) {
 		r.Name = v
 	})
 }
 
-// UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
+// UID of the referent.
+//
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
 func (d *ObjectReferenceDie) UID(v types.UID) *ObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.ObjectReference) {
 		r.UID = v
@@ -512,14 +520,30 @@ func (d *ObjectReferenceDie) APIVersion(v string) *ObjectReferenceDie {
 	})
 }
 
-// Specific resourceVersion to which this reference is made, if any. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+// Specific resourceVersion to which this reference is made, if any.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
 func (d *ObjectReferenceDie) ResourceVersion(v string) *ObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.ObjectReference) {
 		r.ResourceVersion = v
 	})
 }
 
-// If referring to a piece of an object instead of an entire object, this string should contain a valid JSON/Go field access statement, such as desiredState.manifest.containers[2]. For example, if the object reference is to a container within a pod, this would take on a value like: "spec.containers{name}" (where "name" refers to the name of the container that triggered the event) or if no container name is specified "spec.containers[2]" (container with index 2 in this pod). This syntax is chosen only to have some well-defined way of referencing a part of an object. TODO: this design is not final and this field is subject to change in the future.
+// If referring to a piece of an object instead of an entire object, this string
+//
+// should contain a valid JSON/Go field access statement, such as desiredState.manifest.containers[2].
+//
+// For example, if the object reference is to a container within a pod, this would take on a value like:
+//
+// "spec.containers{name}" (where "name" refers to the name of the container that triggered
+//
+// the event) or if no container name is specified "spec.containers[2]" (container with
+//
+// index 2 in this pod). This syntax is chosen only to have some well-defined way of
+//
+// referencing a part of an object.
+//
+// TODO: this design is not final and this field is subject to change in the future.
 func (d *ObjectReferenceDie) FieldPath(v string) *ObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.ObjectReference) {
 		r.FieldPath = v
@@ -708,7 +732,11 @@ func (d *LocalObjectReferenceDie) DeepCopy() *LocalObjectReferenceDie {
 	}
 }
 
-// Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+// Name of the referent.
+//
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+//
+// TODO: Add other useful fields. apiVersion, kind, uid?
 func (d *LocalObjectReferenceDie) Name(v string) *LocalObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.LocalObjectReference) {
 		r.Name = v
@@ -897,7 +925,11 @@ func (d *TypedLocalObjectReferenceDie) DeepCopy() *TypedLocalObjectReferenceDie 
 	}
 }
 
-// APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required.
+// APIGroup is the group for the resource being referenced.
+//
+// If APIGroup is not specified, the specified Kind must be in the core API group.
+//
+// For any other third-party types, APIGroup is required.
 func (d *TypedLocalObjectReferenceDie) APIGroup(v *string) *TypedLocalObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.TypedLocalObjectReference) {
 		r.APIGroup = v
@@ -1100,7 +1132,11 @@ func (d *TypedObjectReferenceDie) DeepCopy() *TypedObjectReferenceDie {
 	}
 }
 
-// APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required.
+// APIGroup is the group for the resource being referenced.
+//
+// If APIGroup is not specified, the specified Kind must be in the core API group.
+//
+// For any other third-party types, APIGroup is required.
 func (d *TypedObjectReferenceDie) APIGroup(v *string) *TypedObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.TypedObjectReference) {
 		r.APIGroup = v
@@ -1121,7 +1157,11 @@ func (d *TypedObjectReferenceDie) Name(v string) *TypedObjectReferenceDie {
 	})
 }
 
-// Namespace is the namespace of resource being referenced Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details. (Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+// Namespace is the namespace of resource being referenced
+//
+// Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+//
+// (Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 func (d *TypedObjectReferenceDie) Namespace(v *string) *TypedObjectReferenceDie {
 	return d.DieStamp(func(r *corev1.TypedObjectReference) {
 		r.Namespace = v
@@ -1702,7 +1742,9 @@ func (d *TopologySelectorLabelRequirementDie) Key(v string) *TopologySelectorLab
 	})
 }
 
-// An array of string values. One value must match the label to be selected. Each entry in Values is ORed.
+// An array of string values. One value must match the label to be selected.
+//
+// Each entry in Values is ORed.
 func (d *TopologySelectorLabelRequirementDie) Values(v ...string) *TopologySelectorLabelRequirementDie {
 	return d.DieStamp(func(r *corev1.TopologySelectorLabelRequirement) {
 		r.Values = v
@@ -2214,7 +2256,13 @@ func (d *ConfigMapDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *ConfigMapD
 	})
 }
 
-// Immutable, if set to true, ensures that data stored in the ConfigMap cannot be updated (only object metadata can be modified). If not set to true, the field can be modified at any time. Defaulted to nil.
+// Immutable, if set to true, ensures that data stored in the ConfigMap cannot
+//
+// be updated (only object metadata can be modified).
+//
+// If not set to true, the field can be modified at any time.
+//
+// Defaulted to nil.
 func (d *ConfigMapDie) Immutable(v *bool) *ConfigMapDie {
 	return d.DieStamp(func(r *corev1.ConfigMap) {
 		r.Immutable = v
@@ -2403,63 +2451,135 @@ func (d *ContainerDie) DeepCopy() *ContainerDie {
 	}
 }
 
-// Name of the container specified as a DNS_LABEL. Each container in a pod must have a unique name (DNS_LABEL). Cannot be updated.
+// Name of the container specified as a DNS_LABEL.
+//
+// Each container in a pod must have a unique name (DNS_LABEL).
+//
+// Cannot be updated.
 func (d *ContainerDie) Name(v string) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.Name = v
 	})
 }
 
-// Container image name. More info: https://kubernetes.io/docs/concepts/containers/images This field is optional to allow higher level config management to default or override container images in workload controllers like Deployments and StatefulSets.
+// Container image name.
+//
+// More info: https://kubernetes.io/docs/concepts/containers/images
+//
+// # This field is optional to allow higher level config management to default or override
+//
+// container images in workload controllers like Deployments and StatefulSets.
 func (d *ContainerDie) Image(v string) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.Image = v
 	})
 }
 
-// Entrypoint array. Not executed within a shell. The container image's ENTRYPOINT is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. "$$(VAR_NAME)" will produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
+// Entrypoint array. Not executed within a shell.
+//
+// The container image's ENTRYPOINT is used if this is not provided.
+//
+// Variable references $(VAR_NAME) are expanded using the container's environment. If a variable
+//
+// cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced
+//
+// to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. "$$(VAR_NAME)" will
+//
+// produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless
+//
+// of whether the variable exists or not. Cannot be updated.
+//
+// More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
 func (d *ContainerDie) Command(v ...string) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.Command = v
 	})
 }
 
-// Arguments to the entrypoint. The container image's CMD is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. "$$(VAR_NAME)" will produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
+// Arguments to the entrypoint.
+//
+// The container image's CMD is used if this is not provided.
+//
+// Variable references $(VAR_NAME) are expanded using the container's environment. If a variable
+//
+// cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced
+//
+// to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. "$$(VAR_NAME)" will
+//
+// produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless
+//
+// of whether the variable exists or not. Cannot be updated.
+//
+// More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
 func (d *ContainerDie) Args(v ...string) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.Args = v
 	})
 }
 
-// Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image. Cannot be updated.
+// Container's working directory.
+//
+// # If not specified, the container runtime's default will be used, which
+//
+// might be configured in the container image.
+//
+// Cannot be updated.
 func (d *ContainerDie) WorkingDir(v string) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.WorkingDir = v
 	})
 }
 
-// List of ports to expose from the container. Not specifying a port here DOES NOT prevent that port from being exposed. Any port which is listening on the default "0.0.0.0" address inside a container will be accessible from the network. Modifying this array with strategic merge patch may corrupt the data. For more information See https://github.com/kubernetes/kubernetes/issues/108255. Cannot be updated.
+// List of ports to expose from the container. Not specifying a port here
+//
+// DOES NOT prevent that port from being exposed. Any port which is
+//
+// listening on the default "0.0.0.0" address inside a container will be
+//
+// accessible from the network.
+//
+// Modifying this array with strategic merge patch may corrupt the data.
+//
+// For more information See https://github.com/kubernetes/kubernetes/issues/108255.
+//
+// Cannot be updated.
 func (d *ContainerDie) Ports(v ...corev1.ContainerPort) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.Ports = v
 	})
 }
 
-// List of sources to populate environment variables in the container. The keys defined within a source must be a C_IDENTIFIER. All invalid keys will be reported as an event when the container is starting. When a key exists in multiple sources, the value associated with the last source will take precedence. Values defined by an Env with a duplicate key will take precedence. Cannot be updated.
+// List of sources to populate environment variables in the container.
+//
+// The keys defined within a source must be a C_IDENTIFIER. All invalid keys
+//
+// will be reported as an event when the container is starting. When a key exists in multiple
+//
+// sources, the value associated with the last source will take precedence.
+//
+// Values defined by an Env with a duplicate key will take precedence.
+//
+// Cannot be updated.
 func (d *ContainerDie) EnvFrom(v ...corev1.EnvFromSource) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.EnvFrom = v
 	})
 }
 
-// List of environment variables to set in the container. Cannot be updated.
+// List of environment variables to set in the container.
+//
+// Cannot be updated.
 func (d *ContainerDie) Env(v ...corev1.EnvVar) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.Env = v
 	})
 }
 
-// Compute Resources required by this container. Cannot be updated. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+// Compute Resources required by this container.
+//
+// Cannot be updated.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 func (d *ContainerDie) Resources(v corev1.ResourceRequirements) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.Resources = v
@@ -2473,14 +2593,44 @@ func (d *ContainerDie) ResizePolicy(v ...corev1.ContainerResizePolicy) *Containe
 	})
 }
 
-// RestartPolicy defines the restart behavior of individual containers in a pod. This field may only be set for init containers, and the only allowed value is "Always". For non-init containers or when this field is not specified, the restart behavior is defined by the Pod's restart policy and the container type. Setting the RestartPolicy as "Always" for the init container will have the following effect: this init container will be continually restarted on exit until all regular containers have terminated. Once all regular containers have completed, all init containers with restartPolicy "Always" will be shut down. This lifecycle differs from normal init containers and is often referred to as a "sidecar" container. Although this init container still starts in the init container sequence, it does not wait for the container to complete before proceeding to the next init container. Instead, the next init container starts immediately after this init container is started, or after any startupProbe has successfully completed.
+// RestartPolicy defines the restart behavior of individual containers in a pod.
+//
+// This field may only be set for init containers, and the only allowed value is "Always".
+//
+// For non-init containers or when this field is not specified,
+//
+// the restart behavior is defined by the Pod's restart policy and the container type.
+//
+// Setting the RestartPolicy as "Always" for the init container will have the following effect:
+//
+// this init container will be continually restarted on
+//
+// exit until all regular containers have terminated. Once all regular
+//
+// containers have completed, all init containers with restartPolicy "Always"
+//
+// will be shut down. This lifecycle differs from normal init containers and
+//
+// is often referred to as a "sidecar" container. Although this init
+//
+// container still starts in the init container sequence, it does not wait
+//
+// for the container to complete before proceeding to the next init
+//
+// container. Instead, the next init container starts immediately after this
+//
+// init container is started, or after any startupProbe has successfully
+//
+// completed.
 func (d *ContainerDie) RestartPolicy(v *corev1.ContainerRestartPolicy) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.RestartPolicy = v
 	})
 }
 
-// Pod volumes to mount into the container's filesystem. Cannot be updated.
+// Pod volumes to mount into the container's filesystem.
+//
+// Cannot be updated.
 func (d *ContainerDie) VolumeMounts(v ...corev1.VolumeMount) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.VolumeMounts = v
@@ -2494,77 +2644,157 @@ func (d *ContainerDie) VolumeDevices(v ...corev1.VolumeDevice) *ContainerDie {
 	})
 }
 
-// Periodic probe of container liveness. Container will be restarted if the probe fails. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+// Periodic probe of container liveness.
+//
+// Container will be restarted if the probe fails.
+//
+// Cannot be updated.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
 func (d *ContainerDie) LivenessProbe(v *corev1.Probe) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.LivenessProbe = v
 	})
 }
 
-// Periodic probe of container service readiness. Container will be removed from service endpoints if the probe fails. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+// Periodic probe of container service readiness.
+//
+// Container will be removed from service endpoints if the probe fails.
+//
+// Cannot be updated.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
 func (d *ContainerDie) ReadinessProbe(v *corev1.Probe) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.ReadinessProbe = v
 	})
 }
 
-// StartupProbe indicates that the Pod has successfully initialized. If specified, no other probes are executed until this completes successfully. If this probe fails, the Pod will be restarted, just as if the livenessProbe failed. This can be used to provide different probe parameters at the beginning of a Pod's lifecycle, when it might take a long time to load data or warm a cache, than during steady-state operation. This cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+// StartupProbe indicates that the Pod has successfully initialized.
+//
+// If specified, no other probes are executed until this completes successfully.
+//
+// If this probe fails, the Pod will be restarted, just as if the livenessProbe failed.
+//
+// This can be used to provide different probe parameters at the beginning of a Pod's lifecycle,
+//
+// when it might take a long time to load data or warm a cache, than during steady-state operation.
+//
+// This cannot be updated.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
 func (d *ContainerDie) StartupProbe(v *corev1.Probe) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.StartupProbe = v
 	})
 }
 
-// Actions that the management system should take in response to container lifecycle events. Cannot be updated.
+// Actions that the management system should take in response to container lifecycle events.
+//
+// Cannot be updated.
 func (d *ContainerDie) Lifecycle(v *corev1.Lifecycle) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.Lifecycle = v
 	})
 }
 
-// Optional: Path at which the file to which the container's termination message will be written is mounted into the container's filesystem. Message written is intended to be brief final status, such as an assertion failure message. Will be truncated by the node if greater than 4096 bytes. The total message length across all containers will be limited to 12kb. Defaults to /dev/termination-log. Cannot be updated.
+// Optional: Path at which the file to which the container's termination message
+//
+// will be written is mounted into the container's filesystem.
+//
+// Message written is intended to be brief final status, such as an assertion failure message.
+//
+// Will be truncated by the node if greater than 4096 bytes. The total message length across
+//
+// all containers will be limited to 12kb.
+//
+// Defaults to /dev/termination-log.
+//
+// Cannot be updated.
 func (d *ContainerDie) TerminationMessagePath(v string) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.TerminationMessagePath = v
 	})
 }
 
-// Indicate how the termination message should be populated. File will use the contents of terminationMessagePath to populate the container status message on both success and failure. FallbackToLogsOnError will use the last chunk of container log output if the termination message file is empty and the container exited with an error. The log output is limited to 2048 bytes or 80 lines, whichever is smaller. Defaults to File. Cannot be updated.
+// Indicate how the termination message should be populated. File will use the contents of
+//
+// terminationMessagePath to populate the container status message on both success and failure.
+//
+// # FallbackToLogsOnError will use the last chunk of container log output if the termination
+//
+// message file is empty and the container exited with an error.
+//
+// The log output is limited to 2048 bytes or 80 lines, whichever is smaller.
+//
+// Defaults to File.
+//
+// Cannot be updated.
 func (d *ContainerDie) TerminationMessagePolicy(v corev1.TerminationMessagePolicy) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.TerminationMessagePolicy = v
 	})
 }
 
-// Image pull policy. One of Always, Never, IfNotPresent. Defaults to Always if :latest tag is specified, or IfNotPresent otherwise. Cannot be updated. More info: https://kubernetes.io/docs/concepts/containers/images#updating-images
+// Image pull policy.
+//
+// One of Always, Never, IfNotPresent.
+//
+// Defaults to Always if :latest tag is specified, or IfNotPresent otherwise.
+//
+// Cannot be updated.
+//
+// More info: https://kubernetes.io/docs/concepts/containers/images#updating-images
 func (d *ContainerDie) ImagePullPolicy(v corev1.PullPolicy) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.ImagePullPolicy = v
 	})
 }
 
-// SecurityContext defines the security options the container should be run with. If set, the fields of SecurityContext override the equivalent fields of PodSecurityContext. More info: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+// SecurityContext defines the security options the container should be run with.
+//
+// If set, the fields of SecurityContext override the equivalent fields of PodSecurityContext.
+//
+// More info: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 func (d *ContainerDie) SecurityContext(v *corev1.SecurityContext) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.SecurityContext = v
 	})
 }
 
-// Whether this container should allocate a buffer for stdin in the container runtime. If this is not set, reads from stdin in the container will always result in EOF. Default is false.
+// Whether this container should allocate a buffer for stdin in the container runtime. If this
+//
+// is not set, reads from stdin in the container will always result in EOF.
+//
+// Default is false.
 func (d *ContainerDie) Stdin(v bool) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.Stdin = v
 	})
 }
 
-// Whether the container runtime should close the stdin channel after it has been opened by a single attach. When stdin is true the stdin stream will remain open across multiple attach sessions. If stdinOnce is set to true, stdin is opened on container start, is empty until the first client attaches to stdin, and then remains open and accepts data until the client disconnects, at which time stdin is closed and remains closed until the container is restarted. If this flag is false, a container processes that reads from stdin will never receive an EOF. Default is false
+// Whether the container runtime should close the stdin channel after it has been opened by
+//
+// a single attach. When stdin is true the stdin stream will remain open across multiple attach
+//
+// sessions. If stdinOnce is set to true, stdin is opened on container start, is empty until the
+//
+// first client attaches to stdin, and then remains open and accepts data until the client disconnects,
+//
+// at which time stdin is closed and remains closed until the container is restarted. If this
+//
+// flag is false, a container processes that reads from stdin will never receive an EOF.
+//
+// Default is false
 func (d *ContainerDie) StdinOnce(v bool) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.StdinOnce = v
 	})
 }
 
-// Whether this container should allocate a TTY for itself, also requires 'stdin' to be true. Default is false.
+// Whether this container should allocate a TTY for itself, also requires 'stdin' to be true.
+//
+// Default is false.
 func (d *ContainerDie) TTY(v bool) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.TTY = v
@@ -2753,28 +2983,42 @@ func (d *ContainerPortDie) DeepCopy() *ContainerPortDie {
 	}
 }
 
-// If specified, this must be an IANA_SVC_NAME and unique within the pod. Each named port in a pod must have a unique name. Name for the port that can be referred to by services.
+// If specified, this must be an IANA_SVC_NAME and unique within the pod. Each
+//
+// named port in a pod must have a unique name. Name for the port that can be
+//
+// referred to by services.
 func (d *ContainerPortDie) Name(v string) *ContainerPortDie {
 	return d.DieStamp(func(r *corev1.ContainerPort) {
 		r.Name = v
 	})
 }
 
-// Number of port to expose on the host. If specified, this must be a valid port number, 0 < x < 65536. If HostNetwork is specified, this must match ContainerPort. Most containers do not need this.
+// Number of port to expose on the host.
+//
+// If specified, this must be a valid port number, 0 < x < 65536.
+//
+// If HostNetwork is specified, this must match ContainerPort.
+//
+// Most containers do not need this.
 func (d *ContainerPortDie) HostPort(v int32) *ContainerPortDie {
 	return d.DieStamp(func(r *corev1.ContainerPort) {
 		r.HostPort = v
 	})
 }
 
-// Number of port to expose on the pod's IP address. This must be a valid port number, 0 < x < 65536.
+// Number of port to expose on the pod's IP address.
+//
+// This must be a valid port number, 0 < x < 65536.
 func (d *ContainerPortDie) ContainerPort(v int32) *ContainerPortDie {
 	return d.DieStamp(func(r *corev1.ContainerPort) {
 		r.ContainerPort = v
 	})
 }
 
-// Protocol for port. Must be UDP, TCP, or SCTP. Defaults to "TCP".
+// Protocol for port. Must be UDP, TCP, or SCTP.
+//
+// Defaults to "TCP".
 func (d *ContainerPortDie) Protocol(v corev1.Protocol) *ContainerPortDie {
 	return d.DieStamp(func(r *corev1.ContainerPort) {
 		r.Protocol = v
@@ -3572,7 +3816,23 @@ func (d *EnvVarDie) Name(v string) *EnvVarDie {
 	})
 }
 
-// Variable references $(VAR_NAME) are expanded using the previously defined environment variables in the container and any service environment variables. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. "$$(VAR_NAME)" will produce the string literal "$(VAR_NAME)". Escaped references will never be expanded, regardless of whether the variable exists or not. Defaults to "".
+// Variable references $(VAR_NAME) are expanded
+//
+// using the previously defined environment variables in the container and
+//
+// any service environment variables. If a variable cannot be resolved,
+//
+// the reference in the input string will be unchanged. Double $$ are reduced
+//
+// to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e.
+//
+// "$$(VAR_NAME)" will produce the string literal "$(VAR_NAME)".
+//
+// # Escaped references will never be expanded, regardless of whether the variable
+//
+// exists or not.
+//
+// Defaults to "".
 func (d *EnvVarDie) Value(v string) *EnvVarDie {
 	return d.DieStamp(func(r *corev1.EnvVar) {
 		r.Value = v
@@ -3768,14 +4028,18 @@ func (d *EnvVarSourceDie) DeepCopy() *EnvVarSourceDie {
 	}
 }
 
-// Selects a field of the pod: supports metadata.name, metadata.namespace, `metadata.labels['<KEY>']`, `metadata.annotations['<KEY>']`, spec.nodeName, spec.serviceAccountName, status.hostIP, status.podIP, status.podIPs.
+// Selects a field of the pod: supports metadata.name, metadata.namespace, `metadata.labels['<KEY>']`, `metadata.annotations['<KEY>']`,
+//
+// spec.nodeName, spec.serviceAccountName, status.hostIP, status.podIP, status.podIPs.
 func (d *EnvVarSourceDie) FieldRef(v *corev1.ObjectFieldSelector) *EnvVarSourceDie {
 	return d.DieStamp(func(r *corev1.EnvVarSource) {
 		r.FieldRef = v
 	})
 }
 
-// Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, limits.ephemeral-storage, requests.cpu, requests.memory and requests.ephemeral-storage) are currently supported.
+// Selects a resource of the container: only resources limits and requests
+//
+// (limits.cpu, limits.memory, limits.ephemeral-storage, requests.cpu, requests.memory and requests.ephemeral-storage) are currently supported.
 func (d *EnvVarSourceDie) ResourceFieldRef(v *corev1.ResourceFieldSelector) *EnvVarSourceDie {
 	return d.DieStamp(func(r *corev1.EnvVarSource) {
 		r.ResourceFieldRef = v
@@ -4783,23 +5047,35 @@ func (d *ResourceRequirementsDie) DeepCopy() *ResourceRequirementsDie {
 	}
 }
 
-// Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+// Limits describes the maximum amount of compute resources allowed.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 func (d *ResourceRequirementsDie) Limits(v corev1.ResourceList) *ResourceRequirementsDie {
 	return d.DieStamp(func(r *corev1.ResourceRequirements) {
 		r.Limits = v
 	})
 }
 
-// Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+// Requests describes the minimum amount of compute resources required.
+//
+// If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+//
+// otherwise to an implementation-defined value. Requests cannot exceed Limits.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 func (d *ResourceRequirementsDie) Requests(v corev1.ResourceList) *ResourceRequirementsDie {
 	return d.DieStamp(func(r *corev1.ResourceRequirements) {
 		r.Requests = v
 	})
 }
 
-// Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container.
+// Claims lists the names of resources, defined in spec.resourceClaims,
 //
-// This is an alpha field and requires enabling the DynamicResourceAllocation feature gate.
+// that are used by this container.
+//
+// # This is an alpha field and requires enabling the
+//
+// DynamicResourceAllocation feature gate.
 //
 // This field is immutable. It can only be set for containers.
 func (d *ResourceRequirementsDie) Claims(v ...corev1.ResourceClaim) *ResourceRequirementsDie {
@@ -4990,7 +5266,11 @@ func (d *ResourceClaimDie) DeepCopy() *ResourceClaimDie {
 	}
 }
 
-// Name must match the name of one entry in pod.spec.resourceClaims of the Pod where this field is used. It makes that resource available inside a container.
+// Name must match the name of one entry in pod.spec.resourceClaims of
+//
+// the Pod where this field is used. It makes that resource available
+//
+// inside a container.
 func (d *ResourceClaimDie) Name(v string) *ResourceClaimDie {
 	return d.DieStamp(func(r *corev1.ResourceClaim) {
 		r.Name = v
@@ -5179,14 +5459,18 @@ func (d *ContainerResizePolicyDie) DeepCopy() *ContainerResizePolicyDie {
 	}
 }
 
-// Name of the resource to which this resource resize policy applies. Supported values: cpu, memory.
+// Name of the resource to which this resource resize policy applies.
+//
+// Supported values: cpu, memory.
 func (d *ContainerResizePolicyDie) ResourceName(v corev1.ResourceName) *ContainerResizePolicyDie {
 	return d.DieStamp(func(r *corev1.ContainerResizePolicy) {
 		r.ResourceName = v
 	})
 }
 
-// Restart policy to apply when specified resource is resized. If not specified, it defaults to NotRequired.
+// Restart policy to apply when specified resource is resized.
+//
+// If not specified, it defaults to NotRequired.
 func (d *ContainerResizePolicyDie) RestartPolicy(v corev1.ResourceResizeRestartPolicy) *ContainerResizePolicyDie {
 	return d.DieStamp(func(r *corev1.ContainerResizePolicy) {
 		r.RestartPolicy = v
@@ -5382,35 +5666,53 @@ func (d *VolumeMountDie) Name(v string) *VolumeMountDie {
 	})
 }
 
-// Mounted read-only if true, read-write otherwise (false or unspecified). Defaults to false.
+// Mounted read-only if true, read-write otherwise (false or unspecified).
+//
+// Defaults to false.
 func (d *VolumeMountDie) ReadOnly(v bool) *VolumeMountDie {
 	return d.DieStamp(func(r *corev1.VolumeMount) {
 		r.ReadOnly = v
 	})
 }
 
-// Path within the container at which the volume should be mounted.  Must not contain ':'.
+// Path within the container at which the volume should be mounted.  Must
+//
+// not contain ':'.
 func (d *VolumeMountDie) MountPath(v string) *VolumeMountDie {
 	return d.DieStamp(func(r *corev1.VolumeMount) {
 		r.MountPath = v
 	})
 }
 
-// Path within the volume from which the container's volume should be mounted. Defaults to "" (volume's root).
+// Path within the volume from which the container's volume should be mounted.
+//
+// Defaults to "" (volume's root).
 func (d *VolumeMountDie) SubPath(v string) *VolumeMountDie {
 	return d.DieStamp(func(r *corev1.VolumeMount) {
 		r.SubPath = v
 	})
 }
 
-// mountPropagation determines how mounts are propagated from the host to container and the other way around. When not set, MountPropagationNone is used. This field is beta in 1.10.
+// mountPropagation determines how mounts are propagated from the host
+//
+// to container and the other way around.
+//
+// When not set, MountPropagationNone is used.
+//
+// This field is beta in 1.10.
 func (d *VolumeMountDie) MountPropagation(v *corev1.MountPropagationMode) *VolumeMountDie {
 	return d.DieStamp(func(r *corev1.VolumeMount) {
 		r.MountPropagation = v
 	})
 }
 
-// Expanded path within the volume from which the container's volume should be mounted. Behaves similarly to SubPath but environment variable references $(VAR_NAME) are expanded using the container's environment. Defaults to "" (volume's root). SubPathExpr and SubPath are mutually exclusive.
+// Expanded path within the volume from which the container's volume should be mounted.
+//
+// Behaves similarly to SubPath but environment variable references $(VAR_NAME) are expanded using the container's environment.
+//
+// Defaults to "" (volume's root).
+//
+// SubPathExpr and SubPath are mutually exclusive.
 func (d *VolumeMountDie) SubPathExpr(v string) *VolumeMountDie {
 	return d.DieStamp(func(r *corev1.VolumeMount) {
 		r.SubPathExpr = v
@@ -5802,42 +6104,72 @@ func (d *ProbeDie) ProbeHandler(v corev1.ProbeHandler) *ProbeDie {
 	})
 }
 
-// Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+// Number of seconds after the container has started before liveness probes are initiated.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
 func (d *ProbeDie) InitialDelaySeconds(v int32) *ProbeDie {
 	return d.DieStamp(func(r *corev1.Probe) {
 		r.InitialDelaySeconds = v
 	})
 }
 
-// Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+// Number of seconds after which the probe times out.
+//
+// Defaults to 1 second. Minimum value is 1.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
 func (d *ProbeDie) TimeoutSeconds(v int32) *ProbeDie {
 	return d.DieStamp(func(r *corev1.Probe) {
 		r.TimeoutSeconds = v
 	})
 }
 
-// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1.
+// How often (in seconds) to perform the probe.
+//
+// Default to 10 seconds. Minimum value is 1.
 func (d *ProbeDie) PeriodSeconds(v int32) *ProbeDie {
 	return d.DieStamp(func(r *corev1.Probe) {
 		r.PeriodSeconds = v
 	})
 }
 
-// Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+// Minimum consecutive successes for the probe to be considered successful after having failed.
+//
+// Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
 func (d *ProbeDie) SuccessThreshold(v int32) *ProbeDie {
 	return d.DieStamp(func(r *corev1.Probe) {
 		r.SuccessThreshold = v
 	})
 }
 
-// Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.
+// Minimum consecutive failures for the probe to be considered failed after having succeeded.
+//
+// Defaults to 3. Minimum value is 1.
 func (d *ProbeDie) FailureThreshold(v int32) *ProbeDie {
 	return d.DieStamp(func(r *corev1.Probe) {
 		r.FailureThreshold = v
 	})
 }
 
-// Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+// Optional duration in seconds the pod needs to terminate gracefully upon probe failure.
+//
+// # The grace period is the duration in seconds after the processes running in the pod are sent
+//
+// a termination signal and the time when the processes are forcibly halted with a kill signal.
+//
+// Set this value longer than the expected cleanup time for your process.
+//
+// If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this
+//
+// value overrides the value provided by the pod spec.
+//
+// Value must be non-negative integer. The value zero indicates stop immediately via
+//
+// the kill signal (no opportunity to shut down).
+//
+// This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate.
+//
+// Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
 func (d *ProbeDie) TerminationGracePeriodSeconds(v *int64) *ProbeDie {
 	return d.DieStamp(func(r *corev1.Probe) {
 		r.TerminationGracePeriodSeconds = v
@@ -6026,14 +6358,36 @@ func (d *LifecycleDie) DeepCopy() *LifecycleDie {
 	}
 }
 
-// PostStart is called immediately after a container is created. If the handler fails, the container is terminated and restarted according to its restart policy. Other management of the container blocks until the hook completes. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
+// PostStart is called immediately after a container is created. If the handler fails,
+//
+// the container is terminated and restarted according to its restart policy.
+//
+// Other management of the container blocks until the hook completes.
+//
+// More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
 func (d *LifecycleDie) PostStart(v *corev1.LifecycleHandler) *LifecycleDie {
 	return d.DieStamp(func(r *corev1.Lifecycle) {
 		r.PostStart = v
 	})
 }
 
-// PreStop is called immediately before a container is terminated due to an API request or management event such as liveness/startup probe failure, preemption, resource contention, etc. The handler is not called if the container crashes or exits. The Pod's termination grace period countdown begins before the PreStop hook is executed. Regardless of the outcome of the handler, the container will eventually terminate within the Pod's termination grace period (unless delayed by finalizers). Other management of the container blocks until the hook completes or until the termination grace period is reached. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
+// PreStop is called immediately before a container is terminated due to an
+//
+// API request or management event such as liveness/startup probe failure,
+//
+// preemption, resource contention, etc. The handler is not called if the
+//
+// container crashes or exits. The Pod's termination grace period countdown begins before the
+//
+// PreStop hook is executed. Regardless of the outcome of the handler, the
+//
+// container will eventually terminate within the Pod's termination grace
+//
+// period (unless delayed by finalizers). Other management of the container blocks until the hook completes
+//
+// or until the termination grace period is reached.
+//
+// More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
 func (d *LifecycleDie) PreStop(v *corev1.LifecycleHandler) *LifecycleDie {
 	return d.DieStamp(func(r *corev1.Lifecycle) {
 		r.PreStop = v
@@ -6236,7 +6590,11 @@ func (d *LifecycleHandlerDie) HTTPGet(v *corev1.HTTPGetAction) *LifecycleHandler
 	})
 }
 
-// Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept for the backward compatibility. There are no validation of this field and lifecycle hooks will fail in runtime when tcp handler is specified.
+// Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
+//
+// for the backward compatibility. There are no validation of this field and
+//
+// lifecycle hooks will fail in runtime when tcp handler is specified.
 func (d *LifecycleHandlerDie) TCPSocket(v *corev1.TCPSocketAction) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		r.TCPSocket = v
@@ -6642,7 +7000,15 @@ func (d *ExecActionDie) DeepCopy() *ExecActionDie {
 	}
 }
 
-// Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+// Command is the command line to execute inside the container, the working directory for the
+//
+// command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+//
+// not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+//
+// a shell, you need to explicitly call out to that shell.
+//
+// Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
 func (d *ExecActionDie) Command(v ...string) *ExecActionDie {
 	return d.DieStamp(func(r *corev1.ExecAction) {
 		r.Command = v
@@ -6838,7 +7204,11 @@ func (d *HTTPGetActionDie) Path(v string) *HTTPGetActionDie {
 	})
 }
 
-// Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+// Name or number of the port to access on the container.
+//
+// Number must be in the range 1 to 65535.
+//
+// Name must be an IANA_SVC_NAME.
 func (d *HTTPGetActionDie) Port(v intstr.IntOrString) *HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
 		r.Port = v
@@ -6859,14 +7229,18 @@ func (d *HTTPGetActionDie) PortString(s string) *HTTPGetActionDie {
 	})
 }
 
-// Host name to connect to, defaults to the pod IP. You probably want to set "Host" in httpHeaders instead.
+// Host name to connect to, defaults to the pod IP. You probably want to set
+//
+// "Host" in httpHeaders instead.
 func (d *HTTPGetActionDie) Host(v string) *HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
 		r.Host = v
 	})
 }
 
-// Scheme to use for connecting to the host. Defaults to HTTP.
+// Scheme to use for connecting to the host.
+//
+// Defaults to HTTP.
 func (d *HTTPGetActionDie) Scheme(v corev1.URIScheme) *HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
 		r.Scheme = v
@@ -7062,7 +7436,9 @@ func (d *HTTPHeaderDie) DeepCopy() *HTTPHeaderDie {
 	}
 }
 
-// The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header.
+// The header field name.
+//
+// This will be canonicalized upon output, so case-variant names will be understood as the same header.
 func (d *HTTPHeaderDie) Name(v string) *HTTPHeaderDie {
 	return d.DieStamp(func(r *corev1.HTTPHeader) {
 		r.Name = v
@@ -7258,7 +7634,11 @@ func (d *TCPSocketActionDie) DeepCopy() *TCPSocketActionDie {
 	}
 }
 
-// Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+// Number or name of the port to access on the container.
+//
+// Number must be in the range 1 to 65535.
+//
+// Name must be an IANA_SVC_NAME.
 func (d *TCPSocketActionDie) Port(v intstr.IntOrString) *TCPSocketActionDie {
 	return d.DieStamp(func(r *corev1.TCPSocketAction) {
 		r.Port = v
@@ -7475,7 +7855,9 @@ func (d *GRPCActionDie) Port(v int32) *GRPCActionDie {
 	})
 }
 
-// Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+// Service is the name of the service to place in the gRPC HealthCheckRequest
+//
+// (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
 //
 // If this is not specified, the default behavior is defined by gRPC.
 func (d *GRPCActionDie) Service(v *string) *GRPCActionDie {
@@ -7855,77 +8237,157 @@ func (d *SecurityContextDie) DeepCopy() *SecurityContextDie {
 	}
 }
 
-// The capabilities to add/drop when running containers. Defaults to the default set of capabilities granted by the container runtime. Note that this field cannot be set when spec.os.name is windows.
+// The capabilities to add/drop when running containers.
+//
+// Defaults to the default set of capabilities granted by the container runtime.
+//
+// Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) Capabilities(v *corev1.Capabilities) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.Capabilities = v
 	})
 }
 
-// Run container in privileged mode. Processes in privileged containers are essentially equivalent to root on the host. Defaults to false. Note that this field cannot be set when spec.os.name is windows.
+// Run container in privileged mode.
+//
+// Processes in privileged containers are essentially equivalent to root on the host.
+//
+// Defaults to false.
+//
+// Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) Privileged(v *bool) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.Privileged = v
 	})
 }
 
-// The SELinux context to be applied to the container. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is windows.
+// The SELinux context to be applied to the container.
+//
+// # If unspecified, the container runtime will allocate a random SELinux context for each
+//
+// container.  May also be set in PodSecurityContext.  If set in both SecurityContext and
+//
+// PodSecurityContext, the value specified in SecurityContext takes precedence.
+//
+// Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) SELinuxOptions(v *corev1.SELinuxOptions) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.SELinuxOptions = v
 	})
 }
 
-// The Windows specific settings applied to all containers. If unspecified, the options from the PodSecurityContext will be used. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is linux.
+// The Windows specific settings applied to all containers.
+//
+// If unspecified, the options from the PodSecurityContext will be used.
+//
+// If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+//
+// Note that this field cannot be set when spec.os.name is linux.
 func (d *SecurityContextDie) WindowsOptions(v *corev1.WindowsSecurityContextOptions) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.WindowsOptions = v
 	})
 }
 
-// The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is windows.
+// The UID to run the entrypoint of the container process.
+//
+// Defaults to user specified in image metadata if unspecified.
+//
+// May also be set in PodSecurityContext.  If set in both SecurityContext and
+//
+// PodSecurityContext, the value specified in SecurityContext takes precedence.
+//
+// Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) RunAsUser(v *int64) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.RunAsUser = v
 	})
 }
 
-// The GID to run the entrypoint of the container process. Uses runtime default if unset. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is windows.
+// The GID to run the entrypoint of the container process.
+//
+// Uses runtime default if unset.
+//
+// May also be set in PodSecurityContext.  If set in both SecurityContext and
+//
+// PodSecurityContext, the value specified in SecurityContext takes precedence.
+//
+// Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) RunAsGroup(v *int64) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.RunAsGroup = v
 	})
 }
 
-// Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. If unset or false, no such validation will be performed. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+// Indicates that the container must run as a non-root user.
+//
+// # If true, the Kubelet will validate the image at runtime to ensure that it
+//
+// does not run as UID 0 (root) and fail to start the container if it does.
+//
+// If unset or false, no such validation will be performed.
+//
+// May also be set in PodSecurityContext.  If set in both SecurityContext and
+//
+// PodSecurityContext, the value specified in SecurityContext takes precedence.
 func (d *SecurityContextDie) RunAsNonRoot(v *bool) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.RunAsNonRoot = v
 	})
 }
 
-// Whether this container has a read-only root filesystem. Default is false. Note that this field cannot be set when spec.os.name is windows.
+// Whether this container has a read-only root filesystem.
+//
+// Default is false.
+//
+// Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) ReadOnlyRootFilesystem(v *bool) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.ReadOnlyRootFilesystem = v
 	})
 }
 
-// AllowPrivilegeEscalation controls whether a process can gain more privileges than its parent process. This bool directly controls if the no_new_privs flag will be set on the container process. AllowPrivilegeEscalation is true always when the container is: 1) run as Privileged 2) has CAP_SYS_ADMIN Note that this field cannot be set when spec.os.name is windows.
+// AllowPrivilegeEscalation controls whether a process can gain more
+//
+// privileges than its parent process. This bool directly controls if
+//
+// the no_new_privs flag will be set on the container process.
+//
+// AllowPrivilegeEscalation is true always when the container is:
+//
+// 1) run as Privileged
+//
+// 2) has CAP_SYS_ADMIN
+//
+// Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) AllowPrivilegeEscalation(v *bool) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.AllowPrivilegeEscalation = v
 	})
 }
 
-// procMount denotes the type of proc mount to use for the containers. The default is DefaultProcMount which uses the container runtime defaults for readonly paths and masked paths. This requires the ProcMountType feature flag to be enabled. Note that this field cannot be set when spec.os.name is windows.
+// procMount denotes the type of proc mount to use for the containers.
+//
+// # The default is DefaultProcMount which uses the container runtime defaults for
+//
+// readonly paths and masked paths.
+//
+// This requires the ProcMountType feature flag to be enabled.
+//
+// Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) ProcMount(v *corev1.ProcMountType) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.ProcMount = v
 	})
 }
 
-// The seccomp options to use by this container. If seccomp options are provided at both the pod & container level, the container options override the pod options. Note that this field cannot be set when spec.os.name is windows.
+// The seccomp options to use by this container. If seccomp options are
+//
+// provided at both the pod & container level, the container options
+//
+// override the pod options.
+//
+// Note that this field cannot be set when spec.os.name is windows.
 func (d *SecurityContextDie) SeccompProfile(v *corev1.SeccompProfile) *SecurityContextDie {
 	return d.DieStamp(func(r *corev1.SecurityContext) {
 		r.SeccompProfile = v
@@ -8527,21 +8989,37 @@ func (d *WindowsSecurityContextOptionsDie) GMSACredentialSpecName(v *string) *Wi
 	})
 }
 
-// GMSACredentialSpec is where the GMSA admission webhook (https://github.com/kubernetes-sigs/windows-gmsa) inlines the contents of the GMSA credential spec named by the GMSACredentialSpecName field.
+// GMSACredentialSpec is where the GMSA admission webhook
+//
+// (https://github.com/kubernetes-sigs/windows-gmsa) inlines the contents of the
+//
+// GMSA credential spec named by the GMSACredentialSpecName field.
 func (d *WindowsSecurityContextOptionsDie) GMSACredentialSpec(v *string) *WindowsSecurityContextOptionsDie {
 	return d.DieStamp(func(r *corev1.WindowsSecurityContextOptions) {
 		r.GMSACredentialSpec = v
 	})
 }
 
-// The UserName in Windows to run the entrypoint of the container process. Defaults to the user specified in image metadata if unspecified. May also be set in PodSecurityContext. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+// The UserName in Windows to run the entrypoint of the container process.
+//
+// Defaults to the user specified in image metadata if unspecified.
+//
+// May also be set in PodSecurityContext. If set in both SecurityContext and
+//
+// PodSecurityContext, the value specified in SecurityContext takes precedence.
 func (d *WindowsSecurityContextOptionsDie) RunAsUserName(v *string) *WindowsSecurityContextOptionsDie {
 	return d.DieStamp(func(r *corev1.WindowsSecurityContextOptions) {
 		r.RunAsUserName = v
 	})
 }
 
-// HostProcess determines if a container should be run as a 'Host Process' container. All of a Pod's containers must have the same effective HostProcess value (it is not allowed to have a mix of HostProcess containers and non-HostProcess containers). In addition, if HostProcess is true then HostNetwork must also be set to true.
+// HostProcess determines if a container should be run as a 'Host Process' container.
+//
+// # All of a Pod's containers must have the same effective HostProcess value
+//
+// (it is not allowed to have a mix of HostProcess containers and non-HostProcess containers).
+//
+// In addition, if HostProcess is true then HostNetwork must also be set to true.
 func (d *WindowsSecurityContextOptionsDie) HostProcess(v *bool) *WindowsSecurityContextOptionsDie {
 	return d.DieStamp(func(r *corev1.WindowsSecurityContextOptions) {
 		r.HostProcess = v
@@ -8730,16 +9208,28 @@ func (d *SeccompProfileDie) DeepCopy() *SeccompProfileDie {
 	}
 }
 
-// type indicates which kind of seccomp profile will be applied. Valid options are:
+// type indicates which kind of seccomp profile will be applied.
 //
-// Localhost - a profile defined in a file on the node should be used. RuntimeDefault - the container runtime default profile should be used. Unconfined - no profile should be applied.
+// Valid options are:
+//
+// Localhost - a profile defined in a file on the node should be used.
+//
+// RuntimeDefault - the container runtime default profile should be used.
+//
+// Unconfined - no profile should be applied.
 func (d *SeccompProfileDie) Type(v corev1.SeccompProfileType) *SeccompProfileDie {
 	return d.DieStamp(func(r *corev1.SeccompProfile) {
 		r.Type = v
 	})
 }
 
-// localhostProfile indicates a profile defined in a file on the node should be used. The profile must be preconfigured on the node to work. Must be a descending path, relative to the kubelet's configured seccomp profile location. Must be set if type is "Localhost". Must NOT be set for any other type.
+// localhostProfile indicates a profile defined in a file on the node should be used.
+//
+// The profile must be preconfigured on the node to work.
+//
+// Must be a descending path, relative to the kubelet's configured seccomp profile location.
+//
+// Must be set if type is "Localhost". Must NOT be set for any other type.
 func (d *SeccompProfileDie) LocalhostProfile(v *string) *SeccompProfileDie {
 	return d.DieStamp(func(r *corev1.SeccompProfile) {
 		r.LocalhostProfile = v
@@ -8928,7 +9418,11 @@ func (d *ContainerStatusDie) DeepCopy() *ContainerStatusDie {
 	}
 }
 
-// Name is a DNS_LABEL representing the unique name of the container. Each container in a pod must have a unique name across all container types. Cannot be updated.
+// Name is a DNS_LABEL representing the unique name of the container.
+//
+// Each container in a pod must have a unique name across all container types.
+//
+// Cannot be updated.
 func (d *ContainerStatusDie) Name(v string) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.Name = v
@@ -8942,65 +9436,117 @@ func (d *ContainerStatusDie) State(v corev1.ContainerState) *ContainerStatusDie 
 	})
 }
 
-// LastTerminationState holds the last termination state of the container to help debug container crashes and restarts. This field is not populated if the container is still running and RestartCount is 0.
+// LastTerminationState holds the last termination state of the container to
+//
+// help debug container crashes and restarts. This field is not
+//
+// populated if the container is still running and RestartCount is 0.
 func (d *ContainerStatusDie) LastTerminationState(v corev1.ContainerState) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.LastTerminationState = v
 	})
 }
 
-// Ready specifies whether the container is currently passing its readiness check. The value will change as readiness probes keep executing. If no readiness probes are specified, this field defaults to true once the container is fully started (see Started field).
+// Ready specifies whether the container is currently passing its readiness check.
 //
-// The value is typically used to determine whether a container is ready to accept traffic.
+// The value will change as readiness probes keep executing. If no readiness
+//
+// probes are specified, this field defaults to true once the container is
+//
+// fully started (see Started field).
+//
+// # The value is typically used to determine whether a container is ready to
+//
+// accept traffic.
 func (d *ContainerStatusDie) Ready(v bool) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.Ready = v
 	})
 }
 
-// RestartCount holds the number of times the container has been restarted. Kubelet makes an effort to always increment the value, but there are cases when the state may be lost due to node restarts and then the value may be reset to 0. The value is never negative.
+// RestartCount holds the number of times the container has been restarted.
+//
+// # Kubelet makes an effort to always increment the value, but there
+//
+// are cases when the state may be lost due to node restarts and then the value
+//
+// may be reset to 0. The value is never negative.
 func (d *ContainerStatusDie) RestartCount(v int32) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.RestartCount = v
 	})
 }
 
-// Image is the name of container image that the container is running. The container image may not match the image used in the PodSpec, as it may have been resolved by the runtime. More info: https://kubernetes.io/docs/concepts/containers/images.
+// Image is the name of container image that the container is running.
+//
+// The container image may not match the image used in the PodSpec,
+//
+// as it may have been resolved by the runtime.
+//
+// More info: https://kubernetes.io/docs/concepts/containers/images.
 func (d *ContainerStatusDie) Image(v string) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.Image = v
 	})
 }
 
-// ImageID is the image ID of the container's image. The image ID may not match the image ID of the image used in the PodSpec, as it may have been resolved by the runtime.
+// ImageID is the image ID of the container's image. The image ID may not
+//
+// match the image ID of the image used in the PodSpec, as it may have been
+//
+// resolved by the runtime.
 func (d *ContainerStatusDie) ImageID(v string) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.ImageID = v
 	})
 }
 
-// ContainerID is the ID of the container in the format '<type>://<container_id>'. Where type is a container runtime identifier, returned from Version call of CRI API (for example "containerd").
+// ContainerID is the ID of the container in the format '<type>://<container_id>'.
+//
+// # Where type is a container runtime identifier, returned from Version call of CRI API
+//
+// (for example "containerd").
 func (d *ContainerStatusDie) ContainerID(v string) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.ContainerID = v
 	})
 }
 
-// Started indicates whether the container has finished its postStart lifecycle hook and passed its startup probe. Initialized as false, becomes true after startupProbe is considered successful. Resets to false when the container is restarted, or if kubelet loses state temporarily. In both cases, startup probes will run again. Is always true when no startupProbe is defined and container is running and has passed the postStart lifecycle hook. The null value must be treated the same as false.
+// Started indicates whether the container has finished its postStart lifecycle hook
+//
+// and passed its startup probe.
+//
+// # Initialized as false, becomes true after startupProbe is considered
+//
+// successful. Resets to false when the container is restarted, or if kubelet
+//
+// loses state temporarily. In both cases, startup probes will run again.
+//
+// # Is always true when no startupProbe is defined and container is running and
+//
+// has passed the postStart lifecycle hook. The null value must be treated the
+//
+// same as false.
 func (d *ContainerStatusDie) Started(v *bool) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.Started = v
 	})
 }
 
-// AllocatedResources represents the compute resources allocated for this container by the node. Kubelet sets this value to Container.Resources.Requests upon successful pod admission and after successfully admitting desired pod resize.
+// AllocatedResources represents the compute resources allocated for this container by the
+//
+// node. Kubelet sets this value to Container.Resources.Requests upon successful pod admission
+//
+// and after successfully admitting desired pod resize.
 func (d *ContainerStatusDie) AllocatedResources(v corev1.ResourceList) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.AllocatedResources = v
 	})
 }
 
-// Resources represents the compute resource requests and limits that have been successfully enacted on the running container after it has been started or has been successfully resized.
+// Resources represents the compute resource requests and limits that have been successfully
+//
+// enacted on the running container after it has been started or has been successfully resized.
 func (d *ContainerStatusDie) Resources(v *corev1.ResourceRequirements) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.Resources = v
@@ -10075,7 +10621,19 @@ func (d *EndpointsDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *EndpointsD
 	})
 }
 
-// The set of all endpoints is the union of all subsets. Addresses are placed into subsets according to the IPs they share. A single address with multiple ports, some of which are ready and some of which are not (because they come from different containers) will result in the address being displayed in different subsets for the different ports. No address will appear in both Addresses and NotReadyAddresses in the same subset. Sets of addresses and ports that comprise a service.
+// The set of all endpoints is the union of all subsets. Addresses are placed into
+//
+// subsets according to the IPs they share. A single address with multiple ports,
+//
+// some of which are ready and some of which are not (because they come from
+//
+// different containers) will result in the address being displayed in different
+//
+// subsets for the different ports. No address will appear in both Addresses and
+//
+// NotReadyAddresses in the same subset.
+//
+// Sets of addresses and ports that comprise a service.
 func (d *EndpointsDie) Subsets(v ...corev1.EndpointSubset) *EndpointsDie {
 	return d.DieStamp(func(r *corev1.Endpoints) {
 		r.Subsets = v
@@ -10264,14 +10822,20 @@ func (d *EndpointSubsetDie) DeepCopy() *EndpointSubsetDie {
 	}
 }
 
-// IP addresses which offer the related ports that are marked as ready. These endpoints should be considered safe for load balancers and clients to utilize.
+// IP addresses which offer the related ports that are marked as ready. These endpoints
+//
+// should be considered safe for load balancers and clients to utilize.
 func (d *EndpointSubsetDie) Addresses(v ...corev1.EndpointAddress) *EndpointSubsetDie {
 	return d.DieStamp(func(r *corev1.EndpointSubset) {
 		r.Addresses = v
 	})
 }
 
-// IP addresses which offer the related ports but are not currently marked as ready because they have not yet finished starting, have recently failed a readiness check, or have recently failed a liveness check.
+// IP addresses which offer the related ports but are not currently marked as ready
+//
+// because they have not yet finished starting, have recently failed a readiness check,
+//
+// or have recently failed a liveness check.
 func (d *EndpointSubsetDie) NotReadyAddresses(v ...corev1.EndpointAddress) *EndpointSubsetDie {
 	return d.DieStamp(func(r *corev1.EndpointSubset) {
 		r.NotReadyAddresses = v
@@ -10467,7 +11031,11 @@ func (d *EndpointAddressDie) DeepCopy() *EndpointAddressDie {
 	}
 }
 
-// The IP of this endpoint. May not be loopback (127.0.0.0/8 or ::1), link-local (169.254.0.0/16 or fe80::/10), or link-local multicast (224.0.0.0/24 or ff02::/16).
+// The IP of this endpoint.
+//
+// May not be loopback (127.0.0.0/8 or ::1), link-local (169.254.0.0/16 or fe80::/10),
+//
+// or link-local multicast (224.0.0.0/24 or ff02::/16).
 func (d *EndpointAddressDie) IP(v string) *EndpointAddressDie {
 	return d.DieStamp(func(r *corev1.EndpointAddress) {
 		r.IP = v
@@ -10677,7 +11245,13 @@ func (d *EndpointPortDie) DeepCopy() *EndpointPortDie {
 	}
 }
 
-// The name of this port.  This must match the 'name' field in the corresponding ServicePort. Must be a DNS_LABEL. Optional only if one port is defined.
+// The name of this port.  This must match the 'name' field in the
+//
+// corresponding ServicePort.
+//
+// Must be a DNS_LABEL.
+//
+// Optional only if one port is defined.
 func (d *EndpointPortDie) Name(v string) *EndpointPortDie {
 	return d.DieStamp(func(r *corev1.EndpointPort) {
 		r.Name = v
@@ -10691,20 +11265,40 @@ func (d *EndpointPortDie) Port(v int32) *EndpointPortDie {
 	})
 }
 
-// The IP protocol for this port. Must be UDP, TCP, or SCTP. Default is TCP.
+// The IP protocol for this port.
+//
+// Must be UDP, TCP, or SCTP.
+//
+// Default is TCP.
 func (d *EndpointPortDie) Protocol(v corev1.Protocol) *EndpointPortDie {
 	return d.DieStamp(func(r *corev1.EndpointPort) {
 		r.Protocol = v
 	})
 }
 
-// The application protocol for this port. This is used as a hint for implementations to offer richer behavior for protocols that they understand. This field follows standard Kubernetes label syntax. Valid values are either:
+// The application protocol for this port.
 //
-// * Un-prefixed protocol names - reserved for IANA standard service names (as per RFC-6335 and https://www.iana.org/assignments/service-names).
+// This is used as a hint for implementations to offer richer behavior for protocols that they understand.
 //
-// * Kubernetes-defined prefixed names: * 'kubernetes.io/h2c' - HTTP/2 prior knowledge over cleartext as described in https://www.rfc-editor.org/rfc/rfc9113.html#name-starting-http-2-with-prior- * 'kubernetes.io/ws'  - WebSocket over cleartext as described in https://www.rfc-editor.org/rfc/rfc6455 * 'kubernetes.io/wss' - WebSocket over TLS as described in https://www.rfc-editor.org/rfc/rfc6455
+// This field follows standard Kubernetes label syntax.
 //
-// * Other protocols should use implementation-defined prefixed names such as mycompany.com/my-custom-protocol.
+// Valid values are either:
+//
+// * Un-prefixed protocol names - reserved for IANA standard service names (as per
+//
+// RFC-6335 and https://www.iana.org/assignments/service-names).
+//
+// * Kubernetes-defined prefixed names:
+//
+// * 'kubernetes.io/h2c' - HTTP/2 prior knowledge over cleartext as described in https://www.rfc-editor.org/rfc/rfc9113.html#name-starting-http-2-with-prior-
+//
+// * 'kubernetes.io/ws'  - WebSocket over cleartext as described in https://www.rfc-editor.org/rfc/rfc6455
+//
+// * 'kubernetes.io/wss' - WebSocket over TLS as described in https://www.rfc-editor.org/rfc/rfc6455
+//
+// * Other protocols should use implementation-defined prefixed names such as
+//
+// mycompany.com/my-custom-protocol.
 func (d *EndpointPortDie) AppProtocol(v *string) *EndpointPortDie {
 	return d.DieStamp(func(r *corev1.EndpointPort) {
 		r.AppProtocol = v
@@ -10967,14 +11561,20 @@ func (d *EventDie) InvolvedObject(v corev1.ObjectReference) *EventDie {
 	})
 }
 
-// This should be a short, machine understandable string that gives the reason for the transition into the object's current status. TODO: provide exact specification for format.
+// This should be a short, machine understandable string that gives the reason
+//
+// for the transition into the object's current status.
+//
+// TODO: provide exact specification for format.
 func (d *EventDie) Reason(v string) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		r.Reason = v
 	})
 }
 
-// A human-readable description of the status of this operation. TODO: decide on maximum length.
+// A human-readable description of the status of this operation.
+//
+// TODO: decide on maximum length.
 func (d *EventDie) Message(v string) *EventDie {
 	return d.DieStamp(func(r *corev1.Event) {
 		r.Message = v
@@ -11708,7 +12308,9 @@ func (d *LimitRangeDie) SpecDie(fn func(d *LimitRangeSpecDie)) *LimitRangeDie {
 	})
 }
 
-// Spec defines the limits enforced. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// Spec defines the limits enforced.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *LimitRangeDie) Spec(v corev1.LimitRangeSpec) *LimitRangeDie {
 	return d.DieStamp(func(r *corev1.LimitRange) {
 		r.Spec = v
@@ -12395,14 +12997,18 @@ func (d *NamespaceDie) StatusDie(fn func(d *NamespaceStatusDie)) *NamespaceDie {
 	})
 }
 
-// Spec defines the behavior of the Namespace. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// Spec defines the behavior of the Namespace.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *NamespaceDie) Spec(v corev1.NamespaceSpec) *NamespaceDie {
 	return d.DieStamp(func(r *corev1.Namespace) {
 		r.Spec = v
 	})
 }
 
-// Status describes the current status of a Namespace. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// Status describes the current status of a Namespace.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *NamespaceDie) Status(v corev1.NamespaceStatus) *NamespaceDie {
 	return d.DieStamp(func(r *corev1.Namespace) {
 		r.Status = v
@@ -12591,7 +13197,9 @@ func (d *NamespaceSpecDie) DeepCopy() *NamespaceSpecDie {
 	}
 }
 
-// Finalizers is an opaque list of values that must be empty to permanently remove object from storage. More info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
+// Finalizers is an opaque list of values that must be empty to permanently remove object from storage.
+//
+// More info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
 func (d *NamespaceSpecDie) Finalizers(v ...corev1.FinalizerName) *NamespaceSpecDie {
 	return d.DieStamp(func(r *corev1.NamespaceSpec) {
 		r.Finalizers = v
@@ -12780,7 +13388,9 @@ func (d *NamespaceStatusDie) DeepCopy() *NamespaceStatusDie {
 	}
 }
 
-// Phase is the current lifecycle phase of the namespace. More info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
+// Phase is the current lifecycle phase of the namespace.
+//
+// More info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
 func (d *NamespaceStatusDie) Phase(v corev1.NamespacePhase) *NamespaceStatusDie {
 	return d.DieStamp(func(r *corev1.NamespaceStatus) {
 		r.Phase = v
@@ -13061,14 +13671,22 @@ func (d *NodeDie) StatusDie(fn func(d *NodeStatusDie)) *NodeDie {
 	})
 }
 
-// Spec defines the behavior of a node. https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// Spec defines the behavior of a node.
+//
+// https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *NodeDie) Spec(v corev1.NodeSpec) *NodeDie {
 	return d.DieStamp(func(r *corev1.Node) {
 		r.Spec = v
 	})
 }
 
-// Most recently observed status of the node. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// Most recently observed status of the node.
+//
+// Populated by the system.
+//
+// Read-only.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *NodeDie) Status(v corev1.NodeStatus) *NodeDie {
 	return d.DieStamp(func(r *corev1.Node) {
 		r.Status = v
@@ -13264,7 +13882,11 @@ func (d *NodeSpecDie) PodCIDR(v string) *NodeSpecDie {
 	})
 }
 
-// podCIDRs represents the IP ranges assigned to the node for usage by Pods on that node. If this field is specified, the 0th entry must match the podCIDR field. It may contain at most 1 value for each of IPv4 and IPv6.
+// podCIDRs represents the IP ranges assigned to the node for usage by Pods on that node. If this
+//
+// field is specified, the 0th entry must match the podCIDR field. It may contain at most 1 value for
+//
+// each of IPv4 and IPv6.
 func (d *NodeSpecDie) PodCIDRs(v ...string) *NodeSpecDie {
 	return d.DieStamp(func(r *corev1.NodeSpec) {
 		r.PodCIDRs = v
@@ -13278,7 +13900,9 @@ func (d *NodeSpecDie) ProviderID(v string) *NodeSpecDie {
 	})
 }
 
-// Unschedulable controls node schedulability of new pods. By default, node is schedulable. More info: https://kubernetes.io/docs/concepts/nodes/node/#manual-node-administration
+// Unschedulable controls node schedulability of new pods. By default, node is schedulable.
+//
+// More info: https://kubernetes.io/docs/concepts/nodes/node/#manual-node-administration
 func (d *NodeSpecDie) Unschedulable(v bool) *NodeSpecDie {
 	return d.DieStamp(func(r *corev1.NodeSpec) {
 		r.Unschedulable = v
@@ -13299,7 +13923,9 @@ func (d *NodeSpecDie) ConfigSource(v *corev1.NodeConfigSource) *NodeSpecDie {
 	})
 }
 
-// Deprecated. Not all kubelets will set this field. Remove field after 1.13. see: https://issues.k8s.io/61966
+// Deprecated. Not all kubelets will set this field. Remove field after 1.13.
+//
+// see: https://issues.k8s.io/61966
 func (d *NodeSpecDie) DoNotUseExternalID(v string) *NodeSpecDie {
 	return d.DieStamp(func(r *corev1.NodeSpec) {
 		r.DoNotUseExternalID = v
@@ -13502,14 +14128,20 @@ func (d *TaintDie) Value(v string) *TaintDie {
 	})
 }
 
-// Required. The effect of the taint on pods that do not tolerate the taint. Valid effects are NoSchedule, PreferNoSchedule and NoExecute.
+// Required. The effect of the taint on pods
+//
+// that do not tolerate the taint.
+//
+// Valid effects are NoSchedule, PreferNoSchedule and NoExecute.
 func (d *TaintDie) Effect(v corev1.TaintEffect) *TaintDie {
 	return d.DieStamp(func(r *corev1.Taint) {
 		r.Effect = v
 	})
 }
 
-// TimeAdded represents the time at which the taint was added. It is only written for NoExecute taints.
+// TimeAdded represents the time at which the taint was added.
+//
+// It is only written for NoExecute taints.
 func (d *TaintDie) TimeAdded(v *apismetav1.Time) *TaintDie {
 	return d.DieStamp(func(r *corev1.Taint) {
 		r.TimeAdded = v
@@ -13887,35 +14519,45 @@ func (d *ConfigMapNodeConfigSourceDie) DeepCopy() *ConfigMapNodeConfigSourceDie 
 	}
 }
 
-// Namespace is the metadata.namespace of the referenced ConfigMap. This field is required in all cases.
+// Namespace is the metadata.namespace of the referenced ConfigMap.
+//
+// This field is required in all cases.
 func (d *ConfigMapNodeConfigSourceDie) Namespace(v string) *ConfigMapNodeConfigSourceDie {
 	return d.DieStamp(func(r *corev1.ConfigMapNodeConfigSource) {
 		r.Namespace = v
 	})
 }
 
-// Name is the metadata.name of the referenced ConfigMap. This field is required in all cases.
+// Name is the metadata.name of the referenced ConfigMap.
+//
+// This field is required in all cases.
 func (d *ConfigMapNodeConfigSourceDie) Name(v string) *ConfigMapNodeConfigSourceDie {
 	return d.DieStamp(func(r *corev1.ConfigMapNodeConfigSource) {
 		r.Name = v
 	})
 }
 
-// UID is the metadata.UID of the referenced ConfigMap. This field is forbidden in Node.Spec, and required in Node.Status.
+// UID is the metadata.UID of the referenced ConfigMap.
+//
+// This field is forbidden in Node.Spec, and required in Node.Status.
 func (d *ConfigMapNodeConfigSourceDie) UID(v types.UID) *ConfigMapNodeConfigSourceDie {
 	return d.DieStamp(func(r *corev1.ConfigMapNodeConfigSource) {
 		r.UID = v
 	})
 }
 
-// ResourceVersion is the metadata.ResourceVersion of the referenced ConfigMap. This field is forbidden in Node.Spec, and required in Node.Status.
+// ResourceVersion is the metadata.ResourceVersion of the referenced ConfigMap.
+//
+// This field is forbidden in Node.Spec, and required in Node.Status.
 func (d *ConfigMapNodeConfigSourceDie) ResourceVersion(v string) *ConfigMapNodeConfigSourceDie {
 	return d.DieStamp(func(r *corev1.ConfigMapNodeConfigSource) {
 		r.ResourceVersion = v
 	})
 }
 
-// KubeletConfigKey declares which key of the referenced ConfigMap corresponds to the KubeletConfiguration structure This field is required in all cases.
+// KubeletConfigKey declares which key of the referenced ConfigMap corresponds to the KubeletConfiguration structure
+//
+// This field is required in all cases.
 func (d *ConfigMapNodeConfigSourceDie) KubeletConfigKey(v string) *ConfigMapNodeConfigSourceDie {
 	return d.DieStamp(func(r *corev1.ConfigMapNodeConfigSource) {
 		r.KubeletConfigKey = v
@@ -14104,35 +14746,63 @@ func (d *NodeStatusDie) DeepCopy() *NodeStatusDie {
 	}
 }
 
-// Capacity represents the total resources of a node. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#capacity
+// Capacity represents the total resources of a node.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#capacity
 func (d *NodeStatusDie) Capacity(v corev1.ResourceList) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.Capacity = v
 	})
 }
 
-// Allocatable represents the resources of a node that are available for scheduling. Defaults to Capacity.
+// Allocatable represents the resources of a node that are available for scheduling.
+//
+// Defaults to Capacity.
 func (d *NodeStatusDie) Allocatable(v corev1.ResourceList) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.Allocatable = v
 	})
 }
 
-// NodePhase is the recently observed lifecycle phase of the node. More info: https://kubernetes.io/docs/concepts/nodes/node/#phase The field is never populated, and now is deprecated.
+// NodePhase is the recently observed lifecycle phase of the node.
+//
+// More info: https://kubernetes.io/docs/concepts/nodes/node/#phase
+//
+// The field is never populated, and now is deprecated.
 func (d *NodeStatusDie) Phase(v corev1.NodePhase) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.Phase = v
 	})
 }
 
-// Conditions is an array of current observed node conditions. More info: https://kubernetes.io/docs/concepts/nodes/node/#condition
+// Conditions is an array of current observed node conditions.
+//
+// More info: https://kubernetes.io/docs/concepts/nodes/node/#condition
 func (d *NodeStatusDie) Conditions(v ...corev1.NodeCondition) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.Conditions = v
 	})
 }
 
-// List of addresses reachable to the node. Queried from cloud provider, if available. More info: https://kubernetes.io/docs/concepts/nodes/node/#addresses Note: This field is declared as mergeable, but the merge key is not sufficiently unique, which can cause data corruption when it is merged. Callers should instead use a full-replacement patch. See https://pr.k8s.io/79391 for an example. Consumers should assume that addresses can change during the lifetime of a Node. However, there are some exceptions where this may not be possible, such as Pods that inherit a Node's address in its own status or consumers of the downward API (status.hostIP).
+// List of addresses reachable to the node.
+//
+// Queried from cloud provider, if available.
+//
+// More info: https://kubernetes.io/docs/concepts/nodes/node/#addresses
+//
+// Note: This field is declared as mergeable, but the merge key is not sufficiently
+//
+// unique, which can cause data corruption when it is merged. Callers should instead
+//
+// use a full-replacement patch. See https://pr.k8s.io/79391 for an example.
+//
+// # Consumers should assume that addresses can change during the
+//
+// lifetime of a Node. However, there are some exceptions where this may not
+//
+// be possible, such as Pods that inherit a Node's address in its own status or
+//
+// consumers of the downward API (status.hostIP).
 func (d *NodeStatusDie) Addresses(v ...corev1.NodeAddress) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.Addresses = v
@@ -14146,7 +14816,9 @@ func (d *NodeStatusDie) DaemonEndpoints(v corev1.NodeDaemonEndpoints) *NodeStatu
 	})
 }
 
-// Set of ids/uuids to uniquely identify the node. More info: https://kubernetes.io/docs/concepts/nodes/node/#info
+// Set of ids/uuids to uniquely identify the node.
+//
+// More info: https://kubernetes.io/docs/concepts/nodes/node/#info
 func (d *NodeStatusDie) NodeInfo(v corev1.NodeSystemInfo) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.NodeInfo = v
@@ -14937,14 +15609,22 @@ func (d *NodeSystemInfoDie) DeepCopy() *NodeSystemInfoDie {
 	}
 }
 
-// MachineID reported by the node. For unique machine identification in the cluster this field is preferred. Learn more from man(5) machine-id: http://man7.org/linux/man-pages/man5/machine-id.5.html
+// MachineID reported by the node. For unique machine identification
+//
+// in the cluster this field is preferred. Learn more from man(5)
+//
+// machine-id: http://man7.org/linux/man-pages/man5/machine-id.5.html
 func (d *NodeSystemInfoDie) MachineID(v string) *NodeSystemInfoDie {
 	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
 		r.MachineID = v
 	})
 }
 
-// SystemUUID reported by the node. For unique machine identification MachineID is preferred. This field is specific to Red Hat hosts https://access.redhat.com/documentation/en-us/red_hat_subscription_management/1/html/rhsm/uuid
+// SystemUUID reported by the node. For unique machine identification
+//
+// MachineID is preferred. This field is specific to Red Hat hosts
+//
+// https://access.redhat.com/documentation/en-us/red_hat_subscription_management/1/html/rhsm/uuid
 func (d *NodeSystemInfoDie) SystemUUID(v string) *NodeSystemInfoDie {
 	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
 		r.SystemUUID = v
@@ -15189,7 +15869,9 @@ func (d *ContainerImageDie) DeepCopy() *ContainerImageDie {
 	}
 }
 
-// Names by which this image is known. e.g. ["kubernetes.example/hyperkube:v1.0.7", "cloud-vendor.registry.example/cloud-vendor/hyperkube:v1.0.7"]
+// Names by which this image is known.
+//
+// e.g. ["kubernetes.example/hyperkube:v1.0.7", "cloud-vendor.registry.example/cloud-vendor/hyperkube:v1.0.7"]
 func (d *ContainerImageDie) Names(v ...string) *ContainerImageDie {
 	return d.DieStamp(func(r *corev1.ContainerImage) {
 		r.Names = v
@@ -15581,28 +16263,90 @@ func (d *NodeConfigStatusDie) DeepCopy() *NodeConfigStatusDie {
 	}
 }
 
-// Assigned reports the checkpointed config the node will try to use. When Node.Spec.ConfigSource is updated, the node checkpoints the associated config payload to local disk, along with a record indicating intended config. The node refers to this record to choose its config checkpoint, and reports this record in Assigned. Assigned only updates in the status after the record has been checkpointed to disk. When the Kubelet is restarted, it tries to make the Assigned config the Active config by loading and validating the checkpointed payload identified by Assigned.
+// Assigned reports the checkpointed config the node will try to use.
+//
+// # When Node.Spec.ConfigSource is updated, the node checkpoints the associated
+//
+// config payload to local disk, along with a record indicating intended
+//
+// config. The node refers to this record to choose its config checkpoint, and
+//
+// reports this record in Assigned. Assigned only updates in the status after
+//
+// the record has been checkpointed to disk. When the Kubelet is restarted,
+//
+// it tries to make the Assigned config the Active config by loading and
+//
+// validating the checkpointed payload identified by Assigned.
 func (d *NodeConfigStatusDie) Assigned(v *corev1.NodeConfigSource) *NodeConfigStatusDie {
 	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
 		r.Assigned = v
 	})
 }
 
-// Active reports the checkpointed config the node is actively using. Active will represent either the current version of the Assigned config, or the current LastKnownGood config, depending on whether attempting to use the Assigned config results in an error.
+// Active reports the checkpointed config the node is actively using.
+//
+// Active will represent either the current version of the Assigned config,
+//
+// or the current LastKnownGood config, depending on whether attempting to use the
+//
+// Assigned config results in an error.
 func (d *NodeConfigStatusDie) Active(v *corev1.NodeConfigSource) *NodeConfigStatusDie {
 	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
 		r.Active = v
 	})
 }
 
-// LastKnownGood reports the checkpointed config the node will fall back to when it encounters an error attempting to use the Assigned config. The Assigned config becomes the LastKnownGood config when the node determines that the Assigned config is stable and correct. This is currently implemented as a 10-minute soak period starting when the local record of Assigned config is updated. If the Assigned config is Active at the end of this period, it becomes the LastKnownGood. Note that if Spec.ConfigSource is reset to nil (use local defaults), the LastKnownGood is also immediately reset to nil, because the local default config is always assumed good. You should not make assumptions about the node's method of determining config stability and correctness, as this may change or become configurable in the future.
+// LastKnownGood reports the checkpointed config the node will fall back to
+//
+// when it encounters an error attempting to use the Assigned config.
+//
+// # The Assigned config becomes the LastKnownGood config when the node determines
+//
+// that the Assigned config is stable and correct.
+//
+// # This is currently implemented as a 10-minute soak period starting when the local
+//
+// record of Assigned config is updated. If the Assigned config is Active at the end
+//
+// of this period, it becomes the LastKnownGood. Note that if Spec.ConfigSource is
+//
+// reset to nil (use local defaults), the LastKnownGood is also immediately reset to nil,
+//
+// because the local default config is always assumed good.
+//
+// # You should not make assumptions about the node's method of determining config stability
+//
+// and correctness, as this may change or become configurable in the future.
 func (d *NodeConfigStatusDie) LastKnownGood(v *corev1.NodeConfigSource) *NodeConfigStatusDie {
 	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
 		r.LastKnownGood = v
 	})
 }
 
-// Error describes any problems reconciling the Spec.ConfigSource to the Active config. Errors may occur, for example, attempting to checkpoint Spec.ConfigSource to the local Assigned record, attempting to checkpoint the payload associated with Spec.ConfigSource, attempting to load or validate the Assigned config, etc. Errors may occur at different points while syncing config. Earlier errors (e.g. download or checkpointing errors) will not result in a rollback to LastKnownGood, and may resolve across Kubelet retries. Later errors (e.g. loading or validating a checkpointed config) will result in a rollback to LastKnownGood. In the latter case, it is usually possible to resolve the error by fixing the config assigned in Spec.ConfigSource. You can find additional information for debugging by searching the error message in the Kubelet log. Error is a human-readable description of the error state; machines can check whether or not Error is empty, but should not rely on the stability of the Error text across Kubelet versions.
+// Error describes any problems reconciling the Spec.ConfigSource to the Active config.
+//
+// # Errors may occur, for example, attempting to checkpoint Spec.ConfigSource to the local Assigned
+//
+// record, attempting to checkpoint the payload associated with Spec.ConfigSource, attempting
+//
+// to load or validate the Assigned config, etc.
+//
+// Errors may occur at different points while syncing config. Earlier errors (e.g. download or
+//
+// checkpointing errors) will not result in a rollback to LastKnownGood, and may resolve across
+//
+// Kubelet retries. Later errors (e.g. loading or validating a checkpointed config) will result in
+//
+// a rollback to LastKnownGood. In the latter case, it is usually possible to resolve the error
+//
+// by fixing the config assigned in Spec.ConfigSource.
+//
+// You can find additional information for debugging by searching the error message in the Kubelet log.
+//
+// Error is a human-readable description of the error state; machines can check whether or not Error
+//
+// is empty, but should not rely on the stability of the Error text across Kubelet versions.
 func (d *NodeConfigStatusDie) Error(v string) *NodeConfigStatusDie {
 	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
 		r.Error = v
@@ -15876,14 +16620,24 @@ func (d *PersistentVolumeDie) StatusDie(fn func(d *PersistentVolumeStatusDie)) *
 	})
 }
 
-// spec defines a specification of a persistent volume owned by the cluster. Provisioned by an administrator. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistent-volumes
+// spec defines a specification of a persistent volume owned by the cluster.
+//
+// Provisioned by an administrator.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistent-volumes
 func (d *PersistentVolumeDie) Spec(v corev1.PersistentVolumeSpec) *PersistentVolumeDie {
 	return d.DieStamp(func(r *corev1.PersistentVolume) {
 		r.Spec = v
 	})
 }
 
-// status represents the current information/status for the persistent volume. Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistent-volumes
+// status represents the current information/status for the persistent volume.
+//
+// Populated by the system.
+//
+// Read-only.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistent-volumes
 func (d *PersistentVolumeDie) Status(v corev1.PersistentVolumeStatus) *PersistentVolumeDie {
 	return d.DieStamp(func(r *corev1.PersistentVolume) {
 		r.Status = v
@@ -16072,7 +16826,9 @@ func (d *PersistentVolumeSpecDie) DeepCopy() *PersistentVolumeSpecDie {
 	}
 }
 
-// capacity is the description of the persistent volume's resources and capacity. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#capacity
+// capacity is the description of the persistent volume's resources and capacity.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#capacity
 func (d *PersistentVolumeSpecDie) Capacity(v corev1.ResourceList) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
 		r.Capacity = v
@@ -16086,56 +16842,94 @@ func (d *PersistentVolumeSpecDie) PersistentVolumeSource(v corev1.PersistentVolu
 	})
 }
 
-// accessModes contains all ways the volume can be mounted. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes
+// accessModes contains all ways the volume can be mounted.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes
 func (d *PersistentVolumeSpecDie) AccessModes(v ...corev1.PersistentVolumeAccessMode) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
 		r.AccessModes = v
 	})
 }
 
-// claimRef is part of a bi-directional binding between PersistentVolume and PersistentVolumeClaim. Expected to be non-nil when bound. claim.VolumeName is the authoritative bind between PV and PVC. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#binding
+// claimRef is part of a bi-directional binding between PersistentVolume and PersistentVolumeClaim.
+//
+// Expected to be non-nil when bound.
+//
+// claim.VolumeName is the authoritative bind between PV and PVC.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#binding
 func (d *PersistentVolumeSpecDie) ClaimRef(v *corev1.ObjectReference) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
 		r.ClaimRef = v
 	})
 }
 
-// persistentVolumeReclaimPolicy defines what happens to a persistent volume when released from its claim. Valid options are Retain (default for manually created PersistentVolumes), Delete (default for dynamically provisioned PersistentVolumes), and Recycle (deprecated). Recycle must be supported by the volume plugin underlying this PersistentVolume. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#reclaiming
+// persistentVolumeReclaimPolicy defines what happens to a persistent volume when released from its claim.
+//
+// # Valid options are Retain (default for manually created PersistentVolumes), Delete (default
+//
+// for dynamically provisioned PersistentVolumes), and Recycle (deprecated).
+//
+// Recycle must be supported by the volume plugin underlying this PersistentVolume.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#reclaiming
 func (d *PersistentVolumeSpecDie) PersistentVolumeReclaimPolicy(v corev1.PersistentVolumeReclaimPolicy) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
 		r.PersistentVolumeReclaimPolicy = v
 	})
 }
 
-// storageClassName is the name of StorageClass to which this persistent volume belongs. Empty value means that this volume does not belong to any StorageClass.
+// storageClassName is the name of StorageClass to which this persistent volume belongs. Empty value
+//
+// means that this volume does not belong to any StorageClass.
 func (d *PersistentVolumeSpecDie) StorageClassName(v string) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
 		r.StorageClassName = v
 	})
 }
 
-// mountOptions is the list of mount options, e.g. ["ro", "soft"]. Not validated - mount will simply fail if one is invalid. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#mount-options
+// mountOptions is the list of mount options, e.g. ["ro", "soft"]. Not validated - mount will
+//
+// simply fail if one is invalid.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#mount-options
 func (d *PersistentVolumeSpecDie) MountOptions(v ...string) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
 		r.MountOptions = v
 	})
 }
 
-// volumeMode defines if a volume is intended to be used with a formatted filesystem or to remain in raw block state. Value of Filesystem is implied when not included in spec.
+// volumeMode defines if a volume is intended to be used with a formatted filesystem
+//
+// or to remain in raw block state. Value of Filesystem is implied when not included in spec.
 func (d *PersistentVolumeSpecDie) VolumeMode(v *corev1.PersistentVolumeMode) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
 		r.VolumeMode = v
 	})
 }
 
-// nodeAffinity defines constraints that limit what nodes this volume can be accessed from. This field influences the scheduling of pods that use this volume.
+// nodeAffinity defines constraints that limit what nodes this volume can be accessed from.
+//
+// This field influences the scheduling of pods that use this volume.
 func (d *PersistentVolumeSpecDie) NodeAffinity(v *corev1.VolumeNodeAffinity) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
 		r.NodeAffinity = v
 	})
 }
 
-// Name of VolumeAttributesClass to which this persistent volume belongs. Empty value is not allowed. When this field is not set, it indicates that this volume does not belong to any VolumeAttributesClass. This field is mutable and can be changed by the CSI driver after a volume has been updated successfully to a new class. For an unbound PersistentVolume, the volumeAttributesClassName will be matched with unbound PersistentVolumeClaims during the binding process. This is an alpha field and requires enabling VolumeAttributesClass feature.
+// Name of VolumeAttributesClass to which this persistent volume belongs. Empty value
+//
+// is not allowed. When this field is not set, it indicates that this volume does not belong to any
+//
+// VolumeAttributesClass. This field is mutable and can be changed by the CSI driver
+//
+// after a volume has been updated successfully to a new class.
+//
+// # For an unbound PersistentVolume, the volumeAttributesClassName will be matched with unbound
+//
+// PersistentVolumeClaims during the binding process.
+//
+// This is an alpha field and requires enabling VolumeAttributesClass feature.
 func (d *PersistentVolumeSpecDie) VolumeAttributesClassName(v *string) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
 		r.VolumeAttributesClassName = v
@@ -16324,7 +17118,9 @@ func (d *PersistentVolumeStatusDie) DeepCopy() *PersistentVolumeStatusDie {
 	}
 }
 
-// phase indicates if a volume is available, bound to a claim, or released by a claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#phase
+// phase indicates if a volume is available, bound to a claim, or released by a claim.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#phase
 func (d *PersistentVolumeStatusDie) Phase(v corev1.PersistentVolumePhase) *PersistentVolumeStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeStatus) {
 		r.Phase = v
@@ -16338,14 +17134,20 @@ func (d *PersistentVolumeStatusDie) Message(v string) *PersistentVolumeStatusDie
 	})
 }
 
-// reason is a brief CamelCase string that describes any failure and is meant for machine parsing and tidy display in the CLI.
+// reason is a brief CamelCase string that describes any failure and is meant
+//
+// for machine parsing and tidy display in the CLI.
 func (d *PersistentVolumeStatusDie) Reason(v string) *PersistentVolumeStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeStatus) {
 		r.Reason = v
 	})
 }
 
-// lastPhaseTransitionTime is the time the phase transitioned from one to another and automatically resets to current time everytime a volume phase transitions. This is an alpha field and requires enabling PersistentVolumeLastPhaseTransitionTime feature.
+// lastPhaseTransitionTime is the time the phase transitioned from one to another
+//
+// and automatically resets to current time everytime a volume phase transitions.
+//
+// This is an alpha field and requires enabling PersistentVolumeLastPhaseTransitionTime feature.
 func (d *PersistentVolumeStatusDie) LastPhaseTransitionTime(v *apismetav1.Time) *PersistentVolumeStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeStatus) {
 		r.LastPhaseTransitionTime = v
@@ -16534,28 +17336,40 @@ func (d *GlusterfsPersistentVolumeSourceDie) DeepCopy() *GlusterfsPersistentVolu
 	}
 }
 
-// endpoints is the endpoint name that details Glusterfs topology. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
+// endpoints is the endpoint name that details Glusterfs topology.
+//
+// More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
 func (d *GlusterfsPersistentVolumeSourceDie) EndpointsName(v string) *GlusterfsPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GlusterfsPersistentVolumeSource) {
 		r.EndpointsName = v
 	})
 }
 
-// path is the Glusterfs volume path. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
+// path is the Glusterfs volume path.
+//
+// More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
 func (d *GlusterfsPersistentVolumeSourceDie) Path(v string) *GlusterfsPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GlusterfsPersistentVolumeSource) {
 		r.Path = v
 	})
 }
 
-// readOnly here will force the Glusterfs volume to be mounted with read-only permissions. Defaults to false. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
+// readOnly here will force the Glusterfs volume to be mounted with read-only permissions.
+//
+// Defaults to false.
+//
+// More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
 func (d *GlusterfsPersistentVolumeSourceDie) ReadOnly(v bool) *GlusterfsPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GlusterfsPersistentVolumeSource) {
 		r.ReadOnly = v
 	})
 }
 
-// endpointsNamespace is the namespace that contains Glusterfs endpoint. If this field is empty, the EndpointNamespace defaults to the same namespace as the bound PVC. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
+// endpointsNamespace is the namespace that contains Glusterfs endpoint.
+//
+// If this field is empty, the EndpointNamespace defaults to the same namespace as the bound PVC.
+//
+// More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
 func (d *GlusterfsPersistentVolumeSourceDie) EndpointsNamespace(v *string) *GlusterfsPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GlusterfsPersistentVolumeSource) {
 		r.EndpointsNamespace = v
@@ -16744,56 +17558,90 @@ func (d *RBDPersistentVolumeSourceDie) DeepCopy() *RBDPersistentVolumeSourceDie 
 	}
 }
 
-// monitors is a collection of Ceph monitors. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
+// monitors is a collection of Ceph monitors.
+//
+// More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
 func (d *RBDPersistentVolumeSourceDie) CephMonitors(v ...string) *RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
 		r.CephMonitors = v
 	})
 }
 
-// image is the rados image name. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
+// image is the rados image name.
+//
+// More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
 func (d *RBDPersistentVolumeSourceDie) RBDImage(v string) *RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
 		r.RBDImage = v
 	})
 }
 
-// fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#rbd TODO: how do we prevent errors in the filesystem from compromising the machine
+// fsType is the filesystem type of the volume that you want to mount.
+//
+// Tip: Ensure that the filesystem type is supported by the host operating system.
+//
+// Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#rbd
+//
+// TODO: how do we prevent errors in the filesystem from compromising the machine
 func (d *RBDPersistentVolumeSourceDie) FSType(v string) *RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// pool is the rados pool name. Default is rbd. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
+// pool is the rados pool name.
+//
+// Default is rbd.
+//
+// More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
 func (d *RBDPersistentVolumeSourceDie) RBDPool(v string) *RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
 		r.RBDPool = v
 	})
 }
 
-// user is the rados user name. Default is admin. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
+// user is the rados user name.
+//
+// Default is admin.
+//
+// More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
 func (d *RBDPersistentVolumeSourceDie) RadosUser(v string) *RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
 		r.RadosUser = v
 	})
 }
 
-// keyring is the path to key ring for RBDUser. Default is /etc/ceph/keyring. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
+// keyring is the path to key ring for RBDUser.
+//
+// Default is /etc/ceph/keyring.
+//
+// More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
 func (d *RBDPersistentVolumeSourceDie) Keyring(v string) *RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
 		r.Keyring = v
 	})
 }
 
-// secretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
+// secretRef is name of the authentication secret for RBDUser. If provided
+//
+// overrides keyring.
+//
+// Default is nil.
+//
+// More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
 func (d *RBDPersistentVolumeSourceDie) SecretRef(v *corev1.SecretReference) *RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
 		r.SecretRef = v
 	})
 }
 
-// readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
+// readOnly here will force the ReadOnly setting in VolumeMounts.
+//
+// Defaults to false.
+//
+// More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
 func (d *RBDPersistentVolumeSourceDie) ReadOnly(v bool) *RBDPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
 		r.ReadOnly = v
@@ -16982,7 +17830,9 @@ func (d *ISCSIPersistentVolumeSourceDie) DeepCopy() *ISCSIPersistentVolumeSource
 	}
 }
 
-// targetPortal is iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
+// targetPortal is iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port
+//
+// is other than default (typically TCP ports 860 and 3260).
 func (d *ISCSIPersistentVolumeSourceDie) TargetPortal(v string) *ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		r.TargetPortal = v
@@ -17003,28 +17853,42 @@ func (d *ISCSIPersistentVolumeSourceDie) Lun(v int32) *ISCSIPersistentVolumeSour
 	})
 }
 
-// iscsiInterface is the interface Name that uses an iSCSI transport. Defaults to 'default' (tcp).
+// iscsiInterface is the interface Name that uses an iSCSI transport.
+//
+// Defaults to 'default' (tcp).
 func (d *ISCSIPersistentVolumeSourceDie) ISCSIInterface(v string) *ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		r.ISCSIInterface = v
 	})
 }
 
-// fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#iscsi TODO: how do we prevent errors in the filesystem from compromising the machine
+// fsType is the filesystem type of the volume that you want to mount.
+//
+// Tip: Ensure that the filesystem type is supported by the host operating system.
+//
+// Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#iscsi
+//
+// TODO: how do we prevent errors in the filesystem from compromising the machine
 func (d *ISCSIPersistentVolumeSourceDie) FSType(v string) *ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false.
+// readOnly here will force the ReadOnly setting in VolumeMounts.
+//
+// Defaults to false.
 func (d *ISCSIPersistentVolumeSourceDie) ReadOnly(v bool) *ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		r.ReadOnly = v
 	})
 }
 
-// portals is the iSCSI Target Portal List. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
+// portals is the iSCSI Target Portal List. The Portal is either an IP or ip_addr:port if the port
+//
+// is other than default (typically TCP ports 860 and 3260).
 func (d *ISCSIPersistentVolumeSourceDie) Portals(v ...string) *ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		r.Portals = v
@@ -17052,7 +17916,11 @@ func (d *ISCSIPersistentVolumeSourceDie) SecretRef(v *corev1.SecretReference) *I
 	})
 }
 
-// initiatorName is the custom iSCSI Initiator Name. If initiatorName is specified with iscsiInterface simultaneously, new iSCSI interface <target portal>:<volume name> will be created for the connection.
+// initiatorName is the custom iSCSI Initiator Name.
+//
+// # If initiatorName is specified with iscsiInterface simultaneously, new iSCSI interface
+//
+// <target portal>:<volume name> will be created for the connection.
 func (d *ISCSIPersistentVolumeSourceDie) InitiatorName(v *string) *ISCSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
 		r.InitiatorName = v
@@ -17241,28 +18109,42 @@ func (d *CinderPersistentVolumeSourceDie) DeepCopy() *CinderPersistentVolumeSour
 	}
 }
 
-// volumeID used to identify the volume in cinder. More info: https://examples.k8s.io/mysql-cinder-pd/README.md
+// volumeID used to identify the volume in cinder.
+//
+// More info: https://examples.k8s.io/mysql-cinder-pd/README.md
 func (d *CinderPersistentVolumeSourceDie) VolumeID(v string) *CinderPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CinderPersistentVolumeSource) {
 		r.VolumeID = v
 	})
 }
 
-// fsType Filesystem type to mount. Must be a filesystem type supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://examples.k8s.io/mysql-cinder-pd/README.md
+// fsType Filesystem type to mount.
+//
+// Must be a filesystem type supported by the host operating system.
+//
+// Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+//
+// More info: https://examples.k8s.io/mysql-cinder-pd/README.md
 func (d *CinderPersistentVolumeSourceDie) FSType(v string) *CinderPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CinderPersistentVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// readOnly is Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/mysql-cinder-pd/README.md
+// readOnly is Optional: Defaults to false (read/write). ReadOnly here will force
+//
+// the ReadOnly setting in VolumeMounts.
+//
+// More info: https://examples.k8s.io/mysql-cinder-pd/README.md
 func (d *CinderPersistentVolumeSourceDie) ReadOnly(v bool) *CinderPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CinderPersistentVolumeSource) {
 		r.ReadOnly = v
 	})
 }
 
-// secretRef is Optional: points to a secret object containing parameters used to connect to OpenStack.
+// secretRef is Optional: points to a secret object containing parameters used to connect
+//
+// to OpenStack.
 func (d *CinderPersistentVolumeSourceDie) SecretRef(v *corev1.SecretReference) *CinderPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CinderPersistentVolumeSource) {
 		r.SecretRef = v
@@ -17451,7 +18333,9 @@ func (d *CephFSPersistentVolumeSourceDie) DeepCopy() *CephFSPersistentVolumeSour
 	}
 }
 
-// monitors is Required: Monitors is a collection of Ceph monitors More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
+// monitors is Required: Monitors is a collection of Ceph monitors
+//
+// More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
 func (d *CephFSPersistentVolumeSourceDie) Monitors(v ...string) *CephFSPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CephFSPersistentVolumeSource) {
 		r.Monitors = v
@@ -17465,28 +18349,38 @@ func (d *CephFSPersistentVolumeSourceDie) Path(v string) *CephFSPersistentVolume
 	})
 }
 
-// user is Optional: User is the rados user name, default is admin More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
+// user is Optional: User is the rados user name, default is admin
+//
+// More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
 func (d *CephFSPersistentVolumeSourceDie) User(v string) *CephFSPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CephFSPersistentVolumeSource) {
 		r.User = v
 	})
 }
 
-// secretFile is Optional: SecretFile is the path to key ring for User, default is /etc/ceph/user.secret More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
+// secretFile is Optional: SecretFile is the path to key ring for User, default is /etc/ceph/user.secret
+//
+// More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
 func (d *CephFSPersistentVolumeSourceDie) SecretFile(v string) *CephFSPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CephFSPersistentVolumeSource) {
 		r.SecretFile = v
 	})
 }
 
-// secretRef is Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
+// secretRef is Optional: SecretRef is reference to the authentication secret for User, default is empty.
+//
+// More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
 func (d *CephFSPersistentVolumeSourceDie) SecretRef(v *corev1.SecretReference) *CephFSPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CephFSPersistentVolumeSource) {
 		r.SecretRef = v
 	})
 }
 
-// readOnly is Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
+// readOnly is Optional: Defaults to false (read/write). ReadOnly here will force
+//
+// the ReadOnly setting in VolumeMounts.
+//
+// More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
 func (d *CephFSPersistentVolumeSourceDie) ReadOnly(v bool) *CephFSPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CephFSPersistentVolumeSource) {
 		r.ReadOnly = v
@@ -17682,21 +18576,35 @@ func (d *FlexPersistentVolumeSourceDie) Driver(v string) *FlexPersistentVolumeSo
 	})
 }
 
-// fsType is the Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". The default filesystem depends on FlexVolume script.
+// fsType is the Filesystem type to mount.
+//
+// Must be a filesystem type supported by the host operating system.
+//
+// Ex. "ext4", "xfs", "ntfs". The default filesystem depends on FlexVolume script.
 func (d *FlexPersistentVolumeSourceDie) FSType(v string) *FlexPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FlexPersistentVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// secretRef is Optional: SecretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts.
+// secretRef is Optional: SecretRef is reference to the secret object containing
+//
+// sensitive information to pass to the plugin scripts. This may be
+//
+// empty if no secret object is specified. If the secret object
+//
+// contains more than one secret, all secrets are passed to the plugin
+//
+// scripts.
 func (d *FlexPersistentVolumeSourceDie) SecretRef(v *corev1.SecretReference) *FlexPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FlexPersistentVolumeSource) {
 		r.SecretRef = v
 	})
 }
 
-// readOnly is Optional: defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+// readOnly is Optional: defaults to false (read/write). ReadOnly here will force
+//
+// the ReadOnly setting in VolumeMounts.
 func (d *FlexPersistentVolumeSourceDie) ReadOnly(v bool) *FlexPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FlexPersistentVolumeSource) {
 		r.ReadOnly = v
@@ -17906,14 +18814,18 @@ func (d *AzureFilePersistentVolumeSourceDie) ShareName(v string) *AzureFilePersi
 	})
 }
 
-// readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+// readOnly defaults to false (read/write). ReadOnly here will force
+//
+// the ReadOnly setting in VolumeMounts.
 func (d *AzureFilePersistentVolumeSourceDie) ReadOnly(v bool) *AzureFilePersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.AzureFilePersistentVolumeSource) {
 		r.ReadOnly = v
 	})
 }
 
-// secretNamespace is the namespace of the secret that contains Azure Storage Account Name and Key default is the same as the Pod
+// secretNamespace is the namespace of the secret that contains Azure Storage Account Name and Key
+//
+// default is the same as the Pod
 func (d *AzureFilePersistentVolumeSourceDie) SecretNamespace(v *string) *AzureFilePersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.AzureFilePersistentVolumeSource) {
 		r.SecretNamespace = v
@@ -18116,7 +19028,9 @@ func (d *ScaleIOPersistentVolumeSourceDie) System(v string) *ScaleIOPersistentVo
 	})
 }
 
-// secretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail.
+// secretRef references to the secret for ScaleIO user and other
+//
+// sensitive information. If this is not provided, Login operation will fail.
 func (d *ScaleIOPersistentVolumeSourceDie) SecretRef(v *corev1.SecretReference) *ScaleIOPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ScaleIOPersistentVolumeSource) {
 		r.SecretRef = v
@@ -18144,28 +19058,40 @@ func (d *ScaleIOPersistentVolumeSourceDie) StoragePool(v string) *ScaleIOPersist
 	})
 }
 
-// storageMode indicates whether the storage for a volume should be ThickProvisioned or ThinProvisioned. Default is ThinProvisioned.
+// storageMode indicates whether the storage for a volume should be ThickProvisioned or ThinProvisioned.
+//
+// Default is ThinProvisioned.
 func (d *ScaleIOPersistentVolumeSourceDie) StorageMode(v string) *ScaleIOPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ScaleIOPersistentVolumeSource) {
 		r.StorageMode = v
 	})
 }
 
-// volumeName is the name of a volume already created in the ScaleIO system that is associated with this volume source.
+// volumeName is the name of a volume already created in the ScaleIO system
+//
+// that is associated with this volume source.
 func (d *ScaleIOPersistentVolumeSourceDie) VolumeName(v string) *ScaleIOPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ScaleIOPersistentVolumeSource) {
 		r.VolumeName = v
 	})
 }
 
-// fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Default is "xfs"
+// fsType is the filesystem type to mount.
+//
+// Must be a filesystem type supported by the host operating system.
+//
+// Ex. "ext4", "xfs", "ntfs".
+//
+// Default is "xfs"
 func (d *ScaleIOPersistentVolumeSourceDie) FSType(v string) *ScaleIOPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ScaleIOPersistentVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+// readOnly defaults to false (read/write). ReadOnly here will force
+//
+// the ReadOnly setting in VolumeMounts.
 func (d *ScaleIOPersistentVolumeSourceDie) ReadOnly(v bool) *ScaleIOPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ScaleIOPersistentVolumeSource) {
 		r.ReadOnly = v
@@ -18354,14 +19280,22 @@ func (d *LocalVolumeSourceDie) DeepCopy() *LocalVolumeSourceDie {
 	}
 }
 
-// path of the full path to the volume on the node. It can be either a directory or block device (disk, partition, ...).
+// path of the full path to the volume on the node.
+//
+// It can be either a directory or block device (disk, partition, ...).
 func (d *LocalVolumeSourceDie) Path(v string) *LocalVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.LocalVolumeSource) {
 		r.Path = v
 	})
 }
 
-// fsType is the filesystem type to mount. It applies only when the Path is a block device. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". The default value is to auto-select a filesystem if unspecified.
+// fsType is the filesystem type to mount.
+//
+// It applies only when the Path is a block device.
+//
+// Must be a filesystem type supported by the host operating system.
+//
+// Ex. "ext4", "xfs", "ntfs". The default value is to auto-select a filesystem if unspecified.
 func (d *LocalVolumeSourceDie) FSType(v *string) *LocalVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.LocalVolumeSource) {
 		r.FSType = v
@@ -18550,35 +19484,55 @@ func (d *StorageOSPersistentVolumeSourceDie) DeepCopy() *StorageOSPersistentVolu
 	}
 }
 
-// volumeName is the human-readable name of the StorageOS volume.  Volume names are only unique within a namespace.
+// volumeName is the human-readable name of the StorageOS volume.  Volume
+//
+// names are only unique within a namespace.
 func (d *StorageOSPersistentVolumeSourceDie) VolumeName(v string) *StorageOSPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.StorageOSPersistentVolumeSource) {
 		r.VolumeName = v
 	})
 }
 
-// volumeNamespace specifies the scope of the volume within StorageOS.  If no namespace is specified then the Pod's namespace will be used.  This allows the Kubernetes name scoping to be mirrored within StorageOS for tighter integration. Set VolumeName to any name to override the default behaviour. Set to "default" if you are not using namespaces within StorageOS. Namespaces that do not pre-exist within StorageOS will be created.
+// volumeNamespace specifies the scope of the volume within StorageOS.  If no
+//
+// namespace is specified then the Pod's namespace will be used.  This allows the
+//
+// Kubernetes name scoping to be mirrored within StorageOS for tighter integration.
+//
+// Set VolumeName to any name to override the default behaviour.
+//
+// Set to "default" if you are not using namespaces within StorageOS.
+//
+// Namespaces that do not pre-exist within StorageOS will be created.
 func (d *StorageOSPersistentVolumeSourceDie) VolumeNamespace(v string) *StorageOSPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.StorageOSPersistentVolumeSource) {
 		r.VolumeNamespace = v
 	})
 }
 
-// fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+// fsType is the filesystem type to mount.
+//
+// Must be a filesystem type supported by the host operating system.
+//
+// Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
 func (d *StorageOSPersistentVolumeSourceDie) FSType(v string) *StorageOSPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.StorageOSPersistentVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+// readOnly defaults to false (read/write). ReadOnly here will force
+//
+// the ReadOnly setting in VolumeMounts.
 func (d *StorageOSPersistentVolumeSourceDie) ReadOnly(v bool) *StorageOSPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.StorageOSPersistentVolumeSource) {
 		r.ReadOnly = v
 	})
 }
 
-// secretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted.
+// secretRef specifies the secret to use for obtaining the StorageOS API
+//
+// credentials.  If not specified, default values will be attempted.
 func (d *StorageOSPersistentVolumeSourceDie) SecretRef(v *corev1.ObjectReference) *StorageOSPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.StorageOSPersistentVolumeSource) {
 		r.SecretRef = v
@@ -18767,28 +19721,38 @@ func (d *CSIPersistentVolumeSourceDie) DeepCopy() *CSIPersistentVolumeSourceDie 
 	}
 }
 
-// driver is the name of the driver to use for this volume. Required.
+// driver is the name of the driver to use for this volume.
+//
+// Required.
 func (d *CSIPersistentVolumeSourceDie) Driver(v string) *CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.Driver = v
 	})
 }
 
-// volumeHandle is the unique volume name returned by the CSI volume plugin’s CreateVolume to refer to the volume on all subsequent calls. Required.
+// volumeHandle is the unique volume name returned by the CSI volume
+//
+// plugin’s CreateVolume to refer to the volume on all subsequent calls.
+//
+// Required.
 func (d *CSIPersistentVolumeSourceDie) VolumeHandle(v string) *CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.VolumeHandle = v
 	})
 }
 
-// readOnly value to pass to ControllerPublishVolumeRequest. Defaults to false (read/write).
+// readOnly value to pass to ControllerPublishVolumeRequest.
+//
+// Defaults to false (read/write).
 func (d *CSIPersistentVolumeSourceDie) ReadOnly(v bool) *CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.ReadOnly = v
 	})
 }
 
-// fsType to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs".
+// fsType to mount. Must be a filesystem type supported by the host operating system.
+//
+// Ex. "ext4", "xfs", "ntfs".
 func (d *CSIPersistentVolumeSourceDie) FSType(v string) *CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.FSType = v
@@ -18802,35 +19766,75 @@ func (d *CSIPersistentVolumeSourceDie) VolumeAttributes(v map[string]string) *CS
 	})
 }
 
-// controllerPublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI ControllerPublishVolume and ControllerUnpublishVolume calls. This field is optional, and may be empty if no secret is required. If the secret object contains more than one secret, all secrets are passed.
+// controllerPublishSecretRef is a reference to the secret object containing
+//
+// sensitive information to pass to the CSI driver to complete the CSI
+//
+// ControllerPublishVolume and ControllerUnpublishVolume calls.
+//
+// This field is optional, and may be empty if no secret is required. If the
+//
+// secret object contains more than one secret, all secrets are passed.
 func (d *CSIPersistentVolumeSourceDie) ControllerPublishSecretRef(v *corev1.SecretReference) *CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.ControllerPublishSecretRef = v
 	})
 }
 
-// nodeStageSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodeStageVolume and NodeStageVolume and NodeUnstageVolume calls. This field is optional, and may be empty if no secret is required. If the secret object contains more than one secret, all secrets are passed.
+// nodeStageSecretRef is a reference to the secret object containing sensitive
+//
+// information to pass to the CSI driver to complete the CSI NodeStageVolume
+//
+// and NodeStageVolume and NodeUnstageVolume calls.
+//
+// This field is optional, and may be empty if no secret is required. If the
+//
+// secret object contains more than one secret, all secrets are passed.
 func (d *CSIPersistentVolumeSourceDie) NodeStageSecretRef(v *corev1.SecretReference) *CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.NodeStageSecretRef = v
 	})
 }
 
-// nodePublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodePublishVolume and NodeUnpublishVolume calls. This field is optional, and may be empty if no secret is required. If the secret object contains more than one secret, all secrets are passed.
+// nodePublishSecretRef is a reference to the secret object containing
+//
+// sensitive information to pass to the CSI driver to complete the CSI
+//
+// NodePublishVolume and NodeUnpublishVolume calls.
+//
+// This field is optional, and may be empty if no secret is required. If the
+//
+// secret object contains more than one secret, all secrets are passed.
 func (d *CSIPersistentVolumeSourceDie) NodePublishSecretRef(v *corev1.SecretReference) *CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.NodePublishSecretRef = v
 	})
 }
 
-// controllerExpandSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI ControllerExpandVolume call. This field is optional, and may be empty if no secret is required. If the secret object contains more than one secret, all secrets are passed.
+// controllerExpandSecretRef is a reference to the secret object containing
+//
+// sensitive information to pass to the CSI driver to complete the CSI
+//
+// ControllerExpandVolume call.
+//
+// This field is optional, and may be empty if no secret is required. If the
+//
+// secret object contains more than one secret, all secrets are passed.
 func (d *CSIPersistentVolumeSourceDie) ControllerExpandSecretRef(v *corev1.SecretReference) *CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.ControllerExpandSecretRef = v
 	})
 }
 
-// nodeExpandSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodeExpandVolume call. This field is optional, may be omitted if no secret is required. If the secret object contains more than one secret, all secrets are passed.
+// nodeExpandSecretRef is a reference to the secret object containing
+//
+// sensitive information to pass to the CSI driver to complete the CSI
+//
+// NodeExpandVolume call.
+//
+// This field is optional, may be omitted if no secret is required. If the
+//
+// secret object contains more than one secret, all secrets are passed.
 func (d *CSIPersistentVolumeSourceDie) NodeExpandSecretRef(v *corev1.SecretReference) *CSIPersistentVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
 		r.NodeExpandSecretRef = v
@@ -19600,14 +20604,24 @@ func (d *NodeSelectorRequirementDie) Key(v string) *NodeSelectorRequirementDie {
 	})
 }
 
-// Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+// Represents a key's relationship to a set of values.
+//
+// Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
 func (d *NodeSelectorRequirementDie) Operator(v corev1.NodeSelectorOperator) *NodeSelectorRequirementDie {
 	return d.DieStamp(func(r *corev1.NodeSelectorRequirement) {
 		r.Operator = v
 	})
 }
 
-// An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch.
+// An array of string values. If the operator is In or NotIn,
+//
+// the values array must be non-empty. If the operator is Exists or DoesNotExist,
+//
+// the values array must be empty. If the operator is Gt or Lt, the values
+//
+// array must have a single element, which will be interpreted as an integer.
+//
+// This array is replaced during a strategic merge patch.
 func (d *NodeSelectorRequirementDie) Values(v ...string) *NodeSelectorRequirementDie {
 	return d.DieStamp(func(r *corev1.NodeSelectorRequirement) {
 		r.Values = v
@@ -19881,14 +20895,20 @@ func (d *PersistentVolumeClaimDie) StatusDie(fn func(d *PersistentVolumeClaimSta
 	})
 }
 
-// spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+// spec defines the desired characteristics of a volume requested by a pod author.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
 func (d *PersistentVolumeClaimDie) Spec(v corev1.PersistentVolumeClaimSpec) *PersistentVolumeClaimDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaim) {
 		r.Spec = v
 	})
 }
 
-// status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+// status represents the current information/status of a persistent volume claim.
+//
+// Read-only.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
 func (d *PersistentVolumeClaimDie) Status(v corev1.PersistentVolumeClaimStatus) *PersistentVolumeClaimDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaim) {
 		r.Status = v
@@ -20077,7 +21097,9 @@ func (d *PersistentVolumeClaimSpecDie) DeepCopy() *PersistentVolumeClaimSpecDie 
 	}
 }
 
-// accessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+// accessModes contains the desired access modes the volume should have.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
 func (d *PersistentVolumeClaimSpecDie) AccessModes(v ...corev1.PersistentVolumeAccessMode) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
 		r.AccessModes = v
@@ -20091,7 +21113,15 @@ func (d *PersistentVolumeClaimSpecDie) Selector(v *apismetav1.LabelSelector) *Pe
 	})
 }
 
-// resources represents the minimum resources the volume should have. If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements that are lower than previous value but must still be higher than capacity recorded in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+// resources represents the minimum resources the volume should have.
+//
+// # If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+//
+// that are lower than previous value but must still be higher than capacity recorded in the
+//
+// status field of the claim.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
 func (d *PersistentVolumeClaimSpecDie) Resources(v corev1.VolumeResourceRequirements) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
 		r.Resources = v
@@ -20105,35 +21135,119 @@ func (d *PersistentVolumeClaimSpecDie) VolumeName(v string) *PersistentVolumeCla
 	})
 }
 
-// storageClassName is the name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+// storageClassName is the name of the StorageClass required by the claim.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
 func (d *PersistentVolumeClaimSpecDie) StorageClassName(v *string) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
 		r.StorageClassName = v
 	})
 }
 
-// volumeMode defines what type of volume is required by the claim. Value of Filesystem is implied when not included in claim spec.
+// volumeMode defines what type of volume is required by the claim.
+//
+// Value of Filesystem is implied when not included in claim spec.
 func (d *PersistentVolumeClaimSpecDie) VolumeMode(v *corev1.PersistentVolumeMode) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
 		r.VolumeMode = v
 	})
 }
 
-// dataSource field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source. When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified. If the namespace is specified, then dataSourceRef will not be copied to dataSource.
+// dataSource field can be used to specify either:
+//
+// * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
+//
+// * An existing PVC (PersistentVolumeClaim)
+//
+// If the provisioner or an external controller can support the specified data source,
+//
+// it will create a new volume based on the contents of the specified data source.
+//
+// When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
+//
+// and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+//
+// If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 func (d *PersistentVolumeClaimSpecDie) DataSource(v *corev1.TypedLocalObjectReference) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
 		r.DataSource = v
 	})
 }
 
-// dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the dataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, when namespace isn't specified in dataSourceRef, both fields (dataSource and dataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. When namespace is specified in dataSourceRef, dataSource isn't set to the same value and must be empty. There are three important differences between dataSource and dataSourceRef: * While dataSource only allows two specific types of objects, dataSourceRef allows any non-core object, as well as PersistentVolumeClaim objects. * While dataSource ignores disallowed values (dropping them), dataSourceRef preserves all values, and generates an error if a disallowed value is specified. * While dataSource only allows local objects, dataSourceRef allows objects in any namespaces. (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled. (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+// dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
+//
+// volume is desired. This may be any object from a non-empty API group (non
+//
+// core object) or a PersistentVolumeClaim object.
+//
+// # When this field is specified, volume binding will only succeed if the type of
+//
+// the specified object matches some installed volume populator or dynamic
+//
+// provisioner.
+//
+// # This field will replace the functionality of the dataSource field and as such
+//
+// if both fields are non-empty, they must have the same value. For backwards
+//
+// compatibility, when namespace isn't specified in dataSourceRef,
+//
+// both fields (dataSource and dataSourceRef) will be set to the same
+//
+// value automatically if one of them is empty and the other is non-empty.
+//
+// When namespace is specified in dataSourceRef,
+//
+// dataSource isn't set to the same value and must be empty.
+//
+// There are three important differences between dataSource and dataSourceRef:
+//
+// * While dataSource only allows two specific types of objects, dataSourceRef
+//
+// allows any non-core object, as well as PersistentVolumeClaim objects.
+//
+// * While dataSource ignores disallowed values (dropping them), dataSourceRef
+//
+// preserves all values, and generates an error if a disallowed value is
+//
+// specified.
+//
+// * While dataSource only allows local objects, dataSourceRef allows objects
+//
+// in any namespaces.
+//
+// (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
+//
+// (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 func (d *PersistentVolumeClaimSpecDie) DataSourceRef(v *corev1.TypedObjectReference) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
 		r.DataSourceRef = v
 	})
 }
 
-// volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim. If specified, the CSI driver will create or update the volume with the attributes defined in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName, it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass will be applied to the claim but it's not allowed to reset this field to empty string once it is set. If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass will be set by the persistentvolume controller if it exists. If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource exists. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#volumeattributesclass (Alpha) Using this field requires the VolumeAttributesClass feature gate to be enabled.
+// volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
+//
+// # If specified, the CSI driver will create or update the volume with the attributes defined
+//
+// in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
+//
+// it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
+//
+// will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
+//
+// # If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
+//
+// will be set by the persistentvolume controller if it exists.
+//
+// # If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
+//
+// set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
+//
+// exists.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#volumeattributesclass
+//
+// (Alpha) Using this field requires the VolumeAttributesClass feature gate to be enabled.
 func (d *PersistentVolumeClaimSpecDie) VolumeAttributesClassName(v *string) *PersistentVolumeClaimSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
 		r.VolumeAttributesClassName = v
@@ -20322,14 +21436,22 @@ func (d *VolumeResourceRequirementsDie) DeepCopy() *VolumeResourceRequirementsDi
 	}
 }
 
-// Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+// Limits describes the maximum amount of compute resources allowed.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 func (d *VolumeResourceRequirementsDie) Limits(v corev1.ResourceList) *VolumeResourceRequirementsDie {
 	return d.DieStamp(func(r *corev1.VolumeResourceRequirements) {
 		r.Limits = v
 	})
 }
 
-// Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+// Requests describes the minimum amount of compute resources required.
+//
+// If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+//
+// otherwise to an implementation-defined value. Requests cannot exceed Limits.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 func (d *VolumeResourceRequirementsDie) Requests(v corev1.ResourceList) *VolumeResourceRequirementsDie {
 	return d.DieStamp(func(r *corev1.VolumeResourceRequirements) {
 		r.Requests = v
@@ -20525,7 +21647,9 @@ func (d *PersistentVolumeClaimStatusDie) Phase(v corev1.PersistentVolumeClaimPha
 	})
 }
 
-// accessModes contains the actual access modes the volume backing the PVC has. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+// accessModes contains the actual access modes the volume backing the PVC has.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
 func (d *PersistentVolumeClaimStatusDie) AccessModes(v ...corev1.PersistentVolumeAccessMode) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		r.AccessModes = v
@@ -20539,18 +21663,50 @@ func (d *PersistentVolumeClaimStatusDie) Capacity(v corev1.ResourceList) *Persis
 	})
 }
 
-// conditions is the current Condition of persistent volume claim. If underlying persistent volume is being resized then the Condition will be set to 'ResizeStarted'.
+// conditions is the current Condition of persistent volume claim. If underlying persistent volume is being
+//
+// resized then the Condition will be set to 'ResizeStarted'.
 func (d *PersistentVolumeClaimStatusDie) Conditions(v ...corev1.PersistentVolumeClaimCondition) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		r.Conditions = v
 	})
 }
 
-// allocatedResources tracks the resources allocated to a PVC including its capacity. Key names follow standard Kubernetes label syntax. Valid values are either: * Un-prefixed keys: - storage - the capacity of the volume. * Custom resources must use implementation-defined prefixed names such as "example.com/my-custom-resource" Apart from above values - keys that are unprefixed or have kubernetes.io prefix are considered reserved and hence may not be used.
+// allocatedResources tracks the resources allocated to a PVC including its capacity.
 //
-// Capacity reported here may be larger than the actual capacity when a volume expansion operation is requested. For storage quota, the larger value from allocatedResources and PVC.spec.resources is used. If allocatedResources is not set, PVC.spec.resources alone is used for quota calculation. If a volume expansion capacity request is lowered, allocatedResources is only lowered if there are no expansion operations in progress and if the actual volume capacity is equal or lower than the requested capacity.
+// Key names follow standard Kubernetes label syntax. Valid values are either:
 //
-// A controller that receives PVC update with previously unknown resourceName should ignore the update for the purpose it was designed. For example - a controller that only is responsible for resizing capacity of the volume, should ignore PVC updates that change other valid resources associated with PVC.
+// * Un-prefixed keys:
+//
+// - storage - the capacity of the volume.
+//
+// * Custom resources must use implementation-defined prefixed names such as "example.com/my-custom-resource"
+//
+// # Apart from above values - keys that are unprefixed or have kubernetes.io prefix are considered
+//
+// reserved and hence may not be used.
+//
+// # Capacity reported here may be larger than the actual capacity when a volume expansion operation
+//
+// is requested.
+//
+// For storage quota, the larger value from allocatedResources and PVC.spec.resources is used.
+//
+// If allocatedResources is not set, PVC.spec.resources alone is used for quota calculation.
+//
+// # If a volume expansion capacity request is lowered, allocatedResources is only
+//
+// lowered if there are no expansion operations in progress and if the actual volume capacity
+//
+// is equal or lower than the requested capacity.
+//
+// # A controller that receives PVC update with previously unknown resourceName
+//
+// should ignore the update for the purpose it was designed. For example - a controller that
+//
+// only is responsible for resizing capacity of the volume, should ignore PVC updates that change other valid
+//
+// resources associated with PVC.
 //
 // This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature.
 func (d *PersistentVolumeClaimStatusDie) AllocatedResources(v corev1.ResourceList) *PersistentVolumeClaimStatusDie {
@@ -20559,14 +21715,22 @@ func (d *PersistentVolumeClaimStatusDie) AllocatedResources(v corev1.ResourceLis
 	})
 }
 
-// currentVolumeAttributesClassName is the current name of the VolumeAttributesClass the PVC is using. When unset, there is no VolumeAttributeClass applied to this PersistentVolumeClaim This is an alpha field and requires enabling VolumeAttributesClass feature.
+// currentVolumeAttributesClassName is the current name of the VolumeAttributesClass the PVC is using.
+//
+// # When unset, there is no VolumeAttributeClass applied to this PersistentVolumeClaim
+//
+// This is an alpha field and requires enabling VolumeAttributesClass feature.
 func (d *PersistentVolumeClaimStatusDie) CurrentVolumeAttributesClassName(v *string) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		r.CurrentVolumeAttributesClassName = v
 	})
 }
 
-// ModifyVolumeStatus represents the status object of ControllerModifyVolume operation. When this is unset, there is no ModifyVolume operation being attempted. This is an alpha field and requires enabling VolumeAttributesClass feature.
+// ModifyVolumeStatus represents the status object of ControllerModifyVolume operation.
+//
+// When this is unset, there is no ModifyVolume operation being attempted.
+//
+// This is an alpha field and requires enabling VolumeAttributesClass feature.
 func (d *PersistentVolumeClaimStatusDie) ModifyVolumeStatus(v *corev1.ModifyVolumeStatus) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		r.ModifyVolumeStatus = v
@@ -20762,7 +21926,25 @@ func (d *ModifyVolumeStatusDie) TargetVolumeAttributesClassName(v string) *Modif
 	})
 }
 
-// status is the status of the ControllerModifyVolume operation. It can be in any of following states: - Pending Pending indicates that the PersistentVolumeClaim cannot be modified due to unmet requirements, such as the specified VolumeAttributesClass not existing. - InProgress InProgress indicates that the volume is being modified. - Infeasible Infeasible indicates that the request has been rejected as invalid by the CSI driver. To resolve the error, a valid VolumeAttributesClass needs to be specified. Note: New statuses can be added in the future. Consumers should check for unknown statuses and fail appropriately.
+// status is the status of the ControllerModifyVolume operation. It can be in any of following states:
+//
+// - Pending
+//
+// # Pending indicates that the PersistentVolumeClaim cannot be modified due to unmet requirements, such as
+//
+// the specified VolumeAttributesClass not existing.
+//
+// - InProgress
+//
+// InProgress indicates that the volume is being modified.
+//
+// - Infeasible
+//
+// Infeasible indicates that the request has been rejected as invalid by the CSI driver. To
+//
+// resolve the error, a valid VolumeAttributesClass needs to be specified.
+//
+// Note: New statuses can be added in the future. Consumers should check for unknown statuses and fail appropriately.
 func (d *ModifyVolumeStatusDie) Status(v corev1.PersistentVolumeClaimModifyVolumeStatus) *ModifyVolumeStatusDie {
 	return d.DieStamp(func(r *corev1.ModifyVolumeStatus) {
 		r.Status = v
@@ -20951,14 +22133,24 @@ func (d *PersistentVolumeClaimTemplateDie) DeepCopy() *PersistentVolumeClaimTemp
 	}
 }
 
-// May contain labels and annotations that will be copied into the PVC when creating it. No other fields are allowed and will be rejected during validation.
+// May contain labels and annotations that will be copied into the PVC
+//
+// when creating it. No other fields are allowed and will be rejected during
+//
+// validation.
 func (d *PersistentVolumeClaimTemplateDie) ObjectMeta(v apismetav1.ObjectMeta) *PersistentVolumeClaimTemplateDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimTemplate) {
 		r.ObjectMeta = v
 	})
 }
 
-// The specification for the PersistentVolumeClaim. The entire content is copied unchanged into the PVC that gets created from this template. The same fields as in a PersistentVolumeClaim are also valid here.
+// The specification for the PersistentVolumeClaim. The entire content is
+//
+// copied unchanged into the PVC that gets created from this
+//
+// template. The same fields as in a PersistentVolumeClaim
+//
+// are also valid here.
 func (d *PersistentVolumeClaimTemplateDie) Spec(v corev1.PersistentVolumeClaimSpec) *PersistentVolumeClaimTemplateDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimTemplate) {
 		r.Spec = v
@@ -21232,14 +22424,24 @@ func (d *PodDie) StatusDie(fn func(d *PodStatusDie)) *PodDie {
 	})
 }
 
-// Specification of the desired behavior of the pod. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// Specification of the desired behavior of the pod.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *PodDie) Spec(v corev1.PodSpec) *PodDie {
 	return d.DieStamp(func(r *corev1.Pod) {
 		r.Spec = v
 	})
 }
 
-// Most recently observed status of the pod. This data may not be up to date. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// Most recently observed status of the pod.
+//
+// This data may not be up to date.
+//
+// Populated by the system.
+//
+// Read-only.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *PodDie) Status(v corev1.PodStatus) *PodDie {
 	return d.DieStamp(func(r *corev1.Pod) {
 		r.Status = v
@@ -21428,77 +22630,157 @@ func (d *PodSpecDie) DeepCopy() *PodSpecDie {
 	}
 }
 
-// List of volumes that can be mounted by containers belonging to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes
+// List of volumes that can be mounted by containers belonging to the pod.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes
 func (d *PodSpecDie) Volumes(v ...corev1.Volume) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.Volumes = v
 	})
 }
 
-// List of initialization containers belonging to the pod. Init containers are executed in order prior to containers being started. If any init container fails, the pod is considered to have failed and is handled according to its restartPolicy. The name for an init container or normal container must be unique among all containers. Init containers may not have Lifecycle actions, Readiness probes, Liveness probes, or Startup probes. The resourceRequirements of an init container are taken into account during scheduling by finding the highest request/limit for each resource type, and then using the max of of that value or the sum of the normal containers. Limits are applied to init containers in a similar fashion. Init containers cannot currently be added or removed. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+// List of initialization containers belonging to the pod.
+//
+// Init containers are executed in order prior to containers being started. If any
+//
+// init container fails, the pod is considered to have failed and is handled according
+//
+// to its restartPolicy. The name for an init container or normal container must be
+//
+// unique among all containers.
+//
+// Init containers may not have Lifecycle actions, Readiness probes, Liveness probes, or Startup probes.
+//
+// # The resourceRequirements of an init container are taken into account during scheduling
+//
+// by finding the highest request/limit for each resource type, and then using the max of
+//
+// of that value or the sum of the normal containers. Limits are applied to init containers
+//
+// in a similar fashion.
+//
+// Init containers cannot currently be added or removed.
+//
+// Cannot be updated.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
 func (d *PodSpecDie) InitContainers(v ...corev1.Container) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.InitContainers = v
 	})
 }
 
-// List of containers belonging to the pod. Containers cannot currently be added or removed. There must be at least one container in a Pod. Cannot be updated.
+// List of containers belonging to the pod.
+//
+// Containers cannot currently be added or removed.
+//
+// There must be at least one container in a Pod.
+//
+// Cannot be updated.
 func (d *PodSpecDie) Containers(v ...corev1.Container) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.Containers = v
 	})
 }
 
-// List of ephemeral containers run in this pod. Ephemeral containers may be run in an existing pod to perform user-initiated actions such as debugging. This list cannot be specified when creating a pod, and it cannot be modified by updating the pod spec. In order to add an ephemeral container to an existing pod, use the pod's ephemeralcontainers subresource.
+// List of ephemeral containers run in this pod. Ephemeral containers may be run in an existing
+//
+// pod to perform user-initiated actions such as debugging. This list cannot be specified when
+//
+// creating a pod, and it cannot be modified by updating the pod spec. In order to add an
+//
+// ephemeral container to an existing pod, use the pod's ephemeralcontainers subresource.
 func (d *PodSpecDie) EphemeralContainers(v ...corev1.EphemeralContainer) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.EphemeralContainers = v
 	})
 }
 
-// Restart policy for all containers within the pod. One of Always, OnFailure, Never. In some contexts, only a subset of those values may be permitted. Default to Always. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy
+// Restart policy for all containers within the pod.
+//
+// One of Always, OnFailure, Never. In some contexts, only a subset of those values may be permitted.
+//
+// Default to Always.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy
 func (d *PodSpecDie) RestartPolicy(v corev1.RestartPolicy) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.RestartPolicy = v
 	})
 }
 
-// Optional duration in seconds the pod needs to terminate gracefully. May be decreased in delete request. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). If this value is nil, the default grace period will be used instead. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. Defaults to 30 seconds.
+// Optional duration in seconds the pod needs to terminate gracefully. May be decreased in delete request.
+//
+// Value must be non-negative integer. The value zero indicates stop immediately via
+//
+// the kill signal (no opportunity to shut down).
+//
+// If this value is nil, the default grace period will be used instead.
+//
+// # The grace period is the duration in seconds after the processes running in the pod are sent
+//
+// a termination signal and the time when the processes are forcibly halted with a kill signal.
+//
+// Set this value longer than the expected cleanup time for your process.
+//
+// Defaults to 30 seconds.
 func (d *PodSpecDie) TerminationGracePeriodSeconds(v *int64) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.TerminationGracePeriodSeconds = v
 	})
 }
 
-// Optional duration in seconds the pod may be active on the node relative to StartTime before the system will actively try to mark it failed and kill associated containers. Value must be a positive integer.
+// Optional duration in seconds the pod may be active on the node relative to
+//
+// StartTime before the system will actively try to mark it failed and kill associated containers.
+//
+// Value must be a positive integer.
 func (d *PodSpecDie) ActiveDeadlineSeconds(v *int64) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.ActiveDeadlineSeconds = v
 	})
 }
 
-// Set DNS policy for the pod. Defaults to "ClusterFirst". Valid values are 'ClusterFirstWithHostNet', 'ClusterFirst', 'Default' or 'None'. DNS parameters given in DNSConfig will be merged with the policy selected with DNSPolicy. To have DNS options set along with hostNetwork, you have to specify DNS policy explicitly to 'ClusterFirstWithHostNet'.
+// Set DNS policy for the pod.
+//
+// Defaults to "ClusterFirst".
+//
+// Valid values are 'ClusterFirstWithHostNet', 'ClusterFirst', 'Default' or 'None'.
+//
+// DNS parameters given in DNSConfig will be merged with the policy selected with DNSPolicy.
+//
+// # To have DNS options set along with hostNetwork, you have to specify DNS policy
+//
+// explicitly to 'ClusterFirstWithHostNet'.
 func (d *PodSpecDie) DNSPolicy(v corev1.DNSPolicy) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.DNSPolicy = v
 	})
 }
 
-// NodeSelector is a selector which must be true for the pod to fit on a node. Selector which must match a node's labels for the pod to be scheduled on that node. More info: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+// NodeSelector is a selector which must be true for the pod to fit on a node.
+//
+// Selector which must match a node's labels for the pod to be scheduled on that node.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
 func (d *PodSpecDie) NodeSelector(v map[string]string) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.NodeSelector = v
 	})
 }
 
-// ServiceAccountName is the name of the ServiceAccount to use to run this pod. More info: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+// ServiceAccountName is the name of the ServiceAccount to use to run this pod.
+//
+// More info: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
 func (d *PodSpecDie) ServiceAccountName(v string) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.ServiceAccountName = v
 	})
 }
 
-// DeprecatedServiceAccount is a depreciated alias for ServiceAccountName. Deprecated: Use serviceAccountName instead.
+// DeprecatedServiceAccount is a depreciated alias for ServiceAccountName.
+//
+// Deprecated: Use serviceAccountName instead.
 func (d *PodSpecDie) DeprecatedServiceAccount(v string) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.DeprecatedServiceAccount = v
@@ -21512,63 +22794,93 @@ func (d *PodSpecDie) AutomountServiceAccountToken(v *bool) *PodSpecDie {
 	})
 }
 
-// NodeName is a request to schedule this pod onto a specific node. If it is non-empty, the scheduler simply schedules this pod onto that node, assuming that it fits resource requirements.
+// NodeName is a request to schedule this pod onto a specific node. If it is non-empty,
+//
+// the scheduler simply schedules this pod onto that node, assuming that it fits resource
+//
+// requirements.
 func (d *PodSpecDie) NodeName(v string) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.NodeName = v
 	})
 }
 
-// Host networking requested for this pod. Use the host's network namespace. If this option is set, the ports that will be used must be specified. Default to false.
+// Host networking requested for this pod. Use the host's network namespace.
+//
+// If this option is set, the ports that will be used must be specified.
+//
+// Default to false.
 func (d *PodSpecDie) HostNetwork(v bool) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.HostNetwork = v
 	})
 }
 
-// Use the host's pid namespace. Optional: Default to false.
+// Use the host's pid namespace.
+//
+// Optional: Default to false.
 func (d *PodSpecDie) HostPID(v bool) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.HostPID = v
 	})
 }
 
-// Use the host's ipc namespace. Optional: Default to false.
+// Use the host's ipc namespace.
+//
+// Optional: Default to false.
 func (d *PodSpecDie) HostIPC(v bool) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.HostIPC = v
 	})
 }
 
-// Share a single process namespace between all of the containers in a pod. When this is set containers will be able to view and signal processes from other containers in the same pod, and the first process in each container will not be assigned PID 1. HostPID and ShareProcessNamespace cannot both be set. Optional: Default to false.
+// Share a single process namespace between all of the containers in a pod.
+//
+// # When this is set containers will be able to view and signal processes from other containers
+//
+// in the same pod, and the first process in each container will not be assigned PID 1.
+//
+// HostPID and ShareProcessNamespace cannot both be set.
+//
+// Optional: Default to false.
 func (d *PodSpecDie) ShareProcessNamespace(v *bool) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.ShareProcessNamespace = v
 	})
 }
 
-// SecurityContext holds pod-level security attributes and common container settings. Optional: Defaults to empty.  See type description for default values of each field.
+// SecurityContext holds pod-level security attributes and common container settings.
+//
+// Optional: Defaults to empty.  See type description for default values of each field.
 func (d *PodSpecDie) SecurityContext(v *corev1.PodSecurityContext) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.SecurityContext = v
 	})
 }
 
-// ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec. If specified, these secrets will be passed to individual puller implementations for them to use. More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod
+// ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec.
+//
+// If specified, these secrets will be passed to individual puller implementations for them to use.
+//
+// More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod
 func (d *PodSpecDie) ImagePullSecrets(v ...corev1.LocalObjectReference) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.ImagePullSecrets = v
 	})
 }
 
-// Specifies the hostname of the Pod If not specified, the pod's hostname will be set to a system-defined value.
+// Specifies the hostname of the Pod
+//
+// If not specified, the pod's hostname will be set to a system-defined value.
 func (d *PodSpecDie) Hostname(v string) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.Hostname = v
 	})
 }
 
-// If specified, the fully qualified Pod hostname will be "<hostname>.<subdomain>.<pod namespace>.svc.<cluster domain>". If not specified, the pod will not have a domainname at all.
+// If specified, the fully qualified Pod hostname will be "<hostname>.<subdomain>.<pod namespace>.svc.<cluster domain>".
+//
+// If not specified, the pod will not have a domainname at all.
 func (d *PodSpecDie) Subdomain(v string) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.Subdomain = v
@@ -21582,7 +22894,9 @@ func (d *PodSpecDie) Affinity(v *corev1.Affinity) *PodSpecDie {
 	})
 }
 
-// If specified, the pod will be dispatched by specified scheduler. If not specified, the pod will be dispatched by default scheduler.
+// If specified, the pod will be dispatched by specified scheduler.
+//
+// If not specified, the pod will be dispatched by default scheduler.
 func (d *PodSpecDie) SchedulerName(v string) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.SchedulerName = v
@@ -21596,102 +22910,238 @@ func (d *PodSpecDie) Tolerations(v ...corev1.Toleration) *PodSpecDie {
 	})
 }
 
-// HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified. This is only valid for non-hostNetwork pods.
+// HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts
+//
+// file if specified. This is only valid for non-hostNetwork pods.
 func (d *PodSpecDie) HostAliases(v ...corev1.HostAlias) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.HostAliases = v
 	})
 }
 
-// If specified, indicates the pod's priority. "system-node-critical" and "system-cluster-critical" are two special keywords which indicate the highest priorities with the former being the highest priority. Any other name must be defined by creating a PriorityClass object with that name. If not specified, the pod priority will be default or zero if there is no default.
+// If specified, indicates the pod's priority. "system-node-critical" and
+//
+// "system-cluster-critical" are two special keywords which indicate the
+//
+// highest priorities with the former being the highest priority. Any other
+//
+// name must be defined by creating a PriorityClass object with that name.
+//
+// # If not specified, the pod priority will be default or zero if there is no
+//
+// default.
 func (d *PodSpecDie) PriorityClassName(v string) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.PriorityClassName = v
 	})
 }
 
-// The priority value. Various system components use this field to find the priority of the pod. When Priority Admission Controller is enabled, it prevents users from setting this field. The admission controller populates this field from PriorityClassName. The higher the value, the higher the priority.
+// The priority value. Various system components use this field to find the
+//
+// priority of the pod. When Priority Admission Controller is enabled, it
+//
+// prevents users from setting this field. The admission controller populates
+//
+// this field from PriorityClassName.
+//
+// The higher the value, the higher the priority.
 func (d *PodSpecDie) Priority(v *int32) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.Priority = v
 	})
 }
 
-// Specifies the DNS parameters of a pod. Parameters specified here will be merged to the generated DNS configuration based on DNSPolicy.
+// Specifies the DNS parameters of a pod.
+//
+// # Parameters specified here will be merged to the generated DNS
+//
+// configuration based on DNSPolicy.
 func (d *PodSpecDie) DNSConfig(v *corev1.PodDNSConfig) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.DNSConfig = v
 	})
 }
 
-// If specified, all readiness gates will be evaluated for pod readiness. A pod is ready when all its containers are ready AND all conditions specified in the readiness gates have status equal to "True" More info: https://git.k8s.io/enhancements/keps/sig-network/580-pod-readiness-gates
+// If specified, all readiness gates will be evaluated for pod readiness.
+//
+// # A pod is ready when all its containers are ready AND
+//
+// all conditions specified in the readiness gates have status equal to "True"
+//
+// More info: https://git.k8s.io/enhancements/keps/sig-network/580-pod-readiness-gates
 func (d *PodSpecDie) ReadinessGates(v ...corev1.PodReadinessGate) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.ReadinessGates = v
 	})
 }
 
-// RuntimeClassName refers to a RuntimeClass object in the node.k8s.io group, which should be used to run this pod.  If no RuntimeClass resource matches the named class, the pod will not be run. If unset or empty, the "legacy" RuntimeClass will be used, which is an implicit class with an empty definition that uses the default runtime handler. More info: https://git.k8s.io/enhancements/keps/sig-node/585-runtime-class
+// RuntimeClassName refers to a RuntimeClass object in the node.k8s.io group, which should be used
+//
+// to run this pod.  If no RuntimeClass resource matches the named class, the pod will not be run.
+//
+// If unset or empty, the "legacy" RuntimeClass will be used, which is an implicit class with an
+//
+// empty definition that uses the default runtime handler.
+//
+// More info: https://git.k8s.io/enhancements/keps/sig-node/585-runtime-class
 func (d *PodSpecDie) RuntimeClassName(v *string) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.RuntimeClassName = v
 	})
 }
 
-// EnableServiceLinks indicates whether information about services should be injected into pod's environment variables, matching the syntax of Docker links. Optional: Defaults to true.
+// EnableServiceLinks indicates whether information about services should be injected into pod's
+//
+// environment variables, matching the syntax of Docker links.
+//
+// Optional: Defaults to true.
 func (d *PodSpecDie) EnableServiceLinks(v *bool) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.EnableServiceLinks = v
 	})
 }
 
-// PreemptionPolicy is the Policy for preempting pods with lower priority. One of Never, PreemptLowerPriority. Defaults to PreemptLowerPriority if unset.
+// PreemptionPolicy is the Policy for preempting pods with lower priority.
+//
+// One of Never, PreemptLowerPriority.
+//
+// Defaults to PreemptLowerPriority if unset.
 func (d *PodSpecDie) PreemptionPolicy(v *corev1.PreemptionPolicy) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.PreemptionPolicy = v
 	})
 }
 
-// Overhead represents the resource overhead associated with running a pod for a given RuntimeClass. This field will be autopopulated at admission time by the RuntimeClass admission controller. If the RuntimeClass admission controller is enabled, overhead must not be set in Pod create requests. The RuntimeClass admission controller will reject Pod create requests which have the overhead already set. If RuntimeClass is configured and selected in the PodSpec, Overhead will be set to the value defined in the corresponding RuntimeClass, otherwise it will remain unset and treated as zero. More info: https://git.k8s.io/enhancements/keps/sig-node/688-pod-overhead/README.md
+// Overhead represents the resource overhead associated with running a pod for a given RuntimeClass.
+//
+// This field will be autopopulated at admission time by the RuntimeClass admission controller. If
+//
+// the RuntimeClass admission controller is enabled, overhead must not be set in Pod create requests.
+//
+// # The RuntimeClass admission controller will reject Pod create requests which have the overhead already
+//
+// set. If RuntimeClass is configured and selected in the PodSpec, Overhead will be set to the value
+//
+// defined in the corresponding RuntimeClass, otherwise it will remain unset and treated as zero.
+//
+// More info: https://git.k8s.io/enhancements/keps/sig-node/688-pod-overhead/README.md
 func (d *PodSpecDie) Overhead(v corev1.ResourceList) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.Overhead = v
 	})
 }
 
-// TopologySpreadConstraints describes how a group of pods ought to spread across topology domains. Scheduler will schedule pods in a way which abides by the constraints. All topologySpreadConstraints are ANDed.
+// TopologySpreadConstraints describes how a group of pods ought to spread across topology
+//
+// domains. Scheduler will schedule pods in a way which abides by the constraints.
+//
+// All topologySpreadConstraints are ANDed.
 func (d *PodSpecDie) TopologySpreadConstraints(v ...corev1.TopologySpreadConstraint) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.TopologySpreadConstraints = v
 	})
 }
 
-// If true the pod's hostname will be configured as the pod's FQDN, rather than the leaf name (the default). In Linux containers, this means setting the FQDN in the hostname field of the kernel (the nodename field of struct utsname). In Windows containers, this means setting the registry value of hostname for the registry key HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters to FQDN. If a pod does not have FQDN, this has no effect. Default to false.
+// If true the pod's hostname will be configured as the pod's FQDN, rather than the leaf name (the default).
+//
+// In Linux containers, this means setting the FQDN in the hostname field of the kernel (the nodename field of struct utsname).
+//
+// In Windows containers, this means setting the registry value of hostname for the registry key HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters to FQDN.
+//
+// If a pod does not have FQDN, this has no effect.
+//
+// Default to false.
 func (d *PodSpecDie) SetHostnameAsFQDN(v *bool) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.SetHostnameAsFQDN = v
 	})
 }
 
-// Specifies the OS of the containers in the pod. Some pod and container fields are restricted if this is set.
+// Specifies the OS of the containers in the pod.
 //
-// If the OS field is set to linux, the following fields must be unset: -securityContext.windowsOptions
+// Some pod and container fields are restricted if this is set.
 //
-// If the OS field is set to windows, following fields must be unset: - spec.hostPID - spec.hostIPC - spec.hostUsers - spec.securityContext.seLinuxOptions - spec.securityContext.seccompProfile - spec.securityContext.fsGroup - spec.securityContext.fsGroupChangePolicy - spec.securityContext.sysctls - spec.shareProcessNamespace - spec.securityContext.runAsUser - spec.securityContext.runAsGroup - spec.securityContext.supplementalGroups - spec.containers[*].securityContext.seLinuxOptions - spec.containers[*].securityContext.seccompProfile - spec.containers[*].securityContext.capabilities - spec.containers[*].securityContext.readOnlyRootFilesystem - spec.containers[*].securityContext.privileged - spec.containers[*].securityContext.allowPrivilegeEscalation - spec.containers[*].securityContext.procMount - spec.containers[*].securityContext.runAsUser - spec.containers[*].securityContext.runAsGroup
+// If the OS field is set to linux, the following fields must be unset:
+//
+// -securityContext.windowsOptions
+//
+// If the OS field is set to windows, following fields must be unset:
+//
+// - spec.hostPID
+//
+// - spec.hostIPC
+//
+// - spec.hostUsers
+//
+// - spec.securityContext.seLinuxOptions
+//
+// - spec.securityContext.seccompProfile
+//
+// - spec.securityContext.fsGroup
+//
+// - spec.securityContext.fsGroupChangePolicy
+//
+// - spec.securityContext.sysctls
+//
+// - spec.shareProcessNamespace
+//
+// - spec.securityContext.runAsUser
+//
+// - spec.securityContext.runAsGroup
+//
+// - spec.securityContext.supplementalGroups
+//
+// - spec.containers[*].securityContext.seLinuxOptions
+//
+// - spec.containers[*].securityContext.seccompProfile
+//
+// - spec.containers[*].securityContext.capabilities
+//
+// - spec.containers[*].securityContext.readOnlyRootFilesystem
+//
+// - spec.containers[*].securityContext.privileged
+//
+// - spec.containers[*].securityContext.allowPrivilegeEscalation
+//
+// - spec.containers[*].securityContext.procMount
+//
+// - spec.containers[*].securityContext.runAsUser
+//
+// - spec.containers[*].securityContext.runAsGroup
 func (d *PodSpecDie) OS(v *corev1.PodOS) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.OS = v
 	})
 }
 
-// Use the host's user namespace. Optional: Default to true. If set to true or not present, the pod will be run in the host user namespace, useful for when the pod needs a feature only available to the host user namespace, such as loading a kernel module with CAP_SYS_MODULE. When set to false, a new userns is created for the pod. Setting false is useful for mitigating container breakout vulnerabilities even allowing users to run their containers as root without actually having root privileges on the host. This field is alpha-level and is only honored by servers that enable the UserNamespacesSupport feature.
+// Use the host's user namespace.
+//
+// Optional: Default to true.
+//
+// # If set to true or not present, the pod will be run in the host user namespace, useful
+//
+// for when the pod needs a feature only available to the host user namespace, such as
+//
+// loading a kernel module with CAP_SYS_MODULE.
+//
+// When set to false, a new userns is created for the pod. Setting false is useful for
+//
+// mitigating container breakout vulnerabilities even allowing users to run their
+//
+// containers as root without actually having root privileges on the host.
+//
+// This field is alpha-level and is only honored by servers that enable the UserNamespacesSupport feature.
 func (d *PodSpecDie) HostUsers(v *bool) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.HostUsers = v
 	})
 }
 
-// SchedulingGates is an opaque list of values that if specified will block scheduling the pod. If schedulingGates is not empty, the pod will stay in the SchedulingGated state and the scheduler will not attempt to schedule the pod.
+// SchedulingGates is an opaque list of values that if specified will block scheduling the pod.
+//
+// # If schedulingGates is not empty, the pod will stay in the SchedulingGated state and the
+//
+// scheduler will not attempt to schedule the pod.
 //
 // SchedulingGates can only be set at pod creation time, and be removed only afterwards.
 //
@@ -21702,9 +23152,17 @@ func (d *PodSpecDie) SchedulingGates(v ...corev1.PodSchedulingGate) *PodSpecDie 
 	})
 }
 
-// ResourceClaims defines which ResourceClaims must be allocated and reserved before the Pod is allowed to start. The resources will be made available to those containers which consume them by name.
+// ResourceClaims defines which ResourceClaims must be allocated
 //
-// This is an alpha field and requires enabling the DynamicResourceAllocation feature gate.
+// and reserved before the Pod is allowed to start. The resources
+//
+// will be made available to those containers which consume them
+//
+// by name.
+//
+// # This is an alpha field and requires enabling the
+//
+// DynamicResourceAllocation feature gate.
 //
 // This field is immutable.
 func (d *PodSpecDie) ResourceClaims(v ...corev1.PodResourceClaim) *PodSpecDie {
@@ -21895,7 +23353,9 @@ func (d *PodSchedulingGateDie) DeepCopy() *PodSchedulingGateDie {
 	}
 }
 
-// Name of the scheduling gate. Each scheduling gate must have a unique name field.
+// Name of the scheduling gate.
+//
+// Each scheduling gate must have a unique name field.
 func (d *PodSchedulingGateDie) Name(v string) *PodSchedulingGateDie {
 	return d.DieStamp(func(r *corev1.PodSchedulingGate) {
 		r.Name = v
@@ -22084,7 +23544,9 @@ func (d *PodResourceClaimDie) DeepCopy() *PodResourceClaimDie {
 	}
 }
 
-// Name uniquely identifies this resource claim inside the pod. This must be a DNS_LABEL.
+// Name uniquely identifies this resource claim inside the pod.
+//
+// This must be a DNS_LABEL.
 func (d *PodResourceClaimDie) Name(v string) *PodResourceClaimDie {
 	return d.DieStamp(func(r *corev1.PodResourceClaim) {
 		r.Name = v
@@ -22280,18 +23742,34 @@ func (d *ClaimSourceDie) DeepCopy() *ClaimSourceDie {
 	}
 }
 
-// ResourceClaimName is the name of a ResourceClaim object in the same namespace as this pod.
+// ResourceClaimName is the name of a ResourceClaim object in the same
+//
+// namespace as this pod.
 func (d *ClaimSourceDie) ResourceClaimName(v *string) *ClaimSourceDie {
 	return d.DieStamp(func(r *corev1.ClaimSource) {
 		r.ResourceClaimName = v
 	})
 }
 
-// ResourceClaimTemplateName is the name of a ResourceClaimTemplate object in the same namespace as this pod.
+// ResourceClaimTemplateName is the name of a ResourceClaimTemplate
 //
-// The template will be used to create a new ResourceClaim, which will be bound to this pod. When this pod is deleted, the ResourceClaim will also be deleted. The pod name and resource name, along with a generated component, will be used to form a unique name for the ResourceClaim, which will be recorded in pod.status.resourceClaimStatuses.
+// object in the same namespace as this pod.
 //
-// This field is immutable and no changes will be made to the corresponding ResourceClaim by the control plane after creating the ResourceClaim.
+// # The template will be used to create a new ResourceClaim, which will
+//
+// be bound to this pod. When this pod is deleted, the ResourceClaim
+//
+// will also be deleted. The pod name and resource name, along with a
+//
+// generated component, will be used to form a unique name for the
+//
+// ResourceClaim, which will be recorded in pod.status.resourceClaimStatuses.
+//
+// # This field is immutable and no changes will be made to the
+//
+// corresponding ResourceClaim by the control plane after creating the
+//
+// ResourceClaim.
 func (d *ClaimSourceDie) ResourceClaimTemplateName(v *string) *ClaimSourceDie {
 	return d.DieStamp(func(r *corev1.ClaimSource) {
 		r.ResourceClaimTemplateName = v
@@ -22480,74 +23958,160 @@ func (d *PodSecurityContextDie) DeepCopy() *PodSecurityContextDie {
 	}
 }
 
-// The SELinux context to be applied to all containers. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.
+// The SELinux context to be applied to all containers.
+//
+// # If unspecified, the container runtime will allocate a random SELinux context for each
+//
+// container.  May also be set in SecurityContext.  If set in
+//
+// both SecurityContext and PodSecurityContext, the value specified in SecurityContext
+//
+// takes precedence for that container.
+//
+// Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) SELinuxOptions(v *corev1.SELinuxOptions) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.SELinuxOptions = v
 	})
 }
 
-// The Windows specific settings applied to all containers. If unspecified, the options within a container's SecurityContext will be used. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is linux.
+// The Windows specific settings applied to all containers.
+//
+// If unspecified, the options within a container's SecurityContext will be used.
+//
+// If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+//
+// Note that this field cannot be set when spec.os.name is linux.
 func (d *PodSecurityContextDie) WindowsOptions(v *corev1.WindowsSecurityContextOptions) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.WindowsOptions = v
 	})
 }
 
-// The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.
+// The UID to run the entrypoint of the container process.
+//
+// Defaults to user specified in image metadata if unspecified.
+//
+// May also be set in SecurityContext.  If set in both SecurityContext and
+//
+// # PodSecurityContext, the value specified in SecurityContext takes precedence
+//
+// for that container.
+//
+// Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) RunAsUser(v *int64) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.RunAsUser = v
 	})
 }
 
-// The GID to run the entrypoint of the container process. Uses runtime default if unset. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.
+// The GID to run the entrypoint of the container process.
+//
+// Uses runtime default if unset.
+//
+// May also be set in SecurityContext.  If set in both SecurityContext and
+//
+// # PodSecurityContext, the value specified in SecurityContext takes precedence
+//
+// for that container.
+//
+// Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) RunAsGroup(v *int64) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.RunAsGroup = v
 	})
 }
 
-// Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. If unset or false, no such validation will be performed. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+// Indicates that the container must run as a non-root user.
+//
+// # If true, the Kubelet will validate the image at runtime to ensure that it
+//
+// does not run as UID 0 (root) and fail to start the container if it does.
+//
+// If unset or false, no such validation will be performed.
+//
+// May also be set in SecurityContext.  If set in both SecurityContext and
+//
+// PodSecurityContext, the value specified in SecurityContext takes precedence.
 func (d *PodSecurityContextDie) RunAsNonRoot(v *bool) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.RunAsNonRoot = v
 	})
 }
 
-// A list of groups applied to the first process run in each container, in addition to the container's primary GID, the fsGroup (if specified), and group memberships defined in the container image for the uid of the container process. If unspecified, no additional groups are added to any container. Note that group memberships defined in the container image for the uid of the container process are still effective, even if they are not included in this list. Note that this field cannot be set when spec.os.name is windows.
+// A list of groups applied to the first process run in each container, in addition
+//
+// to the container's primary GID, the fsGroup (if specified), and group memberships
+//
+// defined in the container image for the uid of the container process. If unspecified,
+//
+// no additional groups are added to any container. Note that group memberships
+//
+// defined in the container image for the uid of the container process are still effective,
+//
+// even if they are not included in this list.
+//
+// Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) SupplementalGroups(v ...int64) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.SupplementalGroups = v
 	})
 }
 
-// A special supplemental group that applies to all containers in a pod. Some volume types allow the Kubelet to change the ownership of that volume to be owned by the pod:
+// A special supplemental group that applies to all containers in a pod.
 //
-// 1. The owning GID will be the FSGroup 2. The setgid bit is set (new files created in the volume will be owned by FSGroup) 3. The permission bits are OR'd with rw-rw----
+// # Some volume types allow the Kubelet to change the ownership of that volume
 //
-// If unset, the Kubelet will not modify the ownership and permissions of any volume. Note that this field cannot be set when spec.os.name is windows.
+// to be owned by the pod:
+//
+// 1. The owning GID will be the FSGroup
+//
+// 2. The setgid bit is set (new files created in the volume will be owned by FSGroup)
+//
+// 3. The permission bits are OR'd with rw-rw----
+//
+// If unset, the Kubelet will not modify the ownership and permissions of any volume.
+//
+// Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) FSGroup(v *int64) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.FSGroup = v
 	})
 }
 
-// Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported sysctls (by the container runtime) might fail to launch. Note that this field cannot be set when spec.os.name is windows.
+// Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported
+//
+// sysctls (by the container runtime) might fail to launch.
+//
+// Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) Sysctls(v ...corev1.Sysctl) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.Sysctls = v
 	})
 }
 
-// fsGroupChangePolicy defines behavior of changing ownership and permission of the volume before being exposed inside Pod. This field will only apply to volume types which support fsGroup based ownership(and permissions). It will have no effect on ephemeral volume types such as: secret, configmaps and emptydir. Valid values are "OnRootMismatch" and "Always". If not specified, "Always" is used. Note that this field cannot be set when spec.os.name is windows.
+// fsGroupChangePolicy defines behavior of changing ownership and permission of the volume
+//
+// before being exposed inside Pod. This field will only apply to
+//
+// volume types which support fsGroup based ownership(and permissions).
+//
+// It will have no effect on ephemeral volume types such as: secret, configmaps
+//
+// and emptydir.
+//
+// Valid values are "OnRootMismatch" and "Always". If not specified, "Always" is used.
+//
+// Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) FSGroupChangePolicy(v *corev1.PodFSGroupChangePolicy) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.FSGroupChangePolicy = v
 	})
 }
 
-// The seccomp options to use by the containers in this pod. Note that this field cannot be set when spec.os.name is windows.
+// The seccomp options to use by the containers in this pod.
+//
+// Note that this field cannot be set when spec.os.name is windows.
 func (d *PodSecurityContextDie) SeccompProfile(v *corev1.SeccompProfile) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.SeccompProfile = v
@@ -22932,35 +24496,53 @@ func (d *TolerationDie) DeepCopy() *TolerationDie {
 	}
 }
 
-// Key is the taint key that the toleration applies to. Empty means match all taint keys. If the key is empty, operator must be Exists; this combination means to match all values and all keys.
+// Key is the taint key that the toleration applies to. Empty means match all taint keys.
+//
+// If the key is empty, operator must be Exists; this combination means to match all values and all keys.
 func (d *TolerationDie) Key(v string) *TolerationDie {
 	return d.DieStamp(func(r *corev1.Toleration) {
 		r.Key = v
 	})
 }
 
-// Operator represents a key's relationship to the value. Valid operators are Exists and Equal. Defaults to Equal. Exists is equivalent to wildcard for value, so that a pod can tolerate all taints of a particular category.
+// Operator represents a key's relationship to the value.
+//
+// Valid operators are Exists and Equal. Defaults to Equal.
+//
+// # Exists is equivalent to wildcard for value, so that a pod can
+//
+// tolerate all taints of a particular category.
 func (d *TolerationDie) Operator(v corev1.TolerationOperator) *TolerationDie {
 	return d.DieStamp(func(r *corev1.Toleration) {
 		r.Operator = v
 	})
 }
 
-// Value is the taint value the toleration matches to. If the operator is Exists, the value should be empty, otherwise just a regular string.
+// Value is the taint value the toleration matches to.
+//
+// If the operator is Exists, the value should be empty, otherwise just a regular string.
 func (d *TolerationDie) Value(v string) *TolerationDie {
 	return d.DieStamp(func(r *corev1.Toleration) {
 		r.Value = v
 	})
 }
 
-// Effect indicates the taint effect to match. Empty means match all taint effects. When specified, allowed values are NoSchedule, PreferNoSchedule and NoExecute.
+// Effect indicates the taint effect to match. Empty means match all taint effects.
+//
+// When specified, allowed values are NoSchedule, PreferNoSchedule and NoExecute.
 func (d *TolerationDie) Effect(v corev1.TaintEffect) *TolerationDie {
 	return d.DieStamp(func(r *corev1.Toleration) {
 		r.Effect = v
 	})
 }
 
-// TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, otherwise this field is ignored) tolerates the taint. By default, it is not set, which means tolerate the taint forever (do not evict). Zero and negative values will be treated as 0 (evict immediately) by the system.
+// TolerationSeconds represents the period of time the toleration (which must be
+//
+// of effect NoExecute, otherwise this field is ignored) tolerates the taint. By default,
+//
+// it is not set, which means tolerate the taint forever (do not evict). Zero and
+//
+// negative values will be treated as 0 (evict immediately) by the system.
 func (d *TolerationDie) TolerationSeconds(v *int64) *TolerationDie {
 	return d.DieStamp(func(r *corev1.Toleration) {
 		r.TolerationSeconds = v
@@ -23345,21 +24927,35 @@ func (d *PodDNSConfigDie) DeepCopy() *PodDNSConfigDie {
 	}
 }
 
-// A list of DNS name server IP addresses. This will be appended to the base nameservers generated from DNSPolicy. Duplicated nameservers will be removed.
+// A list of DNS name server IP addresses.
+//
+// This will be appended to the base nameservers generated from DNSPolicy.
+//
+// Duplicated nameservers will be removed.
 func (d *PodDNSConfigDie) Nameservers(v ...string) *PodDNSConfigDie {
 	return d.DieStamp(func(r *corev1.PodDNSConfig) {
 		r.Nameservers = v
 	})
 }
 
-// A list of DNS search domains for host-name lookup. This will be appended to the base search paths generated from DNSPolicy. Duplicated search paths will be removed.
+// A list of DNS search domains for host-name lookup.
+//
+// This will be appended to the base search paths generated from DNSPolicy.
+//
+// Duplicated search paths will be removed.
 func (d *PodDNSConfigDie) Searches(v ...string) *PodDNSConfigDie {
 	return d.DieStamp(func(r *corev1.PodDNSConfig) {
 		r.Searches = v
 	})
 }
 
-// A list of DNS resolver options. This will be merged with the base options generated from DNSPolicy. Duplicated entries will be removed. Resolution options given in Options will override those that appear in the base DNSPolicy.
+// A list of DNS resolver options.
+//
+// This will be merged with the base options generated from DNSPolicy.
+//
+// Duplicated entries will be removed. Resolution options given in Options
+//
+// will override those that appear in the base DNSPolicy.
 func (d *PodDNSConfigDie) Options(v ...corev1.PodDNSConfigOption) *PodDNSConfigDie {
 	return d.DieStamp(func(r *corev1.PodDNSConfig) {
 		r.Options = v
@@ -23932,37 +25528,157 @@ func (d *TopologySpreadConstraintDie) DeepCopy() *TopologySpreadConstraintDie {
 	}
 }
 
-// MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. The global minimum is the minimum number of matching pods in an eligible domain or zero if the number of eligible domains is less than MinDomains. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 2/2/1: In this case, the global minimum is 1. | zone1 | zone2 | zone3 | |  P P  |  P P  |   P   | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 2/2/2; scheduling it onto zone1(zone2) would make the ActualSkew(3-1) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed.
+// MaxSkew describes the degree to which pods may be unevenly distributed.
+//
+// When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference
+//
+// between the number of matching pods in the target topology and the global minimum.
+//
+// # The global minimum is the minimum number of matching pods in an eligible domain
+//
+// or zero if the number of eligible domains is less than MinDomains.
+//
+// # For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same
+//
+// labelSelector spread as 2/2/1:
+//
+// In this case, the global minimum is 1.
+//
+// | zone1 | zone2 | zone3 |
+//
+// |  P P  |  P P  |   P   |
+//
+// - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 2/2/2;
+//
+// scheduling it onto zone1(zone2) would make the ActualSkew(3-1) on zone1(zone2)
+//
+// violate MaxSkew(1).
+//
+// - if MaxSkew is 2, incoming pod can be scheduled onto any zone.
+//
+// When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence
+//
+// to topologies that satisfy it.
+//
+// It's a required field. Default value is 1 and 0 is not allowed.
 func (d *TopologySpreadConstraintDie) MaxSkew(v int32) *TopologySpreadConstraintDie {
 	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
 		r.MaxSkew = v
 	})
 }
 
-// TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a "bucket", and try to put balanced number of pods into each bucket. We define a domain as a particular instance of a topology. Also, we define an eligible domain as a domain whose nodes meet the requirements of nodeAffinityPolicy and nodeTaintsPolicy. e.g. If TopologyKey is "kubernetes.io/hostname", each Node is a domain of that topology. And, if TopologyKey is "topology.kubernetes.io/zone", each zone is a domain of that topology. It's a required field.
+// TopologyKey is the key of node labels. Nodes that have a label with this key
+//
+// and identical values are considered to be in the same topology.
+//
+// We consider each <key, value> as a "bucket", and try to put balanced number
+//
+// of pods into each bucket.
+//
+// We define a domain as a particular instance of a topology.
+//
+// # Also, we define an eligible domain as a domain whose nodes meet the requirements of
+//
+// nodeAffinityPolicy and nodeTaintsPolicy.
+//
+// e.g. If TopologyKey is "kubernetes.io/hostname", each Node is a domain of that topology.
+//
+// And, if TopologyKey is "topology.kubernetes.io/zone", each zone is a domain of that topology.
+//
+// It's a required field.
 func (d *TopologySpreadConstraintDie) TopologyKey(v string) *TopologySpreadConstraintDie {
 	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
 		r.TopologyKey = v
 	})
 }
 
-// WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location, but giving higher precedence to topologies that would help reduce the skew. A constraint is considered "Unsatisfiable" for an incoming pod if and only if every possible node assignment for that pod would violate "MaxSkew" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field.
+// WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy
+//
+// the spread constraint.
+//
+// - DoNotSchedule (default) tells the scheduler not to schedule it.
+//
+// - ScheduleAnyway tells the scheduler to schedule the pod in any location,
+//
+// but giving higher precedence to topologies that would help reduce the
+//
+// skew.
+//
+// A constraint is considered "Unsatisfiable" for an incoming pod
+//
+// if and only if every possible node assignment for that pod would violate
+//
+// "MaxSkew" on some topology.
+//
+// # For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same
+//
+// labelSelector spread as 3/1/1:
+//
+// | zone1 | zone2 | zone3 |
+//
+// | P P P |   P   |   P   |
+//
+// # If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled
+//
+// to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies
+//
+// MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler
+//
+// won't make it *more* imbalanced.
+//
+// It's a required field.
 func (d *TopologySpreadConstraintDie) WhenUnsatisfiable(v corev1.UnsatisfiableConstraintAction) *TopologySpreadConstraintDie {
 	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
 		r.WhenUnsatisfiable = v
 	})
 }
 
-// LabelSelector is used to find matching pods. Pods that match this label selector are counted to determine the number of pods in their corresponding topology domain.
+// LabelSelector is used to find matching pods.
+//
+// # Pods that match this label selector are counted to determine the number of pods
+//
+// in their corresponding topology domain.
 func (d *TopologySpreadConstraintDie) LabelSelector(v *apismetav1.LabelSelector) *TopologySpreadConstraintDie {
 	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
 		r.LabelSelector = v
 	})
 }
 
-// MinDomains indicates a minimum number of eligible domains. When the number of eligible domains with matching topology keys is less than minDomains, Pod Topology Spread treats "global minimum" as 0, and then the calculation of Skew is performed. And when the number of eligible domains with matching topology keys equals or greater than minDomains, this value has no effect on scheduling. As a result, when the number of eligible domains is less than minDomains, scheduler won't schedule more than maxSkew Pods to those domains. If value is nil, the constraint behaves as if MinDomains is equal to 1. Valid values are integers greater than 0. When value is not nil, WhenUnsatisfiable must be DoNotSchedule.
+// MinDomains indicates a minimum number of eligible domains.
 //
-// For example, in a 3-zone cluster, MaxSkew is set to 2, MinDomains is set to 5 and pods with the same labelSelector spread as 2/2/2: | zone1 | zone2 | zone3 | |  P P  |  P P  |  P P  | The number of domains is less than 5(MinDomains), so "global minimum" is treated as 0. In this situation, new pod with the same labelSelector cannot be scheduled, because computed skew will be 3(3 - 0) if new Pod is scheduled to any of the three zones, it will violate MaxSkew.
+// When the number of eligible domains with matching topology keys is less than minDomains,
+//
+// Pod Topology Spread treats "global minimum" as 0, and then the calculation of Skew is performed.
+//
+// And when the number of eligible domains with matching topology keys equals or greater than minDomains,
+//
+// this value has no effect on scheduling.
+//
+// As a result, when the number of eligible domains is less than minDomains,
+//
+// scheduler won't schedule more than maxSkew Pods to those domains.
+//
+// If value is nil, the constraint behaves as if MinDomains is equal to 1.
+//
+// Valid values are integers greater than 0.
+//
+// When value is not nil, WhenUnsatisfiable must be DoNotSchedule.
+//
+// # For example, in a 3-zone cluster, MaxSkew is set to 2, MinDomains is set to 5 and pods with the same
+//
+// labelSelector spread as 2/2/2:
+//
+// | zone1 | zone2 | zone3 |
+//
+// |  P P  |  P P  |  P P  |
+//
+// The number of domains is less than 5(MinDomains), so "global minimum" is treated as 0.
+//
+// In this situation, new pod with the same labelSelector cannot be scheduled,
+//
+// because computed skew will be 3(3 - 0) if new Pod is scheduled to any of the three zones,
+//
+// it will violate MaxSkew.
 //
 // This is a beta field and requires the MinDomainsInPodTopologySpread feature gate to be enabled (enabled by default).
 func (d *TopologySpreadConstraintDie) MinDomains(v *int32) *TopologySpreadConstraintDie {
@@ -23971,25 +25687,57 @@ func (d *TopologySpreadConstraintDie) MinDomains(v *int32) *TopologySpreadConstr
 	})
 }
 
-// NodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector when calculating pod topology spread skew. Options are: - Honor: only nodes matching nodeAffinity/nodeSelector are included in the calculations. - Ignore: nodeAffinity/nodeSelector are ignored. All nodes are included in the calculations.
+// NodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector
 //
-// If this value is nil, the behavior is equivalent to the Honor policy. This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
+// when calculating pod topology spread skew. Options are:
+//
+// - Honor: only nodes matching nodeAffinity/nodeSelector are included in the calculations.
+//
+// - Ignore: nodeAffinity/nodeSelector are ignored. All nodes are included in the calculations.
+//
+// If this value is nil, the behavior is equivalent to the Honor policy.
+//
+// This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
 func (d *TopologySpreadConstraintDie) NodeAffinityPolicy(v *corev1.NodeInclusionPolicy) *TopologySpreadConstraintDie {
 	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
 		r.NodeAffinityPolicy = v
 	})
 }
 
-// NodeTaintsPolicy indicates how we will treat node taints when calculating pod topology spread skew. Options are: - Honor: nodes without taints, along with tainted nodes for which the incoming pod has a toleration, are included. - Ignore: node taints are ignored. All nodes are included.
+// NodeTaintsPolicy indicates how we will treat node taints when calculating
 //
-// If this value is nil, the behavior is equivalent to the Ignore policy. This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
+// pod topology spread skew. Options are:
+//
+// - Honor: nodes without taints, along with tainted nodes for which the incoming pod
+//
+// has a toleration, are included.
+//
+// - Ignore: node taints are ignored. All nodes are included.
+//
+// If this value is nil, the behavior is equivalent to the Ignore policy.
+//
+// This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
 func (d *TopologySpreadConstraintDie) NodeTaintsPolicy(v *corev1.NodeInclusionPolicy) *TopologySpreadConstraintDie {
 	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
 		r.NodeTaintsPolicy = v
 	})
 }
 
-// MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated. The keys are used to lookup values from the incoming pod labels, those key-value labels are ANDed with labelSelector to select the group of existing pods over which spreading will be calculated for the incoming pod. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. MatchLabelKeys cannot be set when LabelSelector isn't set. Keys that don't exist in the incoming pod labels will be ignored. A null or empty list means only match against labelSelector.
+// MatchLabelKeys is a set of pod label keys to select the pods over which
+//
+// spreading will be calculated. The keys are used to lookup values from the
+//
+// incoming pod labels, those key-value labels are ANDed with labelSelector
+//
+// to select the group of existing pods over which spreading will be calculated
+//
+// for the incoming pod. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector.
+//
+// MatchLabelKeys cannot be set when LabelSelector isn't set.
+//
+// Keys that don't exist in the incoming pod labels will
+//
+// be ignored. A null or empty list means only match against labelSelector.
 //
 // This is a beta field and requires the MatchLabelKeysInPodTopologySpread feature gate to be enabled (enabled by default).
 func (d *TopologySpreadConstraintDie) MatchLabelKeys(v ...string) *TopologySpreadConstraintDie {
@@ -24180,7 +25928,13 @@ func (d *PodOSDie) DeepCopy() *PodOSDie {
 	}
 }
 
-// Name is the name of the operating system. The currently supported values are linux and windows. Additional value may be defined in future and can be one of: https://github.com/opencontainers/runtime-spec/blob/master/config.md#platform-specific-configuration Clients should expect to handle additional values and treat unrecognized values in this field as os: null
+// Name is the name of the operating system. The currently supported values are linux and windows.
+//
+// Additional value may be defined in future and can be one of:
+//
+// https://github.com/opencontainers/runtime-spec/blob/master/config.md#platform-specific-configuration
+//
+// Clients should expect to handle additional values and treat unrecognized values in this field as os: null
 func (d *PodOSDie) Name(v corev1.OSName) *PodOSDie {
 	return d.DieStamp(func(r *corev1.PodOS) {
 		r.Name = v
@@ -24369,9 +26123,35 @@ func (d *PodStatusDie) DeepCopy() *PodStatusDie {
 	}
 }
 
-// The phase of a Pod is a simple, high-level summary of where the Pod is in its lifecycle. The conditions array, the reason and message fields, and the individual container status arrays contain more detail about the pod's status. There are five possible phase values:
+// The phase of a Pod is a simple, high-level summary of where the Pod is in its lifecycle.
 //
-// Pending: The pod has been accepted by the Kubernetes system, but one or more of the container images has not been created. This includes time before being scheduled as well as time spent downloading images over the network, which could take a while. Running: The pod has been bound to a node, and all of the containers have been created. At least one container is still running, or is in the process of starting or restarting. Succeeded: All containers in the pod have terminated in success, and will not be restarted. Failed: All containers in the pod have terminated, and at least one container has terminated in failure. The container either exited with non-zero status or was terminated by the system. Unknown: For some reason the state of the pod could not be obtained, typically due to an error in communicating with the host of the pod.
+// # The conditions array, the reason and message fields, and the individual container status
+//
+// arrays contain more detail about the pod's status.
+//
+// There are five possible phase values:
+//
+// Pending: The pod has been accepted by the Kubernetes system, but one or more of the
+//
+// container images has not been created. This includes time before being scheduled as
+//
+// well as time spent downloading images over the network, which could take a while.
+//
+// Running: The pod has been bound to a node, and all of the containers have been created.
+//
+// At least one container is still running, or is in the process of starting or restarting.
+//
+// Succeeded: All containers in the pod have terminated in success, and will not be restarted.
+//
+// Failed: All containers in the pod have terminated, and at least one container has
+//
+// terminated in failure. The container either exited with non-zero status or was terminated
+//
+// by the system.
+//
+// Unknown: For some reason the state of the pod could not be obtained, typically due to an
+//
+// error in communicating with the host of the pod.
 //
 // More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-phase
 func (d *PodStatusDie) Phase(v corev1.PodPhase) *PodStatusDie {
@@ -24380,7 +26160,9 @@ func (d *PodStatusDie) Phase(v corev1.PodPhase) *PodStatusDie {
 	})
 }
 
-// Current service state of pod. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-conditions
+// Current service state of pod.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-conditions
 func (d *PodStatusDie) Conditions(v ...corev1.PodCondition) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.Conditions = v
@@ -24394,70 +26176,114 @@ func (d *PodStatusDie) Message(v string) *PodStatusDie {
 	})
 }
 
-// A brief CamelCase message indicating details about why the pod is in this state. e.g. 'Evicted'
+// A brief CamelCase message indicating details about why the pod is in this state.
+//
+// e.g. 'Evicted'
 func (d *PodStatusDie) Reason(v string) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.Reason = v
 	})
 }
 
-// nominatedNodeName is set only when this pod preempts other pods on the node, but it cannot be scheduled right away as preemption victims receive their graceful termination periods. This field does not guarantee that the pod will be scheduled on this node. Scheduler may decide to place the pod elsewhere if other nodes become available sooner. Scheduler may also decide to give the resources on this node to a higher priority pod that is created after preemption. As a result, this field may be different than PodSpec.nodeName when the pod is scheduled.
+// nominatedNodeName is set only when this pod preempts other pods on the node, but it cannot be
+//
+// scheduled right away as preemption victims receive their graceful termination periods.
+//
+// This field does not guarantee that the pod will be scheduled on this node. Scheduler may decide
+//
+// to place the pod elsewhere if other nodes become available sooner. Scheduler may also decide to
+//
+// give the resources on this node to a higher priority pod that is created after preemption.
+//
+// # As a result, this field may be different than PodSpec.nodeName when the pod is
+//
+// scheduled.
 func (d *PodStatusDie) NominatedNodeName(v string) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.NominatedNodeName = v
 	})
 }
 
-// hostIP holds the IP address of the host to which the pod is assigned. Empty if the pod has not started yet. A pod can be assigned to a node that has a problem in kubelet which in turns mean that HostIP will not be updated even if there is a node is assigned to pod
+// hostIP holds the IP address of the host to which the pod is assigned. Empty if the pod has not started yet.
+//
+// # A pod can be assigned to a node that has a problem in kubelet which in turns mean that HostIP will
+//
+// not be updated even if there is a node is assigned to pod
 func (d *PodStatusDie) HostIP(v string) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.HostIP = v
 	})
 }
 
-// hostIPs holds the IP addresses allocated to the host. If this field is specified, the first entry must match the hostIP field. This list is empty if the pod has not started yet. A pod can be assigned to a node that has a problem in kubelet which in turns means that HostIPs will not be updated even if there is a node is assigned to this pod.
+// hostIPs holds the IP addresses allocated to the host. If this field is specified, the first entry must
+//
+// match the hostIP field. This list is empty if the pod has not started yet.
+//
+// # A pod can be assigned to a node that has a problem in kubelet which in turns means that HostIPs will
+//
+// not be updated even if there is a node is assigned to this pod.
 func (d *PodStatusDie) HostIPs(v ...corev1.HostIP) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.HostIPs = v
 	})
 }
 
-// podIP address allocated to the pod. Routable at least within the cluster. Empty if not yet allocated.
+// podIP address allocated to the pod. Routable at least within the cluster.
+//
+// Empty if not yet allocated.
 func (d *PodStatusDie) PodIP(v string) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.PodIP = v
 	})
 }
 
-// podIPs holds the IP addresses allocated to the pod. If this field is specified, the 0th entry must match the podIP field. Pods may be allocated at most 1 value for each of IPv4 and IPv6. This list is empty if no IPs have been allocated yet.
+// podIPs holds the IP addresses allocated to the pod. If this field is specified, the 0th entry must
+//
+// match the podIP field. Pods may be allocated at most 1 value for each of IPv4 and IPv6. This list
+//
+// is empty if no IPs have been allocated yet.
 func (d *PodStatusDie) PodIPs(v ...corev1.PodIP) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.PodIPs = v
 	})
 }
 
-// RFC 3339 date and time at which the object was acknowledged by the Kubelet. This is before the Kubelet pulled the container image(s) for the pod.
+// RFC 3339 date and time at which the object was acknowledged by the Kubelet.
+//
+// This is before the Kubelet pulled the container image(s) for the pod.
 func (d *PodStatusDie) StartTime(v *apismetav1.Time) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.StartTime = v
 	})
 }
 
-// The list has one entry per init container in the manifest. The most recent successful init container will have ready = true, the most recently started container will have startTime set. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
+// The list has one entry per init container in the manifest. The most recent successful
+//
+// init container will have ready = true, the most recently started container will have
+//
+// startTime set.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
 func (d *PodStatusDie) InitContainerStatuses(v ...corev1.ContainerStatus) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.InitContainerStatuses = v
 	})
 }
 
-// The list has one entry per container in the manifest. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
+// The list has one entry per container in the manifest.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
 func (d *PodStatusDie) ContainerStatuses(v ...corev1.ContainerStatus) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.ContainerStatuses = v
 	})
 }
 
-// The Quality of Service (QOS) classification assigned to the pod based on resource requirements See PodQOSClass type for available QOS classes More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/#quality-of-service-classes
+// The Quality of Service (QOS) classification assigned to the pod based on resource requirements
+//
+// # See PodQOSClass type for available QOS classes
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/#quality-of-service-classes
 func (d *PodStatusDie) QOSClass(v corev1.PodQOSClass) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.QOSClass = v
@@ -24471,7 +26297,11 @@ func (d *PodStatusDie) EphemeralContainerStatuses(v ...corev1.ContainerStatus) *
 	})
 }
 
-// Status of resources resize desired for pod's containers. It is empty if no resources resize is pending. Any changes to container resources will automatically set this to "Proposed"
+// Status of resources resize desired for pod's containers.
+//
+// It is empty if no resources resize is pending.
+//
+// Any changes to container resources will automatically set this to "Proposed"
 func (d *PodStatusDie) Resize(v corev1.PodResizeStatus) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.Resize = v
@@ -24734,7 +26564,9 @@ func (d *PodTemplateDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *PodTempl
 	})
 }
 
-// Template defines the pods that will be created from this pod template. https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// Template defines the pods that will be created from this pod template.
+//
+// https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *PodTemplateDie) Template(v corev1.PodTemplateSpec) *PodTemplateDie {
 	return d.DieStamp(func(r *corev1.PodTemplate) {
 		r.Template = v
@@ -24923,14 +26755,18 @@ func (d *PodTemplateSpecDie) DeepCopy() *PodTemplateSpecDie {
 	}
 }
 
-// Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+// Standard object's metadata.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
 func (d *PodTemplateSpecDie) ObjectMeta(v apismetav1.ObjectMeta) *PodTemplateSpecDie {
 	return d.DieStamp(func(r *corev1.PodTemplateSpec) {
 		r.ObjectMeta = v
 	})
 }
 
-// Specification of the desired behavior of the pod. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// Specification of the desired behavior of the pod.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *PodTemplateSpecDie) Spec(v corev1.PodSpec) *PodTemplateSpecDie {
 	return d.DieStamp(func(r *corev1.PodTemplateSpec) {
 		r.Spec = v
@@ -25204,14 +27040,24 @@ func (d *ReplicationControllerDie) StatusDie(fn func(d *ReplicationControllerSta
 	})
 }
 
-// Spec defines the specification of the desired behavior of the replication controller. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// Spec defines the specification of the desired behavior of the replication controller.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *ReplicationControllerDie) Spec(v corev1.ReplicationControllerSpec) *ReplicationControllerDie {
 	return d.DieStamp(func(r *corev1.ReplicationController) {
 		r.Spec = v
 	})
 }
 
-// Status is the most recently observed status of the replication controller. This data may be out of date by some window of time. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// Status is the most recently observed status of the replication controller.
+//
+// This data may be out of date by some window of time.
+//
+// Populated by the system.
+//
+// Read-only.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *ReplicationControllerDie) Status(v corev1.ReplicationControllerStatus) *ReplicationControllerDie {
 	return d.DieStamp(func(r *corev1.ReplicationController) {
 		r.Status = v
@@ -25400,28 +27246,52 @@ func (d *ReplicationControllerSpecDie) DeepCopy() *ReplicationControllerSpecDie 
 	}
 }
 
-// Replicas is the number of desired replicas. This is a pointer to distinguish between explicit zero and unspecified. Defaults to 1. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#what-is-a-replicationcontroller
+// Replicas is the number of desired replicas.
+//
+// This is a pointer to distinguish between explicit zero and unspecified.
+//
+// Defaults to 1.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#what-is-a-replicationcontroller
 func (d *ReplicationControllerSpecDie) Replicas(v *int32) *ReplicationControllerSpecDie {
 	return d.DieStamp(func(r *corev1.ReplicationControllerSpec) {
 		r.Replicas = v
 	})
 }
 
-// Minimum number of seconds for which a newly created pod should be ready without any of its container crashing, for it to be considered available. Defaults to 0 (pod will be considered available as soon as it is ready)
+// Minimum number of seconds for which a newly created pod should be ready
+//
+// without any of its container crashing, for it to be considered available.
+//
+// Defaults to 0 (pod will be considered available as soon as it is ready)
 func (d *ReplicationControllerSpecDie) MinReadySeconds(v int32) *ReplicationControllerSpecDie {
 	return d.DieStamp(func(r *corev1.ReplicationControllerSpec) {
 		r.MinReadySeconds = v
 	})
 }
 
-// Selector is a label query over pods that should match the Replicas count. If Selector is empty, it is defaulted to the labels present on the Pod template. Label keys and values that must match in order to be controlled by this replication controller, if empty defaulted to labels on Pod template. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
+// Selector is a label query over pods that should match the Replicas count.
+//
+// If Selector is empty, it is defaulted to the labels present on the Pod template.
+//
+// # Label keys and values that must match in order to be controlled by this replication
+//
+// controller, if empty defaulted to labels on Pod template.
+//
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
 func (d *ReplicationControllerSpecDie) Selector(v map[string]string) *ReplicationControllerSpecDie {
 	return d.DieStamp(func(r *corev1.ReplicationControllerSpec) {
 		r.Selector = v
 	})
 }
 
-// Template is the object that describes the pod that will be created if insufficient replicas are detected. This takes precedence over a TemplateRef. The only allowed template.spec.restartPolicy value is "Always". More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
+// Template is the object that describes the pod that will be created if
+//
+// insufficient replicas are detected. This takes precedence over a TemplateRef.
+//
+// The only allowed template.spec.restartPolicy value is "Always".
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
 func (d *ReplicationControllerSpecDie) Template(v *corev1.PodTemplateSpec) *ReplicationControllerSpecDie {
 	return d.DieStamp(func(r *corev1.ReplicationControllerSpec) {
 		r.Template = v
@@ -25610,7 +27480,9 @@ func (d *ReplicationControllerStatusDie) DeepCopy() *ReplicationControllerStatus
 	}
 }
 
-// Replicas is the most recently observed number of replicas. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#what-is-a-replicationcontroller
+// Replicas is the most recently observed number of replicas.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#what-is-a-replicationcontroller
 func (d *ReplicationControllerStatusDie) Replicas(v int32) *ReplicationControllerStatusDie {
 	return d.DieStamp(func(r *corev1.ReplicationControllerStatus) {
 		r.Replicas = v
@@ -25919,14 +27791,18 @@ func (d *ResourceQuotaDie) StatusDie(fn func(d *ResourceQuotaStatusDie)) *Resour
 	})
 }
 
-// Spec defines the desired quota. https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// Spec defines the desired quota.
+//
+// https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *ResourceQuotaDie) Spec(v corev1.ResourceQuotaSpec) *ResourceQuotaDie {
 	return d.DieStamp(func(r *corev1.ResourceQuota) {
 		r.Spec = v
 	})
 }
 
-// Status defines the actual enforced quota and its current usage. https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// Status defines the actual enforced quota and its current usage.
+//
+// https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *ResourceQuotaDie) Status(v corev1.ResourceQuotaStatus) *ResourceQuotaDie {
 	return d.DieStamp(func(r *corev1.ResourceQuota) {
 		r.Status = v
@@ -26115,21 +27991,29 @@ func (d *ResourceQuotaSpecDie) DeepCopy() *ResourceQuotaSpecDie {
 	}
 }
 
-// hard is the set of desired hard limits for each named resource. More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
+// hard is the set of desired hard limits for each named resource.
+//
+// More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
 func (d *ResourceQuotaSpecDie) Hard(v corev1.ResourceList) *ResourceQuotaSpecDie {
 	return d.DieStamp(func(r *corev1.ResourceQuotaSpec) {
 		r.Hard = v
 	})
 }
 
-// A collection of filters that must match each object tracked by a quota. If not specified, the quota matches all objects.
+// A collection of filters that must match each object tracked by a quota.
+//
+// If not specified, the quota matches all objects.
 func (d *ResourceQuotaSpecDie) Scopes(v ...corev1.ResourceQuotaScope) *ResourceQuotaSpecDie {
 	return d.DieStamp(func(r *corev1.ResourceQuotaSpec) {
 		r.Scopes = v
 	})
 }
 
-// scopeSelector is also a collection of filters like scopes that must match each object tracked by a quota but expressed using ScopeSelectorOperator in combination with possible values. For a resource to match, both scopes AND scopeSelector (if specified in spec), must be matched.
+// scopeSelector is also a collection of filters like scopes that must match each object tracked by a quota
+//
+// but expressed using ScopeSelectorOperator in combination with possible values.
+//
+// For a resource to match, both scopes AND scopeSelector (if specified in spec), must be matched.
 func (d *ResourceQuotaSpecDie) ScopeSelector(v *corev1.ScopeSelector) *ResourceQuotaSpecDie {
 	return d.DieStamp(func(r *corev1.ResourceQuotaSpec) {
 		r.ScopeSelector = v
@@ -26514,14 +28398,22 @@ func (d *ScopedResourceSelectorRequirementDie) ScopeName(v corev1.ResourceQuotaS
 	})
 }
 
-// Represents a scope's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist.
+// Represents a scope's relationship to a set of values.
+//
+// Valid operators are In, NotIn, Exists, DoesNotExist.
 func (d *ScopedResourceSelectorRequirementDie) Operator(v corev1.ScopeSelectorOperator) *ScopedResourceSelectorRequirementDie {
 	return d.DieStamp(func(r *corev1.ScopedResourceSelectorRequirement) {
 		r.Operator = v
 	})
 }
 
-// An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+// An array of string values. If the operator is In or NotIn,
+//
+// the values array must be non-empty. If the operator is Exists or DoesNotExist,
+//
+// the values array must be empty.
+//
+// This array is replaced during a strategic merge patch.
 func (d *ScopedResourceSelectorRequirementDie) Values(v ...string) *ScopedResourceSelectorRequirementDie {
 	return d.DieStamp(func(r *corev1.ScopedResourceSelectorRequirement) {
 		r.Values = v
@@ -26710,7 +28602,9 @@ func (d *ResourceQuotaStatusDie) DeepCopy() *ResourceQuotaStatusDie {
 	}
 }
 
-// Hard is the set of enforced hard limits for each named resource. More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
+// Hard is the set of enforced hard limits for each named resource.
+//
+// More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
 func (d *ResourceQuotaStatusDie) Hard(v corev1.ResourceList) *ResourceQuotaStatusDie {
 	return d.DieStamp(func(r *corev1.ResourceQuotaStatus) {
 		r.Hard = v
@@ -26973,14 +28867,22 @@ func (d *SecretDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *SecretDie {
 	})
 }
 
-// Immutable, if set to true, ensures that data stored in the Secret cannot be updated (only object metadata can be modified). If not set to true, the field can be modified at any time. Defaulted to nil.
+// Immutable, if set to true, ensures that data stored in the Secret cannot
+//
+// be updated (only object metadata can be modified).
+//
+// If not set to true, the field can be modified at any time.
+//
+// Defaulted to nil.
 func (d *SecretDie) Immutable(v *bool) *SecretDie {
 	return d.DieStamp(func(r *corev1.Secret) {
 		r.Immutable = v
 	})
 }
 
-// Used to facilitate programmatic handling of secret data. More info: https://kubernetes.io/docs/concepts/configuration/secret/#secret-types
+// Used to facilitate programmatic handling of secret data.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/secret/#secret-types
 func (d *SecretDie) Type(v corev1.SecretType) *SecretDie {
 	return d.DieStamp(func(r *corev1.Secret) {
 		r.Type = v
@@ -27254,14 +29156,22 @@ func (d *ServiceDie) StatusDie(fn func(d *ServiceStatusDie)) *ServiceDie {
 	})
 }
 
-// Spec defines the behavior of a service. https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// Spec defines the behavior of a service.
+//
+// https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *ServiceDie) Spec(v corev1.ServiceSpec) *ServiceDie {
 	return d.DieStamp(func(r *corev1.Service) {
 		r.Spec = v
 	})
 }
 
-// Most recently observed status of the service. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// Most recently observed status of the service.
+//
+// Populated by the system.
+//
+// Read-only.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *ServiceDie) Status(v corev1.ServiceStatus) *ServiceDie {
 	return d.DieStamp(func(r *corev1.Service) {
 		r.Status = v
@@ -27450,93 +29360,299 @@ func (d *ServiceSpecDie) DeepCopy() *ServiceSpecDie {
 	}
 }
 
-// The list of ports that are exposed by this service. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+// The list of ports that are exposed by this service.
+//
+// More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
 func (d *ServiceSpecDie) Ports(v ...corev1.ServicePort) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.Ports = v
 	})
 }
 
-// Route service traffic to pods with label keys and values matching this selector. If empty or not present, the service is assumed to have an external process managing its endpoints, which Kubernetes will not modify. Only applies to types ClusterIP, NodePort, and LoadBalancer. Ignored if type is ExternalName. More info: https://kubernetes.io/docs/concepts/services-networking/service/
+// Route service traffic to pods with label keys and values matching this
+//
+// selector. If empty or not present, the service is assumed to have an
+//
+// external process managing its endpoints, which Kubernetes will not
+//
+// modify. Only applies to types ClusterIP, NodePort, and LoadBalancer.
+//
+// Ignored if type is ExternalName.
+//
+// More info: https://kubernetes.io/docs/concepts/services-networking/service/
 func (d *ServiceSpecDie) Selector(v map[string]string) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.Selector = v
 	})
 }
 
-// clusterIP is the IP address of the service and is usually assigned randomly. If an address is specified manually, is in-range (as per system configuration), and is not in use, it will be allocated to the service; otherwise creation of the service will fail. This field may not be changed through updates unless the type field is also being changed to ExternalName (which requires this field to be blank) or the type field is being changed from ExternalName (in which case this field may optionally be specified, as describe above).  Valid values are "None", empty string (""), or a valid IP address. Setting this to "None" makes a "headless service" (no virtual IP), which is useful when direct endpoint connections are preferred and proxying is not required.  Only applies to types ClusterIP, NodePort, and LoadBalancer. If this field is specified when creating a Service of type ExternalName, creation will fail. This field will be wiped when updating a Service to type ExternalName. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+// clusterIP is the IP address of the service and is usually assigned
+//
+// randomly. If an address is specified manually, is in-range (as per
+//
+// system configuration), and is not in use, it will be allocated to the
+//
+// service; otherwise creation of the service will fail. This field may not
+//
+// be changed through updates unless the type field is also being changed
+//
+// to ExternalName (which requires this field to be blank) or the type
+//
+// field is being changed from ExternalName (in which case this field may
+//
+// optionally be specified, as describe above).  Valid values are "None",
+//
+// empty string (""), or a valid IP address. Setting this to "None" makes a
+//
+// "headless service" (no virtual IP), which is useful when direct endpoint
+//
+// connections are preferred and proxying is not required.  Only applies to
+//
+// types ClusterIP, NodePort, and LoadBalancer. If this field is specified
+//
+// when creating a Service of type ExternalName, creation will fail. This
+//
+// field will be wiped when updating a Service to type ExternalName.
+//
+// More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
 func (d *ServiceSpecDie) ClusterIP(v string) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.ClusterIP = v
 	})
 }
 
-// ClusterIPs is a list of IP addresses assigned to this service, and are usually assigned randomly.  If an address is specified manually, is in-range (as per system configuration), and is not in use, it will be allocated to the service; otherwise creation of the service will fail. This field may not be changed through updates unless the type field is also being changed to ExternalName (which requires this field to be empty) or the type field is being changed from ExternalName (in which case this field may optionally be specified, as describe above).  Valid values are "None", empty string (""), or a valid IP address.  Setting this to "None" makes a "headless service" (no virtual IP), which is useful when direct endpoint connections are preferred and proxying is not required.  Only applies to types ClusterIP, NodePort, and LoadBalancer. If this field is specified when creating a Service of type ExternalName, creation will fail. This field will be wiped when updating a Service to type ExternalName.  If this field is not specified, it will be initialized from the clusterIP field.  If this field is specified, clients must ensure that clusterIPs[0] and clusterIP have the same value.
+// ClusterIPs is a list of IP addresses assigned to this service, and are
 //
-// This field may hold a maximum of two entries (dual-stack IPs, in either order). These IPs must correspond to the values of the ipFamilies field. Both clusterIPs and ipFamilies are governed by the ipFamilyPolicy field. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+// usually assigned randomly.  If an address is specified manually, is
+//
+// in-range (as per system configuration), and is not in use, it will be
+//
+// allocated to the service; otherwise creation of the service will fail.
+//
+// # This field may not be changed through updates unless the type field is
+//
+// also being changed to ExternalName (which requires this field to be
+//
+// empty) or the type field is being changed from ExternalName (in which
+//
+// case this field may optionally be specified, as describe above).  Valid
+//
+// values are "None", empty string (""), or a valid IP address.  Setting
+//
+// this to "None" makes a "headless service" (no virtual IP), which is
+//
+// useful when direct endpoint connections are preferred and proxying is
+//
+// not required.  Only applies to types ClusterIP, NodePort, and
+//
+// LoadBalancer. If this field is specified when creating a Service of type
+//
+// ExternalName, creation will fail. This field will be wiped when updating
+//
+// a Service to type ExternalName.  If this field is not specified, it will
+//
+// be initialized from the clusterIP field.  If this field is specified,
+//
+// clients must ensure that clusterIPs[0] and clusterIP have the same
+//
+// value.
+//
+// This field may hold a maximum of two entries (dual-stack IPs, in either order).
+//
+// These IPs must correspond to the values of the ipFamilies field. Both
+//
+// clusterIPs and ipFamilies are governed by the ipFamilyPolicy field.
+//
+// More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
 func (d *ServiceSpecDie) ClusterIPs(v ...string) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.ClusterIPs = v
 	})
 }
 
-// type determines how the Service is exposed. Defaults to ClusterIP. Valid options are ExternalName, ClusterIP, NodePort, and LoadBalancer. "ClusterIP" allocates a cluster-internal IP address for load-balancing to endpoints. Endpoints are determined by the selector or if that is not specified, by manual construction of an Endpoints object or EndpointSlice objects. If clusterIP is "None", no virtual IP is allocated and the endpoints are published as a set of endpoints rather than a virtual IP. "NodePort" builds on ClusterIP and allocates a port on every node which routes to the same endpoints as the clusterIP. "LoadBalancer" builds on NodePort and creates an external load-balancer (if supported in the current cloud) which routes to the same endpoints as the clusterIP. "ExternalName" aliases this service to the specified externalName. Several other fields do not apply to ExternalName services. More info: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+// type determines how the Service is exposed. Defaults to ClusterIP. Valid
+//
+// options are ExternalName, ClusterIP, NodePort, and LoadBalancer.
+//
+// "ClusterIP" allocates a cluster-internal IP address for load-balancing
+//
+// to endpoints. Endpoints are determined by the selector or if that is not
+//
+// specified, by manual construction of an Endpoints object or
+//
+// EndpointSlice objects. If clusterIP is "None", no virtual IP is
+//
+// allocated and the endpoints are published as a set of endpoints rather
+//
+// than a virtual IP.
+//
+// "NodePort" builds on ClusterIP and allocates a port on every node which
+//
+// routes to the same endpoints as the clusterIP.
+//
+// "LoadBalancer" builds on NodePort and creates an external load-balancer
+//
+// (if supported in the current cloud) which routes to the same endpoints
+//
+// as the clusterIP.
+//
+// "ExternalName" aliases this service to the specified externalName.
+//
+// Several other fields do not apply to ExternalName services.
+//
+// More info: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
 func (d *ServiceSpecDie) Type(v corev1.ServiceType) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.Type = v
 	})
 }
 
-// externalIPs is a list of IP addresses for which nodes in the cluster will also accept traffic for this service.  These IPs are not managed by Kubernetes.  The user is responsible for ensuring that traffic arrives at a node with this IP.  A common example is external load-balancers that are not part of the Kubernetes system.
+// externalIPs is a list of IP addresses for which nodes in the cluster
+//
+// will also accept traffic for this service.  These IPs are not managed by
+//
+// Kubernetes.  The user is responsible for ensuring that traffic arrives
+//
+// at a node with this IP.  A common example is external load-balancers
+//
+// that are not part of the Kubernetes system.
 func (d *ServiceSpecDie) ExternalIPs(v ...string) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.ExternalIPs = v
 	})
 }
 
-// Supports "ClientIP" and "None". Used to maintain session affinity. Enable client IP based session affinity. Must be ClientIP or None. Defaults to None. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+// Supports "ClientIP" and "None". Used to maintain session affinity.
+//
+// Enable client IP based session affinity.
+//
+// Must be ClientIP or None.
+//
+// Defaults to None.
+//
+// More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
 func (d *ServiceSpecDie) SessionAffinity(v corev1.ServiceAffinity) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.SessionAffinity = v
 	})
 }
 
-// Only applies to Service Type: LoadBalancer. This feature depends on whether the underlying cloud-provider supports specifying the loadBalancerIP when a load balancer is created. This field will be ignored if the cloud-provider does not support the feature. Deprecated: This field was under-specified and its meaning varies across implementations. Using it is non-portable and it may not support dual-stack. Users are encouraged to use implementation-specific annotations when available.
+// Only applies to Service Type: LoadBalancer.
+//
+// # This feature depends on whether the underlying cloud-provider supports specifying
+//
+// the loadBalancerIP when a load balancer is created.
+//
+// This field will be ignored if the cloud-provider does not support the feature.
+//
+// Deprecated: This field was under-specified and its meaning varies across implementations.
+//
+// Using it is non-portable and it may not support dual-stack.
+//
+// Users are encouraged to use implementation-specific annotations when available.
 func (d *ServiceSpecDie) LoadBalancerIP(v string) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.LoadBalancerIP = v
 	})
 }
 
-// If specified and supported by the platform, this will restrict traffic through the cloud-provider load-balancer will be restricted to the specified client IPs. This field will be ignored if the cloud-provider does not support the feature." More info: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/
+// If specified and supported by the platform, this will restrict traffic through the cloud-provider
+//
+// load-balancer will be restricted to the specified client IPs. This field will be ignored if the
+//
+// cloud-provider does not support the feature."
+//
+// More info: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/
 func (d *ServiceSpecDie) LoadBalancerSourceRanges(v ...string) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.LoadBalancerSourceRanges = v
 	})
 }
 
-// externalName is the external reference that discovery mechanisms will return as an alias for this service (e.g. a DNS CNAME record). No proxying will be involved.  Must be a lowercase RFC-1123 hostname (https://tools.ietf.org/html/rfc1123) and requires `type` to be "ExternalName".
+// externalName is the external reference that discovery mechanisms will
+//
+// return as an alias for this service (e.g. a DNS CNAME record). No
+//
+// proxying will be involved.  Must be a lowercase RFC-1123 hostname
+//
+// (https://tools.ietf.org/html/rfc1123) and requires `type` to be "ExternalName".
 func (d *ServiceSpecDie) ExternalName(v string) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.ExternalName = v
 	})
 }
 
-// externalTrafficPolicy describes how nodes distribute service traffic they receive on one of the Service's "externally-facing" addresses (NodePorts, ExternalIPs, and LoadBalancer IPs). If set to "Local", the proxy will configure the service in a way that assumes that external load balancers will take care of balancing the service traffic between nodes, and so each node will deliver traffic only to the node-local endpoints of the service, without masquerading the client source IP. (Traffic mistakenly sent to a node with no endpoints will be dropped.) The default value, "Cluster", uses the standard behavior of routing to all endpoints evenly (possibly modified by topology and other features). Note that traffic sent to an External IP or LoadBalancer IP from within the cluster will always get "Cluster" semantics, but clients sending to a NodePort from within the cluster may need to take traffic policy into account when picking a node.
+// externalTrafficPolicy describes how nodes distribute service traffic they
+//
+// receive on one of the Service's "externally-facing" addresses (NodePorts,
+//
+// ExternalIPs, and LoadBalancer IPs). If set to "Local", the proxy will configure
+//
+// the service in a way that assumes that external load balancers will take care
+//
+// of balancing the service traffic between nodes, and so each node will deliver
+//
+// traffic only to the node-local endpoints of the service, without masquerading
+//
+// the client source IP. (Traffic mistakenly sent to a node with no endpoints will
+//
+// be dropped.) The default value, "Cluster", uses the standard behavior of
+//
+// routing to all endpoints evenly (possibly modified by topology and other
+//
+// features). Note that traffic sent to an External IP or LoadBalancer IP from
+//
+// within the cluster will always get "Cluster" semantics, but clients sending to
+//
+// a NodePort from within the cluster may need to take traffic policy into account
+//
+// when picking a node.
 func (d *ServiceSpecDie) ExternalTrafficPolicy(v corev1.ServiceExternalTrafficPolicy) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.ExternalTrafficPolicy = v
 	})
 }
 
-// healthCheckNodePort specifies the healthcheck nodePort for the service. This only applies when type is set to LoadBalancer and externalTrafficPolicy is set to Local. If a value is specified, is in-range, and is not in use, it will be used.  If not specified, a value will be automatically allocated.  External systems (e.g. load-balancers) can use this port to determine if a given node holds endpoints for this service or not.  If this field is specified when creating a Service which does not need it, creation will fail. This field will be wiped when updating a Service to no longer need it (e.g. changing type). This field cannot be updated once set.
+// healthCheckNodePort specifies the healthcheck nodePort for the service.
+//
+// # This only applies when type is set to LoadBalancer and
+//
+// externalTrafficPolicy is set to Local. If a value is specified, is
+//
+// in-range, and is not in use, it will be used.  If not specified, a value
+//
+// will be automatically allocated.  External systems (e.g. load-balancers)
+//
+// can use this port to determine if a given node holds endpoints for this
+//
+// service or not.  If this field is specified when creating a Service
+//
+// which does not need it, creation will fail. This field will be wiped
+//
+// when updating a Service to no longer need it (e.g. changing type).
+//
+// This field cannot be updated once set.
 func (d *ServiceSpecDie) HealthCheckNodePort(v int32) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.HealthCheckNodePort = v
 	})
 }
 
-// publishNotReadyAddresses indicates that any agent which deals with endpoints for this Service should disregard any indications of ready/not-ready. The primary use case for setting this field is for a StatefulSet's Headless Service to propagate SRV DNS records for its Pods for the purpose of peer discovery. The Kubernetes controllers that generate Endpoints and EndpointSlice resources for Services interpret this to mean that all endpoints are considered "ready" even if the Pods themselves are not. Agents which consume only Kubernetes generated endpoints through the Endpoints or EndpointSlice resources can safely assume this behavior.
+// publishNotReadyAddresses indicates that any agent which deals with endpoints for this
+//
+// Service should disregard any indications of ready/not-ready.
+//
+// # The primary use case for setting this field is for a StatefulSet's Headless Service to
+//
+// propagate SRV DNS records for its Pods for the purpose of peer discovery.
+//
+// # The Kubernetes controllers that generate Endpoints and EndpointSlice resources for
+//
+// Services interpret this to mean that all endpoints are considered "ready" even if the
+//
+// Pods themselves are not. Agents which consume only Kubernetes generated endpoints
+//
+// through the Endpoints or EndpointSlice resources can safely assume this behavior.
 func (d *ServiceSpecDie) PublishNotReadyAddresses(v bool) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.PublishNotReadyAddresses = v
@@ -27550,37 +29666,117 @@ func (d *ServiceSpecDie) SessionAffinityConfig(v *corev1.SessionAffinityConfig) 
 	})
 }
 
-// IPFamilies is a list of IP families (e.g. IPv4, IPv6) assigned to this service. This field is usually assigned automatically based on cluster configuration and the ipFamilyPolicy field. If this field is specified manually, the requested family is available in the cluster, and ipFamilyPolicy allows it, it will be used; otherwise creation of the service will fail. This field is conditionally mutable: it allows for adding or removing a secondary IP family, but it does not allow changing the primary IP family of the Service. Valid values are "IPv4" and "IPv6".  This field only applies to Services of types ClusterIP, NodePort, and LoadBalancer, and does apply to "headless" services. This field will be wiped when updating a Service to type ExternalName.
+// IPFamilies is a list of IP families (e.g. IPv4, IPv6) assigned to this
 //
-// This field may hold a maximum of two entries (dual-stack families, in either order).  These families must correspond to the values of the clusterIPs field, if specified. Both clusterIPs and ipFamilies are governed by the ipFamilyPolicy field.
+// service. This field is usually assigned automatically based on cluster
+//
+// configuration and the ipFamilyPolicy field. If this field is specified
+//
+// manually, the requested family is available in the cluster,
+//
+// and ipFamilyPolicy allows it, it will be used; otherwise creation of
+//
+// the service will fail. This field is conditionally mutable: it allows
+//
+// for adding or removing a secondary IP family, but it does not allow
+//
+// changing the primary IP family of the Service. Valid values are "IPv4"
+//
+// and "IPv6".  This field only applies to Services of types ClusterIP,
+//
+// NodePort, and LoadBalancer, and does apply to "headless" services.
+//
+// This field will be wiped when updating a Service to type ExternalName.
+//
+// # This field may hold a maximum of two entries (dual-stack families, in
+//
+// either order).  These families must correspond to the values of the
+//
+// clusterIPs field, if specified. Both clusterIPs and ipFamilies are
+//
+// governed by the ipFamilyPolicy field.
 func (d *ServiceSpecDie) IPFamilies(v ...corev1.IPFamily) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.IPFamilies = v
 	})
 }
 
-// IPFamilyPolicy represents the dual-stack-ness requested or required by this Service. If there is no value provided, then this field will be set to SingleStack. Services can be "SingleStack" (a single IP family), "PreferDualStack" (two IP families on dual-stack configured clusters or a single IP family on single-stack clusters), or "RequireDualStack" (two IP families on dual-stack configured clusters, otherwise fail). The ipFamilies and clusterIPs fields depend on the value of this field. This field will be wiped when updating a service to type ExternalName.
+// IPFamilyPolicy represents the dual-stack-ness requested or required by
+//
+// this Service. If there is no value provided, then this field will be set
+//
+// to SingleStack. Services can be "SingleStack" (a single IP family),
+//
+// "PreferDualStack" (two IP families on dual-stack configured clusters or
+//
+// a single IP family on single-stack clusters), or "RequireDualStack"
+//
+// (two IP families on dual-stack configured clusters, otherwise fail). The
+//
+// ipFamilies and clusterIPs fields depend on the value of this field. This
+//
+// field will be wiped when updating a service to type ExternalName.
 func (d *ServiceSpecDie) IPFamilyPolicy(v *corev1.IPFamilyPolicy) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.IPFamilyPolicy = v
 	})
 }
 
-// allocateLoadBalancerNodePorts defines if NodePorts will be automatically allocated for services with type LoadBalancer.  Default is "true". It may be set to "false" if the cluster load-balancer does not rely on NodePorts.  If the caller requests specific NodePorts (by specifying a value), those requests will be respected, regardless of this field. This field may only be set for services with type LoadBalancer and will be cleared if the type is changed to any other type.
+// allocateLoadBalancerNodePorts defines if NodePorts will be automatically
+//
+// allocated for services with type LoadBalancer.  Default is "true". It
+//
+// may be set to "false" if the cluster load-balancer does not rely on
+//
+// NodePorts.  If the caller requests specific NodePorts (by specifying a
+//
+// value), those requests will be respected, regardless of this field.
+//
+// # This field may only be set for services with type LoadBalancer and will
+//
+// be cleared if the type is changed to any other type.
 func (d *ServiceSpecDie) AllocateLoadBalancerNodePorts(v *bool) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.AllocateLoadBalancerNodePorts = v
 	})
 }
 
-// loadBalancerClass is the class of the load balancer implementation this Service belongs to. If specified, the value of this field must be a label-style identifier, with an optional prefix, e.g. "internal-vip" or "example.com/internal-vip". Unprefixed names are reserved for end-users. This field can only be set when the Service type is 'LoadBalancer'. If not set, the default load balancer implementation is used, today this is typically done through the cloud provider integration, but should apply for any default implementation. If set, it is assumed that a load balancer implementation is watching for Services with a matching class. Any default load balancer implementation (e.g. cloud providers) should ignore Services that set this field. This field can only be set when creating or updating a Service to type 'LoadBalancer'. Once set, it can not be changed. This field will be wiped when a service is updated to a non 'LoadBalancer' type.
+// loadBalancerClass is the class of the load balancer implementation this Service belongs to.
+//
+// If specified, the value of this field must be a label-style identifier, with an optional prefix,
+//
+// e.g. "internal-vip" or "example.com/internal-vip". Unprefixed names are reserved for end-users.
+//
+// This field can only be set when the Service type is 'LoadBalancer'. If not set, the default load
+//
+// balancer implementation is used, today this is typically done through the cloud provider integration,
+//
+// but should apply for any default implementation. If set, it is assumed that a load balancer
+//
+// implementation is watching for Services with a matching class. Any default load balancer
+//
+// implementation (e.g. cloud providers) should ignore Services that set this field.
+//
+// This field can only be set when creating or updating a Service to type 'LoadBalancer'.
+//
+// Once set, it can not be changed. This field will be wiped when a service is updated to a non 'LoadBalancer' type.
 func (d *ServiceSpecDie) LoadBalancerClass(v *string) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.LoadBalancerClass = v
 	})
 }
 
-// InternalTrafficPolicy describes how nodes distribute service traffic they receive on the ClusterIP. If set to "Local", the proxy will assume that pods only want to talk to endpoints of the service on the same node as the pod, dropping the traffic if there are no local endpoints. The default value, "Cluster", uses the standard behavior of routing to all endpoints evenly (possibly modified by topology and other features).
+// InternalTrafficPolicy describes how nodes distribute service traffic they
+//
+// receive on the ClusterIP. If set to "Local", the proxy will assume that pods
+//
+// only want to talk to endpoints of the service on the same node as the pod,
+//
+// dropping the traffic if there are no local endpoints. The default value,
+//
+// "Cluster", uses the standard behavior of routing to all endpoints evenly
+//
+// (possibly modified by topology and other features).
 func (d *ServiceSpecDie) InternalTrafficPolicy(v *corev1.ServiceInternalTrafficPolicy) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.InternalTrafficPolicy = v
@@ -27769,27 +29965,53 @@ func (d *ServicePortDie) DeepCopy() *ServicePortDie {
 	}
 }
 
-// The name of this port within the service. This must be a DNS_LABEL. All ports within a ServiceSpec must have unique names. When considering the endpoints for a Service, this must match the 'name' field in the EndpointPort. Optional if only one ServicePort is defined on this service.
+// The name of this port within the service. This must be a DNS_LABEL.
+//
+// All ports within a ServiceSpec must have unique names. When considering
+//
+// the endpoints for a Service, this must match the 'name' field in the
+//
+// EndpointPort.
+//
+// Optional if only one ServicePort is defined on this service.
 func (d *ServicePortDie) Name(v string) *ServicePortDie {
 	return d.DieStamp(func(r *corev1.ServicePort) {
 		r.Name = v
 	})
 }
 
-// The IP protocol for this port. Supports "TCP", "UDP", and "SCTP". Default is TCP.
+// The IP protocol for this port. Supports "TCP", "UDP", and "SCTP".
+//
+// Default is TCP.
 func (d *ServicePortDie) Protocol(v corev1.Protocol) *ServicePortDie {
 	return d.DieStamp(func(r *corev1.ServicePort) {
 		r.Protocol = v
 	})
 }
 
-// The application protocol for this port. This is used as a hint for implementations to offer richer behavior for protocols that they understand. This field follows standard Kubernetes label syntax. Valid values are either:
+// The application protocol for this port.
 //
-// * Un-prefixed protocol names - reserved for IANA standard service names (as per RFC-6335 and https://www.iana.org/assignments/service-names).
+// This is used as a hint for implementations to offer richer behavior for protocols that they understand.
 //
-// * Kubernetes-defined prefixed names: * 'kubernetes.io/h2c' - HTTP/2 prior knowledge over cleartext as described in https://www.rfc-editor.org/rfc/rfc9113.html#name-starting-http-2-with-prior- * 'kubernetes.io/ws'  - WebSocket over cleartext as described in https://www.rfc-editor.org/rfc/rfc6455 * 'kubernetes.io/wss' - WebSocket over TLS as described in https://www.rfc-editor.org/rfc/rfc6455
+// This field follows standard Kubernetes label syntax.
 //
-// * Other protocols should use implementation-defined prefixed names such as mycompany.com/my-custom-protocol.
+// Valid values are either:
+//
+// * Un-prefixed protocol names - reserved for IANA standard service names (as per
+//
+// RFC-6335 and https://www.iana.org/assignments/service-names).
+//
+// * Kubernetes-defined prefixed names:
+//
+// * 'kubernetes.io/h2c' - HTTP/2 prior knowledge over cleartext as described in https://www.rfc-editor.org/rfc/rfc9113.html#name-starting-http-2-with-prior-
+//
+// * 'kubernetes.io/ws'  - WebSocket over cleartext as described in https://www.rfc-editor.org/rfc/rfc6455
+//
+// * 'kubernetes.io/wss' - WebSocket over TLS as described in https://www.rfc-editor.org/rfc/rfc6455
+//
+// * Other protocols should use implementation-defined prefixed names such as
+//
+// mycompany.com/my-custom-protocol.
 func (d *ServicePortDie) AppProtocol(v *string) *ServicePortDie {
 	return d.DieStamp(func(r *corev1.ServicePort) {
 		r.AppProtocol = v
@@ -27803,7 +30025,21 @@ func (d *ServicePortDie) Port(v int32) *ServicePortDie {
 	})
 }
 
-// Number or name of the port to access on the pods targeted by the service. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME. If this is a string, it will be looked up as a named port in the target Pod's container ports. If this is not specified, the value of the 'port' field is used (an identity map). This field is ignored for services with clusterIP=None, and should be omitted or set equal to the 'port' field. More info: https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+// Number or name of the port to access on the pods targeted by the service.
+//
+// Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+//
+// # If this is a string, it will be looked up as a named port in the
+//
+// target Pod's container ports. If this is not specified, the value
+//
+// of the 'port' field is used (an identity map).
+//
+// This field is ignored for services with clusterIP=None, and should be
+//
+// omitted or set equal to the 'port' field.
+//
+// More info: https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
 func (d *ServicePortDie) TargetPort(v intstr.IntOrString) *ServicePortDie {
 	return d.DieStamp(func(r *corev1.ServicePort) {
 		r.TargetPort = v
@@ -27824,7 +30060,23 @@ func (d *ServicePortDie) TargetPortString(s string) *ServicePortDie {
 	})
 }
 
-// The port on each node on which this service is exposed when type is NodePort or LoadBalancer.  Usually assigned by the system. If a value is specified, in-range, and not in use it will be used, otherwise the operation will fail.  If not specified, a port will be allocated if this Service requires one.  If this field is specified when creating a Service which does not need it, creation will fail. This field will be wiped when updating a Service to no longer need it (e.g. changing type from NodePort to ClusterIP). More info: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+// The port on each node on which this service is exposed when type is
+//
+// NodePort or LoadBalancer.  Usually assigned by the system. If a value is
+//
+// specified, in-range, and not in use it will be used, otherwise the
+//
+// operation will fail.  If not specified, a port will be allocated if this
+//
+// Service requires one.  If this field is specified when creating a
+//
+// Service which does not need it, creation will fail. This field will be
+//
+// wiped when updating a Service to no longer need it (e.g. changing type
+//
+// from NodePort to ClusterIP).
+//
+// More info: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
 func (d *ServicePortDie) NodePort(v int32) *ServicePortDie {
 	return d.DieStamp(func(r *corev1.ServicePort) {
 		r.NodePort = v
@@ -28202,7 +30454,11 @@ func (d *ClientIPConfigDie) DeepCopy() *ClientIPConfigDie {
 	}
 }
 
-// timeoutSeconds specifies the seconds of ClientIP type session sticky time. The value must be >0 && <=86400(for 1 day) if ServiceAffinity == "ClientIP". Default value is 10800(for 3 hours).
+// timeoutSeconds specifies the seconds of ClientIP type session sticky time.
+//
+// The value must be >0 && <=86400(for 1 day) if ServiceAffinity == "ClientIP".
+//
+// Default value is 10800(for 3 hours).
 func (d *ClientIPConfigDie) TimeoutSeconds(v *int32) *ClientIPConfigDie {
 	return d.DieStamp(func(r *corev1.ClientIPConfig) {
 		r.TimeoutSeconds = v
@@ -28391,7 +30647,9 @@ func (d *ServiceStatusDie) DeepCopy() *ServiceStatusDie {
 	}
 }
 
-// LoadBalancer contains the current status of the load-balancer, if one is present.
+// LoadBalancer contains the current status of the load-balancer,
+//
+// if one is present.
 func (d *ServiceStatusDie) LoadBalancer(v corev1.LoadBalancerStatus) *ServiceStatusDie {
 	return d.DieStamp(func(r *corev1.ServiceStatus) {
 		r.LoadBalancer = v
@@ -28587,7 +30845,9 @@ func (d *LoadBalancerStatusDie) DeepCopy() *LoadBalancerStatusDie {
 	}
 }
 
-// Ingress is a list containing ingress points for the load-balancer. Traffic intended for the service should be sent to these ingress points.
+// Ingress is a list containing ingress points for the load-balancer.
+//
+// Traffic intended for the service should be sent to these ingress points.
 func (d *LoadBalancerStatusDie) Ingress(v ...corev1.LoadBalancerIngress) *LoadBalancerStatusDie {
 	return d.DieStamp(func(r *corev1.LoadBalancerStatus) {
 		r.Ingress = v
@@ -28776,28 +31036,44 @@ func (d *LoadBalancerIngressDie) DeepCopy() *LoadBalancerIngressDie {
 	}
 }
 
-// IP is set for load-balancer ingress points that are IP based (typically GCE or OpenStack load-balancers)
+// IP is set for load-balancer ingress points that are IP based
+//
+// (typically GCE or OpenStack load-balancers)
 func (d *LoadBalancerIngressDie) IP(v string) *LoadBalancerIngressDie {
 	return d.DieStamp(func(r *corev1.LoadBalancerIngress) {
 		r.IP = v
 	})
 }
 
-// Hostname is set for load-balancer ingress points that are DNS based (typically AWS load-balancers)
+// Hostname is set for load-balancer ingress points that are DNS based
+//
+// (typically AWS load-balancers)
 func (d *LoadBalancerIngressDie) Hostname(v string) *LoadBalancerIngressDie {
 	return d.DieStamp(func(r *corev1.LoadBalancerIngress) {
 		r.Hostname = v
 	})
 }
 
-// IPMode specifies how the load-balancer IP behaves, and may only be specified when the ip field is specified. Setting this to "VIP" indicates that traffic is delivered to the node with the destination set to the load-balancer's IP and port. Setting this to "Proxy" indicates that traffic is delivered to the node or pod with the destination set to the node's IP and node port or the pod's IP and port. Service implementations may use this information to adjust traffic routing.
+// IPMode specifies how the load-balancer IP behaves, and may only be specified when the ip field is specified.
+//
+// Setting this to "VIP" indicates that traffic is delivered to the node with
+//
+// the destination set to the load-balancer's IP and port.
+//
+// Setting this to "Proxy" indicates that traffic is delivered to the node or pod with
+//
+// the destination set to the node's IP and node port or the pod's IP and port.
+//
+// Service implementations may use this information to adjust traffic routing.
 func (d *LoadBalancerIngressDie) IPMode(v *corev1.LoadBalancerIPMode) *LoadBalancerIngressDie {
 	return d.DieStamp(func(r *corev1.LoadBalancerIngress) {
 		r.IPMode = v
 	})
 }
 
-// Ports is a list of records of service ports If used, every port defined in the service should have an entry in it
+// Ports is a list of records of service ports
+//
+// If used, every port defined in the service should have an entry in it
 func (d *LoadBalancerIngressDie) Ports(v ...corev1.PortStatus) *LoadBalancerIngressDie {
 	return d.DieStamp(func(r *corev1.LoadBalancerIngress) {
 		r.Ports = v
@@ -28993,14 +31269,30 @@ func (d *PortStatusDie) Port(v int32) *PortStatusDie {
 	})
 }
 
-// Protocol is the protocol of the service port of which status is recorded here The supported values are: "TCP", "UDP", "SCTP"
+// Protocol is the protocol of the service port of which status is recorded here
+//
+// The supported values are: "TCP", "UDP", "SCTP"
 func (d *PortStatusDie) Protocol(v corev1.Protocol) *PortStatusDie {
 	return d.DieStamp(func(r *corev1.PortStatus) {
 		r.Protocol = v
 	})
 }
 
-// Error is to record the problem with the service port The format of the error shall comply with the following rules: - built-in error values shall be specified in this file and those shall use CamelCase names - cloud provider specific error values must have names that comply with the format foo.example.com/CamelCase. --- The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+// Error is to record the problem with the service port
+//
+// The format of the error shall comply with the following rules:
+//
+// - built-in error values shall be specified in this file and those shall use
+//
+// # CamelCase names
+//
+// - cloud provider specific error values must have names that comply with the
+//
+// format foo.example.com/CamelCase.
+//
+// ---
+//
+// The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
 func (d *PortStatusDie) Error(v *string) *PortStatusDie {
 	return d.DieStamp(func(r *corev1.PortStatus) {
 		r.Error = v
@@ -29256,21 +31548,37 @@ func (d *ServiceAccountDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Servi
 	})
 }
 
-// Secrets is a list of the secrets in the same namespace that pods running using this ServiceAccount are allowed to use. Pods are only limited to this list if this service account has a "kubernetes.io/enforce-mountable-secrets" annotation set to "true". This field should not be used to find auto-generated service account token secrets for use outside of pods. Instead, tokens can be requested directly using the TokenRequest API, or service account token secrets can be manually created. More info: https://kubernetes.io/docs/concepts/configuration/secret
+// Secrets is a list of the secrets in the same namespace that pods running using this ServiceAccount are allowed to use.
+//
+// Pods are only limited to this list if this service account has a "kubernetes.io/enforce-mountable-secrets" annotation set to "true".
+//
+// This field should not be used to find auto-generated service account token secrets for use outside of pods.
+//
+// Instead, tokens can be requested directly using the TokenRequest API, or service account token secrets can be manually created.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/secret
 func (d *ServiceAccountDie) Secrets(v ...corev1.ObjectReference) *ServiceAccountDie {
 	return d.DieStamp(func(r *corev1.ServiceAccount) {
 		r.Secrets = v
 	})
 }
 
-// ImagePullSecrets is a list of references to secrets in the same namespace to use for pulling any images in pods that reference this ServiceAccount. ImagePullSecrets are distinct from Secrets because Secrets can be mounted in the pod, but ImagePullSecrets are only accessed by the kubelet. More info: https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
+// ImagePullSecrets is a list of references to secrets in the same namespace to use for pulling any images
+//
+// in pods that reference this ServiceAccount. ImagePullSecrets are distinct from Secrets because Secrets
+//
+// can be mounted in the pod, but ImagePullSecrets are only accessed by the kubelet.
+//
+// More info: https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
 func (d *ServiceAccountDie) ImagePullSecrets(v ...corev1.LocalObjectReference) *ServiceAccountDie {
 	return d.DieStamp(func(r *corev1.ServiceAccount) {
 		r.ImagePullSecrets = v
 	})
 }
 
-// AutomountServiceAccountToken indicates whether pods running as this service account should have an API token automatically mounted. Can be overridden at the pod level.
+// AutomountServiceAccountToken indicates whether pods running as this service account should have an API token automatically mounted.
+//
+// Can be overridden at the pod level.
 func (d *ServiceAccountDie) AutomountServiceAccountToken(v *bool) *ServiceAccountDie {
 	return d.DieStamp(func(r *corev1.ServiceAccount) {
 		r.AutomountServiceAccountToken = v
@@ -29459,14 +31767,22 @@ func (d *VolumeDie) DeepCopy() *VolumeDie {
 	}
 }
 
-// name of the volume. Must be a DNS_LABEL and unique within the pod. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+// name of the volume.
+//
+// Must be a DNS_LABEL and unique within the pod.
+//
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 func (d *VolumeDie) Name(v string) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		r.Name = v
 	})
 }
 
-// volumeSource represents the location and type of the mounted volume. If not specified, the Volume is implied to be an EmptyDir. This implied behavior is deprecated and will be removed in a future version.
+// volumeSource represents the location and type of the mounted volume.
+//
+// If not specified, the Volume is implied to be an EmptyDir.
+//
+// This implied behavior is deprecated and will be removed in a future version.
 func (d *VolumeDie) VolumeSource(v corev1.VolumeSource) *VolumeDie {
 	return d.DieStamp(func(r *corev1.Volume) {
 		r.VolumeSource = v
@@ -29655,14 +31971,22 @@ func (d *HostPathVolumeSourceDie) DeepCopy() *HostPathVolumeSourceDie {
 	}
 }
 
-// path of the directory on the host. If the path is a symlink, it will follow the link to the real path. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
+// path of the directory on the host.
+//
+// If the path is a symlink, it will follow the link to the real path.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
 func (d *HostPathVolumeSourceDie) Path(v string) *HostPathVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.HostPathVolumeSource) {
 		r.Path = v
 	})
 }
 
-// type for HostPath Volume Defaults to "" More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
+// type for HostPath Volume
+//
+// Defaults to ""
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
 func (d *HostPathVolumeSourceDie) Type(v *corev1.HostPathType) *HostPathVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.HostPathVolumeSource) {
 		r.Type = v
@@ -29851,14 +32175,30 @@ func (d *EmptyDirVolumeSourceDie) DeepCopy() *EmptyDirVolumeSourceDie {
 	}
 }
 
-// medium represents what type of storage medium should back this directory. The default is "" which means to use the node's default medium. Must be an empty string (default) or Memory. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
+// medium represents what type of storage medium should back this directory.
+//
+// The default is "" which means to use the node's default medium.
+//
+// Must be an empty string (default) or Memory.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
 func (d *EmptyDirVolumeSourceDie) Medium(v corev1.StorageMedium) *EmptyDirVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.EmptyDirVolumeSource) {
 		r.Medium = v
 	})
 }
 
-// sizeLimit is the total amount of local storage required for this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. The default is nil which means that the limit is undefined. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
+// sizeLimit is the total amount of local storage required for this EmptyDir volume.
+//
+// The size limit is also applicable for memory medium.
+//
+// # The maximum usage on memory medium EmptyDir would be the minimum value between
+//
+// the SizeLimit specified here and the sum of memory limits of all containers in a pod.
+//
+// The default is nil which means that the limit is undefined.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
 func (d *EmptyDirVolumeSourceDie) SizeLimit(v *resource.Quantity) *EmptyDirVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.EmptyDirVolumeSource) {
 		r.SizeLimit = v
@@ -30047,28 +32387,50 @@ func (d *GCEPersistentDiskVolumeSourceDie) DeepCopy() *GCEPersistentDiskVolumeSo
 	}
 }
 
-// pdName is unique name of the PD resource in GCE. Used to identify the disk in GCE. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
+// pdName is unique name of the PD resource in GCE. Used to identify the disk in GCE.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
 func (d *GCEPersistentDiskVolumeSourceDie) PDName(v string) *GCEPersistentDiskVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GCEPersistentDiskVolumeSource) {
 		r.PDName = v
 	})
 }
 
-// fsType is filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk TODO: how do we prevent errors in the filesystem from compromising the machine
+// fsType is filesystem type of the volume that you want to mount.
+//
+// Tip: Ensure that the filesystem type is supported by the host operating system.
+//
+// Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
+//
+// TODO: how do we prevent errors in the filesystem from compromising the machine
 func (d *GCEPersistentDiskVolumeSourceDie) FSType(v string) *GCEPersistentDiskVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GCEPersistentDiskVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// partition is the partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as "1". Similarly, the volume partition for /dev/sda is "0" (or you can leave the property empty). More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
+// partition is the partition in the volume that you want to mount.
+//
+// If omitted, the default is to mount by volume name.
+//
+// Examples: For volume /dev/sda1, you specify the partition as "1".
+//
+// Similarly, the volume partition for /dev/sda is "0" (or you can leave the property empty).
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
 func (d *GCEPersistentDiskVolumeSourceDie) Partition(v int32) *GCEPersistentDiskVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GCEPersistentDiskVolumeSource) {
 		r.Partition = v
 	})
 }
 
-// readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
+// readOnly here will force the ReadOnly setting in VolumeMounts.
+//
+// Defaults to false.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
 func (d *GCEPersistentDiskVolumeSourceDie) ReadOnly(v bool) *GCEPersistentDiskVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GCEPersistentDiskVolumeSource) {
 		r.ReadOnly = v
@@ -30257,28 +32619,46 @@ func (d *AWSElasticBlockStoreVolumeSourceDie) DeepCopy() *AWSElasticBlockStoreVo
 	}
 }
 
-// volumeID is unique ID of the persistent disk resource in AWS (Amazon EBS volume). More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
+// volumeID is unique ID of the persistent disk resource in AWS (Amazon EBS volume).
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
 func (d *AWSElasticBlockStoreVolumeSourceDie) VolumeID(v string) *AWSElasticBlockStoreVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.AWSElasticBlockStoreVolumeSource) {
 		r.VolumeID = v
 	})
 }
 
-// fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore TODO: how do we prevent errors in the filesystem from compromising the machine
+// fsType is the filesystem type of the volume that you want to mount.
+//
+// Tip: Ensure that the filesystem type is supported by the host operating system.
+//
+// Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
+//
+// TODO: how do we prevent errors in the filesystem from compromising the machine
 func (d *AWSElasticBlockStoreVolumeSourceDie) FSType(v string) *AWSElasticBlockStoreVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.AWSElasticBlockStoreVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// partition is the partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as "1". Similarly, the volume partition for /dev/sda is "0" (or you can leave the property empty).
+// partition is the partition in the volume that you want to mount.
+//
+// If omitted, the default is to mount by volume name.
+//
+// Examples: For volume /dev/sda1, you specify the partition as "1".
+//
+// Similarly, the volume partition for /dev/sda is "0" (or you can leave the property empty).
 func (d *AWSElasticBlockStoreVolumeSourceDie) Partition(v int32) *AWSElasticBlockStoreVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.AWSElasticBlockStoreVolumeSource) {
 		r.Partition = v
 	})
 }
 
-// readOnly value true will force the readOnly setting in VolumeMounts. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
+// readOnly value true will force the readOnly setting in VolumeMounts.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
 func (d *AWSElasticBlockStoreVolumeSourceDie) ReadOnly(v bool) *AWSElasticBlockStoreVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.AWSElasticBlockStoreVolumeSource) {
 		r.ReadOnly = v
@@ -30481,7 +32861,13 @@ func (d *GitRepoVolumeSourceDie) Revision(v string) *GitRepoVolumeSourceDie {
 	})
 }
 
-// directory is the target directory name. Must not contain or start with '..'.  If '.' is supplied, the volume directory will be the git repository.  Otherwise, if specified, the volume will contain the git repository in the subdirectory with the given name.
+// directory is the target directory name.
+//
+// Must not contain or start with '..'.  If '.' is supplied, the volume directory will be the
+//
+// git repository.  Otherwise, if specified, the volume will contain the git repository in
+//
+// the subdirectory with the given name.
 func (d *GitRepoVolumeSourceDie) Directory(v string) *GitRepoVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GitRepoVolumeSource) {
 		r.Directory = v
@@ -30670,21 +33056,47 @@ func (d *SecretVolumeSourceDie) DeepCopy() *SecretVolumeSourceDie {
 	}
 }
 
-// secretName is the name of the secret in the pod's namespace to use. More info: https://kubernetes.io/docs/concepts/storage/volumes#secret
+// secretName is the name of the secret in the pod's namespace to use.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#secret
 func (d *SecretVolumeSourceDie) SecretName(v string) *SecretVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.SecretVolumeSource) {
 		r.SecretName = v
 	})
 }
 
-// items If unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'.
+// items If unspecified, each key-value pair in the Data field of the referenced
+//
+// # Secret will be projected into the volume as a file whose name is the
+//
+// key and content is the value. If specified, the listed keys will be
+//
+// projected into the specified paths, and unlisted keys will not be
+//
+// present. If a key is specified which is not present in the Secret,
+//
+// the volume setup will error unless it is marked optional. Paths must be
+//
+// relative and may not contain the '..' path or start with '..'.
 func (d *SecretVolumeSourceDie) Items(v ...corev1.KeyToPath) *SecretVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.SecretVolumeSource) {
 		r.Items = v
 	})
 }
 
-// defaultMode is Optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
+// defaultMode is Optional: mode bits used to set permissions on created files by default.
+//
+// Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511.
+//
+// # YAML accepts both octal and decimal values, JSON requires decimal values
+//
+// for mode bits. Defaults to 0644.
+//
+// Directories within the path are not affected by this setting.
+//
+// # This might be in conflict with other options that affect the file
+//
+// mode, like fsGroup, and the result can be other mode bits set.
 func (d *SecretVolumeSourceDie) DefaultMode(v *int32) *SecretVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.SecretVolumeSource) {
 		r.DefaultMode = v
@@ -30880,21 +33292,29 @@ func (d *NFSVolumeSourceDie) DeepCopy() *NFSVolumeSourceDie {
 	}
 }
 
-// server is the hostname or IP address of the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
+// server is the hostname or IP address of the NFS server.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
 func (d *NFSVolumeSourceDie) Server(v string) *NFSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.NFSVolumeSource) {
 		r.Server = v
 	})
 }
 
-// path that is exported by the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
+// path that is exported by the NFS server.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
 func (d *NFSVolumeSourceDie) Path(v string) *NFSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.NFSVolumeSource) {
 		r.Path = v
 	})
 }
 
-// readOnly here will force the NFS export to be mounted with read-only permissions. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
+// readOnly here will force the NFS export to be mounted with read-only permissions.
+//
+// Defaults to false.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
 func (d *NFSVolumeSourceDie) ReadOnly(v bool) *NFSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.NFSVolumeSource) {
 		r.ReadOnly = v
@@ -31083,7 +33503,9 @@ func (d *ISCSIVolumeSourceDie) DeepCopy() *ISCSIVolumeSourceDie {
 	}
 }
 
-// targetPortal is iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
+// targetPortal is iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port
+//
+// is other than default (typically TCP ports 860 and 3260).
 func (d *ISCSIVolumeSourceDie) TargetPortal(v string) *ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		r.TargetPortal = v
@@ -31104,28 +33526,42 @@ func (d *ISCSIVolumeSourceDie) Lun(v int32) *ISCSIVolumeSourceDie {
 	})
 }
 
-// iscsiInterface is the interface Name that uses an iSCSI transport. Defaults to 'default' (tcp).
+// iscsiInterface is the interface Name that uses an iSCSI transport.
+//
+// Defaults to 'default' (tcp).
 func (d *ISCSIVolumeSourceDie) ISCSIInterface(v string) *ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		r.ISCSIInterface = v
 	})
 }
 
-// fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#iscsi TODO: how do we prevent errors in the filesystem from compromising the machine
+// fsType is the filesystem type of the volume that you want to mount.
+//
+// Tip: Ensure that the filesystem type is supported by the host operating system.
+//
+// Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#iscsi
+//
+// TODO: how do we prevent errors in the filesystem from compromising the machine
 func (d *ISCSIVolumeSourceDie) FSType(v string) *ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false.
+// readOnly here will force the ReadOnly setting in VolumeMounts.
+//
+// Defaults to false.
 func (d *ISCSIVolumeSourceDie) ReadOnly(v bool) *ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		r.ReadOnly = v
 	})
 }
 
-// portals is the iSCSI Target Portal List. The portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
+// portals is the iSCSI Target Portal List. The portal is either an IP or ip_addr:port if the port
+//
+// is other than default (typically TCP ports 860 and 3260).
 func (d *ISCSIVolumeSourceDie) Portals(v ...string) *ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		r.Portals = v
@@ -31153,7 +33589,11 @@ func (d *ISCSIVolumeSourceDie) SecretRef(v *corev1.LocalObjectReference) *ISCSIV
 	})
 }
 
-// initiatorName is the custom iSCSI Initiator Name. If initiatorName is specified with iscsiInterface simultaneously, new iSCSI interface <target portal>:<volume name> will be created for the connection.
+// initiatorName is the custom iSCSI Initiator Name.
+//
+// # If initiatorName is specified with iscsiInterface simultaneously, new iSCSI interface
+//
+// <target portal>:<volume name> will be created for the connection.
 func (d *ISCSIVolumeSourceDie) InitiatorName(v *string) *ISCSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
 		r.InitiatorName = v
@@ -31342,21 +33782,29 @@ func (d *GlusterfsVolumeSourceDie) DeepCopy() *GlusterfsVolumeSourceDie {
 	}
 }
 
-// endpoints is the endpoint name that details Glusterfs topology. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
+// endpoints is the endpoint name that details Glusterfs topology.
+//
+// More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
 func (d *GlusterfsVolumeSourceDie) EndpointsName(v string) *GlusterfsVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GlusterfsVolumeSource) {
 		r.EndpointsName = v
 	})
 }
 
-// path is the Glusterfs volume path. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
+// path is the Glusterfs volume path.
+//
+// More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
 func (d *GlusterfsVolumeSourceDie) Path(v string) *GlusterfsVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GlusterfsVolumeSource) {
 		r.Path = v
 	})
 }
 
-// readOnly here will force the Glusterfs volume to be mounted with read-only permissions. Defaults to false. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
+// readOnly here will force the Glusterfs volume to be mounted with read-only permissions.
+//
+// Defaults to false.
+//
+// More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
 func (d *GlusterfsVolumeSourceDie) ReadOnly(v bool) *GlusterfsVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.GlusterfsVolumeSource) {
 		r.ReadOnly = v
@@ -31545,14 +33993,18 @@ func (d *PersistentVolumeClaimVolumeSourceDie) DeepCopy() *PersistentVolumeClaim
 	}
 }
 
-// claimName is the name of a PersistentVolumeClaim in the same namespace as the pod using this volume. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+// claimName is the name of a PersistentVolumeClaim in the same namespace as the pod using this volume.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
 func (d *PersistentVolumeClaimVolumeSourceDie) ClaimName(v string) *PersistentVolumeClaimVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimVolumeSource) {
 		r.ClaimName = v
 	})
 }
 
-// readOnly Will force the ReadOnly setting in VolumeMounts. Default false.
+// readOnly Will force the ReadOnly setting in VolumeMounts.
+//
+// Default false.
 func (d *PersistentVolumeClaimVolumeSourceDie) ReadOnly(v bool) *PersistentVolumeClaimVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimVolumeSource) {
 		r.ReadOnly = v
@@ -31741,56 +34193,90 @@ func (d *RBDVolumeSourceDie) DeepCopy() *RBDVolumeSourceDie {
 	}
 }
 
-// monitors is a collection of Ceph monitors. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
+// monitors is a collection of Ceph monitors.
+//
+// More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
 func (d *RBDVolumeSourceDie) CephMonitors(v ...string) *RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		r.CephMonitors = v
 	})
 }
 
-// image is the rados image name. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
+// image is the rados image name.
+//
+// More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
 func (d *RBDVolumeSourceDie) RBDImage(v string) *RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		r.RBDImage = v
 	})
 }
 
-// fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#rbd TODO: how do we prevent errors in the filesystem from compromising the machine
+// fsType is the filesystem type of the volume that you want to mount.
+//
+// Tip: Ensure that the filesystem type is supported by the host operating system.
+//
+// Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#rbd
+//
+// TODO: how do we prevent errors in the filesystem from compromising the machine
 func (d *RBDVolumeSourceDie) FSType(v string) *RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// pool is the rados pool name. Default is rbd. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
+// pool is the rados pool name.
+//
+// Default is rbd.
+//
+// More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
 func (d *RBDVolumeSourceDie) RBDPool(v string) *RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		r.RBDPool = v
 	})
 }
 
-// user is the rados user name. Default is admin. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
+// user is the rados user name.
+//
+// Default is admin.
+//
+// More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
 func (d *RBDVolumeSourceDie) RadosUser(v string) *RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		r.RadosUser = v
 	})
 }
 
-// keyring is the path to key ring for RBDUser. Default is /etc/ceph/keyring. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
+// keyring is the path to key ring for RBDUser.
+//
+// Default is /etc/ceph/keyring.
+//
+// More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
 func (d *RBDVolumeSourceDie) Keyring(v string) *RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		r.Keyring = v
 	})
 }
 
-// secretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
+// secretRef is name of the authentication secret for RBDUser. If provided
+//
+// overrides keyring.
+//
+// Default is nil.
+//
+// More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
 func (d *RBDVolumeSourceDie) SecretRef(v *corev1.LocalObjectReference) *RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		r.SecretRef = v
 	})
 }
 
-// readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
+// readOnly here will force the ReadOnly setting in VolumeMounts.
+//
+// Defaults to false.
+//
+// More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
 func (d *RBDVolumeSourceDie) ReadOnly(v bool) *RBDVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
 		r.ReadOnly = v
@@ -31986,21 +34472,35 @@ func (d *FlexVolumeSourceDie) Driver(v string) *FlexVolumeSourceDie {
 	})
 }
 
-// fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". The default filesystem depends on FlexVolume script.
+// fsType is the filesystem type to mount.
+//
+// Must be a filesystem type supported by the host operating system.
+//
+// Ex. "ext4", "xfs", "ntfs". The default filesystem depends on FlexVolume script.
 func (d *FlexVolumeSourceDie) FSType(v string) *FlexVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FlexVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// secretRef is Optional: secretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts.
+// secretRef is Optional: secretRef is reference to the secret object containing
+//
+// sensitive information to pass to the plugin scripts. This may be
+//
+// empty if no secret object is specified. If the secret object
+//
+// contains more than one secret, all secrets are passed to the plugin
+//
+// scripts.
 func (d *FlexVolumeSourceDie) SecretRef(v *corev1.LocalObjectReference) *FlexVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FlexVolumeSource) {
 		r.SecretRef = v
 	})
 }
 
-// readOnly is Optional: defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+// readOnly is Optional: defaults to false (read/write). ReadOnly here will force
+//
+// the ReadOnly setting in VolumeMounts.
 func (d *FlexVolumeSourceDie) ReadOnly(v bool) *FlexVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FlexVolumeSource) {
 		r.ReadOnly = v
@@ -32196,28 +34696,42 @@ func (d *CinderVolumeSourceDie) DeepCopy() *CinderVolumeSourceDie {
 	}
 }
 
-// volumeID used to identify the volume in cinder. More info: https://examples.k8s.io/mysql-cinder-pd/README.md
+// volumeID used to identify the volume in cinder.
+//
+// More info: https://examples.k8s.io/mysql-cinder-pd/README.md
 func (d *CinderVolumeSourceDie) VolumeID(v string) *CinderVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CinderVolumeSource) {
 		r.VolumeID = v
 	})
 }
 
-// fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://examples.k8s.io/mysql-cinder-pd/README.md
+// fsType is the filesystem type to mount.
+//
+// Must be a filesystem type supported by the host operating system.
+//
+// Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+//
+// More info: https://examples.k8s.io/mysql-cinder-pd/README.md
 func (d *CinderVolumeSourceDie) FSType(v string) *CinderVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CinderVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/mysql-cinder-pd/README.md
+// readOnly defaults to false (read/write). ReadOnly here will force
+//
+// the ReadOnly setting in VolumeMounts.
+//
+// More info: https://examples.k8s.io/mysql-cinder-pd/README.md
 func (d *CinderVolumeSourceDie) ReadOnly(v bool) *CinderVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CinderVolumeSource) {
 		r.ReadOnly = v
 	})
 }
 
-// secretRef is optional: points to a secret object containing parameters used to connect to OpenStack.
+// secretRef is optional: points to a secret object containing parameters used to connect
+//
+// to OpenStack.
 func (d *CinderVolumeSourceDie) SecretRef(v *corev1.LocalObjectReference) *CinderVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CinderVolumeSource) {
 		r.SecretRef = v
@@ -32406,7 +34920,9 @@ func (d *CephFSVolumeSourceDie) DeepCopy() *CephFSVolumeSourceDie {
 	}
 }
 
-// monitors is Required: Monitors is a collection of Ceph monitors More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
+// monitors is Required: Monitors is a collection of Ceph monitors
+//
+// More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
 func (d *CephFSVolumeSourceDie) Monitors(v ...string) *CephFSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CephFSVolumeSource) {
 		r.Monitors = v
@@ -32420,28 +34936,38 @@ func (d *CephFSVolumeSourceDie) Path(v string) *CephFSVolumeSourceDie {
 	})
 }
 
-// user is optional: User is the rados user name, default is admin More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
+// user is optional: User is the rados user name, default is admin
+//
+// More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
 func (d *CephFSVolumeSourceDie) User(v string) *CephFSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CephFSVolumeSource) {
 		r.User = v
 	})
 }
 
-// secretFile is Optional: SecretFile is the path to key ring for User, default is /etc/ceph/user.secret More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
+// secretFile is Optional: SecretFile is the path to key ring for User, default is /etc/ceph/user.secret
+//
+// More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
 func (d *CephFSVolumeSourceDie) SecretFile(v string) *CephFSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CephFSVolumeSource) {
 		r.SecretFile = v
 	})
 }
 
-// secretRef is Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
+// secretRef is Optional: SecretRef is reference to the authentication secret for User, default is empty.
+//
+// More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
 func (d *CephFSVolumeSourceDie) SecretRef(v *corev1.LocalObjectReference) *CephFSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CephFSVolumeSource) {
 		r.SecretRef = v
 	})
 }
 
-// readOnly is Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
+// readOnly is Optional: Defaults to false (read/write). ReadOnly here will force
+//
+// the ReadOnly setting in VolumeMounts.
+//
+// More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
 func (d *CephFSVolumeSourceDie) ReadOnly(v bool) *CephFSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CephFSVolumeSource) {
 		r.ReadOnly = v
@@ -32630,7 +35156,9 @@ func (d *FlockerVolumeSourceDie) DeepCopy() *FlockerVolumeSourceDie {
 	}
 }
 
-// datasetName is Name of the dataset stored as metadata -> name on the dataset for Flocker should be considered as deprecated
+// datasetName is Name of the dataset stored as metadata -> name on the dataset for Flocker
+//
+// should be considered as deprecated
 func (d *FlockerVolumeSourceDie) DatasetName(v string) *FlockerVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FlockerVolumeSource) {
 		r.DatasetName = v
@@ -32833,7 +35361,21 @@ func (d *DownwardAPIVolumeSourceDie) Items(v ...corev1.DownwardAPIVolumeFile) *D
 	})
 }
 
-// Optional: mode bits to use on created files by default. Must be a Optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
+// Optional: mode bits to use on created files by default. Must be a
+//
+// Optional: mode bits used to set permissions on created files by default.
+//
+// Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511.
+//
+// YAML accepts both octal and decimal values, JSON requires decimal values for mode bits.
+//
+// Defaults to 0644.
+//
+// Directories within the path are not affected by this setting.
+//
+// # This might be in conflict with other options that affect the file
+//
+// mode, like fsGroup, and the result can be other mode bits set.
 func (d *DownwardAPIVolumeSourceDie) DefaultMode(v *int32) *DownwardAPIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeSource) {
 		r.DefaultMode = v
@@ -33036,14 +35578,26 @@ func (d *DownwardAPIVolumeFileDie) FieldRef(v *corev1.ObjectFieldSelector) *Down
 	})
 }
 
-// Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported.
+// Selects a resource of the container: only resources limits and requests
+//
+// (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported.
 func (d *DownwardAPIVolumeFileDie) ResourceFieldRef(v *corev1.ResourceFieldSelector) *DownwardAPIVolumeFileDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
 		r.ResourceFieldRef = v
 	})
 }
 
-// Optional: mode bits used to set permissions on this file, must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
+// Optional: mode bits used to set permissions on this file, must be an octal value
+//
+// between 0000 and 0777 or a decimal value between 0 and 511.
+//
+// YAML accepts both octal and decimal values, JSON requires decimal values for mode bits.
+//
+// If not specified, the volume defaultMode will be used.
+//
+// # This might be in conflict with other options that affect the file
+//
+// mode, like fsGroup, and the result can be other mode bits set.
 func (d *DownwardAPIVolumeFileDie) Mode(v *int32) *DownwardAPIVolumeFileDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
 		r.Mode = v
@@ -33246,21 +35800,31 @@ func (d *FCVolumeSourceDie) Lun(v *int32) *FCVolumeSourceDie {
 	})
 }
 
-// fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. TODO: how do we prevent errors in the filesystem from compromising the machine
+// fsType is the filesystem type to mount.
+//
+// Must be a filesystem type supported by the host operating system.
+//
+// Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+//
+// TODO: how do we prevent errors in the filesystem from compromising the machine
 func (d *FCVolumeSourceDie) FSType(v string) *FCVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FCVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// readOnly is Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+// readOnly is Optional: Defaults to false (read/write). ReadOnly here will force
+//
+// the ReadOnly setting in VolumeMounts.
 func (d *FCVolumeSourceDie) ReadOnly(v bool) *FCVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FCVolumeSource) {
 		r.ReadOnly = v
 	})
 }
 
-// wwids Optional: FC volume world wide identifiers (wwids) Either wwids or combination of targetWWNs and lun must be set, but not both simultaneously.
+// wwids Optional: FC volume world wide identifiers (wwids)
+//
+// Either wwids or combination of targetWWNs and lun must be set, but not both simultaneously.
 func (d *FCVolumeSourceDie) WWIDs(v ...string) *FCVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FCVolumeSource) {
 		r.WWIDs = v
@@ -33463,7 +36027,9 @@ func (d *AzureFileVolumeSourceDie) ShareName(v string) *AzureFileVolumeSourceDie
 	})
 }
 
-// readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+// readOnly defaults to false (read/write). ReadOnly here will force
+//
+// the ReadOnly setting in VolumeMounts.
 func (d *AzureFileVolumeSourceDie) ReadOnly(v bool) *AzureFileVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.AzureFileVolumeSource) {
 		r.ReadOnly = v
@@ -33658,14 +36224,38 @@ func (d *ConfigMapVolumeSourceDie) LocalObjectReference(v corev1.LocalObjectRefe
 	})
 }
 
-// items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'.
+// items if unspecified, each key-value pair in the Data field of the referenced
+//
+// # ConfigMap will be projected into the volume as a file whose name is the
+//
+// key and content is the value. If specified, the listed keys will be
+//
+// projected into the specified paths, and unlisted keys will not be
+//
+// present. If a key is specified which is not present in the ConfigMap,
+//
+// the volume setup will error unless it is marked optional. Paths must be
+//
+// relative and may not contain the '..' path or start with '..'.
 func (d *ConfigMapVolumeSourceDie) Items(v ...corev1.KeyToPath) *ConfigMapVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ConfigMapVolumeSource) {
 		r.Items = v
 	})
 }
 
-// defaultMode is optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
+// defaultMode is optional: mode bits used to set permissions on created files by default.
+//
+// Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511.
+//
+// YAML accepts both octal and decimal values, JSON requires decimal values for mode bits.
+//
+// Defaults to 0644.
+//
+// Directories within the path are not affected by this setting.
+//
+// # This might be in conflict with other options that affect the file
+//
+// mode, like fsGroup, and the result can be other mode bits set.
 func (d *ConfigMapVolumeSourceDie) DefaultMode(v *int32) *ConfigMapVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ConfigMapVolumeSource) {
 		r.DefaultMode = v
@@ -33868,7 +36458,11 @@ func (d *VsphereVirtualDiskVolumeSourceDie) VolumePath(v string) *VsphereVirtual
 	})
 }
 
-// fsType is filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+// fsType is filesystem type to mount.
+//
+// Must be a filesystem type supported by the host operating system.
+//
+// Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
 func (d *VsphereVirtualDiskVolumeSourceDie) FSType(v string) *VsphereVirtualDiskVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.VsphereVirtualDiskVolumeSource) {
 		r.FSType = v
@@ -34071,7 +36665,11 @@ func (d *QuobyteVolumeSourceDie) DeepCopy() *QuobyteVolumeSourceDie {
 	}
 }
 
-// registry represents a single or multiple Quobyte Registry services specified as a string as host:port pair (multiple entries are separated with commas) which acts as the central registry for volumes
+// registry represents a single or multiple Quobyte Registry services
+//
+// specified as a string as host:port pair (multiple entries are separated with commas)
+//
+// which acts as the central registry for volumes
 func (d *QuobyteVolumeSourceDie) Registry(v string) *QuobyteVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.QuobyteVolumeSource) {
 		r.Registry = v
@@ -34085,28 +36683,36 @@ func (d *QuobyteVolumeSourceDie) Volume(v string) *QuobyteVolumeSourceDie {
 	})
 }
 
-// readOnly here will force the Quobyte volume to be mounted with read-only permissions. Defaults to false.
+// readOnly here will force the Quobyte volume to be mounted with read-only permissions.
+//
+// Defaults to false.
 func (d *QuobyteVolumeSourceDie) ReadOnly(v bool) *QuobyteVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.QuobyteVolumeSource) {
 		r.ReadOnly = v
 	})
 }
 
-// user to map volume access to Defaults to serivceaccount user
+// user to map volume access to
+//
+// Defaults to serivceaccount user
 func (d *QuobyteVolumeSourceDie) User(v string) *QuobyteVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.QuobyteVolumeSource) {
 		r.User = v
 	})
 }
 
-// group to map volume access to Default is no group
+// group to map volume access to
+//
+// Default is no group
 func (d *QuobyteVolumeSourceDie) Group(v string) *QuobyteVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.QuobyteVolumeSource) {
 		r.Group = v
 	})
 }
 
-// tenant owning the given Quobyte volume in the Backend Used with dynamically provisioned Quobyte volumes, value is set by the plugin
+// tenant owning the given Quobyte volume in the Backend
+//
+// Used with dynamically provisioned Quobyte volumes, value is set by the plugin
 func (d *QuobyteVolumeSourceDie) Tenant(v string) *QuobyteVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.QuobyteVolumeSource) {
 		r.Tenant = v
@@ -34316,14 +36922,20 @@ func (d *AzureDiskVolumeSourceDie) CachingMode(v *corev1.AzureDataDiskCachingMod
 	})
 }
 
-// fsType is Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+// fsType is Filesystem type to mount.
+//
+// Must be a filesystem type supported by the host operating system.
+//
+// Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
 func (d *AzureDiskVolumeSourceDie) FSType(v *string) *AzureDiskVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.AzureDiskVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// readOnly Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+// readOnly Defaults to false (read/write). ReadOnly here will force
+//
+// the ReadOnly setting in VolumeMounts.
 func (d *AzureDiskVolumeSourceDie) ReadOnly(v *bool) *AzureDiskVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.AzureDiskVolumeSource) {
 		r.ReadOnly = v
@@ -34526,7 +37138,11 @@ func (d *PhotonPersistentDiskVolumeSourceDie) PdID(v string) *PhotonPersistentDi
 	})
 }
 
-// fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+// fsType is the filesystem type to mount.
+//
+// Must be a filesystem type supported by the host operating system.
+//
+// Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
 func (d *PhotonPersistentDiskVolumeSourceDie) FSType(v string) *PhotonPersistentDiskVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.PhotonPersistentDiskVolumeSource) {
 		r.FSType = v
@@ -34722,7 +37338,17 @@ func (d *ProjectedVolumeSourceDie) Sources(v ...corev1.VolumeProjection) *Projec
 	})
 }
 
-// defaultMode are the mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
+// defaultMode are the mode bits used to set permissions on created files by default.
+//
+// Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511.
+//
+// YAML accepts both octal and decimal values, JSON requires decimal values for mode bits.
+//
+// Directories within the path are not affected by this setting.
+//
+// # This might be in conflict with other options that affect the file
+//
+// mode, like fsGroup, and the result can be other mode bits set.
 func (d *ProjectedVolumeSourceDie) DefaultMode(v *int32) *ProjectedVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ProjectedVolumeSource) {
 		r.DefaultMode = v
@@ -34939,13 +37565,25 @@ func (d *VolumeProjectionDie) ServiceAccountToken(v *corev1.ServiceAccountTokenP
 	})
 }
 
-// ClusterTrustBundle allows a pod to access the `.spec.trustBundle` field of ClusterTrustBundle objects in an auto-updating file.
+// ClusterTrustBundle allows a pod to access the `.spec.trustBundle` field
+//
+// of ClusterTrustBundle objects in an auto-updating file.
 //
 // Alpha, gated by the ClusterTrustBundleProjection feature gate.
 //
-// ClusterTrustBundle objects can either be selected by name, or by the combination of signer name and a label selector.
+// # ClusterTrustBundle objects can either be selected by name, or by the
 //
-// Kubelet performs aggressive normalization of the PEM contents written into the pod filesystem.  Esoteric PEM features such as inter-block comments and block headers are stripped.  Certificates are deduplicated. The ordering of certificates within the file is arbitrary, and Kubelet may change the order over time.
+// combination of signer name and a label selector.
+//
+// # Kubelet performs aggressive normalization of the PEM contents written
+//
+// into the pod filesystem.  Esoteric PEM features such as inter-block
+//
+// comments and block headers are stripped.  Certificates are deduplicated.
+//
+// # The ordering of certificates within the file is arbitrary, and Kubelet
+//
+// may change the order over time.
 func (d *VolumeProjectionDie) ClusterTrustBundle(v *corev1.ClusterTrustBundleProjection) *VolumeProjectionDie {
 	return d.DieStamp(func(r *corev1.VolumeProjection) {
 		r.ClusterTrustBundle = v
@@ -35140,7 +37778,19 @@ func (d *SecretProjectionDie) LocalObjectReference(v corev1.LocalObjectReference
 	})
 }
 
-// items if unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'.
+// items if unspecified, each key-value pair in the Data field of the referenced
+//
+// # Secret will be projected into the volume as a file whose name is the
+//
+// key and content is the value. If specified, the listed keys will be
+//
+// projected into the specified paths, and unlisted keys will not be
+//
+// present. If a key is specified which is not present in the Secret,
+//
+// the volume setup will error unless it is marked optional. Paths must be
+//
+// relative and may not contain the '..' path or start with '..'.
 func (d *SecretProjectionDie) Items(v ...corev1.KeyToPath) *SecretProjectionDie {
 	return d.DieStamp(func(r *corev1.SecretProjection) {
 		r.Items = v
@@ -35531,7 +38181,19 @@ func (d *ConfigMapProjectionDie) LocalObjectReference(v corev1.LocalObjectRefere
 	})
 }
 
-// items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'.
+// items if unspecified, each key-value pair in the Data field of the referenced
+//
+// # ConfigMap will be projected into the volume as a file whose name is the
+//
+// key and content is the value. If specified, the listed keys will be
+//
+// projected into the specified paths, and unlisted keys will not be
+//
+// present. If a key is specified which is not present in the ConfigMap,
+//
+// the volume setup will error unless it is marked optional. Paths must be
+//
+// relative and may not contain the '..' path or start with '..'.
 func (d *ConfigMapProjectionDie) Items(v ...corev1.KeyToPath) *ConfigMapProjectionDie {
 	return d.DieStamp(func(r *corev1.ConfigMapProjection) {
 		r.Items = v
@@ -35727,21 +38389,39 @@ func (d *ServiceAccountTokenProjectionDie) DeepCopy() *ServiceAccountTokenProjec
 	}
 }
 
-// audience is the intended audience of the token. A recipient of a token must identify itself with an identifier specified in the audience of the token, and otherwise should reject the token. The audience defaults to the identifier of the apiserver.
+// audience is the intended audience of the token. A recipient of a token
+//
+// must identify itself with an identifier specified in the audience of the
+//
+// token, and otherwise should reject the token. The audience defaults to the
+//
+// identifier of the apiserver.
 func (d *ServiceAccountTokenProjectionDie) Audience(v string) *ServiceAccountTokenProjectionDie {
 	return d.DieStamp(func(r *corev1.ServiceAccountTokenProjection) {
 		r.Audience = v
 	})
 }
 
-// expirationSeconds is the requested duration of validity of the service account token. As the token approaches expiration, the kubelet volume plugin will proactively rotate the service account token. The kubelet will start trying to rotate the token if the token is older than 80 percent of its time to live or if the token is older than 24 hours.Defaults to 1 hour and must be at least 10 minutes.
+// expirationSeconds is the requested duration of validity of the service
+//
+// account token. As the token approaches expiration, the kubelet volume
+//
+// plugin will proactively rotate the service account token. The kubelet will
+//
+// start trying to rotate the token if the token is older than 80 percent of
+//
+// its time to live or if the token is older than 24 hours.Defaults to 1 hour
+//
+// and must be at least 10 minutes.
 func (d *ServiceAccountTokenProjectionDie) ExpirationSeconds(v *int64) *ServiceAccountTokenProjectionDie {
 	return d.DieStamp(func(r *corev1.ServiceAccountTokenProjection) {
 		r.ExpirationSeconds = v
 	})
 }
 
-// path is the path relative to the mount point of the file to project the token into.
+// path is the path relative to the mount point of the file to project the
+//
+// token into.
 func (d *ServiceAccountTokenProjectionDie) Path(v string) *ServiceAccountTokenProjectionDie {
 	return d.DieStamp(func(r *corev1.ServiceAccountTokenProjection) {
 		r.Path = v
@@ -35930,28 +38610,48 @@ func (d *ClusterTrustBundleProjectionDie) DeepCopy() *ClusterTrustBundleProjecti
 	}
 }
 
-// Select a single ClusterTrustBundle by object name.  Mutually-exclusive with signerName and labelSelector.
+// Select a single ClusterTrustBundle by object name.  Mutually-exclusive
+//
+// with signerName and labelSelector.
 func (d *ClusterTrustBundleProjectionDie) Name(v *string) *ClusterTrustBundleProjectionDie {
 	return d.DieStamp(func(r *corev1.ClusterTrustBundleProjection) {
 		r.Name = v
 	})
 }
 
-// Select all ClusterTrustBundles that match this signer name. Mutually-exclusive with name.  The contents of all selected ClusterTrustBundles will be unified and deduplicated.
+// Select all ClusterTrustBundles that match this signer name.
+//
+// Mutually-exclusive with name.  The contents of all selected
+//
+// ClusterTrustBundles will be unified and deduplicated.
 func (d *ClusterTrustBundleProjectionDie) SignerName(v *string) *ClusterTrustBundleProjectionDie {
 	return d.DieStamp(func(r *corev1.ClusterTrustBundleProjection) {
 		r.SignerName = v
 	})
 }
 
-// Select all ClusterTrustBundles that match this label selector.  Only has effect if signerName is set.  Mutually-exclusive with name.  If unset, interpreted as "match nothing".  If set but empty, interpreted as "match everything".
+// Select all ClusterTrustBundles that match this label selector.  Only has
+//
+// effect if signerName is set.  Mutually-exclusive with name.  If unset,
+//
+// interpreted as "match nothing".  If set but empty, interpreted as "match
+//
+// everything".
 func (d *ClusterTrustBundleProjectionDie) LabelSelector(v *apismetav1.LabelSelector) *ClusterTrustBundleProjectionDie {
 	return d.DieStamp(func(r *corev1.ClusterTrustBundleProjection) {
 		r.LabelSelector = v
 	})
 }
 
-// If true, don't block pod startup if the referenced ClusterTrustBundle(s) aren't available.  If using name, then the named ClusterTrustBundle is allowed not to exist.  If using signerName, then the combination of signerName and labelSelector is allowed to match zero ClusterTrustBundles.
+// If true, don't block pod startup if the referenced ClusterTrustBundle(s)
+//
+// aren't available.  If using name, then the named ClusterTrustBundle is
+//
+// allowed not to exist.  If using signerName, then the combination of
+//
+// signerName and labelSelector is allowed to match zero
+//
+// ClusterTrustBundles.
 func (d *ClusterTrustBundleProjectionDie) Optional(v *bool) *ClusterTrustBundleProjectionDie {
 	return d.DieStamp(func(r *corev1.ClusterTrustBundleProjection) {
 		r.Optional = v
@@ -36154,14 +38854,20 @@ func (d *PortworxVolumeSourceDie) VolumeID(v string) *PortworxVolumeSourceDie {
 	})
 }
 
-// fSType represents the filesystem type to mount Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs". Implicitly inferred to be "ext4" if unspecified.
+// fSType represents the filesystem type to mount
+//
+// Must be a filesystem type supported by the host operating system.
+//
+// Ex. "ext4", "xfs". Implicitly inferred to be "ext4" if unspecified.
 func (d *PortworxVolumeSourceDie) FSType(v string) *PortworxVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.PortworxVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+// readOnly defaults to false (read/write). ReadOnly here will force
+//
+// the ReadOnly setting in VolumeMounts.
 func (d *PortworxVolumeSourceDie) ReadOnly(v bool) *PortworxVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.PortworxVolumeSource) {
 		r.ReadOnly = v
@@ -36364,7 +39070,9 @@ func (d *ScaleIOVolumeSourceDie) System(v string) *ScaleIOVolumeSourceDie {
 	})
 }
 
-// secretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail.
+// secretRef references to the secret for ScaleIO user and other
+//
+// sensitive information. If this is not provided, Login operation will fail.
 func (d *ScaleIOVolumeSourceDie) SecretRef(v *corev1.LocalObjectReference) *ScaleIOVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ScaleIOVolumeSource) {
 		r.SecretRef = v
@@ -36392,28 +39100,40 @@ func (d *ScaleIOVolumeSourceDie) StoragePool(v string) *ScaleIOVolumeSourceDie {
 	})
 }
 
-// storageMode indicates whether the storage for a volume should be ThickProvisioned or ThinProvisioned. Default is ThinProvisioned.
+// storageMode indicates whether the storage for a volume should be ThickProvisioned or ThinProvisioned.
+//
+// Default is ThinProvisioned.
 func (d *ScaleIOVolumeSourceDie) StorageMode(v string) *ScaleIOVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ScaleIOVolumeSource) {
 		r.StorageMode = v
 	})
 }
 
-// volumeName is the name of a volume already created in the ScaleIO system that is associated with this volume source.
+// volumeName is the name of a volume already created in the ScaleIO system
+//
+// that is associated with this volume source.
 func (d *ScaleIOVolumeSourceDie) VolumeName(v string) *ScaleIOVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ScaleIOVolumeSource) {
 		r.VolumeName = v
 	})
 }
 
-// fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Default is "xfs".
+// fsType is the filesystem type to mount.
+//
+// Must be a filesystem type supported by the host operating system.
+//
+// Ex. "ext4", "xfs", "ntfs".
+//
+// Default is "xfs".
 func (d *ScaleIOVolumeSourceDie) FSType(v string) *ScaleIOVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ScaleIOVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// readOnly Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+// readOnly Defaults to false (read/write). ReadOnly here will force
+//
+// the ReadOnly setting in VolumeMounts.
 func (d *ScaleIOVolumeSourceDie) ReadOnly(v bool) *ScaleIOVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ScaleIOVolumeSource) {
 		r.ReadOnly = v
@@ -36602,35 +39322,55 @@ func (d *StorageOSVolumeSourceDie) DeepCopy() *StorageOSVolumeSourceDie {
 	}
 }
 
-// volumeName is the human-readable name of the StorageOS volume.  Volume names are only unique within a namespace.
+// volumeName is the human-readable name of the StorageOS volume.  Volume
+//
+// names are only unique within a namespace.
 func (d *StorageOSVolumeSourceDie) VolumeName(v string) *StorageOSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.StorageOSVolumeSource) {
 		r.VolumeName = v
 	})
 }
 
-// volumeNamespace specifies the scope of the volume within StorageOS.  If no namespace is specified then the Pod's namespace will be used.  This allows the Kubernetes name scoping to be mirrored within StorageOS for tighter integration. Set VolumeName to any name to override the default behaviour. Set to "default" if you are not using namespaces within StorageOS. Namespaces that do not pre-exist within StorageOS will be created.
+// volumeNamespace specifies the scope of the volume within StorageOS.  If no
+//
+// namespace is specified then the Pod's namespace will be used.  This allows the
+//
+// Kubernetes name scoping to be mirrored within StorageOS for tighter integration.
+//
+// Set VolumeName to any name to override the default behaviour.
+//
+// Set to "default" if you are not using namespaces within StorageOS.
+//
+// Namespaces that do not pre-exist within StorageOS will be created.
 func (d *StorageOSVolumeSourceDie) VolumeNamespace(v string) *StorageOSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.StorageOSVolumeSource) {
 		r.VolumeNamespace = v
 	})
 }
 
-// fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+// fsType is the filesystem type to mount.
+//
+// Must be a filesystem type supported by the host operating system.
+//
+// Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
 func (d *StorageOSVolumeSourceDie) FSType(v string) *StorageOSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.StorageOSVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+// readOnly defaults to false (read/write). ReadOnly here will force
+//
+// the ReadOnly setting in VolumeMounts.
 func (d *StorageOSVolumeSourceDie) ReadOnly(v bool) *StorageOSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.StorageOSVolumeSource) {
 		r.ReadOnly = v
 	})
 }
 
-// secretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted.
+// secretRef specifies the secret to use for obtaining the StorageOS API
+//
+// credentials.  If not specified, default values will be attempted.
 func (d *StorageOSVolumeSourceDie) SecretRef(v *corev1.LocalObjectReference) *StorageOSVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.StorageOSVolumeSource) {
 		r.SecretRef = v
@@ -36819,35 +39559,53 @@ func (d *CSIVolumeSourceDie) DeepCopy() *CSIVolumeSourceDie {
 	}
 }
 
-// driver is the name of the CSI driver that handles this volume. Consult with your admin for the correct name as registered in the cluster.
+// driver is the name of the CSI driver that handles this volume.
+//
+// Consult with your admin for the correct name as registered in the cluster.
 func (d *CSIVolumeSourceDie) Driver(v string) *CSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIVolumeSource) {
 		r.Driver = v
 	})
 }
 
-// readOnly specifies a read-only configuration for the volume. Defaults to false (read/write).
+// readOnly specifies a read-only configuration for the volume.
+//
+// Defaults to false (read/write).
 func (d *CSIVolumeSourceDie) ReadOnly(v *bool) *CSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIVolumeSource) {
 		r.ReadOnly = v
 	})
 }
 
-// fsType to mount. Ex. "ext4", "xfs", "ntfs". If not provided, the empty value is passed to the associated CSI driver which will determine the default filesystem to apply.
+// fsType to mount. Ex. "ext4", "xfs", "ntfs".
+//
+// # If not provided, the empty value is passed to the associated CSI driver
+//
+// which will determine the default filesystem to apply.
 func (d *CSIVolumeSourceDie) FSType(v *string) *CSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIVolumeSource) {
 		r.FSType = v
 	})
 }
 
-// volumeAttributes stores driver-specific properties that are passed to the CSI driver. Consult your driver's documentation for supported values.
+// volumeAttributes stores driver-specific properties that are passed to the CSI
+//
+// driver. Consult your driver's documentation for supported values.
 func (d *CSIVolumeSourceDie) VolumeAttributes(v map[string]string) *CSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIVolumeSource) {
 		r.VolumeAttributes = v
 	})
 }
 
-// nodePublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodePublishVolume and NodeUnpublishVolume calls. This field is optional, and  may be empty if no secret is required. If the secret object contains more than one secret, all secret references are passed.
+// nodePublishSecretRef is a reference to the secret object containing
+//
+// sensitive information to pass to the CSI driver to complete the CSI
+//
+// NodePublishVolume and NodeUnpublishVolume calls.
+//
+// This field is optional, and  may be empty if no secret is required. If the
+//
+// secret object contains more than one secret, all secret references are passed.
 func (d *CSIVolumeSourceDie) NodePublishSecretRef(v *corev1.LocalObjectReference) *CSIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.CSIVolumeSource) {
 		r.NodePublishSecretRef = v
@@ -37036,11 +39794,39 @@ func (d *EphemeralVolumeSourceDie) DeepCopy() *EphemeralVolumeSourceDie {
 	}
 }
 
-// Will be used to create a stand-alone PVC to provision the volume. The pod in which this EphemeralVolumeSource is embedded will be the owner of the PVC, i.e. the PVC will be deleted together with the pod.  The name of the PVC will be `<pod name>-<volume name>` where `<volume name>` is the name from the `PodSpec.Volumes` array entry. Pod validation will reject the pod if the concatenated name is not valid for a PVC (for example, too long).
+// Will be used to create a stand-alone PVC to provision the volume.
 //
-// An existing PVC with that name that is not owned by the pod will *not* be used for the pod to avoid using an unrelated volume by mistake. Starting the pod is then blocked until the unrelated PVC is removed. If such a pre-created PVC is meant to be used by the pod, the PVC has to updated with an owner reference to the pod once the pod exists. Normally this should not be necessary, but it may be useful when manually reconstructing a broken cluster.
+// # The pod in which this EphemeralVolumeSource is embedded will be the
 //
-// This field is read-only and no changes will be made by Kubernetes to the PVC after it has been created.
+// owner of the PVC, i.e. the PVC will be deleted together with the
+//
+// pod.  The name of the PVC will be `<pod name>-<volume name>` where
+//
+// `<volume name>` is the name from the `PodSpec.Volumes` array
+//
+// entry. Pod validation will reject the pod if the concatenated name
+//
+// is not valid for a PVC (for example, too long).
+//
+// # An existing PVC with that name that is not owned by the pod
+//
+// will *not* be used for the pod to avoid using an unrelated
+//
+// volume by mistake. Starting the pod is then blocked until
+//
+// the unrelated PVC is removed. If such a pre-created PVC is
+//
+// meant to be used by the pod, the PVC has to updated with an
+//
+// owner reference to the pod once the pod exists. Normally
+//
+// this should not be necessary, but it may be useful when
+//
+// manually reconstructing a broken cluster.
+//
+// # This field is read-only and no changes will be made by Kubernetes
+//
+// to the PVC after it has been created.
 //
 // Required, must not be nil.
 func (d *EphemeralVolumeSourceDie) VolumeClaimTemplate(v *corev1.PersistentVolumeClaimTemplate) *EphemeralVolumeSourceDie {
@@ -37238,14 +40024,30 @@ func (d *KeyToPathDie) Key(v string) *KeyToPathDie {
 	})
 }
 
-// path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'.
+// path is the relative path of the file to map the key to.
+//
+// May not be an absolute path.
+//
+// May not contain the path element '..'.
+//
+// May not start with the string '..'.
 func (d *KeyToPathDie) Path(v string) *KeyToPathDie {
 	return d.DieStamp(func(r *corev1.KeyToPath) {
 		r.Path = v
 	})
 }
 
-// mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
+// mode is Optional: mode bits used to set permissions on this file.
+//
+// Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511.
+//
+// YAML accepts both octal and decimal values, JSON requires decimal values for mode bits.
+//
+// If not specified, the volume defaultMode will be used.
+//
+// # This might be in conflict with other options that affect the file
+//
+// mode, like fsGroup, and the result can be other mode bits set.
 func (d *KeyToPathDie) Mode(v *int32) *KeyToPathDie {
 	return d.DieStamp(func(r *corev1.KeyToPath) {
 		r.Mode = v

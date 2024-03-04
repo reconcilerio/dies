@@ -500,7 +500,13 @@ func (d *PodDisruptionBudgetSpecDie) DeepCopy() *PodDisruptionBudgetSpecDie {
 	}
 }
 
-// An eviction is allowed if at least "minAvailable" pods selected by "selector" will still be available after the eviction, i.e. even in the absence of the evicted pod.  So for example you can prevent all voluntary evictions by specifying "100%".
+// An eviction is allowed if at least "minAvailable" pods selected by
+//
+// "selector" will still be available after the eviction, i.e. even in the
+//
+// absence of the evicted pod.  So for example you can prevent all voluntary
+//
+// evictions by specifying "100%".
 func (d *PodDisruptionBudgetSpecDie) MinAvailable(v *intstr.IntOrString) *PodDisruptionBudgetSpecDie {
 	return d.DieStamp(func(r *policyv1.PodDisruptionBudgetSpec) {
 		r.MinAvailable = v
@@ -521,14 +527,26 @@ func (d *PodDisruptionBudgetSpecDie) MinAvailableString(s string) *PodDisruption
 	})
 }
 
-// Label query over pods whose evictions are managed by the disruption budget. A null selector will match no pods, while an empty ({}) selector will select all pods within the namespace.
+// Label query over pods whose evictions are managed by the disruption
+//
+// budget.
+//
+// A null selector will match no pods, while an empty ({}) selector will select
+//
+// all pods within the namespace.
 func (d *PodDisruptionBudgetSpecDie) Selector(v *apismetav1.LabelSelector) *PodDisruptionBudgetSpecDie {
 	return d.DieStamp(func(r *policyv1.PodDisruptionBudgetSpec) {
 		r.Selector = v
 	})
 }
 
-// An eviction is allowed if at most "maxUnavailable" pods selected by "selector" are unavailable after the eviction, i.e. even in absence of the evicted pod. For example, one can prevent all voluntary evictions by specifying 0. This is a mutually exclusive setting with "minAvailable".
+// An eviction is allowed if at most "maxUnavailable" pods selected by
+//
+// "selector" are unavailable after the eviction, i.e. even in absence of
+//
+// the evicted pod. For example, one can prevent all voluntary evictions
+//
+// by specifying 0. This is a mutually exclusive setting with "minAvailable".
 func (d *PodDisruptionBudgetSpecDie) MaxUnavailable(v *intstr.IntOrString) *PodDisruptionBudgetSpecDie {
 	return d.DieStamp(func(r *policyv1.PodDisruptionBudgetSpec) {
 		r.MaxUnavailable = v
@@ -549,17 +567,45 @@ func (d *PodDisruptionBudgetSpecDie) MaxUnavailableString(s string) *PodDisrupti
 	})
 }
 
-// UnhealthyPodEvictionPolicy defines the criteria for when unhealthy pods should be considered for eviction. Current implementation considers healthy pods, as pods that have status.conditions item with type="Ready",status="True".
+// UnhealthyPodEvictionPolicy defines the criteria for when unhealthy pods
 //
-// Valid policies are IfHealthyBudget and AlwaysAllow. If no policy is specified, the default behavior will be used, which corresponds to the IfHealthyBudget policy.
+// should be considered for eviction. Current implementation considers healthy pods,
 //
-// IfHealthyBudget policy means that running pods (status.phase="Running"), but not yet healthy can be evicted only if the guarded application is not disrupted (status.currentHealthy is at least equal to status.desiredHealthy). Healthy pods will be subject to the PDB for eviction.
+// as pods that have status.conditions item with type="Ready",status="True".
 //
-// AlwaysAllow policy means that all running pods (status.phase="Running"), but not yet healthy are considered disrupted and can be evicted regardless of whether the criteria in a PDB is met. This means perspective running pods of a disrupted application might not get a chance to become healthy. Healthy pods will be subject to the PDB for eviction.
+// Valid policies are IfHealthyBudget and AlwaysAllow.
 //
-// Additional policies may be added in the future. Clients making eviction decisions should disallow eviction of unhealthy pods if they encounter an unrecognized policy in this field.
+// If no policy is specified, the default behavior will be used,
 //
-// This field is beta-level. The eviction API uses this field when the feature gate PDBUnhealthyPodEvictionPolicy is enabled (enabled by default).
+// which corresponds to the IfHealthyBudget policy.
+//
+// IfHealthyBudget policy means that running pods (status.phase="Running"),
+//
+// but not yet healthy can be evicted only if the guarded application is not
+//
+// disrupted (status.currentHealthy is at least equal to status.desiredHealthy).
+//
+// Healthy pods will be subject to the PDB for eviction.
+//
+// AlwaysAllow policy means that all running pods (status.phase="Running"),
+//
+// but not yet healthy are considered disrupted and can be evicted regardless
+//
+// of whether the criteria in a PDB is met. This means perspective running
+//
+// pods of a disrupted application might not get a chance to become healthy.
+//
+// Healthy pods will be subject to the PDB for eviction.
+//
+// Additional policies may be added in the future.
+//
+// # Clients making eviction decisions should disallow eviction of unhealthy pods
+//
+// if they encounter an unrecognized policy in this field.
+//
+// This field is beta-level. The eviction API uses this field when
+//
+// the feature gate PDBUnhealthyPodEvictionPolicy is enabled (enabled by default).
 func (d *PodDisruptionBudgetSpecDie) UnhealthyPodEvictionPolicy(v *policyv1.UnhealthyPodEvictionPolicyType) *PodDisruptionBudgetSpecDie {
 	return d.DieStamp(func(r *policyv1.PodDisruptionBudgetSpec) {
 		r.UnhealthyPodEvictionPolicy = v
@@ -748,7 +794,9 @@ func (d *PodDisruptionBudgetStatusDie) DeepCopy() *PodDisruptionBudgetStatusDie 
 	}
 }
 
-// Most recent generation observed when updating this PDB status. DisruptionsAllowed and other status information is valid only if observedGeneration equals to PDB's object generation.
+// Most recent generation observed when updating this PDB status. DisruptionsAllowed and other
+//
+// status information is valid only if observedGeneration equals to PDB's object generation.
 func (d *PodDisruptionBudgetStatusDie) ObservedGeneration(v int64) *PodDisruptionBudgetStatusDie {
 	return d.DieStamp(func(r *policyv1.PodDisruptionBudgetStatus) {
 		r.ObservedGeneration = v
@@ -783,7 +831,29 @@ func (d *PodDisruptionBudgetStatusDie) ExpectedPods(v int32) *PodDisruptionBudge
 	})
 }
 
-// Conditions contain conditions for PDB. The disruption controller sets the DisruptionAllowed condition. The following are known values for the reason field (additional reasons could be added in the future): - SyncFailed: The controller encountered an error and wasn't able to compute the number of allowed disruptions. Therefore no disruptions are allowed and the status of the condition will be False. - InsufficientPods: The number of pods are either at or below the number required by the PodDisruptionBudget. No disruptions are allowed and the status of the condition will be False. - SufficientPods: There are more pods than required by the PodDisruptionBudget. The condition will be True, and the number of allowed disruptions are provided by the disruptionsAllowed property.
+// Conditions contain conditions for PDB. The disruption controller sets the
+//
+// DisruptionAllowed condition. The following are known values for the reason field
+//
+// (additional reasons could be added in the future):
+//
+// - SyncFailed: The controller encountered an error and wasn't able to compute
+//
+// the number of allowed disruptions. Therefore no disruptions are
+//
+// allowed and the status of the condition will be False.
+//
+// - InsufficientPods: The number of pods are either at or below the number
+//
+// required by the PodDisruptionBudget. No disruptions are
+//
+// allowed and the status of the condition will be False.
+//
+// - SufficientPods: There are more pods than required by the PodDisruptionBudget.
+//
+// # The condition will be True, and the number of allowed
+//
+// disruptions are provided by the disruptionsAllowed property.
 func (d *PodDisruptionBudgetStatusDie) Conditions(v ...apismetav1.Condition) *PodDisruptionBudgetStatusDie {
 	return d.DieStamp(func(r *policyv1.PodDisruptionBudgetStatus) {
 		r.Conditions = v

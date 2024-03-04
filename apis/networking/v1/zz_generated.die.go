@@ -305,14 +305,18 @@ func (d *IngressDie) StatusDie(fn func(d *IngressStatusDie)) *IngressDie {
 	})
 }
 
-// spec is the desired state of the Ingress. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// spec is the desired state of the Ingress.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *IngressDie) Spec(v networkingv1.IngressSpec) *IngressDie {
 	return d.DieStamp(func(r *networkingv1.Ingress) {
 		r.Spec = v
 	})
 }
 
-// status is the current state of the Ingress. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// status is the current state of the Ingress.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *IngressDie) Status(v networkingv1.IngressStatus) *IngressDie {
 	return d.DieStamp(func(r *networkingv1.Ingress) {
 		r.Status = v
@@ -501,28 +505,62 @@ func (d *IngressSpecDie) DeepCopy() *IngressSpecDie {
 	}
 }
 
-// ingressClassName is the name of an IngressClass cluster resource. Ingress controller implementations use this field to know whether they should be serving this Ingress resource, by a transitive connection (controller -> IngressClass -> Ingress resource). Although the `kubernetes.io/ingress.class` annotation (simple constant name) was never formally defined, it was widely supported by Ingress controllers to create a direct binding between Ingress controller and Ingress resources. Newly created Ingress resources should prefer using the field. However, even though the annotation is officially deprecated, for backwards compatibility reasons, ingress controllers should still honor that annotation if present.
+// ingressClassName is the name of an IngressClass cluster resource. Ingress
+//
+// controller implementations use this field to know whether they should be
+//
+// serving this Ingress resource, by a transitive connection
+//
+// (controller -> IngressClass -> Ingress resource). Although the
+//
+// `kubernetes.io/ingress.class` annotation (simple constant name) was never
+//
+// formally defined, it was widely supported by Ingress controllers to create
+//
+// a direct binding between Ingress controller and Ingress resources. Newly
+//
+// created Ingress resources should prefer using the field. However, even
+//
+// though the annotation is officially deprecated, for backwards compatibility
+//
+// reasons, ingress controllers should still honor that annotation if present.
 func (d *IngressSpecDie) IngressClassName(v *string) *IngressSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressSpec) {
 		r.IngressClassName = v
 	})
 }
 
-// defaultBackend is the backend that should handle requests that don't match any rule. If Rules are not specified, DefaultBackend must be specified. If DefaultBackend is not set, the handling of requests that do not match any of the rules will be up to the Ingress controller.
+// defaultBackend is the backend that should handle requests that don't
+//
+// match any rule. If Rules are not specified, DefaultBackend must be specified.
+//
+// # If DefaultBackend is not set, the handling of requests that do not match any
+//
+// of the rules will be up to the Ingress controller.
 func (d *IngressSpecDie) DefaultBackend(v *networkingv1.IngressBackend) *IngressSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressSpec) {
 		r.DefaultBackend = v
 	})
 }
 
-// tls represents the TLS configuration. Currently the Ingress only supports a single TLS port, 443. If multiple members of this list specify different hosts, they will be multiplexed on the same port according to the hostname specified through the SNI TLS extension, if the ingress controller fulfilling the ingress supports SNI.
+// tls represents the TLS configuration. Currently the Ingress only supports a
+//
+// single TLS port, 443. If multiple members of this list specify different hosts,
+//
+// they will be multiplexed on the same port according to the hostname specified
+//
+// through the SNI TLS extension, if the ingress controller fulfilling the
+//
+// ingress supports SNI.
 func (d *IngressSpecDie) TLS(v ...networkingv1.IngressTLS) *IngressSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressSpec) {
 		r.TLS = v
 	})
 }
 
-// rules is a list of host rules used to configure the Ingress. If unspecified, or no rule matches, all traffic is sent to the default backend.
+// rules is a list of host rules used to configure the Ingress. If unspecified,
+//
+// or no rule matches, all traffic is sent to the default backend.
 func (d *IngressSpecDie) Rules(v ...networkingv1.IngressRule) *IngressSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressSpec) {
 		r.Rules = v
@@ -711,14 +749,22 @@ func (d *IngressBackendDie) DeepCopy() *IngressBackendDie {
 	}
 }
 
-// service references a service as a backend. This is a mutually exclusive setting with "Resource".
+// service references a service as a backend.
+//
+// This is a mutually exclusive setting with "Resource".
 func (d *IngressBackendDie) Service(v *networkingv1.IngressServiceBackend) *IngressBackendDie {
 	return d.DieStamp(func(r *networkingv1.IngressBackend) {
 		r.Service = v
 	})
 }
 
-// resource is an ObjectRef to another Kubernetes resource in the namespace of the Ingress object. If resource is specified, a service.Name and service.Port must not be specified. This is a mutually exclusive setting with "Service".
+// resource is an ObjectRef to another Kubernetes resource in the namespace
+//
+// of the Ingress object. If resource is specified, a service.Name and
+//
+// service.Port must not be specified.
+//
+// This is a mutually exclusive setting with "Service".
 func (d *IngressBackendDie) Resource(v *corev1.TypedLocalObjectReference) *IngressBackendDie {
 	return d.DieStamp(func(r *networkingv1.IngressBackend) {
 		r.Resource = v
@@ -907,14 +953,18 @@ func (d *IngressServiceBackendDie) DeepCopy() *IngressServiceBackendDie {
 	}
 }
 
-// name is the referenced service. The service must exist in the same namespace as the Ingress object.
+// name is the referenced service. The service must exist in
+//
+// the same namespace as the Ingress object.
 func (d *IngressServiceBackendDie) Name(v string) *IngressServiceBackendDie {
 	return d.DieStamp(func(r *networkingv1.IngressServiceBackend) {
 		r.Name = v
 	})
 }
 
-// port of the referenced service. A port name or port number is required for a IngressServiceBackend.
+// port of the referenced service. A port name or port number
+//
+// is required for a IngressServiceBackend.
 func (d *IngressServiceBackendDie) Port(v networkingv1.ServiceBackendPort) *IngressServiceBackendDie {
 	return d.DieStamp(func(r *networkingv1.IngressServiceBackend) {
 		r.Port = v
@@ -1103,14 +1153,18 @@ func (d *ServiceBackendPortDie) DeepCopy() *ServiceBackendPortDie {
 	}
 }
 
-// name is the name of the port on the Service. This is a mutually exclusive setting with "Number".
+// name is the name of the port on the Service.
+//
+// This is a mutually exclusive setting with "Number".
 func (d *ServiceBackendPortDie) Name(v string) *ServiceBackendPortDie {
 	return d.DieStamp(func(r *networkingv1.ServiceBackendPort) {
 		r.Name = v
 	})
 }
 
-// number is the numerical port number (e.g. 80) on the Service. This is a mutually exclusive setting with "Name".
+// number is the numerical port number (e.g. 80) on the Service.
+//
+// This is a mutually exclusive setting with "Name".
 func (d *ServiceBackendPortDie) Number(v int32) *ServiceBackendPortDie {
 	return d.DieStamp(func(r *networkingv1.ServiceBackendPort) {
 		r.Number = v
@@ -1299,14 +1353,28 @@ func (d *IngressTLSDie) DeepCopy() *IngressTLSDie {
 	}
 }
 
-// hosts is a list of hosts included in the TLS certificate. The values in this list must match the name/s used in the tlsSecret. Defaults to the wildcard host setting for the loadbalancer controller fulfilling this Ingress, if left unspecified.
+// hosts is a list of hosts included in the TLS certificate. The values in
+//
+// this list must match the name/s used in the tlsSecret. Defaults to the
+//
+// wildcard host setting for the loadbalancer controller fulfilling this
+//
+// Ingress, if left unspecified.
 func (d *IngressTLSDie) Hosts(v ...string) *IngressTLSDie {
 	return d.DieStamp(func(r *networkingv1.IngressTLS) {
 		r.Hosts = v
 	})
 }
 
-// secretName is the name of the secret used to terminate TLS traffic on port 443. Field is left optional to allow TLS routing based on SNI hostname alone. If the SNI host in a listener conflicts with the "Host" header field used by an IngressRule, the SNI host is used for termination and value of the "Host" header is used for routing.
+// secretName is the name of the secret used to terminate TLS traffic on
+//
+// port 443. Field is left optional to allow TLS routing based on SNI
+//
+// hostname alone. If the SNI host in a listener conflicts with the "Host"
+//
+// header field used by an IngressRule, the SNI host is used for termination
+//
+// and value of the "Host" header is used for routing.
 func (d *IngressTLSDie) SecretName(v string) *IngressTLSDie {
 	return d.DieStamp(func(r *networkingv1.IngressTLS) {
 		r.SecretName = v
@@ -1495,16 +1563,62 @@ func (d *IngressRuleDie) DeepCopy() *IngressRuleDie {
 	}
 }
 
-// host is the fully qualified domain name of a network host, as defined by RFC 3986. Note the following deviations from the "host" part of the URI as defined in RFC 3986: 1. IPs are not allowed. Currently an IngressRuleValue can only apply to the IP in the Spec of the parent Ingress. 2. The `:` delimiter is not respected because ports are not allowed. Currently the port of an Ingress is implicitly :80 for http and :443 for https. Both these may change in the future. Incoming requests are matched against the host before the IngressRuleValue. If the host is unspecified, the Ingress routes all traffic based on the specified IngressRuleValue.
+// host is the fully qualified domain name of a network host, as defined by RFC 3986.
 //
-// host can be "precise" which is a domain name without the terminating dot of a network host (e.g. "foo.bar.com") or "wildcard", which is a domain name prefixed with a single wildcard label (e.g. "*.foo.com"). The wildcard character '*' must appear by itself as the first DNS label and matches only a single label. You cannot have a wildcard label by itself (e.g. Host == "*"). Requests will be matched against the Host field in the following way: 1. If host is precise, the request matches this rule if the http host header is equal to Host. 2. If host is a wildcard, then the request matches this rule if the http host header is to equal to the suffix (removing the first label) of the wildcard rule.
+// Note the following deviations from the "host" part of the
+//
+// URI as defined in RFC 3986:
+//
+// 1. IPs are not allowed. Currently an IngressRuleValue can only apply to
+//
+// the IP in the Spec of the parent Ingress.
+//
+// 2. The `:` delimiter is not respected because ports are not allowed.
+//
+// Currently the port of an Ingress is implicitly :80 for http and
+//
+// :443 for https.
+//
+// Both these may change in the future.
+//
+// # Incoming requests are matched against the host before the
+//
+// IngressRuleValue. If the host is unspecified, the Ingress routes all
+//
+// traffic based on the specified IngressRuleValue.
+//
+// host can be "precise" which is a domain name without the terminating dot of
+//
+// a network host (e.g. "foo.bar.com") or "wildcard", which is a domain name
+//
+// prefixed with a single wildcard label (e.g. "*.foo.com").
+//
+// The wildcard character '*' must appear by itself as the first DNS label and
+//
+// matches only a single label. You cannot have a wildcard label by itself (e.g. Host == "*").
+//
+// Requests will be matched against the Host field in the following way:
+//
+// 1. If host is precise, the request matches this rule if the http host header is equal to Host.
+//
+// 2. If host is a wildcard, then the request matches this rule if the http host header
+//
+// is to equal to the suffix (removing the first label) of the wildcard rule.
 func (d *IngressRuleDie) Host(v string) *IngressRuleDie {
 	return d.DieStamp(func(r *networkingv1.IngressRule) {
 		r.Host = v
 	})
 }
 
-// IngressRuleValue represents a rule to route requests for this IngressRule. If unspecified, the rule defaults to a http catch-all. Whether that sends just traffic matching the host to the default backend or all traffic to the default backend, is left to the controller fulfilling the Ingress. Http is currently the only supported IngressRuleValue.
+// IngressRuleValue represents a rule to route requests for this IngressRule.
+//
+// If unspecified, the rule defaults to a http catch-all. Whether that sends
+//
+// just traffic matching the host to the default backend or all traffic to the
+//
+// default backend, is left to the controller fulfilling the Ingress. Http is
+//
+// currently the only supported IngressRuleValue.
 func (d *IngressRuleDie) IngressRuleValue(v networkingv1.IngressRuleValue) *IngressRuleDie {
 	return d.DieStamp(func(r *networkingv1.IngressRule) {
 		r.IngressRuleValue = v
@@ -1882,21 +1996,55 @@ func (d *HTTPIngressPathDie) DeepCopy() *HTTPIngressPathDie {
 	}
 }
 
-// path is matched against the path of an incoming request. Currently it can contain characters disallowed from the conventional "path" part of a URL as defined by RFC 3986. Paths must begin with a '/' and must be present when using PathType with value "Exact" or "Prefix".
+// path is matched against the path of an incoming request. Currently it can
+//
+// contain characters disallowed from the conventional "path" part of a URL
+//
+// as defined by RFC 3986. Paths must begin with a '/' and must be present
+//
+// when using PathType with value "Exact" or "Prefix".
 func (d *HTTPIngressPathDie) Path(v string) *HTTPIngressPathDie {
 	return d.DieStamp(func(r *networkingv1.HTTPIngressPath) {
 		r.Path = v
 	})
 }
 
-// pathType determines the interpretation of the path matching. PathType can be one of the following values: * Exact: Matches the URL path exactly. * Prefix: Matches based on a URL path prefix split by '/'. Matching is done on a path element by element basis. A path element refers is the list of labels in the path split by the '/' separator. A request is a match for path p if every p is an element-wise prefix of p of the request path. Note that if the last element of the path is a substring of the last element in request path, it is not a match (e.g. /foo/bar matches /foo/bar/baz, but does not match /foo/barbaz). * ImplementationSpecific: Interpretation of the Path matching is up to the IngressClass. Implementations can treat this as a separate PathType or treat it identically to Prefix or Exact path types. Implementations are required to support all path types.
+// pathType determines the interpretation of the path matching. PathType can
+//
+// be one of the following values:
+//
+// * Exact: Matches the URL path exactly.
+//
+// * Prefix: Matches based on a URL path prefix split by '/'. Matching is
+//
+// done on a path element by element basis. A path element refers is the
+//
+// list of labels in the path split by the '/' separator. A request is a
+//
+// match for path p if every p is an element-wise prefix of p of the
+//
+// request path. Note that if the last element of the path is a substring
+//
+// of the last element in request path, it is not a match (e.g. /foo/bar
+//
+// matches /foo/bar/baz, but does not match /foo/barbaz).
+//
+// * ImplementationSpecific: Interpretation of the Path matching is up to
+//
+// the IngressClass. Implementations can treat this as a separate PathType
+//
+// or treat it identically to Prefix or Exact path types.
+//
+// Implementations are required to support all path types.
 func (d *HTTPIngressPathDie) PathType(v *networkingv1.PathType) *HTTPIngressPathDie {
 	return d.DieStamp(func(r *networkingv1.HTTPIngressPath) {
 		r.PathType = v
 	})
 }
 
-// backend defines the referenced service endpoint to which the traffic will be forwarded to.
+// backend defines the referenced service endpoint to which the traffic
+//
+// will be forwarded to.
 func (d *HTTPIngressPathDie) Backend(v networkingv1.IngressBackend) *HTTPIngressPathDie {
 	return d.DieStamp(func(r *networkingv1.HTTPIngressPath) {
 		r.Backend = v
@@ -2673,14 +2821,30 @@ func (d *IngressPortStatusDie) Port(v int32) *IngressPortStatusDie {
 	})
 }
 
-// protocol is the protocol of the ingress port. The supported values are: "TCP", "UDP", "SCTP"
+// protocol is the protocol of the ingress port.
+//
+// The supported values are: "TCP", "UDP", "SCTP"
 func (d *IngressPortStatusDie) Protocol(v corev1.Protocol) *IngressPortStatusDie {
 	return d.DieStamp(func(r *networkingv1.IngressPortStatus) {
 		r.Protocol = v
 	})
 }
 
-// error is to record the problem with the service port The format of the error shall comply with the following rules: - built-in error values shall be specified in this file and those shall use CamelCase names - cloud provider specific error values must have names that comply with the format foo.example.com/CamelCase. --- The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+// error is to record the problem with the service port
+//
+// The format of the error shall comply with the following rules:
+//
+// - built-in error values shall be specified in this file and those shall use
+//
+// # CamelCase names
+//
+// - cloud provider specific error values must have names that comply with the
+//
+// format foo.example.com/CamelCase.
+//
+// ---
+//
+// The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
 func (d *IngressPortStatusDie) Error(v *string) *IngressPortStatusDie {
 	return d.DieStamp(func(r *networkingv1.IngressPortStatus) {
 		r.Error = v
@@ -2945,7 +3109,9 @@ func (d *IngressClassDie) SpecDie(fn func(d *IngressClassSpecDie)) *IngressClass
 	})
 }
 
-// spec is the desired state of the IngressClass. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// spec is the desired state of the IngressClass.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *IngressClassDie) Spec(v networkingv1.IngressClassSpec) *IngressClassDie {
 	return d.DieStamp(func(r *networkingv1.IngressClass) {
 		r.Spec = v
@@ -3134,14 +3300,28 @@ func (d *IngressClassSpecDie) DeepCopy() *IngressClassSpecDie {
 	}
 }
 
-// controller refers to the name of the controller that should handle this class. This allows for different "flavors" that are controlled by the same controller. For example, you may have different parameters for the same implementing controller. This should be specified as a domain-prefixed path no more than 250 characters in length, e.g. "acme.io/ingress-controller". This field is immutable.
+// controller refers to the name of the controller that should handle this
+//
+// class. This allows for different "flavors" that are controlled by the
+//
+// same controller. For example, you may have different parameters for the
+//
+// same implementing controller. This should be specified as a
+//
+// domain-prefixed path no more than 250 characters in length, e.g.
+//
+// "acme.io/ingress-controller". This field is immutable.
 func (d *IngressClassSpecDie) Controller(v string) *IngressClassSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressClassSpec) {
 		r.Controller = v
 	})
 }
 
-// parameters is a link to a custom resource containing additional configuration for the controller. This is optional if the controller does not require extra parameters.
+// parameters is a link to a custom resource containing additional
+//
+// configuration for the controller. This is optional if the controller does
+//
+// not require extra parameters.
 func (d *IngressClassSpecDie) Parameters(v *networkingv1.IngressClassParametersReference) *IngressClassSpecDie {
 	return d.DieStamp(func(r *networkingv1.IngressClassSpec) {
 		r.Parameters = v
@@ -3330,7 +3510,11 @@ func (d *IngressClassParametersReferenceDie) DeepCopy() *IngressClassParametersR
 	}
 }
 
-// apiGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required.
+// apiGroup is the group for the resource being referenced. If APIGroup is
+//
+// not specified, the specified Kind must be in the core API group. For any
+//
+// other third-party types, APIGroup is required.
 func (d *IngressClassParametersReferenceDie) APIGroup(v *string) *IngressClassParametersReferenceDie {
 	return d.DieStamp(func(r *networkingv1.IngressClassParametersReference) {
 		r.APIGroup = v
@@ -3351,14 +3535,20 @@ func (d *IngressClassParametersReferenceDie) Name(v string) *IngressClassParamet
 	})
 }
 
-// scope represents if this refers to a cluster or namespace scoped resource. This may be set to "Cluster" (default) or "Namespace".
+// scope represents if this refers to a cluster or namespace scoped resource.
+//
+// This may be set to "Cluster" (default) or "Namespace".
 func (d *IngressClassParametersReferenceDie) Scope(v *string) *IngressClassParametersReferenceDie {
 	return d.DieStamp(func(r *networkingv1.IngressClassParametersReference) {
 		r.Scope = v
 	})
 }
 
-// namespace is the namespace of the resource being referenced. This field is required when scope is set to "Namespace" and must be unset when scope is set to "Cluster".
+// namespace is the namespace of the resource being referenced. This field is
+//
+// required when scope is set to "Namespace" and must be unset when scope is set to
+//
+// "Cluster".
 func (d *IngressClassParametersReferenceDie) Namespace(v *string) *IngressClassParametersReferenceDie {
 	return d.DieStamp(func(r *networkingv1.IngressClassParametersReference) {
 		r.Namespace = v
@@ -3812,28 +4002,80 @@ func (d *NetworkPolicySpecDie) DeepCopy() *NetworkPolicySpecDie {
 	}
 }
 
-// podSelector selects the pods to which this NetworkPolicy object applies. The array of ingress rules is applied to any pods selected by this field. Multiple network policies can select the same set of pods. In this case, the ingress rules for each are combined additively. This field is NOT optional and follows standard label selector semantics. An empty podSelector matches all pods in this namespace.
+// podSelector selects the pods to which this NetworkPolicy object applies.
+//
+// The array of ingress rules is applied to any pods selected by this field.
+//
+// Multiple network policies can select the same set of pods. In this case,
+//
+// the ingress rules for each are combined additively.
+//
+// This field is NOT optional and follows standard label selector semantics.
+//
+// An empty podSelector matches all pods in this namespace.
 func (d *NetworkPolicySpecDie) PodSelector(v apismetav1.LabelSelector) *NetworkPolicySpecDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
 		r.PodSelector = v
 	})
 }
 
-// ingress is a list of ingress rules to be applied to the selected pods. Traffic is allowed to a pod if there are no NetworkPolicies selecting the pod (and cluster policy otherwise allows the traffic), OR if the traffic source is the pod's local node, OR if the traffic matches at least one ingress rule across all of the NetworkPolicy objects whose podSelector matches the pod. If this field is empty then this NetworkPolicy does not allow any traffic (and serves solely to ensure that the pods it selects are isolated by default)
+// ingress is a list of ingress rules to be applied to the selected pods.
+//
+// # Traffic is allowed to a pod if there are no NetworkPolicies selecting the pod
+//
+// (and cluster policy otherwise allows the traffic), OR if the traffic source is
+//
+// the pod's local node, OR if the traffic matches at least one ingress rule
+//
+// across all of the NetworkPolicy objects whose podSelector matches the pod. If
+//
+// this field is empty then this NetworkPolicy does not allow any traffic (and serves
+//
+// solely to ensure that the pods it selects are isolated by default)
 func (d *NetworkPolicySpecDie) Ingress(v ...networkingv1.NetworkPolicyIngressRule) *NetworkPolicySpecDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
 		r.Ingress = v
 	})
 }
 
-// egress is a list of egress rules to be applied to the selected pods. Outgoing traffic is allowed if there are no NetworkPolicies selecting the pod (and cluster policy otherwise allows the traffic), OR if the traffic matches at least one egress rule across all of the NetworkPolicy objects whose podSelector matches the pod. If this field is empty then this NetworkPolicy limits all outgoing traffic (and serves solely to ensure that the pods it selects are isolated by default). This field is beta-level in 1.8
+// egress is a list of egress rules to be applied to the selected pods. Outgoing traffic
+//
+// is allowed if there are no NetworkPolicies selecting the pod (and cluster policy
+//
+// otherwise allows the traffic), OR if the traffic matches at least one egress rule
+//
+// across all of the NetworkPolicy objects whose podSelector matches the pod. If
+//
+// this field is empty then this NetworkPolicy limits all outgoing traffic (and serves
+//
+// solely to ensure that the pods it selects are isolated by default).
+//
+// This field is beta-level in 1.8
 func (d *NetworkPolicySpecDie) Egress(v ...networkingv1.NetworkPolicyEgressRule) *NetworkPolicySpecDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
 		r.Egress = v
 	})
 }
 
-// policyTypes is a list of rule types that the NetworkPolicy relates to. Valid options are ["Ingress"], ["Egress"], or ["Ingress", "Egress"]. If this field is not specified, it will default based on the existence of ingress or egress rules; policies that contain an egress section are assumed to affect egress, and all policies (whether or not they contain an ingress section) are assumed to affect ingress. If you want to write an egress-only policy, you must explicitly specify policyTypes [ "Egress" ]. Likewise, if you want to write a policy that specifies that no egress is allowed, you must specify a policyTypes value that include "Egress" (since such a policy would not include an egress section and would otherwise default to just [ "Ingress" ]). This field is beta-level in 1.8
+// policyTypes is a list of rule types that the NetworkPolicy relates to.
+//
+// Valid options are ["Ingress"], ["Egress"], or ["Ingress", "Egress"].
+//
+// If this field is not specified, it will default based on the existence of ingress or egress rules;
+//
+// policies that contain an egress section are assumed to affect egress, and all policies
+//
+// (whether or not they contain an ingress section) are assumed to affect ingress.
+//
+// If you want to write an egress-only policy, you must explicitly specify policyTypes [ "Egress" ].
+//
+// Likewise, if you want to write a policy that specifies that no egress is allowed,
+//
+// you must specify a policyTypes value that include "Egress" (since such a policy would not include
+//
+// an egress section and would otherwise default to just [ "Ingress" ]).
+//
+// This field is beta-level in 1.8
 func (d *NetworkPolicySpecDie) PolicyTypes(v ...networkingv1.PolicyType) *NetworkPolicySpecDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
 		r.PolicyTypes = v
@@ -4022,14 +4264,30 @@ func (d *NetworkPolicyIngressRuleDie) DeepCopy() *NetworkPolicyIngressRuleDie {
 	}
 }
 
-// ports is a list of ports which should be made accessible on the pods selected for this rule. Each item in this list is combined using a logical OR. If this field is empty or missing, this rule matches all ports (traffic not restricted by port). If this field is present and contains at least one item, then this rule allows traffic only if the traffic matches at least one port in the list.
+// ports is a list of ports which should be made accessible on the pods selected for
+//
+// this rule. Each item in this list is combined using a logical OR. If this field is
+//
+// empty or missing, this rule matches all ports (traffic not restricted by port).
+//
+// # If this field is present and contains at least one item, then this rule allows
+//
+// traffic only if the traffic matches at least one port in the list.
 func (d *NetworkPolicyIngressRuleDie) Ports(v ...networkingv1.NetworkPolicyPort) *NetworkPolicyIngressRuleDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyIngressRule) {
 		r.Ports = v
 	})
 }
 
-// from is a list of sources which should be able to access the pods selected for this rule. Items in this list are combined using a logical OR operation. If this field is empty or missing, this rule matches all sources (traffic not restricted by source). If this field is present and contains at least one item, this rule allows traffic only if the traffic matches at least one item in the from list.
+// from is a list of sources which should be able to access the pods selected for this rule.
+//
+// Items in this list are combined using a logical OR operation. If this field is
+//
+// empty or missing, this rule matches all sources (traffic not restricted by
+//
+// source). If this field is present and contains at least one item, this rule
+//
+// allows traffic only if the traffic matches at least one item in the from list.
 func (d *NetworkPolicyIngressRuleDie) From(v ...networkingv1.NetworkPolicyPeer) *NetworkPolicyIngressRuleDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyIngressRule) {
 		r.From = v
@@ -4218,14 +4476,30 @@ func (d *NetworkPolicyEgressRuleDie) DeepCopy() *NetworkPolicyEgressRuleDie {
 	}
 }
 
-// ports is a list of destination ports for outgoing traffic. Each item in this list is combined using a logical OR. If this field is empty or missing, this rule matches all ports (traffic not restricted by port). If this field is present and contains at least one item, then this rule allows traffic only if the traffic matches at least one port in the list.
+// ports is a list of destination ports for outgoing traffic.
+//
+// Each item in this list is combined using a logical OR. If this field is
+//
+// empty or missing, this rule matches all ports (traffic not restricted by port).
+//
+// # If this field is present and contains at least one item, then this rule allows
+//
+// traffic only if the traffic matches at least one port in the list.
 func (d *NetworkPolicyEgressRuleDie) Ports(v ...networkingv1.NetworkPolicyPort) *NetworkPolicyEgressRuleDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyEgressRule) {
 		r.Ports = v
 	})
 }
 
-// to is a list of destinations for outgoing traffic of pods selected for this rule. Items in this list are combined using a logical OR operation. If this field is empty or missing, this rule matches all destinations (traffic not restricted by destination). If this field is present and contains at least one item, this rule allows traffic only if the traffic matches at least one item in the to list.
+// to is a list of destinations for outgoing traffic of pods selected for this rule.
+//
+// Items in this list are combined using a logical OR operation. If this field is
+//
+// empty or missing, this rule matches all destinations (traffic not restricted by
+//
+// destination). If this field is present and contains at least one item, this rule
+//
+// allows traffic only if the traffic matches at least one item in the to list.
 func (d *NetworkPolicyEgressRuleDie) To(v ...networkingv1.NetworkPolicyPeer) *NetworkPolicyEgressRuleDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyEgressRule) {
 		r.To = v
@@ -4414,14 +4688,22 @@ func (d *NetworkPolicyPortDie) DeepCopy() *NetworkPolicyPortDie {
 	}
 }
 
-// protocol represents the protocol (TCP, UDP, or SCTP) which traffic must match. If not specified, this field defaults to TCP.
+// protocol represents the protocol (TCP, UDP, or SCTP) which traffic must match.
+//
+// If not specified, this field defaults to TCP.
 func (d *NetworkPolicyPortDie) Protocol(v *corev1.Protocol) *NetworkPolicyPortDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyPort) {
 		r.Protocol = v
 	})
 }
 
-// port represents the port on the given protocol. This can either be a numerical or named port on a pod. If this field is not provided, this matches all port names and numbers. If present, only traffic on the specified protocol AND port will be matched.
+// port represents the port on the given protocol. This can either be a numerical or named
+//
+// port on a pod. If this field is not provided, this matches all port names and
+//
+// numbers.
+//
+// If present, only traffic on the specified protocol AND port will be matched.
 func (d *NetworkPolicyPortDie) Port(v *intstr.IntOrString) *NetworkPolicyPortDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyPort) {
 		r.Port = v
@@ -4442,7 +4724,13 @@ func (d *NetworkPolicyPortDie) PortString(s string) *NetworkPolicyPortDie {
 	})
 }
 
-// endPort indicates that the range of ports from port to endPort if set, inclusive, should be allowed by the policy. This field cannot be defined if the port field is not defined or if the port field is defined as a named (string) port. The endPort must be equal or greater than port.
+// endPort indicates that the range of ports from port to endPort if set, inclusive,
+//
+// should be allowed by the policy. This field cannot be defined if the port field
+//
+// is not defined or if the port field is defined as a named (string) port.
+//
+// The endPort must be equal or greater than port.
 func (d *NetworkPolicyPortDie) EndPort(v *int32) *NetworkPolicyPortDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyPort) {
 		r.EndPort = v
@@ -4631,25 +4919,39 @@ func (d *NetworkPolicyPeerDie) DeepCopy() *NetworkPolicyPeerDie {
 	}
 }
 
-// podSelector is a label selector which selects pods. This field follows standard label selector semantics; if present but empty, it selects all pods.
+// podSelector is a label selector which selects pods. This field follows standard label
 //
-// If namespaceSelector is also set, then the NetworkPolicyPeer as a whole selects the pods matching podSelector in the Namespaces selected by NamespaceSelector. Otherwise it selects the pods matching podSelector in the policy's own namespace.
+// selector semantics; if present but empty, it selects all pods.
+//
+// # If namespaceSelector is also set, then the NetworkPolicyPeer as a whole selects
+//
+// the pods matching podSelector in the Namespaces selected by NamespaceSelector.
+//
+// Otherwise it selects the pods matching podSelector in the policy's own namespace.
 func (d *NetworkPolicyPeerDie) PodSelector(v *apismetav1.LabelSelector) *NetworkPolicyPeerDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyPeer) {
 		r.PodSelector = v
 	})
 }
 
-// namespaceSelector selects namespaces using cluster-scoped labels. This field follows standard label selector semantics; if present but empty, it selects all namespaces.
+// namespaceSelector selects namespaces using cluster-scoped labels. This field follows
 //
-// If podSelector is also set, then the NetworkPolicyPeer as a whole selects the pods matching podSelector in the namespaces selected by namespaceSelector. Otherwise it selects all pods in the namespaces selected by namespaceSelector.
+// standard label selector semantics; if present but empty, it selects all namespaces.
+//
+// # If podSelector is also set, then the NetworkPolicyPeer as a whole selects
+//
+// the pods matching podSelector in the namespaces selected by namespaceSelector.
+//
+// Otherwise it selects all pods in the namespaces selected by namespaceSelector.
 func (d *NetworkPolicyPeerDie) NamespaceSelector(v *apismetav1.LabelSelector) *NetworkPolicyPeerDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyPeer) {
 		r.NamespaceSelector = v
 	})
 }
 
-// ipBlock defines policy on a particular IPBlock. If this field is set then neither of the other fields can be.
+// ipBlock defines policy on a particular IPBlock. If this field is set then
+//
+// neither of the other fields can be.
 func (d *NetworkPolicyPeerDie) IPBlock(v *networkingv1.IPBlock) *NetworkPolicyPeerDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyPeer) {
 		r.IPBlock = v
@@ -4838,14 +5140,20 @@ func (d *IPBlockDie) DeepCopy() *IPBlockDie {
 	}
 }
 
-// cidr is a string representing the IPBlock Valid examples are "192.168.1.0/24" or "2001:db8::/64"
+// cidr is a string representing the IPBlock
+//
+// Valid examples are "192.168.1.0/24" or "2001:db8::/64"
 func (d *IPBlockDie) CIDR(v string) *IPBlockDie {
 	return d.DieStamp(func(r *networkingv1.IPBlock) {
 		r.CIDR = v
 	})
 }
 
-// except is a slice of CIDRs that should not be included within an IPBlock Valid examples are "192.168.1.0/24" or "2001:db8::/64" Except values will be rejected if they are outside the cidr range
+// except is a slice of CIDRs that should not be included within an IPBlock
+//
+// Valid examples are "192.168.1.0/24" or "2001:db8::/64"
+//
+// Except values will be rejected if they are outside the cidr range
 func (d *IPBlockDie) Except(v ...string) *IPBlockDie {
 	return d.DieStamp(func(r *networkingv1.IPBlock) {
 		r.Except = v

@@ -215,7 +215,15 @@ func (d *ConditionDie) DeepCopy() *ConditionDie {
 	}
 }
 
-// type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+// type of condition in CamelCase or in foo.example.com/CamelCase.
+//
+// ---
+//
+// # Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be
+//
+// useful (see .node.status.conditions), the ability to deconflict is important.
+//
+// The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
 func (d *ConditionDie) Type(v string) *ConditionDie {
 	return d.DieStamp(func(r *metav1.Condition) {
 		r.Type = v
@@ -229,28 +237,44 @@ func (d *ConditionDie) Status(v metav1.ConditionStatus) *ConditionDie {
 	})
 }
 
-// observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+// observedGeneration represents the .metadata.generation that the condition was set based upon.
+//
+// For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+//
+// with respect to the current state of the instance.
 func (d *ConditionDie) ObservedGeneration(v int64) *ConditionDie {
 	return d.DieStamp(func(r *metav1.Condition) {
 		r.ObservedGeneration = v
 	})
 }
 
-// lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+// lastTransitionTime is the last time the condition transitioned from one status to another.
+//
+// This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
 func (d *ConditionDie) LastTransitionTime(v metav1.Time) *ConditionDie {
 	return d.DieStamp(func(r *metav1.Condition) {
 		r.LastTransitionTime = v
 	})
 }
 
-// reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+// reason contains a programmatic identifier indicating the reason for the condition's last transition.
+//
+// Producers of specific condition types may define expected values and meanings for this field,
+//
+// and whether the values are considered a guaranteed API.
+//
+// The value should be a CamelCase string.
+//
+// This field may not be empty.
 func (d *ConditionDie) Reason(v string) *ConditionDie {
 	return d.DieStamp(func(r *metav1.Condition) {
 		r.Reason = v
 	})
 }
 
-// message is a human readable message indicating details about the transition. This may be an empty string.
+// message is a human readable message indicating details about the transition.
+//
+// This may be an empty string.
 func (d *ConditionDie) Message(v string) *ConditionDie {
 	return d.DieStamp(func(r *metav1.Condition) {
 		r.Message = v
@@ -1234,7 +1258,9 @@ func (d *GroupVersionForDiscoveryDie) GroupVersion(v string) *GroupVersionForDis
 	})
 }
 
-// version specifies the version in the form of "version". This is to save the clients the trouble of splitting the GroupVersion.
+// version specifies the version in the form of "version". This is to save
+//
+// the clients the trouble of splitting the GroupVersion.
 func (d *GroupVersionForDiscoveryDie) Version(v string) *GroupVersionForDiscoveryDie {
 	return d.DieStamp(func(r *metav1.GroupVersionForDiscovery) {
 		r.Version = v
@@ -1430,21 +1456,59 @@ func (d *ListMetaDie) SelfLink(v string) *ListMetaDie {
 	})
 }
 
-// String that identifies the server's internal version of this object that can be used by clients to determine when objects have changed. Value must be treated as opaque by clients and passed unmodified back to the server. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+// String that identifies the server's internal version of this object that
+//
+// can be used by clients to determine when objects have changed.
+//
+// Value must be treated as opaque by clients and passed unmodified back to the server.
+//
+// Populated by the system.
+//
+// Read-only.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
 func (d *ListMetaDie) ResourceVersion(v string) *ListMetaDie {
 	return d.DieStamp(func(r *metav1.ListMeta) {
 		r.ResourceVersion = v
 	})
 }
 
-// continue may be set if the user set a limit on the number of items returned, and indicates that the server has more data available. The value is opaque and may be used to issue another request to the endpoint that served this list to retrieve the next set of available objects. Continuing a consistent list may not be possible if the server configuration has changed or more than a few minutes have passed. The resourceVersion field returned when using this continue value will be identical to the value in the first response, unless you have received this token from an error message.
+// continue may be set if the user set a limit on the number of items returned, and indicates that
+//
+// the server has more data available. The value is opaque and may be used to issue another request
+//
+// to the endpoint that served this list to retrieve the next set of available objects. Continuing a
+//
+// consistent list may not be possible if the server configuration has changed or more than a few
+//
+// minutes have passed. The resourceVersion field returned when using this continue value will be
+//
+// identical to the value in the first response, unless you have received this token from an error
+//
+// message.
 func (d *ListMetaDie) Continue(v string) *ListMetaDie {
 	return d.DieStamp(func(r *metav1.ListMeta) {
 		r.Continue = v
 	})
 }
 
-// remainingItemCount is the number of subsequent items in the list which are not included in this list response. If the list request contained label or field selectors, then the number of remaining items is unknown and the field will be left unset and omitted during serialization. If the list is complete (either because it is not chunking or because this is the last chunk), then there are no more remaining items and this field will be left unset and omitted during serialization. Servers older than v1.15 do not set this field. The intended use of the remainingItemCount is *estimating* the size of a collection. Clients should not rely on the remainingItemCount to be set or to be exact.
+// remainingItemCount is the number of subsequent items in the list which are not included in this
+//
+// list response. If the list request contained label or field selectors, then the number of
+//
+// remaining items is unknown and the field will be left unset and omitted during serialization.
+//
+// If the list is complete (either because it is not chunking or because this is the last chunk),
+//
+// then there are no more remaining items and this field will be left unset and omitted during
+//
+// serialization.
+//
+// Servers older than v1.15 do not set this field.
+//
+// The intended use of the remainingItemCount is *estimating* the size of a collection. Clients
+//
+// should not rely on the remainingItemCount to be set or to be exact.
 func (d *ListMetaDie) RemainingItemCount(v *int64) *ListMetaDie {
 	return d.DieStamp(func(r *metav1.ListMeta) {
 		r.RemainingItemCount = v
@@ -1633,27 +1697,61 @@ func (d *ObjectMetaDie) DeepCopy() *ObjectMetaDie {
 	}
 }
 
-// Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names
+// Name must be unique within a namespace. Is required when creating resources, although
+//
+// some resources may allow a client to request the generation of an appropriate name
+//
+// automatically. Name is primarily intended for creation idempotence and configuration
+//
+// definition.
+//
+// Cannot be updated.
+//
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names
 func (d *ObjectMetaDie) Name(v string) *ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.Name = v
 	})
 }
 
-// GenerateName is an optional prefix, used by the server, to generate a unique name ONLY IF the Name field has not been provided. If this field is used, the name returned to the client will be different than the name passed. This value will also be combined with a unique suffix. The provided value has the same validation rules as the Name field, and may be truncated by the length of the suffix required to make the value unique on the server.
+// GenerateName is an optional prefix, used by the server, to generate a unique
+//
+// name ONLY IF the Name field has not been provided.
+//
+// # If this field is used, the name returned to the client will be different
+//
+// than the name passed. This value will also be combined with a unique suffix.
+//
+// The provided value has the same validation rules as the Name field,
+//
+// and may be truncated by the length of the suffix required to make the value
+//
+// unique on the server.
 //
 // If this field is specified and the generated name exists, the server will return a 409.
 //
-// Applied only if Name is not specified. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
+// Applied only if Name is not specified.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
 func (d *ObjectMetaDie) GenerateName(v string) *ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.GenerateName = v
 	})
 }
 
-// Namespace defines the space within which each name must be unique. An empty namespace is equivalent to the "default" namespace, but "default" is the canonical representation. Not all objects are required to be scoped to a namespace - the value of this field for those objects will be empty.
+// Namespace defines the space within which each name must be unique. An empty namespace is
 //
-// Must be a DNS_LABEL. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces
+// equivalent to the "default" namespace, but "default" is the canonical representation.
+//
+// # Not all objects are required to be scoped to a namespace - the value of this field for
+//
+// those objects will be empty.
+//
+// Must be a DNS_LABEL.
+//
+// Cannot be updated.
+//
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces
 func (d *ObjectMetaDie) Namespace(v string) *ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.Namespace = v
@@ -1667,85 +1765,209 @@ func (d *ObjectMetaDie) SelfLink(v string) *ObjectMetaDie {
 	})
 }
 
-// UID is the unique in time and space value for this object. It is typically generated by the server on successful creation of a resource and is not allowed to change on PUT operations.
+// UID is the unique in time and space value for this object. It is typically generated by
 //
-// Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
+// the server on successful creation of a resource and is not allowed to change on PUT
+//
+// operations.
+//
+// Populated by the system.
+//
+// Read-only.
+//
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
 func (d *ObjectMetaDie) UID(v types.UID) *ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.UID = v
 	})
 }
 
-// An opaque value that represents the internal version of this object that can be used by clients to determine when objects have changed. May be used for optimistic concurrency, change detection, and the watch operation on a resource or set of resources. Clients must treat these values as opaque and passed unmodified back to the server. They may only be valid for a particular resource or set of resources.
+// An opaque value that represents the internal version of this object that can
 //
-// Populated by the system. Read-only. Value must be treated as opaque by clients and . More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+// be used by clients to determine when objects have changed. May be used for optimistic
+//
+// concurrency, change detection, and the watch operation on a resource or set of resources.
+//
+// Clients must treat these values as opaque and passed unmodified back to the server.
+//
+// They may only be valid for a particular resource or set of resources.
+//
+// Populated by the system.
+//
+// Read-only.
+//
+// Value must be treated as opaque by clients and .
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
 func (d *ObjectMetaDie) ResourceVersion(v string) *ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.ResourceVersion = v
 	})
 }
 
-// A sequence number representing a specific generation of the desired state. Populated by the system. Read-only.
+// A sequence number representing a specific generation of the desired state.
+//
+// Populated by the system. Read-only.
 func (d *ObjectMetaDie) Generation(v int64) *ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.Generation = v
 	})
 }
 
-// CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC.
+// CreationTimestamp is a timestamp representing the server time when this object was
 //
-// Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+// created. It is not guaranteed to be set in happens-before order across separate operations.
+//
+// Clients may not set this value. It is represented in RFC3339 form and is in UTC.
+//
+// Populated by the system.
+//
+// Read-only.
+//
+// Null for lists.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
 func (d *ObjectMetaDie) CreationTimestamp(v metav1.Time) *ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.CreationTimestamp = v
 	})
 }
 
-// DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This field is set by the server when a graceful deletion is requested by the user, and is not directly settable by a client. The resource is expected to be deleted (no longer visible from resource lists, and not reachable by name) after the time in this field, once the finalizers list is empty. As long as the finalizers list contains items, deletion is blocked. Once the deletionTimestamp is set, this value may not be unset or be set further into the future, although it may be shortened or the resource may be deleted prior to this time. For example, a user may request that a pod is deleted in 30 seconds. The Kubelet will react by sending a graceful termination signal to the containers in the pod. After that 30 seconds, the Kubelet will send a hard termination signal (SIGKILL) to the container and after cleanup, remove the pod from the API. In the presence of network partitions, this object may still exist after this timestamp, until an administrator or automated process can determine the resource is fully terminated. If not set, graceful deletion of the object has not been requested.
+// DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This
 //
-// Populated by the system when a graceful deletion is requested. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+// field is set by the server when a graceful deletion is requested by the user, and is not
+//
+// directly settable by a client. The resource is expected to be deleted (no longer visible
+//
+// from resource lists, and not reachable by name) after the time in this field, once the
+//
+// finalizers list is empty. As long as the finalizers list contains items, deletion is blocked.
+//
+// # Once the deletionTimestamp is set, this value may not be unset or be set further into the
+//
+// future, although it may be shortened or the resource may be deleted prior to this time.
+//
+// For example, a user may request that a pod is deleted in 30 seconds. The Kubelet will react
+//
+// by sending a graceful termination signal to the containers in the pod. After that 30 seconds,
+//
+// the Kubelet will send a hard termination signal (SIGKILL) to the container and after cleanup,
+//
+// remove the pod from the API. In the presence of network partitions, this object may still
+//
+// exist after this timestamp, until an administrator or automated process can determine the
+//
+// resource is fully terminated.
+//
+// If not set, graceful deletion of the object has not been requested.
+//
+// Populated by the system when a graceful deletion is requested.
+//
+// Read-only.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
 func (d *ObjectMetaDie) DeletionTimestamp(v *metav1.Time) *ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.DeletionTimestamp = v
 	})
 }
 
-// Number of seconds allowed for this object to gracefully terminate before it will be removed from the system. Only set when deletionTimestamp is also set. May only be shortened. Read-only.
+// Number of seconds allowed for this object to gracefully terminate before
+//
+// it will be removed from the system. Only set when deletionTimestamp is also set.
+//
+// May only be shortened.
+//
+// Read-only.
 func (d *ObjectMetaDie) DeletionGracePeriodSeconds(v *int64) *ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.DeletionGracePeriodSeconds = v
 	})
 }
 
-// Map of string keys and values that can be used to organize and categorize (scope and select) objects. May match selectors of replication controllers and services. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
+// Map of string keys and values that can be used to organize and categorize
+//
+// (scope and select) objects. May match selectors of replication controllers
+//
+// and services.
+//
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
 func (d *ObjectMetaDie) Labels(v map[string]string) *ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.Labels = v
 	})
 }
 
-// Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata. They are not queryable and should be preserved when modifying objects. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
+// Annotations is an unstructured key value map stored with a resource that may be
+//
+// set by external tools to store and retrieve arbitrary metadata. They are not
+//
+// queryable and should be preserved when modifying objects.
+//
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
 func (d *ObjectMetaDie) Annotations(v map[string]string) *ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.Annotations = v
 	})
 }
 
-// List of objects depended by this object. If ALL objects in the list have been deleted, this object will be garbage collected. If this object is managed by a controller, then an entry in this list will point to this controller, with the controller field set to true. There cannot be more than one managing controller.
+// List of objects depended by this object. If ALL objects in the list have
+//
+// been deleted, this object will be garbage collected. If this object is managed by a controller,
+//
+// then an entry in this list will point to this controller, with the controller field set to true.
+//
+// There cannot be more than one managing controller.
 func (d *ObjectMetaDie) OwnerReferences(v ...metav1.OwnerReference) *ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.OwnerReferences = v
 	})
 }
 
-// Must be empty before the object is deleted from the registry. Each entry is an identifier for the responsible component that will remove the entry from the list. If the deletionTimestamp of the object is non-nil, entries in this list can only be removed. Finalizers may be processed and removed in any order.  Order is NOT enforced because it introduces significant risk of stuck finalizers. finalizers is a shared field, any actor with permission can reorder it. If the finalizer list is processed in order, then this can lead to a situation in which the component responsible for the first finalizer in the list is waiting for a signal (field value, external system, or other) produced by a component responsible for a finalizer later in the list, resulting in a deadlock. Without enforced ordering finalizers are free to order amongst themselves and are not vulnerable to ordering changes in the list.
+// Must be empty before the object is deleted from the registry. Each entry
+//
+// is an identifier for the responsible component that will remove the entry
+//
+// from the list. If the deletionTimestamp of the object is non-nil, entries
+//
+// in this list can only be removed.
+//
+// Finalizers may be processed and removed in any order.  Order is NOT enforced
+//
+// because it introduces significant risk of stuck finalizers.
+//
+// finalizers is a shared field, any actor with permission can reorder it.
+//
+// # If the finalizer list is processed in order, then this can lead to a situation
+//
+// in which the component responsible for the first finalizer in the list is
+//
+// waiting for a signal (field value, external system, or other) produced by a
+//
+// component responsible for a finalizer later in the list, resulting in a deadlock.
+//
+// # Without enforced ordering finalizers are free to order amongst themselves and
+//
+// are not vulnerable to ordering changes in the list.
 func (d *ObjectMetaDie) Finalizers(v ...string) *ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.Finalizers = v
 	})
 }
 
-// ManagedFields maps workflow-id and version to the set of fields that are managed by that workflow. This is mostly for internal housekeeping, and users typically shouldn't need to set or understand this field. A workflow can be the user's name, a controller's name, or the name of a specific apply path like "ci-cd". The set of fields is always in the version that the workflow used when modifying the object.
+// ManagedFields maps workflow-id and version to the set of fields
+//
+// that are managed by that workflow. This is mostly for internal
+//
+// housekeeping, and users typically shouldn't need to set or
+//
+// understand this field. A workflow can be the user's name, a
+//
+// controller's name, or the name of a specific apply path like
+//
+// "ci-cd". The set of fields is always in the version that the
+//
+// workflow used when modifying the object.
 func (d *ObjectMetaDie) ManagedFields(v ...metav1.ManagedFieldsEntry) *ObjectMetaDie {
 	return d.DieStamp(func(r *metav1.ObjectMeta) {
 		r.ManagedFields = v
@@ -1941,28 +2163,46 @@ func (d *ManagedFieldsEntryDie) Manager(v string) *ManagedFieldsEntryDie {
 	})
 }
 
-// Operation is the type of operation which lead to this ManagedFieldsEntry being created. The only valid values for this field are 'Apply' and 'Update'.
+// Operation is the type of operation which lead to this ManagedFieldsEntry being created.
+//
+// The only valid values for this field are 'Apply' and 'Update'.
 func (d *ManagedFieldsEntryDie) Operation(v metav1.ManagedFieldsOperationType) *ManagedFieldsEntryDie {
 	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
 		r.Operation = v
 	})
 }
 
-// APIVersion defines the version of this resource that this field set applies to. The format is "group/version" just like the top-level APIVersion field. It is necessary to track the version of a field set because it cannot be automatically converted.
+// APIVersion defines the version of this resource that this field set
+//
+// applies to. The format is "group/version" just like the top-level
+//
+// APIVersion field. It is necessary to track the version of a field
+//
+// set because it cannot be automatically converted.
 func (d *ManagedFieldsEntryDie) APIVersion(v string) *ManagedFieldsEntryDie {
 	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
 		r.APIVersion = v
 	})
 }
 
-// Time is the timestamp of when the ManagedFields entry was added. The timestamp will also be updated if a field is added, the manager changes any of the owned fields value or removes a field. The timestamp does not update when a field is removed from the entry because another manager took it over.
+// Time is the timestamp of when the ManagedFields entry was added. The
+//
+// timestamp will also be updated if a field is added, the manager
+//
+// changes any of the owned fields value or removes a field. The
+//
+// timestamp does not update when a field is removed from the entry
+//
+// because another manager took it over.
 func (d *ManagedFieldsEntryDie) Time(v *metav1.Time) *ManagedFieldsEntryDie {
 	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
 		r.Time = v
 	})
 }
 
-// FieldsType is the discriminator for the different fields format and version. There is currently only one possible value: "FieldsV1"
+// FieldsType is the discriminator for the different fields format and version.
+//
+// There is currently only one possible value: "FieldsV1"
 func (d *ManagedFieldsEntryDie) FieldsType(v string) *ManagedFieldsEntryDie {
 	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
 		r.FieldsType = v
@@ -1976,7 +2216,19 @@ func (d *ManagedFieldsEntryDie) FieldsV1(v *metav1.FieldsV1) *ManagedFieldsEntry
 	})
 }
 
-// Subresource is the name of the subresource used to update that object, or empty string if the object was updated through the main resource. The value of this field is used to distinguish between managers, even if they share the same name. For example, a status update will be distinct from a regular update using the same manager name. Note that the APIVersion field is not related to the Subresource field and it always corresponds to the version of the main resource.
+// Subresource is the name of the subresource used to update that object, or
+//
+// empty string if the object was updated through the main resource. The
+//
+// value of this field is used to distinguish between managers, even if they
+//
+// share the same name. For example, a status update will be distinct from a
+//
+// regular update using the same manager name.
+//
+// # Note that the APIVersion field is not related to the Subresource field and
+//
+// it always corresponds to the version of the main resource.
 func (d *ManagedFieldsEntryDie) Subresource(v string) *ManagedFieldsEntryDie {
 	return d.DieStamp(func(r *metav1.ManagedFieldsEntry) {
 		r.Subresource = v
@@ -2165,7 +2417,11 @@ func (d *LabelSelectorDie) DeepCopy() *LabelSelectorDie {
 	}
 }
 
-// matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+// matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+//
+// map is equivalent to an element of matchExpressions, whose key field is "key", the
+//
+// operator is "In", and the values array contains only "value". The requirements are ANDed.
 func (d *LabelSelectorDie) MatchLabels(v map[string]string) *LabelSelectorDie {
 	return d.DieStamp(func(r *metav1.LabelSelector) {
 		r.MatchLabels = v
@@ -2367,14 +2623,20 @@ func (d *StatusDie) TypeMeta(v metav1.TypeMeta) *StatusDie {
 	})
 }
 
-// Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+// Standard list metadata.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
 func (d *StatusDie) ListMeta(v metav1.ListMeta) *StatusDie {
 	return d.DieStamp(func(r *metav1.Status) {
 		r.ListMeta = v
 	})
 }
 
-// Status of the operation. One of: "Success" or "Failure". More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+// Status of the operation.
+//
+// One of: "Success" or "Failure".
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *StatusDie) Status(v string) *StatusDie {
 	return d.DieStamp(func(r *metav1.Status) {
 		r.Status = v
@@ -2388,14 +2650,26 @@ func (d *StatusDie) Message(v string) *StatusDie {
 	})
 }
 
-// A machine-readable description of why this operation is in the "Failure" status. If this value is empty there is no information available. A Reason clarifies an HTTP status code but does not override it.
+// A machine-readable description of why this operation is in the
+//
+// "Failure" status. If this value is empty there
+//
+// is no information available. A Reason clarifies an HTTP status
+//
+// code but does not override it.
 func (d *StatusDie) Reason(v metav1.StatusReason) *StatusDie {
 	return d.DieStamp(func(r *metav1.Status) {
 		r.Reason = v
 	})
 }
 
-// Extended data associated with the reason.  Each reason may define its own extended details. This field is optional and the data returned is not guaranteed to conform to any schema except that defined by the reason type.
+// Extended data associated with the reason.  Each reason may define its
+//
+// own extended details. This field is optional and the data returned
+//
+// is not guaranteed to conform to any schema except that defined by
+//
+// the reason type.
 func (d *StatusDie) Details(v *metav1.StatusDetails) *StatusDie {
 	return d.DieStamp(func(r *metav1.Status) {
 		r.Details = v
@@ -2591,7 +2865,9 @@ func (d *StatusDetailsDie) DeepCopy() *StatusDetailsDie {
 	}
 }
 
-// The name attribute of the resource associated with the status StatusReason (when there is a single name which can be described).
+// The name attribute of the resource associated with the status StatusReason
+//
+// (when there is a single name which can be described).
 func (d *StatusDetailsDie) Name(v string) *StatusDetailsDie {
 	return d.DieStamp(func(r *metav1.StatusDetails) {
 		r.Name = v
@@ -2605,28 +2881,42 @@ func (d *StatusDetailsDie) Group(v string) *StatusDetailsDie {
 	})
 }
 
-// The kind attribute of the resource associated with the status StatusReason. On some operations may differ from the requested resource Kind. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+// The kind attribute of the resource associated with the status StatusReason.
+//
+// On some operations may differ from the requested resource Kind.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
 func (d *StatusDetailsDie) Kind(v string) *StatusDetailsDie {
 	return d.DieStamp(func(r *metav1.StatusDetails) {
 		r.Kind = v
 	})
 }
 
-// UID of the resource. (when there is a single resource which can be described). More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
+// UID of the resource.
+//
+// (when there is a single resource which can be described).
+//
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
 func (d *StatusDetailsDie) UID(v types.UID) *StatusDetailsDie {
 	return d.DieStamp(func(r *metav1.StatusDetails) {
 		r.UID = v
 	})
 }
 
-// The Causes array includes more details associated with the StatusReason failure. Not all StatusReasons may provide detailed causes.
+// The Causes array includes more details associated with the StatusReason
+//
+// failure. Not all StatusReasons may provide detailed causes.
 func (d *StatusDetailsDie) Causes(v ...metav1.StatusCause) *StatusDetailsDie {
 	return d.DieStamp(func(r *metav1.StatusDetails) {
 		r.Causes = v
 	})
 }
 
-// If specified, the time in seconds before the operation should be retried. Some errors may indicate the client must take an alternate action - for those errors this field may indicate how long to wait before taking the alternate action.
+// If specified, the time in seconds before the operation should be retried. Some errors may indicate
+//
+// the client must take an alternate action - for those errors this field may indicate how long to wait
+//
+// before taking the alternate action.
 func (d *StatusDetailsDie) RetryAfterSeconds(v int32) *StatusDetailsDie {
 	return d.DieStamp(func(r *metav1.StatusDetails) {
 		r.RetryAfterSeconds = v
@@ -2815,23 +3105,39 @@ func (d *StatusCauseDie) DeepCopy() *StatusCauseDie {
 	}
 }
 
-// A machine-readable description of the cause of the error. If this value is empty there is no information available.
+// A machine-readable description of the cause of the error. If this value is
+//
+// empty there is no information available.
 func (d *StatusCauseDie) Type(v metav1.CauseType) *StatusCauseDie {
 	return d.DieStamp(func(r *metav1.StatusCause) {
 		r.Type = v
 	})
 }
 
-// A human-readable description of the cause of the error.  This field may be presented as-is to a reader.
+// A human-readable description of the cause of the error.  This field may be
+//
+// presented as-is to a reader.
 func (d *StatusCauseDie) Message(v string) *StatusCauseDie {
 	return d.DieStamp(func(r *metav1.StatusCause) {
 		r.Message = v
 	})
 }
 
-// The field of the resource that has caused this error, as named by its JSON serialization. May include dot and postfix notation for nested attributes. Arrays are zero-indexed.  Fields may appear more than once in an array of causes due to fields having multiple errors. Optional.
+// The field of the resource that has caused this error, as named by its JSON
 //
-// Examples: "name" - the field "name" on the current resource "items[0].name" - the field "name" on the first array entry in "items"
+// serialization. May include dot and postfix notation for nested attributes.
+//
+// Arrays are zero-indexed.  Fields may appear more than once in an array of
+//
+// causes due to fields having multiple errors.
+//
+// Optional.
+//
+// Examples:
+//
+// "name" - the field "name" on the current resource
+//
+// "items[0].name" - the field "name" on the first array entry in "items"
 func (d *StatusCauseDie) Field(v string) *StatusCauseDie {
 	return d.DieStamp(func(r *metav1.StatusCause) {
 		r.Field = v

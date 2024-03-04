@@ -292,7 +292,11 @@ func (d *ClusterRoleDie) Rules(v ...rbacv1.PolicyRule) *ClusterRoleDie {
 	})
 }
 
-// AggregationRule is an optional field that describes how to build the Rules for this ClusterRole. If AggregationRule is set, then the Rules are controller managed and direct changes to Rules will be stomped by the controller.
+// AggregationRule is an optional field that describes how to build the Rules for this ClusterRole.
+//
+// # If AggregationRule is set, then the Rules are controller managed and direct changes to Rules will be
+//
+// stomped by the controller.
 func (d *ClusterRoleDie) AggregationRule(v *rbacv1.AggregationRule) *ClusterRoleDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRole) {
 		r.AggregationRule = v
@@ -481,7 +485,9 @@ func (d *AggregationRuleDie) DeepCopy() *AggregationRuleDie {
 	}
 }
 
-// ClusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules. If any of the selectors match, then the ClusterRole's permissions will be added
+// ClusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules.
+//
+// If any of the selectors match, then the ClusterRole's permissions will be added
 func (d *AggregationRuleDie) ClusterRoleSelectors(v ...apismetav1.LabelSelector) *AggregationRuleDie {
 	return d.DieStamp(func(r *rbacv1.AggregationRule) {
 		r.ClusterRoleSelectors = v
@@ -744,7 +750,11 @@ func (d *ClusterRoleBindingDie) Subjects(v ...rbacv1.Subject) *ClusterRoleBindin
 	})
 }
 
-// RoleRef can only reference a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error. This field is immutable.
+// RoleRef can only reference a ClusterRole in the global namespace.
+//
+// If the RoleRef cannot be resolved, the Authorizer must return an error.
+//
+// This field is immutable.
 func (d *ClusterRoleBindingDie) RoleRef(v rbacv1.RoleRef) *ClusterRoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
 		r.RoleRef = v
@@ -1196,7 +1206,9 @@ func (d *PolicyRuleDie) Verbs(v ...string) *PolicyRuleDie {
 	})
 }
 
-// APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
+// APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
+//
+// the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
 func (d *PolicyRuleDie) APIGroups(v ...string) *PolicyRuleDie {
 	return d.DieStamp(func(r *rbacv1.PolicyRule) {
 		r.APIGroups = v
@@ -1217,7 +1229,11 @@ func (d *PolicyRuleDie) ResourceNames(v ...string) *PolicyRuleDie {
 	})
 }
 
-// NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding. Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
+// NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
+//
+// Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
+//
+// Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
 func (d *PolicyRuleDie) NonResourceURLs(v ...string) *PolicyRuleDie {
 	return d.DieStamp(func(r *rbacv1.PolicyRule) {
 		r.NonResourceURLs = v
@@ -1480,7 +1496,11 @@ func (d *RoleBindingDie) Subjects(v ...rbacv1.Subject) *RoleBindingDie {
 	})
 }
 
-// RoleRef can reference a Role in the current namespace or a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error. This field is immutable.
+// RoleRef can reference a Role in the current namespace or a ClusterRole in the global namespace.
+//
+// If the RoleRef cannot be resolved, the Authorizer must return an error.
+//
+// This field is immutable.
 func (d *RoleBindingDie) RoleRef(v rbacv1.RoleRef) *RoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.RoleBinding) {
 		r.RoleRef = v
@@ -1669,14 +1689,20 @@ func (d *SubjectDie) DeepCopy() *SubjectDie {
 	}
 }
 
-// Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount". If the Authorizer does not recognized the kind value, the Authorizer should report an error.
+// Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
+//
+// If the Authorizer does not recognized the kind value, the Authorizer should report an error.
 func (d *SubjectDie) Kind(v string) *SubjectDie {
 	return d.DieStamp(func(r *rbacv1.Subject) {
 		r.Kind = v
 	})
 }
 
-// APIGroup holds the API group of the referenced subject. Defaults to "" for ServiceAccount subjects. Defaults to "rbac.authorization.k8s.io" for User and Group subjects.
+// APIGroup holds the API group of the referenced subject.
+//
+// Defaults to "" for ServiceAccount subjects.
+//
+// Defaults to "rbac.authorization.k8s.io" for User and Group subjects.
 func (d *SubjectDie) APIGroup(v string) *SubjectDie {
 	return d.DieStamp(func(r *rbacv1.Subject) {
 		r.APIGroup = v
@@ -1690,7 +1716,9 @@ func (d *SubjectDie) Name(v string) *SubjectDie {
 	})
 }
 
-// Namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty the Authorizer should report an error.
+// Namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty
+//
+// the Authorizer should report an error.
 func (d *SubjectDie) Namespace(v string) *SubjectDie {
 	return d.DieStamp(func(r *rbacv1.Subject) {
 		r.Namespace = v
