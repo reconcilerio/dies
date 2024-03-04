@@ -499,14 +499,24 @@ func (d *HorizontalPodAutoscalerSpecDie) DeepCopy() *HorizontalPodAutoscalerSpec
 	}
 }
 
-// reference to scaled resource; horizontal pod autoscaler will learn the current resource consumption and will set the desired number of pods by using its Scale subresource.
+// reference to scaled resource; horizontal pod autoscaler will learn the current resource consumption
+//
+// and will set the desired number of pods by using its Scale subresource.
 func (d *HorizontalPodAutoscalerSpecDie) ScaleTargetRef(v autoscalingv1.CrossVersionObjectReference) *HorizontalPodAutoscalerSpecDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerSpec) {
 		r.ScaleTargetRef = v
 	})
 }
 
-// minReplicas is the lower limit for the number of replicas to which the autoscaler can scale down.  It defaults to 1 pod.  minReplicas is allowed to be 0 if the alpha feature gate HPAScaleToZero is enabled and at least one Object or External metric is configured.  Scaling is active as long as at least one metric value is available.
+// minReplicas is the lower limit for the number of replicas to which the autoscaler
+//
+// can scale down.  It defaults to 1 pod.  minReplicas is allowed to be 0 if the
+//
+// alpha feature gate HPAScaleToZero is enabled and at least one Object or External
+//
+// metric is configured.  Scaling is active as long as at least one metric value is
+//
+// available.
 func (d *HorizontalPodAutoscalerSpecDie) MinReplicas(v *int32) *HorizontalPodAutoscalerSpecDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerSpec) {
 		r.MinReplicas = v
@@ -520,7 +530,9 @@ func (d *HorizontalPodAutoscalerSpecDie) MaxReplicas(v int32) *HorizontalPodAuto
 	})
 }
 
-// targetCPUUtilizationPercentage is the target average CPU utilization (represented as a percentage of requested CPU) over all the pods; if not specified the default autoscaling policy will be used.
+// targetCPUUtilizationPercentage is the target average CPU utilization (represented as a percentage of requested CPU) over all the pods;
+//
+// if not specified the default autoscaling policy will be used.
 func (d *HorizontalPodAutoscalerSpecDie) TargetCPUUtilizationPercentage(v *int32) *HorizontalPodAutoscalerSpecDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerSpec) {
 		r.TargetCPUUtilizationPercentage = v
@@ -919,7 +931,9 @@ func (d *HorizontalPodAutoscalerStatusDie) ObservedGeneration(v *int64) *Horizon
 	})
 }
 
-// lastScaleTime is the last time the HorizontalPodAutoscaler scaled the number of pods; used by the autoscaler to control how often the number of pods is changed.
+// lastScaleTime is the last time the HorizontalPodAutoscaler scaled the number of pods;
+//
+// used by the autoscaler to control how often the number of pods is changed.
 func (d *HorizontalPodAutoscalerStatusDie) LastScaleTime(v *apismetav1.Time) *HorizontalPodAutoscalerStatusDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerStatus) {
 		r.LastScaleTime = v
@@ -940,7 +954,9 @@ func (d *HorizontalPodAutoscalerStatusDie) DesiredReplicas(v int32) *HorizontalP
 	})
 }
 
-// currentCPUUtilizationPercentage is the current average CPU utilization over all pods, represented as a percentage of requested CPU, e.g. 70 means that an average pod is using now 70% of its requested CPU.
+// currentCPUUtilizationPercentage is the current average CPU utilization over all pods, represented as a percentage of requested CPU,
+//
+// e.g. 70 means that an average pod is using now 70% of its requested CPU.
 func (d *HorizontalPodAutoscalerStatusDie) CurrentCPUUtilizationPercentage(v *int32) *HorizontalPodAutoscalerStatusDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerStatus) {
 		r.CurrentCPUUtilizationPercentage = v

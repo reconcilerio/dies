@@ -284,7 +284,9 @@ func (d *LocalSubjectAccessReviewDie) MetadataDie(fn func(d *metav1.ObjectMetaDi
 	})
 }
 
-// Spec holds information about the request being evaluated.  spec.namespace must be equal to the namespace you made the request against.  If empty, it is defaulted.
+// Spec holds information about the request being evaluated.  spec.namespace must be equal to the namespace
+//
+// you made the request against.  If empty, it is defaulted.
 func (d *LocalSubjectAccessReviewDie) Spec(v authorizationv1.SubjectAccessReviewSpec) *LocalSubjectAccessReviewDie {
 	return d.DieStamp(func(r *authorizationv1.LocalSubjectAccessReview) {
 		r.Spec = v
@@ -1427,28 +1429,38 @@ func (d *SubjectRulesReviewStatusDie) DeepCopy() *SubjectRulesReviewStatusDie {
 	}
 }
 
-// ResourceRules is the list of actions the subject is allowed to perform on resources. The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
+// ResourceRules is the list of actions the subject is allowed to perform on resources.
+//
+// The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
 func (d *SubjectRulesReviewStatusDie) ResourceRules(v ...authorizationv1.ResourceRule) *SubjectRulesReviewStatusDie {
 	return d.DieStamp(func(r *authorizationv1.SubjectRulesReviewStatus) {
 		r.ResourceRules = v
 	})
 }
 
-// NonResourceRules is the list of actions the subject is allowed to perform on non-resources. The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
+// NonResourceRules is the list of actions the subject is allowed to perform on non-resources.
+//
+// The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
 func (d *SubjectRulesReviewStatusDie) NonResourceRules(v ...authorizationv1.NonResourceRule) *SubjectRulesReviewStatusDie {
 	return d.DieStamp(func(r *authorizationv1.SubjectRulesReviewStatus) {
 		r.NonResourceRules = v
 	})
 }
 
-// Incomplete is true when the rules returned by this call are incomplete. This is most commonly encountered when an authorizer, such as an external authorizer, doesn't support rules evaluation.
+// Incomplete is true when the rules returned by this call are incomplete. This is most commonly
+//
+// encountered when an authorizer, such as an external authorizer, doesn't support rules evaluation.
 func (d *SubjectRulesReviewStatusDie) Incomplete(v bool) *SubjectRulesReviewStatusDie {
 	return d.DieStamp(func(r *authorizationv1.SubjectRulesReviewStatus) {
 		r.Incomplete = v
 	})
 }
 
-// EvaluationError can appear in combination with Rules. It indicates an error occurred during rule evaluation, such as an authorizer that doesn't support rule evaluation, and that ResourceRules and/or NonResourceRules may be incomplete.
+// EvaluationError can appear in combination with Rules. It indicates an error occurred during
+//
+// rule evaluation, such as an authorizer that doesn't support rule evaluation, and that
+//
+// ResourceRules and/or NonResourceRules may be incomplete.
 func (d *SubjectRulesReviewStatusDie) EvaluationError(v string) *SubjectRulesReviewStatusDie {
 	return d.DieStamp(func(r *authorizationv1.SubjectRulesReviewStatus) {
 		r.EvaluationError = v
@@ -1644,14 +1656,18 @@ func (d *ResourceRuleDie) Verbs(v ...string) *ResourceRuleDie {
 	})
 }
 
-// APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of the enumerated resources in any API group will be allowed.  "*" means all.
+// APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
+//
+// the enumerated resources in any API group will be allowed.  "*" means all.
 func (d *ResourceRuleDie) APIGroups(v ...string) *ResourceRuleDie {
 	return d.DieStamp(func(r *authorizationv1.ResourceRule) {
 		r.APIGroups = v
 	})
 }
 
-// Resources is a list of resources this rule applies to.  "*" means all in the specified apiGroups. "*/foo" represents the subresource 'foo' for all resources in the specified apiGroups.
+// Resources is a list of resources this rule applies to.  "*" means all in the specified apiGroups.
+//
+// "*/foo" represents the subresource 'foo' for all resources in the specified apiGroups.
 func (d *ResourceRuleDie) Resources(v ...string) *ResourceRuleDie {
 	return d.DieStamp(func(r *authorizationv1.ResourceRule) {
 		r.Resources = v
@@ -1854,7 +1870,9 @@ func (d *NonResourceRuleDie) Verbs(v ...string) *NonResourceRuleDie {
 	})
 }
 
-// NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path.  "*" means all.
+// NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full,
+//
+// final step in the path.  "*" means all.
 func (d *NonResourceRuleDie) NonResourceURLs(v ...string) *NonResourceRuleDie {
 	return d.DieStamp(func(r *authorizationv1.NonResourceRule) {
 		r.NonResourceURLs = v
@@ -2338,7 +2356,9 @@ func (d *SubjectAccessReviewSpecDie) NonResourceAttributes(v *authorizationv1.No
 	})
 }
 
-// User is the user you're testing for. If you specify "User" but not "Groups", then is it interpreted as "What if User were not a member of any groups
+// User is the user you're testing for.
+//
+// If you specify "User" but not "Groups", then is it interpreted as "What if User were not a member of any groups
 func (d *SubjectAccessReviewSpecDie) User(v string) *SubjectAccessReviewSpecDie {
 	return d.DieStamp(func(r *authorizationv1.SubjectAccessReviewSpec) {
 		r.User = v
@@ -2541,7 +2561,13 @@ func (d *ResourceAttributesDie) DeepCopy() *ResourceAttributesDie {
 	}
 }
 
-// Namespace is the namespace of the action being requested.  Currently, there is no distinction between no namespace and all namespaces "" (empty) is defaulted for LocalSubjectAccessReviews "" (empty) is empty for cluster-scoped resources "" (empty) means "all" for namespace scoped resources from a SubjectAccessReview or SelfSubjectAccessReview
+// Namespace is the namespace of the action being requested.  Currently, there is no distinction between no namespace and all namespaces
+//
+// "" (empty) is defaulted for LocalSubjectAccessReviews
+//
+// "" (empty) is empty for cluster-scoped resources
+//
+// "" (empty) means "all" for namespace scoped resources from a SubjectAccessReview or SelfSubjectAccessReview
 func (d *ResourceAttributesDie) Namespace(v string) *ResourceAttributesDie {
 	return d.DieStamp(func(r *authorizationv1.ResourceAttributes) {
 		r.Namespace = v
@@ -2975,7 +3001,13 @@ func (d *SubjectAccessReviewStatusDie) Allowed(v bool) *SubjectAccessReviewStatu
 	})
 }
 
-// Denied is optional. True if the action would be denied, otherwise false. If both allowed is false and denied is false, then the authorizer has no opinion on whether to authorize the action. Denied may not be true if Allowed is true.
+// Denied is optional. True if the action would be denied, otherwise
+//
+// false. If both allowed is false and denied is false, then the
+//
+// authorizer has no opinion on whether to authorize the action. Denied
+//
+// may not be true if Allowed is true.
 func (d *SubjectAccessReviewStatusDie) Denied(v bool) *SubjectAccessReviewStatusDie {
 	return d.DieStamp(func(r *authorizationv1.SubjectAccessReviewStatus) {
 		r.Denied = v
@@ -2989,7 +3021,11 @@ func (d *SubjectAccessReviewStatusDie) Reason(v string) *SubjectAccessReviewStat
 	})
 }
 
-// EvaluationError is an indication that some error occurred during the authorization check. It is entirely possible to get an error and be able to continue determine authorization status in spite of it. For instance, RBAC can be missing a role, but enough roles are still present and bound to reason about the request.
+// EvaluationError is an indication that some error occurred during the authorization check.
+//
+// It is entirely possible to get an error and be able to continue determine authorization status in spite of it.
+//
+// For instance, RBAC can be missing a role, but enough roles are still present and bound to reason about the request.
 func (d *SubjectAccessReviewStatusDie) EvaluationError(v string) *SubjectAccessReviewStatusDie {
 	return d.DieStamp(func(r *authorizationv1.SubjectAccessReviewStatus) {
 		r.EvaluationError = v

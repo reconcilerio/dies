@@ -285,28 +285,44 @@ func (d *PriorityClassDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Priori
 	})
 }
 
-// value represents the integer value of this priority class. This is the actual priority that pods receive when they have the name of this class in their pod spec.
+// value represents the integer value of this priority class. This is the actual priority that pods
+//
+// receive when they have the name of this class in their pod spec.
 func (d *PriorityClassDie) Value(v int32) *PriorityClassDie {
 	return d.DieStamp(func(r *schedulingv1.PriorityClass) {
 		r.Value = v
 	})
 }
 
-// globalDefault specifies whether this PriorityClass should be considered as the default priority for pods that do not have any priority class. Only one PriorityClass can be marked as `globalDefault`. However, if more than one PriorityClasses exists with their `globalDefault` field set to true, the smallest value of such global default PriorityClasses will be used as the default priority.
+// globalDefault specifies whether this PriorityClass should be considered as
+//
+// the default priority for pods that do not have any priority class.
+//
+// Only one PriorityClass can be marked as `globalDefault`. However, if more than
+//
+// one PriorityClasses exists with their `globalDefault` field set to true,
+//
+// the smallest value of such global default PriorityClasses will be used as the default priority.
 func (d *PriorityClassDie) GlobalDefault(v bool) *PriorityClassDie {
 	return d.DieStamp(func(r *schedulingv1.PriorityClass) {
 		r.GlobalDefault = v
 	})
 }
 
-// description is an arbitrary string that usually provides guidelines on when this priority class should be used.
+// description is an arbitrary string that usually provides guidelines on
+//
+// when this priority class should be used.
 func (d *PriorityClassDie) Description(v string) *PriorityClassDie {
 	return d.DieStamp(func(r *schedulingv1.PriorityClass) {
 		r.Description = v
 	})
 }
 
-// preemptionPolicy is the Policy for preempting pods with lower priority. One of Never, PreemptLowerPriority. Defaults to PreemptLowerPriority if unset.
+// preemptionPolicy is the Policy for preempting pods with lower priority.
+//
+// One of Never, PreemptLowerPriority.
+//
+// Defaults to PreemptLowerPriority if unset.
 func (d *PriorityClassDie) PreemptionPolicy(v *corev1.PreemptionPolicy) *PriorityClassDie {
 	return d.DieStamp(func(r *schedulingv1.PriorityClass) {
 		r.PreemptionPolicy = v

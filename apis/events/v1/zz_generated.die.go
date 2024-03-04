@@ -300,56 +300,78 @@ func (d *EventDie) Series(v *eventsv1.EventSeries) *EventDie {
 	})
 }
 
-// reportingController is the name of the controller that emitted this Event, e.g. `kubernetes.io/kubelet`. This field cannot be empty for new Events.
+// reportingController is the name of the controller that emitted this Event, e.g. `kubernetes.io/kubelet`.
+//
+// This field cannot be empty for new Events.
 func (d *EventDie) ReportingController(v string) *EventDie {
 	return d.DieStamp(func(r *eventsv1.Event) {
 		r.ReportingController = v
 	})
 }
 
-// reportingInstance is the ID of the controller instance, e.g. `kubelet-xyzf`. This field cannot be empty for new Events and it can have at most 128 characters.
+// reportingInstance is the ID of the controller instance, e.g. `kubelet-xyzf`.
+//
+// This field cannot be empty for new Events and it can have at most 128 characters.
 func (d *EventDie) ReportingInstance(v string) *EventDie {
 	return d.DieStamp(func(r *eventsv1.Event) {
 		r.ReportingInstance = v
 	})
 }
 
-// action is what action was taken/failed regarding to the regarding object. It is machine-readable. This field cannot be empty for new Events and it can have at most 128 characters.
+// action is what action was taken/failed regarding to the regarding object. It is machine-readable.
+//
+// This field cannot be empty for new Events and it can have at most 128 characters.
 func (d *EventDie) Action(v string) *EventDie {
 	return d.DieStamp(func(r *eventsv1.Event) {
 		r.Action = v
 	})
 }
 
-// reason is why the action was taken. It is human-readable. This field cannot be empty for new Events and it can have at most 128 characters.
+// reason is why the action was taken. It is human-readable.
+//
+// This field cannot be empty for new Events and it can have at most 128 characters.
 func (d *EventDie) Reason(v string) *EventDie {
 	return d.DieStamp(func(r *eventsv1.Event) {
 		r.Reason = v
 	})
 }
 
-// regarding contains the object this Event is about. In most cases it's an Object reporting controller implements, e.g. ReplicaSetController implements ReplicaSets and this event is emitted because it acts on some changes in a ReplicaSet object.
+// regarding contains the object this Event is about. In most cases it's an Object reporting controller
+//
+// implements, e.g. ReplicaSetController implements ReplicaSets and this event is emitted because
+//
+// it acts on some changes in a ReplicaSet object.
 func (d *EventDie) Regarding(v corev1.ObjectReference) *EventDie {
 	return d.DieStamp(func(r *eventsv1.Event) {
 		r.Regarding = v
 	})
 }
 
-// related is the optional secondary object for more complex actions. E.g. when regarding object triggers a creation or deletion of related object.
+// related is the optional secondary object for more complex actions. E.g. when regarding object triggers
+//
+// a creation or deletion of related object.
 func (d *EventDie) Related(v *corev1.ObjectReference) *EventDie {
 	return d.DieStamp(func(r *eventsv1.Event) {
 		r.Related = v
 	})
 }
 
-// note is a human-readable description of the status of this operation. Maximal length of the note is 1kB, but libraries should be prepared to handle values up to 64kB.
+// note is a human-readable description of the status of this operation.
+//
+// # Maximal length of the note is 1kB, but libraries should be prepared to
+//
+// handle values up to 64kB.
 func (d *EventDie) Note(v string) *EventDie {
 	return d.DieStamp(func(r *eventsv1.Event) {
 		r.Note = v
 	})
 }
 
-// type is the type of this event (Normal, Warning), new types could be added in the future. It is machine-readable. This field cannot be empty for new Events.
+// type is the type of this event (Normal, Warning), new types could be added in the future.
+//
+// It is machine-readable.
+//
+// This field cannot be empty for new Events.
 func (d *EventDie) Type(v string) *EventDie {
 	return d.DieStamp(func(r *eventsv1.Event) {
 		r.Type = v
