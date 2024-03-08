@@ -1,7 +1,7 @@
 # Dies - immutable, fluent, builders for Kubernetes resources <!-- omit in toc -->
 
-![CI](https://github.com/scothis/dies/workflows/CI/badge.svg?branch=main)
-[![codecov](https://codecov.io/gh/scothis/dies/branch/main/graph/badge.svg?token=vyXLcPBdV3)](https://codecov.io/gh/scothis/dies)
+![CI](https://github.com/reconcilerio/dies/workflows/CI/badge.svg?branch=main)
+[![codecov](https://codecov.io/gh/reconcilerio/dies/branch/main/graph/badge.svg?token=vyXLcPBdV3)](https://codecov.io/gh/reconcilerio/dies)
 [![Go Reference](https://pkg.go.dev/badge/dies.dev.svg)](https://pkg.go.dev/dies.dev)
 [![Go Report Card](https://goreportcard.com/badge/dies.dev)](https://goreportcard.com/report/dies.dev)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
