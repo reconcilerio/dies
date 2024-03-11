@@ -25,7 +25,7 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
     - name: Update the release with Kubernetes resources
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/')
       with:
         draft: true
