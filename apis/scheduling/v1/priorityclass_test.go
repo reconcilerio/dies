@@ -19,11 +19,11 @@ package v1_test
 import (
 	"testing"
 
-	diemetav1 "dies.dev/apis/meta/v1"
-	dieschedulingv1 "dies.dev/apis/scheduling/v1"
 	"github.com/google/go-cmp/cmp"
 	schedulingv1 "k8s.io/api/scheduling/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
+	dieschedulingv1 "reconciler.io/dies/apis/scheduling/v1"
 )
 
 func TestPriorityClass(t *testing.T) {

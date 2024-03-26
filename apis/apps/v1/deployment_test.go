@@ -20,13 +20,13 @@ import (
 	"testing"
 	"time"
 
-	dieappsv1 "dies.dev/apis/apps/v1"
-	diecorev1 "dies.dev/apis/core/v1"
-	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	dieappsv1 "reconciler.io/dies/apis/apps/v1"
+	diecorev1 "reconciler.io/dies/apis/core/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 func TestDeployment(t *testing.T) {

@@ -19,11 +19,11 @@ package v1_test
 import (
 	"testing"
 
-	dieauthorizationv1 "dies.dev/apis/authorization/v1"
-	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
 	authorizationv1 "k8s.io/api/authorization/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	dieauthorizationv1 "reconciler.io/dies/apis/authorization/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 func TestSelfSubjectAccessReview(t *testing.T) {

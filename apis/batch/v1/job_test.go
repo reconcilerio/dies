@@ -20,13 +20,13 @@ import (
 	"testing"
 	"time"
 
-	diebatchv1 "dies.dev/apis/batch/v1"
-	diecorev1 "dies.dev/apis/core/v1"
-	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	diebatchv1 "reconciler.io/dies/apis/batch/v1"
+	diecorev1 "reconciler.io/dies/apis/core/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 func TestJob(t *testing.T) {

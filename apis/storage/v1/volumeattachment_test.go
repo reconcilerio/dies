@@ -19,11 +19,11 @@ package v1_test
 import (
 	"testing"
 
-	diemetav1 "dies.dev/apis/meta/v1"
-	diestoragev1 "dies.dev/apis/storage/v1"
 	"github.com/google/go-cmp/cmp"
 	storagev1 "k8s.io/api/storage/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
+	diestoragev1 "reconciler.io/dies/apis/storage/v1"
 )
 
 func TestVolumeAttachment(t *testing.T) {

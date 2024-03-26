@@ -1,4 +1,4 @@
-module dies.dev/diegen
+module reconciler.io/dies/diegen
 
 go 1.21
 

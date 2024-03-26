@@ -17,9 +17,9 @@ limitations under the License.
 package v1
 
 import (
-	diecorev1 "dies.dev/apis/core/v1"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	diecorev1 "reconciler.io/dies/apis/core/v1"
 )
 
 // +die:object=true

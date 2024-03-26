@@ -19,9 +19,9 @@ package v1_test
 import (
 	"testing"
 
-	diecorev1 "dies.dev/apis/core/v1"
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
+	diecorev1 "reconciler.io/dies/apis/core/v1"
 )
 
 func TestContainer(t *testing.T) {

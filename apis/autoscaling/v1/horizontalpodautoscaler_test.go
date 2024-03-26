@@ -19,11 +19,11 @@ package v1_test
 import (
 	"testing"
 
-	dieautoscalingv1 "dies.dev/apis/autoscaling/v1"
-	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	dieautoscalingv1 "reconciler.io/dies/apis/autoscaling/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 func TestHorizontalPodAutoscaler(t *testing.T) {

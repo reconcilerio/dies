@@ -22,7 +22,7 @@ limitations under the License.
 package sandbox
 
 import (
-	testing "dies.dev/testing"
+	testing "reconciler.io/dies/testing"
 	testingx "testing"
 )
 

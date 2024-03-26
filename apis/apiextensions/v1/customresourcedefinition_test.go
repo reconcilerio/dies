@@ -20,11 +20,11 @@ import (
 	"testing"
 	"time"
 
-	dieapiextensionsv1 "dies.dev/apis/apiextensions/v1"
-	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	dieapiextensionsv1 "reconciler.io/dies/apis/apiextensions/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 func TestCustomResourceDefinition(t *testing.T) {

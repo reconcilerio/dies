@@ -17,11 +17,11 @@ limitations under the License.
 package v1
 
 import (
-	dierbacv1 "dies.dev/apis/authorization/rbac/v1"
+	dierbacv1 "reconciler.io/dies/apis/authorization/rbac/v1"
 )
 
-// Deprecated ClusterRoleDie, moved to package dies.dev/apis/authorization/rbac/v1
+// Deprecated ClusterRoleDie, moved to package reconciler.io/dies/apis/authorization/rbac/v1
 type ClusterRoleDie = dierbacv1.ClusterRoleDie
 
-// Deprecated AggregationRuleDie, moved to package dies.dev/apis/authorization/rbac/v1
+// Deprecated AggregationRuleDie, moved to package reconciler.io/dies/apis/authorization/rbac/v1
 type AggregationRuleDie = dierbacv1.AggregationRuleDie

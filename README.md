@@ -2,8 +2,8 @@
 
 ![CI](https://github.com/reconcilerio/dies/workflows/CI/badge.svg?branch=main)
 [![codecov](https://codecov.io/gh/reconcilerio/dies/branch/main/graph/badge.svg?token=vyXLcPBdV3)](https://codecov.io/gh/reconcilerio/dies)
-[![Go Reference](https://pkg.go.dev/badge/dies.dev.svg)](https://pkg.go.dev/dies.dev)
-[![Go Report Card](https://goreportcard.com/badge/dies.dev)](https://goreportcard.com/report/dies.dev)
+[![Go Reference](https://pkg.go.dev/badge/reconciler.io/dies.svg)](https://pkg.go.dev/reconciler.io/dies)
+[![Go Report Card](https://goreportcard.com/badge/reconciler.io/dies)](https://goreportcard.com/report/reconciler.io/dies)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 - [Using dies](#using-dies)
@@ -23,12 +23,12 @@ Dies start with a blank object that is stamped to add state. All dies are immuta
 
 ```go
 import (
-    dieappsv1 "dies.dev/apis/apps/v1"
-    diecorev1 "dies.dev/apis/core/v1"
-    diemetav1 "dies.dev/apis/meta/v1"
     appsv1 "k8s.io/api/apps/v1"
     corev1 "k8s.io/api/core/v1"
     metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+    dieappsv1 "reconciler.io/dies/apis/apps/v1"
+    diecorev1 "reconciler.io/dies/apis/core/v1"
+    diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 ```
 
@@ -265,7 +265,7 @@ func (d *DeploymentStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDi
 Install diegen:
 
 ```sg
-go install dies.dev/diegen
+go install reconciler.io/dies/diegen
 ```
 
 Create or update the generated dies:

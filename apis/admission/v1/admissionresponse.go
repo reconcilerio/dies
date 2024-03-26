@@ -17,8 +17,8 @@ limitations under the License.
 package v1
 
 import (
-	diemetav1 "dies.dev/apis/meta/v1"
 	admissionv1 "k8s.io/api/admission/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 // +die

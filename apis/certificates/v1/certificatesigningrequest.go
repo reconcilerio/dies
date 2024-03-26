@@ -17,9 +17,9 @@ limitations under the License.
 package v1
 
 import (
-	diemetav1 "dies.dev/apis/meta/v1"
 	certificatesv1 "k8s.io/api/certificates/v1"
 	corev1 "k8s.io/api/core/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 // +die:object=true

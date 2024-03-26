@@ -17,9 +17,9 @@ limitations under the License.
 package v1
 
 import (
-	diemetav1 "dies.dev/apis/meta/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 // +die:object=true

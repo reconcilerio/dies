@@ -19,11 +19,11 @@ package v1_test
 import (
 	"testing"
 
-	diecoordinationv1 "dies.dev/apis/coordination/v1"
-	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
 	coordinationv1 "k8s.io/api/coordination/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	diecoordinationv1 "reconciler.io/dies/apis/coordination/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 func TestLease(t *testing.T) {

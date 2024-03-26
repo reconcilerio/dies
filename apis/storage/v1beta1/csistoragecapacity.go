@@ -17,9 +17,9 @@ limitations under the License.
 package v1beta1
 
 import (
-	diemetav1 "dies.dev/apis/meta/v1"
 	storagev1beta1 "k8s.io/api/storage/v1beta1"
 	resource "k8s.io/apimachinery/pkg/api/resource"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 // +die:object=true

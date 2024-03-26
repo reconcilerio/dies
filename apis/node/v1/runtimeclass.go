@@ -17,10 +17,10 @@ limitations under the License.
 package v1
 
 import (
-	diecorev1 "dies.dev/apis/core/v1"
 	corev1 "k8s.io/api/core/v1"
 	nodev1 "k8s.io/api/node/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+	diecorev1 "reconciler.io/dies/apis/core/v1"
 )
 
 // +die:object=true

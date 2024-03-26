@@ -19,11 +19,11 @@ package v1_test
 import (
 	"testing"
 
-	dierbacv1 "dies.dev/apis/authorization/rbac/v1"
-	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	dierbacv1 "reconciler.io/dies/apis/authorization/rbac/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 func TestRoleBinding(t *testing.T) {

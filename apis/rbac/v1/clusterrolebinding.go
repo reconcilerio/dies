@@ -17,8 +17,8 @@ limitations under the License.
 package v1
 
 import (
-	dierbacv1 "dies.dev/apis/authorization/rbac/v1"
+	dierbacv1 "reconciler.io/dies/apis/authorization/rbac/v1"
 )
 
-// Deprecated ClusterRoleBindingDie, moved to package dies.dev/apis/authorization/rbac/v1
+// Deprecated ClusterRoleBindingDie, moved to package reconciler.io/dies/apis/authorization/rbac/v1
 type ClusterRoleBindingDie = dierbacv1.ClusterRoleBindingDie

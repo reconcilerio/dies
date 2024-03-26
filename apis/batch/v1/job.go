@@ -17,10 +17,10 @@ limitations under the License.
 package v1
 
 import (
-	diecorev1 "dies.dev/apis/core/v1"
-	diemetav1 "dies.dev/apis/meta/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	diecorev1 "reconciler.io/dies/apis/core/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 // +die:object=true

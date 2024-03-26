@@ -19,11 +19,11 @@ package v1_test
 import (
 	"testing"
 
-	dieapiregistrationv1 "dies.dev/apis/apiregistration/v1"
-	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiregistrationv1 "k8s.io/kube-aggregator/pkg/apis/apiregistration"
+	dieapiregistrationv1 "reconciler.io/dies/apis/apiregistration/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 func TestAPIService(t *testing.T) {
