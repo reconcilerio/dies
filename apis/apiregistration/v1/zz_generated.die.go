@@ -22,7 +22,6 @@ limitations under the License.
 package v1
 
 import (
-	metav1 "dies.dev/apis/meta/v1"
 	json "encoding/json"
 	fmtx "fmt"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -31,6 +30,7 @@ import (
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	"k8s.io/kube-aggregator/pkg/apis/apiregistration"
 	osx "os"
+	metav1 "reconciler.io/dies/apis/meta/v1"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )

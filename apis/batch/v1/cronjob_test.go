@@ -19,12 +19,12 @@ package v1_test
 import (
 	"testing"
 
-	diebatchv1 "dies.dev/apis/batch/v1"
-	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/pointer"
+	diebatchv1 "reconciler.io/dies/apis/batch/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 func TestCronJob(t *testing.T) {

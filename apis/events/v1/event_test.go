@@ -19,11 +19,11 @@ package v1_test
 import (
 	"testing"
 
-	dieeventsv1 "dies.dev/apis/events/v1"
-	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
 	eventsv1 "k8s.io/api/events/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	dieeventsv1 "reconciler.io/dies/apis/events/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 func TestEvent(t *testing.T) {

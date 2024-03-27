@@ -19,11 +19,11 @@ package v1_test
 import (
 	"testing"
 
-	diecertificatesv1 "dies.dev/apis/certificates/v1"
-	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
 	certificatesv1 "k8s.io/api/certificates/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	diecertificatesv1 "reconciler.io/dies/apis/certificates/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 func TestCertificatSigningRequest(t *testing.T) {

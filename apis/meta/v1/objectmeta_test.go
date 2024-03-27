@@ -20,14 +20,14 @@ import (
 	"testing"
 	"time"
 
-	diecorev1 "dies.dev/apis/core/v1"
-	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/utils/pointer"
+	diecorev1 "reconciler.io/dies/apis/core/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 func TestObjectMeta(t *testing.T) {

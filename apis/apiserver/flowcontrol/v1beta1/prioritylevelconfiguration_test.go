@@ -19,11 +19,11 @@ package v1beta1_test
 import (
 	"testing"
 
-	dieflowcontrolv1beta1 "dies.dev/apis/apiserver/flowcontrol/v1beta1"
-	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
 	flowcontrolv1beta1 "k8s.io/api/flowcontrol/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	dieflowcontrolv1beta1 "reconciler.io/dies/apis/apiserver/flowcontrol/v1beta1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 func TestPriorityLevelConfiguration(t *testing.T) {

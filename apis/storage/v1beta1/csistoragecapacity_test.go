@@ -19,11 +19,11 @@ package v1beta1_test
 import (
 	"testing"
 
-	diemetav1 "dies.dev/apis/meta/v1"
-	diestoragev1beta1 "dies.dev/apis/storage/v1beta1"
 	"github.com/google/go-cmp/cmp"
 	storagev1beta1 "k8s.io/api/storage/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
+	diestoragev1beta1 "reconciler.io/dies/apis/storage/v1beta1"
 )
 
 func TestCSIStorageCapacity(t *testing.T) {

@@ -1,4 +1,4 @@
-module dies.dev
+module reconciler.io/dies
 
 go 1.21
 

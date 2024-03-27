@@ -15,6 +15,6 @@ limitations under the License.
 */
 
 //go:generate go run -tags generate sigs.k8s.io/controller-tools/cmd/controller-gen object:headerFile=./hack/boilerplate.go.txt paths=./...
-//go:generate go run dies.dev/diegen die:headerFile="./hack/boilerplate.go.txt" paths="./..."
+//go:generate go run reconciler.io/dies/diegen die:headerFile="./hack/boilerplate.go.txt" paths="./..."
 
 package dies

@@ -19,11 +19,11 @@ package v1_test
 import (
 	"testing"
 
-	diemetav1 "dies.dev/apis/meta/v1"
-	dienetworkingv1 "dies.dev/apis/networking/v1"
 	"github.com/google/go-cmp/cmp"
 	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
+	dienetworkingv1 "reconciler.io/dies/apis/networking/v1"
 )
 
 func TestIngress(t *testing.T) {

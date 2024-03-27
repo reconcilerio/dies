@@ -19,11 +19,11 @@ package v1_test
 import (
 	"testing"
 
-	diemetav1 "dies.dev/apis/meta/v1"
-	diepolicyv1 "dies.dev/apis/policy/v1"
 	"github.com/google/go-cmp/cmp"
 	policyv1 "k8s.io/api/policy/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
+	diepolicyv1 "reconciler.io/dies/apis/policy/v1"
 )
 
 func TestPodDisruptionBudget(t *testing.T) {

@@ -19,9 +19,9 @@ package v1_test
 import (
 	"testing"
 
-	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 func TestCondition(t *testing.T) {

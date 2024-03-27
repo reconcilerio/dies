@@ -22,7 +22,7 @@ limitations under the License.
 package v1
 
 import (
-	testing "dies.dev/testing"
+	testing "reconciler.io/dies/testing"
 	testingx "testing"
 )
 

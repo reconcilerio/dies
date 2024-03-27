@@ -19,11 +19,11 @@ package v1_test
 import (
 	"testing"
 
-	diemetav1 "dies.dev/apis/meta/v1"
-	dienodev1 "dies.dev/apis/node/v1"
 	"github.com/google/go-cmp/cmp"
 	nodev1 "k8s.io/api/node/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
+	dienodev1 "reconciler.io/dies/apis/node/v1"
 )
 
 func TestRuntimeClass(t *testing.T) {

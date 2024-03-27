@@ -17,8 +17,8 @@ limitations under the License.
 package v1
 
 import (
-	diemetav1 "dies.dev/apis/meta/v1"
 	apiregistrationv1 "k8s.io/kube-aggregator/pkg/apis/apiregistration"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 // +die:object=true

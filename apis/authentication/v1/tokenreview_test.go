@@ -19,11 +19,11 @@ package v1_test
 import (
 	"testing"
 
-	dieauthenticationv1 "dies.dev/apis/authentication/v1"
-	diemetav1 "dies.dev/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
 	authenticationv1 "k8s.io/api/authentication/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	dieauthenticationv1 "reconciler.io/dies/apis/authentication/v1"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 func TestTokenReview(t *testing.T) {

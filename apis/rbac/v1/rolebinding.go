@@ -17,14 +17,14 @@ limitations under the License.
 package v1
 
 import (
-	dierbacv1 "dies.dev/apis/authorization/rbac/v1"
+	dierbacv1 "reconciler.io/dies/apis/authorization/rbac/v1"
 )
 
-// Deprecated RoleBindingDie, moved to package dies.dev/apis/authorization/rbac/v1
+// Deprecated RoleBindingDie, moved to package reconciler.io/dies/apis/authorization/rbac/v1
 type RoleBindingDie = dierbacv1.RoleBindingDie
 
-// Deprecated SubjectDie, moved to package dies.dev/apis/authorization/rbac/v1
+// Deprecated SubjectDie, moved to package reconciler.io/dies/apis/authorization/rbac/v1
 type SubjectDie = dierbacv1.SubjectDie
 
-// Deprecated RoleRefDie, moved to package dies.dev/apis/authorization/rbac/v1
+// Deprecated RoleRefDie, moved to package reconciler.io/dies/apis/authorization/rbac/v1
 type RoleRefDie = dierbacv1.RoleRefDie
