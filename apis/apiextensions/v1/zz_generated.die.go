@@ -824,6 +824,17 @@ func (d *CustomResourceDefinitionVersionDie) AdditionalPrinterColumns(v ...apiex
 	})
 }
 
+// selectableFields specifies paths to fields that may be used as field selectors.
+//
+// A maximum of 8 selectable fields are allowed.
+//
+// See https://kubernetes.io/docs/concepts/overview/working-with-objects/field-selectors
+func (d *CustomResourceDefinitionVersionDie) SelectableFields(v ...apiextensionsv1.SelectableField) *CustomResourceDefinitionVersionDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
+		r.SelectableFields = v
+	})
+}
+
 var CustomResourceValidationBlank = (&CustomResourceValidationDie{}).DieFeed(apiextensionsv1.CustomResourceValidation{})
 
 type CustomResourceValidationDie struct {
@@ -2554,6 +2565,209 @@ func (d *ServiceReferenceDie) Path(v *string) *ServiceReferenceDie {
 func (d *ServiceReferenceDie) Port(v *int32) *ServiceReferenceDie {
 	return d.DieStamp(func(r *apiextensionsv1.ServiceReference) {
 		r.Port = v
+	})
+}
+
+var SelectableFieldBlank = (&SelectableFieldDie{}).DieFeed(apiextensionsv1.SelectableField{})
+
+type SelectableFieldDie struct {
+	mutable bool
+	r       apiextensionsv1.SelectableField
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *SelectableFieldDie) DieImmutable(immutable bool) *SelectableFieldDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *SelectableFieldDie) DieFeed(r apiextensionsv1.SelectableField) *SelectableFieldDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &SelectableFieldDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *SelectableFieldDie) DieFeedPtr(r *apiextensionsv1.SelectableField) *SelectableFieldDie {
+	if r == nil {
+		r = &apiextensionsv1.SelectableField{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *SelectableFieldDie) DieFeedJSON(j []byte) *SelectableFieldDie {
+	r := apiextensionsv1.SelectableField{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *SelectableFieldDie) DieFeedYAML(y []byte) *SelectableFieldDie {
+	r := apiextensionsv1.SelectableField{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *SelectableFieldDie) DieFeedYAMLFile(name string) *SelectableFieldDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SelectableFieldDie) DieFeedRawExtension(raw runtime.RawExtension) *SelectableFieldDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *SelectableFieldDie) DieRelease() apiextensionsv1.SelectableField {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *SelectableFieldDie) DieReleasePtr() *apiextensionsv1.SelectableField {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *SelectableFieldDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *SelectableFieldDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SelectableFieldDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *SelectableFieldDie) DieStamp(fn func(r *apiextensionsv1.SelectableField)) *SelectableFieldDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *SelectableFieldDie) DieStampAt(jp string, fn interface{}) *SelectableFieldDie {
+	return d.DieStamp(func(r *apiextensionsv1.SelectableField) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SelectableFieldDie) DieWith(fns ...func(d *SelectableFieldDie)) *SelectableFieldDie {
+	nd := SelectableFieldBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *SelectableFieldDie) DeepCopy() *SelectableFieldDie {
+	r := *d.r.DeepCopy()
+	return &SelectableFieldDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// jsonPath is a simple JSON path which is evaluated against each custom resource to produce a
+//
+// field selector value.
+//
+// Only JSON paths without the array notation are allowed.
+//
+// Must point to a field of type string, boolean or integer. Types with enum values
+//
+// and strings with formats are allowed.
+//
+// If jsonPath refers to absent field in a resource, the jsonPath evaluates to an empty string.
+//
+// Must not point to metdata fields.
+//
+// Required.
+func (d *SelectableFieldDie) JSONPath(v string) *SelectableFieldDie {
+	return d.DieStamp(func(r *apiextensionsv1.SelectableField) {
+		r.JSONPath = v
 	})
 }
 

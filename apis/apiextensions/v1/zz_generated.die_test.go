@@ -125,6 +125,15 @@ func TestServiceReferenceDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestSelectableFieldDie_MissingMethods(t *testingx.T) {
+	die := SelectableFieldBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SelectableFieldDie: %s", diff.List())
+	}
+}
+
 func TestCustomResourceDefinitionStatusDie_MissingMethods(t *testingx.T) {
 	die := CustomResourceDefinitionStatusBlank
 	ignore := []string{}

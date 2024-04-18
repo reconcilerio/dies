@@ -395,6 +395,15 @@ func TestSeccompProfileDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestAppArmorProfileDie_MissingMethods(t *testingx.T) {
+	die := AppArmorProfileBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for AppArmorProfileDie: %s", diff.List())
+	}
+}
+
 func TestContainerStatusDie_MissingMethods(t *testingx.T) {
 	die := ContainerStatusBlank
 	ignore := []string{}
@@ -437,6 +446,15 @@ func TestContainerStateTerminatedDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for ContainerStateTerminatedDie: %s", diff.List())
+	}
+}
+
+func TestVolumeMountStatusDie_MissingMethods(t *testingx.T) {
+	die := VolumeMountStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for VolumeMountStatusDie: %s", diff.List())
 	}
 }
 
@@ -671,6 +689,24 @@ func TestNodeConfigStatusDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for NodeConfigStatusDie: %s", diff.List())
+	}
+}
+
+func TestNodeRuntimeHandlerDie_MissingMethods(t *testingx.T) {
+	die := NodeRuntimeHandlerBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodeRuntimeHandlerDie: %s", diff.List())
+	}
+}
+
+func TestNodeRuntimeHandlerFeaturesDie_MissingMethods(t *testingx.T) {
+	die := NodeRuntimeHandlerFeaturesBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodeRuntimeHandlerFeaturesDie: %s", diff.List())
 	}
 }
 

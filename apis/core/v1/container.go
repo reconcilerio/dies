@@ -518,6 +518,14 @@ func (d *SecurityContextDie) SeccompProfileDie(fn func(d *SeccompProfileDie)) *S
 	})
 }
 
+func (d *SecurityContextDie) AppArmorProfileDie(fn func(d *AppArmorProfileDie)) *SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		d := AppArmorProfileBlank.DieImmutable(false).DieFeedPtr(r.AppArmorProfile)
+		fn(d)
+		r.AppArmorProfile = d.DieReleasePtr()
+	})
+}
+
 // +die
 type _ = corev1.Capabilities
 
@@ -529,6 +537,9 @@ type _ = corev1.WindowsSecurityContextOptions
 
 // +die
 type _ = corev1.SeccompProfile
+
+// +die
+type _ = corev1.AppArmorProfile
 
 // +die
 type _ = corev1.ContainerStatus
@@ -570,7 +581,22 @@ func (d *ContainerStatusDie) ResourcesDie(fn func(d *ResourceRequirementsDie)) *
 	})
 }
 
-// ADD
+func (d *ContainerStatusDie) VolumeMountDie(name string, fn func(d *VolumeMountStatusDie)) *ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		for i := range r.VolumeMounts {
+			if name == r.VolumeMounts[i].Name {
+				d := VolumeMountStatusBlank.DieImmutable(false).DieFeed(r.VolumeMounts[i])
+				fn(d)
+				r.VolumeMounts[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := VolumeMountStatusBlank.DieImmutable(false).DieFeed(corev1.VolumeMountStatus{Name: name})
+		fn(d)
+		r.VolumeMounts = append(r.VolumeMounts, d.DieRelease())
+	})
+}
 
 // +die
 type _ = corev1.ContainerState
@@ -607,3 +633,6 @@ type _ = corev1.ContainerStateRunning
 
 // +die
 type _ = corev1.ContainerStateTerminated
+
+// +die
+type _ = corev1.VolumeMountStatus

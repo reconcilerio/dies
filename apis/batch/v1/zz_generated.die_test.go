@@ -107,6 +107,24 @@ func TestPodFailurePolicyOnPodConditionsPatternDie_MissingMethods(t *testingx.T)
 	}
 }
 
+func TestSuccessPolicyDie_MissingMethods(t *testingx.T) {
+	die := SuccessPolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SuccessPolicyDie: %s", diff.List())
+	}
+}
+
+func TestSuccessPolicyRuleDie_MissingMethods(t *testingx.T) {
+	die := SuccessPolicyRuleBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SuccessPolicyRuleDie: %s", diff.List())
+	}
+}
+
 func TestJobStatusDie_MissingMethods(t *testingx.T) {
 	die := JobStatusBlank
 	ignore := []string{}

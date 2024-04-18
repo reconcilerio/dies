@@ -37,6 +37,14 @@ func (d *JobSpecDie) PodFailurePolicyDie(fn func(d *PodFailurePolicyDie)) *JobSp
 	})
 }
 
+func (d *JobSpecDie) SuccessPolicyDie(fn func(d *SuccessPolicyDie)) *JobSpecDie {
+	return d.DieStamp(func(r *batchv1.JobSpec) {
+		d := SuccessPolicyBlank.DieImmutable(false).DieFeedPtr(r.SuccessPolicy)
+		fn(d)
+		r.SuccessPolicy = d.DieReleasePtr()
+	})
+}
+
 func (d *JobSpecDie) SelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
@@ -90,6 +98,21 @@ type _ = batchv1.PodFailurePolicyOnExitCodesRequirement
 
 // +die
 type _ = batchv1.PodFailurePolicyOnPodConditionsPattern
+
+// +die
+type _ = batchv1.SuccessPolicy
+
+func (d *SuccessPolicyDie) RulesDie(rules ...*SuccessPolicyRuleDie) *SuccessPolicyDie {
+	return d.DieStamp(func(r *batchv1.SuccessPolicy) {
+		r.Rules = make([]batchv1.SuccessPolicyRule, len(rules))
+		for i := range rules {
+			r.Rules[i] = rules[i].DieRelease()
+		}
+	})
+}
+
+// +die
+type _ = batchv1.SuccessPolicyRule
 
 // +die
 type _ = batchv1.JobStatus

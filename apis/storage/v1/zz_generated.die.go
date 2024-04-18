@@ -551,7 +551,7 @@ func (d *CSIDriverSpecDie) AttachRequired(v *bool) *CSIDriverSpecDie {
 //
 // via a command line parameter of the driver.
 //
-// This field is immutable.
+// This field was immutable in Kubernetes < 1.29 and now is mutable.
 func (d *CSIDriverSpecDie) PodInfoOnMount(v *bool) *CSIDriverSpecDie {
 	return d.DieStamp(func(r *storagev1.CSIDriverSpec) {
 		r.PodInfoOnMount = v
@@ -618,7 +618,7 @@ func (d *CSIDriverSpecDie) StorageCapacity(v *bool) *CSIDriverSpecDie {
 //
 // Refer to the specific FSGroupPolicy values for additional details.
 //
-// This field is immutable.
+// This field was immutable in Kubernetes < 1.29 and now is mutable.
 //
 // # Defaults to ReadWriteOnceWithFSType, which will examine each volume
 //
