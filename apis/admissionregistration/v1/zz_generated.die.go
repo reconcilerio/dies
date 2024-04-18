@@ -1915,8 +1915,6 @@ func (d *MutatingWebhookDie) ReinvocationPolicy(v *admissionregistrationv1.Reinv
 // - If failurePolicy=Fail, reject the request
 //
 // - If failurePolicy=Ignore, the error is ignored and the webhook is skipped
-//
-// This is a beta feature and managed by the AdmissionWebhookMatchConditions feature gate.
 func (d *MutatingWebhookDie) MatchConditions(v ...admissionregistrationv1.MatchCondition) *MutatingWebhookDie {
 	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
 		r.MatchConditions = v
@@ -2618,8 +2616,6 @@ func (d *ValidatingWebhookDie) AdmissionReviewVersions(v ...string) *ValidatingW
 // - If failurePolicy=Fail, reject the request
 //
 // - If failurePolicy=Ignore, the error is ignored and the webhook is skipped
-//
-// This is a beta feature and managed by the AdmissionWebhookMatchConditions feature gate.
 func (d *ValidatingWebhookDie) MatchConditions(v ...admissionregistrationv1.MatchCondition) *ValidatingWebhookDie {
 	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhook) {
 		r.MatchConditions = v

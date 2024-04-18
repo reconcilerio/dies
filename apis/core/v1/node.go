@@ -174,6 +174,15 @@ func (d *NodeStatusDie) ConfigDie(fn func(d *NodeConfigStatusDie)) *NodeStatusDi
 	})
 }
 
+func (d *NodeStatusDie) RuntimeHandlersDie(handlers ...*NodeRuntimeHandlerDie) *NodeStatusDie {
+	return d.DieStamp(func(r *corev1.NodeStatus) {
+		r.RuntimeHandlers = make([]corev1.NodeRuntimeHandler, len(handlers))
+		for i := range handlers {
+			r.RuntimeHandlers[i] = handlers[i].DieRelease()
+		}
+	})
+}
+
 // +die
 type _ = corev1.NodeAddress
 
@@ -226,3 +235,17 @@ func (d *NodeConfigStatusDie) LastKnownGoodDie(fn func(d *NodeConfigSourceDie)) 
 		r.LastKnownGood = d.DieReleasePtr()
 	})
 }
+
+// +die
+type _ = corev1.NodeRuntimeHandler
+
+func (d *NodeRuntimeHandlerDie) FeaturesDie(fn func(d *NodeRuntimeHandlerFeaturesDie)) *NodeRuntimeHandlerDie {
+	return d.DieStamp(func(r *corev1.NodeRuntimeHandler) {
+		d := NodeRuntimeHandlerFeaturesBlank.DieImmutable(false).DieFeedPtr(r.Features)
+		fn(d)
+		r.Features = d.DieReleasePtr()
+	})
+}
+
+// +die
+type _ = corev1.NodeRuntimeHandlerFeatures

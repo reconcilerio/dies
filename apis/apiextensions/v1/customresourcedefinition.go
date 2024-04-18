@@ -96,6 +96,15 @@ func (d *CustomResourceDefinitionVersionDie) AdditionalPrinterColumnDie(name str
 	})
 }
 
+func (d *CustomResourceDefinitionVersionDie) SelectableFieldsDie(fields ...*SelectableFieldDie) *CustomResourceDefinitionVersionDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
+		r.SelectableFields = make([]apiextensionsv1.SelectableField, len(fields))
+		for i := range fields {
+			r.SelectableFields[i] = fields[i].DieRelease()
+		}
+	})
+}
+
 // +die
 type _ apiextensionsv1.CustomResourceValidation
 
@@ -151,6 +160,9 @@ func (d *WebhookClientConfigDie) ServiceDie(fn func(d *ServiceReferenceDie)) *We
 
 // +die
 type _ apiextensionsv1.ServiceReference
+
+// +die
+type _ apiextensionsv1.SelectableField
 
 // +die
 type _ = apiextensionsv1.CustomResourceDefinitionStatus

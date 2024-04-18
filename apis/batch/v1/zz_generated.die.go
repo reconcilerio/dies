@@ -1333,6 +1333,25 @@ func (d *JobSpecDie) PodFailurePolicy(v *batchv1.PodFailurePolicy) *JobSpecDie {
 	})
 }
 
+// successPolicy specifies the policy when the Job can be declared as succeeded.
+//
+// # If empty, the default behavior applies - the Job is declared as succeeded
+//
+// only when the number of succeeded pods equals to the completions.
+//
+// When the field is specified, it must be immutable and works only for the Indexed Jobs.
+//
+// Once the Job meets the SuccessPolicy, the lingering pods are terminated.
+//
+// This field  is alpha-level. To use this field, you must enable the
+//
+// `JobSuccessPolicy` feature gate (disabled by default).
+func (d *JobSpecDie) SuccessPolicy(v *batchv1.SuccessPolicy) *JobSpecDie {
+	return d.DieStamp(func(r *batchv1.JobSpec) {
+		r.SuccessPolicy = v
+	})
+}
+
 // Specifies the number of retries before marking this job failed.
 //
 // Defaults to 6
@@ -1538,6 +1557,31 @@ func (d *JobSpecDie) Suspend(v *bool) *JobSpecDie {
 func (d *JobSpecDie) PodReplacementPolicy(v *batchv1.PodReplacementPolicy) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.PodReplacementPolicy = v
+	})
+}
+
+// ManagedBy field indicates the controller that manages a Job. The k8s Job
+//
+// controller reconciles jobs which don't have this field at all or the field
+//
+// value is the reserved string `kubernetes.io/job-controller`, but skips
+//
+// reconciling Jobs with a custom value for this field.
+//
+// The value must be a valid domain-prefixed path (e.g. acme.io/foo) -
+//
+// all characters before the first "/" must be a valid subdomain as defined
+//
+// by RFC 1123. All characters trailing the first "/" must be valid HTTP Path
+//
+// characters as defined by RFC 3986. The value cannot exceed 64 characters.
+//
+// This field is alpha-level. The job controller accepts setting the field
+//
+// when the feature gate JobManagedBy is enabled (disabled by default).
+func (d *JobSpecDie) ManagedBy(v *string) *JobSpecDie {
+	return d.DieStamp(func(r *batchv1.JobSpec) {
+		r.ManagedBy = v
 	})
 }
 
@@ -2410,6 +2454,439 @@ func (d *PodFailurePolicyOnPodConditionsPatternDie) Status(v corev1.ConditionSta
 	})
 }
 
+var SuccessPolicyBlank = (&SuccessPolicyDie{}).DieFeed(batchv1.SuccessPolicy{})
+
+type SuccessPolicyDie struct {
+	mutable bool
+	r       batchv1.SuccessPolicy
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *SuccessPolicyDie) DieImmutable(immutable bool) *SuccessPolicyDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *SuccessPolicyDie) DieFeed(r batchv1.SuccessPolicy) *SuccessPolicyDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &SuccessPolicyDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *SuccessPolicyDie) DieFeedPtr(r *batchv1.SuccessPolicy) *SuccessPolicyDie {
+	if r == nil {
+		r = &batchv1.SuccessPolicy{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *SuccessPolicyDie) DieFeedJSON(j []byte) *SuccessPolicyDie {
+	r := batchv1.SuccessPolicy{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *SuccessPolicyDie) DieFeedYAML(y []byte) *SuccessPolicyDie {
+	r := batchv1.SuccessPolicy{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *SuccessPolicyDie) DieFeedYAMLFile(name string) *SuccessPolicyDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SuccessPolicyDie) DieFeedRawExtension(raw runtime.RawExtension) *SuccessPolicyDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *SuccessPolicyDie) DieRelease() batchv1.SuccessPolicy {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *SuccessPolicyDie) DieReleasePtr() *batchv1.SuccessPolicy {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *SuccessPolicyDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *SuccessPolicyDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SuccessPolicyDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *SuccessPolicyDie) DieStamp(fn func(r *batchv1.SuccessPolicy)) *SuccessPolicyDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *SuccessPolicyDie) DieStampAt(jp string, fn interface{}) *SuccessPolicyDie {
+	return d.DieStamp(func(r *batchv1.SuccessPolicy) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SuccessPolicyDie) DieWith(fns ...func(d *SuccessPolicyDie)) *SuccessPolicyDie {
+	nd := SuccessPolicyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *SuccessPolicyDie) DeepCopy() *SuccessPolicyDie {
+	r := *d.r.DeepCopy()
+	return &SuccessPolicyDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// rules represents the list of alternative rules for the declaring the Jobs
+//
+// as successful before `.status.succeeded >= .spec.completions`. Once any of the rules are met,
+//
+// the "SucceededCriteriaMet" condition is added, and the lingering pods are removed.
+//
+// The terminal state for such a Job has the "Complete" condition.
+//
+// Additionally, these rules are evaluated in order; Once the Job meets one of the rules,
+//
+// other rules are ignored. At most 20 elements are allowed.
+func (d *SuccessPolicyDie) Rules(v ...batchv1.SuccessPolicyRule) *SuccessPolicyDie {
+	return d.DieStamp(func(r *batchv1.SuccessPolicy) {
+		r.Rules = v
+	})
+}
+
+var SuccessPolicyRuleBlank = (&SuccessPolicyRuleDie{}).DieFeed(batchv1.SuccessPolicyRule{})
+
+type SuccessPolicyRuleDie struct {
+	mutable bool
+	r       batchv1.SuccessPolicyRule
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *SuccessPolicyRuleDie) DieImmutable(immutable bool) *SuccessPolicyRuleDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *SuccessPolicyRuleDie) DieFeed(r batchv1.SuccessPolicyRule) *SuccessPolicyRuleDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &SuccessPolicyRuleDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *SuccessPolicyRuleDie) DieFeedPtr(r *batchv1.SuccessPolicyRule) *SuccessPolicyRuleDie {
+	if r == nil {
+		r = &batchv1.SuccessPolicyRule{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *SuccessPolicyRuleDie) DieFeedJSON(j []byte) *SuccessPolicyRuleDie {
+	r := batchv1.SuccessPolicyRule{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *SuccessPolicyRuleDie) DieFeedYAML(y []byte) *SuccessPolicyRuleDie {
+	r := batchv1.SuccessPolicyRule{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *SuccessPolicyRuleDie) DieFeedYAMLFile(name string) *SuccessPolicyRuleDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SuccessPolicyRuleDie) DieFeedRawExtension(raw runtime.RawExtension) *SuccessPolicyRuleDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *SuccessPolicyRuleDie) DieRelease() batchv1.SuccessPolicyRule {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *SuccessPolicyRuleDie) DieReleasePtr() *batchv1.SuccessPolicyRule {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *SuccessPolicyRuleDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *SuccessPolicyRuleDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SuccessPolicyRuleDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *SuccessPolicyRuleDie) DieStamp(fn func(r *batchv1.SuccessPolicyRule)) *SuccessPolicyRuleDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *SuccessPolicyRuleDie) DieStampAt(jp string, fn interface{}) *SuccessPolicyRuleDie {
+	return d.DieStamp(func(r *batchv1.SuccessPolicyRule) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SuccessPolicyRuleDie) DieWith(fns ...func(d *SuccessPolicyRuleDie)) *SuccessPolicyRuleDie {
+	nd := SuccessPolicyRuleBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *SuccessPolicyRuleDie) DeepCopy() *SuccessPolicyRuleDie {
+	r := *d.r.DeepCopy()
+	return &SuccessPolicyRuleDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// succeededIndexes specifies the set of indexes
+//
+// which need to be contained in the actual set of the succeeded indexes for the Job.
+//
+// The list of indexes must be within 0 to ".spec.completions-1" and
+//
+// must not contain duplicates. At least one element is required.
+//
+// The indexes are represented as intervals separated by commas.
+//
+// The intervals can be a decimal integer or a pair of decimal integers separated by a hyphen.
+//
+// The number are listed in represented by the first and last element of the series,
+//
+// separated by a hyphen.
+//
+// # For example, if the completed indexes are 1, 3, 4, 5 and 7, they are
+//
+// represented as "1,3-5,7".
+//
+// When this field is null, this field doesn't default to any value
+//
+// and is never evaluated at any time.
+func (d *SuccessPolicyRuleDie) SucceededIndexes(v *string) *SuccessPolicyRuleDie {
+	return d.DieStamp(func(r *batchv1.SuccessPolicyRule) {
+		r.SucceededIndexes = v
+	})
+}
+
+// succeededCount specifies the minimal required size of the actual set of the succeeded indexes
+//
+// for the Job. When succeededCount is used along with succeededIndexes, the check is
+//
+// constrained only to the set of indexes specified by succeededIndexes.
+//
+// For example, given that succeededIndexes is "1-4", succeededCount is "3",
+//
+// and completed indexes are "1", "3", and "5", the Job isn't declared as succeeded
+//
+// because only "1" and "3" indexes are considered in that rules.
+//
+// When this field is null, this doesn't default to any value and
+//
+// is never evaluated at any time.
+//
+// When specified it needs to be a positive integer.
+func (d *SuccessPolicyRuleDie) SucceededCount(v *int32) *SuccessPolicyRuleDie {
+	return d.DieStamp(func(r *batchv1.SuccessPolicyRule) {
+		r.SucceededCount = v
+	})
+}
+
 var JobStatusBlank = (&JobStatusDie{}).DieFeed(batchv1.JobStatus{})
 
 type JobStatusDie struct {
@@ -2604,6 +3081,14 @@ func (d *JobStatusDie) DeepCopy() *JobStatusDie {
 //
 // type "Complete" and status true.
 //
+// # A job is considered finished when it is in a terminal condition, either
+//
+// "Complete" or "Failed". A Job cannot have both the "Complete" and "Failed" conditions.
+//
+// Additionally, it cannot be in the "Complete" and "FailureTarget" conditions.
+//
+// The "Complete", "Failed" and "FailureTarget" conditions cannot be disabled.
+//
 // More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
 func (d *JobStatusDie) Conditions(v ...batchv1.JobCondition) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
@@ -2618,6 +3103,10 @@ func (d *JobStatusDie) Conditions(v ...batchv1.JobCondition) *JobStatusDie {
 // first time it is resumed. This field is reset every time a Job is resumed
 //
 // from suspension. It is represented in RFC3339 form and is in UTC.
+//
+// Once set, the field can only be removed when the job is suspended.
+//
+// The field cannot be modified while the job is unsuspended or finished.
 func (d *JobStatusDie) StartTime(v *apismetav1.Time) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.StartTime = v
@@ -2630,14 +3119,22 @@ func (d *JobStatusDie) StartTime(v *apismetav1.Time) *JobStatusDie {
 //
 // It is represented in RFC3339 form and is in UTC.
 //
-// The completion time is only set when the job finishes successfully.
+// The completion time is set when the job finishes successfully, and only then.
+//
+// The value cannot be updated or removed. The value indicates the same or
+//
+// later point in time as the startTime field.
 func (d *JobStatusDie) CompletionTime(v *apismetav1.Time) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.CompletionTime = v
 	})
 }
 
-// The number of pending and running pods.
+// The number of pending and running pods which are not terminating (without
+//
+// a deletionTimestamp).
+//
+// The value is zero for finished jobs.
 func (d *JobStatusDie) Active(v int32) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.Active = v
@@ -2645,6 +3142,10 @@ func (d *JobStatusDie) Active(v int32) *JobStatusDie {
 }
 
 // The number of pods which reached phase Succeeded.
+//
+// The value increases monotonically for a given spec. However, it may
+//
+// decrease in reaction to scale down of elastic indexed jobs.
 func (d *JobStatusDie) Succeeded(v int32) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.Succeeded = v
@@ -2652,6 +3153,8 @@ func (d *JobStatusDie) Succeeded(v int32) *JobStatusDie {
 }
 
 // The number of pods which reached phase Failed.
+//
+// The value increases monotonically.
 func (d *JobStatusDie) Failed(v int32) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.Failed = v
@@ -2690,7 +3193,7 @@ func (d *JobStatusDie) CompletedIndexes(v string) *JobStatusDie {
 	})
 }
 
-// FailedIndexes holds the failed indexes when backoffLimitPerIndex=true.
+// FailedIndexes holds the failed indexes when spec.backoffLimitPerIndex is set.
 //
 // # The indexes are represented in the text format analogous as for the
 //
@@ -2705,6 +3208,8 @@ func (d *JobStatusDie) CompletedIndexes(v string) *JobStatusDie {
 // # For example, if the failed indexes are 1, 3, 4, 5 and 7, they are
 //
 // represented as "1,3-5,7".
+//
+// The set of failed indexes cannot overlap with the set of completed indexes.
 //
 // This field is beta-level. It can be used when the `JobBackoffLimitPerIndex`
 //
@@ -2736,6 +3241,8 @@ func (d *JobStatusDie) FailedIndexes(v *string) *JobStatusDie {
 // # Old jobs might not be tracked using this field, in which case the field
 //
 // remains null.
+//
+// The structure is empty for finished jobs.
 func (d *JobStatusDie) UncountedTerminatedPods(v *batchv1.UncountedTerminatedPods) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.UncountedTerminatedPods = v

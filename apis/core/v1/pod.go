@@ -239,6 +239,14 @@ func (d *PodSecurityContextDie) SeccompProfileDie(fn func(d *SeccompProfileDie))
 	})
 }
 
+func (d *PodSecurityContextDie) AppArmorProfileDie(fn func(d *AppArmorProfileDie)) *PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		d := AppArmorProfileBlank.DieImmutable(false).DieFeedPtr(r.AppArmorProfile)
+		fn(d)
+		r.AppArmorProfile = d.DieReleasePtr()
+	})
+}
+
 // +die
 type _ = corev1.Sysctl
 

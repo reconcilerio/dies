@@ -5675,6 +5675,35 @@ func (d *VolumeMountDie) ReadOnly(v bool) *VolumeMountDie {
 	})
 }
 
+// RecursiveReadOnly specifies whether read-only mounts should be handled
+//
+// recursively.
+//
+// If ReadOnly is false, this field has no meaning and must be unspecified.
+//
+// # If ReadOnly is true, and this field is set to Disabled, the mount is not made
+//
+// recursively read-only.  If this field is set to IfPossible, the mount is made
+//
+// recursively read-only, if it is supported by the container runtime.  If this
+//
+// field is set to Enabled, the mount is made recursively read-only if it is
+//
+// supported by the container runtime, otherwise the pod will not be started and
+//
+// an error will be generated to indicate the reason.
+//
+// # If this field is set to IfPossible or Enabled, MountPropagation must be set to
+//
+// None (or be unspecified, which defaults to None).
+//
+// If this field is not specified, it is treated as an equivalent of Disabled.
+func (d *VolumeMountDie) RecursiveReadOnly(v *corev1.RecursiveReadOnlyMode) *VolumeMountDie {
+	return d.DieStamp(func(r *corev1.VolumeMount) {
+		r.RecursiveReadOnly = v
+	})
+}
+
 // Path within the container at which the volume should be mounted.  Must
 //
 // not contain ':'.
@@ -5700,6 +5729,10 @@ func (d *VolumeMountDie) SubPath(v string) *VolumeMountDie {
 // When not set, MountPropagationNone is used.
 //
 // This field is beta in 1.10.
+//
+// # When RecursiveReadOnly is set to IfPossible or to Enabled, MountPropagation must be None or unspecified
+//
+// (which defaults to None).
 func (d *VolumeMountDie) MountPropagation(v *corev1.MountPropagationMode) *VolumeMountDie {
 	return d.DieStamp(func(r *corev1.VolumeMount) {
 		r.MountPropagation = v
@@ -8394,6 +8427,17 @@ func (d *SecurityContextDie) SeccompProfile(v *corev1.SeccompProfile) *SecurityC
 	})
 }
 
+// appArmorProfile is the AppArmor options to use by this container. If set, this profile
+//
+// overrides the pod's appArmorProfile.
+//
+// Note that this field cannot be set when spec.os.name is windows.
+func (d *SecurityContextDie) AppArmorProfile(v *corev1.AppArmorProfile) *SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		r.AppArmorProfile = v
+	})
+}
+
 var CapabilitiesBlank = (&CapabilitiesDie{}).DieFeed(corev1.Capabilities{})
 
 type CapabilitiesDie struct {
@@ -9236,6 +9280,216 @@ func (d *SeccompProfileDie) LocalhostProfile(v *string) *SeccompProfileDie {
 	})
 }
 
+var AppArmorProfileBlank = (&AppArmorProfileDie{}).DieFeed(corev1.AppArmorProfile{})
+
+type AppArmorProfileDie struct {
+	mutable bool
+	r       corev1.AppArmorProfile
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *AppArmorProfileDie) DieImmutable(immutable bool) *AppArmorProfileDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *AppArmorProfileDie) DieFeed(r corev1.AppArmorProfile) *AppArmorProfileDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &AppArmorProfileDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *AppArmorProfileDie) DieFeedPtr(r *corev1.AppArmorProfile) *AppArmorProfileDie {
+	if r == nil {
+		r = &corev1.AppArmorProfile{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *AppArmorProfileDie) DieFeedJSON(j []byte) *AppArmorProfileDie {
+	r := corev1.AppArmorProfile{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *AppArmorProfileDie) DieFeedYAML(y []byte) *AppArmorProfileDie {
+	r := corev1.AppArmorProfile{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *AppArmorProfileDie) DieFeedYAMLFile(name string) *AppArmorProfileDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *AppArmorProfileDie) DieFeedRawExtension(raw runtime.RawExtension) *AppArmorProfileDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *AppArmorProfileDie) DieRelease() corev1.AppArmorProfile {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *AppArmorProfileDie) DieReleasePtr() *corev1.AppArmorProfile {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *AppArmorProfileDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *AppArmorProfileDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *AppArmorProfileDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *AppArmorProfileDie) DieStamp(fn func(r *corev1.AppArmorProfile)) *AppArmorProfileDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *AppArmorProfileDie) DieStampAt(jp string, fn interface{}) *AppArmorProfileDie {
+	return d.DieStamp(func(r *corev1.AppArmorProfile) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *AppArmorProfileDie) DieWith(fns ...func(d *AppArmorProfileDie)) *AppArmorProfileDie {
+	nd := AppArmorProfileBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *AppArmorProfileDie) DeepCopy() *AppArmorProfileDie {
+	r := *d.r.DeepCopy()
+	return &AppArmorProfileDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// type indicates which kind of AppArmor profile will be applied.
+//
+// Valid options are:
+//
+// Localhost - a profile pre-loaded on the node.
+//
+// RuntimeDefault - the container runtime's default profile.
+//
+// Unconfined - no AppArmor enforcement.
+func (d *AppArmorProfileDie) Type(v corev1.AppArmorProfileType) *AppArmorProfileDie {
+	return d.DieStamp(func(r *corev1.AppArmorProfile) {
+		r.Type = v
+	})
+}
+
+// localhostProfile indicates a profile loaded on the node that should be used.
+//
+// The profile must be preconfigured on the node to work.
+//
+// Must match the loaded name of the profile.
+//
+// Must be set if and only if type is "Localhost".
+func (d *AppArmorProfileDie) LocalhostProfile(v *string) *AppArmorProfileDie {
+	return d.DieStamp(func(r *corev1.AppArmorProfile) {
+		r.LocalhostProfile = v
+	})
+}
+
 var ContainerStatusBlank = (&ContainerStatusDie{}).DieFeed(corev1.ContainerStatus{})
 
 type ContainerStatusDie struct {
@@ -9550,6 +9804,13 @@ func (d *ContainerStatusDie) AllocatedResources(v corev1.ResourceList) *Containe
 func (d *ContainerStatusDie) Resources(v *corev1.ResourceRequirements) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.Resources = v
+	})
+}
+
+// Status of volume mounts.
+func (d *ContainerStatusDie) VolumeMounts(v ...corev1.VolumeMountStatus) *ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		r.VolumeMounts = v
 	})
 }
 
@@ -10369,6 +10630,220 @@ func (d *ContainerStateTerminatedDie) FinishedAt(v apismetav1.Time) *ContainerSt
 func (d *ContainerStateTerminatedDie) ContainerID(v string) *ContainerStateTerminatedDie {
 	return d.DieStamp(func(r *corev1.ContainerStateTerminated) {
 		r.ContainerID = v
+	})
+}
+
+var VolumeMountStatusBlank = (&VolumeMountStatusDie{}).DieFeed(corev1.VolumeMountStatus{})
+
+type VolumeMountStatusDie struct {
+	mutable bool
+	r       corev1.VolumeMountStatus
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *VolumeMountStatusDie) DieImmutable(immutable bool) *VolumeMountStatusDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *VolumeMountStatusDie) DieFeed(r corev1.VolumeMountStatus) *VolumeMountStatusDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &VolumeMountStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *VolumeMountStatusDie) DieFeedPtr(r *corev1.VolumeMountStatus) *VolumeMountStatusDie {
+	if r == nil {
+		r = &corev1.VolumeMountStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *VolumeMountStatusDie) DieFeedJSON(j []byte) *VolumeMountStatusDie {
+	r := corev1.VolumeMountStatus{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *VolumeMountStatusDie) DieFeedYAML(y []byte) *VolumeMountStatusDie {
+	r := corev1.VolumeMountStatus{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *VolumeMountStatusDie) DieFeedYAMLFile(name string) *VolumeMountStatusDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *VolumeMountStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *VolumeMountStatusDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *VolumeMountStatusDie) DieRelease() corev1.VolumeMountStatus {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *VolumeMountStatusDie) DieReleasePtr() *corev1.VolumeMountStatus {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *VolumeMountStatusDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *VolumeMountStatusDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *VolumeMountStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *VolumeMountStatusDie) DieStamp(fn func(r *corev1.VolumeMountStatus)) *VolumeMountStatusDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *VolumeMountStatusDie) DieStampAt(jp string, fn interface{}) *VolumeMountStatusDie {
+	return d.DieStamp(func(r *corev1.VolumeMountStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *VolumeMountStatusDie) DieWith(fns ...func(d *VolumeMountStatusDie)) *VolumeMountStatusDie {
+	nd := VolumeMountStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *VolumeMountStatusDie) DeepCopy() *VolumeMountStatusDie {
+	r := *d.r.DeepCopy()
+	return &VolumeMountStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Name corresponds to the name of the original VolumeMount.
+func (d *VolumeMountStatusDie) Name(v string) *VolumeMountStatusDie {
+	return d.DieStamp(func(r *corev1.VolumeMountStatus) {
+		r.Name = v
+	})
+}
+
+// MountPath corresponds to the original VolumeMount.
+func (d *VolumeMountStatusDie) MountPath(v string) *VolumeMountStatusDie {
+	return d.DieStamp(func(r *corev1.VolumeMountStatus) {
+		r.MountPath = v
+	})
+}
+
+// ReadOnly corresponds to the original VolumeMount.
+func (d *VolumeMountStatusDie) ReadOnly(v bool) *VolumeMountStatusDie {
+	return d.DieStamp(func(r *corev1.VolumeMountStatus) {
+		r.ReadOnly = v
+	})
+}
+
+// RecursiveReadOnly must be set to Disabled, Enabled, or unspecified (for non-readonly mounts).
+//
+// An IfPossible value in the original VolumeMount must be translated to Disabled or Enabled,
+//
+// depending on the mount result.
+func (d *VolumeMountStatusDie) RecursiveReadOnly(v *corev1.RecursiveReadOnlyMode) *VolumeMountStatusDie {
+	return d.DieStamp(func(r *corev1.VolumeMountStatus) {
+		r.RecursiveReadOnly = v
 	})
 }
 
@@ -14853,6 +15328,13 @@ func (d *NodeStatusDie) Config(v *corev1.NodeConfigStatus) *NodeStatusDie {
 	})
 }
 
+// The available runtime handlers.
+func (d *NodeStatusDie) RuntimeHandlers(v ...corev1.NodeRuntimeHandler) *NodeStatusDie {
+	return d.DieStamp(func(r *corev1.NodeStatus) {
+		r.RuntimeHandlers = v
+	})
+}
+
 var NodeAddressBlank = (&NodeAddressDie{}).DieFeed(corev1.NodeAddress{})
 
 type NodeAddressDie struct {
@@ -16353,6 +16835,393 @@ func (d *NodeConfigStatusDie) Error(v string) *NodeConfigStatusDie {
 	})
 }
 
+var NodeRuntimeHandlerBlank = (&NodeRuntimeHandlerDie{}).DieFeed(corev1.NodeRuntimeHandler{})
+
+type NodeRuntimeHandlerDie struct {
+	mutable bool
+	r       corev1.NodeRuntimeHandler
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *NodeRuntimeHandlerDie) DieImmutable(immutable bool) *NodeRuntimeHandlerDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *NodeRuntimeHandlerDie) DieFeed(r corev1.NodeRuntimeHandler) *NodeRuntimeHandlerDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &NodeRuntimeHandlerDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *NodeRuntimeHandlerDie) DieFeedPtr(r *corev1.NodeRuntimeHandler) *NodeRuntimeHandlerDie {
+	if r == nil {
+		r = &corev1.NodeRuntimeHandler{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *NodeRuntimeHandlerDie) DieFeedJSON(j []byte) *NodeRuntimeHandlerDie {
+	r := corev1.NodeRuntimeHandler{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *NodeRuntimeHandlerDie) DieFeedYAML(y []byte) *NodeRuntimeHandlerDie {
+	r := corev1.NodeRuntimeHandler{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *NodeRuntimeHandlerDie) DieFeedYAMLFile(name string) *NodeRuntimeHandlerDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NodeRuntimeHandlerDie) DieFeedRawExtension(raw runtime.RawExtension) *NodeRuntimeHandlerDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *NodeRuntimeHandlerDie) DieRelease() corev1.NodeRuntimeHandler {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *NodeRuntimeHandlerDie) DieReleasePtr() *corev1.NodeRuntimeHandler {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *NodeRuntimeHandlerDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *NodeRuntimeHandlerDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NodeRuntimeHandlerDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *NodeRuntimeHandlerDie) DieStamp(fn func(r *corev1.NodeRuntimeHandler)) *NodeRuntimeHandlerDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *NodeRuntimeHandlerDie) DieStampAt(jp string, fn interface{}) *NodeRuntimeHandlerDie {
+	return d.DieStamp(func(r *corev1.NodeRuntimeHandler) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeRuntimeHandlerDie) DieWith(fns ...func(d *NodeRuntimeHandlerDie)) *NodeRuntimeHandlerDie {
+	nd := NodeRuntimeHandlerBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *NodeRuntimeHandlerDie) DeepCopy() *NodeRuntimeHandlerDie {
+	r := *d.r.DeepCopy()
+	return &NodeRuntimeHandlerDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Runtime handler name.
+//
+// Empty for the default runtime handler.
+func (d *NodeRuntimeHandlerDie) Name(v string) *NodeRuntimeHandlerDie {
+	return d.DieStamp(func(r *corev1.NodeRuntimeHandler) {
+		r.Name = v
+	})
+}
+
+// Supported features.
+func (d *NodeRuntimeHandlerDie) Features(v *corev1.NodeRuntimeHandlerFeatures) *NodeRuntimeHandlerDie {
+	return d.DieStamp(func(r *corev1.NodeRuntimeHandler) {
+		r.Features = v
+	})
+}
+
+var NodeRuntimeHandlerFeaturesBlank = (&NodeRuntimeHandlerFeaturesDie{}).DieFeed(corev1.NodeRuntimeHandlerFeatures{})
+
+type NodeRuntimeHandlerFeaturesDie struct {
+	mutable bool
+	r       corev1.NodeRuntimeHandlerFeatures
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *NodeRuntimeHandlerFeaturesDie) DieImmutable(immutable bool) *NodeRuntimeHandlerFeaturesDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *NodeRuntimeHandlerFeaturesDie) DieFeed(r corev1.NodeRuntimeHandlerFeatures) *NodeRuntimeHandlerFeaturesDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &NodeRuntimeHandlerFeaturesDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *NodeRuntimeHandlerFeaturesDie) DieFeedPtr(r *corev1.NodeRuntimeHandlerFeatures) *NodeRuntimeHandlerFeaturesDie {
+	if r == nil {
+		r = &corev1.NodeRuntimeHandlerFeatures{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *NodeRuntimeHandlerFeaturesDie) DieFeedJSON(j []byte) *NodeRuntimeHandlerFeaturesDie {
+	r := corev1.NodeRuntimeHandlerFeatures{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *NodeRuntimeHandlerFeaturesDie) DieFeedYAML(y []byte) *NodeRuntimeHandlerFeaturesDie {
+	r := corev1.NodeRuntimeHandlerFeatures{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *NodeRuntimeHandlerFeaturesDie) DieFeedYAMLFile(name string) *NodeRuntimeHandlerFeaturesDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NodeRuntimeHandlerFeaturesDie) DieFeedRawExtension(raw runtime.RawExtension) *NodeRuntimeHandlerFeaturesDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *NodeRuntimeHandlerFeaturesDie) DieRelease() corev1.NodeRuntimeHandlerFeatures {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *NodeRuntimeHandlerFeaturesDie) DieReleasePtr() *corev1.NodeRuntimeHandlerFeatures {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *NodeRuntimeHandlerFeaturesDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *NodeRuntimeHandlerFeaturesDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NodeRuntimeHandlerFeaturesDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *NodeRuntimeHandlerFeaturesDie) DieStamp(fn func(r *corev1.NodeRuntimeHandlerFeatures)) *NodeRuntimeHandlerFeaturesDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *NodeRuntimeHandlerFeaturesDie) DieStampAt(jp string, fn interface{}) *NodeRuntimeHandlerFeaturesDie {
+	return d.DieStamp(func(r *corev1.NodeRuntimeHandlerFeatures) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeRuntimeHandlerFeaturesDie) DieWith(fns ...func(d *NodeRuntimeHandlerFeaturesDie)) *NodeRuntimeHandlerFeaturesDie {
+	nd := NodeRuntimeHandlerFeaturesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *NodeRuntimeHandlerFeaturesDie) DeepCopy() *NodeRuntimeHandlerFeaturesDie {
+	r := *d.r.DeepCopy()
+	return &NodeRuntimeHandlerFeaturesDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// RecursiveReadOnlyMounts is set to true if the runtime handler supports RecursiveReadOnlyMounts.
+func (d *NodeRuntimeHandlerFeaturesDie) RecursiveReadOnlyMounts(v *bool) *NodeRuntimeHandlerFeaturesDie {
+	return d.DieStamp(func(r *corev1.NodeRuntimeHandlerFeatures) {
+		r.RecursiveReadOnlyMounts = v
+	})
+}
+
 var PersistentVolumeBlank = (&PersistentVolumeDie{}).DieFeed(corev1.PersistentVolume{})
 
 type PersistentVolumeDie struct {
@@ -17147,7 +18016,7 @@ func (d *PersistentVolumeStatusDie) Reason(v string) *PersistentVolumeStatusDie 
 //
 // and automatically resets to current time everytime a volume phase transitions.
 //
-// This is an alpha field and requires enabling PersistentVolumeLastPhaseTransitionTime feature.
+// This is a beta field and requires the PersistentVolumeLastPhaseTransitionTime feature to be enabled (enabled by default).
 func (d *PersistentVolumeStatusDie) LastPhaseTransitionTime(v *apismetav1.Time) *PersistentVolumeStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeStatus) {
 		r.LastPhaseTransitionTime = v
@@ -21245,7 +22114,7 @@ func (d *PersistentVolumeClaimSpecDie) DataSourceRef(v *corev1.TypedObjectRefere
 //
 // exists.
 //
-// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#volumeattributesclass
+// More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
 //
 // (Alpha) Using this field requires the VolumeAttributesClass feature gate to be enabled.
 func (d *PersistentVolumeClaimSpecDie) VolumeAttributesClassName(v *string) *PersistentVolumeClaimSpecDie {
@@ -21665,7 +22534,7 @@ func (d *PersistentVolumeClaimStatusDie) Capacity(v corev1.ResourceList) *Persis
 
 // conditions is the current Condition of persistent volume claim. If underlying persistent volume is being
 //
-// resized then the Condition will be set to 'ResizeStarted'.
+// resized then the Condition will be set to 'Resizing'.
 func (d *PersistentVolumeClaimStatusDie) Conditions(v ...corev1.PersistentVolumeClaimCondition) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		r.Conditions = v
@@ -22778,7 +23647,7 @@ func (d *PodSpecDie) ServiceAccountName(v string) *PodSpecDie {
 	})
 }
 
-// DeprecatedServiceAccount is a depreciated alias for ServiceAccountName.
+// DeprecatedServiceAccount is a deprecated alias for ServiceAccountName.
 //
 // Deprecated: Use serviceAccountName instead.
 func (d *PodSpecDie) DeprecatedServiceAccount(v string) *PodSpecDie {
@@ -22912,7 +23781,7 @@ func (d *PodSpecDie) Tolerations(v ...corev1.Toleration) *PodSpecDie {
 
 // HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts
 //
-// file if specified. This is only valid for non-hostNetwork pods.
+// file if specified.
 func (d *PodSpecDie) HostAliases(v ...corev1.HostAlias) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.HostAliases = v
@@ -23073,6 +23942,8 @@ func (d *PodSpecDie) SetHostnameAsFQDN(v *bool) *PodSpecDie {
 //
 // - spec.hostUsers
 //
+// - spec.securityContext.appArmorProfile
+//
 // - spec.securityContext.seLinuxOptions
 //
 // - spec.securityContext.seccompProfile
@@ -23090,6 +23961,8 @@ func (d *PodSpecDie) SetHostnameAsFQDN(v *bool) *PodSpecDie {
 // - spec.securityContext.runAsGroup
 //
 // - spec.securityContext.supplementalGroups
+//
+// - spec.containers[*].securityContext.appArmorProfile
 //
 // - spec.containers[*].securityContext.seLinuxOptions
 //
@@ -23144,8 +24017,6 @@ func (d *PodSpecDie) HostUsers(v *bool) *PodSpecDie {
 // scheduler will not attempt to schedule the pod.
 //
 // SchedulingGates can only be set at pod creation time, and be removed only afterwards.
-//
-// This is a beta feature enabled by the PodSchedulingReadiness feature gate.
 func (d *PodSpecDie) SchedulingGates(v ...corev1.PodSchedulingGate) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.SchedulingGates = v
@@ -24115,6 +24986,15 @@ func (d *PodSecurityContextDie) FSGroupChangePolicy(v *corev1.PodFSGroupChangePo
 func (d *PodSecurityContextDie) SeccompProfile(v *corev1.SeccompProfile) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.SeccompProfile = v
+	})
+}
+
+// appArmorProfile is the AppArmor options to use by the containers in this pod.
+//
+// Note that this field cannot be set when spec.os.name is windows.
+func (d *PodSecurityContextDie) AppArmorProfile(v *corev1.AppArmorProfile) *PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		r.AppArmorProfile = v
 	})
 }
 
@@ -25679,8 +26559,6 @@ func (d *TopologySpreadConstraintDie) LabelSelector(v *apismetav1.LabelSelector)
 // because computed skew will be 3(3 - 0) if new Pod is scheduled to any of the three zones,
 //
 // it will violate MaxSkew.
-//
-// This is a beta field and requires the MinDomainsInPodTopologySpread feature gate to be enabled (enabled by default).
 func (d *TopologySpreadConstraintDie) MinDomains(v *int32) *TopologySpreadConstraintDie {
 	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
 		r.MinDomains = v
@@ -29780,6 +30658,23 @@ func (d *ServiceSpecDie) LoadBalancerClass(v *string) *ServiceSpecDie {
 func (d *ServiceSpecDie) InternalTrafficPolicy(v *corev1.ServiceInternalTrafficPolicy) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.InternalTrafficPolicy = v
+	})
+}
+
+// TrafficDistribution offers a way to express preferences for how traffic is
+//
+// distributed to Service endpoints. Implementations can use this field as a
+//
+// hint, but are not required to guarantee strict adherence. If the field is
+//
+// not set, the implementation will apply its default routing strategy. If set
+//
+// to "PreferClose", implementations should prioritize endpoints that are
+//
+// topologically close (e.g., same zone).
+func (d *ServiceSpecDie) TrafficDistribution(v *string) *ServiceSpecDie {
+	return d.DieStamp(func(r *corev1.ServiceSpec) {
+		r.TrafficDistribution = v
 	})
 }
 
@@ -35571,7 +36466,7 @@ func (d *DownwardAPIVolumeFileDie) Path(v string) *DownwardAPIVolumeFileDie {
 	})
 }
 
-// Required: Selects a field of the pod: only annotations, labels, name and namespace are supported.
+// Required: Selects a field of the pod: only annotations, labels, name, namespace and uid are supported.
 func (d *DownwardAPIVolumeFileDie) FieldRef(v *corev1.ObjectFieldSelector) *DownwardAPIVolumeFileDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
 		r.FieldRef = v
