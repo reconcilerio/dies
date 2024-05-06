@@ -22,16 +22,19 @@ limitations under the License.
 package v1
 
 import (
-	json "encoding/json"
 	fmtx "fmt"
+	cmp "github.com/google/go-cmp/cmp"
 	authorizationv1 "k8s.io/api/authorization/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	types "k8s.io/apimachinery/pkg/types"
+	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
 	metav1 "reconciler.io/dies/apis/meta/v1"
+	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )
@@ -42,6 +45,7 @@ type LocalSubjectAccessReviewDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       authorizationv1.LocalSubjectAccessReview
+	seal    authorizationv1.LocalSubjectAccessReview
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -65,6 +69,7 @@ func (d *LocalSubjectAccessReviewDie) DieFeed(r authorizationv1.LocalSubjectAcce
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -231,7 +236,51 @@ func (d *LocalSubjectAccessReviewDie) DeepCopy() *LocalSubjectAccessReviewDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *LocalSubjectAccessReviewDie) DieSeal() *LocalSubjectAccessReviewDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *LocalSubjectAccessReviewDie) DieSealFeed(r authorizationv1.LocalSubjectAccessReview) *LocalSubjectAccessReviewDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *LocalSubjectAccessReviewDie) DieSealFeedPtr(r *authorizationv1.LocalSubjectAccessReview) *LocalSubjectAccessReviewDie {
+	if r == nil {
+		r = &authorizationv1.LocalSubjectAccessReview{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *LocalSubjectAccessReviewDie) DieSealRelease() authorizationv1.LocalSubjectAccessReview {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *LocalSubjectAccessReviewDie) DieSealReleasePtr() *authorizationv1.LocalSubjectAccessReview {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *LocalSubjectAccessReviewDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *LocalSubjectAccessReviewDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*LocalSubjectAccessReviewDie)(nil)
@@ -253,9 +302,9 @@ func (d *LocalSubjectAccessReviewDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &authorizationv1.LocalSubjectAccessReview{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &authorizationv1.LocalSubjectAccessReview{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -335,6 +384,7 @@ type SelfSubjectAccessReviewDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       authorizationv1.SelfSubjectAccessReview
+	seal    authorizationv1.SelfSubjectAccessReview
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -358,6 +408,7 @@ func (d *SelfSubjectAccessReviewDie) DieFeed(r authorizationv1.SelfSubjectAccess
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -524,7 +575,51 @@ func (d *SelfSubjectAccessReviewDie) DeepCopy() *SelfSubjectAccessReviewDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *SelfSubjectAccessReviewDie) DieSeal() *SelfSubjectAccessReviewDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *SelfSubjectAccessReviewDie) DieSealFeed(r authorizationv1.SelfSubjectAccessReview) *SelfSubjectAccessReviewDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *SelfSubjectAccessReviewDie) DieSealFeedPtr(r *authorizationv1.SelfSubjectAccessReview) *SelfSubjectAccessReviewDie {
+	if r == nil {
+		r = &authorizationv1.SelfSubjectAccessReview{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *SelfSubjectAccessReviewDie) DieSealRelease() authorizationv1.SelfSubjectAccessReview {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *SelfSubjectAccessReviewDie) DieSealReleasePtr() *authorizationv1.SelfSubjectAccessReview {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *SelfSubjectAccessReviewDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *SelfSubjectAccessReviewDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*SelfSubjectAccessReviewDie)(nil)
@@ -546,9 +641,9 @@ func (d *SelfSubjectAccessReviewDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &authorizationv1.SelfSubjectAccessReview{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &authorizationv1.SelfSubjectAccessReview{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -643,6 +738,7 @@ var SelfSubjectAccessReviewSpecBlank = (&SelfSubjectAccessReviewSpecDie{}).DieFe
 type SelfSubjectAccessReviewSpecDie struct {
 	mutable bool
 	r       authorizationv1.SelfSubjectAccessReviewSpec
+	seal    authorizationv1.SelfSubjectAccessReviewSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -664,6 +760,7 @@ func (d *SelfSubjectAccessReviewSpecDie) DieFeed(r authorizationv1.SelfSubjectAc
 	return &SelfSubjectAccessReviewSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -817,7 +914,51 @@ func (d *SelfSubjectAccessReviewSpecDie) DeepCopy() *SelfSubjectAccessReviewSpec
 	return &SelfSubjectAccessReviewSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *SelfSubjectAccessReviewSpecDie) DieSeal() *SelfSubjectAccessReviewSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *SelfSubjectAccessReviewSpecDie) DieSealFeed(r authorizationv1.SelfSubjectAccessReviewSpec) *SelfSubjectAccessReviewSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *SelfSubjectAccessReviewSpecDie) DieSealFeedPtr(r *authorizationv1.SelfSubjectAccessReviewSpec) *SelfSubjectAccessReviewSpecDie {
+	if r == nil {
+		r = &authorizationv1.SelfSubjectAccessReviewSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *SelfSubjectAccessReviewSpecDie) DieSealRelease() authorizationv1.SelfSubjectAccessReviewSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *SelfSubjectAccessReviewSpecDie) DieSealReleasePtr() *authorizationv1.SelfSubjectAccessReviewSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *SelfSubjectAccessReviewSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *SelfSubjectAccessReviewSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // ResourceAuthorizationAttributes describes information for a resource access request
@@ -840,6 +981,7 @@ type SelfSubjectRulesReviewDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       authorizationv1.SelfSubjectRulesReview
+	seal    authorizationv1.SelfSubjectRulesReview
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -863,6 +1005,7 @@ func (d *SelfSubjectRulesReviewDie) DieFeed(r authorizationv1.SelfSubjectRulesRe
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -1029,7 +1172,51 @@ func (d *SelfSubjectRulesReviewDie) DeepCopy() *SelfSubjectRulesReviewDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *SelfSubjectRulesReviewDie) DieSeal() *SelfSubjectRulesReviewDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *SelfSubjectRulesReviewDie) DieSealFeed(r authorizationv1.SelfSubjectRulesReview) *SelfSubjectRulesReviewDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *SelfSubjectRulesReviewDie) DieSealFeedPtr(r *authorizationv1.SelfSubjectRulesReview) *SelfSubjectRulesReviewDie {
+	if r == nil {
+		r = &authorizationv1.SelfSubjectRulesReview{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *SelfSubjectRulesReviewDie) DieSealRelease() authorizationv1.SelfSubjectRulesReview {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *SelfSubjectRulesReviewDie) DieSealReleasePtr() *authorizationv1.SelfSubjectRulesReview {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *SelfSubjectRulesReviewDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *SelfSubjectRulesReviewDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*SelfSubjectRulesReviewDie)(nil)
@@ -1051,9 +1238,9 @@ func (d *SelfSubjectRulesReviewDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &authorizationv1.SelfSubjectRulesReview{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &authorizationv1.SelfSubjectRulesReview{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -1148,6 +1335,7 @@ var SelfSubjectRulesReviewSpecBlank = (&SelfSubjectRulesReviewSpecDie{}).DieFeed
 type SelfSubjectRulesReviewSpecDie struct {
 	mutable bool
 	r       authorizationv1.SelfSubjectRulesReviewSpec
+	seal    authorizationv1.SelfSubjectRulesReviewSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1169,6 +1357,7 @@ func (d *SelfSubjectRulesReviewSpecDie) DieFeed(r authorizationv1.SelfSubjectRul
 	return &SelfSubjectRulesReviewSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1322,7 +1511,51 @@ func (d *SelfSubjectRulesReviewSpecDie) DeepCopy() *SelfSubjectRulesReviewSpecDi
 	return &SelfSubjectRulesReviewSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *SelfSubjectRulesReviewSpecDie) DieSeal() *SelfSubjectRulesReviewSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *SelfSubjectRulesReviewSpecDie) DieSealFeed(r authorizationv1.SelfSubjectRulesReviewSpec) *SelfSubjectRulesReviewSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *SelfSubjectRulesReviewSpecDie) DieSealFeedPtr(r *authorizationv1.SelfSubjectRulesReviewSpec) *SelfSubjectRulesReviewSpecDie {
+	if r == nil {
+		r = &authorizationv1.SelfSubjectRulesReviewSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *SelfSubjectRulesReviewSpecDie) DieSealRelease() authorizationv1.SelfSubjectRulesReviewSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *SelfSubjectRulesReviewSpecDie) DieSealReleasePtr() *authorizationv1.SelfSubjectRulesReviewSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *SelfSubjectRulesReviewSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *SelfSubjectRulesReviewSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Namespace to evaluate rules for. Required.
@@ -1337,6 +1570,7 @@ var SubjectRulesReviewStatusBlank = (&SubjectRulesReviewStatusDie{}).DieFeed(aut
 type SubjectRulesReviewStatusDie struct {
 	mutable bool
 	r       authorizationv1.SubjectRulesReviewStatus
+	seal    authorizationv1.SubjectRulesReviewStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1358,6 +1592,7 @@ func (d *SubjectRulesReviewStatusDie) DieFeed(r authorizationv1.SubjectRulesRevi
 	return &SubjectRulesReviewStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1511,7 +1746,51 @@ func (d *SubjectRulesReviewStatusDie) DeepCopy() *SubjectRulesReviewStatusDie {
 	return &SubjectRulesReviewStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *SubjectRulesReviewStatusDie) DieSeal() *SubjectRulesReviewStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *SubjectRulesReviewStatusDie) DieSealFeed(r authorizationv1.SubjectRulesReviewStatus) *SubjectRulesReviewStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *SubjectRulesReviewStatusDie) DieSealFeedPtr(r *authorizationv1.SubjectRulesReviewStatus) *SubjectRulesReviewStatusDie {
+	if r == nil {
+		r = &authorizationv1.SubjectRulesReviewStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *SubjectRulesReviewStatusDie) DieSealRelease() authorizationv1.SubjectRulesReviewStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *SubjectRulesReviewStatusDie) DieSealReleasePtr() *authorizationv1.SubjectRulesReviewStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *SubjectRulesReviewStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *SubjectRulesReviewStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // ResourceRules is the list of actions the subject is allowed to perform on resources.
@@ -1557,6 +1836,7 @@ var ResourceRuleBlank = (&ResourceRuleDie{}).DieFeed(authorizationv1.ResourceRul
 type ResourceRuleDie struct {
 	mutable bool
 	r       authorizationv1.ResourceRule
+	seal    authorizationv1.ResourceRule
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1578,6 +1858,7 @@ func (d *ResourceRuleDie) DieFeed(r authorizationv1.ResourceRule) *ResourceRuleD
 	return &ResourceRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1731,7 +2012,51 @@ func (d *ResourceRuleDie) DeepCopy() *ResourceRuleDie {
 	return &ResourceRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ResourceRuleDie) DieSeal() *ResourceRuleDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ResourceRuleDie) DieSealFeed(r authorizationv1.ResourceRule) *ResourceRuleDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ResourceRuleDie) DieSealFeedPtr(r *authorizationv1.ResourceRule) *ResourceRuleDie {
+	if r == nil {
+		r = &authorizationv1.ResourceRule{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ResourceRuleDie) DieSealRelease() authorizationv1.ResourceRule {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ResourceRuleDie) DieSealReleasePtr() *authorizationv1.ResourceRule {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ResourceRuleDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ResourceRuleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Verb is a list of kubernetes resource API verbs, like: get, list, watch, create, update, delete, proxy.  "*" means all.
@@ -1771,6 +2096,7 @@ var NonResourceRuleBlank = (&NonResourceRuleDie{}).DieFeed(authorizationv1.NonRe
 type NonResourceRuleDie struct {
 	mutable bool
 	r       authorizationv1.NonResourceRule
+	seal    authorizationv1.NonResourceRule
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1792,6 +2118,7 @@ func (d *NonResourceRuleDie) DieFeed(r authorizationv1.NonResourceRule) *NonReso
 	return &NonResourceRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1945,7 +2272,51 @@ func (d *NonResourceRuleDie) DeepCopy() *NonResourceRuleDie {
 	return &NonResourceRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *NonResourceRuleDie) DieSeal() *NonResourceRuleDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *NonResourceRuleDie) DieSealFeed(r authorizationv1.NonResourceRule) *NonResourceRuleDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *NonResourceRuleDie) DieSealFeedPtr(r *authorizationv1.NonResourceRule) *NonResourceRuleDie {
+	if r == nil {
+		r = &authorizationv1.NonResourceRule{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *NonResourceRuleDie) DieSealRelease() authorizationv1.NonResourceRule {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *NonResourceRuleDie) DieSealReleasePtr() *authorizationv1.NonResourceRule {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *NonResourceRuleDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *NonResourceRuleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Verb is a list of kubernetes non-resource API verbs, like: get, post, put, delete, patch, head, options.  "*" means all.
@@ -1970,6 +2341,7 @@ type SubjectAccessReviewDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       authorizationv1.SubjectAccessReview
+	seal    authorizationv1.SubjectAccessReview
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1993,6 +2365,7 @@ func (d *SubjectAccessReviewDie) DieFeed(r authorizationv1.SubjectAccessReview) 
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -2159,7 +2532,51 @@ func (d *SubjectAccessReviewDie) DeepCopy() *SubjectAccessReviewDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *SubjectAccessReviewDie) DieSeal() *SubjectAccessReviewDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *SubjectAccessReviewDie) DieSealFeed(r authorizationv1.SubjectAccessReview) *SubjectAccessReviewDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *SubjectAccessReviewDie) DieSealFeedPtr(r *authorizationv1.SubjectAccessReview) *SubjectAccessReviewDie {
+	if r == nil {
+		r = &authorizationv1.SubjectAccessReview{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *SubjectAccessReviewDie) DieSealRelease() authorizationv1.SubjectAccessReview {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *SubjectAccessReviewDie) DieSealReleasePtr() *authorizationv1.SubjectAccessReview {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *SubjectAccessReviewDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *SubjectAccessReviewDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*SubjectAccessReviewDie)(nil)
@@ -2181,9 +2598,9 @@ func (d *SubjectAccessReviewDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &authorizationv1.SubjectAccessReview{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &authorizationv1.SubjectAccessReview{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -2278,6 +2695,7 @@ var SubjectAccessReviewSpecBlank = (&SubjectAccessReviewSpecDie{}).DieFeed(autho
 type SubjectAccessReviewSpecDie struct {
 	mutable bool
 	r       authorizationv1.SubjectAccessReviewSpec
+	seal    authorizationv1.SubjectAccessReviewSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2299,6 +2717,7 @@ func (d *SubjectAccessReviewSpecDie) DieFeed(r authorizationv1.SubjectAccessRevi
 	return &SubjectAccessReviewSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2452,7 +2871,51 @@ func (d *SubjectAccessReviewSpecDie) DeepCopy() *SubjectAccessReviewSpecDie {
 	return &SubjectAccessReviewSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *SubjectAccessReviewSpecDie) DieSeal() *SubjectAccessReviewSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *SubjectAccessReviewSpecDie) DieSealFeed(r authorizationv1.SubjectAccessReviewSpec) *SubjectAccessReviewSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *SubjectAccessReviewSpecDie) DieSealFeedPtr(r *authorizationv1.SubjectAccessReviewSpec) *SubjectAccessReviewSpecDie {
+	if r == nil {
+		r = &authorizationv1.SubjectAccessReviewSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *SubjectAccessReviewSpecDie) DieSealRelease() authorizationv1.SubjectAccessReviewSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *SubjectAccessReviewSpecDie) DieSealReleasePtr() *authorizationv1.SubjectAccessReviewSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *SubjectAccessReviewSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *SubjectAccessReviewSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // ResourceAuthorizationAttributes describes information for a resource access request
@@ -2497,6 +2960,7 @@ var ResourceAttributesBlank = (&ResourceAttributesDie{}).DieFeed(authorizationv1
 type ResourceAttributesDie struct {
 	mutable bool
 	r       authorizationv1.ResourceAttributes
+	seal    authorizationv1.ResourceAttributes
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2518,6 +2982,7 @@ func (d *ResourceAttributesDie) DieFeed(r authorizationv1.ResourceAttributes) *R
 	return &ResourceAttributesDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2671,7 +3136,51 @@ func (d *ResourceAttributesDie) DeepCopy() *ResourceAttributesDie {
 	return &ResourceAttributesDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ResourceAttributesDie) DieSeal() *ResourceAttributesDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ResourceAttributesDie) DieSealFeed(r authorizationv1.ResourceAttributes) *ResourceAttributesDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ResourceAttributesDie) DieSealFeedPtr(r *authorizationv1.ResourceAttributes) *ResourceAttributesDie {
+	if r == nil {
+		r = &authorizationv1.ResourceAttributes{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ResourceAttributesDie) DieSealRelease() authorizationv1.ResourceAttributes {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ResourceAttributesDie) DieSealReleasePtr() *authorizationv1.ResourceAttributes {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ResourceAttributesDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ResourceAttributesDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Namespace is the namespace of the action being requested.  Currently, there is no distinction between no namespace and all namespaces
@@ -2734,6 +3243,7 @@ var NonResourceAttributesBlank = (&NonResourceAttributesDie{}).DieFeed(authoriza
 type NonResourceAttributesDie struct {
 	mutable bool
 	r       authorizationv1.NonResourceAttributes
+	seal    authorizationv1.NonResourceAttributes
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2755,6 +3265,7 @@ func (d *NonResourceAttributesDie) DieFeed(r authorizationv1.NonResourceAttribut
 	return &NonResourceAttributesDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2908,7 +3419,51 @@ func (d *NonResourceAttributesDie) DeepCopy() *NonResourceAttributesDie {
 	return &NonResourceAttributesDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *NonResourceAttributesDie) DieSeal() *NonResourceAttributesDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *NonResourceAttributesDie) DieSealFeed(r authorizationv1.NonResourceAttributes) *NonResourceAttributesDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *NonResourceAttributesDie) DieSealFeedPtr(r *authorizationv1.NonResourceAttributes) *NonResourceAttributesDie {
+	if r == nil {
+		r = &authorizationv1.NonResourceAttributes{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *NonResourceAttributesDie) DieSealRelease() authorizationv1.NonResourceAttributes {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *NonResourceAttributesDie) DieSealReleasePtr() *authorizationv1.NonResourceAttributes {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *NonResourceAttributesDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *NonResourceAttributesDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Path is the URL path of the request
@@ -2930,6 +3485,7 @@ var SubjectAccessReviewStatusBlank = (&SubjectAccessReviewStatusDie{}).DieFeed(a
 type SubjectAccessReviewStatusDie struct {
 	mutable bool
 	r       authorizationv1.SubjectAccessReviewStatus
+	seal    authorizationv1.SubjectAccessReviewStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2951,6 +3507,7 @@ func (d *SubjectAccessReviewStatusDie) DieFeed(r authorizationv1.SubjectAccessRe
 	return &SubjectAccessReviewStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3104,7 +3661,51 @@ func (d *SubjectAccessReviewStatusDie) DeepCopy() *SubjectAccessReviewStatusDie 
 	return &SubjectAccessReviewStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *SubjectAccessReviewStatusDie) DieSeal() *SubjectAccessReviewStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *SubjectAccessReviewStatusDie) DieSealFeed(r authorizationv1.SubjectAccessReviewStatus) *SubjectAccessReviewStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *SubjectAccessReviewStatusDie) DieSealFeedPtr(r *authorizationv1.SubjectAccessReviewStatus) *SubjectAccessReviewStatusDie {
+	if r == nil {
+		r = &authorizationv1.SubjectAccessReviewStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *SubjectAccessReviewStatusDie) DieSealRelease() authorizationv1.SubjectAccessReviewStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *SubjectAccessReviewStatusDie) DieSealReleasePtr() *authorizationv1.SubjectAccessReviewStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *SubjectAccessReviewStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *SubjectAccessReviewStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Allowed is required. True if the action would be allowed, false otherwise.

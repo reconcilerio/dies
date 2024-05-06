@@ -22,16 +22,19 @@ limitations under the License.
 package v1beta1
 
 import (
-	json "encoding/json"
 	fmtx "fmt"
+	cmp "github.com/google/go-cmp/cmp"
 	flowcontrolv1beta1 "k8s.io/api/flowcontrol/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	types "k8s.io/apimachinery/pkg/types"
+	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
 	"reconciler.io/dies/apis/meta/v1"
+	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )
@@ -42,6 +45,7 @@ type FlowSchemaDie struct {
 	v1.FrozenObjectMeta
 	mutable bool
 	r       flowcontrolv1beta1.FlowSchema
+	seal    flowcontrolv1beta1.FlowSchema
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -65,6 +69,7 @@ func (d *FlowSchemaDie) DieFeed(r flowcontrolv1beta1.FlowSchema) *FlowSchemaDie 
 		FrozenObjectMeta: v1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -231,7 +236,51 @@ func (d *FlowSchemaDie) DeepCopy() *FlowSchemaDie {
 		FrozenObjectMeta: v1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *FlowSchemaDie) DieSeal() *FlowSchemaDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *FlowSchemaDie) DieSealFeed(r flowcontrolv1beta1.FlowSchema) *FlowSchemaDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *FlowSchemaDie) DieSealFeedPtr(r *flowcontrolv1beta1.FlowSchema) *FlowSchemaDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.FlowSchema{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *FlowSchemaDie) DieSealRelease() flowcontrolv1beta1.FlowSchema {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *FlowSchemaDie) DieSealReleasePtr() *flowcontrolv1beta1.FlowSchema {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *FlowSchemaDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *FlowSchemaDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*FlowSchemaDie)(nil)
@@ -253,9 +302,9 @@ func (d *FlowSchemaDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &flowcontrolv1beta1.FlowSchema{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &flowcontrolv1beta1.FlowSchema{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -354,6 +403,7 @@ var FlowSchemaSpecBlank = (&FlowSchemaSpecDie{}).DieFeed(flowcontrolv1beta1.Flow
 type FlowSchemaSpecDie struct {
 	mutable bool
 	r       flowcontrolv1beta1.FlowSchemaSpec
+	seal    flowcontrolv1beta1.FlowSchemaSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -375,6 +425,7 @@ func (d *FlowSchemaSpecDie) DieFeed(r flowcontrolv1beta1.FlowSchemaSpec) *FlowSc
 	return &FlowSchemaSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -528,7 +579,51 @@ func (d *FlowSchemaSpecDie) DeepCopy() *FlowSchemaSpecDie {
 	return &FlowSchemaSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *FlowSchemaSpecDie) DieSeal() *FlowSchemaSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *FlowSchemaSpecDie) DieSealFeed(r flowcontrolv1beta1.FlowSchemaSpec) *FlowSchemaSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *FlowSchemaSpecDie) DieSealFeedPtr(r *flowcontrolv1beta1.FlowSchemaSpec) *FlowSchemaSpecDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.FlowSchemaSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *FlowSchemaSpecDie) DieSealRelease() flowcontrolv1beta1.FlowSchemaSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *FlowSchemaSpecDie) DieSealReleasePtr() *flowcontrolv1beta1.FlowSchemaSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *FlowSchemaSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *FlowSchemaSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // `priorityLevelConfiguration` should reference a PriorityLevelConfiguration in the cluster. If the reference cannot
@@ -580,6 +675,7 @@ var FlowSchemaStatusBlank = (&FlowSchemaStatusDie{}).DieFeed(flowcontrolv1beta1.
 type FlowSchemaStatusDie struct {
 	mutable bool
 	r       flowcontrolv1beta1.FlowSchemaStatus
+	seal    flowcontrolv1beta1.FlowSchemaStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -601,6 +697,7 @@ func (d *FlowSchemaStatusDie) DieFeed(r flowcontrolv1beta1.FlowSchemaStatus) *Fl
 	return &FlowSchemaStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -754,7 +851,51 @@ func (d *FlowSchemaStatusDie) DeepCopy() *FlowSchemaStatusDie {
 	return &FlowSchemaStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *FlowSchemaStatusDie) DieSeal() *FlowSchemaStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *FlowSchemaStatusDie) DieSealFeed(r flowcontrolv1beta1.FlowSchemaStatus) *FlowSchemaStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *FlowSchemaStatusDie) DieSealFeedPtr(r *flowcontrolv1beta1.FlowSchemaStatus) *FlowSchemaStatusDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.FlowSchemaStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *FlowSchemaStatusDie) DieSealRelease() flowcontrolv1beta1.FlowSchemaStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *FlowSchemaStatusDie) DieSealReleasePtr() *flowcontrolv1beta1.FlowSchemaStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *FlowSchemaStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *FlowSchemaStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // `conditions` is a list of the current states of FlowSchema.
@@ -769,6 +910,7 @@ var PriorityLevelConfigurationReferenceBlank = (&PriorityLevelConfigurationRefer
 type PriorityLevelConfigurationReferenceDie struct {
 	mutable bool
 	r       flowcontrolv1beta1.PriorityLevelConfigurationReference
+	seal    flowcontrolv1beta1.PriorityLevelConfigurationReference
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -790,6 +932,7 @@ func (d *PriorityLevelConfigurationReferenceDie) DieFeed(r flowcontrolv1beta1.Pr
 	return &PriorityLevelConfigurationReferenceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -943,7 +1086,51 @@ func (d *PriorityLevelConfigurationReferenceDie) DeepCopy() *PriorityLevelConfig
 	return &PriorityLevelConfigurationReferenceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *PriorityLevelConfigurationReferenceDie) DieSeal() *PriorityLevelConfigurationReferenceDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *PriorityLevelConfigurationReferenceDie) DieSealFeed(r flowcontrolv1beta1.PriorityLevelConfigurationReference) *PriorityLevelConfigurationReferenceDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *PriorityLevelConfigurationReferenceDie) DieSealFeedPtr(r *flowcontrolv1beta1.PriorityLevelConfigurationReference) *PriorityLevelConfigurationReferenceDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.PriorityLevelConfigurationReference{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *PriorityLevelConfigurationReferenceDie) DieSealRelease() flowcontrolv1beta1.PriorityLevelConfigurationReference {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *PriorityLevelConfigurationReferenceDie) DieSealReleasePtr() *flowcontrolv1beta1.PriorityLevelConfigurationReference {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *PriorityLevelConfigurationReferenceDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *PriorityLevelConfigurationReferenceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // `name` is the name of the priority level configuration being referenced
@@ -960,6 +1147,7 @@ var FlowDistinguisherMethodBlank = (&FlowDistinguisherMethodDie{}).DieFeed(flowc
 type FlowDistinguisherMethodDie struct {
 	mutable bool
 	r       flowcontrolv1beta1.FlowDistinguisherMethod
+	seal    flowcontrolv1beta1.FlowDistinguisherMethod
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -981,6 +1169,7 @@ func (d *FlowDistinguisherMethodDie) DieFeed(r flowcontrolv1beta1.FlowDistinguis
 	return &FlowDistinguisherMethodDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1134,7 +1323,51 @@ func (d *FlowDistinguisherMethodDie) DeepCopy() *FlowDistinguisherMethodDie {
 	return &FlowDistinguisherMethodDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *FlowDistinguisherMethodDie) DieSeal() *FlowDistinguisherMethodDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *FlowDistinguisherMethodDie) DieSealFeed(r flowcontrolv1beta1.FlowDistinguisherMethod) *FlowDistinguisherMethodDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *FlowDistinguisherMethodDie) DieSealFeedPtr(r *flowcontrolv1beta1.FlowDistinguisherMethod) *FlowDistinguisherMethodDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.FlowDistinguisherMethod{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *FlowDistinguisherMethodDie) DieSealRelease() flowcontrolv1beta1.FlowDistinguisherMethod {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *FlowDistinguisherMethodDie) DieSealReleasePtr() *flowcontrolv1beta1.FlowDistinguisherMethod {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *FlowDistinguisherMethodDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *FlowDistinguisherMethodDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // `type` is the type of flow distinguisher method
@@ -1153,6 +1386,7 @@ var PolicyRulesWithSubjectsBlank = (&PolicyRulesWithSubjectsDie{}).DieFeed(flowc
 type PolicyRulesWithSubjectsDie struct {
 	mutable bool
 	r       flowcontrolv1beta1.PolicyRulesWithSubjects
+	seal    flowcontrolv1beta1.PolicyRulesWithSubjects
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1174,6 +1408,7 @@ func (d *PolicyRulesWithSubjectsDie) DieFeed(r flowcontrolv1beta1.PolicyRulesWit
 	return &PolicyRulesWithSubjectsDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1327,7 +1562,51 @@ func (d *PolicyRulesWithSubjectsDie) DeepCopy() *PolicyRulesWithSubjectsDie {
 	return &PolicyRulesWithSubjectsDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *PolicyRulesWithSubjectsDie) DieSeal() *PolicyRulesWithSubjectsDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *PolicyRulesWithSubjectsDie) DieSealFeed(r flowcontrolv1beta1.PolicyRulesWithSubjects) *PolicyRulesWithSubjectsDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *PolicyRulesWithSubjectsDie) DieSealFeedPtr(r *flowcontrolv1beta1.PolicyRulesWithSubjects) *PolicyRulesWithSubjectsDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.PolicyRulesWithSubjects{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *PolicyRulesWithSubjectsDie) DieSealRelease() flowcontrolv1beta1.PolicyRulesWithSubjects {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *PolicyRulesWithSubjectsDie) DieSealReleasePtr() *flowcontrolv1beta1.PolicyRulesWithSubjects {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *PolicyRulesWithSubjectsDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *PolicyRulesWithSubjectsDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // subjects is the list of normal user, serviceaccount, or group that this rule cares about.
@@ -1368,6 +1647,7 @@ var SubjectBlank = (&SubjectDie{}).DieFeed(flowcontrolv1beta1.Subject{})
 type SubjectDie struct {
 	mutable bool
 	r       flowcontrolv1beta1.Subject
+	seal    flowcontrolv1beta1.Subject
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1389,6 +1669,7 @@ func (d *SubjectDie) DieFeed(r flowcontrolv1beta1.Subject) *SubjectDie {
 	return &SubjectDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1542,7 +1823,51 @@ func (d *SubjectDie) DeepCopy() *SubjectDie {
 	return &SubjectDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *SubjectDie) DieSeal() *SubjectDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *SubjectDie) DieSealFeed(r flowcontrolv1beta1.Subject) *SubjectDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *SubjectDie) DieSealFeedPtr(r *flowcontrolv1beta1.Subject) *SubjectDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.Subject{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *SubjectDie) DieSealRelease() flowcontrolv1beta1.Subject {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *SubjectDie) DieSealReleasePtr() *flowcontrolv1beta1.Subject {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *SubjectDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *SubjectDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // `kind` indicates which one of the other fields is non-empty.
@@ -1580,6 +1905,7 @@ var UserSubjectBlank = (&UserSubjectDie{}).DieFeed(flowcontrolv1beta1.UserSubjec
 type UserSubjectDie struct {
 	mutable bool
 	r       flowcontrolv1beta1.UserSubject
+	seal    flowcontrolv1beta1.UserSubject
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1601,6 +1927,7 @@ func (d *UserSubjectDie) DieFeed(r flowcontrolv1beta1.UserSubject) *UserSubjectD
 	return &UserSubjectDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1754,7 +2081,51 @@ func (d *UserSubjectDie) DeepCopy() *UserSubjectDie {
 	return &UserSubjectDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *UserSubjectDie) DieSeal() *UserSubjectDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *UserSubjectDie) DieSealFeed(r flowcontrolv1beta1.UserSubject) *UserSubjectDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *UserSubjectDie) DieSealFeedPtr(r *flowcontrolv1beta1.UserSubject) *UserSubjectDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.UserSubject{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *UserSubjectDie) DieSealRelease() flowcontrolv1beta1.UserSubject {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *UserSubjectDie) DieSealReleasePtr() *flowcontrolv1beta1.UserSubject {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *UserSubjectDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *UserSubjectDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // `name` is the username that matches, or "*" to match all usernames.
@@ -1771,6 +2142,7 @@ var GroupSubjectBlank = (&GroupSubjectDie{}).DieFeed(flowcontrolv1beta1.GroupSub
 type GroupSubjectDie struct {
 	mutable bool
 	r       flowcontrolv1beta1.GroupSubject
+	seal    flowcontrolv1beta1.GroupSubject
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1792,6 +2164,7 @@ func (d *GroupSubjectDie) DieFeed(r flowcontrolv1beta1.GroupSubject) *GroupSubje
 	return &GroupSubjectDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1945,7 +2318,51 @@ func (d *GroupSubjectDie) DeepCopy() *GroupSubjectDie {
 	return &GroupSubjectDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *GroupSubjectDie) DieSeal() *GroupSubjectDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *GroupSubjectDie) DieSealFeed(r flowcontrolv1beta1.GroupSubject) *GroupSubjectDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *GroupSubjectDie) DieSealFeedPtr(r *flowcontrolv1beta1.GroupSubject) *GroupSubjectDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.GroupSubject{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *GroupSubjectDie) DieSealRelease() flowcontrolv1beta1.GroupSubject {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *GroupSubjectDie) DieSealReleasePtr() *flowcontrolv1beta1.GroupSubject {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *GroupSubjectDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *GroupSubjectDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // name is the user group that matches, or "*" to match all user groups.
@@ -1966,6 +2383,7 @@ var ServiceAccountSubjectBlank = (&ServiceAccountSubjectDie{}).DieFeed(flowcontr
 type ServiceAccountSubjectDie struct {
 	mutable bool
 	r       flowcontrolv1beta1.ServiceAccountSubject
+	seal    flowcontrolv1beta1.ServiceAccountSubject
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1987,6 +2405,7 @@ func (d *ServiceAccountSubjectDie) DieFeed(r flowcontrolv1beta1.ServiceAccountSu
 	return &ServiceAccountSubjectDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2140,7 +2559,51 @@ func (d *ServiceAccountSubjectDie) DeepCopy() *ServiceAccountSubjectDie {
 	return &ServiceAccountSubjectDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ServiceAccountSubjectDie) DieSeal() *ServiceAccountSubjectDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ServiceAccountSubjectDie) DieSealFeed(r flowcontrolv1beta1.ServiceAccountSubject) *ServiceAccountSubjectDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ServiceAccountSubjectDie) DieSealFeedPtr(r *flowcontrolv1beta1.ServiceAccountSubject) *ServiceAccountSubjectDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.ServiceAccountSubject{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ServiceAccountSubjectDie) DieSealRelease() flowcontrolv1beta1.ServiceAccountSubject {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ServiceAccountSubjectDie) DieSealReleasePtr() *flowcontrolv1beta1.ServiceAccountSubject {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ServiceAccountSubjectDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ServiceAccountSubjectDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // `namespace` is the namespace of matching ServiceAccount objects.
@@ -2166,6 +2629,7 @@ var ResourcePolicyRuleBlank = (&ResourcePolicyRuleDie{}).DieFeed(flowcontrolv1be
 type ResourcePolicyRuleDie struct {
 	mutable bool
 	r       flowcontrolv1beta1.ResourcePolicyRule
+	seal    flowcontrolv1beta1.ResourcePolicyRule
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2187,6 +2651,7 @@ func (d *ResourcePolicyRuleDie) DieFeed(r flowcontrolv1beta1.ResourcePolicyRule)
 	return &ResourcePolicyRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2340,7 +2805,51 @@ func (d *ResourcePolicyRuleDie) DeepCopy() *ResourcePolicyRuleDie {
 	return &ResourcePolicyRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ResourcePolicyRuleDie) DieSeal() *ResourcePolicyRuleDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ResourcePolicyRuleDie) DieSealFeed(r flowcontrolv1beta1.ResourcePolicyRule) *ResourcePolicyRuleDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ResourcePolicyRuleDie) DieSealFeedPtr(r *flowcontrolv1beta1.ResourcePolicyRule) *ResourcePolicyRuleDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.ResourcePolicyRule{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ResourcePolicyRuleDie) DieSealRelease() flowcontrolv1beta1.ResourcePolicyRule {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ResourcePolicyRuleDie) DieSealReleasePtr() *flowcontrolv1beta1.ResourcePolicyRule {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ResourcePolicyRuleDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ResourcePolicyRuleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // `verbs` is a list of matching verbs and may not be empty.
@@ -2421,6 +2930,7 @@ var NonResourcePolicyRuleBlank = (&NonResourcePolicyRuleDie{}).DieFeed(flowcontr
 type NonResourcePolicyRuleDie struct {
 	mutable bool
 	r       flowcontrolv1beta1.NonResourcePolicyRule
+	seal    flowcontrolv1beta1.NonResourcePolicyRule
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2442,6 +2952,7 @@ func (d *NonResourcePolicyRuleDie) DieFeed(r flowcontrolv1beta1.NonResourcePolic
 	return &NonResourcePolicyRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2595,7 +3106,51 @@ func (d *NonResourcePolicyRuleDie) DeepCopy() *NonResourcePolicyRuleDie {
 	return &NonResourcePolicyRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *NonResourcePolicyRuleDie) DieSeal() *NonResourcePolicyRuleDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *NonResourcePolicyRuleDie) DieSealFeed(r flowcontrolv1beta1.NonResourcePolicyRule) *NonResourcePolicyRuleDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *NonResourcePolicyRuleDie) DieSealFeedPtr(r *flowcontrolv1beta1.NonResourcePolicyRule) *NonResourcePolicyRuleDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.NonResourcePolicyRule{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *NonResourcePolicyRuleDie) DieSealRelease() flowcontrolv1beta1.NonResourcePolicyRule {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *NonResourcePolicyRuleDie) DieSealReleasePtr() *flowcontrolv1beta1.NonResourcePolicyRule {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *NonResourcePolicyRuleDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *NonResourcePolicyRuleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // `verbs` is a list of matching verbs and may not be empty.
@@ -2638,6 +3193,7 @@ type PriorityLevelConfigurationDie struct {
 	v1.FrozenObjectMeta
 	mutable bool
 	r       flowcontrolv1beta1.PriorityLevelConfiguration
+	seal    flowcontrolv1beta1.PriorityLevelConfiguration
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2661,6 +3217,7 @@ func (d *PriorityLevelConfigurationDie) DieFeed(r flowcontrolv1beta1.PriorityLev
 		FrozenObjectMeta: v1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -2827,7 +3384,51 @@ func (d *PriorityLevelConfigurationDie) DeepCopy() *PriorityLevelConfigurationDi
 		FrozenObjectMeta: v1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *PriorityLevelConfigurationDie) DieSeal() *PriorityLevelConfigurationDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *PriorityLevelConfigurationDie) DieSealFeed(r flowcontrolv1beta1.PriorityLevelConfiguration) *PriorityLevelConfigurationDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *PriorityLevelConfigurationDie) DieSealFeedPtr(r *flowcontrolv1beta1.PriorityLevelConfiguration) *PriorityLevelConfigurationDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.PriorityLevelConfiguration{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *PriorityLevelConfigurationDie) DieSealRelease() flowcontrolv1beta1.PriorityLevelConfiguration {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *PriorityLevelConfigurationDie) DieSealReleasePtr() *flowcontrolv1beta1.PriorityLevelConfiguration {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *PriorityLevelConfigurationDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *PriorityLevelConfigurationDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*PriorityLevelConfigurationDie)(nil)
@@ -2849,9 +3450,9 @@ func (d *PriorityLevelConfigurationDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &flowcontrolv1beta1.PriorityLevelConfiguration{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &flowcontrolv1beta1.PriorityLevelConfiguration{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -2950,6 +3551,7 @@ var PriorityLevelConfigurationSpecBlank = (&PriorityLevelConfigurationSpecDie{})
 type PriorityLevelConfigurationSpecDie struct {
 	mutable bool
 	r       flowcontrolv1beta1.PriorityLevelConfigurationSpec
+	seal    flowcontrolv1beta1.PriorityLevelConfigurationSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2971,6 +3573,7 @@ func (d *PriorityLevelConfigurationSpecDie) DieFeed(r flowcontrolv1beta1.Priorit
 	return &PriorityLevelConfigurationSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3124,7 +3727,51 @@ func (d *PriorityLevelConfigurationSpecDie) DeepCopy() *PriorityLevelConfigurati
 	return &PriorityLevelConfigurationSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *PriorityLevelConfigurationSpecDie) DieSeal() *PriorityLevelConfigurationSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *PriorityLevelConfigurationSpecDie) DieSealFeed(r flowcontrolv1beta1.PriorityLevelConfigurationSpec) *PriorityLevelConfigurationSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *PriorityLevelConfigurationSpecDie) DieSealFeedPtr(r *flowcontrolv1beta1.PriorityLevelConfigurationSpec) *PriorityLevelConfigurationSpecDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.PriorityLevelConfigurationSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *PriorityLevelConfigurationSpecDie) DieSealRelease() flowcontrolv1beta1.PriorityLevelConfigurationSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *PriorityLevelConfigurationSpecDie) DieSealReleasePtr() *flowcontrolv1beta1.PriorityLevelConfigurationSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *PriorityLevelConfigurationSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *PriorityLevelConfigurationSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // `type` indicates whether this priority level is subject to
@@ -3179,6 +3826,7 @@ var LimitedPriorityLevelConfigurationBlank = (&LimitedPriorityLevelConfiguration
 type LimitedPriorityLevelConfigurationDie struct {
 	mutable bool
 	r       flowcontrolv1beta1.LimitedPriorityLevelConfiguration
+	seal    flowcontrolv1beta1.LimitedPriorityLevelConfiguration
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3200,6 +3848,7 @@ func (d *LimitedPriorityLevelConfigurationDie) DieFeed(r flowcontrolv1beta1.Limi
 	return &LimitedPriorityLevelConfigurationDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3353,7 +4002,51 @@ func (d *LimitedPriorityLevelConfigurationDie) DeepCopy() *LimitedPriorityLevelC
 	return &LimitedPriorityLevelConfigurationDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *LimitedPriorityLevelConfigurationDie) DieSeal() *LimitedPriorityLevelConfigurationDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *LimitedPriorityLevelConfigurationDie) DieSealFeed(r flowcontrolv1beta1.LimitedPriorityLevelConfiguration) *LimitedPriorityLevelConfigurationDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *LimitedPriorityLevelConfigurationDie) DieSealFeedPtr(r *flowcontrolv1beta1.LimitedPriorityLevelConfiguration) *LimitedPriorityLevelConfigurationDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.LimitedPriorityLevelConfiguration{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *LimitedPriorityLevelConfigurationDie) DieSealRelease() flowcontrolv1beta1.LimitedPriorityLevelConfiguration {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *LimitedPriorityLevelConfigurationDie) DieSealReleasePtr() *flowcontrolv1beta1.LimitedPriorityLevelConfiguration {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *LimitedPriorityLevelConfigurationDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *LimitedPriorityLevelConfigurationDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // `assuredConcurrencyShares` (ACS) configures the execution
@@ -3447,6 +4140,7 @@ var LimitResponseBlank = (&LimitResponseDie{}).DieFeed(flowcontrolv1beta1.LimitR
 type LimitResponseDie struct {
 	mutable bool
 	r       flowcontrolv1beta1.LimitResponse
+	seal    flowcontrolv1beta1.LimitResponse
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3468,6 +4162,7 @@ func (d *LimitResponseDie) DieFeed(r flowcontrolv1beta1.LimitResponse) *LimitRes
 	return &LimitResponseDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3621,7 +4316,51 @@ func (d *LimitResponseDie) DeepCopy() *LimitResponseDie {
 	return &LimitResponseDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *LimitResponseDie) DieSeal() *LimitResponseDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *LimitResponseDie) DieSealFeed(r flowcontrolv1beta1.LimitResponse) *LimitResponseDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *LimitResponseDie) DieSealFeedPtr(r *flowcontrolv1beta1.LimitResponse) *LimitResponseDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.LimitResponse{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *LimitResponseDie) DieSealRelease() flowcontrolv1beta1.LimitResponse {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *LimitResponseDie) DieSealReleasePtr() *flowcontrolv1beta1.LimitResponse {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *LimitResponseDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *LimitResponseDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // `type` is "Queue" or "Reject".
@@ -3657,6 +4396,7 @@ var ExemptPriorityLevelConfigurationBlank = (&ExemptPriorityLevelConfigurationDi
 type ExemptPriorityLevelConfigurationDie struct {
 	mutable bool
 	r       flowcontrolv1beta1.ExemptPriorityLevelConfiguration
+	seal    flowcontrolv1beta1.ExemptPriorityLevelConfiguration
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3678,6 +4418,7 @@ func (d *ExemptPriorityLevelConfigurationDie) DieFeed(r flowcontrolv1beta1.Exemp
 	return &ExemptPriorityLevelConfigurationDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3831,7 +4572,51 @@ func (d *ExemptPriorityLevelConfigurationDie) DeepCopy() *ExemptPriorityLevelCon
 	return &ExemptPriorityLevelConfigurationDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ExemptPriorityLevelConfigurationDie) DieSeal() *ExemptPriorityLevelConfigurationDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ExemptPriorityLevelConfigurationDie) DieSealFeed(r flowcontrolv1beta1.ExemptPriorityLevelConfiguration) *ExemptPriorityLevelConfigurationDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ExemptPriorityLevelConfigurationDie) DieSealFeedPtr(r *flowcontrolv1beta1.ExemptPriorityLevelConfiguration) *ExemptPriorityLevelConfigurationDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.ExemptPriorityLevelConfiguration{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ExemptPriorityLevelConfigurationDie) DieSealRelease() flowcontrolv1beta1.ExemptPriorityLevelConfiguration {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ExemptPriorityLevelConfigurationDie) DieSealReleasePtr() *flowcontrolv1beta1.ExemptPriorityLevelConfiguration {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ExemptPriorityLevelConfigurationDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ExemptPriorityLevelConfigurationDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // `nominalConcurrencyShares` (NCS) contributes to the computation of the
@@ -3885,6 +4670,7 @@ var QueuingConfigurationBlank = (&QueuingConfigurationDie{}).DieFeed(flowcontrol
 type QueuingConfigurationDie struct {
 	mutable bool
 	r       flowcontrolv1beta1.QueuingConfiguration
+	seal    flowcontrolv1beta1.QueuingConfiguration
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3906,6 +4692,7 @@ func (d *QueuingConfigurationDie) DieFeed(r flowcontrolv1beta1.QueuingConfigurat
 	return &QueuingConfigurationDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -4059,7 +4846,51 @@ func (d *QueuingConfigurationDie) DeepCopy() *QueuingConfigurationDie {
 	return &QueuingConfigurationDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *QueuingConfigurationDie) DieSeal() *QueuingConfigurationDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *QueuingConfigurationDie) DieSealFeed(r flowcontrolv1beta1.QueuingConfiguration) *QueuingConfigurationDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *QueuingConfigurationDie) DieSealFeedPtr(r *flowcontrolv1beta1.QueuingConfiguration) *QueuingConfigurationDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.QueuingConfiguration{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *QueuingConfigurationDie) DieSealRelease() flowcontrolv1beta1.QueuingConfiguration {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *QueuingConfigurationDie) DieSealReleasePtr() *flowcontrolv1beta1.QueuingConfiguration {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *QueuingConfigurationDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *QueuingConfigurationDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // `queues` is the number of queues for this priority level. The
@@ -4124,6 +4955,7 @@ var PriorityLevelConfigurationStatusBlank = (&PriorityLevelConfigurationStatusDi
 type PriorityLevelConfigurationStatusDie struct {
 	mutable bool
 	r       flowcontrolv1beta1.PriorityLevelConfigurationStatus
+	seal    flowcontrolv1beta1.PriorityLevelConfigurationStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -4145,6 +4977,7 @@ func (d *PriorityLevelConfigurationStatusDie) DieFeed(r flowcontrolv1beta1.Prior
 	return &PriorityLevelConfigurationStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -4298,7 +5131,51 @@ func (d *PriorityLevelConfigurationStatusDie) DeepCopy() *PriorityLevelConfigura
 	return &PriorityLevelConfigurationStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *PriorityLevelConfigurationStatusDie) DieSeal() *PriorityLevelConfigurationStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *PriorityLevelConfigurationStatusDie) DieSealFeed(r flowcontrolv1beta1.PriorityLevelConfigurationStatus) *PriorityLevelConfigurationStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *PriorityLevelConfigurationStatusDie) DieSealFeedPtr(r *flowcontrolv1beta1.PriorityLevelConfigurationStatus) *PriorityLevelConfigurationStatusDie {
+	if r == nil {
+		r = &flowcontrolv1beta1.PriorityLevelConfigurationStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *PriorityLevelConfigurationStatusDie) DieSealRelease() flowcontrolv1beta1.PriorityLevelConfigurationStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *PriorityLevelConfigurationStatusDie) DieSealReleasePtr() *flowcontrolv1beta1.PriorityLevelConfigurationStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *PriorityLevelConfigurationStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *PriorityLevelConfigurationStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // `conditions` is the current state of "request-priority".

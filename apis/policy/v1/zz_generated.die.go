@@ -22,17 +22,20 @@ limitations under the License.
 package v1
 
 import (
-	json "encoding/json"
 	fmtx "fmt"
+	cmp "github.com/google/go-cmp/cmp"
 	policyv1 "k8s.io/api/policy/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	types "k8s.io/apimachinery/pkg/types"
 	intstr "k8s.io/apimachinery/pkg/util/intstr"
+	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
 	metav1 "reconciler.io/dies/apis/meta/v1"
+	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )
@@ -43,6 +46,7 @@ type PodDisruptionBudgetDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       policyv1.PodDisruptionBudget
+	seal    policyv1.PodDisruptionBudget
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -66,6 +70,7 @@ func (d *PodDisruptionBudgetDie) DieFeed(r policyv1.PodDisruptionBudget) *PodDis
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -232,7 +237,51 @@ func (d *PodDisruptionBudgetDie) DeepCopy() *PodDisruptionBudgetDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *PodDisruptionBudgetDie) DieSeal() *PodDisruptionBudgetDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *PodDisruptionBudgetDie) DieSealFeed(r policyv1.PodDisruptionBudget) *PodDisruptionBudgetDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *PodDisruptionBudgetDie) DieSealFeedPtr(r *policyv1.PodDisruptionBudget) *PodDisruptionBudgetDie {
+	if r == nil {
+		r = &policyv1.PodDisruptionBudget{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *PodDisruptionBudgetDie) DieSealRelease() policyv1.PodDisruptionBudget {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *PodDisruptionBudgetDie) DieSealReleasePtr() *policyv1.PodDisruptionBudget {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *PodDisruptionBudgetDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *PodDisruptionBudgetDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*PodDisruptionBudgetDie)(nil)
@@ -254,9 +303,9 @@ func (d *PodDisruptionBudgetDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &policyv1.PodDisruptionBudget{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &policyv1.PodDisruptionBudget{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -351,6 +400,7 @@ var PodDisruptionBudgetSpecBlank = (&PodDisruptionBudgetSpecDie{}).DieFeed(polic
 type PodDisruptionBudgetSpecDie struct {
 	mutable bool
 	r       policyv1.PodDisruptionBudgetSpec
+	seal    policyv1.PodDisruptionBudgetSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -372,6 +422,7 @@ func (d *PodDisruptionBudgetSpecDie) DieFeed(r policyv1.PodDisruptionBudgetSpec)
 	return &PodDisruptionBudgetSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -525,7 +576,51 @@ func (d *PodDisruptionBudgetSpecDie) DeepCopy() *PodDisruptionBudgetSpecDie {
 	return &PodDisruptionBudgetSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *PodDisruptionBudgetSpecDie) DieSeal() *PodDisruptionBudgetSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *PodDisruptionBudgetSpecDie) DieSealFeed(r policyv1.PodDisruptionBudgetSpec) *PodDisruptionBudgetSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *PodDisruptionBudgetSpecDie) DieSealFeedPtr(r *policyv1.PodDisruptionBudgetSpec) *PodDisruptionBudgetSpecDie {
+	if r == nil {
+		r = &policyv1.PodDisruptionBudgetSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *PodDisruptionBudgetSpecDie) DieSealRelease() policyv1.PodDisruptionBudgetSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *PodDisruptionBudgetSpecDie) DieSealReleasePtr() *policyv1.PodDisruptionBudgetSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *PodDisruptionBudgetSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *PodDisruptionBudgetSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // An eviction is allowed if at least "minAvailable" pods selected by
@@ -681,6 +776,7 @@ var PodDisruptionBudgetStatusBlank = (&PodDisruptionBudgetStatusDie{}).DieFeed(p
 type PodDisruptionBudgetStatusDie struct {
 	mutable bool
 	r       policyv1.PodDisruptionBudgetStatus
+	seal    policyv1.PodDisruptionBudgetStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -702,6 +798,7 @@ func (d *PodDisruptionBudgetStatusDie) DieFeed(r policyv1.PodDisruptionBudgetSta
 	return &PodDisruptionBudgetStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -855,7 +952,51 @@ func (d *PodDisruptionBudgetStatusDie) DeepCopy() *PodDisruptionBudgetStatusDie 
 	return &PodDisruptionBudgetStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *PodDisruptionBudgetStatusDie) DieSeal() *PodDisruptionBudgetStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *PodDisruptionBudgetStatusDie) DieSealFeed(r policyv1.PodDisruptionBudgetStatus) *PodDisruptionBudgetStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *PodDisruptionBudgetStatusDie) DieSealFeedPtr(r *policyv1.PodDisruptionBudgetStatus) *PodDisruptionBudgetStatusDie {
+	if r == nil {
+		r = &policyv1.PodDisruptionBudgetStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *PodDisruptionBudgetStatusDie) DieSealRelease() policyv1.PodDisruptionBudgetStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *PodDisruptionBudgetStatusDie) DieSealReleasePtr() *policyv1.PodDisruptionBudgetStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *PodDisruptionBudgetStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *PodDisruptionBudgetStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Most recent generation observed when updating this PDB status. DisruptionsAllowed and other

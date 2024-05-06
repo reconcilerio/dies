@@ -22,7 +22,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 )
 
 // +die
@@ -58,8 +58,8 @@ func (d *ObjectMetaDie) ControlledBy(obj runtime.Object, scheme *runtime.Scheme)
 		Kind:               gvks[0].Kind,
 		Name:               obj.(metav1.Object).GetName(),
 		UID:                obj.(metav1.Object).GetUID(),
-		BlockOwnerDeletion: pointer.Bool(true),
-		Controller:         pointer.Bool(true),
+		BlockOwnerDeletion: ptr.To(true),
+		Controller:         ptr.To(true),
 	})
 }
 

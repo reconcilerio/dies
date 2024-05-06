@@ -22,11 +22,14 @@ limitations under the License.
 package sandbox
 
 import (
-	json "encoding/json"
 	fmtx "fmt"
+	cmp "github.com/google/go-cmp/cmp"
 	runtime "k8s.io/apimachinery/pkg/runtime"
+	types "k8s.io/apimachinery/pkg/types"
+	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
+	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )
@@ -36,6 +39,7 @@ var DirectBlank = (&DirectDie{}).DieFeed(Direct{})
 type DirectDie struct {
 	mutable bool
 	r       Direct
+	seal    Direct
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -57,6 +61,7 @@ func (d *DirectDie) DieFeed(r Direct) *DirectDie {
 	return &DirectDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -210,7 +215,51 @@ func (d *DirectDie) DeepCopy() *DirectDie {
 	return &DirectDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *DirectDie) DieSeal() *DirectDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *DirectDie) DieSealFeed(r Direct) *DirectDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *DirectDie) DieSealFeedPtr(r *Direct) *DirectDie {
+	if r == nil {
+		r = &Direct{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *DirectDie) DieSealRelease() Direct {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *DirectDie) DieSealReleasePtr() *Direct {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *DirectDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *DirectDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 func (d *DirectDie) Hello(v string) *DirectDie {

@@ -22,7 +22,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 	diebatchv1 "reconciler.io/dies/apis/batch/v1"
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
@@ -61,7 +61,7 @@ func TestCronJob(t *testing.T) {
 							d.AddLabel("key", "value")
 						})
 						d.SpecDie(func(d *diebatchv1.JobSpecDie) {
-							d.Parallelism(pointer.Int32(1))
+							d.Parallelism(ptr.To(int32(1)))
 						})
 					})
 				}),
@@ -74,7 +74,7 @@ func TestCronJob(t *testing.T) {
 							},
 						},
 						Spec: batchv1.JobSpec{
-							Parallelism: pointer.Int32(1),
+							Parallelism: ptr.To(int32(1)),
 						},
 					},
 				},

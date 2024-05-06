@@ -22,15 +22,17 @@ limitations under the License.
 package v1
 
 import (
-	json "encoding/json"
 	fmtx "fmt"
+	cmp "github.com/google/go-cmp/cmp"
 	admissionv1 "k8s.io/api/admission/v1"
 	authenticationv1 "k8s.io/api/authentication/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	types "k8s.io/apimachinery/pkg/types"
+	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
+	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )
@@ -40,6 +42,7 @@ var AdmissionRequestBlank = (&AdmissionRequestDie{}).DieFeed(admissionv1.Admissi
 type AdmissionRequestDie struct {
 	mutable bool
 	r       admissionv1.AdmissionRequest
+	seal    admissionv1.AdmissionRequest
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -61,6 +64,7 @@ func (d *AdmissionRequestDie) DieFeed(r admissionv1.AdmissionRequest) *Admission
 	return &AdmissionRequestDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -214,7 +218,51 @@ func (d *AdmissionRequestDie) DeepCopy() *AdmissionRequestDie {
 	return &AdmissionRequestDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *AdmissionRequestDie) DieSeal() *AdmissionRequestDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *AdmissionRequestDie) DieSealFeed(r admissionv1.AdmissionRequest) *AdmissionRequestDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *AdmissionRequestDie) DieSealFeedPtr(r *admissionv1.AdmissionRequest) *AdmissionRequestDie {
+	if r == nil {
+		r = &admissionv1.AdmissionRequest{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *AdmissionRequestDie) DieSealRelease() admissionv1.AdmissionRequest {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *AdmissionRequestDie) DieSealReleasePtr() *admissionv1.AdmissionRequest {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *AdmissionRequestDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *AdmissionRequestDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // UID is an identifier for the individual request/response. It allows us to distinguish instances of requests which are
@@ -379,6 +427,7 @@ var AdmissionResponseBlank = (&AdmissionResponseDie{}).DieFeed(admissionv1.Admis
 type AdmissionResponseDie struct {
 	mutable bool
 	r       admissionv1.AdmissionResponse
+	seal    admissionv1.AdmissionResponse
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -400,6 +449,7 @@ func (d *AdmissionResponseDie) DieFeed(r admissionv1.AdmissionResponse) *Admissi
 	return &AdmissionResponseDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -553,7 +603,51 @@ func (d *AdmissionResponseDie) DeepCopy() *AdmissionResponseDie {
 	return &AdmissionResponseDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *AdmissionResponseDie) DieSeal() *AdmissionResponseDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *AdmissionResponseDie) DieSealFeed(r admissionv1.AdmissionResponse) *AdmissionResponseDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *AdmissionResponseDie) DieSealFeedPtr(r *admissionv1.AdmissionResponse) *AdmissionResponseDie {
+	if r == nil {
+		r = &admissionv1.AdmissionResponse{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *AdmissionResponseDie) DieSealRelease() admissionv1.AdmissionResponse {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *AdmissionResponseDie) DieSealReleasePtr() *admissionv1.AdmissionResponse {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *AdmissionResponseDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *AdmissionResponseDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // UID is an identifier for the individual request/response.
@@ -626,6 +720,7 @@ var AdmissionReviewBlank = (&AdmissionReviewDie{}).DieFeed(admissionv1.Admission
 type AdmissionReviewDie struct {
 	mutable bool
 	r       admissionv1.AdmissionReview
+	seal    admissionv1.AdmissionReview
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -647,6 +742,7 @@ func (d *AdmissionReviewDie) DieFeed(r admissionv1.AdmissionReview) *AdmissionRe
 	return &AdmissionReviewDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -800,7 +896,51 @@ func (d *AdmissionReviewDie) DeepCopy() *AdmissionReviewDie {
 	return &AdmissionReviewDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *AdmissionReviewDie) DieSeal() *AdmissionReviewDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *AdmissionReviewDie) DieSealFeed(r admissionv1.AdmissionReview) *AdmissionReviewDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *AdmissionReviewDie) DieSealFeedPtr(r *admissionv1.AdmissionReview) *AdmissionReviewDie {
+	if r == nil {
+		r = &admissionv1.AdmissionReview{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *AdmissionReviewDie) DieSealRelease() admissionv1.AdmissionReview {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *AdmissionReviewDie) DieSealReleasePtr() *admissionv1.AdmissionReview {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *AdmissionReviewDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *AdmissionReviewDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 func (d *AdmissionReviewDie) TypeMeta(v metav1.TypeMeta) *AdmissionReviewDie {
