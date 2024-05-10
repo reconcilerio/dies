@@ -21,7 +21,7 @@ import (
 	diecorev1 "reconciler.io/dies/apis/core/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=storage.k8s.io/v1,kind=VolumeAttachment
 type _ = storagev1.VolumeAttachment
 
 // +die

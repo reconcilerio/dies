@@ -23,7 +23,7 @@ import (
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=apps/v1,kind=StatefulSet
 type _ = appsv1.StatefulSet
 
 // +die

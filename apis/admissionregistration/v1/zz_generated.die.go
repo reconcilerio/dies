@@ -1405,9 +1405,6 @@ func (d *MutatingWebhookConfigurationDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *MutatingWebhookConfigurationDie) UnmarshalJSON(b []byte) error {
-	if d == MutatingWebhookConfigurationBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -1415,6 +1412,14 @@ func (d *MutatingWebhookConfigurationDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "admissionregistration.k8s.io/v1" and "MutatingWebhookConfiguration" respectively.
+func (d *MutatingWebhookConfigurationDie) DieDefaultTypeMetadata() *MutatingWebhookConfigurationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhookConfiguration) {
+		r.APIVersion = "admissionregistration.k8s.io/v1"
+		r.Kind = "MutatingWebhookConfiguration"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -1428,6 +1433,29 @@ func (d *MutatingWebhookConfigurationDie) APIVersion(v string) *MutatingWebhookC
 func (d *MutatingWebhookConfigurationDie) Kind(v string) *MutatingWebhookConfigurationDie {
 	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhookConfiguration) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *MutatingWebhookConfigurationDie) TypeMetadata(v apismetav1.TypeMeta) *MutatingWebhookConfigurationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhookConfiguration) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *MutatingWebhookConfigurationDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *MutatingWebhookConfigurationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhookConfiguration) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *MutatingWebhookConfigurationDie) Metadata(v apismetav1.ObjectMeta) *MutatingWebhookConfigurationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhookConfiguration) {
+		r.ObjectMeta = v
 	})
 }
 
@@ -2135,9 +2163,6 @@ func (d *ValidatingWebhookConfigurationDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *ValidatingWebhookConfigurationDie) UnmarshalJSON(b []byte) error {
-	if d == ValidatingWebhookConfigurationBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -2145,6 +2170,14 @@ func (d *ValidatingWebhookConfigurationDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "admissionregistration.k8s.io/v1" and "ValidatingWebhookConfiguration" respectively.
+func (d *ValidatingWebhookConfigurationDie) DieDefaultTypeMetadata() *ValidatingWebhookConfigurationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhookConfiguration) {
+		r.APIVersion = "admissionregistration.k8s.io/v1"
+		r.Kind = "ValidatingWebhookConfiguration"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -2158,6 +2191,29 @@ func (d *ValidatingWebhookConfigurationDie) APIVersion(v string) *ValidatingWebh
 func (d *ValidatingWebhookConfigurationDie) Kind(v string) *ValidatingWebhookConfigurationDie {
 	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhookConfiguration) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *ValidatingWebhookConfigurationDie) TypeMetadata(v apismetav1.TypeMeta) *ValidatingWebhookConfigurationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhookConfiguration) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *ValidatingWebhookConfigurationDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *ValidatingWebhookConfigurationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhookConfiguration) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *ValidatingWebhookConfigurationDie) Metadata(v apismetav1.ObjectMeta) *ValidatingWebhookConfigurationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingWebhookConfiguration) {
+		r.ObjectMeta = v
 	})
 }
 

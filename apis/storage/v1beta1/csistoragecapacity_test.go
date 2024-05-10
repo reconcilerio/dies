@@ -45,6 +45,7 @@ func TestCSIStorageCapacity(t *testing.T) {
 					d.Name("my-name")
 				}),
 			expected: storagev1beta1.CSIStorageCapacity{
+				TypeMeta: metav1.TypeMeta{},
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: "my-namespace",
 					Name:      "my-name",

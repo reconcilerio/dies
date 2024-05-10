@@ -250,9 +250,6 @@ func (d *HorizontalPodAutoscalerDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *HorizontalPodAutoscalerDie) UnmarshalJSON(b []byte) error {
-	if d == HorizontalPodAutoscalerBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -260,6 +257,14 @@ func (d *HorizontalPodAutoscalerDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "autoscaling/v1" and "HorizontalPodAutoscaler" respectively.
+func (d *HorizontalPodAutoscalerDie) DieDefaultTypeMetadata() *HorizontalPodAutoscalerDie {
+	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
+		r.APIVersion = "autoscaling/v1"
+		r.Kind = "HorizontalPodAutoscaler"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -273,6 +278,29 @@ func (d *HorizontalPodAutoscalerDie) APIVersion(v string) *HorizontalPodAutoscal
 func (d *HorizontalPodAutoscalerDie) Kind(v string) *HorizontalPodAutoscalerDie {
 	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *HorizontalPodAutoscalerDie) TypeMetadata(v apismetav1.TypeMeta) *HorizontalPodAutoscalerDie {
+	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *HorizontalPodAutoscalerDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *HorizontalPodAutoscalerDie {
+	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *HorizontalPodAutoscalerDie) Metadata(v apismetav1.ObjectMeta) *HorizontalPodAutoscalerDie {
+	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscaler) {
+		r.ObjectMeta = v
 	})
 }
 

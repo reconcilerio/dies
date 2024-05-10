@@ -22,7 +22,7 @@ import (
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=v1,kind=PersistentVolumeClaim
 type _ = corev1.PersistentVolumeClaim
 
 // +die

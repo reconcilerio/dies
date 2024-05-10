@@ -21,7 +21,7 @@ import (
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=apiregistration.k8s.io/v1,kind=APIService
 type _ = apiregistrationv1.APIService
 
 // +die

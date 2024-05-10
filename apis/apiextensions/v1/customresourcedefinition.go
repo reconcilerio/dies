@@ -21,7 +21,7 @@ import (
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=apiextensions.k8s.io/v1,kind=CustomResourceDefinition
 type _ = apiextensionsv1.CustomResourceDefinition
 
 // +die

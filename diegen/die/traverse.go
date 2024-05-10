@@ -477,9 +477,6 @@ func (c *copyMethodMaker) generateJSONMethodsFor(die Die) {
 
 	c.Linef("")
 	c.Linef("func (d *%s) UnmarshalJSON(b []byte) error {", die.Type)
-	c.Linef("	if d == %s {", die.Blank)
-	c.Linef("		return %s(\"cannot unmarshal into the blank die, create a copy first\")", c.AliasedRef("fmt", "Errorf"))
-	c.Linef("	}")
 	c.Linef("	if !d.mutable {")
 	c.Linef("		return %s(\"cannot unmarshal into immutable dies, create a mutable version first\")", c.AliasedRef("fmt", "Errorf"))
 	c.Linef("	}")
@@ -491,6 +488,17 @@ func (c *copyMethodMaker) generateJSONMethodsFor(die Die) {
 }
 
 func (c *copyMethodMaker) generateMetadataDieMethodFor(die Die) {
+	if die.APIVersion != "" || die.Kind != "" {
+		c.Linef("")
+		c.Linef("// DieDefaultTypeMetadata sets the APIVersion and Kind to %q and %q respectively.", die.APIVersion, die.Kind)
+		c.Linef("func (d *%s) DieDefaultTypeMetadata() *%s {", die.Type, die.Type)
+		c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
+		c.Linef("		r.APIVersion = %q", die.APIVersion)
+		c.Linef("		r.Kind = %q", die.Kind)
+		c.Linef("	})")
+		c.Linef("}")
+	}
+
 	c.Linef("")
 	c.Linef("// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources")
 	c.Linef("func (d *%s) APIVersion(v string) *%s {", die.Type, die.Type)
@@ -504,6 +512,32 @@ func (c *copyMethodMaker) generateMetadataDieMethodFor(die Die) {
 	c.Linef("func (d *%s) Kind(v string) *%s {", die.Type, die.Type)
 	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
 	c.Linef("		r.Kind = v")
+	c.Linef("	})")
+	c.Linef("}")
+
+	c.Linef("")
+	c.Linef("// TypeMetadata standard object's type metadata.")
+	c.Linef("func (d *%s) TypeMetadata(v %s) *%s {", die.Type, c.AliasedRef("k8s.io/apimachinery/pkg/apis/meta/v1", "TypeMeta"), die.Type)
+	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
+	c.Linef("		r.TypeMeta = v")
+	c.Linef("	})")
+	c.Linef("}")
+
+	c.Linef("")
+	c.Linef("// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.")
+	c.Linef("func (d *%s) TypeMetadataDie(fn func(d *%s)) *%s {", die.Type, c.AliasedRef("reconciler.io/dies/apis/meta/v1", "TypeMetaDie"), die.Type)
+	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
+	c.Linef("		d := %s.DieImmutable(false).DieFeed(r.TypeMeta)", c.AliasedRef("reconciler.io/dies/apis/meta/v1", "TypeMetaBlank"))
+	c.Linef("		fn(d)")
+	c.Linef("		r.TypeMeta = d.DieRelease()")
+	c.Linef("	})")
+	c.Linef("}")
+
+	c.Linef("")
+	c.Linef("// Metadata standard object's metadata.")
+	c.Linef("func (d *%s) Metadata(v %s) *%s {", die.Type, c.AliasedRef("k8s.io/apimachinery/pkg/apis/meta/v1", "ObjectMeta"), die.Type)
+	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
+	c.Linef("		r.ObjectMeta = v")
 	c.Linef("	})")
 	c.Linef("}")
 

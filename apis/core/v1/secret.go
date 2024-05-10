@@ -20,7 +20,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// +die:object=true,ignore={Data,StringData}
+// +die:object=true,apiVersion=v1,kind=Secret,ignore={Data,StringData}
 type Secret = corev1.Secret
 
 func (d *SecretDie) Data(v map[string][]byte) *SecretDie {

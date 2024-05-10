@@ -21,7 +21,7 @@ import (
 	diecorev1 "reconciler.io/dies/apis/core/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=discovery.k8s.io/v1,kind=EndpointSlice
 type _ = discoveryv1.EndpointSlice
 
 func (d *EndpointSliceDie) EndpointsDie(endpoints ...*EndpointDie) *EndpointSliceDie {

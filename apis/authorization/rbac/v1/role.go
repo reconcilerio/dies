@@ -20,7 +20,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=rbac.authorization.k8s.io/v1,kind=Role
 type _ = rbacv1.Role
 
 func (d *RoleDie) RulesDie(rules ...*PolicyRuleDie) *RoleDie {

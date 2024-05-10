@@ -97,6 +97,7 @@ func TestStatefulSet(t *testing.T) {
 				SpecDie(func(d *dieappsv1.StatefulSetSpecDie) {
 					d.VolumeClaimTemplatesDie(
 						diecorev1.PersistentVolumeClaimBlank.
+							TypeMetadata(metav1.TypeMeta{}).
 							SpecDie(func(d *diecorev1.PersistentVolumeClaimSpecDie) {
 								d.VolumeName("my-volume")
 							}),

@@ -20,7 +20,7 @@ import (
 	authorizationv1 "k8s.io/api/authorization/v1"
 )
 
-// +die:object=true,status=SubjectAccessReviewStatus
+// +die:object=true,apiVersion=authorization.k8s.io/v1,kind=SelfSubjectAccessReview,status=SubjectAccessReviewStatus
 type _ = authorizationv1.SelfSubjectAccessReview
 
 // +die

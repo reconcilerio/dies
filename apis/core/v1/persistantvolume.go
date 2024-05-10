@@ -21,7 +21,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=v1,kind=PersistentVolume
 type _ = corev1.PersistentVolume
 
 // +die

@@ -25,6 +25,7 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	flowcontrolv1beta1 "k8s.io/api/flowcontrol/v1beta1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -249,9 +250,6 @@ func (d *FlowSchemaDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *FlowSchemaDie) UnmarshalJSON(b []byte) error {
-	if d == FlowSchemaBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -259,6 +257,14 @@ func (d *FlowSchemaDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "flowcontrol.apiserver.k8s.io/v1beta1" and "FlowSchema" respectively.
+func (d *FlowSchemaDie) DieDefaultTypeMetadata() *FlowSchemaDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.FlowSchema) {
+		r.APIVersion = "flowcontrol.apiserver.k8s.io/v1beta1"
+		r.Kind = "FlowSchema"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -272,6 +278,29 @@ func (d *FlowSchemaDie) APIVersion(v string) *FlowSchemaDie {
 func (d *FlowSchemaDie) Kind(v string) *FlowSchemaDie {
 	return d.DieStamp(func(r *flowcontrolv1beta1.FlowSchema) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *FlowSchemaDie) TypeMetadata(v metav1.TypeMeta) *FlowSchemaDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.FlowSchema) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *FlowSchemaDie) TypeMetadataDie(fn func(d *v1.TypeMetaDie)) *FlowSchemaDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.FlowSchema) {
+		d := v1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *FlowSchemaDie) Metadata(v metav1.ObjectMeta) *FlowSchemaDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.FlowSchema) {
+		r.ObjectMeta = v
 	})
 }
 
@@ -2817,9 +2846,6 @@ func (d *PriorityLevelConfigurationDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *PriorityLevelConfigurationDie) UnmarshalJSON(b []byte) error {
-	if d == PriorityLevelConfigurationBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -2827,6 +2853,14 @@ func (d *PriorityLevelConfigurationDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "flowcontrol.apiserver.k8s.io/v1beta1" and "PriorityLevelConfiguration" respectively.
+func (d *PriorityLevelConfigurationDie) DieDefaultTypeMetadata() *PriorityLevelConfigurationDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.PriorityLevelConfiguration) {
+		r.APIVersion = "flowcontrol.apiserver.k8s.io/v1beta1"
+		r.Kind = "PriorityLevelConfiguration"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -2840,6 +2874,29 @@ func (d *PriorityLevelConfigurationDie) APIVersion(v string) *PriorityLevelConfi
 func (d *PriorityLevelConfigurationDie) Kind(v string) *PriorityLevelConfigurationDie {
 	return d.DieStamp(func(r *flowcontrolv1beta1.PriorityLevelConfiguration) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *PriorityLevelConfigurationDie) TypeMetadata(v metav1.TypeMeta) *PriorityLevelConfigurationDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.PriorityLevelConfiguration) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *PriorityLevelConfigurationDie) TypeMetadataDie(fn func(d *v1.TypeMetaDie)) *PriorityLevelConfigurationDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.PriorityLevelConfiguration) {
+		d := v1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *PriorityLevelConfigurationDie) Metadata(v metav1.ObjectMeta) *PriorityLevelConfigurationDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.PriorityLevelConfiguration) {
+		r.ObjectMeta = v
 	})
 }
 
