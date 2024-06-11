@@ -20,7 +20,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=v1,kind=Binding
 type _ = corev1.Binding
 
 func (d *BindingDie) TargetDie(fn func(d *ObjectReferenceDie)) *BindingDie {

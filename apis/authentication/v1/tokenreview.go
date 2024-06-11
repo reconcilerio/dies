@@ -20,7 +20,7 @@ import (
 	authenticationv1 "k8s.io/api/authentication/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=authentication.k8s.io/v1,kind=TokenReview
 type _ = authenticationv1.TokenReview
 
 // +die

@@ -251,9 +251,6 @@ func (d *TokenReviewDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *TokenReviewDie) UnmarshalJSON(b []byte) error {
-	if d == TokenReviewBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -261,6 +258,14 @@ func (d *TokenReviewDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "authentication.k8s.io/v1" and "TokenReview" respectively.
+func (d *TokenReviewDie) DieDefaultTypeMetadata() *TokenReviewDie {
+	return d.DieStamp(func(r *authenticationv1.TokenReview) {
+		r.APIVersion = "authentication.k8s.io/v1"
+		r.Kind = "TokenReview"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -274,6 +279,29 @@ func (d *TokenReviewDie) APIVersion(v string) *TokenReviewDie {
 func (d *TokenReviewDie) Kind(v string) *TokenReviewDie {
 	return d.DieStamp(func(r *authenticationv1.TokenReview) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *TokenReviewDie) TypeMetadata(v apismetav1.TypeMeta) *TokenReviewDie {
+	return d.DieStamp(func(r *authenticationv1.TokenReview) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *TokenReviewDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *TokenReviewDie {
+	return d.DieStamp(func(r *authenticationv1.TokenReview) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *TokenReviewDie) Metadata(v apismetav1.ObjectMeta) *TokenReviewDie {
+	return d.DieStamp(func(r *authenticationv1.TokenReview) {
+		r.ObjectMeta = v
 	})
 }
 

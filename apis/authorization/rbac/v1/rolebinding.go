@@ -20,7 +20,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=rbac.authorization.k8s.io/v1,kind=RoleBinding
 type _ = rbacv1.RoleBinding
 
 func (d *RoleBindingDie) SubjectsDie(subjects ...*SubjectDie) *RoleBindingDie {

@@ -25,6 +25,7 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	authorizationv1 "k8s.io/api/authorization/v1"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -249,9 +250,6 @@ func (d *LocalSubjectAccessReviewDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *LocalSubjectAccessReviewDie) UnmarshalJSON(b []byte) error {
-	if d == LocalSubjectAccessReviewBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -259,6 +257,14 @@ func (d *LocalSubjectAccessReviewDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "authorization.k8s.io/v1" and "LocalSubjectAccessReview" respectively.
+func (d *LocalSubjectAccessReviewDie) DieDefaultTypeMetadata() *LocalSubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.LocalSubjectAccessReview) {
+		r.APIVersion = "authorization.k8s.io/v1"
+		r.Kind = "LocalSubjectAccessReview"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -272,6 +278,29 @@ func (d *LocalSubjectAccessReviewDie) APIVersion(v string) *LocalSubjectAccessRe
 func (d *LocalSubjectAccessReviewDie) Kind(v string) *LocalSubjectAccessReviewDie {
 	return d.DieStamp(func(r *authorizationv1.LocalSubjectAccessReview) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *LocalSubjectAccessReviewDie) TypeMetadata(v apismetav1.TypeMeta) *LocalSubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.LocalSubjectAccessReview) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *LocalSubjectAccessReviewDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *LocalSubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.LocalSubjectAccessReview) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *LocalSubjectAccessReviewDie) Metadata(v apismetav1.ObjectMeta) *LocalSubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.LocalSubjectAccessReview) {
+		r.ObjectMeta = v
 	})
 }
 
@@ -514,9 +543,6 @@ func (d *SelfSubjectAccessReviewDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *SelfSubjectAccessReviewDie) UnmarshalJSON(b []byte) error {
-	if d == SelfSubjectAccessReviewBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -524,6 +550,14 @@ func (d *SelfSubjectAccessReviewDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "authorization.k8s.io/v1" and "SelfSubjectAccessReview" respectively.
+func (d *SelfSubjectAccessReviewDie) DieDefaultTypeMetadata() *SelfSubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SelfSubjectAccessReview) {
+		r.APIVersion = "authorization.k8s.io/v1"
+		r.Kind = "SelfSubjectAccessReview"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -537,6 +571,29 @@ func (d *SelfSubjectAccessReviewDie) APIVersion(v string) *SelfSubjectAccessRevi
 func (d *SelfSubjectAccessReviewDie) Kind(v string) *SelfSubjectAccessReviewDie {
 	return d.DieStamp(func(r *authorizationv1.SelfSubjectAccessReview) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *SelfSubjectAccessReviewDie) TypeMetadata(v apismetav1.TypeMeta) *SelfSubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SelfSubjectAccessReview) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *SelfSubjectAccessReviewDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *SelfSubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SelfSubjectAccessReview) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *SelfSubjectAccessReviewDie) Metadata(v apismetav1.ObjectMeta) *SelfSubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SelfSubjectAccessReview) {
+		r.ObjectMeta = v
 	})
 }
 
@@ -991,9 +1048,6 @@ func (d *SelfSubjectRulesReviewDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *SelfSubjectRulesReviewDie) UnmarshalJSON(b []byte) error {
-	if d == SelfSubjectRulesReviewBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -1001,6 +1055,14 @@ func (d *SelfSubjectRulesReviewDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "authorization.k8s.io/v1" and "SelfSubjectRulesReview" respectively.
+func (d *SelfSubjectRulesReviewDie) DieDefaultTypeMetadata() *SelfSubjectRulesReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SelfSubjectRulesReview) {
+		r.APIVersion = "authorization.k8s.io/v1"
+		r.Kind = "SelfSubjectRulesReview"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -1014,6 +1076,29 @@ func (d *SelfSubjectRulesReviewDie) APIVersion(v string) *SelfSubjectRulesReview
 func (d *SelfSubjectRulesReviewDie) Kind(v string) *SelfSubjectRulesReviewDie {
 	return d.DieStamp(func(r *authorizationv1.SelfSubjectRulesReview) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *SelfSubjectRulesReviewDie) TypeMetadata(v apismetav1.TypeMeta) *SelfSubjectRulesReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SelfSubjectRulesReview) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *SelfSubjectRulesReviewDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *SelfSubjectRulesReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SelfSubjectRulesReview) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *SelfSubjectRulesReviewDie) Metadata(v apismetav1.ObjectMeta) *SelfSubjectRulesReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SelfSubjectRulesReview) {
+		r.ObjectMeta = v
 	})
 }
 
@@ -2093,9 +2178,6 @@ func (d *SubjectAccessReviewDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *SubjectAccessReviewDie) UnmarshalJSON(b []byte) error {
-	if d == SubjectAccessReviewBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -2103,6 +2185,14 @@ func (d *SubjectAccessReviewDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "authorization.k8s.io/v1" and "SubjectAccessReview" respectively.
+func (d *SubjectAccessReviewDie) DieDefaultTypeMetadata() *SubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SubjectAccessReview) {
+		r.APIVersion = "authorization.k8s.io/v1"
+		r.Kind = "SubjectAccessReview"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -2116,6 +2206,29 @@ func (d *SubjectAccessReviewDie) APIVersion(v string) *SubjectAccessReviewDie {
 func (d *SubjectAccessReviewDie) Kind(v string) *SubjectAccessReviewDie {
 	return d.DieStamp(func(r *authorizationv1.SubjectAccessReview) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *SubjectAccessReviewDie) TypeMetadata(v apismetav1.TypeMeta) *SubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SubjectAccessReview) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *SubjectAccessReviewDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *SubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SubjectAccessReview) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *SubjectAccessReviewDie) Metadata(v apismetav1.ObjectMeta) *SubjectAccessReviewDie {
+	return d.DieStamp(func(r *authorizationv1.SubjectAccessReview) {
+		r.ObjectMeta = v
 	})
 }
 

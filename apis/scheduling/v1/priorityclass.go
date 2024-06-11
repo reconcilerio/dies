@@ -20,5 +20,5 @@ import (
 	schedulingv1 "k8s.io/api/scheduling/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=scheduling.k8s.io/v1,kind=PriorityClass
 type _ = schedulingv1.PriorityClass

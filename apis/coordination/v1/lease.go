@@ -20,7 +20,7 @@ import (
 	coordinationv1 "k8s.io/api/coordination/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=coordination.k8s.io/v1,kind=Lease
 type _ = coordinationv1.Lease
 
 // +die

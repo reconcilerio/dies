@@ -37,6 +37,8 @@ var (
 
 type Die struct {
 	Object       bool     `marker:"object,optional"`
+	APIVersion   string   `marker:"apiVersion,optional"`
+	Kind         string   `marker:"kind,optional"`
 	IgnoreFields []string `marker:"ignore,optional"`
 
 	Target        string `marker:",optional"`

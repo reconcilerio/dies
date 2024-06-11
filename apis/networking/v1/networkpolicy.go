@@ -21,7 +21,7 @@ import (
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=networking.k8s.io/v1,kind=NetworkPolicy
 type _ = networkingv1.NetworkPolicy
 
 // +die

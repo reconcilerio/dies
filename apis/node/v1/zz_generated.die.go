@@ -26,6 +26,7 @@ import (
 	fmtx "fmt"
 	corev1 "k8s.io/api/core/v1"
 	nodev1 "k8s.io/api/node/v1"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -250,9 +251,6 @@ func (d *RuntimeClassDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *RuntimeClassDie) UnmarshalJSON(b []byte) error {
-	if d == RuntimeClassBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -260,6 +258,14 @@ func (d *RuntimeClassDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "node.k8s.io/v1" and "RuntimeClass" respectively.
+func (d *RuntimeClassDie) DieDefaultTypeMetadata() *RuntimeClassDie {
+	return d.DieStamp(func(r *nodev1.RuntimeClass) {
+		r.APIVersion = "node.k8s.io/v1"
+		r.Kind = "RuntimeClass"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -273,6 +279,29 @@ func (d *RuntimeClassDie) APIVersion(v string) *RuntimeClassDie {
 func (d *RuntimeClassDie) Kind(v string) *RuntimeClassDie {
 	return d.DieStamp(func(r *nodev1.RuntimeClass) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *RuntimeClassDie) TypeMetadata(v apismetav1.TypeMeta) *RuntimeClassDie {
+	return d.DieStamp(func(r *nodev1.RuntimeClass) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *RuntimeClassDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *RuntimeClassDie {
+	return d.DieStamp(func(r *nodev1.RuntimeClass) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *RuntimeClassDie) Metadata(v apismetav1.ObjectMeta) *RuntimeClassDie {
+	return d.DieStamp(func(r *nodev1.RuntimeClass) {
+		r.ObjectMeta = v
 	})
 }
 

@@ -22,7 +22,7 @@ import (
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=policy/v1,kind=PodDisruptionBudget
 type _ = policyv1.PodDisruptionBudget
 
 // +die

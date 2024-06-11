@@ -23,7 +23,7 @@ import (
 	diecorev1 "reconciler.io/dies/apis/core/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=node.k8s.io/v1,kind=RuntimeClass
 type _ = nodev1.RuntimeClass
 
 // +die

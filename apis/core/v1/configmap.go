@@ -20,7 +20,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// +die:object=true,ignore={BinaryData,Data}
+// +die:object=true,apiVersion=v1,kind=ConfigMap,ignore={BinaryData,Data}
 type _ = corev1.ConfigMap
 
 func (d *ConfigMapDie) Data(v map[string]string) *ConfigMapDie {

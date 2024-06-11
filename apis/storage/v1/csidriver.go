@@ -20,7 +20,7 @@ import (
 	storagev1 "k8s.io/api/storage/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=storage.k8s.io/v1,kind=CSIDriver
 type _ = storagev1.CSIDriver
 
 // +die

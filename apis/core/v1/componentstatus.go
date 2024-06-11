@@ -21,7 +21,7 @@ import (
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=v1,kind=ComponentStatus
 type _ = corev1.ComponentStatus
 
 func (d *ComponentStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *ComponentStatusDie {

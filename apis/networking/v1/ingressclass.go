@@ -20,7 +20,7 @@ import (
 	networkingv1 "k8s.io/api/networking/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=networking.k8s.io/v1,kind=IngressClass
 type _ = networkingv1.IngressClass
 
 // +die

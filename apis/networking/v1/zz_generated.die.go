@@ -252,9 +252,6 @@ func (d *IngressDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *IngressDie) UnmarshalJSON(b []byte) error {
-	if d == IngressBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -262,6 +259,14 @@ func (d *IngressDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "networking.k8s.io/v1" and "Ingress" respectively.
+func (d *IngressDie) DieDefaultTypeMetadata() *IngressDie {
+	return d.DieStamp(func(r *networkingv1.Ingress) {
+		r.APIVersion = "networking.k8s.io/v1"
+		r.Kind = "Ingress"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -275,6 +280,29 @@ func (d *IngressDie) APIVersion(v string) *IngressDie {
 func (d *IngressDie) Kind(v string) *IngressDie {
 	return d.DieStamp(func(r *networkingv1.Ingress) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *IngressDie) TypeMetadata(v apismetav1.TypeMeta) *IngressDie {
+	return d.DieStamp(func(r *networkingv1.Ingress) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *IngressDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *IngressDie {
+	return d.DieStamp(func(r *networkingv1.Ingress) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *IngressDie) Metadata(v apismetav1.ObjectMeta) *IngressDie {
+	return d.DieStamp(func(r *networkingv1.Ingress) {
+		r.ObjectMeta = v
 	})
 }
 
@@ -3065,9 +3093,6 @@ func (d *IngressClassDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *IngressClassDie) UnmarshalJSON(b []byte) error {
-	if d == IngressClassBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -3075,6 +3100,14 @@ func (d *IngressClassDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "networking.k8s.io/v1" and "IngressClass" respectively.
+func (d *IngressClassDie) DieDefaultTypeMetadata() *IngressClassDie {
+	return d.DieStamp(func(r *networkingv1.IngressClass) {
+		r.APIVersion = "networking.k8s.io/v1"
+		r.Kind = "IngressClass"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -3088,6 +3121,29 @@ func (d *IngressClassDie) APIVersion(v string) *IngressClassDie {
 func (d *IngressClassDie) Kind(v string) *IngressClassDie {
 	return d.DieStamp(func(r *networkingv1.IngressClass) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *IngressClassDie) TypeMetadata(v apismetav1.TypeMeta) *IngressClassDie {
+	return d.DieStamp(func(r *networkingv1.IngressClass) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *IngressClassDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *IngressClassDie {
+	return d.DieStamp(func(r *networkingv1.IngressClass) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *IngressClassDie) Metadata(v apismetav1.ObjectMeta) *IngressClassDie {
+	return d.DieStamp(func(r *networkingv1.IngressClass) {
+		r.ObjectMeta = v
 	})
 }
 
@@ -3769,9 +3825,6 @@ func (d *NetworkPolicyDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *NetworkPolicyDie) UnmarshalJSON(b []byte) error {
-	if d == NetworkPolicyBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -3779,6 +3832,14 @@ func (d *NetworkPolicyDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "networking.k8s.io/v1" and "NetworkPolicy" respectively.
+func (d *NetworkPolicyDie) DieDefaultTypeMetadata() *NetworkPolicyDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
+		r.APIVersion = "networking.k8s.io/v1"
+		r.Kind = "NetworkPolicy"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -3792,6 +3853,29 @@ func (d *NetworkPolicyDie) APIVersion(v string) *NetworkPolicyDie {
 func (d *NetworkPolicyDie) Kind(v string) *NetworkPolicyDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *NetworkPolicyDie) TypeMetadata(v apismetav1.TypeMeta) *NetworkPolicyDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *NetworkPolicyDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *NetworkPolicyDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *NetworkPolicyDie) Metadata(v apismetav1.ObjectMeta) *NetworkPolicyDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicy) {
+		r.ObjectMeta = v
 	})
 }
 

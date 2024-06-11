@@ -250,9 +250,6 @@ func (d *LeaseDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *LeaseDie) UnmarshalJSON(b []byte) error {
-	if d == LeaseBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -260,6 +257,14 @@ func (d *LeaseDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "coordination.k8s.io/v1" and "Lease" respectively.
+func (d *LeaseDie) DieDefaultTypeMetadata() *LeaseDie {
+	return d.DieStamp(func(r *coordinationv1.Lease) {
+		r.APIVersion = "coordination.k8s.io/v1"
+		r.Kind = "Lease"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -273,6 +278,29 @@ func (d *LeaseDie) APIVersion(v string) *LeaseDie {
 func (d *LeaseDie) Kind(v string) *LeaseDie {
 	return d.DieStamp(func(r *coordinationv1.Lease) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *LeaseDie) TypeMetadata(v apismetav1.TypeMeta) *LeaseDie {
+	return d.DieStamp(func(r *coordinationv1.Lease) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *LeaseDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *LeaseDie {
+	return d.DieStamp(func(r *coordinationv1.Lease) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *LeaseDie) Metadata(v apismetav1.ObjectMeta) *LeaseDie {
+	return d.DieStamp(func(r *coordinationv1.Lease) {
+		r.ObjectMeta = v
 	})
 }
 

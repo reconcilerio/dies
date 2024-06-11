@@ -20,7 +20,7 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=batch/v1,kind=CronJob
 type _ = batchv1.CronJob
 
 // +die

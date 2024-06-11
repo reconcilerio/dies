@@ -21,7 +21,7 @@ import (
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=admissionregistration.k8s.io/v1,kind=MutatingWebhookConfiguration
 type _ = admissionregistrationv1.MutatingWebhookConfiguration
 
 func (d *MutatingWebhookConfigurationDie) WebhookDie(name string, fn func(d *MutatingWebhookDie)) *MutatingWebhookConfigurationDie {

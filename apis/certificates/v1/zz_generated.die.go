@@ -25,6 +25,7 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	certificatesv1 "k8s.io/api/certificates/v1"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -249,9 +250,6 @@ func (d *CertificateSigningRequestDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *CertificateSigningRequestDie) UnmarshalJSON(b []byte) error {
-	if d == CertificateSigningRequestBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -259,6 +257,14 @@ func (d *CertificateSigningRequestDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "certificates.k8s.io/v1" and "CertificateSigningRequest" respectively.
+func (d *CertificateSigningRequestDie) DieDefaultTypeMetadata() *CertificateSigningRequestDie {
+	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequest) {
+		r.APIVersion = "certificates.k8s.io/v1"
+		r.Kind = "CertificateSigningRequest"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -272,6 +278,29 @@ func (d *CertificateSigningRequestDie) APIVersion(v string) *CertificateSigningR
 func (d *CertificateSigningRequestDie) Kind(v string) *CertificateSigningRequestDie {
 	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequest) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *CertificateSigningRequestDie) TypeMetadata(v apismetav1.TypeMeta) *CertificateSigningRequestDie {
+	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequest) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *CertificateSigningRequestDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *CertificateSigningRequestDie {
+	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequest) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *CertificateSigningRequestDie) Metadata(v apismetav1.ObjectMeta) *CertificateSigningRequestDie {
+	return d.DieStamp(func(r *certificatesv1.CertificateSigningRequest) {
+		r.ObjectMeta = v
 	})
 }
 

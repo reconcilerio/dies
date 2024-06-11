@@ -252,9 +252,6 @@ func (d *ControllerRevisionDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *ControllerRevisionDie) UnmarshalJSON(b []byte) error {
-	if d == ControllerRevisionBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -262,6 +259,14 @@ func (d *ControllerRevisionDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "apps/v1" and "ControllerRevision" respectively.
+func (d *ControllerRevisionDie) DieDefaultTypeMetadata() *ControllerRevisionDie {
+	return d.DieStamp(func(r *appsv1.ControllerRevision) {
+		r.APIVersion = "apps/v1"
+		r.Kind = "ControllerRevision"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -275,6 +280,29 @@ func (d *ControllerRevisionDie) APIVersion(v string) *ControllerRevisionDie {
 func (d *ControllerRevisionDie) Kind(v string) *ControllerRevisionDie {
 	return d.DieStamp(func(r *appsv1.ControllerRevision) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *ControllerRevisionDie) TypeMetadata(v apismetav1.TypeMeta) *ControllerRevisionDie {
+	return d.DieStamp(func(r *appsv1.ControllerRevision) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *ControllerRevisionDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *ControllerRevisionDie {
+	return d.DieStamp(func(r *appsv1.ControllerRevision) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *ControllerRevisionDie) Metadata(v apismetav1.ObjectMeta) *ControllerRevisionDie {
+	return d.DieStamp(func(r *appsv1.ControllerRevision) {
+		r.ObjectMeta = v
 	})
 }
 
@@ -515,9 +543,6 @@ func (d *DaemonSetDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *DaemonSetDie) UnmarshalJSON(b []byte) error {
-	if d == DaemonSetBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -525,6 +550,14 @@ func (d *DaemonSetDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "apps/v1" and "DaemonSet" respectively.
+func (d *DaemonSetDie) DieDefaultTypeMetadata() *DaemonSetDie {
+	return d.DieStamp(func(r *appsv1.DaemonSet) {
+		r.APIVersion = "apps/v1"
+		r.Kind = "DaemonSet"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -538,6 +571,29 @@ func (d *DaemonSetDie) APIVersion(v string) *DaemonSetDie {
 func (d *DaemonSetDie) Kind(v string) *DaemonSetDie {
 	return d.DieStamp(func(r *appsv1.DaemonSet) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *DaemonSetDie) TypeMetadata(v apismetav1.TypeMeta) *DaemonSetDie {
+	return d.DieStamp(func(r *appsv1.DaemonSet) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *DaemonSetDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *DaemonSetDie {
+	return d.DieStamp(func(r *appsv1.DaemonSet) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *DaemonSetDie) Metadata(v apismetav1.ObjectMeta) *DaemonSetDie {
+	return d.DieStamp(func(r *appsv1.DaemonSet) {
+		r.ObjectMeta = v
 	})
 }
 
@@ -1815,9 +1871,6 @@ func (d *DeploymentDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *DeploymentDie) UnmarshalJSON(b []byte) error {
-	if d == DeploymentBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -1825,6 +1878,14 @@ func (d *DeploymentDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "apps/v1" and "Deployment" respectively.
+func (d *DeploymentDie) DieDefaultTypeMetadata() *DeploymentDie {
+	return d.DieStamp(func(r *appsv1.Deployment) {
+		r.APIVersion = "apps/v1"
+		r.Kind = "Deployment"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -1838,6 +1899,29 @@ func (d *DeploymentDie) APIVersion(v string) *DeploymentDie {
 func (d *DeploymentDie) Kind(v string) *DeploymentDie {
 	return d.DieStamp(func(r *appsv1.Deployment) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *DeploymentDie) TypeMetadata(v apismetav1.TypeMeta) *DeploymentDie {
+	return d.DieStamp(func(r *appsv1.Deployment) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *DeploymentDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *DeploymentDie {
+	return d.DieStamp(func(r *appsv1.Deployment) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *DeploymentDie) Metadata(v apismetav1.ObjectMeta) *DeploymentDie {
+	return d.DieStamp(func(r *appsv1.Deployment) {
+		r.ObjectMeta = v
 	})
 }
 
@@ -3070,9 +3154,6 @@ func (d *ReplicaSetDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *ReplicaSetDie) UnmarshalJSON(b []byte) error {
-	if d == ReplicaSetBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -3080,6 +3161,14 @@ func (d *ReplicaSetDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "apps/v1" and "ReplicaSet" respectively.
+func (d *ReplicaSetDie) DieDefaultTypeMetadata() *ReplicaSetDie {
+	return d.DieStamp(func(r *appsv1.ReplicaSet) {
+		r.APIVersion = "apps/v1"
+		r.Kind = "ReplicaSet"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -3093,6 +3182,29 @@ func (d *ReplicaSetDie) APIVersion(v string) *ReplicaSetDie {
 func (d *ReplicaSetDie) Kind(v string) *ReplicaSetDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSet) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *ReplicaSetDie) TypeMetadata(v apismetav1.TypeMeta) *ReplicaSetDie {
+	return d.DieStamp(func(r *appsv1.ReplicaSet) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *ReplicaSetDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *ReplicaSetDie {
+	return d.DieStamp(func(r *appsv1.ReplicaSet) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *ReplicaSetDie) Metadata(v apismetav1.ObjectMeta) *ReplicaSetDie {
+	return d.DieStamp(func(r *appsv1.ReplicaSet) {
+		r.ObjectMeta = v
 	})
 }
 
@@ -3817,9 +3929,6 @@ func (d *StatefulSetDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *StatefulSetDie) UnmarshalJSON(b []byte) error {
-	if d == StatefulSetBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -3827,6 +3936,14 @@ func (d *StatefulSetDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "apps/v1" and "StatefulSet" respectively.
+func (d *StatefulSetDie) DieDefaultTypeMetadata() *StatefulSetDie {
+	return d.DieStamp(func(r *appsv1.StatefulSet) {
+		r.APIVersion = "apps/v1"
+		r.Kind = "StatefulSet"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -3840,6 +3957,29 @@ func (d *StatefulSetDie) APIVersion(v string) *StatefulSetDie {
 func (d *StatefulSetDie) Kind(v string) *StatefulSetDie {
 	return d.DieStamp(func(r *appsv1.StatefulSet) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *StatefulSetDie) TypeMetadata(v apismetav1.TypeMeta) *StatefulSetDie {
+	return d.DieStamp(func(r *appsv1.StatefulSet) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *StatefulSetDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *StatefulSetDie {
+	return d.DieStamp(func(r *appsv1.StatefulSet) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *StatefulSetDie) Metadata(v apismetav1.ObjectMeta) *StatefulSetDie {
+	return d.DieStamp(func(r *appsv1.StatefulSet) {
+		r.ObjectMeta = v
 	})
 }
 

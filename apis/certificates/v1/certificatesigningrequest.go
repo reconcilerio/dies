@@ -22,7 +22,7 @@ import (
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=certificates.k8s.io/v1,kind=CertificateSigningRequest
 type _ = certificatesv1.CertificateSigningRequest
 
 // TODO(scothis) fix import for maps with struct values, ignore the 'Extra' field until then

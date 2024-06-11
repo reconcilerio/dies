@@ -21,7 +21,7 @@ import (
 	diecorev1 "reconciler.io/dies/apis/core/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=events.k8s.io/v1,kind=Event
 type _ = eventsv1.Event
 
 func (d *EventDie) SeriesDie(fn func(d *EventSeriesDie)) *EventDie {

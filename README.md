@@ -204,6 +204,30 @@ type MyResourceDie interface {
     // unstructured object.
     DieReleaseUnstructured() *unstructured.Unstructured
 
+    // DieDefaultTypeMetadata sets the APIVersion and Kind
+    DieDefaultTypeMetadata() *MyResourceDie
+
+    // APIVersion defines the versioned schema of this representation of an
+    // object. Servers should convert recognized schemas to the latest internal
+    // value, and may reject unrecognized values. More info:
+    // https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+    APIVersion(v string) *MyResourceDie
+
+    // Kind is a string value representing the REST resource this object
+    // represents. Servers may infer this from the endpoint the client submits
+    // requests to. Cannot be updated. In CamelCase. More info:
+    // https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+    Kind(v string) *MyResourceDie
+
+    // TypeMetadata standard object's type metadata.
+    TypeMetadata(v metav1.TypeMeta) *MyResourceDie
+
+    // TypeMetaDie stamps the resource's TypeMeta field with a mutable die.
+    TypeMetaDie(fn func(d *diemetav1.TypeMetaDie)) *MyResourceDie
+
+    // Metadata standard object's metadata.
+    Metadata(v metav1.ObjectMeta) *MyResourceDie
+
     // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
     MetadataDie(fn func(d *diemetav1.ObjectMetaDie)) *MyResourceDie
 
@@ -285,7 +309,7 @@ import (
     appsv1 "k8s.io/api/apps/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=apps/v1,kind=Deployment
 type _ = appsv1.Deployment
 
 // +die
@@ -298,7 +322,7 @@ type _ = appsv1.DeploymentStatus
 For packages you control, dies can be created in the same package as the resource they model by adding the markers to existing types.
 
 ```go
-// +die:object=true
+// +die:object=true,apiVersion=example.reconciler.io/v1,kind=MyResource
 type MyResource struct {
     metav1.TypeMeta   `json:",inline"`
     metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -321,4 +345,6 @@ type MyResourceStatus struct {
 
 Properties:
 - **object** `bool` (optional): indicates the target type implements `metav1.Object` and `runtime.Object`
+- **apiVersion** `string` (optional): defaults the blanks die's APIVersion (only for objects)
+- **kind** `string` (optional): defaults the blank die's Kind (only for objects)
 - **ignore** `[]string` (optional): set of fields to ignore on the type

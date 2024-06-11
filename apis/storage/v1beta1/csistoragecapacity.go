@@ -22,7 +22,7 @@ import (
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=storage.k8s.io/v1beta1,kind=CSIStorageCapacity
 type _ = storagev1beta1.CSIStorageCapacity
 
 func (d *CSIStorageCapacityDie) NodeTopologyDie(fn func(d *diemetav1.LabelSelectorDie)) *CSIStorageCapacityDie {

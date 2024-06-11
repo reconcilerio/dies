@@ -24,6 +24,7 @@ package v1
 import (
 	json "encoding/json"
 	fmtx "fmt"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -249,9 +250,6 @@ func (d *APIServiceDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *APIServiceDie) UnmarshalJSON(b []byte) error {
-	if d == APIServiceBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -259,6 +257,14 @@ func (d *APIServiceDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "apiregistration.k8s.io/v1" and "APIService" respectively.
+func (d *APIServiceDie) DieDefaultTypeMetadata() *APIServiceDie {
+	return d.DieStamp(func(r *apiregistration.APIService) {
+		r.APIVersion = "apiregistration.k8s.io/v1"
+		r.Kind = "APIService"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -272,6 +278,29 @@ func (d *APIServiceDie) APIVersion(v string) *APIServiceDie {
 func (d *APIServiceDie) Kind(v string) *APIServiceDie {
 	return d.DieStamp(func(r *apiregistration.APIService) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *APIServiceDie) TypeMetadata(v apismetav1.TypeMeta) *APIServiceDie {
+	return d.DieStamp(func(r *apiregistration.APIService) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *APIServiceDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *APIServiceDie {
+	return d.DieStamp(func(r *apiregistration.APIService) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *APIServiceDie) Metadata(v apismetav1.ObjectMeta) *APIServiceDie {
+	return d.DieStamp(func(r *apiregistration.APIService) {
+		r.ObjectMeta = v
 	})
 }
 

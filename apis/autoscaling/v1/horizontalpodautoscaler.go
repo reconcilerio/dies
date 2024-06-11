@@ -20,7 +20,7 @@ import (
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=autoscaling/v1,kind=HorizontalPodAutoscaler
 type _ = autoscalingv1.HorizontalPodAutoscaler
 
 // +die

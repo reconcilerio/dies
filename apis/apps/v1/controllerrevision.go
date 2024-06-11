@@ -20,5 +20,5 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=apps/v1,kind=ControllerRevision
 type _ = appsv1.ControllerRevision

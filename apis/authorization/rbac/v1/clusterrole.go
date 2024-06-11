@@ -22,7 +22,7 @@ import (
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=rbac.authorization.k8s.io/v1,kind=ClusterRole
 type _ = rbacv1.ClusterRole
 
 func (d *ClusterRoleDie) RulesDie(rules ...*PolicyRuleDie) *ClusterRoleDie {

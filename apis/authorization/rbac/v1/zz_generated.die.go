@@ -250,9 +250,6 @@ func (d *ClusterRoleDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *ClusterRoleDie) UnmarshalJSON(b []byte) error {
-	if d == ClusterRoleBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -260,6 +257,14 @@ func (d *ClusterRoleDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "rbac.authorization.k8s.io/v1" and "ClusterRole" respectively.
+func (d *ClusterRoleDie) DieDefaultTypeMetadata() *ClusterRoleDie {
+	return d.DieStamp(func(r *rbacv1.ClusterRole) {
+		r.APIVersion = "rbac.authorization.k8s.io/v1"
+		r.Kind = "ClusterRole"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -273,6 +278,29 @@ func (d *ClusterRoleDie) APIVersion(v string) *ClusterRoleDie {
 func (d *ClusterRoleDie) Kind(v string) *ClusterRoleDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRole) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *ClusterRoleDie) TypeMetadata(v apismetav1.TypeMeta) *ClusterRoleDie {
+	return d.DieStamp(func(r *rbacv1.ClusterRole) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *ClusterRoleDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *ClusterRoleDie {
+	return d.DieStamp(func(r *rbacv1.ClusterRole) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *ClusterRoleDie) Metadata(v apismetav1.ObjectMeta) *ClusterRoleDie {
+	return d.DieStamp(func(r *rbacv1.ClusterRole) {
+		r.ObjectMeta = v
 	})
 }
 
@@ -708,9 +736,6 @@ func (d *ClusterRoleBindingDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *ClusterRoleBindingDie) UnmarshalJSON(b []byte) error {
-	if d == ClusterRoleBindingBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -718,6 +743,14 @@ func (d *ClusterRoleBindingDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "rbac.authorization.k8s.io/v1" and "ClusterRoleBinding" respectively.
+func (d *ClusterRoleBindingDie) DieDefaultTypeMetadata() *ClusterRoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
+		r.APIVersion = "rbac.authorization.k8s.io/v1"
+		r.Kind = "ClusterRoleBinding"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -731,6 +764,29 @@ func (d *ClusterRoleBindingDie) APIVersion(v string) *ClusterRoleBindingDie {
 func (d *ClusterRoleBindingDie) Kind(v string) *ClusterRoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *ClusterRoleBindingDie) TypeMetadata(v apismetav1.TypeMeta) *ClusterRoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *ClusterRoleBindingDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *ClusterRoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *ClusterRoleBindingDie) Metadata(v apismetav1.ObjectMeta) *ClusterRoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
+		r.ObjectMeta = v
 	})
 }
 
@@ -975,9 +1031,6 @@ func (d *RoleDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *RoleDie) UnmarshalJSON(b []byte) error {
-	if d == RoleBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -985,6 +1038,14 @@ func (d *RoleDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "rbac.authorization.k8s.io/v1" and "Role" respectively.
+func (d *RoleDie) DieDefaultTypeMetadata() *RoleDie {
+	return d.DieStamp(func(r *rbacv1.Role) {
+		r.APIVersion = "rbac.authorization.k8s.io/v1"
+		r.Kind = "Role"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -998,6 +1059,29 @@ func (d *RoleDie) APIVersion(v string) *RoleDie {
 func (d *RoleDie) Kind(v string) *RoleDie {
 	return d.DieStamp(func(r *rbacv1.Role) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *RoleDie) TypeMetadata(v apismetav1.TypeMeta) *RoleDie {
+	return d.DieStamp(func(r *rbacv1.Role) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *RoleDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *RoleDie {
+	return d.DieStamp(func(r *rbacv1.Role) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *RoleDie) Metadata(v apismetav1.ObjectMeta) *RoleDie {
+	return d.DieStamp(func(r *rbacv1.Role) {
+		r.ObjectMeta = v
 	})
 }
 
@@ -1454,9 +1538,6 @@ func (d *RoleBindingDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *RoleBindingDie) UnmarshalJSON(b []byte) error {
-	if d == RoleBindingBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -1464,6 +1545,14 @@ func (d *RoleBindingDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "rbac.authorization.k8s.io/v1" and "RoleBinding" respectively.
+func (d *RoleBindingDie) DieDefaultTypeMetadata() *RoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.RoleBinding) {
+		r.APIVersion = "rbac.authorization.k8s.io/v1"
+		r.Kind = "RoleBinding"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -1477,6 +1566,29 @@ func (d *RoleBindingDie) APIVersion(v string) *RoleBindingDie {
 func (d *RoleBindingDie) Kind(v string) *RoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.RoleBinding) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *RoleBindingDie) TypeMetadata(v apismetav1.TypeMeta) *RoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.RoleBinding) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *RoleBindingDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *RoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.RoleBinding) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *RoleBindingDie) Metadata(v apismetav1.ObjectMeta) *RoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.RoleBinding) {
+		r.ObjectMeta = v
 	})
 }
 

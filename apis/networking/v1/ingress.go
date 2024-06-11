@@ -21,7 +21,7 @@ import (
 	diecorev1 "reconciler.io/dies/apis/core/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=networking.k8s.io/v1,kind=Ingress
 type _ = networkingv1.Ingress
 
 // +die

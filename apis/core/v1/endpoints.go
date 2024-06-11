@@ -20,7 +20,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=v1,kind=Endpoints
 type _ = corev1.Endpoints
 
 func (d *EndpointsDie) SubsetsDie(subsets ...*EndpointSubsetDie) *EndpointsDie {

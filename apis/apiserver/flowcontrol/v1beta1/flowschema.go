@@ -21,7 +21,7 @@ import (
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=flowcontrol.apiserver.k8s.io/v1beta1,kind=FlowSchema
 type _ = flowcontrolv1beta1.FlowSchema
 
 // +die

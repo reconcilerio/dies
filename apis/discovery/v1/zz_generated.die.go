@@ -26,6 +26,7 @@ import (
 	fmtx "fmt"
 	corev1 "k8s.io/api/core/v1"
 	discoveryv1 "k8s.io/api/discovery/v1"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -250,9 +251,6 @@ func (d *EndpointSliceDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *EndpointSliceDie) UnmarshalJSON(b []byte) error {
-	if d == EndpointSliceBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -260,6 +258,14 @@ func (d *EndpointSliceDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "discovery.k8s.io/v1" and "EndpointSlice" respectively.
+func (d *EndpointSliceDie) DieDefaultTypeMetadata() *EndpointSliceDie {
+	return d.DieStamp(func(r *discoveryv1.EndpointSlice) {
+		r.APIVersion = "discovery.k8s.io/v1"
+		r.Kind = "EndpointSlice"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -273,6 +279,29 @@ func (d *EndpointSliceDie) APIVersion(v string) *EndpointSliceDie {
 func (d *EndpointSliceDie) Kind(v string) *EndpointSliceDie {
 	return d.DieStamp(func(r *discoveryv1.EndpointSlice) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *EndpointSliceDie) TypeMetadata(v apismetav1.TypeMeta) *EndpointSliceDie {
+	return d.DieStamp(func(r *discoveryv1.EndpointSlice) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *EndpointSliceDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *EndpointSliceDie {
+	return d.DieStamp(func(r *discoveryv1.EndpointSlice) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *EndpointSliceDie) Metadata(v apismetav1.ObjectMeta) *EndpointSliceDie {
+	return d.DieStamp(func(r *discoveryv1.EndpointSlice) {
+		r.ObjectMeta = v
 	})
 }
 

@@ -251,9 +251,6 @@ func (d *CSIStorageCapacityDie) MarshalJSON() ([]byte, error) {
 }
 
 func (d *CSIStorageCapacityDie) UnmarshalJSON(b []byte) error {
-	if d == CSIStorageCapacityBlank {
-		return fmtx.Errorf("cannot unmarshal into the blank die, create a copy first")
-	}
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
@@ -261,6 +258,14 @@ func (d *CSIStorageCapacityDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, r)
 	*d = *d.DieFeed(*r)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "storage.k8s.io/v1beta1" and "CSIStorageCapacity" respectively.
+func (d *CSIStorageCapacityDie) DieDefaultTypeMetadata() *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1beta1.CSIStorageCapacity) {
+		r.APIVersion = "storage.k8s.io/v1beta1"
+		r.Kind = "CSIStorageCapacity"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -274,6 +279,29 @@ func (d *CSIStorageCapacityDie) APIVersion(v string) *CSIStorageCapacityDie {
 func (d *CSIStorageCapacityDie) Kind(v string) *CSIStorageCapacityDie {
 	return d.DieStamp(func(r *storagev1beta1.CSIStorageCapacity) {
 		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *CSIStorageCapacityDie) TypeMetadata(v metav1.TypeMeta) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1beta1.CSIStorageCapacity) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *CSIStorageCapacityDie) TypeMetadataDie(fn func(d *v1.TypeMetaDie)) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1beta1.CSIStorageCapacity) {
+		d := v1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *CSIStorageCapacityDie) Metadata(v metav1.ObjectMeta) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1beta1.CSIStorageCapacity) {
+		r.ObjectMeta = v
 	})
 }
 

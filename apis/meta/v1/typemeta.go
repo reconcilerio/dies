@@ -21,6 +21,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 var TypeMetaBlank = (&TypeMetaDie{}).DieFeed(metav1.TypeMeta{})
@@ -123,5 +124,29 @@ func (d *TypeMetaDie) Kind(v string) *TypeMetaDie {
 func (d *TypeMetaDie) APIVersion(v string) *TypeMetaDie {
 	return d.DieStamp(func(r *metav1.TypeMeta) {
 		r.APIVersion = v
+	})
+}
+
+// Group defines the group component of the API version.
+func (d *TypeMetaDie) Group(v string) *TypeMetaDie {
+	return d.DieStamp(func(r *metav1.TypeMeta) {
+		gv, err := schema.ParseGroupVersion(r.APIVersion)
+		if err != nil {
+			panic(err)
+		}
+		gv.Group = v
+		r.APIVersion = gv.String()
+	})
+}
+
+// Version defines the version component of the API version.
+func (d *TypeMetaDie) Version(v string) *TypeMetaDie {
+	return d.DieStamp(func(r *metav1.TypeMeta) {
+		gv, err := schema.ParseGroupVersion(r.APIVersion)
+		if err != nil {
+			panic(err)
+		}
+		gv.Version = v
+		r.APIVersion = gv.String()
 	})
 }

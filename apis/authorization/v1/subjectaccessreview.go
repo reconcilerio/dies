@@ -20,7 +20,7 @@ import (
 	authorizationv1 "k8s.io/api/authorization/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=authorization.k8s.io/v1,kind=SubjectAccessReview
 type _ = authorizationv1.SubjectAccessReview
 
 // TODO(scothis) fix import for maps with struct values, ignore the 'Extra' field until then
