@@ -1949,6 +1949,3566 @@ func (d *MutatingWebhookDie) MatchConditions(v ...admissionregistrationv1.MatchC
 	})
 }
 
+var ValidatingAdmissionPolicyBlank = (&ValidatingAdmissionPolicyDie{}).DieFeed(admissionregistrationv1.ValidatingAdmissionPolicy{})
+
+type ValidatingAdmissionPolicyDie struct {
+	metav1.FrozenObjectMeta
+	mutable bool
+	r       admissionregistrationv1.ValidatingAdmissionPolicy
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ValidatingAdmissionPolicyDie) DieImmutable(immutable bool) *ValidatingAdmissionPolicyDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ValidatingAdmissionPolicyDie) DieFeed(r admissionregistrationv1.ValidatingAdmissionPolicy) *ValidatingAdmissionPolicyDie {
+	if d.mutable {
+		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
+		d.r = r
+		return d
+	}
+	return &ValidatingAdmissionPolicyDie{
+		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
+		mutable:          d.mutable,
+		r:                r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ValidatingAdmissionPolicyDie) DieFeedPtr(r *admissionregistrationv1.ValidatingAdmissionPolicy) *ValidatingAdmissionPolicyDie {
+	if r == nil {
+		r = &admissionregistrationv1.ValidatingAdmissionPolicy{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ValidatingAdmissionPolicyDie) DieFeedJSON(j []byte) *ValidatingAdmissionPolicyDie {
+	r := admissionregistrationv1.ValidatingAdmissionPolicy{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ValidatingAdmissionPolicyDie) DieFeedYAML(y []byte) *ValidatingAdmissionPolicyDie {
+	r := admissionregistrationv1.ValidatingAdmissionPolicy{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ValidatingAdmissionPolicyDie) DieFeedYAMLFile(name string) *ValidatingAdmissionPolicyDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ValidatingAdmissionPolicyDie) DieFeedRawExtension(raw runtime.RawExtension) *ValidatingAdmissionPolicyDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ValidatingAdmissionPolicyDie) DieRelease() admissionregistrationv1.ValidatingAdmissionPolicy {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ValidatingAdmissionPolicyDie) DieReleasePtr() *admissionregistrationv1.ValidatingAdmissionPolicy {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseUnstructured returns the resource managed by the die as an unstructured object. Panics on error.
+func (d *ValidatingAdmissionPolicyDie) DieReleaseUnstructured() *unstructured.Unstructured {
+	r := d.DieReleasePtr()
+	u, err := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	if err != nil {
+		panic(err)
+	}
+	return &unstructured.Unstructured{
+		Object: u,
+	}
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ValidatingAdmissionPolicyDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ValidatingAdmissionPolicyDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ValidatingAdmissionPolicyDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ValidatingAdmissionPolicyDie) DieStamp(fn func(r *admissionregistrationv1.ValidatingAdmissionPolicy)) *ValidatingAdmissionPolicyDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ValidatingAdmissionPolicyDie) DieStampAt(jp string, fn interface{}) *ValidatingAdmissionPolicyDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicy) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ValidatingAdmissionPolicyDie) DieWith(fns ...func(d *ValidatingAdmissionPolicyDie)) *ValidatingAdmissionPolicyDie {
+	nd := ValidatingAdmissionPolicyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ValidatingAdmissionPolicyDie) DeepCopy() *ValidatingAdmissionPolicyDie {
+	r := *d.r.DeepCopy()
+	return &ValidatingAdmissionPolicyDie{
+		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
+		mutable:          d.mutable,
+		r:                r,
+	}
+}
+
+var _ runtime.Object = (*ValidatingAdmissionPolicyDie)(nil)
+
+func (d *ValidatingAdmissionPolicyDie) DeepCopyObject() runtime.Object {
+	return d.r.DeepCopy()
+}
+
+func (d *ValidatingAdmissionPolicyDie) GetObjectKind() schema.ObjectKind {
+	r := d.DieRelease()
+	return r.GetObjectKind()
+}
+
+func (d *ValidatingAdmissionPolicyDie) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.r)
+}
+
+func (d *ValidatingAdmissionPolicyDie) UnmarshalJSON(b []byte) error {
+	if !d.mutable {
+		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
+	}
+	r := &admissionregistrationv1.ValidatingAdmissionPolicy{}
+	err := json.Unmarshal(b, r)
+	*d = *d.DieFeed(*r)
+	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "admissionregistration.k8s.io/v1" and "ValidatingAdmissionPolicy" respectively.
+func (d *ValidatingAdmissionPolicyDie) DieDefaultTypeMetadata() *ValidatingAdmissionPolicyDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicy) {
+		r.APIVersion = "admissionregistration.k8s.io/v1"
+		r.Kind = "ValidatingAdmissionPolicy"
+	})
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *ValidatingAdmissionPolicyDie) APIVersion(v string) *ValidatingAdmissionPolicyDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicy) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ValidatingAdmissionPolicyDie) Kind(v string) *ValidatingAdmissionPolicyDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicy) {
+		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *ValidatingAdmissionPolicyDie) TypeMetadata(v apismetav1.TypeMeta) *ValidatingAdmissionPolicyDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicy) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *ValidatingAdmissionPolicyDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *ValidatingAdmissionPolicyDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicy) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *ValidatingAdmissionPolicyDie) Metadata(v apismetav1.ObjectMeta) *ValidatingAdmissionPolicyDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicy) {
+		r.ObjectMeta = v
+	})
+}
+
+// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+func (d *ValidatingAdmissionPolicyDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *ValidatingAdmissionPolicyDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicy) {
+		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
+		fn(d)
+		r.ObjectMeta = d.DieRelease()
+	})
+}
+
+// SpecDie stamps the resource's spec field with a mutable die.
+func (d *ValidatingAdmissionPolicyDie) SpecDie(fn func(d *ValidatingAdmissionPolicySpecDie)) *ValidatingAdmissionPolicyDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicy) {
+		d := ValidatingAdmissionPolicySpecBlank.DieImmutable(false).DieFeed(r.Spec)
+		fn(d)
+		r.Spec = d.DieRelease()
+	})
+}
+
+// StatusDie stamps the resource's status field with a mutable die.
+func (d *ValidatingAdmissionPolicyDie) StatusDie(fn func(d *ValidatingAdmissionPolicyStatusDie)) *ValidatingAdmissionPolicyDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicy) {
+		d := ValidatingAdmissionPolicyStatusBlank.DieImmutable(false).DieFeed(r.Status)
+		fn(d)
+		r.Status = d.DieRelease()
+	})
+}
+
+// Specification of the desired behavior of the ValidatingAdmissionPolicy.
+func (d *ValidatingAdmissionPolicyDie) Spec(v admissionregistrationv1.ValidatingAdmissionPolicySpec) *ValidatingAdmissionPolicyDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicy) {
+		r.Spec = v
+	})
+}
+
+// The status of the ValidatingAdmissionPolicy, including warnings that are useful to determine if the policy
+//
+// behaves in the expected way.
+//
+// Populated by the system.
+//
+// Read-only.
+func (d *ValidatingAdmissionPolicyDie) Status(v admissionregistrationv1.ValidatingAdmissionPolicyStatus) *ValidatingAdmissionPolicyDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicy) {
+		r.Status = v
+	})
+}
+
+var ValidatingAdmissionPolicySpecBlank = (&ValidatingAdmissionPolicySpecDie{}).DieFeed(admissionregistrationv1.ValidatingAdmissionPolicySpec{})
+
+type ValidatingAdmissionPolicySpecDie struct {
+	mutable bool
+	r       admissionregistrationv1.ValidatingAdmissionPolicySpec
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ValidatingAdmissionPolicySpecDie) DieImmutable(immutable bool) *ValidatingAdmissionPolicySpecDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ValidatingAdmissionPolicySpecDie) DieFeed(r admissionregistrationv1.ValidatingAdmissionPolicySpec) *ValidatingAdmissionPolicySpecDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ValidatingAdmissionPolicySpecDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ValidatingAdmissionPolicySpecDie) DieFeedPtr(r *admissionregistrationv1.ValidatingAdmissionPolicySpec) *ValidatingAdmissionPolicySpecDie {
+	if r == nil {
+		r = &admissionregistrationv1.ValidatingAdmissionPolicySpec{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ValidatingAdmissionPolicySpecDie) DieFeedJSON(j []byte) *ValidatingAdmissionPolicySpecDie {
+	r := admissionregistrationv1.ValidatingAdmissionPolicySpec{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ValidatingAdmissionPolicySpecDie) DieFeedYAML(y []byte) *ValidatingAdmissionPolicySpecDie {
+	r := admissionregistrationv1.ValidatingAdmissionPolicySpec{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ValidatingAdmissionPolicySpecDie) DieFeedYAMLFile(name string) *ValidatingAdmissionPolicySpecDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ValidatingAdmissionPolicySpecDie) DieFeedRawExtension(raw runtime.RawExtension) *ValidatingAdmissionPolicySpecDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ValidatingAdmissionPolicySpecDie) DieRelease() admissionregistrationv1.ValidatingAdmissionPolicySpec {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ValidatingAdmissionPolicySpecDie) DieReleasePtr() *admissionregistrationv1.ValidatingAdmissionPolicySpec {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ValidatingAdmissionPolicySpecDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ValidatingAdmissionPolicySpecDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ValidatingAdmissionPolicySpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ValidatingAdmissionPolicySpecDie) DieStamp(fn func(r *admissionregistrationv1.ValidatingAdmissionPolicySpec)) *ValidatingAdmissionPolicySpecDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ValidatingAdmissionPolicySpecDie) DieStampAt(jp string, fn interface{}) *ValidatingAdmissionPolicySpecDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicySpec) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ValidatingAdmissionPolicySpecDie) DieWith(fns ...func(d *ValidatingAdmissionPolicySpecDie)) *ValidatingAdmissionPolicySpecDie {
+	nd := ValidatingAdmissionPolicySpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ValidatingAdmissionPolicySpecDie) DeepCopy() *ValidatingAdmissionPolicySpecDie {
+	r := *d.r.DeepCopy()
+	return &ValidatingAdmissionPolicySpecDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// ParamKind specifies the kind of resources used to parameterize this policy.
+//
+// If absent, there are no parameters for this policy and the param CEL variable will not be provided to validation expressions.
+//
+// If ParamKind refers to a non-existent kind, this policy definition is mis-configured and the FailurePolicy is applied.
+//
+// If paramKind is specified but paramRef is unset in ValidatingAdmissionPolicyBinding, the params variable will be null.
+func (d *ValidatingAdmissionPolicySpecDie) ParamKind(v *admissionregistrationv1.ParamKind) *ValidatingAdmissionPolicySpecDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicySpec) {
+		r.ParamKind = v
+	})
+}
+
+// MatchConstraints specifies what resources this policy is designed to validate.
+//
+// The AdmissionPolicy cares about a request if it matches _all_ Constraints.
+//
+// # However, in order to prevent clusters from being put into an unstable state that cannot be recovered from via the API
+//
+// ValidatingAdmissionPolicy cannot match ValidatingAdmissionPolicy and ValidatingAdmissionPolicyBinding.
+//
+// Required.
+func (d *ValidatingAdmissionPolicySpecDie) MatchConstraints(v *admissionregistrationv1.MatchResources) *ValidatingAdmissionPolicySpecDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicySpec) {
+		r.MatchConstraints = v
+	})
+}
+
+// Validations contain CEL expressions which is used to apply the validation.
+//
+// Validations and AuditAnnotations may not both be empty; a minimum of one Validations or AuditAnnotations is
+//
+// required.
+func (d *ValidatingAdmissionPolicySpecDie) Validations(v ...admissionregistrationv1.Validation) *ValidatingAdmissionPolicySpecDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicySpec) {
+		r.Validations = v
+	})
+}
+
+// failurePolicy defines how to handle failures for the admission policy. Failures can
+//
+// occur from CEL expression parse errors, type check errors, runtime errors and invalid
+//
+// or mis-configured policy definitions or bindings.
+//
+// A policy is invalid if spec.paramKind refers to a non-existent Kind.
+//
+// A binding is invalid if spec.paramRef.name refers to a non-existent resource.
+//
+// failurePolicy does not define how validations that evaluate to false are handled.
+//
+// # When failurePolicy is set to Fail, ValidatingAdmissionPolicyBinding validationActions
+//
+// define how failures are enforced.
+//
+// Allowed values are Ignore or Fail. Defaults to Fail.
+func (d *ValidatingAdmissionPolicySpecDie) FailurePolicy(v *admissionregistrationv1.FailurePolicyType) *ValidatingAdmissionPolicySpecDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicySpec) {
+		r.FailurePolicy = v
+	})
+}
+
+// auditAnnotations contains CEL expressions which are used to produce audit
+//
+// annotations for the audit event of the API request.
+//
+// validations and auditAnnotations may not both be empty; a least one of validations or auditAnnotations is
+//
+// required.
+func (d *ValidatingAdmissionPolicySpecDie) AuditAnnotations(v ...admissionregistrationv1.AuditAnnotation) *ValidatingAdmissionPolicySpecDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicySpec) {
+		r.AuditAnnotations = v
+	})
+}
+
+// MatchConditions is a list of conditions that must be met for a request to be validated.
+//
+// Match conditions filter requests that have already been matched by the rules,
+//
+// namespaceSelector, and objectSelector. An empty list of matchConditions matches all requests.
+//
+// There are a maximum of 64 match conditions allowed.
+//
+// # If a parameter object is provided, it can be accessed via the `params` handle in the same
+//
+// manner as validation expressions.
+//
+// The exact matching logic is (in order):
+//
+// 1. If ANY matchCondition evaluates to FALSE, the policy is skipped.
+//
+// 2. If ALL matchConditions evaluate to TRUE, the policy is evaluated.
+//
+// 3. If any matchCondition evaluates to an error (but none are FALSE):
+//
+// - If failurePolicy=Fail, reject the request
+//
+// - If failurePolicy=Ignore, the policy is skipped
+func (d *ValidatingAdmissionPolicySpecDie) MatchConditions(v ...admissionregistrationv1.MatchCondition) *ValidatingAdmissionPolicySpecDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicySpec) {
+		r.MatchConditions = v
+	})
+}
+
+// Variables contain definitions of variables that can be used in composition of other expressions.
+//
+// Each variable is defined as a named CEL expression.
+//
+// # The variables defined here will be available under `variables` in other expressions of the policy
+//
+// except MatchConditions because MatchConditions are evaluated before the rest of the policy.
+//
+// The expression of a variable can refer to other variables defined earlier in the list but not those after.
+//
+// Thus, Variables must be sorted by the order of first appearance and acyclic.
+func (d *ValidatingAdmissionPolicySpecDie) Variables(v ...admissionregistrationv1.Variable) *ValidatingAdmissionPolicySpecDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicySpec) {
+		r.Variables = v
+	})
+}
+
+var ParamKindBlank = (&ParamKindDie{}).DieFeed(admissionregistrationv1.ParamKind{})
+
+type ParamKindDie struct {
+	mutable bool
+	r       admissionregistrationv1.ParamKind
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ParamKindDie) DieImmutable(immutable bool) *ParamKindDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ParamKindDie) DieFeed(r admissionregistrationv1.ParamKind) *ParamKindDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ParamKindDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ParamKindDie) DieFeedPtr(r *admissionregistrationv1.ParamKind) *ParamKindDie {
+	if r == nil {
+		r = &admissionregistrationv1.ParamKind{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ParamKindDie) DieFeedJSON(j []byte) *ParamKindDie {
+	r := admissionregistrationv1.ParamKind{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ParamKindDie) DieFeedYAML(y []byte) *ParamKindDie {
+	r := admissionregistrationv1.ParamKind{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ParamKindDie) DieFeedYAMLFile(name string) *ParamKindDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ParamKindDie) DieFeedRawExtension(raw runtime.RawExtension) *ParamKindDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ParamKindDie) DieRelease() admissionregistrationv1.ParamKind {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ParamKindDie) DieReleasePtr() *admissionregistrationv1.ParamKind {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ParamKindDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ParamKindDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ParamKindDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ParamKindDie) DieStamp(fn func(r *admissionregistrationv1.ParamKind)) *ParamKindDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ParamKindDie) DieStampAt(jp string, fn interface{}) *ParamKindDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ParamKind) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ParamKindDie) DieWith(fns ...func(d *ParamKindDie)) *ParamKindDie {
+	nd := ParamKindBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ParamKindDie) DeepCopy() *ParamKindDie {
+	r := *d.r.DeepCopy()
+	return &ParamKindDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// APIVersion is the API group version the resources belong to.
+//
+// In format of "group/version".
+//
+// Required.
+func (d *ParamKindDie) APIVersion(v string) *ParamKindDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ParamKind) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is the API kind the resources belong to.
+//
+// Required.
+func (d *ParamKindDie) Kind(v string) *ParamKindDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ParamKind) {
+		r.Kind = v
+	})
+}
+
+var MatchResourcesBlank = (&MatchResourcesDie{}).DieFeed(admissionregistrationv1.MatchResources{})
+
+type MatchResourcesDie struct {
+	mutable bool
+	r       admissionregistrationv1.MatchResources
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *MatchResourcesDie) DieImmutable(immutable bool) *MatchResourcesDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *MatchResourcesDie) DieFeed(r admissionregistrationv1.MatchResources) *MatchResourcesDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &MatchResourcesDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *MatchResourcesDie) DieFeedPtr(r *admissionregistrationv1.MatchResources) *MatchResourcesDie {
+	if r == nil {
+		r = &admissionregistrationv1.MatchResources{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *MatchResourcesDie) DieFeedJSON(j []byte) *MatchResourcesDie {
+	r := admissionregistrationv1.MatchResources{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *MatchResourcesDie) DieFeedYAML(y []byte) *MatchResourcesDie {
+	r := admissionregistrationv1.MatchResources{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *MatchResourcesDie) DieFeedYAMLFile(name string) *MatchResourcesDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *MatchResourcesDie) DieFeedRawExtension(raw runtime.RawExtension) *MatchResourcesDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *MatchResourcesDie) DieRelease() admissionregistrationv1.MatchResources {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *MatchResourcesDie) DieReleasePtr() *admissionregistrationv1.MatchResources {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *MatchResourcesDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *MatchResourcesDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *MatchResourcesDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *MatchResourcesDie) DieStamp(fn func(r *admissionregistrationv1.MatchResources)) *MatchResourcesDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *MatchResourcesDie) DieStampAt(jp string, fn interface{}) *MatchResourcesDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MatchResources) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *MatchResourcesDie) DieWith(fns ...func(d *MatchResourcesDie)) *MatchResourcesDie {
+	nd := MatchResourcesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *MatchResourcesDie) DeepCopy() *MatchResourcesDie {
+	r := *d.r.DeepCopy()
+	return &MatchResourcesDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// NamespaceSelector decides whether to run the admission control policy on an object based
+//
+// on whether the namespace for that object matches the selector. If the
+//
+// object itself is a namespace, the matching is performed on
+//
+// object.metadata.labels. If the object is another cluster scoped resource,
+//
+// it never skips the policy.
+//
+// # For example, to run the webhook on any objects whose namespace is not
+//
+// associated with "runlevel" of "0" or "1";  you will set the selector as
+//
+// follows:
+//
+// "namespaceSelector": {
+//
+// "matchExpressions": [
+//
+// {
+//
+// "key": "runlevel",
+//
+// "operator": "NotIn",
+//
+// "values": [
+//
+// "0",
+//
+// "1"
+//
+// ]
+//
+// }
+//
+// ]
+//
+// }
+//
+// # If instead you want to only run the policy on any objects whose
+//
+// namespace is associated with the "environment" of "prod" or "staging";
+//
+// you will set the selector as follows:
+//
+// "namespaceSelector": {
+//
+// "matchExpressions": [
+//
+// {
+//
+// "key": "environment",
+//
+// "operator": "In",
+//
+// "values": [
+//
+// "prod",
+//
+// "staging"
+//
+// ]
+//
+// }
+//
+// ]
+//
+// }
+//
+// # See
+//
+// https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+//
+// for more examples of label selectors.
+//
+// Default to the empty LabelSelector, which matches everything.
+func (d *MatchResourcesDie) NamespaceSelector(v *apismetav1.LabelSelector) *MatchResourcesDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MatchResources) {
+		r.NamespaceSelector = v
+	})
+}
+
+// ObjectSelector decides whether to run the validation based on if the
+//
+// object has matching labels. objectSelector is evaluated against both
+//
+// the oldObject and newObject that would be sent to the cel validation, and
+//
+// is considered to match if either object matches the selector. A null
+//
+// object (oldObject in the case of create, or newObject in the case of
+//
+// delete) or an object that cannot have labels (like a
+//
+// # DeploymentRollback or a PodProxyOptions object) is not considered to
+//
+// match.
+//
+// # Use the object selector only if the webhook is opt-in, because end
+//
+// users may skip the admission webhook by setting the labels.
+//
+// Default to the empty LabelSelector, which matches everything.
+func (d *MatchResourcesDie) ObjectSelector(v *apismetav1.LabelSelector) *MatchResourcesDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MatchResources) {
+		r.ObjectSelector = v
+	})
+}
+
+// ResourceRules describes what operations on what resources/subresources the ValidatingAdmissionPolicy matches.
+//
+// The policy cares about an operation if it matches _any_ Rule.
+func (d *MatchResourcesDie) ResourceRules(v ...admissionregistrationv1.NamedRuleWithOperations) *MatchResourcesDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MatchResources) {
+		r.ResourceRules = v
+	})
+}
+
+// ExcludeResourceRules describes what operations on what resources/subresources the ValidatingAdmissionPolicy should not care about.
+//
+// The exclude rules take precedence over include rules (if a resource matches both, it is excluded)
+func (d *MatchResourcesDie) ExcludeResourceRules(v ...admissionregistrationv1.NamedRuleWithOperations) *MatchResourcesDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MatchResources) {
+		r.ExcludeResourceRules = v
+	})
+}
+
+// matchPolicy defines how the "MatchResources" list is used to match incoming requests.
+//
+// Allowed values are "Exact" or "Equivalent".
+//
+// - Exact: match a request only if it exactly matches a specified rule.
+//
+// For example, if deployments can be modified via apps/v1, apps/v1beta1, and extensions/v1beta1,
+//
+// but "rules" only included `apiGroups:["apps"], apiVersions:["v1"], resources: ["deployments"]`,
+//
+// a request to apps/v1beta1 or extensions/v1beta1 would not be sent to the ValidatingAdmissionPolicy.
+//
+// - Equivalent: match a request if modifies a resource listed in rules, even via another API group or version.
+//
+// For example, if deployments can be modified via apps/v1, apps/v1beta1, and extensions/v1beta1,
+//
+// and "rules" only included `apiGroups:["apps"], apiVersions:["v1"], resources: ["deployments"]`,
+//
+// a request to apps/v1beta1 or extensions/v1beta1 would be converted to apps/v1 and sent to the ValidatingAdmissionPolicy.
+//
+// Defaults to "Equivalent"
+func (d *MatchResourcesDie) MatchPolicy(v *admissionregistrationv1.MatchPolicyType) *MatchResourcesDie {
+	return d.DieStamp(func(r *admissionregistrationv1.MatchResources) {
+		r.MatchPolicy = v
+	})
+}
+
+var NamedRuleWithOperationsBlank = (&NamedRuleWithOperationsDie{}).DieFeed(admissionregistrationv1.NamedRuleWithOperations{})
+
+type NamedRuleWithOperationsDie struct {
+	mutable bool
+	r       admissionregistrationv1.NamedRuleWithOperations
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *NamedRuleWithOperationsDie) DieImmutable(immutable bool) *NamedRuleWithOperationsDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *NamedRuleWithOperationsDie) DieFeed(r admissionregistrationv1.NamedRuleWithOperations) *NamedRuleWithOperationsDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &NamedRuleWithOperationsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *NamedRuleWithOperationsDie) DieFeedPtr(r *admissionregistrationv1.NamedRuleWithOperations) *NamedRuleWithOperationsDie {
+	if r == nil {
+		r = &admissionregistrationv1.NamedRuleWithOperations{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *NamedRuleWithOperationsDie) DieFeedJSON(j []byte) *NamedRuleWithOperationsDie {
+	r := admissionregistrationv1.NamedRuleWithOperations{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *NamedRuleWithOperationsDie) DieFeedYAML(y []byte) *NamedRuleWithOperationsDie {
+	r := admissionregistrationv1.NamedRuleWithOperations{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *NamedRuleWithOperationsDie) DieFeedYAMLFile(name string) *NamedRuleWithOperationsDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NamedRuleWithOperationsDie) DieFeedRawExtension(raw runtime.RawExtension) *NamedRuleWithOperationsDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *NamedRuleWithOperationsDie) DieRelease() admissionregistrationv1.NamedRuleWithOperations {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *NamedRuleWithOperationsDie) DieReleasePtr() *admissionregistrationv1.NamedRuleWithOperations {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *NamedRuleWithOperationsDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *NamedRuleWithOperationsDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NamedRuleWithOperationsDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *NamedRuleWithOperationsDie) DieStamp(fn func(r *admissionregistrationv1.NamedRuleWithOperations)) *NamedRuleWithOperationsDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *NamedRuleWithOperationsDie) DieStampAt(jp string, fn interface{}) *NamedRuleWithOperationsDie {
+	return d.DieStamp(func(r *admissionregistrationv1.NamedRuleWithOperations) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NamedRuleWithOperationsDie) DieWith(fns ...func(d *NamedRuleWithOperationsDie)) *NamedRuleWithOperationsDie {
+	nd := NamedRuleWithOperationsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *NamedRuleWithOperationsDie) DeepCopy() *NamedRuleWithOperationsDie {
+	r := *d.r.DeepCopy()
+	return &NamedRuleWithOperationsDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.
+func (d *NamedRuleWithOperationsDie) ResourceNames(v ...string) *NamedRuleWithOperationsDie {
+	return d.DieStamp(func(r *admissionregistrationv1.NamedRuleWithOperations) {
+		r.ResourceNames = v
+	})
+}
+
+// RuleWithOperations is a tuple of Operations and Resources.
+func (d *NamedRuleWithOperationsDie) RuleWithOperations(v admissionregistrationv1.RuleWithOperations) *NamedRuleWithOperationsDie {
+	return d.DieStamp(func(r *admissionregistrationv1.NamedRuleWithOperations) {
+		r.RuleWithOperations = v
+	})
+}
+
+var ValidationBlank = (&ValidationDie{}).DieFeed(admissionregistrationv1.Validation{})
+
+type ValidationDie struct {
+	mutable bool
+	r       admissionregistrationv1.Validation
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ValidationDie) DieImmutable(immutable bool) *ValidationDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ValidationDie) DieFeed(r admissionregistrationv1.Validation) *ValidationDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ValidationDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ValidationDie) DieFeedPtr(r *admissionregistrationv1.Validation) *ValidationDie {
+	if r == nil {
+		r = &admissionregistrationv1.Validation{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ValidationDie) DieFeedJSON(j []byte) *ValidationDie {
+	r := admissionregistrationv1.Validation{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ValidationDie) DieFeedYAML(y []byte) *ValidationDie {
+	r := admissionregistrationv1.Validation{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ValidationDie) DieFeedYAMLFile(name string) *ValidationDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ValidationDie) DieFeedRawExtension(raw runtime.RawExtension) *ValidationDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ValidationDie) DieRelease() admissionregistrationv1.Validation {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ValidationDie) DieReleasePtr() *admissionregistrationv1.Validation {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ValidationDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ValidationDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ValidationDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ValidationDie) DieStamp(fn func(r *admissionregistrationv1.Validation)) *ValidationDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ValidationDie) DieStampAt(jp string, fn interface{}) *ValidationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.Validation) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ValidationDie) DieWith(fns ...func(d *ValidationDie)) *ValidationDie {
+	nd := ValidationBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ValidationDie) DeepCopy() *ValidationDie {
+	r := *d.r.DeepCopy()
+	return &ValidationDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Expression represents the expression which will be evaluated by CEL.
+//
+// ref: https://github.com/google/cel-spec
+//
+// CEL expressions have access to the contents of the API request/response, organized into CEL variables as well as some other useful variables:
+//
+// - 'object' - The object from the incoming request. The value is null for DELETE requests.
+//
+// - 'oldObject' - The existing object. The value is null for CREATE requests.
+//
+// - 'request' - Attributes of the API request([ref](/pkg/apis/admission/types.go#AdmissionRequest)).
+//
+// - 'params' - Parameter resource referred to by the policy binding being evaluated. Only populated if the policy has a ParamKind.
+//
+// - 'namespaceObject' - The namespace object that the incoming object belongs to. The value is null for cluster-scoped resources.
+//
+// - 'variables' - Map of composited variables, from its name to its lazily evaluated value.
+//
+// For example, a variable named 'foo' can be accessed as 'variables.foo'.
+//
+// - 'authorizer' - A CEL Authorizer. May be used to perform authorization checks for the principal (user or service account) of the request.
+//
+// See https://pkg.go.dev/k8s.io/apiserver/pkg/cel/library#Authz
+//
+// - 'authorizer.requestResource' - A CEL ResourceCheck constructed from the 'authorizer' and configured with the
+//
+// request resource.
+//
+// # The `apiVersion`, `kind`, `metadata.name` and `metadata.generateName` are always accessible from the root of the
+//
+// object. No other metadata properties are accessible.
+//
+// Only property names of the form `[a-zA-Z_.-/][a-zA-Z0-9_.-/]*` are accessible.
+//
+// Accessible property names are escaped according to the following rules when accessed in the expression:
+//
+// - '__' escapes to '__underscores__'
+//
+// - '.' escapes to '__dot__'
+//
+// - '-' escapes to '__dash__'
+//
+// - '/' escapes to '__slash__'
+//
+// - Property names that exactly match a CEL RESERVED keyword escape to '__{keyword}__'. The keywords are:
+//
+// "true", "false", "null", "in", "as", "break", "const", "continue", "else", "for", "function", "if",
+//
+// "import", "let", "loop", "package", "namespace", "return".
+//
+// Examples:
+//
+// - Expression accessing a property named "namespace": {"Expression": "object.__namespace__ > 0"}
+//
+// - Expression accessing a property named "x-prop": {"Expression": "object.x__dash__prop > 0"}
+//
+// - Expression accessing a property named "redact__d": {"Expression": "object.redact__underscores__d > 0"}
+//
+// Equality on arrays with list type of 'set' or 'map' ignores element order, i.e. [1, 2] == [2, 1].
+//
+// Concatenation on arrays with x-kubernetes-list-type use the semantics of the list type:
+//
+// - 'set': `X + Y` performs a union where the array positions of all elements in `X` are preserved and
+//
+// non-intersecting elements in `Y` are appended, retaining their partial order.
+//
+// - 'map': `X + Y` performs a merge where the array positions of all keys in `X` are preserved but the values
+//
+// are overwritten by values in `Y` when the key sets of `X` and `Y` intersect. Elements in `Y` with
+//
+// non-intersecting keys are appended, retaining their partial order.
+//
+// Required.
+func (d *ValidationDie) Expression(v string) *ValidationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.Validation) {
+		r.Expression = v
+	})
+}
+
+// Message represents the message displayed when validation fails. The message is required if the Expression contains
+//
+// line breaks. The message must not contain line breaks.
+//
+// If unset, the message is "failed rule: {Rule}".
+//
+// e.g. "must be a URL with the host matching spec.host"
+//
+// If the Expression contains line breaks. Message is required.
+//
+// The message must not contain line breaks.
+//
+// If unset, the message is "failed Expression: {Expression}".
+func (d *ValidationDie) Message(v string) *ValidationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.Validation) {
+		r.Message = v
+	})
+}
+
+// Reason represents a machine-readable description of why this validation failed.
+//
+// # If this is the first validation in the list to fail, this reason, as well as the
+//
+// corresponding HTTP response code, are used in the
+//
+// HTTP response to the client.
+//
+// The currently supported reasons are: "Unauthorized", "Forbidden", "Invalid", "RequestEntityTooLarge".
+//
+// If not set, StatusReasonInvalid is used in the response to the client.
+func (d *ValidationDie) Reason(v *apismetav1.StatusReason) *ValidationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.Validation) {
+		r.Reason = v
+	})
+}
+
+// messageExpression declares a CEL expression that evaluates to the validation failure message that is returned when this rule fails.
+//
+// Since messageExpression is used as a failure message, it must evaluate to a string.
+//
+// If both message and messageExpression are present on a validation, then messageExpression will be used if validation fails.
+//
+// # If messageExpression results in a runtime error, the runtime error is logged, and the validation failure message is produced
+//
+// as if the messageExpression field were unset. If messageExpression evaluates to an empty string, a string with only spaces, or a string
+//
+// that contains line breaks, then the validation failure message will also be produced as if the messageExpression field were unset, and
+//
+// the fact that messageExpression produced an empty string/string with only spaces/string with line breaks will be logged.
+//
+// messageExpression has access to all the same variables as the `expression` except for 'authorizer' and 'authorizer.requestResource'.
+//
+// Example:
+//
+// "object.x must be less than max ("+string(params.max)+")"
+func (d *ValidationDie) MessageExpression(v string) *ValidationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.Validation) {
+		r.MessageExpression = v
+	})
+}
+
+var AuditAnnotationBlank = (&AuditAnnotationDie{}).DieFeed(admissionregistrationv1.AuditAnnotation{})
+
+type AuditAnnotationDie struct {
+	mutable bool
+	r       admissionregistrationv1.AuditAnnotation
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *AuditAnnotationDie) DieImmutable(immutable bool) *AuditAnnotationDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *AuditAnnotationDie) DieFeed(r admissionregistrationv1.AuditAnnotation) *AuditAnnotationDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &AuditAnnotationDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *AuditAnnotationDie) DieFeedPtr(r *admissionregistrationv1.AuditAnnotation) *AuditAnnotationDie {
+	if r == nil {
+		r = &admissionregistrationv1.AuditAnnotation{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *AuditAnnotationDie) DieFeedJSON(j []byte) *AuditAnnotationDie {
+	r := admissionregistrationv1.AuditAnnotation{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *AuditAnnotationDie) DieFeedYAML(y []byte) *AuditAnnotationDie {
+	r := admissionregistrationv1.AuditAnnotation{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *AuditAnnotationDie) DieFeedYAMLFile(name string) *AuditAnnotationDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *AuditAnnotationDie) DieFeedRawExtension(raw runtime.RawExtension) *AuditAnnotationDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *AuditAnnotationDie) DieRelease() admissionregistrationv1.AuditAnnotation {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *AuditAnnotationDie) DieReleasePtr() *admissionregistrationv1.AuditAnnotation {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *AuditAnnotationDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *AuditAnnotationDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *AuditAnnotationDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *AuditAnnotationDie) DieStamp(fn func(r *admissionregistrationv1.AuditAnnotation)) *AuditAnnotationDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *AuditAnnotationDie) DieStampAt(jp string, fn interface{}) *AuditAnnotationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.AuditAnnotation) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *AuditAnnotationDie) DieWith(fns ...func(d *AuditAnnotationDie)) *AuditAnnotationDie {
+	nd := AuditAnnotationBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *AuditAnnotationDie) DeepCopy() *AuditAnnotationDie {
+	r := *d.r.DeepCopy()
+	return &AuditAnnotationDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// key specifies the audit annotation key. The audit annotation keys of
+//
+// a ValidatingAdmissionPolicy must be unique. The key must be a qualified
+//
+// name ([A-Za-z0-9][-A-Za-z0-9_.]*) no more than 63 bytes in length.
+//
+// # The key is combined with the resource name of the
+//
+// ValidatingAdmissionPolicy to construct an audit annotation key:
+//
+// "{ValidatingAdmissionPolicy name}/{key}".
+//
+// # If an admission webhook uses the same resource name as this ValidatingAdmissionPolicy
+//
+// and the same audit annotation key, the annotation key will be identical.
+//
+// # In this case, the first annotation written with the key will be included
+//
+// in the audit event and all subsequent annotations with the same key
+//
+// will be discarded.
+//
+// Required.
+func (d *AuditAnnotationDie) Key(v string) *AuditAnnotationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.AuditAnnotation) {
+		r.Key = v
+	})
+}
+
+// valueExpression represents the expression which is evaluated by CEL to
+//
+// produce an audit annotation value. The expression must evaluate to either
+//
+// a string or null value. If the expression evaluates to a string, the
+//
+// audit annotation is included with the string value. If the expression
+//
+// evaluates to null or empty string the audit annotation will be omitted.
+//
+// The valueExpression may be no longer than 5kb in length.
+//
+// # If the result of the valueExpression is more than 10kb in length, it
+//
+// will be truncated to 10kb.
+//
+// # If multiple ValidatingAdmissionPolicyBinding resources match an
+//
+// # API request, then the valueExpression will be evaluated for
+//
+// each binding. All unique values produced by the valueExpressions
+//
+// will be joined together in a comma-separated list.
+//
+// Required.
+func (d *AuditAnnotationDie) ValueExpression(v string) *AuditAnnotationDie {
+	return d.DieStamp(func(r *admissionregistrationv1.AuditAnnotation) {
+		r.ValueExpression = v
+	})
+}
+
+var VariableBlank = (&VariableDie{}).DieFeed(admissionregistrationv1.Variable{})
+
+type VariableDie struct {
+	mutable bool
+	r       admissionregistrationv1.Variable
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *VariableDie) DieImmutable(immutable bool) *VariableDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *VariableDie) DieFeed(r admissionregistrationv1.Variable) *VariableDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &VariableDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *VariableDie) DieFeedPtr(r *admissionregistrationv1.Variable) *VariableDie {
+	if r == nil {
+		r = &admissionregistrationv1.Variable{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *VariableDie) DieFeedJSON(j []byte) *VariableDie {
+	r := admissionregistrationv1.Variable{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *VariableDie) DieFeedYAML(y []byte) *VariableDie {
+	r := admissionregistrationv1.Variable{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *VariableDie) DieFeedYAMLFile(name string) *VariableDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *VariableDie) DieFeedRawExtension(raw runtime.RawExtension) *VariableDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *VariableDie) DieRelease() admissionregistrationv1.Variable {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *VariableDie) DieReleasePtr() *admissionregistrationv1.Variable {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *VariableDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *VariableDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *VariableDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *VariableDie) DieStamp(fn func(r *admissionregistrationv1.Variable)) *VariableDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *VariableDie) DieStampAt(jp string, fn interface{}) *VariableDie {
+	return d.DieStamp(func(r *admissionregistrationv1.Variable) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *VariableDie) DieWith(fns ...func(d *VariableDie)) *VariableDie {
+	nd := VariableBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *VariableDie) DeepCopy() *VariableDie {
+	r := *d.r.DeepCopy()
+	return &VariableDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// Name is the name of the variable. The name must be a valid CEL identifier and unique among all variables.
+//
+// The variable can be accessed in other expressions through `variables`
+//
+// For example, if name is "foo", the variable will be available as `variables.foo`
+func (d *VariableDie) Name(v string) *VariableDie {
+	return d.DieStamp(func(r *admissionregistrationv1.Variable) {
+		r.Name = v
+	})
+}
+
+// Expression is the expression that will be evaluated as the value of the variable.
+//
+// The CEL expression has access to the same identifiers as the CEL expressions in Validation.
+func (d *VariableDie) Expression(v string) *VariableDie {
+	return d.DieStamp(func(r *admissionregistrationv1.Variable) {
+		r.Expression = v
+	})
+}
+
+var ValidatingAdmissionPolicyStatusBlank = (&ValidatingAdmissionPolicyStatusDie{}).DieFeed(admissionregistrationv1.ValidatingAdmissionPolicyStatus{})
+
+type ValidatingAdmissionPolicyStatusDie struct {
+	mutable bool
+	r       admissionregistrationv1.ValidatingAdmissionPolicyStatus
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ValidatingAdmissionPolicyStatusDie) DieImmutable(immutable bool) *ValidatingAdmissionPolicyStatusDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ValidatingAdmissionPolicyStatusDie) DieFeed(r admissionregistrationv1.ValidatingAdmissionPolicyStatus) *ValidatingAdmissionPolicyStatusDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ValidatingAdmissionPolicyStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ValidatingAdmissionPolicyStatusDie) DieFeedPtr(r *admissionregistrationv1.ValidatingAdmissionPolicyStatus) *ValidatingAdmissionPolicyStatusDie {
+	if r == nil {
+		r = &admissionregistrationv1.ValidatingAdmissionPolicyStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ValidatingAdmissionPolicyStatusDie) DieFeedJSON(j []byte) *ValidatingAdmissionPolicyStatusDie {
+	r := admissionregistrationv1.ValidatingAdmissionPolicyStatus{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ValidatingAdmissionPolicyStatusDie) DieFeedYAML(y []byte) *ValidatingAdmissionPolicyStatusDie {
+	r := admissionregistrationv1.ValidatingAdmissionPolicyStatus{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ValidatingAdmissionPolicyStatusDie) DieFeedYAMLFile(name string) *ValidatingAdmissionPolicyStatusDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ValidatingAdmissionPolicyStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *ValidatingAdmissionPolicyStatusDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ValidatingAdmissionPolicyStatusDie) DieRelease() admissionregistrationv1.ValidatingAdmissionPolicyStatus {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ValidatingAdmissionPolicyStatusDie) DieReleasePtr() *admissionregistrationv1.ValidatingAdmissionPolicyStatus {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ValidatingAdmissionPolicyStatusDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ValidatingAdmissionPolicyStatusDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ValidatingAdmissionPolicyStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ValidatingAdmissionPolicyStatusDie) DieStamp(fn func(r *admissionregistrationv1.ValidatingAdmissionPolicyStatus)) *ValidatingAdmissionPolicyStatusDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ValidatingAdmissionPolicyStatusDie) DieStampAt(jp string, fn interface{}) *ValidatingAdmissionPolicyStatusDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ValidatingAdmissionPolicyStatusDie) DieWith(fns ...func(d *ValidatingAdmissionPolicyStatusDie)) *ValidatingAdmissionPolicyStatusDie {
+	nd := ValidatingAdmissionPolicyStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ValidatingAdmissionPolicyStatusDie) DeepCopy() *ValidatingAdmissionPolicyStatusDie {
+	r := *d.r.DeepCopy()
+	return &ValidatingAdmissionPolicyStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// The generation observed by the controller.
+func (d *ValidatingAdmissionPolicyStatusDie) ObservedGeneration(v int64) *ValidatingAdmissionPolicyStatusDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyStatus) {
+		r.ObservedGeneration = v
+	})
+}
+
+// The results of type checking for each expression.
+//
+// Presence of this field indicates the completion of the type checking.
+func (d *ValidatingAdmissionPolicyStatusDie) TypeChecking(v *admissionregistrationv1.TypeChecking) *ValidatingAdmissionPolicyStatusDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyStatus) {
+		r.TypeChecking = v
+	})
+}
+
+// The conditions represent the latest available observations of a policy's current state.
+func (d *ValidatingAdmissionPolicyStatusDie) Conditions(v ...apismetav1.Condition) *ValidatingAdmissionPolicyStatusDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyStatus) {
+		r.Conditions = v
+	})
+}
+
+var TypeCheckingBlank = (&TypeCheckingDie{}).DieFeed(admissionregistrationv1.TypeChecking{})
+
+type TypeCheckingDie struct {
+	mutable bool
+	r       admissionregistrationv1.TypeChecking
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *TypeCheckingDie) DieImmutable(immutable bool) *TypeCheckingDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *TypeCheckingDie) DieFeed(r admissionregistrationv1.TypeChecking) *TypeCheckingDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &TypeCheckingDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *TypeCheckingDie) DieFeedPtr(r *admissionregistrationv1.TypeChecking) *TypeCheckingDie {
+	if r == nil {
+		r = &admissionregistrationv1.TypeChecking{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *TypeCheckingDie) DieFeedJSON(j []byte) *TypeCheckingDie {
+	r := admissionregistrationv1.TypeChecking{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *TypeCheckingDie) DieFeedYAML(y []byte) *TypeCheckingDie {
+	r := admissionregistrationv1.TypeChecking{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *TypeCheckingDie) DieFeedYAMLFile(name string) *TypeCheckingDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *TypeCheckingDie) DieFeedRawExtension(raw runtime.RawExtension) *TypeCheckingDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *TypeCheckingDie) DieRelease() admissionregistrationv1.TypeChecking {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *TypeCheckingDie) DieReleasePtr() *admissionregistrationv1.TypeChecking {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *TypeCheckingDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *TypeCheckingDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *TypeCheckingDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *TypeCheckingDie) DieStamp(fn func(r *admissionregistrationv1.TypeChecking)) *TypeCheckingDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *TypeCheckingDie) DieStampAt(jp string, fn interface{}) *TypeCheckingDie {
+	return d.DieStamp(func(r *admissionregistrationv1.TypeChecking) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *TypeCheckingDie) DieWith(fns ...func(d *TypeCheckingDie)) *TypeCheckingDie {
+	nd := TypeCheckingBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *TypeCheckingDie) DeepCopy() *TypeCheckingDie {
+	r := *d.r.DeepCopy()
+	return &TypeCheckingDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// The type checking warnings for each expression.
+func (d *TypeCheckingDie) ExpressionWarnings(v ...admissionregistrationv1.ExpressionWarning) *TypeCheckingDie {
+	return d.DieStamp(func(r *admissionregistrationv1.TypeChecking) {
+		r.ExpressionWarnings = v
+	})
+}
+
+var ExpressionWarningBlank = (&ExpressionWarningDie{}).DieFeed(admissionregistrationv1.ExpressionWarning{})
+
+type ExpressionWarningDie struct {
+	mutable bool
+	r       admissionregistrationv1.ExpressionWarning
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ExpressionWarningDie) DieImmutable(immutable bool) *ExpressionWarningDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ExpressionWarningDie) DieFeed(r admissionregistrationv1.ExpressionWarning) *ExpressionWarningDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ExpressionWarningDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ExpressionWarningDie) DieFeedPtr(r *admissionregistrationv1.ExpressionWarning) *ExpressionWarningDie {
+	if r == nil {
+		r = &admissionregistrationv1.ExpressionWarning{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ExpressionWarningDie) DieFeedJSON(j []byte) *ExpressionWarningDie {
+	r := admissionregistrationv1.ExpressionWarning{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ExpressionWarningDie) DieFeedYAML(y []byte) *ExpressionWarningDie {
+	r := admissionregistrationv1.ExpressionWarning{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ExpressionWarningDie) DieFeedYAMLFile(name string) *ExpressionWarningDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ExpressionWarningDie) DieFeedRawExtension(raw runtime.RawExtension) *ExpressionWarningDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ExpressionWarningDie) DieRelease() admissionregistrationv1.ExpressionWarning {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ExpressionWarningDie) DieReleasePtr() *admissionregistrationv1.ExpressionWarning {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ExpressionWarningDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ExpressionWarningDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ExpressionWarningDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ExpressionWarningDie) DieStamp(fn func(r *admissionregistrationv1.ExpressionWarning)) *ExpressionWarningDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ExpressionWarningDie) DieStampAt(jp string, fn interface{}) *ExpressionWarningDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ExpressionWarning) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ExpressionWarningDie) DieWith(fns ...func(d *ExpressionWarningDie)) *ExpressionWarningDie {
+	nd := ExpressionWarningBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ExpressionWarningDie) DeepCopy() *ExpressionWarningDie {
+	r := *d.r.DeepCopy()
+	return &ExpressionWarningDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// The path to the field that refers the expression.
+//
+// # For example, the reference to the expression of the first item of
+//
+// validations is "spec.validations[0].expression"
+func (d *ExpressionWarningDie) FieldRef(v string) *ExpressionWarningDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ExpressionWarning) {
+		r.FieldRef = v
+	})
+}
+
+// The content of type checking information in a human-readable form.
+//
+// # Each line of the warning contains the type that the expression is checked
+//
+// against, followed by the type check error from the compiler.
+func (d *ExpressionWarningDie) Warning(v string) *ExpressionWarningDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ExpressionWarning) {
+		r.Warning = v
+	})
+}
+
+var ValidatingAdmissionPolicyBindingBlank = (&ValidatingAdmissionPolicyBindingDie{}).DieFeed(admissionregistrationv1.ValidatingAdmissionPolicyBinding{})
+
+type ValidatingAdmissionPolicyBindingDie struct {
+	metav1.FrozenObjectMeta
+	mutable bool
+	r       admissionregistrationv1.ValidatingAdmissionPolicyBinding
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ValidatingAdmissionPolicyBindingDie) DieImmutable(immutable bool) *ValidatingAdmissionPolicyBindingDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ValidatingAdmissionPolicyBindingDie) DieFeed(r admissionregistrationv1.ValidatingAdmissionPolicyBinding) *ValidatingAdmissionPolicyBindingDie {
+	if d.mutable {
+		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
+		d.r = r
+		return d
+	}
+	return &ValidatingAdmissionPolicyBindingDie{
+		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
+		mutable:          d.mutable,
+		r:                r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ValidatingAdmissionPolicyBindingDie) DieFeedPtr(r *admissionregistrationv1.ValidatingAdmissionPolicyBinding) *ValidatingAdmissionPolicyBindingDie {
+	if r == nil {
+		r = &admissionregistrationv1.ValidatingAdmissionPolicyBinding{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ValidatingAdmissionPolicyBindingDie) DieFeedJSON(j []byte) *ValidatingAdmissionPolicyBindingDie {
+	r := admissionregistrationv1.ValidatingAdmissionPolicyBinding{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ValidatingAdmissionPolicyBindingDie) DieFeedYAML(y []byte) *ValidatingAdmissionPolicyBindingDie {
+	r := admissionregistrationv1.ValidatingAdmissionPolicyBinding{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ValidatingAdmissionPolicyBindingDie) DieFeedYAMLFile(name string) *ValidatingAdmissionPolicyBindingDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ValidatingAdmissionPolicyBindingDie) DieFeedRawExtension(raw runtime.RawExtension) *ValidatingAdmissionPolicyBindingDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ValidatingAdmissionPolicyBindingDie) DieRelease() admissionregistrationv1.ValidatingAdmissionPolicyBinding {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ValidatingAdmissionPolicyBindingDie) DieReleasePtr() *admissionregistrationv1.ValidatingAdmissionPolicyBinding {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseUnstructured returns the resource managed by the die as an unstructured object. Panics on error.
+func (d *ValidatingAdmissionPolicyBindingDie) DieReleaseUnstructured() *unstructured.Unstructured {
+	r := d.DieReleasePtr()
+	u, err := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	if err != nil {
+		panic(err)
+	}
+	return &unstructured.Unstructured{
+		Object: u,
+	}
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ValidatingAdmissionPolicyBindingDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ValidatingAdmissionPolicyBindingDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ValidatingAdmissionPolicyBindingDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ValidatingAdmissionPolicyBindingDie) DieStamp(fn func(r *admissionregistrationv1.ValidatingAdmissionPolicyBinding)) *ValidatingAdmissionPolicyBindingDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ValidatingAdmissionPolicyBindingDie) DieStampAt(jp string, fn interface{}) *ValidatingAdmissionPolicyBindingDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyBinding) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ValidatingAdmissionPolicyBindingDie) DieWith(fns ...func(d *ValidatingAdmissionPolicyBindingDie)) *ValidatingAdmissionPolicyBindingDie {
+	nd := ValidatingAdmissionPolicyBindingBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ValidatingAdmissionPolicyBindingDie) DeepCopy() *ValidatingAdmissionPolicyBindingDie {
+	r := *d.r.DeepCopy()
+	return &ValidatingAdmissionPolicyBindingDie{
+		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
+		mutable:          d.mutable,
+		r:                r,
+	}
+}
+
+var _ runtime.Object = (*ValidatingAdmissionPolicyBindingDie)(nil)
+
+func (d *ValidatingAdmissionPolicyBindingDie) DeepCopyObject() runtime.Object {
+	return d.r.DeepCopy()
+}
+
+func (d *ValidatingAdmissionPolicyBindingDie) GetObjectKind() schema.ObjectKind {
+	r := d.DieRelease()
+	return r.GetObjectKind()
+}
+
+func (d *ValidatingAdmissionPolicyBindingDie) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.r)
+}
+
+func (d *ValidatingAdmissionPolicyBindingDie) UnmarshalJSON(b []byte) error {
+	if !d.mutable {
+		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
+	}
+	r := &admissionregistrationv1.ValidatingAdmissionPolicyBinding{}
+	err := json.Unmarshal(b, r)
+	*d = *d.DieFeed(*r)
+	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "admissionregistration.k8s.io/v1" and "ValidatingAdmissionPolicyBinding" respectively.
+func (d *ValidatingAdmissionPolicyBindingDie) DieDefaultTypeMetadata() *ValidatingAdmissionPolicyBindingDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyBinding) {
+		r.APIVersion = "admissionregistration.k8s.io/v1"
+		r.Kind = "ValidatingAdmissionPolicyBinding"
+	})
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *ValidatingAdmissionPolicyBindingDie) APIVersion(v string) *ValidatingAdmissionPolicyBindingDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyBinding) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ValidatingAdmissionPolicyBindingDie) Kind(v string) *ValidatingAdmissionPolicyBindingDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyBinding) {
+		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *ValidatingAdmissionPolicyBindingDie) TypeMetadata(v apismetav1.TypeMeta) *ValidatingAdmissionPolicyBindingDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyBinding) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *ValidatingAdmissionPolicyBindingDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *ValidatingAdmissionPolicyBindingDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyBinding) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *ValidatingAdmissionPolicyBindingDie) Metadata(v apismetav1.ObjectMeta) *ValidatingAdmissionPolicyBindingDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyBinding) {
+		r.ObjectMeta = v
+	})
+}
+
+// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+func (d *ValidatingAdmissionPolicyBindingDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *ValidatingAdmissionPolicyBindingDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyBinding) {
+		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
+		fn(d)
+		r.ObjectMeta = d.DieRelease()
+	})
+}
+
+// SpecDie stamps the resource's spec field with a mutable die.
+func (d *ValidatingAdmissionPolicyBindingDie) SpecDie(fn func(d *ValidatingAdmissionPolicyBindingSpecDie)) *ValidatingAdmissionPolicyBindingDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyBinding) {
+		d := ValidatingAdmissionPolicyBindingSpecBlank.DieImmutable(false).DieFeed(r.Spec)
+		fn(d)
+		r.Spec = d.DieRelease()
+	})
+}
+
+// Specification of the desired behavior of the ValidatingAdmissionPolicyBinding.
+func (d *ValidatingAdmissionPolicyBindingDie) Spec(v admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec) *ValidatingAdmissionPolicyBindingDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyBinding) {
+		r.Spec = v
+	})
+}
+
+var ValidatingAdmissionPolicyBindingSpecBlank = (&ValidatingAdmissionPolicyBindingSpecDie{}).DieFeed(admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec{})
+
+type ValidatingAdmissionPolicyBindingSpecDie struct {
+	mutable bool
+	r       admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ValidatingAdmissionPolicyBindingSpecDie) DieImmutable(immutable bool) *ValidatingAdmissionPolicyBindingSpecDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) DieFeed(r admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec) *ValidatingAdmissionPolicyBindingSpecDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ValidatingAdmissionPolicyBindingSpecDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) DieFeedPtr(r *admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec) *ValidatingAdmissionPolicyBindingSpecDie {
+	if r == nil {
+		r = &admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) DieFeedJSON(j []byte) *ValidatingAdmissionPolicyBindingSpecDie {
+	r := admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) DieFeedYAML(y []byte) *ValidatingAdmissionPolicyBindingSpecDie {
+	r := admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) DieFeedYAMLFile(name string) *ValidatingAdmissionPolicyBindingSpecDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *ValidatingAdmissionPolicyBindingSpecDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) DieRelease() admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) DieReleasePtr() *admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) DieStamp(fn func(r *admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec)) *ValidatingAdmissionPolicyBindingSpecDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) DieStampAt(jp string, fn interface{}) *ValidatingAdmissionPolicyBindingSpecDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) DieWith(fns ...func(d *ValidatingAdmissionPolicyBindingSpecDie)) *ValidatingAdmissionPolicyBindingSpecDie {
+	nd := ValidatingAdmissionPolicyBindingSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) DeepCopy() *ValidatingAdmissionPolicyBindingSpecDie {
+	r := *d.r.DeepCopy()
+	return &ValidatingAdmissionPolicyBindingSpecDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// PolicyName references a ValidatingAdmissionPolicy name which the ValidatingAdmissionPolicyBinding binds to.
+//
+// # If the referenced resource does not exist, this binding is considered invalid and will be ignored
+//
+// Required.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) PolicyName(v string) *ValidatingAdmissionPolicyBindingSpecDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec) {
+		r.PolicyName = v
+	})
+}
+
+// paramRef specifies the parameter resource used to configure the admission control policy.
+//
+// It should point to a resource of the type specified in ParamKind of the bound ValidatingAdmissionPolicy.
+//
+// If the policy specifies a ParamKind and the resource referred to by ParamRef does not exist, this binding is considered mis-configured and the FailurePolicy of the ValidatingAdmissionPolicy applied.
+//
+// If the policy does not specify a ParamKind then this field is ignored, and the rules are evaluated without a param.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) ParamRef(v *admissionregistrationv1.ParamRef) *ValidatingAdmissionPolicyBindingSpecDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec) {
+		r.ParamRef = v
+	})
+}
+
+// MatchResources declares what resources match this binding and will be validated by it.
+//
+// Note that this is intersected with the policy's matchConstraints, so only requests that are matched by the policy can be selected by this.
+//
+// # If this is unset, all resources matched by the policy are validated by this binding
+//
+// When resourceRules is unset, it does not constrain resource matching. If a resource is matched by the other fields of this object, it will be validated.
+//
+// Note that this is differs from ValidatingAdmissionPolicy matchConstraints, where resourceRules are required.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) MatchResources(v *admissionregistrationv1.MatchResources) *ValidatingAdmissionPolicyBindingSpecDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec) {
+		r.MatchResources = v
+	})
+}
+
+// validationActions declares how Validations of the referenced ValidatingAdmissionPolicy are enforced.
+//
+// If a validation evaluates to false it is always enforced according to these actions.
+//
+// # Failures defined by the ValidatingAdmissionPolicy's FailurePolicy are enforced according
+//
+// to these actions only if the FailurePolicy is set to Fail, otherwise the failures are
+//
+// ignored. This includes compilation errors, runtime errors and misconfigurations of the policy.
+//
+// validationActions is declared as a set of action values. Order does
+//
+// not matter. validationActions may not contain duplicates of the same action.
+//
+// The supported actions values are:
+//
+// "Deny" specifies that a validation failure results in a denied request.
+//
+// "Warn" specifies that a validation failure is reported to the request client
+//
+// in HTTP Warning headers, with a warning code of 299. Warnings can be sent
+//
+// both for allowed or denied admission responses.
+//
+// "Audit" specifies that a validation failure is included in the published
+//
+// audit event for the request. The audit event will contain a
+//
+// `validation.policy.admission.k8s.io/validation_failure` audit annotation
+//
+// with a value containing the details of the validation failures, formatted as
+//
+// a JSON list of objects, each with the following fields:
+//
+// - message: The validation failure message string
+//
+// - policy: The resource name of the ValidatingAdmissionPolicy
+//
+// - binding: The resource name of the ValidatingAdmissionPolicyBinding
+//
+// - expressionIndex: The index of the failed validations in the ValidatingAdmissionPolicy
+//
+// - validationActions: The enforcement actions enacted for the validation failure
+//
+// Example audit annotation:
+//
+// `"validation.policy.admission.k8s.io/validation_failure": "[{\"message\": \"Invalid value\", {\"policy\": \"policy.example.com\", {\"binding\": \"policybinding.example.com\", {\"expressionIndex\": \"1\", {\"validationActions\": [\"Audit\"]}]"`
+//
+// # Clients should expect to handle additional values by ignoring
+//
+// any values not recognized.
+//
+// "Deny" and "Warn" may not be used together since this combination
+//
+// needlessly duplicates the validation failure both in the
+//
+// API response body and the HTTP warning headers.
+//
+// Required.
+func (d *ValidatingAdmissionPolicyBindingSpecDie) ValidationActions(v ...admissionregistrationv1.ValidationAction) *ValidatingAdmissionPolicyBindingSpecDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec) {
+		r.ValidationActions = v
+	})
+}
+
+var ParamRefBlank = (&ParamRefDie{}).DieFeed(admissionregistrationv1.ParamRef{})
+
+type ParamRefDie struct {
+	mutable bool
+	r       admissionregistrationv1.ParamRef
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ParamRefDie) DieImmutable(immutable bool) *ParamRefDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ParamRefDie) DieFeed(r admissionregistrationv1.ParamRef) *ParamRefDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ParamRefDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ParamRefDie) DieFeedPtr(r *admissionregistrationv1.ParamRef) *ParamRefDie {
+	if r == nil {
+		r = &admissionregistrationv1.ParamRef{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ParamRefDie) DieFeedJSON(j []byte) *ParamRefDie {
+	r := admissionregistrationv1.ParamRef{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ParamRefDie) DieFeedYAML(y []byte) *ParamRefDie {
+	r := admissionregistrationv1.ParamRef{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ParamRefDie) DieFeedYAMLFile(name string) *ParamRefDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ParamRefDie) DieFeedRawExtension(raw runtime.RawExtension) *ParamRefDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ParamRefDie) DieRelease() admissionregistrationv1.ParamRef {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ParamRefDie) DieReleasePtr() *admissionregistrationv1.ParamRef {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ParamRefDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ParamRefDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ParamRefDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ParamRefDie) DieStamp(fn func(r *admissionregistrationv1.ParamRef)) *ParamRefDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ParamRefDie) DieStampAt(jp string, fn interface{}) *ParamRefDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ParamRef) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ParamRefDie) DieWith(fns ...func(d *ParamRefDie)) *ParamRefDie {
+	nd := ParamRefBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ParamRefDie) DeepCopy() *ParamRefDie {
+	r := *d.r.DeepCopy()
+	return &ParamRefDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// name is the name of the resource being referenced.
+//
+// # One of `name` or `selector` must be set, but `name` and `selector` are
+//
+// mutually exclusive properties. If one is set, the other must be unset.
+//
+// # A single parameter used for all admission requests can be configured
+//
+// by setting the `name` field, leaving `selector` blank, and setting namespace
+//
+// if `paramKind` is namespace-scoped.
+func (d *ParamRefDie) Name(v string) *ParamRefDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ParamRef) {
+		r.Name = v
+	})
+}
+
+// namespace is the namespace of the referenced resource. Allows limiting
+//
+// the search for params to a specific namespace. Applies to both `name` and
+//
+// `selector` fields.
+//
+// # A per-namespace parameter may be used by specifying a namespace-scoped
+//
+// `paramKind` in the policy and leaving this field empty.
+//
+// - If `paramKind` is cluster-scoped, this field MUST be unset. Setting this
+//
+// field results in a configuration error.
+//
+// - If `paramKind` is namespace-scoped, the namespace of the object being
+//
+// evaluated for admission will be used when this field is left unset. Take
+//
+// care that if this is left empty the binding must not match any cluster-scoped
+//
+// resources, which will result in an error.
+func (d *ParamRefDie) Namespace(v string) *ParamRefDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ParamRef) {
+		r.Namespace = v
+	})
+}
+
+// selector can be used to match multiple param objects based on their labels.
+//
+// Supply selector: {} to match all resources of the ParamKind.
+//
+// # If multiple params are found, they are all evaluated with the policy expressions
+//
+// and the results are ANDed together.
+//
+// # One of `name` or `selector` must be set, but `name` and `selector` are
+//
+// mutually exclusive properties. If one is set, the other must be unset.
+func (d *ParamRefDie) Selector(v *apismetav1.LabelSelector) *ParamRefDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ParamRef) {
+		r.Selector = v
+	})
+}
+
+// `parameterNotFoundAction` controls the behavior of the binding when the resource
+//
+// exists, and name or selector is valid, but there are no parameters
+//
+// matched by the binding. If the value is set to `Allow`, then no
+//
+// matched parameters will be treated as successful validation by the binding.
+//
+// # If set to `Deny`, then no matched parameters will be subject to the
+//
+// `failurePolicy` of the policy.
+//
+// Allowed values are `Allow` or `Deny`
+//
+// Required
+func (d *ParamRefDie) ParameterNotFoundAction(v *admissionregistrationv1.ParameterNotFoundActionType) *ParamRefDie {
+	return d.DieStamp(func(r *admissionregistrationv1.ParamRef) {
+		r.ParameterNotFoundAction = v
+	})
+}
+
 var ValidatingWebhookConfigurationBlank = (&ValidatingWebhookConfigurationDie{}).DieFeed(admissionregistrationv1.ValidatingWebhookConfiguration{})
 
 type ValidatingWebhookConfigurationDie struct {

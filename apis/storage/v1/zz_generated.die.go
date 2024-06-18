@@ -26,6 +26,7 @@ import (
 	fmtx "fmt"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -1870,6 +1871,357 @@ func (d *VolumeNodeResourcesDie) DeepCopy() *VolumeNodeResourcesDie {
 func (d *VolumeNodeResourcesDie) Count(v *int32) *VolumeNodeResourcesDie {
 	return d.DieStamp(func(r *storagev1.VolumeNodeResources) {
 		r.Count = v
+	})
+}
+
+var CSIStorageCapacityBlank = (&CSIStorageCapacityDie{}).DieFeed(storagev1.CSIStorageCapacity{})
+
+type CSIStorageCapacityDie struct {
+	metav1.FrozenObjectMeta
+	mutable bool
+	r       storagev1.CSIStorageCapacity
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *CSIStorageCapacityDie) DieImmutable(immutable bool) *CSIStorageCapacityDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *CSIStorageCapacityDie) DieFeed(r storagev1.CSIStorageCapacity) *CSIStorageCapacityDie {
+	if d.mutable {
+		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
+		d.r = r
+		return d
+	}
+	return &CSIStorageCapacityDie{
+		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
+		mutable:          d.mutable,
+		r:                r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *CSIStorageCapacityDie) DieFeedPtr(r *storagev1.CSIStorageCapacity) *CSIStorageCapacityDie {
+	if r == nil {
+		r = &storagev1.CSIStorageCapacity{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *CSIStorageCapacityDie) DieFeedJSON(j []byte) *CSIStorageCapacityDie {
+	r := storagev1.CSIStorageCapacity{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *CSIStorageCapacityDie) DieFeedYAML(y []byte) *CSIStorageCapacityDie {
+	r := storagev1.CSIStorageCapacity{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *CSIStorageCapacityDie) DieFeedYAMLFile(name string) *CSIStorageCapacityDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *CSIStorageCapacityDie) DieFeedRawExtension(raw runtime.RawExtension) *CSIStorageCapacityDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *CSIStorageCapacityDie) DieRelease() storagev1.CSIStorageCapacity {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *CSIStorageCapacityDie) DieReleasePtr() *storagev1.CSIStorageCapacity {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseUnstructured returns the resource managed by the die as an unstructured object. Panics on error.
+func (d *CSIStorageCapacityDie) DieReleaseUnstructured() *unstructured.Unstructured {
+	r := d.DieReleasePtr()
+	u, err := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	if err != nil {
+		panic(err)
+	}
+	return &unstructured.Unstructured{
+		Object: u,
+	}
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *CSIStorageCapacityDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *CSIStorageCapacityDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *CSIStorageCapacityDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *CSIStorageCapacityDie) DieStamp(fn func(r *storagev1.CSIStorageCapacity)) *CSIStorageCapacityDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *CSIStorageCapacityDie) DieStampAt(jp string, fn interface{}) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1.CSIStorageCapacity) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CSIStorageCapacityDie) DieWith(fns ...func(d *CSIStorageCapacityDie)) *CSIStorageCapacityDie {
+	nd := CSIStorageCapacityBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *CSIStorageCapacityDie) DeepCopy() *CSIStorageCapacityDie {
+	r := *d.r.DeepCopy()
+	return &CSIStorageCapacityDie{
+		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
+		mutable:          d.mutable,
+		r:                r,
+	}
+}
+
+var _ runtime.Object = (*CSIStorageCapacityDie)(nil)
+
+func (d *CSIStorageCapacityDie) DeepCopyObject() runtime.Object {
+	return d.r.DeepCopy()
+}
+
+func (d *CSIStorageCapacityDie) GetObjectKind() schema.ObjectKind {
+	r := d.DieRelease()
+	return r.GetObjectKind()
+}
+
+func (d *CSIStorageCapacityDie) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.r)
+}
+
+func (d *CSIStorageCapacityDie) UnmarshalJSON(b []byte) error {
+	if !d.mutable {
+		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
+	}
+	r := &storagev1.CSIStorageCapacity{}
+	err := json.Unmarshal(b, r)
+	*d = *d.DieFeed(*r)
+	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "storage.k8s.io/v1" and "CSIStorageCapacity" respectively.
+func (d *CSIStorageCapacityDie) DieDefaultTypeMetadata() *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1.CSIStorageCapacity) {
+		r.APIVersion = "storage.k8s.io/v1"
+		r.Kind = "CSIStorageCapacity"
+	})
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *CSIStorageCapacityDie) APIVersion(v string) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1.CSIStorageCapacity) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *CSIStorageCapacityDie) Kind(v string) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1.CSIStorageCapacity) {
+		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *CSIStorageCapacityDie) TypeMetadata(v apismetav1.TypeMeta) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1.CSIStorageCapacity) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *CSIStorageCapacityDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1.CSIStorageCapacity) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *CSIStorageCapacityDie) Metadata(v apismetav1.ObjectMeta) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1.CSIStorageCapacity) {
+		r.ObjectMeta = v
+	})
+}
+
+// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+func (d *CSIStorageCapacityDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1.CSIStorageCapacity) {
+		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
+		fn(d)
+		r.ObjectMeta = d.DieRelease()
+	})
+}
+
+// nodeTopology defines which nodes have access to the storage
+//
+// for which capacity was reported. If not set, the storage is
+//
+// not accessible from any node in the cluster. If empty, the
+//
+// storage is accessible from all nodes. This field is
+//
+// immutable.
+func (d *CSIStorageCapacityDie) NodeTopology(v *apismetav1.LabelSelector) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1.CSIStorageCapacity) {
+		r.NodeTopology = v
+	})
+}
+
+// storageClassName represents the name of the StorageClass that the reported capacity applies to.
+//
+// # It must meet the same requirements as the name of a StorageClass
+//
+// object (non-empty, DNS subdomain). If that object no longer exists,
+//
+// the CSIStorageCapacity object is obsolete and should be removed by its
+//
+// creator.
+//
+// This field is immutable.
+func (d *CSIStorageCapacityDie) StorageClassName(v string) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1.CSIStorageCapacity) {
+		r.StorageClassName = v
+	})
+}
+
+// capacity is the value reported by the CSI driver in its GetCapacityResponse
+//
+// for a GetCapacityRequest with topology and parameters that match the
+//
+// previous fields.
+//
+// The semantic is currently (CSI spec 1.2) defined as:
+//
+// # The available capacity, in bytes, of the storage that can be used
+//
+// to provision volumes. If not set, that information is currently
+//
+// unavailable.
+func (d *CSIStorageCapacityDie) Capacity(v *resource.Quantity) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1.CSIStorageCapacity) {
+		r.Capacity = v
+	})
+}
+
+// maximumVolumeSize is the value reported by the CSI driver in its GetCapacityResponse
+//
+// for a GetCapacityRequest with topology and parameters that match the
+//
+// previous fields.
+//
+// # This is defined since CSI spec 1.4.0 as the largest size
+//
+// that may be used in a
+//
+// CreateVolumeRequest.capacity_range.required_bytes field to
+//
+// create a volume with the same parameters as those in
+//
+// GetCapacityRequest. The corresponding value in the Kubernetes
+//
+// API is ResourceRequirements.Requests in a volume claim.
+func (d *CSIStorageCapacityDie) MaximumVolumeSize(v *resource.Quantity) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1.CSIStorageCapacity) {
+		r.MaximumVolumeSize = v
 	})
 }
 

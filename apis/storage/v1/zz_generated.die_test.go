@@ -89,6 +89,15 @@ func TestVolumeNodeResourcesDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestCSIStorageCapacityDie_MissingMethods(t *testingx.T) {
+	die := CSIStorageCapacityBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CSIStorageCapacityDie: %s", diff.List())
+	}
+}
+
 func TestStorageClassDie_MissingMethods(t *testingx.T) {
 	die := StorageClassBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}

@@ -89,6 +89,132 @@ func TestMutatingWebhookDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestValidatingAdmissionPolicyDie_MissingMethods(t *testingx.T) {
+	die := ValidatingAdmissionPolicyBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ValidatingAdmissionPolicyDie: %s", diff.List())
+	}
+}
+
+func TestValidatingAdmissionPolicySpecDie_MissingMethods(t *testingx.T) {
+	die := ValidatingAdmissionPolicySpecBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ValidatingAdmissionPolicySpecDie: %s", diff.List())
+	}
+}
+
+func TestParamKindDie_MissingMethods(t *testingx.T) {
+	die := ParamKindBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ParamKindDie: %s", diff.List())
+	}
+}
+
+func TestMatchResourcesDie_MissingMethods(t *testingx.T) {
+	die := MatchResourcesBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for MatchResourcesDie: %s", diff.List())
+	}
+}
+
+func TestNamedRuleWithOperationsDie_MissingMethods(t *testingx.T) {
+	die := NamedRuleWithOperationsBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NamedRuleWithOperationsDie: %s", diff.List())
+	}
+}
+
+func TestValidationDie_MissingMethods(t *testingx.T) {
+	die := ValidationBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ValidationDie: %s", diff.List())
+	}
+}
+
+func TestAuditAnnotationDie_MissingMethods(t *testingx.T) {
+	die := AuditAnnotationBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for AuditAnnotationDie: %s", diff.List())
+	}
+}
+
+func TestVariableDie_MissingMethods(t *testingx.T) {
+	die := VariableBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for VariableDie: %s", diff.List())
+	}
+}
+
+func TestValidatingAdmissionPolicyStatusDie_MissingMethods(t *testingx.T) {
+	die := ValidatingAdmissionPolicyStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ValidatingAdmissionPolicyStatusDie: %s", diff.List())
+	}
+}
+
+func TestTypeCheckingDie_MissingMethods(t *testingx.T) {
+	die := TypeCheckingBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for TypeCheckingDie: %s", diff.List())
+	}
+}
+
+func TestExpressionWarningDie_MissingMethods(t *testingx.T) {
+	die := ExpressionWarningBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ExpressionWarningDie: %s", diff.List())
+	}
+}
+
+func TestValidatingAdmissionPolicyBindingDie_MissingMethods(t *testingx.T) {
+	die := ValidatingAdmissionPolicyBindingBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ValidatingAdmissionPolicyBindingDie: %s", diff.List())
+	}
+}
+
+func TestValidatingAdmissionPolicyBindingSpecDie_MissingMethods(t *testingx.T) {
+	die := ValidatingAdmissionPolicyBindingSpecBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ValidatingAdmissionPolicyBindingSpecDie: %s", diff.List())
+	}
+}
+
+func TestParamRefDie_MissingMethods(t *testingx.T) {
+	die := ParamRefBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ParamRefDie: %s", diff.List())
+	}
+}
+
 func TestValidatingWebhookConfigurationDie_MissingMethods(t *testingx.T) {
 	die := ValidatingWebhookConfigurationBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
