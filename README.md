@@ -8,6 +8,10 @@
 
 - [Using dies](#using-dies)
   - [Common methods](#common-methods)
+  - [Helper methods](#helper-methods)
+    - [k8s.io/apimachinery/pkg/util/intstr#IntOrString](#k8sioapimachinerypkgutilintstrintorstring)
+    - [k8s.io/apimachinery/pkg/api/resource#Quantity](#k8sioapimachinerypkgapiresourcequantity)
+    - [k8s.io/api/core/v1#ResourceList](#k8sioapicorev1resourcelist)
 - [Creating dies](#creating-dies)
   - [diegen](#diegen)
   - [die markers](#die-markers)
@@ -241,6 +245,58 @@ type MyResourceDie interface {
 }
 ```
 
+### Helper methods
+
+Each exported field on the resource backing the die has a setter method defined. Some types offer additional helper methods to make common conversions easier.
+
+####  k8s.io/apimachinery/pkg/util/intstr#IntOrString
+
+```go
+type MyResourceDie interface {
+    // continued
+
+    Port(port intstr.IntOrString) *MyResourceDie
+
+    // PortInt sets Port with the int value.
+    PortInt(port int) *MyResourceDie
+
+    // PortString sets Port with the string value.
+    PortString(port string) *MyResourceDie
+}
+```
+
+#### k8s.io/apimachinery/pkg/api/resource#Quantity
+
+```go
+type MyResourceDie interface {
+    // continued
+
+    Memory(memory resource.Quantity) *MyResourceDie
+
+    // MemoryString sets Memory by parsing the string as a Quantity. Panics if
+    // the string is not parsable.
+    MemoryString(memory string) *MyResourceDie
+}
+```
+
+#### k8s.io/api/core/v1#ResourceList
+
+```go
+type MyResourceDie interface {
+    // continued
+
+    Limits(limits corev1.ResourceList) *MyResourceDie
+
+    // AddLimit sets a single quantity on the Limits resource list.
+    AddLimit(name string, limit resource.Quantity) *MyResourceDie
+
+    // AddLimitString parses the quantity setting a single value on the Limits
+    // resource list. Panics if the string is not parsable.
+    AddLimitString(name string, limit string) *MyResourceDie
+}
+
+```
+
 ## Creating dies
 
 Dies are primarily generated for types from [die markers](#die-markers) using
@@ -283,6 +339,8 @@ func (d *DeploymentStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDi
     })
 }
 ```
+
+
 
 ### diegen
 

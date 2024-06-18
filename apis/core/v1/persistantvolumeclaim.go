@@ -18,7 +18,6 @@ package v1
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
@@ -63,47 +62,8 @@ func (d *PersistentVolumeClaimSpecDie) DataSourceRefDie(fn func(d *TypedObjectRe
 // +die
 type _ = corev1.VolumeResourceRequirements
 
-func (d *VolumeResourceRequirementsDie) AddLimit(name corev1.ResourceName, quantity resource.Quantity) *VolumeResourceRequirementsDie {
-	return d.DieStamp(func(r *corev1.VolumeResourceRequirements) {
-		if r.Limits == nil {
-			r.Limits = corev1.ResourceList{}
-		}
-		r.Limits[name] = quantity
-	})
-}
-
-func (d *VolumeResourceRequirementsDie) AddLimitString(name corev1.ResourceName, quantity string) *VolumeResourceRequirementsDie {
-	return d.AddLimit(name, resource.MustParse(quantity))
-}
-
-func (d *VolumeResourceRequirementsDie) AddRequest(name corev1.ResourceName, quantity resource.Quantity) *VolumeResourceRequirementsDie {
-	return d.DieStamp(func(r *corev1.VolumeResourceRequirements) {
-		if r.Requests == nil {
-			r.Requests = corev1.ResourceList{}
-		}
-		r.Requests[name] = quantity
-	})
-}
-
-func (d *VolumeResourceRequirementsDie) AddRequestString(name corev1.ResourceName, quantity string) *VolumeResourceRequirementsDie {
-	return d.AddRequest(name, resource.MustParse(quantity))
-}
-
 // +die:ignore={AllocatedResourceStatuses}
 type _ = corev1.PersistentVolumeClaimStatus
-
-func (d *PersistentVolumeClaimStatusDie) AddCapacity(name corev1.ResourceName, quantity resource.Quantity) *PersistentVolumeClaimStatusDie {
-	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
-		if r.Capacity == nil {
-			r.Capacity = corev1.ResourceList{}
-		}
-		r.Capacity[name] = quantity
-	})
-}
-
-func (d *PersistentVolumeClaimStatusDie) AddCapacityString(name corev1.ResourceName, quantity string) *PersistentVolumeClaimStatusDie {
-	return d.AddCapacity(name, resource.MustParse(quantity))
-}
 
 func (d *PersistentVolumeClaimStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
@@ -119,19 +79,6 @@ func (d *PersistentVolumeClaimStatusDie) ConditionsDie(conditions ...*diemetav1.
 			}
 		}
 	})
-}
-
-func (d *PersistentVolumeClaimStatusDie) AddAllocatedResources(name corev1.ResourceName, quantity resource.Quantity) *PersistentVolumeClaimStatusDie {
-	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
-		if r.AllocatedResources == nil {
-			r.AllocatedResources = corev1.ResourceList{}
-		}
-		r.AllocatedResources[name] = quantity
-	})
-}
-
-func (d *PersistentVolumeClaimStatusDie) AddAllocatedResourcesString(name corev1.ResourceName, quantity string) *PersistentVolumeClaimStatusDie {
-	return d.AddAllocatedResources(name, resource.MustParse(quantity))
 }
 
 // allocatedResourceStatuses stores status of resource being resized for the given PVC.

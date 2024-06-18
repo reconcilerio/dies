@@ -18,7 +18,6 @@ package v1
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 // +die:object=true,apiVersion=v1,kind=PersistentVolume
@@ -26,19 +25,6 @@ type _ = corev1.PersistentVolume
 
 // +die
 type _ = corev1.PersistentVolumeSpec
-
-func (d *PersistentVolumeSpecDie) AddCapacity(name corev1.ResourceName, quantity resource.Quantity) *PersistentVolumeSpecDie {
-	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
-		if r.Capacity == nil {
-			r.Capacity = corev1.ResourceList{}
-		}
-		r.Capacity[name] = quantity
-	})
-}
-
-func (d *PersistentVolumeSpecDie) AddCapacityString(name corev1.ResourceName, quantity string) *PersistentVolumeSpecDie {
-	return d.AddCapacity(name, resource.MustParse(quantity))
-}
 
 func (d *PersistentVolumeSpecDie) GCEPersistentDiskDie(fn func(d *GCEPersistentDiskVolumeSourceDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {

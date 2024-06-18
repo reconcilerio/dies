@@ -26,6 +26,7 @@ import (
 	fmtx "fmt"
 	corev1 "k8s.io/api/core/v1"
 	nodev1 "k8s.io/api/node/v1"
+	resource "k8s.io/apimachinery/pkg/api/resource"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -550,6 +551,26 @@ func (d *OverheadDie) PodFixed(v corev1.ResourceList) *OverheadDie {
 	return d.DieStamp(func(r *nodev1.Overhead) {
 		r.PodFixed = v
 	})
+}
+
+// AddPodFixed sets a single quantity on the PodFixed resource list.
+//
+// podFixed represents the fixed resource overhead associated with running a pod.
+func (d *OverheadDie) AddPodFixed(name corev1.ResourceName, quantity resource.Quantity) *OverheadDie {
+	return d.DieStamp(func(r *nodev1.Overhead) {
+		if r.PodFixed == nil {
+			r.PodFixed = corev1.ResourceList{}
+		}
+		r.PodFixed[name] = quantity
+	})
+}
+
+// AddPodFixedString parses the quantity setting a single value on the PodFixed resource list. Panics if the string is not parsable.
+//
+// podFixed represents the fixed resource overhead associated with running a pod.
+func (d *OverheadDie) AddPodFixedString(name corev1.ResourceName, quantity string) *OverheadDie {
+	q := resource.MustParse(quantity)
+	return d.AddPodFixed(name, q)
 }
 
 var SchedulingBlank = (&SchedulingDie{}).DieFeed(nodev1.Scheduling{})

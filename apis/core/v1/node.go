@@ -18,7 +18,6 @@ package v1
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
@@ -72,32 +71,6 @@ type _ = corev1.ConfigMapNodeConfigSource
 
 // +die
 type _ = corev1.NodeStatus
-
-func (d *NodeStatusDie) AddCapacity(name corev1.ResourceName, quantity resource.Quantity) *NodeStatusDie {
-	return d.DieStamp(func(r *corev1.NodeStatus) {
-		if r.Capacity == nil {
-			r.Capacity = corev1.ResourceList{}
-		}
-		r.Capacity[name] = quantity
-	})
-}
-
-func (d *NodeStatusDie) AddCapacityString(name corev1.ResourceName, quantity string) *NodeStatusDie {
-	return d.AddCapacity(name, resource.MustParse(quantity))
-}
-
-func (d *NodeStatusDie) AddAllocatable(name corev1.ResourceName, quantity resource.Quantity) *NodeStatusDie {
-	return d.DieStamp(func(r *corev1.NodeStatus) {
-		if r.Allocatable == nil {
-			r.Allocatable = corev1.ResourceList{}
-		}
-		r.Allocatable[name] = quantity
-	})
-}
-
-func (d *NodeStatusDie) AddAllocatableString(name corev1.ResourceName, quantity string) *NodeStatusDie {
-	return d.AddAllocatable(name, resource.MustParse(quantity))
-}
 
 func (d *NodeStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {

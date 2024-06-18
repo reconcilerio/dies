@@ -18,7 +18,6 @@ package v1
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 // +die
@@ -279,32 +278,6 @@ func (d *SecretKeySelectorDie) Name(v string) *SecretKeySelectorDie {
 // +die
 type _ = corev1.ResourceRequirements
 
-func (d *ResourceRequirementsDie) AddLimit(name corev1.ResourceName, quantity resource.Quantity) *ResourceRequirementsDie {
-	return d.DieStamp(func(r *corev1.ResourceRequirements) {
-		if r.Limits == nil {
-			r.Limits = corev1.ResourceList{}
-		}
-		r.Limits[name] = quantity
-	})
-}
-
-func (d *ResourceRequirementsDie) AddLimitString(name corev1.ResourceName, quantity string) *ResourceRequirementsDie {
-	return d.AddLimit(name, resource.MustParse(quantity))
-}
-
-func (d *ResourceRequirementsDie) AddRequest(name corev1.ResourceName, quantity resource.Quantity) *ResourceRequirementsDie {
-	return d.DieStamp(func(r *corev1.ResourceRequirements) {
-		if r.Requests == nil {
-			r.Requests = corev1.ResourceList{}
-		}
-		r.Requests[name] = quantity
-	})
-}
-
-func (d *ResourceRequirementsDie) AddRequestString(name corev1.ResourceName, quantity string) *ResourceRequirementsDie {
-	return d.AddRequest(name, resource.MustParse(quantity))
-}
-
 func (d *ResourceRequirementsDie) ClaimsDie(claims ...*ResourceClaimDie) *ResourceRequirementsDie {
 	return d.DieStamp(func(r *corev1.ResourceRequirements) {
 		r.Claims = make([]corev1.ResourceClaim, len(claims))
@@ -558,19 +531,6 @@ func (d *ContainerStatusDie) LastTerminationStateDie(fn func(d *ContainerStateDi
 		fn(d)
 		r.LastTerminationState = d.DieRelease()
 	})
-}
-
-func (d *ContainerStatusDie) AddAllocatedResource(name corev1.ResourceName, quantity resource.Quantity) *ContainerStatusDie {
-	return d.DieStamp(func(r *corev1.ContainerStatus) {
-		if r.AllocatedResources == nil {
-			r.AllocatedResources = corev1.ResourceList{}
-		}
-		r.AllocatedResources[name] = quantity
-	})
-}
-
-func (d *ContainerStatusDie) AddAllocatedResourceString(name corev1.ResourceName, quantity string) *ContainerStatusDie {
-	return d.AddAllocatedResource(name, resource.MustParse(quantity))
 }
 
 func (d *ContainerStatusDie) ResourcesDie(fn func(d *ResourceRequirementsDie)) *ContainerStatusDie {

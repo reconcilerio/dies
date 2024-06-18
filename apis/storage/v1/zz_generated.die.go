@@ -26,7 +26,7 @@ import (
 	fmtx "fmt"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
+	resource "k8s.io/apimachinery/pkg/api/resource"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -2202,6 +2202,26 @@ func (d *CSIStorageCapacityDie) Capacity(v *resource.Quantity) *CSIStorageCapaci
 	})
 }
 
+// CapacityString sets Capacity by parsing the string as a Quantity. Panics if the string is not parsable.
+//
+// capacity is the value reported by the CSI driver in its GetCapacityResponse
+//
+// for a GetCapacityRequest with topology and parameters that match the
+//
+// previous fields.
+//
+// The semantic is currently (CSI spec 1.2) defined as:
+//
+// # The available capacity, in bytes, of the storage that can be used
+//
+// to provision volumes. If not set, that information is currently
+//
+// unavailable.
+func (d *CSIStorageCapacityDie) CapacityString(s string) *CSIStorageCapacityDie {
+	q := resource.MustParse(s)
+	return d.Capacity(&q)
+}
+
 // maximumVolumeSize is the value reported by the CSI driver in its GetCapacityResponse
 //
 // for a GetCapacityRequest with topology and parameters that match the
@@ -2223,6 +2243,30 @@ func (d *CSIStorageCapacityDie) MaximumVolumeSize(v *resource.Quantity) *CSIStor
 	return d.DieStamp(func(r *storagev1.CSIStorageCapacity) {
 		r.MaximumVolumeSize = v
 	})
+}
+
+// MaximumVolumeSizeString sets MaximumVolumeSize by parsing the string as a Quantity. Panics if the string is not parsable.
+//
+// maximumVolumeSize is the value reported by the CSI driver in its GetCapacityResponse
+//
+// for a GetCapacityRequest with topology and parameters that match the
+//
+// previous fields.
+//
+// # This is defined since CSI spec 1.4.0 as the largest size
+//
+// that may be used in a
+//
+// CreateVolumeRequest.capacity_range.required_bytes field to
+//
+// create a volume with the same parameters as those in
+//
+// GetCapacityRequest. The corresponding value in the Kubernetes
+//
+// API is ResourceRequirements.Requests in a volume claim.
+func (d *CSIStorageCapacityDie) MaximumVolumeSizeString(s string) *CSIStorageCapacityDie {
+	q := resource.MustParse(s)
+	return d.MaximumVolumeSize(&q)
 }
 
 var StorageClassBlank = (&StorageClassDie{}).DieFeed(storagev1.StorageClass{})

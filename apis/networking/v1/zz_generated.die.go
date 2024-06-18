@@ -4794,6 +4794,15 @@ func (d *NetworkPolicyPortDie) Port(v *intstr.IntOrString) *NetworkPolicyPortDie
 	})
 }
 
+// PortInt sets Port with the int value.
+//
+// port represents the port on the given protocol. This can either be a numerical or named
+//
+// port on a pod. If this field is not provided, this matches all port names and
+//
+// numbers.
+//
+// If present, only traffic on the specified protocol AND port will be matched.
 func (d *NetworkPolicyPortDie) PortInt(i int) *NetworkPolicyPortDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyPort) {
 		v := intstr.FromInt(i)
@@ -4801,6 +4810,15 @@ func (d *NetworkPolicyPortDie) PortInt(i int) *NetworkPolicyPortDie {
 	})
 }
 
+// PortString sets Port with the string value.
+//
+// port represents the port on the given protocol. This can either be a numerical or named
+//
+// port on a pod. If this field is not provided, this matches all port names and
+//
+// numbers.
+//
+// If present, only traffic on the specified protocol AND port will be matched.
 func (d *NetworkPolicyPortDie) PortString(s string) *NetworkPolicyPortDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyPort) {
 		v := intstr.FromString(s)

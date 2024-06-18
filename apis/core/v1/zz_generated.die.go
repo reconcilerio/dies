@@ -25,7 +25,7 @@ import (
 	json "encoding/json"
 	fmtx "fmt"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
+	resource "k8s.io/apimachinery/pkg/api/resource"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -4543,6 +4543,14 @@ func (d *ResourceFieldSelectorDie) Divisor(v resource.Quantity) *ResourceFieldSe
 	})
 }
 
+// DivisorString sets Divisor by parsing the string as a Quantity. Panics if the string is not parsable.
+//
+// Specifies the output format of the exposed resources, defaults to "1"
+func (d *ResourceFieldSelectorDie) DivisorString(s string) *ResourceFieldSelectorDie {
+	q := resource.MustParse(s)
+	return d.Divisor(q)
+}
+
 var ConfigMapKeySelectorBlank = (&ConfigMapKeySelectorDie{}).DieFeed(corev1.ConfigMapKeySelector{})
 
 type ConfigMapKeySelectorDie struct {
@@ -5140,6 +5148,30 @@ func (d *ResourceRequirementsDie) Limits(v corev1.ResourceList) *ResourceRequire
 	})
 }
 
+// AddLimit sets a single quantity on the Limits resource list.
+//
+// Limits describes the maximum amount of compute resources allowed.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+func (d *ResourceRequirementsDie) AddLimit(name corev1.ResourceName, quantity resource.Quantity) *ResourceRequirementsDie {
+	return d.DieStamp(func(r *corev1.ResourceRequirements) {
+		if r.Limits == nil {
+			r.Limits = corev1.ResourceList{}
+		}
+		r.Limits[name] = quantity
+	})
+}
+
+// AddLimitString parses the quantity setting a single value on the Limits resource list. Panics if the string is not parsable.
+//
+// Limits describes the maximum amount of compute resources allowed.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+func (d *ResourceRequirementsDie) AddLimitString(name corev1.ResourceName, quantity string) *ResourceRequirementsDie {
+	q := resource.MustParse(quantity)
+	return d.AddLimit(name, q)
+}
+
 // Requests describes the minimum amount of compute resources required.
 //
 // If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
@@ -5151,6 +5183,38 @@ func (d *ResourceRequirementsDie) Requests(v corev1.ResourceList) *ResourceRequi
 	return d.DieStamp(func(r *corev1.ResourceRequirements) {
 		r.Requests = v
 	})
+}
+
+// AddRequest sets a single quantity on the Requests resource list.
+//
+// Requests describes the minimum amount of compute resources required.
+//
+// If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+//
+// otherwise to an implementation-defined value. Requests cannot exceed Limits.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+func (d *ResourceRequirementsDie) AddRequest(name corev1.ResourceName, quantity resource.Quantity) *ResourceRequirementsDie {
+	return d.DieStamp(func(r *corev1.ResourceRequirements) {
+		if r.Requests == nil {
+			r.Requests = corev1.ResourceList{}
+		}
+		r.Requests[name] = quantity
+	})
+}
+
+// AddRequestString parses the quantity setting a single value on the Requests resource list. Panics if the string is not parsable.
+//
+// Requests describes the minimum amount of compute resources required.
+//
+// If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+//
+// otherwise to an implementation-defined value. Requests cannot exceed Limits.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+func (d *ResourceRequirementsDie) AddRequestString(name corev1.ResourceName, quantity string) *ResourceRequirementsDie {
+	q := resource.MustParse(quantity)
+	return d.AddRequest(name, q)
 }
 
 // Claims lists the names of resources, defined in spec.resourceClaims,
@@ -7332,6 +7396,13 @@ func (d *HTTPGetActionDie) Port(v intstr.IntOrString) *HTTPGetActionDie {
 	})
 }
 
+// PortInt sets Port with the int value.
+//
+// Name or number of the port to access on the container.
+//
+// Number must be in the range 1 to 65535.
+//
+// Name must be an IANA_SVC_NAME.
 func (d *HTTPGetActionDie) PortInt(i int) *HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
 		v := intstr.FromInt(i)
@@ -7339,6 +7410,13 @@ func (d *HTTPGetActionDie) PortInt(i int) *HTTPGetActionDie {
 	})
 }
 
+// PortString sets Port with the string value.
+//
+// Name or number of the port to access on the container.
+//
+// Number must be in the range 1 to 65535.
+//
+// Name must be an IANA_SVC_NAME.
 func (d *HTTPGetActionDie) PortString(s string) *HTTPGetActionDie {
 	return d.DieStamp(func(r *corev1.HTTPGetAction) {
 		v := intstr.FromString(s)
@@ -7762,6 +7840,13 @@ func (d *TCPSocketActionDie) Port(v intstr.IntOrString) *TCPSocketActionDie {
 	})
 }
 
+// PortInt sets Port with the int value.
+//
+// Number or name of the port to access on the container.
+//
+// Number must be in the range 1 to 65535.
+//
+// Name must be an IANA_SVC_NAME.
 func (d *TCPSocketActionDie) PortInt(i int) *TCPSocketActionDie {
 	return d.DieStamp(func(r *corev1.TCPSocketAction) {
 		v := intstr.FromInt(i)
@@ -7769,6 +7854,13 @@ func (d *TCPSocketActionDie) PortInt(i int) *TCPSocketActionDie {
 	})
 }
 
+// PortString sets Port with the string value.
+//
+// Number or name of the port to access on the container.
+//
+// Number must be in the range 1 to 65535.
+//
+// Name must be an IANA_SVC_NAME.
 func (d *TCPSocketActionDie) PortString(s string) *TCPSocketActionDie {
 	return d.DieStamp(func(r *corev1.TCPSocketAction) {
 		v := intstr.FromString(s)
@@ -9880,6 +9972,34 @@ func (d *ContainerStatusDie) AllocatedResources(v corev1.ResourceList) *Containe
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.AllocatedResources = v
 	})
+}
+
+// AddAllocatedResource sets a single quantity on the AllocatedResources resource list.
+//
+// # AllocatedResources represents the compute resources allocated for this container by the
+//
+// node. Kubelet sets this value to Container.Resources.Requests upon successful pod admission
+//
+// and after successfully admitting desired pod resize.
+func (d *ContainerStatusDie) AddAllocatedResource(name corev1.ResourceName, quantity resource.Quantity) *ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		if r.AllocatedResources == nil {
+			r.AllocatedResources = corev1.ResourceList{}
+		}
+		r.AllocatedResources[name] = quantity
+	})
+}
+
+// AddAllocatedResourceString parses the quantity setting a single value on the AllocatedResources resource list. Panics if the string is not parsable.
+//
+// # AllocatedResources represents the compute resources allocated for this container by the
+//
+// node. Kubelet sets this value to Container.Resources.Requests upon successful pod admission
+//
+// and after successfully admitting desired pod resize.
+func (d *ContainerStatusDie) AddAllocatedResourceString(name corev1.ResourceName, quantity string) *ContainerStatusDie {
+	q := resource.MustParse(quantity)
+	return d.AddAllocatedResource(name, q)
 }
 
 // Resources represents the compute resource requests and limits that have been successfully
@@ -13345,11 +13465,51 @@ func (d *LimitRangeItemDie) Max(v corev1.ResourceList) *LimitRangeItemDie {
 	})
 }
 
+// AddMax sets a single quantity on the Max resource list.
+//
+// Max usage constraints on this kind by resource name.
+func (d *LimitRangeItemDie) AddMax(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
+	return d.DieStamp(func(r *corev1.LimitRangeItem) {
+		if r.Max == nil {
+			r.Max = corev1.ResourceList{}
+		}
+		r.Max[name] = quantity
+	})
+}
+
+// AddMaxString parses the quantity setting a single value on the Max resource list. Panics if the string is not parsable.
+//
+// Max usage constraints on this kind by resource name.
+func (d *LimitRangeItemDie) AddMaxString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
+	q := resource.MustParse(quantity)
+	return d.AddMax(name, q)
+}
+
 // Min usage constraints on this kind by resource name.
 func (d *LimitRangeItemDie) Min(v corev1.ResourceList) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		r.Min = v
 	})
+}
+
+// AddMin sets a single quantity on the Min resource list.
+//
+// Min usage constraints on this kind by resource name.
+func (d *LimitRangeItemDie) AddMin(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
+	return d.DieStamp(func(r *corev1.LimitRangeItem) {
+		if r.Min == nil {
+			r.Min = corev1.ResourceList{}
+		}
+		r.Min[name] = quantity
+	})
+}
+
+// AddMinString parses the quantity setting a single value on the Min resource list. Panics if the string is not parsable.
+//
+// Min usage constraints on this kind by resource name.
+func (d *LimitRangeItemDie) AddMinString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
+	q := resource.MustParse(quantity)
+	return d.AddMin(name, q)
 }
 
 // Default resource requirement limit value by resource name if resource limit is omitted.
@@ -13359,6 +13519,26 @@ func (d *LimitRangeItemDie) Default(v corev1.ResourceList) *LimitRangeItemDie {
 	})
 }
 
+// AddDefault sets a single quantity on the Default resource list.
+//
+// Default resource requirement limit value by resource name if resource limit is omitted.
+func (d *LimitRangeItemDie) AddDefault(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
+	return d.DieStamp(func(r *corev1.LimitRangeItem) {
+		if r.Default == nil {
+			r.Default = corev1.ResourceList{}
+		}
+		r.Default[name] = quantity
+	})
+}
+
+// AddDefaultString parses the quantity setting a single value on the Default resource list. Panics if the string is not parsable.
+//
+// Default resource requirement limit value by resource name if resource limit is omitted.
+func (d *LimitRangeItemDie) AddDefaultString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
+	q := resource.MustParse(quantity)
+	return d.AddDefault(name, q)
+}
+
 // DefaultRequest is the default resource requirement request value by resource name if resource request is omitted.
 func (d *LimitRangeItemDie) DefaultRequest(v corev1.ResourceList) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
@@ -13366,11 +13546,51 @@ func (d *LimitRangeItemDie) DefaultRequest(v corev1.ResourceList) *LimitRangeIte
 	})
 }
 
+// AddDefaultRequest sets a single quantity on the DefaultRequest resource list.
+//
+// DefaultRequest is the default resource requirement request value by resource name if resource request is omitted.
+func (d *LimitRangeItemDie) AddDefaultRequest(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
+	return d.DieStamp(func(r *corev1.LimitRangeItem) {
+		if r.DefaultRequest == nil {
+			r.DefaultRequest = corev1.ResourceList{}
+		}
+		r.DefaultRequest[name] = quantity
+	})
+}
+
+// AddDefaultRequestString parses the quantity setting a single value on the DefaultRequest resource list. Panics if the string is not parsable.
+//
+// DefaultRequest is the default resource requirement request value by resource name if resource request is omitted.
+func (d *LimitRangeItemDie) AddDefaultRequestString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
+	q := resource.MustParse(quantity)
+	return d.AddDefaultRequest(name, q)
+}
+
 // MaxLimitRequestRatio if specified, the named resource must have a request and limit that are both non-zero where limit divided by request is less than or equal to the enumerated value; this represents the max burst for the named resource.
 func (d *LimitRangeItemDie) MaxLimitRequestRatio(v corev1.ResourceList) *LimitRangeItemDie {
 	return d.DieStamp(func(r *corev1.LimitRangeItem) {
 		r.MaxLimitRequestRatio = v
 	})
+}
+
+// AddMaxLimitRequestRatio sets a single quantity on the MaxLimitRequestRatio resource list.
+//
+// MaxLimitRequestRatio if specified, the named resource must have a request and limit that are both non-zero where limit divided by request is less than or equal to the enumerated value; this represents the max burst for the named resource.
+func (d *LimitRangeItemDie) AddMaxLimitRequestRatio(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
+	return d.DieStamp(func(r *corev1.LimitRangeItem) {
+		if r.MaxLimitRequestRatio == nil {
+			r.MaxLimitRequestRatio = corev1.ResourceList{}
+		}
+		r.MaxLimitRequestRatio[name] = quantity
+	})
+}
+
+// AddMaxLimitRequestRatioString parses the quantity setting a single value on the MaxLimitRequestRatio resource list. Panics if the string is not parsable.
+//
+// MaxLimitRequestRatio if specified, the named resource must have a request and limit that are both non-zero where limit divided by request is less than or equal to the enumerated value; this represents the max burst for the named resource.
+func (d *LimitRangeItemDie) AddMaxLimitRequestRatioString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
+	q := resource.MustParse(quantity)
+	return d.AddMaxLimitRequestRatio(name, q)
 }
 
 var NamespaceBlank = (&NamespaceDie{}).DieFeed(corev1.Namespace{})
@@ -15454,6 +15674,30 @@ func (d *NodeStatusDie) Capacity(v corev1.ResourceList) *NodeStatusDie {
 	})
 }
 
+// AddCapacity sets a single quantity on the Capacity resource list.
+//
+// Capacity represents the total resources of a node.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#capacity
+func (d *NodeStatusDie) AddCapacity(name corev1.ResourceName, quantity resource.Quantity) *NodeStatusDie {
+	return d.DieStamp(func(r *corev1.NodeStatus) {
+		if r.Capacity == nil {
+			r.Capacity = corev1.ResourceList{}
+		}
+		r.Capacity[name] = quantity
+	})
+}
+
+// AddCapacityString parses the quantity setting a single value on the Capacity resource list. Panics if the string is not parsable.
+//
+// Capacity represents the total resources of a node.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#capacity
+func (d *NodeStatusDie) AddCapacityString(name corev1.ResourceName, quantity string) *NodeStatusDie {
+	q := resource.MustParse(quantity)
+	return d.AddCapacity(name, q)
+}
+
 // Allocatable represents the resources of a node that are available for scheduling.
 //
 // Defaults to Capacity.
@@ -15461,6 +15705,30 @@ func (d *NodeStatusDie) Allocatable(v corev1.ResourceList) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.Allocatable = v
 	})
+}
+
+// AddAllocatable sets a single quantity on the Allocatable resource list.
+//
+// Allocatable represents the resources of a node that are available for scheduling.
+//
+// Defaults to Capacity.
+func (d *NodeStatusDie) AddAllocatable(name corev1.ResourceName, quantity resource.Quantity) *NodeStatusDie {
+	return d.DieStamp(func(r *corev1.NodeStatus) {
+		if r.Allocatable == nil {
+			r.Allocatable = corev1.ResourceList{}
+		}
+		r.Allocatable[name] = quantity
+	})
+}
+
+// AddAllocatableString parses the quantity setting a single value on the Allocatable resource list. Panics if the string is not parsable.
+//
+// Allocatable represents the resources of a node that are available for scheduling.
+//
+// Defaults to Capacity.
+func (d *NodeStatusDie) AddAllocatableString(name corev1.ResourceName, quantity string) *NodeStatusDie {
+	q := resource.MustParse(quantity)
+	return d.AddAllocatable(name, q)
 }
 
 // NodePhase is the recently observed lifecycle phase of the node.
@@ -17954,6 +18222,30 @@ func (d *PersistentVolumeSpecDie) Capacity(v corev1.ResourceList) *PersistentVol
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
 		r.Capacity = v
 	})
+}
+
+// AddCapacity sets a single quantity on the Capacity resource list.
+//
+// capacity is the description of the persistent volume's resources and capacity.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#capacity
+func (d *PersistentVolumeSpecDie) AddCapacity(name corev1.ResourceName, quantity resource.Quantity) *PersistentVolumeSpecDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
+		if r.Capacity == nil {
+			r.Capacity = corev1.ResourceList{}
+		}
+		r.Capacity[name] = quantity
+	})
+}
+
+// AddCapacityString parses the quantity setting a single value on the Capacity resource list. Panics if the string is not parsable.
+//
+// capacity is the description of the persistent volume's resources and capacity.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#capacity
+func (d *PersistentVolumeSpecDie) AddCapacityString(name corev1.ResourceName, quantity string) *PersistentVolumeSpecDie {
+	q := resource.MustParse(quantity)
+	return d.AddCapacity(name, q)
 }
 
 // persistentVolumeSource is the actual volume backing the persistent volume.
@@ -22594,6 +22886,30 @@ func (d *VolumeResourceRequirementsDie) Limits(v corev1.ResourceList) *VolumeRes
 	})
 }
 
+// AddLimit sets a single quantity on the Limits resource list.
+//
+// Limits describes the maximum amount of compute resources allowed.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+func (d *VolumeResourceRequirementsDie) AddLimit(name corev1.ResourceName, quantity resource.Quantity) *VolumeResourceRequirementsDie {
+	return d.DieStamp(func(r *corev1.VolumeResourceRequirements) {
+		if r.Limits == nil {
+			r.Limits = corev1.ResourceList{}
+		}
+		r.Limits[name] = quantity
+	})
+}
+
+// AddLimitString parses the quantity setting a single value on the Limits resource list. Panics if the string is not parsable.
+//
+// Limits describes the maximum amount of compute resources allowed.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+func (d *VolumeResourceRequirementsDie) AddLimitString(name corev1.ResourceName, quantity string) *VolumeResourceRequirementsDie {
+	q := resource.MustParse(quantity)
+	return d.AddLimit(name, q)
+}
+
 // Requests describes the minimum amount of compute resources required.
 //
 // If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
@@ -22605,6 +22921,38 @@ func (d *VolumeResourceRequirementsDie) Requests(v corev1.ResourceList) *VolumeR
 	return d.DieStamp(func(r *corev1.VolumeResourceRequirements) {
 		r.Requests = v
 	})
+}
+
+// AddRequest sets a single quantity on the Requests resource list.
+//
+// Requests describes the minimum amount of compute resources required.
+//
+// If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+//
+// otherwise to an implementation-defined value. Requests cannot exceed Limits.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+func (d *VolumeResourceRequirementsDie) AddRequest(name corev1.ResourceName, quantity resource.Quantity) *VolumeResourceRequirementsDie {
+	return d.DieStamp(func(r *corev1.VolumeResourceRequirements) {
+		if r.Requests == nil {
+			r.Requests = corev1.ResourceList{}
+		}
+		r.Requests[name] = quantity
+	})
+}
+
+// AddRequestString parses the quantity setting a single value on the Requests resource list. Panics if the string is not parsable.
+//
+// Requests describes the minimum amount of compute resources required.
+//
+// If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+//
+// otherwise to an implementation-defined value. Requests cannot exceed Limits.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+func (d *VolumeResourceRequirementsDie) AddRequestString(name corev1.ResourceName, quantity string) *VolumeResourceRequirementsDie {
+	q := resource.MustParse(quantity)
+	return d.AddRequest(name, q)
 }
 
 var PersistentVolumeClaimStatusBlank = (&PersistentVolumeClaimStatusDie{}).DieFeed(corev1.PersistentVolumeClaimStatus{})
@@ -22812,6 +23160,26 @@ func (d *PersistentVolumeClaimStatusDie) Capacity(v corev1.ResourceList) *Persis
 	})
 }
 
+// AddCapacity sets a single quantity on the Capacity resource list.
+//
+// capacity represents the actual resources of the underlying volume.
+func (d *PersistentVolumeClaimStatusDie) AddCapacity(name corev1.ResourceName, quantity resource.Quantity) *PersistentVolumeClaimStatusDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
+		if r.Capacity == nil {
+			r.Capacity = corev1.ResourceList{}
+		}
+		r.Capacity[name] = quantity
+	})
+}
+
+// AddCapacityString parses the quantity setting a single value on the Capacity resource list. Panics if the string is not parsable.
+//
+// capacity represents the actual resources of the underlying volume.
+func (d *PersistentVolumeClaimStatusDie) AddCapacityString(name corev1.ResourceName, quantity string) *PersistentVolumeClaimStatusDie {
+	q := resource.MustParse(quantity)
+	return d.AddCapacity(name, q)
+}
+
 // conditions is the current Condition of persistent volume claim. If underlying persistent volume is being
 //
 // resized then the Condition will be set to 'Resizing'.
@@ -22862,6 +23230,98 @@ func (d *PersistentVolumeClaimStatusDie) AllocatedResources(v corev1.ResourceLis
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		r.AllocatedResources = v
 	})
+}
+
+// AddAllocatedResource sets a single quantity on the AllocatedResources resource list.
+//
+// allocatedResources tracks the resources allocated to a PVC including its capacity.
+//
+// Key names follow standard Kubernetes label syntax. Valid values are either:
+//
+// * Un-prefixed keys:
+//
+// - storage - the capacity of the volume.
+//
+// * Custom resources must use implementation-defined prefixed names such as "example.com/my-custom-resource"
+//
+// # Apart from above values - keys that are unprefixed or have kubernetes.io prefix are considered
+//
+// reserved and hence may not be used.
+//
+// # Capacity reported here may be larger than the actual capacity when a volume expansion operation
+//
+// is requested.
+//
+// For storage quota, the larger value from allocatedResources and PVC.spec.resources is used.
+//
+// If allocatedResources is not set, PVC.spec.resources alone is used for quota calculation.
+//
+// # If a volume expansion capacity request is lowered, allocatedResources is only
+//
+// lowered if there are no expansion operations in progress and if the actual volume capacity
+//
+// is equal or lower than the requested capacity.
+//
+// # A controller that receives PVC update with previously unknown resourceName
+//
+// should ignore the update for the purpose it was designed. For example - a controller that
+//
+// only is responsible for resizing capacity of the volume, should ignore PVC updates that change other valid
+//
+// resources associated with PVC.
+//
+// This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature.
+func (d *PersistentVolumeClaimStatusDie) AddAllocatedResource(name corev1.ResourceName, quantity resource.Quantity) *PersistentVolumeClaimStatusDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
+		if r.AllocatedResources == nil {
+			r.AllocatedResources = corev1.ResourceList{}
+		}
+		r.AllocatedResources[name] = quantity
+	})
+}
+
+// AddAllocatedResourceString parses the quantity setting a single value on the AllocatedResources resource list. Panics if the string is not parsable.
+//
+// allocatedResources tracks the resources allocated to a PVC including its capacity.
+//
+// Key names follow standard Kubernetes label syntax. Valid values are either:
+//
+// * Un-prefixed keys:
+//
+// - storage - the capacity of the volume.
+//
+// * Custom resources must use implementation-defined prefixed names such as "example.com/my-custom-resource"
+//
+// # Apart from above values - keys that are unprefixed or have kubernetes.io prefix are considered
+//
+// reserved and hence may not be used.
+//
+// # Capacity reported here may be larger than the actual capacity when a volume expansion operation
+//
+// is requested.
+//
+// For storage quota, the larger value from allocatedResources and PVC.spec.resources is used.
+//
+// If allocatedResources is not set, PVC.spec.resources alone is used for quota calculation.
+//
+// # If a volume expansion capacity request is lowered, allocatedResources is only
+//
+// lowered if there are no expansion operations in progress and if the actual volume capacity
+//
+// is equal or lower than the requested capacity.
+//
+// # A controller that receives PVC update with previously unknown resourceName
+//
+// should ignore the update for the purpose it was designed. For example - a controller that
+//
+// only is responsible for resizing capacity of the volume, should ignore PVC updates that change other valid
+//
+// resources associated with PVC.
+//
+// This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature.
+func (d *PersistentVolumeClaimStatusDie) AddAllocatedResourceString(name corev1.ResourceName, quantity string) *PersistentVolumeClaimStatusDie {
+	q := resource.MustParse(quantity)
+	return d.AddAllocatedResource(name, q)
 }
 
 // currentVolumeAttributesClassName is the current name of the VolumeAttributesClass the PVC is using.
@@ -24206,6 +24666,50 @@ func (d *PodSpecDie) Overhead(v corev1.ResourceList) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.Overhead = v
 	})
+}
+
+// AddOverhead sets a single quantity on the Overhead resource list.
+//
+// Overhead represents the resource overhead associated with running a pod for a given RuntimeClass.
+//
+// This field will be autopopulated at admission time by the RuntimeClass admission controller. If
+//
+// the RuntimeClass admission controller is enabled, overhead must not be set in Pod create requests.
+//
+// # The RuntimeClass admission controller will reject Pod create requests which have the overhead already
+//
+// set. If RuntimeClass is configured and selected in the PodSpec, Overhead will be set to the value
+//
+// defined in the corresponding RuntimeClass, otherwise it will remain unset and treated as zero.
+//
+// More info: https://git.k8s.io/enhancements/keps/sig-node/688-pod-overhead/README.md
+func (d *PodSpecDie) AddOverhead(name corev1.ResourceName, quantity resource.Quantity) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		if r.Overhead == nil {
+			r.Overhead = corev1.ResourceList{}
+		}
+		r.Overhead[name] = quantity
+	})
+}
+
+// AddOverheadString parses the quantity setting a single value on the Overhead resource list. Panics if the string is not parsable.
+//
+// Overhead represents the resource overhead associated with running a pod for a given RuntimeClass.
+//
+// This field will be autopopulated at admission time by the RuntimeClass admission controller. If
+//
+// the RuntimeClass admission controller is enabled, overhead must not be set in Pod create requests.
+//
+// # The RuntimeClass admission controller will reject Pod create requests which have the overhead already
+//
+// set. If RuntimeClass is configured and selected in the PodSpec, Overhead will be set to the value
+//
+// defined in the corresponding RuntimeClass, otherwise it will remain unset and treated as zero.
+//
+// More info: https://git.k8s.io/enhancements/keps/sig-node/688-pod-overhead/README.md
+func (d *PodSpecDie) AddOverheadString(name corev1.ResourceName, quantity string) *PodSpecDie {
+	q := resource.MustParse(quantity)
+	return d.AddOverhead(name, q)
 }
 
 // TopologySpreadConstraints describes how a group of pods ought to spread across topology
@@ -29262,6 +29766,30 @@ func (d *ResourceQuotaSpecDie) Hard(v corev1.ResourceList) *ResourceQuotaSpecDie
 	})
 }
 
+// AddHard sets a single quantity on the Hard resource list.
+//
+// hard is the set of desired hard limits for each named resource.
+//
+// More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
+func (d *ResourceQuotaSpecDie) AddHard(name corev1.ResourceName, quantity resource.Quantity) *ResourceQuotaSpecDie {
+	return d.DieStamp(func(r *corev1.ResourceQuotaSpec) {
+		if r.Hard == nil {
+			r.Hard = corev1.ResourceList{}
+		}
+		r.Hard[name] = quantity
+	})
+}
+
+// AddHardString parses the quantity setting a single value on the Hard resource list. Panics if the string is not parsable.
+//
+// hard is the set of desired hard limits for each named resource.
+//
+// More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
+func (d *ResourceQuotaSpecDie) AddHardString(name corev1.ResourceName, quantity string) *ResourceQuotaSpecDie {
+	q := resource.MustParse(quantity)
+	return d.AddHard(name, q)
+}
+
 // A collection of filters that must match each object tracked by a quota.
 //
 // If not specified, the quota matches all objects.
@@ -29873,11 +30401,55 @@ func (d *ResourceQuotaStatusDie) Hard(v corev1.ResourceList) *ResourceQuotaStatu
 	})
 }
 
+// AddHard sets a single quantity on the Hard resource list.
+//
+// Hard is the set of enforced hard limits for each named resource.
+//
+// More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
+func (d *ResourceQuotaStatusDie) AddHard(name corev1.ResourceName, quantity resource.Quantity) *ResourceQuotaStatusDie {
+	return d.DieStamp(func(r *corev1.ResourceQuotaStatus) {
+		if r.Hard == nil {
+			r.Hard = corev1.ResourceList{}
+		}
+		r.Hard[name] = quantity
+	})
+}
+
+// AddHardString parses the quantity setting a single value on the Hard resource list. Panics if the string is not parsable.
+//
+// Hard is the set of enforced hard limits for each named resource.
+//
+// More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
+func (d *ResourceQuotaStatusDie) AddHardString(name corev1.ResourceName, quantity string) *ResourceQuotaStatusDie {
+	q := resource.MustParse(quantity)
+	return d.AddHard(name, q)
+}
+
 // Used is the current observed total usage of the resource in the namespace.
 func (d *ResourceQuotaStatusDie) Used(v corev1.ResourceList) *ResourceQuotaStatusDie {
 	return d.DieStamp(func(r *corev1.ResourceQuotaStatus) {
 		r.Used = v
 	})
+}
+
+// AddUsed sets a single quantity on the Used resource list.
+//
+// Used is the current observed total usage of the resource in the namespace.
+func (d *ResourceQuotaStatusDie) AddUsed(name corev1.ResourceName, quantity resource.Quantity) *ResourceQuotaStatusDie {
+	return d.DieStamp(func(r *corev1.ResourceQuotaStatus) {
+		if r.Used == nil {
+			r.Used = corev1.ResourceList{}
+		}
+		r.Used[name] = quantity
+	})
+}
+
+// AddUsedString parses the quantity setting a single value on the Used resource list. Panics if the string is not parsable.
+//
+// Used is the current observed total usage of the resource in the namespace.
+func (d *ResourceQuotaStatusDie) AddUsedString(name corev1.ResourceName, quantity string) *ResourceQuotaStatusDie {
+	q := resource.MustParse(quantity)
+	return d.AddUsed(name, q)
 }
 
 var SecretBlank = (&SecretDie{}).DieFeed(corev1.Secret{})
@@ -31381,6 +31953,23 @@ func (d *ServicePortDie) TargetPort(v intstr.IntOrString) *ServicePortDie {
 	})
 }
 
+// TargetPortInt sets TargetPort with the int value.
+//
+// Number or name of the port to access on the pods targeted by the service.
+//
+// Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+//
+// # If this is a string, it will be looked up as a named port in the
+//
+// target Pod's container ports. If this is not specified, the value
+//
+// of the 'port' field is used (an identity map).
+//
+// This field is ignored for services with clusterIP=None, and should be
+//
+// omitted or set equal to the 'port' field.
+//
+// More info: https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
 func (d *ServicePortDie) TargetPortInt(i int) *ServicePortDie {
 	return d.DieStamp(func(r *corev1.ServicePort) {
 		v := intstr.FromInt(i)
@@ -31388,6 +31977,23 @@ func (d *ServicePortDie) TargetPortInt(i int) *ServicePortDie {
 	})
 }
 
+// TargetPortString sets TargetPort with the string value.
+//
+// Number or name of the port to access on the pods targeted by the service.
+//
+// Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+//
+// # If this is a string, it will be looked up as a named port in the
+//
+// target Pod's container ports. If this is not specified, the value
+//
+// of the 'port' field is used (an identity map).
+//
+// This field is ignored for services with clusterIP=None, and should be
+//
+// omitted or set equal to the 'port' field.
+//
+// More info: https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
 func (d *ServicePortDie) TargetPortString(s string) *ServicePortDie {
 	return d.DieStamp(func(r *corev1.ServicePort) {
 		v := intstr.FromString(s)
@@ -33566,6 +34172,24 @@ func (d *EmptyDirVolumeSourceDie) SizeLimit(v *resource.Quantity) *EmptyDirVolum
 	return d.DieStamp(func(r *corev1.EmptyDirVolumeSource) {
 		r.SizeLimit = v
 	})
+}
+
+// SizeLimitString sets SizeLimit by parsing the string as a Quantity. Panics if the string is not parsable.
+//
+// sizeLimit is the total amount of local storage required for this EmptyDir volume.
+//
+// The size limit is also applicable for memory medium.
+//
+// # The maximum usage on memory medium EmptyDir would be the minimum value between
+//
+// the SizeLimit specified here and the sum of memory limits of all containers in a pod.
+//
+// The default is nil which means that the limit is undefined.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
+func (d *EmptyDirVolumeSourceDie) SizeLimitString(s string) *EmptyDirVolumeSourceDie {
+	q := resource.MustParse(s)
+	return d.SizeLimit(&q)
 }
 
 var GCEPersistentDiskVolumeSourceBlank = (&GCEPersistentDiskVolumeSourceDie{}).DieFeed(corev1.GCEPersistentDiskVolumeSource{})
