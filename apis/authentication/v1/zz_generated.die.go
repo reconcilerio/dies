@@ -37,6 +37,695 @@ import (
 	yaml "sigs.k8s.io/yaml"
 )
 
+var SelfSubjectReviewBlank = (&SelfSubjectReviewDie{}).DieFeed(authenticationv1.SelfSubjectReview{})
+
+type SelfSubjectReviewDie struct {
+	metav1.FrozenObjectMeta
+	mutable bool
+	r       authenticationv1.SelfSubjectReview
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *SelfSubjectReviewDie) DieImmutable(immutable bool) *SelfSubjectReviewDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *SelfSubjectReviewDie) DieFeed(r authenticationv1.SelfSubjectReview) *SelfSubjectReviewDie {
+	if d.mutable {
+		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
+		d.r = r
+		return d
+	}
+	return &SelfSubjectReviewDie{
+		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
+		mutable:          d.mutable,
+		r:                r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *SelfSubjectReviewDie) DieFeedPtr(r *authenticationv1.SelfSubjectReview) *SelfSubjectReviewDie {
+	if r == nil {
+		r = &authenticationv1.SelfSubjectReview{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *SelfSubjectReviewDie) DieFeedJSON(j []byte) *SelfSubjectReviewDie {
+	r := authenticationv1.SelfSubjectReview{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *SelfSubjectReviewDie) DieFeedYAML(y []byte) *SelfSubjectReviewDie {
+	r := authenticationv1.SelfSubjectReview{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *SelfSubjectReviewDie) DieFeedYAMLFile(name string) *SelfSubjectReviewDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SelfSubjectReviewDie) DieFeedRawExtension(raw runtime.RawExtension) *SelfSubjectReviewDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *SelfSubjectReviewDie) DieRelease() authenticationv1.SelfSubjectReview {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *SelfSubjectReviewDie) DieReleasePtr() *authenticationv1.SelfSubjectReview {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseUnstructured returns the resource managed by the die as an unstructured object. Panics on error.
+func (d *SelfSubjectReviewDie) DieReleaseUnstructured() *unstructured.Unstructured {
+	r := d.DieReleasePtr()
+	u, err := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	if err != nil {
+		panic(err)
+	}
+	return &unstructured.Unstructured{
+		Object: u,
+	}
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *SelfSubjectReviewDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *SelfSubjectReviewDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SelfSubjectReviewDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *SelfSubjectReviewDie) DieStamp(fn func(r *authenticationv1.SelfSubjectReview)) *SelfSubjectReviewDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *SelfSubjectReviewDie) DieStampAt(jp string, fn interface{}) *SelfSubjectReviewDie {
+	return d.DieStamp(func(r *authenticationv1.SelfSubjectReview) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SelfSubjectReviewDie) DieWith(fns ...func(d *SelfSubjectReviewDie)) *SelfSubjectReviewDie {
+	nd := SelfSubjectReviewBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *SelfSubjectReviewDie) DeepCopy() *SelfSubjectReviewDie {
+	r := *d.r.DeepCopy()
+	return &SelfSubjectReviewDie{
+		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
+		mutable:          d.mutable,
+		r:                r,
+	}
+}
+
+var _ runtime.Object = (*SelfSubjectReviewDie)(nil)
+
+func (d *SelfSubjectReviewDie) DeepCopyObject() runtime.Object {
+	return d.r.DeepCopy()
+}
+
+func (d *SelfSubjectReviewDie) GetObjectKind() schema.ObjectKind {
+	r := d.DieRelease()
+	return r.GetObjectKind()
+}
+
+func (d *SelfSubjectReviewDie) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.r)
+}
+
+func (d *SelfSubjectReviewDie) UnmarshalJSON(b []byte) error {
+	if !d.mutable {
+		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
+	}
+	r := &authenticationv1.SelfSubjectReview{}
+	err := json.Unmarshal(b, r)
+	*d = *d.DieFeed(*r)
+	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "authentication.k8s.io/v1" and "SelfSubjectReview" respectively.
+func (d *SelfSubjectReviewDie) DieDefaultTypeMetadata() *SelfSubjectReviewDie {
+	return d.DieStamp(func(r *authenticationv1.SelfSubjectReview) {
+		r.APIVersion = "authentication.k8s.io/v1"
+		r.Kind = "SelfSubjectReview"
+	})
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *SelfSubjectReviewDie) APIVersion(v string) *SelfSubjectReviewDie {
+	return d.DieStamp(func(r *authenticationv1.SelfSubjectReview) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *SelfSubjectReviewDie) Kind(v string) *SelfSubjectReviewDie {
+	return d.DieStamp(func(r *authenticationv1.SelfSubjectReview) {
+		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *SelfSubjectReviewDie) TypeMetadata(v apismetav1.TypeMeta) *SelfSubjectReviewDie {
+	return d.DieStamp(func(r *authenticationv1.SelfSubjectReview) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *SelfSubjectReviewDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *SelfSubjectReviewDie {
+	return d.DieStamp(func(r *authenticationv1.SelfSubjectReview) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *SelfSubjectReviewDie) Metadata(v apismetav1.ObjectMeta) *SelfSubjectReviewDie {
+	return d.DieStamp(func(r *authenticationv1.SelfSubjectReview) {
+		r.ObjectMeta = v
+	})
+}
+
+// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+func (d *SelfSubjectReviewDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *SelfSubjectReviewDie {
+	return d.DieStamp(func(r *authenticationv1.SelfSubjectReview) {
+		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
+		fn(d)
+		r.ObjectMeta = d.DieRelease()
+	})
+}
+
+// StatusDie stamps the resource's status field with a mutable die.
+func (d *SelfSubjectReviewDie) StatusDie(fn func(d *SelfSubjectReviewStatusDie)) *SelfSubjectReviewDie {
+	return d.DieStamp(func(r *authenticationv1.SelfSubjectReview) {
+		d := SelfSubjectReviewStatusBlank.DieImmutable(false).DieFeed(r.Status)
+		fn(d)
+		r.Status = d.DieRelease()
+	})
+}
+
+// Status is filled in by the server with the user attributes.
+func (d *SelfSubjectReviewDie) Status(v authenticationv1.SelfSubjectReviewStatus) *SelfSubjectReviewDie {
+	return d.DieStamp(func(r *authenticationv1.SelfSubjectReview) {
+		r.Status = v
+	})
+}
+
+var SelfSubjectReviewStatusBlank = (&SelfSubjectReviewStatusDie{}).DieFeed(authenticationv1.SelfSubjectReviewStatus{})
+
+type SelfSubjectReviewStatusDie struct {
+	mutable bool
+	r       authenticationv1.SelfSubjectReviewStatus
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *SelfSubjectReviewStatusDie) DieImmutable(immutable bool) *SelfSubjectReviewStatusDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *SelfSubjectReviewStatusDie) DieFeed(r authenticationv1.SelfSubjectReviewStatus) *SelfSubjectReviewStatusDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &SelfSubjectReviewStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *SelfSubjectReviewStatusDie) DieFeedPtr(r *authenticationv1.SelfSubjectReviewStatus) *SelfSubjectReviewStatusDie {
+	if r == nil {
+		r = &authenticationv1.SelfSubjectReviewStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *SelfSubjectReviewStatusDie) DieFeedJSON(j []byte) *SelfSubjectReviewStatusDie {
+	r := authenticationv1.SelfSubjectReviewStatus{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *SelfSubjectReviewStatusDie) DieFeedYAML(y []byte) *SelfSubjectReviewStatusDie {
+	r := authenticationv1.SelfSubjectReviewStatus{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *SelfSubjectReviewStatusDie) DieFeedYAMLFile(name string) *SelfSubjectReviewStatusDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SelfSubjectReviewStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *SelfSubjectReviewStatusDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *SelfSubjectReviewStatusDie) DieRelease() authenticationv1.SelfSubjectReviewStatus {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *SelfSubjectReviewStatusDie) DieReleasePtr() *authenticationv1.SelfSubjectReviewStatus {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *SelfSubjectReviewStatusDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *SelfSubjectReviewStatusDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SelfSubjectReviewStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *SelfSubjectReviewStatusDie) DieStamp(fn func(r *authenticationv1.SelfSubjectReviewStatus)) *SelfSubjectReviewStatusDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *SelfSubjectReviewStatusDie) DieStampAt(jp string, fn interface{}) *SelfSubjectReviewStatusDie {
+	return d.DieStamp(func(r *authenticationv1.SelfSubjectReviewStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SelfSubjectReviewStatusDie) DieWith(fns ...func(d *SelfSubjectReviewStatusDie)) *SelfSubjectReviewStatusDie {
+	nd := SelfSubjectReviewStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *SelfSubjectReviewStatusDie) DeepCopy() *SelfSubjectReviewStatusDie {
+	r := *d.r.DeepCopy()
+	return &SelfSubjectReviewStatusDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// User attributes of the user making this request.
+func (d *SelfSubjectReviewStatusDie) UserInfo(v authenticationv1.UserInfo) *SelfSubjectReviewStatusDie {
+	return d.DieStamp(func(r *authenticationv1.SelfSubjectReviewStatus) {
+		r.UserInfo = v
+	})
+}
+
+var UserInfoBlank = (&UserInfoDie{}).DieFeed(authenticationv1.UserInfo{})
+
+type UserInfoDie struct {
+	mutable bool
+	r       authenticationv1.UserInfo
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *UserInfoDie) DieImmutable(immutable bool) *UserInfoDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *UserInfoDie) DieFeed(r authenticationv1.UserInfo) *UserInfoDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &UserInfoDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *UserInfoDie) DieFeedPtr(r *authenticationv1.UserInfo) *UserInfoDie {
+	if r == nil {
+		r = &authenticationv1.UserInfo{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *UserInfoDie) DieFeedJSON(j []byte) *UserInfoDie {
+	r := authenticationv1.UserInfo{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *UserInfoDie) DieFeedYAML(y []byte) *UserInfoDie {
+	r := authenticationv1.UserInfo{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *UserInfoDie) DieFeedYAMLFile(name string) *UserInfoDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *UserInfoDie) DieFeedRawExtension(raw runtime.RawExtension) *UserInfoDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *UserInfoDie) DieRelease() authenticationv1.UserInfo {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *UserInfoDie) DieReleasePtr() *authenticationv1.UserInfo {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *UserInfoDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *UserInfoDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *UserInfoDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *UserInfoDie) DieStamp(fn func(r *authenticationv1.UserInfo)) *UserInfoDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *UserInfoDie) DieStampAt(jp string, fn interface{}) *UserInfoDie {
+	return d.DieStamp(func(r *authenticationv1.UserInfo) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *UserInfoDie) DieWith(fns ...func(d *UserInfoDie)) *UserInfoDie {
+	nd := UserInfoBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *UserInfoDie) DeepCopy() *UserInfoDie {
+	r := *d.r.DeepCopy()
+	return &UserInfoDie{
+		mutable: d.mutable,
+		r:       r,
+	}
+}
+
+// The name that uniquely identifies this user among all active users.
+func (d *UserInfoDie) Username(v string) *UserInfoDie {
+	return d.DieStamp(func(r *authenticationv1.UserInfo) {
+		r.Username = v
+	})
+}
+
+// A unique value that identifies this user across time. If this user is
+//
+// deleted and another user by the same name is added, they will have
+//
+// different UIDs.
+func (d *UserInfoDie) UID(v string) *UserInfoDie {
+	return d.DieStamp(func(r *authenticationv1.UserInfo) {
+		r.UID = v
+	})
+}
+
+// The names of groups this user is a part of.
+func (d *UserInfoDie) Groups(v ...string) *UserInfoDie {
+	return d.DieStamp(func(r *authenticationv1.UserInfo) {
+		r.Groups = v
+	})
+}
+
 var TokenReviewBlank = (&TokenReviewDie{}).DieFeed(authenticationv1.TokenReview{})
 
 type TokenReviewDie struct {
@@ -956,212 +1645,5 @@ func (d *TokenRequestStatusDie) Token(v string) *TokenRequestStatusDie {
 func (d *TokenRequestStatusDie) ExpirationTimestamp(v apismetav1.Time) *TokenRequestStatusDie {
 	return d.DieStamp(func(r *authenticationv1.TokenRequestStatus) {
 		r.ExpirationTimestamp = v
-	})
-}
-
-var UserInfoBlank = (&UserInfoDie{}).DieFeed(authenticationv1.UserInfo{})
-
-type UserInfoDie struct {
-	mutable bool
-	r       authenticationv1.UserInfo
-}
-
-// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-func (d *UserInfoDie) DieImmutable(immutable bool) *UserInfoDie {
-	if d.mutable == !immutable {
-		return d
-	}
-	d = d.DeepCopy()
-	d.mutable = !immutable
-	return d
-}
-
-// DieFeed returns a new die with the provided resource.
-func (d *UserInfoDie) DieFeed(r authenticationv1.UserInfo) *UserInfoDie {
-	if d.mutable {
-		d.r = r
-		return d
-	}
-	return &UserInfoDie{
-		mutable: d.mutable,
-		r:       r,
-	}
-}
-
-// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-func (d *UserInfoDie) DieFeedPtr(r *authenticationv1.UserInfo) *UserInfoDie {
-	if r == nil {
-		r = &authenticationv1.UserInfo{}
-	}
-	return d.DieFeed(*r)
-}
-
-// DieFeedJSON returns a new die with the provided JSON. Panics on error.
-func (d *UserInfoDie) DieFeedJSON(j []byte) *UserInfoDie {
-	r := authenticationv1.UserInfo{}
-	if err := json.Unmarshal(j, &r); err != nil {
-		panic(err)
-	}
-	return d.DieFeed(r)
-}
-
-// DieFeedYAML returns a new die with the provided YAML. Panics on error.
-func (d *UserInfoDie) DieFeedYAML(y []byte) *UserInfoDie {
-	r := authenticationv1.UserInfo{}
-	if err := yaml.Unmarshal(y, &r); err != nil {
-		panic(err)
-	}
-	return d.DieFeed(r)
-}
-
-// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
-func (d *UserInfoDie) DieFeedYAMLFile(name string) *UserInfoDie {
-	y, err := osx.ReadFile(name)
-	if err != nil {
-		panic(err)
-	}
-	return d.DieFeedYAML(y)
-}
-
-// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *UserInfoDie) DieFeedRawExtension(raw runtime.RawExtension) *UserInfoDie {
-	j, err := json.Marshal(raw)
-	if err != nil {
-		panic(err)
-	}
-	return d.DieFeedJSON(j)
-}
-
-// DieRelease returns the resource managed by the die.
-func (d *UserInfoDie) DieRelease() authenticationv1.UserInfo {
-	if d.mutable {
-		return d.r
-	}
-	return *d.r.DeepCopy()
-}
-
-// DieReleasePtr returns a pointer to the resource managed by the die.
-func (d *UserInfoDie) DieReleasePtr() *authenticationv1.UserInfo {
-	r := d.DieRelease()
-	return &r
-}
-
-// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
-func (d *UserInfoDie) DieReleaseJSON() []byte {
-	r := d.DieReleasePtr()
-	j, err := json.Marshal(r)
-	if err != nil {
-		panic(err)
-	}
-	return j
-}
-
-// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
-func (d *UserInfoDie) DieReleaseYAML() []byte {
-	r := d.DieReleasePtr()
-	y, err := yaml.Marshal(r)
-	if err != nil {
-		panic(err)
-	}
-	return y
-}
-
-// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *UserInfoDie) DieReleaseRawExtension() runtime.RawExtension {
-	j := d.DieReleaseJSON()
-	raw := runtime.RawExtension{}
-	if err := json.Unmarshal(j, &raw); err != nil {
-		panic(err)
-	}
-	return raw
-}
-
-// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-func (d *UserInfoDie) DieStamp(fn func(r *authenticationv1.UserInfo)) *UserInfoDie {
-	r := d.DieRelease()
-	fn(&r)
-	return d.DieFeed(r)
-}
-
-// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
-//
-// Future iterations will improve type coercion from the resource to the callback argument.
-func (d *UserInfoDie) DieStampAt(jp string, fn interface{}) *UserInfoDie {
-	return d.DieStamp(func(r *authenticationv1.UserInfo) {
-		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
-			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
-		}
-		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
-			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
-		}
-
-		cp := jsonpath.New("")
-		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
-			panic(err)
-		}
-		cr, err := cp.FindResults(r)
-		if err != nil {
-			// errors are expected if a path is not found
-			return
-		}
-		for _, cv := range cr[0] {
-			arg0t := reflectx.ValueOf(fn).Type().In(0)
-
-			var args []reflectx.Value
-			if cv.Type().AssignableTo(arg0t) {
-				args = []reflectx.Value{cv}
-			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
-				args = []reflectx.Value{cv.Addr()}
-			} else {
-				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
-			}
-
-			reflectx.ValueOf(fn).Call(args)
-		}
-	})
-}
-
-// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *UserInfoDie) DieWith(fns ...func(d *UserInfoDie)) *UserInfoDie {
-	nd := UserInfoBlank.DieFeed(d.DieRelease()).DieImmutable(false)
-	for _, fn := range fns {
-		if fn != nil {
-			fn(nd)
-		}
-	}
-	return d.DieFeed(nd.DieRelease())
-}
-
-// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-func (d *UserInfoDie) DeepCopy() *UserInfoDie {
-	r := *d.r.DeepCopy()
-	return &UserInfoDie{
-		mutable: d.mutable,
-		r:       r,
-	}
-}
-
-// The name that uniquely identifies this user among all active users.
-func (d *UserInfoDie) Username(v string) *UserInfoDie {
-	return d.DieStamp(func(r *authenticationv1.UserInfo) {
-		r.Username = v
-	})
-}
-
-// A unique value that identifies this user across time. If this user is
-//
-// deleted and another user by the same name is added, they will have
-//
-// different UIDs.
-func (d *UserInfoDie) UID(v string) *UserInfoDie {
-	return d.DieStamp(func(r *authenticationv1.UserInfo) {
-		r.UID = v
-	})
-}
-
-// The names of groups this user is a part of.
-func (d *UserInfoDie) Groups(v ...string) *UserInfoDie {
-	return d.DieStamp(func(r *authenticationv1.UserInfo) {
-		r.Groups = v
 	})
 }

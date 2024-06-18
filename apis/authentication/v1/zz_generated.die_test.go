@@ -26,6 +26,33 @@ import (
 	testingx "testing"
 )
 
+func TestSelfSubjectReviewDie_MissingMethods(t *testingx.T) {
+	die := SelfSubjectReviewBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SelfSubjectReviewDie: %s", diff.List())
+	}
+}
+
+func TestSelfSubjectReviewStatusDie_MissingMethods(t *testingx.T) {
+	die := SelfSubjectReviewStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SelfSubjectReviewStatusDie: %s", diff.List())
+	}
+}
+
+func TestUserInfoDie_MissingMethods(t *testingx.T) {
+	die := UserInfoBlank
+	ignore := []string{"Extra"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for UserInfoDie: %s", diff.List())
+	}
+}
+
 func TestTokenReviewDie_MissingMethods(t *testingx.T) {
 	die := TokenReviewBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
@@ -59,14 +86,5 @@ func TestTokenRequestStatusDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for TokenRequestStatusDie: %s", diff.List())
-	}
-}
-
-func TestUserInfoDie_MissingMethods(t *testingx.T) {
-	die := UserInfoBlank
-	ignore := []string{"Extra"}
-	diff := testing.DieFieldDiff(die).Delete(ignore...)
-	if diff.Len() != 0 {
-		t.Errorf("found missing fields for UserInfoDie: %s", diff.List())
 	}
 }

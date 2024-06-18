@@ -1,5 +1,5 @@
 /*
-Copyright 2022 the original author or authors.
+Copyright 2024 the original author or authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,6 +19,20 @@ package v1
 import (
 	authenticationv1 "k8s.io/api/authentication/v1"
 )
+
+// +die:object=true,apiVersion=authentication.k8s.io/v1,kind=SelfSubjectReview
+type _ = authenticationv1.SelfSubjectReview
+
+// +die
+type _ = authenticationv1.SelfSubjectReviewStatus
+
+func (d *SelfSubjectReviewStatusDie) UserInfoDie(fn func(d *UserInfoDie)) *SelfSubjectReviewStatusDie {
+	return d.DieStamp(func(r *authenticationv1.SelfSubjectReviewStatus) {
+		d := UserInfoBlank.DieImmutable(false).DieFeed(r.UserInfo)
+		fn(d)
+		r.UserInfo = d.DieRelease()
+	})
+}
 
 // +die:ignore={Extra}
 type _ = authenticationv1.UserInfo
