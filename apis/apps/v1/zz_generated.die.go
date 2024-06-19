@@ -22,18 +22,21 @@ limitations under the License.
 package v1
 
 import (
-	json "encoding/json"
 	fmtx "fmt"
+	cmp "github.com/google/go-cmp/cmp"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	types "k8s.io/apimachinery/pkg/types"
 	intstr "k8s.io/apimachinery/pkg/util/intstr"
+	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
 	metav1 "reconciler.io/dies/apis/meta/v1"
+	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )
@@ -44,6 +47,7 @@ type ControllerRevisionDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       appsv1.ControllerRevision
+	seal    appsv1.ControllerRevision
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -67,6 +71,7 @@ func (d *ControllerRevisionDie) DieFeed(r appsv1.ControllerRevision) *Controller
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -233,7 +238,51 @@ func (d *ControllerRevisionDie) DeepCopy() *ControllerRevisionDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ControllerRevisionDie) DieSeal() *ControllerRevisionDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ControllerRevisionDie) DieSealFeed(r appsv1.ControllerRevision) *ControllerRevisionDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ControllerRevisionDie) DieSealFeedPtr(r *appsv1.ControllerRevision) *ControllerRevisionDie {
+	if r == nil {
+		r = &appsv1.ControllerRevision{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ControllerRevisionDie) DieSealRelease() appsv1.ControllerRevision {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ControllerRevisionDie) DieSealReleasePtr() *appsv1.ControllerRevision {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ControllerRevisionDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ControllerRevisionDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*ControllerRevisionDie)(nil)
@@ -255,9 +304,9 @@ func (d *ControllerRevisionDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &appsv1.ControllerRevision{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &appsv1.ControllerRevision{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -335,6 +384,7 @@ type DaemonSetDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       appsv1.DaemonSet
+	seal    appsv1.DaemonSet
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -358,6 +408,7 @@ func (d *DaemonSetDie) DieFeed(r appsv1.DaemonSet) *DaemonSetDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -524,7 +575,51 @@ func (d *DaemonSetDie) DeepCopy() *DaemonSetDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *DaemonSetDie) DieSeal() *DaemonSetDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *DaemonSetDie) DieSealFeed(r appsv1.DaemonSet) *DaemonSetDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *DaemonSetDie) DieSealFeedPtr(r *appsv1.DaemonSet) *DaemonSetDie {
+	if r == nil {
+		r = &appsv1.DaemonSet{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *DaemonSetDie) DieSealRelease() appsv1.DaemonSet {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *DaemonSetDie) DieSealReleasePtr() *appsv1.DaemonSet {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *DaemonSetDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *DaemonSetDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*DaemonSetDie)(nil)
@@ -546,9 +641,9 @@ func (d *DaemonSetDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &appsv1.DaemonSet{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &appsv1.DaemonSet{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -653,6 +748,7 @@ var DaemonSetSpecBlank = (&DaemonSetSpecDie{}).DieFeed(appsv1.DaemonSetSpec{})
 type DaemonSetSpecDie struct {
 	mutable bool
 	r       appsv1.DaemonSetSpec
+	seal    appsv1.DaemonSetSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -674,6 +770,7 @@ func (d *DaemonSetSpecDie) DieFeed(r appsv1.DaemonSetSpec) *DaemonSetSpecDie {
 	return &DaemonSetSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -827,7 +924,51 @@ func (d *DaemonSetSpecDie) DeepCopy() *DaemonSetSpecDie {
 	return &DaemonSetSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *DaemonSetSpecDie) DieSeal() *DaemonSetSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *DaemonSetSpecDie) DieSealFeed(r appsv1.DaemonSetSpec) *DaemonSetSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *DaemonSetSpecDie) DieSealFeedPtr(r *appsv1.DaemonSetSpec) *DaemonSetSpecDie {
+	if r == nil {
+		r = &appsv1.DaemonSetSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *DaemonSetSpecDie) DieSealRelease() appsv1.DaemonSetSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *DaemonSetSpecDie) DieSealReleasePtr() *appsv1.DaemonSetSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *DaemonSetSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *DaemonSetSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // A label query over pods that are managed by the daemon set.
@@ -896,6 +1037,7 @@ var DaemonSetUpdateStrategyBlank = (&DaemonSetUpdateStrategyDie{}).DieFeed(appsv
 type DaemonSetUpdateStrategyDie struct {
 	mutable bool
 	r       appsv1.DaemonSetUpdateStrategy
+	seal    appsv1.DaemonSetUpdateStrategy
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -917,6 +1059,7 @@ func (d *DaemonSetUpdateStrategyDie) DieFeed(r appsv1.DaemonSetUpdateStrategy) *
 	return &DaemonSetUpdateStrategyDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1070,7 +1213,51 @@ func (d *DaemonSetUpdateStrategyDie) DeepCopy() *DaemonSetUpdateStrategyDie {
 	return &DaemonSetUpdateStrategyDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *DaemonSetUpdateStrategyDie) DieSeal() *DaemonSetUpdateStrategyDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *DaemonSetUpdateStrategyDie) DieSealFeed(r appsv1.DaemonSetUpdateStrategy) *DaemonSetUpdateStrategyDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *DaemonSetUpdateStrategyDie) DieSealFeedPtr(r *appsv1.DaemonSetUpdateStrategy) *DaemonSetUpdateStrategyDie {
+	if r == nil {
+		r = &appsv1.DaemonSetUpdateStrategy{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *DaemonSetUpdateStrategyDie) DieSealRelease() appsv1.DaemonSetUpdateStrategy {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *DaemonSetUpdateStrategyDie) DieSealReleasePtr() *appsv1.DaemonSetUpdateStrategy {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *DaemonSetUpdateStrategyDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *DaemonSetUpdateStrategyDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Type of daemon set update. Can be "RollingUpdate" or "OnDelete". Default is RollingUpdate.
@@ -1100,6 +1287,7 @@ var RollingUpdateDaemonSetBlank = (&RollingUpdateDaemonSetDie{}).DieFeed(appsv1.
 type RollingUpdateDaemonSetDie struct {
 	mutable bool
 	r       appsv1.RollingUpdateDaemonSet
+	seal    appsv1.RollingUpdateDaemonSet
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1121,6 +1309,7 @@ func (d *RollingUpdateDaemonSetDie) DieFeed(r appsv1.RollingUpdateDaemonSet) *Ro
 	return &RollingUpdateDaemonSetDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1274,7 +1463,51 @@ func (d *RollingUpdateDaemonSetDie) DeepCopy() *RollingUpdateDaemonSetDie {
 	return &RollingUpdateDaemonSetDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *RollingUpdateDaemonSetDie) DieSeal() *RollingUpdateDaemonSetDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *RollingUpdateDaemonSetDie) DieSealFeed(r appsv1.RollingUpdateDaemonSet) *RollingUpdateDaemonSetDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *RollingUpdateDaemonSetDie) DieSealFeedPtr(r *appsv1.RollingUpdateDaemonSet) *RollingUpdateDaemonSetDie {
+	if r == nil {
+		r = &appsv1.RollingUpdateDaemonSet{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *RollingUpdateDaemonSetDie) DieSealRelease() appsv1.RollingUpdateDaemonSet {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *RollingUpdateDaemonSetDie) DieSealReleasePtr() *appsv1.RollingUpdateDaemonSet {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *RollingUpdateDaemonSetDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *RollingUpdateDaemonSetDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // The maximum number of DaemonSet pods that can be unavailable during the
@@ -1516,6 +1749,7 @@ var DaemonSetStatusBlank = (&DaemonSetStatusDie{}).DieFeed(appsv1.DaemonSetStatu
 type DaemonSetStatusDie struct {
 	mutable bool
 	r       appsv1.DaemonSetStatus
+	seal    appsv1.DaemonSetStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1537,6 +1771,7 @@ func (d *DaemonSetStatusDie) DieFeed(r appsv1.DaemonSetStatus) *DaemonSetStatusD
 	return &DaemonSetStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1690,7 +1925,51 @@ func (d *DaemonSetStatusDie) DeepCopy() *DaemonSetStatusDie {
 	return &DaemonSetStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *DaemonSetStatusDie) DieSeal() *DaemonSetStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *DaemonSetStatusDie) DieSealFeed(r appsv1.DaemonSetStatus) *DaemonSetStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *DaemonSetStatusDie) DieSealFeedPtr(r *appsv1.DaemonSetStatus) *DaemonSetStatusDie {
+	if r == nil {
+		r = &appsv1.DaemonSetStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *DaemonSetStatusDie) DieSealRelease() appsv1.DaemonSetStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *DaemonSetStatusDie) DieSealReleasePtr() *appsv1.DaemonSetStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *DaemonSetStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *DaemonSetStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // The number of nodes that are running at least 1
@@ -1795,6 +2074,7 @@ type DeploymentDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       appsv1.Deployment
+	seal    appsv1.Deployment
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1818,6 +2098,7 @@ func (d *DeploymentDie) DieFeed(r appsv1.Deployment) *DeploymentDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -1984,7 +2265,51 @@ func (d *DeploymentDie) DeepCopy() *DeploymentDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *DeploymentDie) DieSeal() *DeploymentDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *DeploymentDie) DieSealFeed(r appsv1.Deployment) *DeploymentDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *DeploymentDie) DieSealFeedPtr(r *appsv1.Deployment) *DeploymentDie {
+	if r == nil {
+		r = &appsv1.Deployment{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *DeploymentDie) DieSealRelease() appsv1.Deployment {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *DeploymentDie) DieSealReleasePtr() *appsv1.Deployment {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *DeploymentDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *DeploymentDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*DeploymentDie)(nil)
@@ -2006,9 +2331,9 @@ func (d *DeploymentDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &appsv1.Deployment{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &appsv1.Deployment{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -2103,6 +2428,7 @@ var DeploymentSpecBlank = (&DeploymentSpecDie{}).DieFeed(appsv1.DeploymentSpec{}
 type DeploymentSpecDie struct {
 	mutable bool
 	r       appsv1.DeploymentSpec
+	seal    appsv1.DeploymentSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2124,6 +2450,7 @@ func (d *DeploymentSpecDie) DieFeed(r appsv1.DeploymentSpec) *DeploymentSpecDie 
 	return &DeploymentSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2277,7 +2604,51 @@ func (d *DeploymentSpecDie) DeepCopy() *DeploymentSpecDie {
 	return &DeploymentSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *DeploymentSpecDie) DieSeal() *DeploymentSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *DeploymentSpecDie) DieSealFeed(r appsv1.DeploymentSpec) *DeploymentSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *DeploymentSpecDie) DieSealFeedPtr(r *appsv1.DeploymentSpec) *DeploymentSpecDie {
+	if r == nil {
+		r = &appsv1.DeploymentSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *DeploymentSpecDie) DieSealRelease() appsv1.DeploymentSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *DeploymentSpecDie) DieSealReleasePtr() *appsv1.DeploymentSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *DeploymentSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *DeploymentSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Number of desired pods. This is a pointer to distinguish between explicit
@@ -2365,6 +2736,7 @@ var DeploymentStrategyBlank = (&DeploymentStrategyDie{}).DieFeed(appsv1.Deployme
 type DeploymentStrategyDie struct {
 	mutable bool
 	r       appsv1.DeploymentStrategy
+	seal    appsv1.DeploymentStrategy
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2386,6 +2758,7 @@ func (d *DeploymentStrategyDie) DieFeed(r appsv1.DeploymentStrategy) *Deployment
 	return &DeploymentStrategyDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2539,7 +2912,51 @@ func (d *DeploymentStrategyDie) DeepCopy() *DeploymentStrategyDie {
 	return &DeploymentStrategyDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *DeploymentStrategyDie) DieSeal() *DeploymentStrategyDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *DeploymentStrategyDie) DieSealFeed(r appsv1.DeploymentStrategy) *DeploymentStrategyDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *DeploymentStrategyDie) DieSealFeedPtr(r *appsv1.DeploymentStrategy) *DeploymentStrategyDie {
+	if r == nil {
+		r = &appsv1.DeploymentStrategy{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *DeploymentStrategyDie) DieSealRelease() appsv1.DeploymentStrategy {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *DeploymentStrategyDie) DieSealReleasePtr() *appsv1.DeploymentStrategy {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *DeploymentStrategyDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *DeploymentStrategyDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
@@ -2569,6 +2986,7 @@ var RollingUpdateDeploymentBlank = (&RollingUpdateDeploymentDie{}).DieFeed(appsv
 type RollingUpdateDeploymentDie struct {
 	mutable bool
 	r       appsv1.RollingUpdateDeployment
+	seal    appsv1.RollingUpdateDeployment
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2590,6 +3008,7 @@ func (d *RollingUpdateDeploymentDie) DieFeed(r appsv1.RollingUpdateDeployment) *
 	return &RollingUpdateDeploymentDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2743,7 +3162,51 @@ func (d *RollingUpdateDeploymentDie) DeepCopy() *RollingUpdateDeploymentDie {
 	return &RollingUpdateDeploymentDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *RollingUpdateDeploymentDie) DieSeal() *RollingUpdateDeploymentDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *RollingUpdateDeploymentDie) DieSealFeed(r appsv1.RollingUpdateDeployment) *RollingUpdateDeploymentDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *RollingUpdateDeploymentDie) DieSealFeedPtr(r *appsv1.RollingUpdateDeployment) *RollingUpdateDeploymentDie {
+	if r == nil {
+		r = &appsv1.RollingUpdateDeployment{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *RollingUpdateDeploymentDie) DieSealRelease() appsv1.RollingUpdateDeployment {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *RollingUpdateDeploymentDie) DieSealReleasePtr() *appsv1.RollingUpdateDeployment {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *RollingUpdateDeploymentDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *RollingUpdateDeploymentDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // The maximum number of pods that can be unavailable during the update.
@@ -2919,6 +3382,7 @@ var DeploymentStatusBlank = (&DeploymentStatusDie{}).DieFeed(appsv1.DeploymentSt
 type DeploymentStatusDie struct {
 	mutable bool
 	r       appsv1.DeploymentStatus
+	seal    appsv1.DeploymentStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2940,6 +3404,7 @@ func (d *DeploymentStatusDie) DieFeed(r appsv1.DeploymentStatus) *DeploymentStat
 	return &DeploymentStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3093,7 +3558,51 @@ func (d *DeploymentStatusDie) DeepCopy() *DeploymentStatusDie {
 	return &DeploymentStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *DeploymentStatusDie) DieSeal() *DeploymentStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *DeploymentStatusDie) DieSealFeed(r appsv1.DeploymentStatus) *DeploymentStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *DeploymentStatusDie) DieSealFeedPtr(r *appsv1.DeploymentStatus) *DeploymentStatusDie {
+	if r == nil {
+		r = &appsv1.DeploymentStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *DeploymentStatusDie) DieSealRelease() appsv1.DeploymentStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *DeploymentStatusDie) DieSealReleasePtr() *appsv1.DeploymentStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *DeploymentStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *DeploymentStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // The generation observed by the deployment controller.
@@ -3166,6 +3675,7 @@ type ReplicaSetDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       appsv1.ReplicaSet
+	seal    appsv1.ReplicaSet
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3189,6 +3699,7 @@ func (d *ReplicaSetDie) DieFeed(r appsv1.ReplicaSet) *ReplicaSetDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -3355,7 +3866,51 @@ func (d *ReplicaSetDie) DeepCopy() *ReplicaSetDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ReplicaSetDie) DieSeal() *ReplicaSetDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ReplicaSetDie) DieSealFeed(r appsv1.ReplicaSet) *ReplicaSetDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ReplicaSetDie) DieSealFeedPtr(r *appsv1.ReplicaSet) *ReplicaSetDie {
+	if r == nil {
+		r = &appsv1.ReplicaSet{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ReplicaSetDie) DieSealRelease() appsv1.ReplicaSet {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ReplicaSetDie) DieSealReleasePtr() *appsv1.ReplicaSet {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ReplicaSetDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ReplicaSetDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*ReplicaSetDie)(nil)
@@ -3377,9 +3932,9 @@ func (d *ReplicaSetDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &appsv1.ReplicaSet{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &appsv1.ReplicaSet{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -3484,6 +4039,7 @@ var ReplicaSetSpecBlank = (&ReplicaSetSpecDie{}).DieFeed(appsv1.ReplicaSetSpec{}
 type ReplicaSetSpecDie struct {
 	mutable bool
 	r       appsv1.ReplicaSetSpec
+	seal    appsv1.ReplicaSetSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3505,6 +4061,7 @@ func (d *ReplicaSetSpecDie) DieFeed(r appsv1.ReplicaSetSpec) *ReplicaSetSpecDie 
 	return &ReplicaSetSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3658,7 +4215,51 @@ func (d *ReplicaSetSpecDie) DeepCopy() *ReplicaSetSpecDie {
 	return &ReplicaSetSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ReplicaSetSpecDie) DieSeal() *ReplicaSetSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ReplicaSetSpecDie) DieSealFeed(r appsv1.ReplicaSetSpec) *ReplicaSetSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ReplicaSetSpecDie) DieSealFeedPtr(r *appsv1.ReplicaSetSpec) *ReplicaSetSpecDie {
+	if r == nil {
+		r = &appsv1.ReplicaSetSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ReplicaSetSpecDie) DieSealRelease() appsv1.ReplicaSetSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ReplicaSetSpecDie) DieSealReleasePtr() *appsv1.ReplicaSetSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ReplicaSetSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ReplicaSetSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Replicas is the number of desired replicas.
@@ -3714,6 +4315,7 @@ var ReplicaSetStatusBlank = (&ReplicaSetStatusDie{}).DieFeed(appsv1.ReplicaSetSt
 type ReplicaSetStatusDie struct {
 	mutable bool
 	r       appsv1.ReplicaSetStatus
+	seal    appsv1.ReplicaSetStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3735,6 +4337,7 @@ func (d *ReplicaSetStatusDie) DieFeed(r appsv1.ReplicaSetStatus) *ReplicaSetStat
 	return &ReplicaSetStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3888,7 +4491,51 @@ func (d *ReplicaSetStatusDie) DeepCopy() *ReplicaSetStatusDie {
 	return &ReplicaSetStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ReplicaSetStatusDie) DieSeal() *ReplicaSetStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ReplicaSetStatusDie) DieSealFeed(r appsv1.ReplicaSetStatus) *ReplicaSetStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ReplicaSetStatusDie) DieSealFeedPtr(r *appsv1.ReplicaSetStatus) *ReplicaSetStatusDie {
+	if r == nil {
+		r = &appsv1.ReplicaSetStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ReplicaSetStatusDie) DieSealRelease() appsv1.ReplicaSetStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ReplicaSetStatusDie) DieSealReleasePtr() *appsv1.ReplicaSetStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ReplicaSetStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ReplicaSetStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Replicas is the most recently observed number of replicas.
@@ -3941,6 +4588,7 @@ type StatefulSetDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       appsv1.StatefulSet
+	seal    appsv1.StatefulSet
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3964,6 +4612,7 @@ func (d *StatefulSetDie) DieFeed(r appsv1.StatefulSet) *StatefulSetDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -4130,7 +4779,51 @@ func (d *StatefulSetDie) DeepCopy() *StatefulSetDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *StatefulSetDie) DieSeal() *StatefulSetDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *StatefulSetDie) DieSealFeed(r appsv1.StatefulSet) *StatefulSetDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *StatefulSetDie) DieSealFeedPtr(r *appsv1.StatefulSet) *StatefulSetDie {
+	if r == nil {
+		r = &appsv1.StatefulSet{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *StatefulSetDie) DieSealRelease() appsv1.StatefulSet {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *StatefulSetDie) DieSealReleasePtr() *appsv1.StatefulSet {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *StatefulSetDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *StatefulSetDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*StatefulSetDie)(nil)
@@ -4152,9 +4845,9 @@ func (d *StatefulSetDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &appsv1.StatefulSet{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &appsv1.StatefulSet{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -4251,6 +4944,7 @@ var StatefulSetSpecBlank = (&StatefulSetSpecDie{}).DieFeed(appsv1.StatefulSetSpe
 type StatefulSetSpecDie struct {
 	mutable bool
 	r       appsv1.StatefulSetSpec
+	seal    appsv1.StatefulSetSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -4272,6 +4966,7 @@ func (d *StatefulSetSpecDie) DieFeed(r appsv1.StatefulSetSpec) *StatefulSetSpecD
 	return &StatefulSetSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -4425,7 +5120,51 @@ func (d *StatefulSetSpecDie) DeepCopy() *StatefulSetSpecDie {
 	return &StatefulSetSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *StatefulSetSpecDie) DieSeal() *StatefulSetSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *StatefulSetSpecDie) DieSealFeed(r appsv1.StatefulSetSpec) *StatefulSetSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *StatefulSetSpecDie) DieSealFeedPtr(r *appsv1.StatefulSetSpec) *StatefulSetSpecDie {
+	if r == nil {
+		r = &appsv1.StatefulSetSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *StatefulSetSpecDie) DieSealRelease() appsv1.StatefulSetSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *StatefulSetSpecDie) DieSealReleasePtr() *appsv1.StatefulSetSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *StatefulSetSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *StatefulSetSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // replicas is the desired number of replicas of the given Template.
@@ -4602,6 +5341,7 @@ var StatefulSetUpdateStrategyBlank = (&StatefulSetUpdateStrategyDie{}).DieFeed(a
 type StatefulSetUpdateStrategyDie struct {
 	mutable bool
 	r       appsv1.StatefulSetUpdateStrategy
+	seal    appsv1.StatefulSetUpdateStrategy
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -4623,6 +5363,7 @@ func (d *StatefulSetUpdateStrategyDie) DieFeed(r appsv1.StatefulSetUpdateStrateg
 	return &StatefulSetUpdateStrategyDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -4776,7 +5517,51 @@ func (d *StatefulSetUpdateStrategyDie) DeepCopy() *StatefulSetUpdateStrategyDie 
 	return &StatefulSetUpdateStrategyDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *StatefulSetUpdateStrategyDie) DieSeal() *StatefulSetUpdateStrategyDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *StatefulSetUpdateStrategyDie) DieSealFeed(r appsv1.StatefulSetUpdateStrategy) *StatefulSetUpdateStrategyDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *StatefulSetUpdateStrategyDie) DieSealFeedPtr(r *appsv1.StatefulSetUpdateStrategy) *StatefulSetUpdateStrategyDie {
+	if r == nil {
+		r = &appsv1.StatefulSetUpdateStrategy{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *StatefulSetUpdateStrategyDie) DieSealRelease() appsv1.StatefulSetUpdateStrategy {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *StatefulSetUpdateStrategyDie) DieSealReleasePtr() *appsv1.StatefulSetUpdateStrategy {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *StatefulSetUpdateStrategyDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *StatefulSetUpdateStrategyDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Type indicates the type of the StatefulSetUpdateStrategy.
@@ -4800,6 +5585,7 @@ var RollingUpdateStatefulSetStrategyBlank = (&RollingUpdateStatefulSetStrategyDi
 type RollingUpdateStatefulSetStrategyDie struct {
 	mutable bool
 	r       appsv1.RollingUpdateStatefulSetStrategy
+	seal    appsv1.RollingUpdateStatefulSetStrategy
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -4821,6 +5607,7 @@ func (d *RollingUpdateStatefulSetStrategyDie) DieFeed(r appsv1.RollingUpdateStat
 	return &RollingUpdateStatefulSetStrategyDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -4974,7 +5761,51 @@ func (d *RollingUpdateStatefulSetStrategyDie) DeepCopy() *RollingUpdateStatefulS
 	return &RollingUpdateStatefulSetStrategyDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *RollingUpdateStatefulSetStrategyDie) DieSeal() *RollingUpdateStatefulSetStrategyDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *RollingUpdateStatefulSetStrategyDie) DieSealFeed(r appsv1.RollingUpdateStatefulSetStrategy) *RollingUpdateStatefulSetStrategyDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *RollingUpdateStatefulSetStrategyDie) DieSealFeedPtr(r *appsv1.RollingUpdateStatefulSetStrategy) *RollingUpdateStatefulSetStrategyDie {
+	if r == nil {
+		r = &appsv1.RollingUpdateStatefulSetStrategy{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *RollingUpdateStatefulSetStrategyDie) DieSealRelease() appsv1.RollingUpdateStatefulSetStrategy {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *RollingUpdateStatefulSetStrategyDie) DieSealReleasePtr() *appsv1.RollingUpdateStatefulSetStrategy {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *RollingUpdateStatefulSetStrategyDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *RollingUpdateStatefulSetStrategyDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Partition indicates the ordinal at which the StatefulSet should be partitioned
@@ -5058,6 +5889,7 @@ var StatefulSetPersistentVolumeClaimRetentionPolicyBlank = (&StatefulSetPersiste
 type StatefulSetPersistentVolumeClaimRetentionPolicyDie struct {
 	mutable bool
 	r       appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy
+	seal    appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -5079,6 +5911,7 @@ func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieFeed(r appsv1.St
 	return &StatefulSetPersistentVolumeClaimRetentionPolicyDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -5232,7 +6065,51 @@ func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DeepCopy() *Statefu
 	return &StatefulSetPersistentVolumeClaimRetentionPolicyDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieSeal() *StatefulSetPersistentVolumeClaimRetentionPolicyDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieSealFeed(r appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy) *StatefulSetPersistentVolumeClaimRetentionPolicyDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieSealFeedPtr(r *appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy) *StatefulSetPersistentVolumeClaimRetentionPolicyDie {
+	if r == nil {
+		r = &appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieSealRelease() appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieSealReleasePtr() *appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *StatefulSetPersistentVolumeClaimRetentionPolicyDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // WhenDeleted specifies what happens to PVCs created from StatefulSet
@@ -5268,6 +6145,7 @@ var StatefulSetOrdinalsBlank = (&StatefulSetOrdinalsDie{}).DieFeed(appsv1.Statef
 type StatefulSetOrdinalsDie struct {
 	mutable bool
 	r       appsv1.StatefulSetOrdinals
+	seal    appsv1.StatefulSetOrdinals
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -5289,6 +6167,7 @@ func (d *StatefulSetOrdinalsDie) DieFeed(r appsv1.StatefulSetOrdinals) *Stateful
 	return &StatefulSetOrdinalsDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -5442,7 +6321,51 @@ func (d *StatefulSetOrdinalsDie) DeepCopy() *StatefulSetOrdinalsDie {
 	return &StatefulSetOrdinalsDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *StatefulSetOrdinalsDie) DieSeal() *StatefulSetOrdinalsDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *StatefulSetOrdinalsDie) DieSealFeed(r appsv1.StatefulSetOrdinals) *StatefulSetOrdinalsDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *StatefulSetOrdinalsDie) DieSealFeedPtr(r *appsv1.StatefulSetOrdinals) *StatefulSetOrdinalsDie {
+	if r == nil {
+		r = &appsv1.StatefulSetOrdinals{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *StatefulSetOrdinalsDie) DieSealRelease() appsv1.StatefulSetOrdinals {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *StatefulSetOrdinalsDie) DieSealReleasePtr() *appsv1.StatefulSetOrdinals {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *StatefulSetOrdinalsDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *StatefulSetOrdinalsDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // start is the number representing the first replica's index. It may be used
@@ -5471,6 +6394,7 @@ var StatefulSetStatusBlank = (&StatefulSetStatusDie{}).DieFeed(appsv1.StatefulSe
 type StatefulSetStatusDie struct {
 	mutable bool
 	r       appsv1.StatefulSetStatus
+	seal    appsv1.StatefulSetStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -5492,6 +6416,7 @@ func (d *StatefulSetStatusDie) DieFeed(r appsv1.StatefulSetStatus) *StatefulSetS
 	return &StatefulSetStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -5645,7 +6570,51 @@ func (d *StatefulSetStatusDie) DeepCopy() *StatefulSetStatusDie {
 	return &StatefulSetStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *StatefulSetStatusDie) DieSeal() *StatefulSetStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *StatefulSetStatusDie) DieSealFeed(r appsv1.StatefulSetStatus) *StatefulSetStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *StatefulSetStatusDie) DieSealFeedPtr(r *appsv1.StatefulSetStatus) *StatefulSetStatusDie {
+	if r == nil {
+		r = &appsv1.StatefulSetStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *StatefulSetStatusDie) DieSealRelease() appsv1.StatefulSetStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *StatefulSetStatusDie) DieSealReleasePtr() *appsv1.StatefulSetStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *StatefulSetStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *StatefulSetStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // observedGeneration is the most recent generation observed for this StatefulSet. It corresponds to the

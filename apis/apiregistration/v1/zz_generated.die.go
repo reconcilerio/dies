@@ -22,16 +22,19 @@ limitations under the License.
 package v1
 
 import (
-	json "encoding/json"
 	fmtx "fmt"
+	cmp "github.com/google/go-cmp/cmp"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	types "k8s.io/apimachinery/pkg/types"
+	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	"k8s.io/kube-aggregator/pkg/apis/apiregistration"
 	osx "os"
 	metav1 "reconciler.io/dies/apis/meta/v1"
+	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )
@@ -42,6 +45,7 @@ type APIServiceDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       apiregistration.APIService
+	seal    apiregistration.APIService
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -65,6 +69,7 @@ func (d *APIServiceDie) DieFeed(r apiregistration.APIService) *APIServiceDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -231,7 +236,51 @@ func (d *APIServiceDie) DeepCopy() *APIServiceDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *APIServiceDie) DieSeal() *APIServiceDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *APIServiceDie) DieSealFeed(r apiregistration.APIService) *APIServiceDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *APIServiceDie) DieSealFeedPtr(r *apiregistration.APIService) *APIServiceDie {
+	if r == nil {
+		r = &apiregistration.APIService{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *APIServiceDie) DieSealRelease() apiregistration.APIService {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *APIServiceDie) DieSealReleasePtr() *apiregistration.APIService {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *APIServiceDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *APIServiceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*APIServiceDie)(nil)
@@ -253,9 +302,9 @@ func (d *APIServiceDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &apiregistration.APIService{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &apiregistration.APIService{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -350,6 +399,7 @@ var APIServiceSpecBlank = (&APIServiceSpecDie{}).DieFeed(apiregistration.APIServ
 type APIServiceSpecDie struct {
 	mutable bool
 	r       apiregistration.APIServiceSpec
+	seal    apiregistration.APIServiceSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -371,6 +421,7 @@ func (d *APIServiceSpecDie) DieFeed(r apiregistration.APIServiceSpec) *APIServic
 	return &APIServiceSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -524,7 +575,51 @@ func (d *APIServiceSpecDie) DeepCopy() *APIServiceSpecDie {
 	return &APIServiceSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *APIServiceSpecDie) DieSeal() *APIServiceSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *APIServiceSpecDie) DieSealFeed(r apiregistration.APIServiceSpec) *APIServiceSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *APIServiceSpecDie) DieSealFeedPtr(r *apiregistration.APIServiceSpec) *APIServiceSpecDie {
+	if r == nil {
+		r = &apiregistration.APIServiceSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *APIServiceSpecDie) DieSealRelease() apiregistration.APIServiceSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *APIServiceSpecDie) DieSealReleasePtr() *apiregistration.APIServiceSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *APIServiceSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *APIServiceSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Service is a reference to the service for this API server.  It must communicate
@@ -619,6 +714,7 @@ var ServiceReferenceBlank = (&ServiceReferenceDie{}).DieFeed(apiregistration.Ser
 type ServiceReferenceDie struct {
 	mutable bool
 	r       apiregistration.ServiceReference
+	seal    apiregistration.ServiceReference
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -640,6 +736,7 @@ func (d *ServiceReferenceDie) DieFeed(r apiregistration.ServiceReference) *Servi
 	return &ServiceReferenceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -793,7 +890,51 @@ func (d *ServiceReferenceDie) DeepCopy() *ServiceReferenceDie {
 	return &ServiceReferenceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ServiceReferenceDie) DieSeal() *ServiceReferenceDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ServiceReferenceDie) DieSealFeed(r apiregistration.ServiceReference) *ServiceReferenceDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ServiceReferenceDie) DieSealFeedPtr(r *apiregistration.ServiceReference) *ServiceReferenceDie {
+	if r == nil {
+		r = &apiregistration.ServiceReference{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ServiceReferenceDie) DieSealRelease() apiregistration.ServiceReference {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ServiceReferenceDie) DieSealReleasePtr() *apiregistration.ServiceReference {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ServiceReferenceDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ServiceReferenceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Namespace is the namespace of the service
@@ -826,6 +967,7 @@ var APIServiceStatusBlank = (&APIServiceStatusDie{}).DieFeed(apiregistration.API
 type APIServiceStatusDie struct {
 	mutable bool
 	r       apiregistration.APIServiceStatus
+	seal    apiregistration.APIServiceStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -847,6 +989,7 @@ func (d *APIServiceStatusDie) DieFeed(r apiregistration.APIServiceStatus) *APISe
 	return &APIServiceStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1000,7 +1143,51 @@ func (d *APIServiceStatusDie) DeepCopy() *APIServiceStatusDie {
 	return &APIServiceStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *APIServiceStatusDie) DieSeal() *APIServiceStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *APIServiceStatusDie) DieSealFeed(r apiregistration.APIServiceStatus) *APIServiceStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *APIServiceStatusDie) DieSealFeedPtr(r *apiregistration.APIServiceStatus) *APIServiceStatusDie {
+	if r == nil {
+		r = &apiregistration.APIServiceStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *APIServiceStatusDie) DieSealRelease() apiregistration.APIServiceStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *APIServiceStatusDie) DieSealReleasePtr() *apiregistration.APIServiceStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *APIServiceStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *APIServiceStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Current service state of apiService.

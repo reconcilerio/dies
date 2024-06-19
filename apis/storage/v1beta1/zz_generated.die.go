@@ -22,17 +22,20 @@ limitations under the License.
 package v1beta1
 
 import (
-	json "encoding/json"
 	fmtx "fmt"
+	cmp "github.com/google/go-cmp/cmp"
 	storagev1beta1 "k8s.io/api/storage/v1beta1"
 	resource "k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	types "k8s.io/apimachinery/pkg/types"
+	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
 	"reconciler.io/dies/apis/meta/v1"
+	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )
@@ -43,6 +46,7 @@ type CSIStorageCapacityDie struct {
 	v1.FrozenObjectMeta
 	mutable bool
 	r       storagev1beta1.CSIStorageCapacity
+	seal    storagev1beta1.CSIStorageCapacity
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -66,6 +70,7 @@ func (d *CSIStorageCapacityDie) DieFeed(r storagev1beta1.CSIStorageCapacity) *CS
 		FrozenObjectMeta: v1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -232,7 +237,51 @@ func (d *CSIStorageCapacityDie) DeepCopy() *CSIStorageCapacityDie {
 		FrozenObjectMeta: v1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *CSIStorageCapacityDie) DieSeal() *CSIStorageCapacityDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *CSIStorageCapacityDie) DieSealFeed(r storagev1beta1.CSIStorageCapacity) *CSIStorageCapacityDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *CSIStorageCapacityDie) DieSealFeedPtr(r *storagev1beta1.CSIStorageCapacity) *CSIStorageCapacityDie {
+	if r == nil {
+		r = &storagev1beta1.CSIStorageCapacity{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *CSIStorageCapacityDie) DieSealRelease() storagev1beta1.CSIStorageCapacity {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *CSIStorageCapacityDie) DieSealReleasePtr() *storagev1beta1.CSIStorageCapacity {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *CSIStorageCapacityDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *CSIStorageCapacityDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*CSIStorageCapacityDie)(nil)
@@ -254,9 +303,9 @@ func (d *CSIStorageCapacityDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &storagev1beta1.CSIStorageCapacity{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &storagev1beta1.CSIStorageCapacity{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 

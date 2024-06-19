@@ -22,17 +22,19 @@ limitations under the License.
 package v1
 
 import (
-	json "encoding/json"
 	fmtx "fmt"
+	cmp "github.com/google/go-cmp/cmp"
 	authenticationv1 "k8s.io/api/authentication/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
+	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
 	metav1 "reconciler.io/dies/apis/meta/v1"
+	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )
@@ -43,6 +45,7 @@ type SelfSubjectReviewDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       authenticationv1.SelfSubjectReview
+	seal    authenticationv1.SelfSubjectReview
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -66,6 +69,7 @@ func (d *SelfSubjectReviewDie) DieFeed(r authenticationv1.SelfSubjectReview) *Se
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -232,7 +236,51 @@ func (d *SelfSubjectReviewDie) DeepCopy() *SelfSubjectReviewDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *SelfSubjectReviewDie) DieSeal() *SelfSubjectReviewDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *SelfSubjectReviewDie) DieSealFeed(r authenticationv1.SelfSubjectReview) *SelfSubjectReviewDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *SelfSubjectReviewDie) DieSealFeedPtr(r *authenticationv1.SelfSubjectReview) *SelfSubjectReviewDie {
+	if r == nil {
+		r = &authenticationv1.SelfSubjectReview{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *SelfSubjectReviewDie) DieSealRelease() authenticationv1.SelfSubjectReview {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *SelfSubjectReviewDie) DieSealReleasePtr() *authenticationv1.SelfSubjectReview {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *SelfSubjectReviewDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *SelfSubjectReviewDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*SelfSubjectReviewDie)(nil)
@@ -254,9 +302,9 @@ func (d *SelfSubjectReviewDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &authenticationv1.SelfSubjectReview{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &authenticationv1.SelfSubjectReview{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -335,6 +383,7 @@ var SelfSubjectReviewStatusBlank = (&SelfSubjectReviewStatusDie{}).DieFeed(authe
 type SelfSubjectReviewStatusDie struct {
 	mutable bool
 	r       authenticationv1.SelfSubjectReviewStatus
+	seal    authenticationv1.SelfSubjectReviewStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -356,6 +405,7 @@ func (d *SelfSubjectReviewStatusDie) DieFeed(r authenticationv1.SelfSubjectRevie
 	return &SelfSubjectReviewStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -509,7 +559,51 @@ func (d *SelfSubjectReviewStatusDie) DeepCopy() *SelfSubjectReviewStatusDie {
 	return &SelfSubjectReviewStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *SelfSubjectReviewStatusDie) DieSeal() *SelfSubjectReviewStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *SelfSubjectReviewStatusDie) DieSealFeed(r authenticationv1.SelfSubjectReviewStatus) *SelfSubjectReviewStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *SelfSubjectReviewStatusDie) DieSealFeedPtr(r *authenticationv1.SelfSubjectReviewStatus) *SelfSubjectReviewStatusDie {
+	if r == nil {
+		r = &authenticationv1.SelfSubjectReviewStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *SelfSubjectReviewStatusDie) DieSealRelease() authenticationv1.SelfSubjectReviewStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *SelfSubjectReviewStatusDie) DieSealReleasePtr() *authenticationv1.SelfSubjectReviewStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *SelfSubjectReviewStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *SelfSubjectReviewStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // User attributes of the user making this request.
@@ -524,6 +618,7 @@ var UserInfoBlank = (&UserInfoDie{}).DieFeed(authenticationv1.UserInfo{})
 type UserInfoDie struct {
 	mutable bool
 	r       authenticationv1.UserInfo
+	seal    authenticationv1.UserInfo
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -545,6 +640,7 @@ func (d *UserInfoDie) DieFeed(r authenticationv1.UserInfo) *UserInfoDie {
 	return &UserInfoDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -698,7 +794,51 @@ func (d *UserInfoDie) DeepCopy() *UserInfoDie {
 	return &UserInfoDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *UserInfoDie) DieSeal() *UserInfoDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *UserInfoDie) DieSealFeed(r authenticationv1.UserInfo) *UserInfoDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *UserInfoDie) DieSealFeedPtr(r *authenticationv1.UserInfo) *UserInfoDie {
+	if r == nil {
+		r = &authenticationv1.UserInfo{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *UserInfoDie) DieSealRelease() authenticationv1.UserInfo {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *UserInfoDie) DieSealReleasePtr() *authenticationv1.UserInfo {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *UserInfoDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *UserInfoDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // The name that uniquely identifies this user among all active users.
@@ -732,6 +872,7 @@ type TokenReviewDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       authenticationv1.TokenReview
+	seal    authenticationv1.TokenReview
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -755,6 +896,7 @@ func (d *TokenReviewDie) DieFeed(r authenticationv1.TokenReview) *TokenReviewDie
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -921,7 +1063,51 @@ func (d *TokenReviewDie) DeepCopy() *TokenReviewDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *TokenReviewDie) DieSeal() *TokenReviewDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *TokenReviewDie) DieSealFeed(r authenticationv1.TokenReview) *TokenReviewDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *TokenReviewDie) DieSealFeedPtr(r *authenticationv1.TokenReview) *TokenReviewDie {
+	if r == nil {
+		r = &authenticationv1.TokenReview{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *TokenReviewDie) DieSealRelease() authenticationv1.TokenReview {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *TokenReviewDie) DieSealReleasePtr() *authenticationv1.TokenReview {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *TokenReviewDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *TokenReviewDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*TokenReviewDie)(nil)
@@ -943,9 +1129,9 @@ func (d *TokenReviewDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &authenticationv1.TokenReview{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &authenticationv1.TokenReview{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -1022,6 +1208,7 @@ var TokenRequestSpecBlank = (&TokenRequestSpecDie{}).DieFeed(authenticationv1.To
 type TokenRequestSpecDie struct {
 	mutable bool
 	r       authenticationv1.TokenRequestSpec
+	seal    authenticationv1.TokenRequestSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1043,6 +1230,7 @@ func (d *TokenRequestSpecDie) DieFeed(r authenticationv1.TokenRequestSpec) *Toke
 	return &TokenRequestSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1196,7 +1384,51 @@ func (d *TokenRequestSpecDie) DeepCopy() *TokenRequestSpecDie {
 	return &TokenRequestSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *TokenRequestSpecDie) DieSeal() *TokenRequestSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *TokenRequestSpecDie) DieSealFeed(r authenticationv1.TokenRequestSpec) *TokenRequestSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *TokenRequestSpecDie) DieSealFeedPtr(r *authenticationv1.TokenRequestSpec) *TokenRequestSpecDie {
+	if r == nil {
+		r = &authenticationv1.TokenRequestSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *TokenRequestSpecDie) DieSealRelease() authenticationv1.TokenRequestSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *TokenRequestSpecDie) DieSealReleasePtr() *authenticationv1.TokenRequestSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *TokenRequestSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *TokenRequestSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Audiences are the intendend audiences of the token. A recipient of a
@@ -1247,6 +1479,7 @@ var BoundObjectReferenceBlank = (&BoundObjectReferenceDie{}).DieFeed(authenticat
 type BoundObjectReferenceDie struct {
 	mutable bool
 	r       authenticationv1.BoundObjectReference
+	seal    authenticationv1.BoundObjectReference
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1268,6 +1501,7 @@ func (d *BoundObjectReferenceDie) DieFeed(r authenticationv1.BoundObjectReferenc
 	return &BoundObjectReferenceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1421,7 +1655,51 @@ func (d *BoundObjectReferenceDie) DeepCopy() *BoundObjectReferenceDie {
 	return &BoundObjectReferenceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *BoundObjectReferenceDie) DieSeal() *BoundObjectReferenceDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *BoundObjectReferenceDie) DieSealFeed(r authenticationv1.BoundObjectReference) *BoundObjectReferenceDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *BoundObjectReferenceDie) DieSealFeedPtr(r *authenticationv1.BoundObjectReference) *BoundObjectReferenceDie {
+	if r == nil {
+		r = &authenticationv1.BoundObjectReference{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *BoundObjectReferenceDie) DieSealRelease() authenticationv1.BoundObjectReference {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *BoundObjectReferenceDie) DieSealReleasePtr() *authenticationv1.BoundObjectReference {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *BoundObjectReferenceDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *BoundObjectReferenceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Kind of the referent. Valid kinds are 'Pod' and 'Secret'.
@@ -1457,6 +1735,7 @@ var TokenRequestStatusBlank = (&TokenRequestStatusDie{}).DieFeed(authenticationv
 type TokenRequestStatusDie struct {
 	mutable bool
 	r       authenticationv1.TokenRequestStatus
+	seal    authenticationv1.TokenRequestStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1478,6 +1757,7 @@ func (d *TokenRequestStatusDie) DieFeed(r authenticationv1.TokenRequestStatus) *
 	return &TokenRequestStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1631,7 +1911,51 @@ func (d *TokenRequestStatusDie) DeepCopy() *TokenRequestStatusDie {
 	return &TokenRequestStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *TokenRequestStatusDie) DieSeal() *TokenRequestStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *TokenRequestStatusDie) DieSealFeed(r authenticationv1.TokenRequestStatus) *TokenRequestStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *TokenRequestStatusDie) DieSealFeedPtr(r *authenticationv1.TokenRequestStatus) *TokenRequestStatusDie {
+	if r == nil {
+		r = &authenticationv1.TokenRequestStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *TokenRequestStatusDie) DieSealRelease() authenticationv1.TokenRequestStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *TokenRequestStatusDie) DieSealReleasePtr() *authenticationv1.TokenRequestStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *TokenRequestStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *TokenRequestStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Token is the opaque bearer token.

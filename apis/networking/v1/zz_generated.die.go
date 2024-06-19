@@ -22,18 +22,21 @@ limitations under the License.
 package v1
 
 import (
-	json "encoding/json"
 	fmtx "fmt"
+	cmp "github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	types "k8s.io/apimachinery/pkg/types"
 	intstr "k8s.io/apimachinery/pkg/util/intstr"
+	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
 	metav1 "reconciler.io/dies/apis/meta/v1"
+	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )
@@ -44,6 +47,7 @@ type IngressDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       networkingv1.Ingress
+	seal    networkingv1.Ingress
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -67,6 +71,7 @@ func (d *IngressDie) DieFeed(r networkingv1.Ingress) *IngressDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -233,7 +238,51 @@ func (d *IngressDie) DeepCopy() *IngressDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *IngressDie) DieSeal() *IngressDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *IngressDie) DieSealFeed(r networkingv1.Ingress) *IngressDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *IngressDie) DieSealFeedPtr(r *networkingv1.Ingress) *IngressDie {
+	if r == nil {
+		r = &networkingv1.Ingress{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *IngressDie) DieSealRelease() networkingv1.Ingress {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *IngressDie) DieSealReleasePtr() *networkingv1.Ingress {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *IngressDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *IngressDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*IngressDie)(nil)
@@ -255,9 +304,9 @@ func (d *IngressDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &networkingv1.Ingress{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &networkingv1.Ingress{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -356,6 +405,7 @@ var IngressSpecBlank = (&IngressSpecDie{}).DieFeed(networkingv1.IngressSpec{})
 type IngressSpecDie struct {
 	mutable bool
 	r       networkingv1.IngressSpec
+	seal    networkingv1.IngressSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -377,6 +427,7 @@ func (d *IngressSpecDie) DieFeed(r networkingv1.IngressSpec) *IngressSpecDie {
 	return &IngressSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -530,7 +581,51 @@ func (d *IngressSpecDie) DeepCopy() *IngressSpecDie {
 	return &IngressSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *IngressSpecDie) DieSeal() *IngressSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *IngressSpecDie) DieSealFeed(r networkingv1.IngressSpec) *IngressSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *IngressSpecDie) DieSealFeedPtr(r *networkingv1.IngressSpec) *IngressSpecDie {
+	if r == nil {
+		r = &networkingv1.IngressSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *IngressSpecDie) DieSealRelease() networkingv1.IngressSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *IngressSpecDie) DieSealReleasePtr() *networkingv1.IngressSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *IngressSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *IngressSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // ingressClassName is the name of an IngressClass cluster resource. Ingress
@@ -600,6 +695,7 @@ var IngressBackendBlank = (&IngressBackendDie{}).DieFeed(networkingv1.IngressBac
 type IngressBackendDie struct {
 	mutable bool
 	r       networkingv1.IngressBackend
+	seal    networkingv1.IngressBackend
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -621,6 +717,7 @@ func (d *IngressBackendDie) DieFeed(r networkingv1.IngressBackend) *IngressBacke
 	return &IngressBackendDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -774,7 +871,51 @@ func (d *IngressBackendDie) DeepCopy() *IngressBackendDie {
 	return &IngressBackendDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *IngressBackendDie) DieSeal() *IngressBackendDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *IngressBackendDie) DieSealFeed(r networkingv1.IngressBackend) *IngressBackendDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *IngressBackendDie) DieSealFeedPtr(r *networkingv1.IngressBackend) *IngressBackendDie {
+	if r == nil {
+		r = &networkingv1.IngressBackend{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *IngressBackendDie) DieSealRelease() networkingv1.IngressBackend {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *IngressBackendDie) DieSealReleasePtr() *networkingv1.IngressBackend {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *IngressBackendDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *IngressBackendDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // service references a service as a backend.
@@ -804,6 +945,7 @@ var IngressServiceBackendBlank = (&IngressServiceBackendDie{}).DieFeed(networkin
 type IngressServiceBackendDie struct {
 	mutable bool
 	r       networkingv1.IngressServiceBackend
+	seal    networkingv1.IngressServiceBackend
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -825,6 +967,7 @@ func (d *IngressServiceBackendDie) DieFeed(r networkingv1.IngressServiceBackend)
 	return &IngressServiceBackendDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -978,7 +1121,51 @@ func (d *IngressServiceBackendDie) DeepCopy() *IngressServiceBackendDie {
 	return &IngressServiceBackendDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *IngressServiceBackendDie) DieSeal() *IngressServiceBackendDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *IngressServiceBackendDie) DieSealFeed(r networkingv1.IngressServiceBackend) *IngressServiceBackendDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *IngressServiceBackendDie) DieSealFeedPtr(r *networkingv1.IngressServiceBackend) *IngressServiceBackendDie {
+	if r == nil {
+		r = &networkingv1.IngressServiceBackend{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *IngressServiceBackendDie) DieSealRelease() networkingv1.IngressServiceBackend {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *IngressServiceBackendDie) DieSealReleasePtr() *networkingv1.IngressServiceBackend {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *IngressServiceBackendDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *IngressServiceBackendDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // name is the referenced service. The service must exist in
@@ -1004,6 +1191,7 @@ var ServiceBackendPortBlank = (&ServiceBackendPortDie{}).DieFeed(networkingv1.Se
 type ServiceBackendPortDie struct {
 	mutable bool
 	r       networkingv1.ServiceBackendPort
+	seal    networkingv1.ServiceBackendPort
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1025,6 +1213,7 @@ func (d *ServiceBackendPortDie) DieFeed(r networkingv1.ServiceBackendPort) *Serv
 	return &ServiceBackendPortDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1178,7 +1367,51 @@ func (d *ServiceBackendPortDie) DeepCopy() *ServiceBackendPortDie {
 	return &ServiceBackendPortDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ServiceBackendPortDie) DieSeal() *ServiceBackendPortDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ServiceBackendPortDie) DieSealFeed(r networkingv1.ServiceBackendPort) *ServiceBackendPortDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ServiceBackendPortDie) DieSealFeedPtr(r *networkingv1.ServiceBackendPort) *ServiceBackendPortDie {
+	if r == nil {
+		r = &networkingv1.ServiceBackendPort{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ServiceBackendPortDie) DieSealRelease() networkingv1.ServiceBackendPort {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ServiceBackendPortDie) DieSealReleasePtr() *networkingv1.ServiceBackendPort {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ServiceBackendPortDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ServiceBackendPortDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // name is the name of the port on the Service.
@@ -1204,6 +1437,7 @@ var IngressTLSBlank = (&IngressTLSDie{}).DieFeed(networkingv1.IngressTLS{})
 type IngressTLSDie struct {
 	mutable bool
 	r       networkingv1.IngressTLS
+	seal    networkingv1.IngressTLS
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1225,6 +1459,7 @@ func (d *IngressTLSDie) DieFeed(r networkingv1.IngressTLS) *IngressTLSDie {
 	return &IngressTLSDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1378,7 +1613,51 @@ func (d *IngressTLSDie) DeepCopy() *IngressTLSDie {
 	return &IngressTLSDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *IngressTLSDie) DieSeal() *IngressTLSDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *IngressTLSDie) DieSealFeed(r networkingv1.IngressTLS) *IngressTLSDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *IngressTLSDie) DieSealFeedPtr(r *networkingv1.IngressTLS) *IngressTLSDie {
+	if r == nil {
+		r = &networkingv1.IngressTLS{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *IngressTLSDie) DieSealRelease() networkingv1.IngressTLS {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *IngressTLSDie) DieSealReleasePtr() *networkingv1.IngressTLS {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *IngressTLSDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *IngressTLSDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // hosts is a list of hosts included in the TLS certificate. The values in
@@ -1414,6 +1693,7 @@ var IngressRuleBlank = (&IngressRuleDie{}).DieFeed(networkingv1.IngressRule{})
 type IngressRuleDie struct {
 	mutable bool
 	r       networkingv1.IngressRule
+	seal    networkingv1.IngressRule
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1435,6 +1715,7 @@ func (d *IngressRuleDie) DieFeed(r networkingv1.IngressRule) *IngressRuleDie {
 	return &IngressRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1588,7 +1869,51 @@ func (d *IngressRuleDie) DeepCopy() *IngressRuleDie {
 	return &IngressRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *IngressRuleDie) DieSeal() *IngressRuleDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *IngressRuleDie) DieSealFeed(r networkingv1.IngressRule) *IngressRuleDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *IngressRuleDie) DieSealFeedPtr(r *networkingv1.IngressRule) *IngressRuleDie {
+	if r == nil {
+		r = &networkingv1.IngressRule{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *IngressRuleDie) DieSealRelease() networkingv1.IngressRule {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *IngressRuleDie) DieSealReleasePtr() *networkingv1.IngressRule {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *IngressRuleDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *IngressRuleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // host is the fully qualified domain name of a network host, as defined by RFC 3986.
@@ -1658,6 +1983,7 @@ var HTTPIngressRuleValueBlank = (&HTTPIngressRuleValueDie{}).DieFeed(networkingv
 type HTTPIngressRuleValueDie struct {
 	mutable bool
 	r       networkingv1.HTTPIngressRuleValue
+	seal    networkingv1.HTTPIngressRuleValue
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1679,6 +2005,7 @@ func (d *HTTPIngressRuleValueDie) DieFeed(r networkingv1.HTTPIngressRuleValue) *
 	return &HTTPIngressRuleValueDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1832,7 +2159,51 @@ func (d *HTTPIngressRuleValueDie) DeepCopy() *HTTPIngressRuleValueDie {
 	return &HTTPIngressRuleValueDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *HTTPIngressRuleValueDie) DieSeal() *HTTPIngressRuleValueDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *HTTPIngressRuleValueDie) DieSealFeed(r networkingv1.HTTPIngressRuleValue) *HTTPIngressRuleValueDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *HTTPIngressRuleValueDie) DieSealFeedPtr(r *networkingv1.HTTPIngressRuleValue) *HTTPIngressRuleValueDie {
+	if r == nil {
+		r = &networkingv1.HTTPIngressRuleValue{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *HTTPIngressRuleValueDie) DieSealRelease() networkingv1.HTTPIngressRuleValue {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *HTTPIngressRuleValueDie) DieSealReleasePtr() *networkingv1.HTTPIngressRuleValue {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *HTTPIngressRuleValueDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *HTTPIngressRuleValueDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // paths is a collection of paths that map requests to backends.
@@ -1847,6 +2218,7 @@ var HTTPIngressPathBlank = (&HTTPIngressPathDie{}).DieFeed(networkingv1.HTTPIngr
 type HTTPIngressPathDie struct {
 	mutable bool
 	r       networkingv1.HTTPIngressPath
+	seal    networkingv1.HTTPIngressPath
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1868,6 +2240,7 @@ func (d *HTTPIngressPathDie) DieFeed(r networkingv1.HTTPIngressPath) *HTTPIngres
 	return &HTTPIngressPathDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2021,7 +2394,51 @@ func (d *HTTPIngressPathDie) DeepCopy() *HTTPIngressPathDie {
 	return &HTTPIngressPathDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *HTTPIngressPathDie) DieSeal() *HTTPIngressPathDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *HTTPIngressPathDie) DieSealFeed(r networkingv1.HTTPIngressPath) *HTTPIngressPathDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *HTTPIngressPathDie) DieSealFeedPtr(r *networkingv1.HTTPIngressPath) *HTTPIngressPathDie {
+	if r == nil {
+		r = &networkingv1.HTTPIngressPath{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *HTTPIngressPathDie) DieSealRelease() networkingv1.HTTPIngressPath {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *HTTPIngressPathDie) DieSealReleasePtr() *networkingv1.HTTPIngressPath {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *HTTPIngressPathDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *HTTPIngressPathDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // path is matched against the path of an incoming request. Currently it can
@@ -2084,6 +2501,7 @@ var IngressStatusBlank = (&IngressStatusDie{}).DieFeed(networkingv1.IngressStatu
 type IngressStatusDie struct {
 	mutable bool
 	r       networkingv1.IngressStatus
+	seal    networkingv1.IngressStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2105,6 +2523,7 @@ func (d *IngressStatusDie) DieFeed(r networkingv1.IngressStatus) *IngressStatusD
 	return &IngressStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2258,7 +2677,51 @@ func (d *IngressStatusDie) DeepCopy() *IngressStatusDie {
 	return &IngressStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *IngressStatusDie) DieSeal() *IngressStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *IngressStatusDie) DieSealFeed(r networkingv1.IngressStatus) *IngressStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *IngressStatusDie) DieSealFeedPtr(r *networkingv1.IngressStatus) *IngressStatusDie {
+	if r == nil {
+		r = &networkingv1.IngressStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *IngressStatusDie) DieSealRelease() networkingv1.IngressStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *IngressStatusDie) DieSealReleasePtr() *networkingv1.IngressStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *IngressStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *IngressStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // loadBalancer contains the current status of the load-balancer.
@@ -2273,6 +2736,7 @@ var IngressLoadBalancerStatusBlank = (&IngressLoadBalancerStatusDie{}).DieFeed(n
 type IngressLoadBalancerStatusDie struct {
 	mutable bool
 	r       networkingv1.IngressLoadBalancerStatus
+	seal    networkingv1.IngressLoadBalancerStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2294,6 +2758,7 @@ func (d *IngressLoadBalancerStatusDie) DieFeed(r networkingv1.IngressLoadBalance
 	return &IngressLoadBalancerStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2447,7 +2912,51 @@ func (d *IngressLoadBalancerStatusDie) DeepCopy() *IngressLoadBalancerStatusDie 
 	return &IngressLoadBalancerStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *IngressLoadBalancerStatusDie) DieSeal() *IngressLoadBalancerStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *IngressLoadBalancerStatusDie) DieSealFeed(r networkingv1.IngressLoadBalancerStatus) *IngressLoadBalancerStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *IngressLoadBalancerStatusDie) DieSealFeedPtr(r *networkingv1.IngressLoadBalancerStatus) *IngressLoadBalancerStatusDie {
+	if r == nil {
+		r = &networkingv1.IngressLoadBalancerStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *IngressLoadBalancerStatusDie) DieSealRelease() networkingv1.IngressLoadBalancerStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *IngressLoadBalancerStatusDie) DieSealReleasePtr() *networkingv1.IngressLoadBalancerStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *IngressLoadBalancerStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *IngressLoadBalancerStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // ingress is a list containing ingress points for the load-balancer.
@@ -2462,6 +2971,7 @@ var IngressLoadBalancerIngressBlank = (&IngressLoadBalancerIngressDie{}).DieFeed
 type IngressLoadBalancerIngressDie struct {
 	mutable bool
 	r       networkingv1.IngressLoadBalancerIngress
+	seal    networkingv1.IngressLoadBalancerIngress
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2483,6 +2993,7 @@ func (d *IngressLoadBalancerIngressDie) DieFeed(r networkingv1.IngressLoadBalanc
 	return &IngressLoadBalancerIngressDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2636,7 +3147,51 @@ func (d *IngressLoadBalancerIngressDie) DeepCopy() *IngressLoadBalancerIngressDi
 	return &IngressLoadBalancerIngressDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *IngressLoadBalancerIngressDie) DieSeal() *IngressLoadBalancerIngressDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *IngressLoadBalancerIngressDie) DieSealFeed(r networkingv1.IngressLoadBalancerIngress) *IngressLoadBalancerIngressDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *IngressLoadBalancerIngressDie) DieSealFeedPtr(r *networkingv1.IngressLoadBalancerIngress) *IngressLoadBalancerIngressDie {
+	if r == nil {
+		r = &networkingv1.IngressLoadBalancerIngress{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *IngressLoadBalancerIngressDie) DieSealRelease() networkingv1.IngressLoadBalancerIngress {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *IngressLoadBalancerIngressDie) DieSealReleasePtr() *networkingv1.IngressLoadBalancerIngress {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *IngressLoadBalancerIngressDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *IngressLoadBalancerIngressDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // ip is set for load-balancer ingress points that are IP based.
@@ -2665,6 +3220,7 @@ var IngressPortStatusBlank = (&IngressPortStatusDie{}).DieFeed(networkingv1.Ingr
 type IngressPortStatusDie struct {
 	mutable bool
 	r       networkingv1.IngressPortStatus
+	seal    networkingv1.IngressPortStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2686,6 +3242,7 @@ func (d *IngressPortStatusDie) DieFeed(r networkingv1.IngressPortStatus) *Ingres
 	return &IngressPortStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2839,7 +3396,51 @@ func (d *IngressPortStatusDie) DeepCopy() *IngressPortStatusDie {
 	return &IngressPortStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *IngressPortStatusDie) DieSeal() *IngressPortStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *IngressPortStatusDie) DieSealFeed(r networkingv1.IngressPortStatus) *IngressPortStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *IngressPortStatusDie) DieSealFeedPtr(r *networkingv1.IngressPortStatus) *IngressPortStatusDie {
+	if r == nil {
+		r = &networkingv1.IngressPortStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *IngressPortStatusDie) DieSealRelease() networkingv1.IngressPortStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *IngressPortStatusDie) DieSealReleasePtr() *networkingv1.IngressPortStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *IngressPortStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *IngressPortStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // port is the port number of the ingress port.
@@ -2885,6 +3486,7 @@ type IngressClassDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       networkingv1.IngressClass
+	seal    networkingv1.IngressClass
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2908,6 +3510,7 @@ func (d *IngressClassDie) DieFeed(r networkingv1.IngressClass) *IngressClassDie 
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -3074,7 +3677,51 @@ func (d *IngressClassDie) DeepCopy() *IngressClassDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *IngressClassDie) DieSeal() *IngressClassDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *IngressClassDie) DieSealFeed(r networkingv1.IngressClass) *IngressClassDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *IngressClassDie) DieSealFeedPtr(r *networkingv1.IngressClass) *IngressClassDie {
+	if r == nil {
+		r = &networkingv1.IngressClass{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *IngressClassDie) DieSealRelease() networkingv1.IngressClass {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *IngressClassDie) DieSealReleasePtr() *networkingv1.IngressClass {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *IngressClassDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *IngressClassDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*IngressClassDie)(nil)
@@ -3096,9 +3743,9 @@ func (d *IngressClassDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &networkingv1.IngressClass{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &networkingv1.IngressClass{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -3179,6 +3826,7 @@ var IngressClassSpecBlank = (&IngressClassSpecDie{}).DieFeed(networkingv1.Ingres
 type IngressClassSpecDie struct {
 	mutable bool
 	r       networkingv1.IngressClassSpec
+	seal    networkingv1.IngressClassSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3200,6 +3848,7 @@ func (d *IngressClassSpecDie) DieFeed(r networkingv1.IngressClassSpec) *IngressC
 	return &IngressClassSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3353,7 +4002,51 @@ func (d *IngressClassSpecDie) DeepCopy() *IngressClassSpecDie {
 	return &IngressClassSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *IngressClassSpecDie) DieSeal() *IngressClassSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *IngressClassSpecDie) DieSealFeed(r networkingv1.IngressClassSpec) *IngressClassSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *IngressClassSpecDie) DieSealFeedPtr(r *networkingv1.IngressClassSpec) *IngressClassSpecDie {
+	if r == nil {
+		r = &networkingv1.IngressClassSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *IngressClassSpecDie) DieSealRelease() networkingv1.IngressClassSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *IngressClassSpecDie) DieSealReleasePtr() *networkingv1.IngressClassSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *IngressClassSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *IngressClassSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // controller refers to the name of the controller that should handle this
@@ -3389,6 +4082,7 @@ var IngressClassParametersReferenceBlank = (&IngressClassParametersReferenceDie{
 type IngressClassParametersReferenceDie struct {
 	mutable bool
 	r       networkingv1.IngressClassParametersReference
+	seal    networkingv1.IngressClassParametersReference
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3410,6 +4104,7 @@ func (d *IngressClassParametersReferenceDie) DieFeed(r networkingv1.IngressClass
 	return &IngressClassParametersReferenceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3563,7 +4258,51 @@ func (d *IngressClassParametersReferenceDie) DeepCopy() *IngressClassParametersR
 	return &IngressClassParametersReferenceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *IngressClassParametersReferenceDie) DieSeal() *IngressClassParametersReferenceDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *IngressClassParametersReferenceDie) DieSealFeed(r networkingv1.IngressClassParametersReference) *IngressClassParametersReferenceDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *IngressClassParametersReferenceDie) DieSealFeedPtr(r *networkingv1.IngressClassParametersReference) *IngressClassParametersReferenceDie {
+	if r == nil {
+		r = &networkingv1.IngressClassParametersReference{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *IngressClassParametersReferenceDie) DieSealRelease() networkingv1.IngressClassParametersReference {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *IngressClassParametersReferenceDie) DieSealReleasePtr() *networkingv1.IngressClassParametersReference {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *IngressClassParametersReferenceDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *IngressClassParametersReferenceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // apiGroup is the group for the resource being referenced. If APIGroup is
@@ -3617,6 +4356,7 @@ type NetworkPolicyDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       networkingv1.NetworkPolicy
+	seal    networkingv1.NetworkPolicy
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3640,6 +4380,7 @@ func (d *NetworkPolicyDie) DieFeed(r networkingv1.NetworkPolicy) *NetworkPolicyD
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -3806,7 +4547,51 @@ func (d *NetworkPolicyDie) DeepCopy() *NetworkPolicyDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *NetworkPolicyDie) DieSeal() *NetworkPolicyDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *NetworkPolicyDie) DieSealFeed(r networkingv1.NetworkPolicy) *NetworkPolicyDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *NetworkPolicyDie) DieSealFeedPtr(r *networkingv1.NetworkPolicy) *NetworkPolicyDie {
+	if r == nil {
+		r = &networkingv1.NetworkPolicy{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *NetworkPolicyDie) DieSealRelease() networkingv1.NetworkPolicy {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *NetworkPolicyDie) DieSealReleasePtr() *networkingv1.NetworkPolicy {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *NetworkPolicyDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *NetworkPolicyDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*NetworkPolicyDie)(nil)
@@ -3828,9 +4613,9 @@ func (d *NetworkPolicyDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &networkingv1.NetworkPolicy{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &networkingv1.NetworkPolicy{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -3909,6 +4694,7 @@ var NetworkPolicySpecBlank = (&NetworkPolicySpecDie{}).DieFeed(networkingv1.Netw
 type NetworkPolicySpecDie struct {
 	mutable bool
 	r       networkingv1.NetworkPolicySpec
+	seal    networkingv1.NetworkPolicySpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3930,6 +4716,7 @@ func (d *NetworkPolicySpecDie) DieFeed(r networkingv1.NetworkPolicySpec) *Networ
 	return &NetworkPolicySpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -4083,7 +4870,51 @@ func (d *NetworkPolicySpecDie) DeepCopy() *NetworkPolicySpecDie {
 	return &NetworkPolicySpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *NetworkPolicySpecDie) DieSeal() *NetworkPolicySpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *NetworkPolicySpecDie) DieSealFeed(r networkingv1.NetworkPolicySpec) *NetworkPolicySpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *NetworkPolicySpecDie) DieSealFeedPtr(r *networkingv1.NetworkPolicySpec) *NetworkPolicySpecDie {
+	if r == nil {
+		r = &networkingv1.NetworkPolicySpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *NetworkPolicySpecDie) DieSealRelease() networkingv1.NetworkPolicySpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *NetworkPolicySpecDie) DieSealReleasePtr() *networkingv1.NetworkPolicySpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *NetworkPolicySpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *NetworkPolicySpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // podSelector selects the pods to which this NetworkPolicy object applies.
@@ -4171,6 +5002,7 @@ var NetworkPolicyIngressRuleBlank = (&NetworkPolicyIngressRuleDie{}).DieFeed(net
 type NetworkPolicyIngressRuleDie struct {
 	mutable bool
 	r       networkingv1.NetworkPolicyIngressRule
+	seal    networkingv1.NetworkPolicyIngressRule
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -4192,6 +5024,7 @@ func (d *NetworkPolicyIngressRuleDie) DieFeed(r networkingv1.NetworkPolicyIngres
 	return &NetworkPolicyIngressRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -4345,7 +5178,51 @@ func (d *NetworkPolicyIngressRuleDie) DeepCopy() *NetworkPolicyIngressRuleDie {
 	return &NetworkPolicyIngressRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *NetworkPolicyIngressRuleDie) DieSeal() *NetworkPolicyIngressRuleDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *NetworkPolicyIngressRuleDie) DieSealFeed(r networkingv1.NetworkPolicyIngressRule) *NetworkPolicyIngressRuleDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *NetworkPolicyIngressRuleDie) DieSealFeedPtr(r *networkingv1.NetworkPolicyIngressRule) *NetworkPolicyIngressRuleDie {
+	if r == nil {
+		r = &networkingv1.NetworkPolicyIngressRule{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *NetworkPolicyIngressRuleDie) DieSealRelease() networkingv1.NetworkPolicyIngressRule {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *NetworkPolicyIngressRuleDie) DieSealReleasePtr() *networkingv1.NetworkPolicyIngressRule {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *NetworkPolicyIngressRuleDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *NetworkPolicyIngressRuleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // ports is a list of ports which should be made accessible on the pods selected for
@@ -4383,6 +5260,7 @@ var NetworkPolicyEgressRuleBlank = (&NetworkPolicyEgressRuleDie{}).DieFeed(netwo
 type NetworkPolicyEgressRuleDie struct {
 	mutable bool
 	r       networkingv1.NetworkPolicyEgressRule
+	seal    networkingv1.NetworkPolicyEgressRule
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -4404,6 +5282,7 @@ func (d *NetworkPolicyEgressRuleDie) DieFeed(r networkingv1.NetworkPolicyEgressR
 	return &NetworkPolicyEgressRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -4557,7 +5436,51 @@ func (d *NetworkPolicyEgressRuleDie) DeepCopy() *NetworkPolicyEgressRuleDie {
 	return &NetworkPolicyEgressRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *NetworkPolicyEgressRuleDie) DieSeal() *NetworkPolicyEgressRuleDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *NetworkPolicyEgressRuleDie) DieSealFeed(r networkingv1.NetworkPolicyEgressRule) *NetworkPolicyEgressRuleDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *NetworkPolicyEgressRuleDie) DieSealFeedPtr(r *networkingv1.NetworkPolicyEgressRule) *NetworkPolicyEgressRuleDie {
+	if r == nil {
+		r = &networkingv1.NetworkPolicyEgressRule{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *NetworkPolicyEgressRuleDie) DieSealRelease() networkingv1.NetworkPolicyEgressRule {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *NetworkPolicyEgressRuleDie) DieSealReleasePtr() *networkingv1.NetworkPolicyEgressRule {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *NetworkPolicyEgressRuleDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *NetworkPolicyEgressRuleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // ports is a list of destination ports for outgoing traffic.
@@ -4595,6 +5518,7 @@ var NetworkPolicyPortBlank = (&NetworkPolicyPortDie{}).DieFeed(networkingv1.Netw
 type NetworkPolicyPortDie struct {
 	mutable bool
 	r       networkingv1.NetworkPolicyPort
+	seal    networkingv1.NetworkPolicyPort
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -4616,6 +5540,7 @@ func (d *NetworkPolicyPortDie) DieFeed(r networkingv1.NetworkPolicyPort) *Networ
 	return &NetworkPolicyPortDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -4769,7 +5694,51 @@ func (d *NetworkPolicyPortDie) DeepCopy() *NetworkPolicyPortDie {
 	return &NetworkPolicyPortDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *NetworkPolicyPortDie) DieSeal() *NetworkPolicyPortDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *NetworkPolicyPortDie) DieSealFeed(r networkingv1.NetworkPolicyPort) *NetworkPolicyPortDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *NetworkPolicyPortDie) DieSealFeedPtr(r *networkingv1.NetworkPolicyPort) *NetworkPolicyPortDie {
+	if r == nil {
+		r = &networkingv1.NetworkPolicyPort{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *NetworkPolicyPortDie) DieSealRelease() networkingv1.NetworkPolicyPort {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *NetworkPolicyPortDie) DieSealReleasePtr() *networkingv1.NetworkPolicyPort {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *NetworkPolicyPortDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *NetworkPolicyPortDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // protocol represents the protocol (TCP, UDP, or SCTP) which traffic must match.
@@ -4844,6 +5813,7 @@ var NetworkPolicyPeerBlank = (&NetworkPolicyPeerDie{}).DieFeed(networkingv1.Netw
 type NetworkPolicyPeerDie struct {
 	mutable bool
 	r       networkingv1.NetworkPolicyPeer
+	seal    networkingv1.NetworkPolicyPeer
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -4865,6 +5835,7 @@ func (d *NetworkPolicyPeerDie) DieFeed(r networkingv1.NetworkPolicyPeer) *Networ
 	return &NetworkPolicyPeerDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -5018,7 +5989,51 @@ func (d *NetworkPolicyPeerDie) DeepCopy() *NetworkPolicyPeerDie {
 	return &NetworkPolicyPeerDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *NetworkPolicyPeerDie) DieSeal() *NetworkPolicyPeerDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *NetworkPolicyPeerDie) DieSealFeed(r networkingv1.NetworkPolicyPeer) *NetworkPolicyPeerDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *NetworkPolicyPeerDie) DieSealFeedPtr(r *networkingv1.NetworkPolicyPeer) *NetworkPolicyPeerDie {
+	if r == nil {
+		r = &networkingv1.NetworkPolicyPeer{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *NetworkPolicyPeerDie) DieSealRelease() networkingv1.NetworkPolicyPeer {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *NetworkPolicyPeerDie) DieSealReleasePtr() *networkingv1.NetworkPolicyPeer {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *NetworkPolicyPeerDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *NetworkPolicyPeerDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // podSelector is a label selector which selects pods. This field follows standard label
@@ -5065,6 +6080,7 @@ var IPBlockBlank = (&IPBlockDie{}).DieFeed(networkingv1.IPBlock{})
 type IPBlockDie struct {
 	mutable bool
 	r       networkingv1.IPBlock
+	seal    networkingv1.IPBlock
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -5086,6 +6102,7 @@ func (d *IPBlockDie) DieFeed(r networkingv1.IPBlock) *IPBlockDie {
 	return &IPBlockDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -5239,7 +6256,51 @@ func (d *IPBlockDie) DeepCopy() *IPBlockDie {
 	return &IPBlockDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *IPBlockDie) DieSeal() *IPBlockDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *IPBlockDie) DieSealFeed(r networkingv1.IPBlock) *IPBlockDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *IPBlockDie) DieSealFeedPtr(r *networkingv1.IPBlock) *IPBlockDie {
+	if r == nil {
+		r = &networkingv1.IPBlock{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *IPBlockDie) DieSealRelease() networkingv1.IPBlock {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *IPBlockDie) DieSealReleasePtr() *networkingv1.IPBlock {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *IPBlockDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *IPBlockDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // cidr is a string representing the IPBlock

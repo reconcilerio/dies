@@ -22,8 +22,8 @@ limitations under the License.
 package v1
 
 import (
-	json "encoding/json"
 	fmtx "fmt"
+	cmp "github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 	resource "k8s.io/apimachinery/pkg/api/resource"
@@ -31,9 +31,12 @@ import (
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	types "k8s.io/apimachinery/pkg/types"
+	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
 	metav1 "reconciler.io/dies/apis/meta/v1"
+	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )
@@ -44,6 +47,7 @@ type CSIDriverDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       storagev1.CSIDriver
+	seal    storagev1.CSIDriver
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -67,6 +71,7 @@ func (d *CSIDriverDie) DieFeed(r storagev1.CSIDriver) *CSIDriverDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -233,7 +238,51 @@ func (d *CSIDriverDie) DeepCopy() *CSIDriverDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *CSIDriverDie) DieSeal() *CSIDriverDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *CSIDriverDie) DieSealFeed(r storagev1.CSIDriver) *CSIDriverDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *CSIDriverDie) DieSealFeedPtr(r *storagev1.CSIDriver) *CSIDriverDie {
+	if r == nil {
+		r = &storagev1.CSIDriver{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *CSIDriverDie) DieSealRelease() storagev1.CSIDriver {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *CSIDriverDie) DieSealReleasePtr() *storagev1.CSIDriver {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *CSIDriverDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *CSIDriverDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*CSIDriverDie)(nil)
@@ -255,9 +304,9 @@ func (d *CSIDriverDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &storagev1.CSIDriver{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &storagev1.CSIDriver{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -336,6 +385,7 @@ var CSIDriverSpecBlank = (&CSIDriverSpecDie{}).DieFeed(storagev1.CSIDriverSpec{}
 type CSIDriverSpecDie struct {
 	mutable bool
 	r       storagev1.CSIDriverSpec
+	seal    storagev1.CSIDriverSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -357,6 +407,7 @@ func (d *CSIDriverSpecDie) DieFeed(r storagev1.CSIDriverSpec) *CSIDriverSpecDie 
 	return &CSIDriverSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -510,7 +561,51 @@ func (d *CSIDriverSpecDie) DeepCopy() *CSIDriverSpecDie {
 	return &CSIDriverSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *CSIDriverSpecDie) DieSeal() *CSIDriverSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *CSIDriverSpecDie) DieSealFeed(r storagev1.CSIDriverSpec) *CSIDriverSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *CSIDriverSpecDie) DieSealFeedPtr(r *storagev1.CSIDriverSpec) *CSIDriverSpecDie {
+	if r == nil {
+		r = &storagev1.CSIDriverSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *CSIDriverSpecDie) DieSealRelease() storagev1.CSIDriverSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *CSIDriverSpecDie) DieSealReleasePtr() *storagev1.CSIDriverSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *CSIDriverSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *CSIDriverSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // attachRequired indicates this CSI volume driver requires an attach
@@ -750,6 +845,7 @@ var TokenRequestBlank = (&TokenRequestDie{}).DieFeed(storagev1.TokenRequest{})
 type TokenRequestDie struct {
 	mutable bool
 	r       storagev1.TokenRequest
+	seal    storagev1.TokenRequest
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -771,6 +867,7 @@ func (d *TokenRequestDie) DieFeed(r storagev1.TokenRequest) *TokenRequestDie {
 	return &TokenRequestDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -924,7 +1021,51 @@ func (d *TokenRequestDie) DeepCopy() *TokenRequestDie {
 	return &TokenRequestDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *TokenRequestDie) DieSeal() *TokenRequestDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *TokenRequestDie) DieSealFeed(r storagev1.TokenRequest) *TokenRequestDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *TokenRequestDie) DieSealFeedPtr(r *storagev1.TokenRequest) *TokenRequestDie {
+	if r == nil {
+		r = &storagev1.TokenRequest{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *TokenRequestDie) DieSealRelease() storagev1.TokenRequest {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *TokenRequestDie) DieSealReleasePtr() *storagev1.TokenRequest {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *TokenRequestDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *TokenRequestDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // audience is the intended audience of the token in "TokenRequestSpec".
@@ -951,6 +1092,7 @@ type CSINodeDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       storagev1.CSINode
+	seal    storagev1.CSINode
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -974,6 +1116,7 @@ func (d *CSINodeDie) DieFeed(r storagev1.CSINode) *CSINodeDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -1140,7 +1283,51 @@ func (d *CSINodeDie) DeepCopy() *CSINodeDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *CSINodeDie) DieSeal() *CSINodeDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *CSINodeDie) DieSealFeed(r storagev1.CSINode) *CSINodeDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *CSINodeDie) DieSealFeedPtr(r *storagev1.CSINode) *CSINodeDie {
+	if r == nil {
+		r = &storagev1.CSINode{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *CSINodeDie) DieSealRelease() storagev1.CSINode {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *CSINodeDie) DieSealReleasePtr() *storagev1.CSINode {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *CSINodeDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *CSINodeDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*CSINodeDie)(nil)
@@ -1162,9 +1349,9 @@ func (d *CSINodeDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &storagev1.CSINode{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &storagev1.CSINode{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -1243,6 +1430,7 @@ var CSINodeSpecBlank = (&CSINodeSpecDie{}).DieFeed(storagev1.CSINodeSpec{})
 type CSINodeSpecDie struct {
 	mutable bool
 	r       storagev1.CSINodeSpec
+	seal    storagev1.CSINodeSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1264,6 +1452,7 @@ func (d *CSINodeSpecDie) DieFeed(r storagev1.CSINodeSpec) *CSINodeSpecDie {
 	return &CSINodeSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1417,7 +1606,51 @@ func (d *CSINodeSpecDie) DeepCopy() *CSINodeSpecDie {
 	return &CSINodeSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *CSINodeSpecDie) DieSeal() *CSINodeSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *CSINodeSpecDie) DieSealFeed(r storagev1.CSINodeSpec) *CSINodeSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *CSINodeSpecDie) DieSealFeedPtr(r *storagev1.CSINodeSpec) *CSINodeSpecDie {
+	if r == nil {
+		r = &storagev1.CSINodeSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *CSINodeSpecDie) DieSealRelease() storagev1.CSINodeSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *CSINodeSpecDie) DieSealReleasePtr() *storagev1.CSINodeSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *CSINodeSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *CSINodeSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // drivers is a list of information of all CSI Drivers existing on a node.
@@ -1434,6 +1667,7 @@ var CSINodeDriverBlank = (&CSINodeDriverDie{}).DieFeed(storagev1.CSINodeDriver{}
 type CSINodeDriverDie struct {
 	mutable bool
 	r       storagev1.CSINodeDriver
+	seal    storagev1.CSINodeDriver
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1455,6 +1689,7 @@ func (d *CSINodeDriverDie) DieFeed(r storagev1.CSINodeDriver) *CSINodeDriverDie 
 	return &CSINodeDriverDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1608,7 +1843,51 @@ func (d *CSINodeDriverDie) DeepCopy() *CSINodeDriverDie {
 	return &CSINodeDriverDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *CSINodeDriverDie) DieSeal() *CSINodeDriverDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *CSINodeDriverDie) DieSealFeed(r storagev1.CSINodeDriver) *CSINodeDriverDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *CSINodeDriverDie) DieSealFeedPtr(r *storagev1.CSINodeDriver) *CSINodeDriverDie {
+	if r == nil {
+		r = &storagev1.CSINodeDriver{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *CSINodeDriverDie) DieSealRelease() storagev1.CSINodeDriver {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *CSINodeDriverDie) DieSealReleasePtr() *storagev1.CSINodeDriver {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *CSINodeDriverDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *CSINodeDriverDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // name represents the name of the CSI driver that this object refers to.
@@ -1684,6 +1963,7 @@ var VolumeNodeResourcesBlank = (&VolumeNodeResourcesDie{}).DieFeed(storagev1.Vol
 type VolumeNodeResourcesDie struct {
 	mutable bool
 	r       storagev1.VolumeNodeResources
+	seal    storagev1.VolumeNodeResources
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1705,6 +1985,7 @@ func (d *VolumeNodeResourcesDie) DieFeed(r storagev1.VolumeNodeResources) *Volum
 	return &VolumeNodeResourcesDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1858,7 +2139,51 @@ func (d *VolumeNodeResourcesDie) DeepCopy() *VolumeNodeResourcesDie {
 	return &VolumeNodeResourcesDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *VolumeNodeResourcesDie) DieSeal() *VolumeNodeResourcesDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *VolumeNodeResourcesDie) DieSealFeed(r storagev1.VolumeNodeResources) *VolumeNodeResourcesDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *VolumeNodeResourcesDie) DieSealFeedPtr(r *storagev1.VolumeNodeResources) *VolumeNodeResourcesDie {
+	if r == nil {
+		r = &storagev1.VolumeNodeResources{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *VolumeNodeResourcesDie) DieSealRelease() storagev1.VolumeNodeResources {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *VolumeNodeResourcesDie) DieSealReleasePtr() *storagev1.VolumeNodeResources {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *VolumeNodeResourcesDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *VolumeNodeResourcesDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // count indicates the maximum number of unique volumes managed by the CSI driver that can be used on a node.
@@ -1880,6 +2205,7 @@ type CSIStorageCapacityDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       storagev1.CSIStorageCapacity
+	seal    storagev1.CSIStorageCapacity
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1903,6 +2229,7 @@ func (d *CSIStorageCapacityDie) DieFeed(r storagev1.CSIStorageCapacity) *CSIStor
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -2069,7 +2396,51 @@ func (d *CSIStorageCapacityDie) DeepCopy() *CSIStorageCapacityDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *CSIStorageCapacityDie) DieSeal() *CSIStorageCapacityDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *CSIStorageCapacityDie) DieSealFeed(r storagev1.CSIStorageCapacity) *CSIStorageCapacityDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *CSIStorageCapacityDie) DieSealFeedPtr(r *storagev1.CSIStorageCapacity) *CSIStorageCapacityDie {
+	if r == nil {
+		r = &storagev1.CSIStorageCapacity{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *CSIStorageCapacityDie) DieSealRelease() storagev1.CSIStorageCapacity {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *CSIStorageCapacityDie) DieSealReleasePtr() *storagev1.CSIStorageCapacity {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *CSIStorageCapacityDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *CSIStorageCapacityDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*CSIStorageCapacityDie)(nil)
@@ -2091,9 +2462,9 @@ func (d *CSIStorageCapacityDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &storagev1.CSIStorageCapacity{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &storagev1.CSIStorageCapacity{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -2275,6 +2646,7 @@ type StorageClassDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       storagev1.StorageClass
+	seal    storagev1.StorageClass
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2298,6 +2670,7 @@ func (d *StorageClassDie) DieFeed(r storagev1.StorageClass) *StorageClassDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -2464,7 +2837,51 @@ func (d *StorageClassDie) DeepCopy() *StorageClassDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *StorageClassDie) DieSeal() *StorageClassDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *StorageClassDie) DieSealFeed(r storagev1.StorageClass) *StorageClassDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *StorageClassDie) DieSealFeedPtr(r *storagev1.StorageClass) *StorageClassDie {
+	if r == nil {
+		r = &storagev1.StorageClass{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *StorageClassDie) DieSealRelease() storagev1.StorageClass {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *StorageClassDie) DieSealReleasePtr() *storagev1.StorageClass {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *StorageClassDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *StorageClassDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*StorageClassDie)(nil)
@@ -2486,9 +2903,9 @@ func (d *StorageClassDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &storagev1.StorageClass{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &storagev1.StorageClass{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -2619,6 +3036,7 @@ type VolumeAttachmentDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       storagev1.VolumeAttachment
+	seal    storagev1.VolumeAttachment
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2642,6 +3060,7 @@ func (d *VolumeAttachmentDie) DieFeed(r storagev1.VolumeAttachment) *VolumeAttac
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -2808,7 +3227,51 @@ func (d *VolumeAttachmentDie) DeepCopy() *VolumeAttachmentDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *VolumeAttachmentDie) DieSeal() *VolumeAttachmentDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *VolumeAttachmentDie) DieSealFeed(r storagev1.VolumeAttachment) *VolumeAttachmentDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *VolumeAttachmentDie) DieSealFeedPtr(r *storagev1.VolumeAttachment) *VolumeAttachmentDie {
+	if r == nil {
+		r = &storagev1.VolumeAttachment{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *VolumeAttachmentDie) DieSealRelease() storagev1.VolumeAttachment {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *VolumeAttachmentDie) DieSealReleasePtr() *storagev1.VolumeAttachment {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *VolumeAttachmentDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *VolumeAttachmentDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*VolumeAttachmentDie)(nil)
@@ -2830,9 +3293,9 @@ func (d *VolumeAttachmentDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &storagev1.VolumeAttachment{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &storagev1.VolumeAttachment{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -2933,6 +3396,7 @@ var VolumeAttachmentSpecBlank = (&VolumeAttachmentSpecDie{}).DieFeed(storagev1.V
 type VolumeAttachmentSpecDie struct {
 	mutable bool
 	r       storagev1.VolumeAttachmentSpec
+	seal    storagev1.VolumeAttachmentSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2954,6 +3418,7 @@ func (d *VolumeAttachmentSpecDie) DieFeed(r storagev1.VolumeAttachmentSpec) *Vol
 	return &VolumeAttachmentSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3107,7 +3572,51 @@ func (d *VolumeAttachmentSpecDie) DeepCopy() *VolumeAttachmentSpecDie {
 	return &VolumeAttachmentSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *VolumeAttachmentSpecDie) DieSeal() *VolumeAttachmentSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *VolumeAttachmentSpecDie) DieSealFeed(r storagev1.VolumeAttachmentSpec) *VolumeAttachmentSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *VolumeAttachmentSpecDie) DieSealFeedPtr(r *storagev1.VolumeAttachmentSpec) *VolumeAttachmentSpecDie {
+	if r == nil {
+		r = &storagev1.VolumeAttachmentSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *VolumeAttachmentSpecDie) DieSealRelease() storagev1.VolumeAttachmentSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *VolumeAttachmentSpecDie) DieSealReleasePtr() *storagev1.VolumeAttachmentSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *VolumeAttachmentSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *VolumeAttachmentSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // attacher indicates the name of the volume driver that MUST handle this
@@ -3138,6 +3647,7 @@ var VolumeAttachmentSourceBlank = (&VolumeAttachmentSourceDie{}).DieFeed(storage
 type VolumeAttachmentSourceDie struct {
 	mutable bool
 	r       storagev1.VolumeAttachmentSource
+	seal    storagev1.VolumeAttachmentSource
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3159,6 +3669,7 @@ func (d *VolumeAttachmentSourceDie) DieFeed(r storagev1.VolumeAttachmentSource) 
 	return &VolumeAttachmentSourceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3312,7 +3823,51 @@ func (d *VolumeAttachmentSourceDie) DeepCopy() *VolumeAttachmentSourceDie {
 	return &VolumeAttachmentSourceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *VolumeAttachmentSourceDie) DieSeal() *VolumeAttachmentSourceDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *VolumeAttachmentSourceDie) DieSealFeed(r storagev1.VolumeAttachmentSource) *VolumeAttachmentSourceDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *VolumeAttachmentSourceDie) DieSealFeedPtr(r *storagev1.VolumeAttachmentSource) *VolumeAttachmentSourceDie {
+	if r == nil {
+		r = &storagev1.VolumeAttachmentSource{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *VolumeAttachmentSourceDie) DieSealRelease() storagev1.VolumeAttachmentSource {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *VolumeAttachmentSourceDie) DieSealReleasePtr() *storagev1.VolumeAttachmentSource {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *VolumeAttachmentSourceDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *VolumeAttachmentSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // persistentVolumeName represents the name of the persistent volume to attach.
@@ -3344,6 +3899,7 @@ var VolumeAttachmentStatusBlank = (&VolumeAttachmentStatusDie{}).DieFeed(storage
 type VolumeAttachmentStatusDie struct {
 	mutable bool
 	r       storagev1.VolumeAttachmentStatus
+	seal    storagev1.VolumeAttachmentStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3365,6 +3921,7 @@ func (d *VolumeAttachmentStatusDie) DieFeed(r storagev1.VolumeAttachmentStatus) 
 	return &VolumeAttachmentStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3518,7 +4075,51 @@ func (d *VolumeAttachmentStatusDie) DeepCopy() *VolumeAttachmentStatusDie {
 	return &VolumeAttachmentStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *VolumeAttachmentStatusDie) DieSeal() *VolumeAttachmentStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *VolumeAttachmentStatusDie) DieSealFeed(r storagev1.VolumeAttachmentStatus) *VolumeAttachmentStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *VolumeAttachmentStatusDie) DieSealFeedPtr(r *storagev1.VolumeAttachmentStatus) *VolumeAttachmentStatusDie {
+	if r == nil {
+		r = &storagev1.VolumeAttachmentStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *VolumeAttachmentStatusDie) DieSealRelease() storagev1.VolumeAttachmentStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *VolumeAttachmentStatusDie) DieSealReleasePtr() *storagev1.VolumeAttachmentStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *VolumeAttachmentStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *VolumeAttachmentStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // attached indicates the volume is successfully attached.
@@ -3574,6 +4175,7 @@ var VolumeErrorBlank = (&VolumeErrorDie{}).DieFeed(storagev1.VolumeError{})
 type VolumeErrorDie struct {
 	mutable bool
 	r       storagev1.VolumeError
+	seal    storagev1.VolumeError
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3595,6 +4197,7 @@ func (d *VolumeErrorDie) DieFeed(r storagev1.VolumeError) *VolumeErrorDie {
 	return &VolumeErrorDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3748,7 +4351,51 @@ func (d *VolumeErrorDie) DeepCopy() *VolumeErrorDie {
 	return &VolumeErrorDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *VolumeErrorDie) DieSeal() *VolumeErrorDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *VolumeErrorDie) DieSealFeed(r storagev1.VolumeError) *VolumeErrorDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *VolumeErrorDie) DieSealFeedPtr(r *storagev1.VolumeError) *VolumeErrorDie {
+	if r == nil {
+		r = &storagev1.VolumeError{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *VolumeErrorDie) DieSealRelease() storagev1.VolumeError {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *VolumeErrorDie) DieSealReleasePtr() *storagev1.VolumeError {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *VolumeErrorDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *VolumeErrorDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // time represents the time the error was encountered.

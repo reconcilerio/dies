@@ -20,10 +20,13 @@ import (
 	"testing"
 	"time"
 
+	_ "reconciler.io/dies/patch/json"
+
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/utils/pointer"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	diecorev1 "reconciler.io/dies/apis/core/v1"
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
@@ -278,7 +281,7 @@ func TestPod(t *testing.T) {
 					})
 					d.VolumeDie("config", func(d *diecorev1.VolumeDie) {
 						d.ConfigMapDie(func(d *diecorev1.ConfigMapVolumeSourceDie) {
-							d.Optional(pointer.Bool(true))
+							d.Optional(ptr.To(true))
 						})
 					})
 				}),
@@ -292,7 +295,7 @@ func TestPod(t *testing.T) {
 									LocalObjectReference: corev1.LocalObjectReference{
 										Name: "my-config",
 									},
-									Optional: pointer.Bool(true),
+									Optional: ptr.To(true),
 								},
 							},
 						},
@@ -513,5 +516,40 @@ func TestPod(t *testing.T) {
 				t.Errorf("(-expected, +actual): %s", diff)
 			}
 		})
+	}
+}
+
+func TestDieSeal(t *testing.T) {
+	sealedPod := diecorev1.PodBlank.
+		DieFeedYAMLFile("./testdata/pod.yaml").
+		DieSeal()
+	mutatedPod := sealedPod.SpecDie(func(d *diecorev1.PodSpecDie) {
+		d.ContainerDie("nginx", func(d *diecorev1.ContainerDie) {
+			d.Env(
+				corev1.EnvVar{
+					Name:  "PORT",
+					Value: "80",
+				},
+			)
+		})
+	})
+
+	if diff := sealedPod.DieDiff(); diff != "" {
+		t.Errorf("expected not to find a diff, got:\n%s", diff)
+	}
+	if diff := mutatedPod.DieDiff(); diff == "" {
+		t.Errorf("expected to find a diff, got:\n%s", diff)
+	}
+
+	if patch, err := sealedPod.DiePatch(types.JSONPatchType); err != nil {
+		t.Errorf("%s", err)
+	} else if string(patch) != "[]" {
+		t.Errorf("expected no patch, got:\n%s", string(patch))
+	}
+
+	if patch, err := mutatedPod.DiePatch(types.JSONPatchType); err != nil {
+		t.Errorf("%s", err)
+	} else if string(patch) == "[]" {
+		t.Errorf("expected patch, got:\n%s", string(patch))
 	}
 }

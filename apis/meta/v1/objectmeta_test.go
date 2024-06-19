@@ -25,7 +25,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 	diecorev1 "reconciler.io/dies/apis/core/v1"
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
@@ -82,8 +82,8 @@ func TestObjectMeta(t *testing.T) {
 						Kind:               "Pod",
 						Name:               "my-name",
 						UID:                "123e4567-e89b-12d3-a456-426614174000",
-						BlockOwnerDeletion: pointer.Bool(true),
-						Controller:         pointer.Bool(true),
+						BlockOwnerDeletion: ptr.To(true),
+						Controller:         ptr.To(true),
 					},
 				},
 			},
@@ -112,7 +112,7 @@ func TestFrozenObjectMeta(t *testing.T) {
 		ResourceVersion:            "1",
 		CreationTimestamp:          timestamp,
 		DeletionTimestamp:          &timestamp,
-		DeletionGracePeriodSeconds: pointer.Int64(30),
+		DeletionGracePeriodSeconds: ptr.To(int64(30)),
 		Labels: map[string]string{
 			"key": "value",
 		},

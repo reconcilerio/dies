@@ -172,6 +172,27 @@ type MyResourceDie interface {
     // function. The passed die is mutable.
     DieWith(fn ...func(d *MyResourceDie)) *MyResourceDie
 
+    // DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+    DieSeal() *MyResourceDie
+
+    // DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+    DieSealFeed(r MyResource) *MyResourceDie
+
+    // DieSealFeedPtr returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+    DieSealFeedPtr(r *MyResource) *MyResourceDie
+
+    // DieSealRelease returns the sealed resource managed by the die.
+    DieSealRelease() MyResource
+
+    // DieSealReleasePtr returns the sealed resource pointer managed by the die.
+    DieSealReleasePtr() *MyResource
+
+    // DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+    DieDiff(opts ...cmp.Option) string
+
+    // DiePatch generates a patch between the current value of the die and the sealed value.
+    DiePatch(patchType types.PatchType) ([]byte, error)
+
     // DeepCopy returns a new die with equivalent state. Useful for
     // snapshotting a mutable die.
     DeepCopy() *MyResourceDie

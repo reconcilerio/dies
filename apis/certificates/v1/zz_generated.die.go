@@ -22,16 +22,19 @@ limitations under the License.
 package v1
 
 import (
-	json "encoding/json"
 	fmtx "fmt"
+	cmp "github.com/google/go-cmp/cmp"
 	certificatesv1 "k8s.io/api/certificates/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	types "k8s.io/apimachinery/pkg/types"
+	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
 	metav1 "reconciler.io/dies/apis/meta/v1"
+	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )
@@ -42,6 +45,7 @@ type CertificateSigningRequestDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       certificatesv1.CertificateSigningRequest
+	seal    certificatesv1.CertificateSigningRequest
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -65,6 +69,7 @@ func (d *CertificateSigningRequestDie) DieFeed(r certificatesv1.CertificateSigni
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -231,7 +236,51 @@ func (d *CertificateSigningRequestDie) DeepCopy() *CertificateSigningRequestDie 
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *CertificateSigningRequestDie) DieSeal() *CertificateSigningRequestDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *CertificateSigningRequestDie) DieSealFeed(r certificatesv1.CertificateSigningRequest) *CertificateSigningRequestDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *CertificateSigningRequestDie) DieSealFeedPtr(r *certificatesv1.CertificateSigningRequest) *CertificateSigningRequestDie {
+	if r == nil {
+		r = &certificatesv1.CertificateSigningRequest{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *CertificateSigningRequestDie) DieSealRelease() certificatesv1.CertificateSigningRequest {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *CertificateSigningRequestDie) DieSealReleasePtr() *certificatesv1.CertificateSigningRequest {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *CertificateSigningRequestDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *CertificateSigningRequestDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*CertificateSigningRequestDie)(nil)
@@ -253,9 +302,9 @@ func (d *CertificateSigningRequestDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &certificatesv1.CertificateSigningRequest{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &certificatesv1.CertificateSigningRequest{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -356,6 +405,7 @@ var CertificateSigningRequestSpecBlank = (&CertificateSigningRequestSpecDie{}).D
 type CertificateSigningRequestSpecDie struct {
 	mutable bool
 	r       certificatesv1.CertificateSigningRequestSpec
+	seal    certificatesv1.CertificateSigningRequestSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -377,6 +427,7 @@ func (d *CertificateSigningRequestSpecDie) DieFeed(r certificatesv1.CertificateS
 	return &CertificateSigningRequestSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -530,7 +581,51 @@ func (d *CertificateSigningRequestSpecDie) DeepCopy() *CertificateSigningRequest
 	return &CertificateSigningRequestSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *CertificateSigningRequestSpecDie) DieSeal() *CertificateSigningRequestSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *CertificateSigningRequestSpecDie) DieSealFeed(r certificatesv1.CertificateSigningRequestSpec) *CertificateSigningRequestSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *CertificateSigningRequestSpecDie) DieSealFeedPtr(r *certificatesv1.CertificateSigningRequestSpec) *CertificateSigningRequestSpecDie {
+	if r == nil {
+		r = &certificatesv1.CertificateSigningRequestSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *CertificateSigningRequestSpecDie) DieSealRelease() certificatesv1.CertificateSigningRequestSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *CertificateSigningRequestSpecDie) DieSealReleasePtr() *certificatesv1.CertificateSigningRequestSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *CertificateSigningRequestSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *CertificateSigningRequestSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // request contains an x509 certificate signing request encoded in a "CERTIFICATE REQUEST" PEM block.
@@ -673,6 +768,7 @@ var CertificateSigningRequestStatusBlank = (&CertificateSigningRequestStatusDie{
 type CertificateSigningRequestStatusDie struct {
 	mutable bool
 	r       certificatesv1.CertificateSigningRequestStatus
+	seal    certificatesv1.CertificateSigningRequestStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -694,6 +790,7 @@ func (d *CertificateSigningRequestStatusDie) DieFeed(r certificatesv1.Certificat
 	return &CertificateSigningRequestStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -847,7 +944,51 @@ func (d *CertificateSigningRequestStatusDie) DeepCopy() *CertificateSigningReque
 	return &CertificateSigningRequestStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *CertificateSigningRequestStatusDie) DieSeal() *CertificateSigningRequestStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *CertificateSigningRequestStatusDie) DieSealFeed(r certificatesv1.CertificateSigningRequestStatus) *CertificateSigningRequestStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *CertificateSigningRequestStatusDie) DieSealFeedPtr(r *certificatesv1.CertificateSigningRequestStatus) *CertificateSigningRequestStatusDie {
+	if r == nil {
+		r = &certificatesv1.CertificateSigningRequestStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *CertificateSigningRequestStatusDie) DieSealRelease() certificatesv1.CertificateSigningRequestStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *CertificateSigningRequestStatusDie) DieSealReleasePtr() *certificatesv1.CertificateSigningRequestStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *CertificateSigningRequestStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *CertificateSigningRequestStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // conditions applied to the request. Known conditions are "Approved", "Denied", and "Failed".

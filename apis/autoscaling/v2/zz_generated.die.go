@@ -22,8 +22,8 @@ limitations under the License.
 package v2
 
 import (
-	json "encoding/json"
 	fmtx "fmt"
+	cmp "github.com/google/go-cmp/cmp"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	corev1 "k8s.io/api/core/v1"
 	resource "k8s.io/apimachinery/pkg/api/resource"
@@ -31,9 +31,12 @@ import (
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	types "k8s.io/apimachinery/pkg/types"
+	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
 	"reconciler.io/dies/apis/meta/v1"
+	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )
@@ -44,6 +47,7 @@ type HorizontalPodAutoscalerDie struct {
 	v1.FrozenObjectMeta
 	mutable bool
 	r       autoscalingv2.HorizontalPodAutoscaler
+	seal    autoscalingv2.HorizontalPodAutoscaler
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -67,6 +71,7 @@ func (d *HorizontalPodAutoscalerDie) DieFeed(r autoscalingv2.HorizontalPodAutosc
 		FrozenObjectMeta: v1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -233,7 +238,51 @@ func (d *HorizontalPodAutoscalerDie) DeepCopy() *HorizontalPodAutoscalerDie {
 		FrozenObjectMeta: v1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *HorizontalPodAutoscalerDie) DieSeal() *HorizontalPodAutoscalerDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *HorizontalPodAutoscalerDie) DieSealFeed(r autoscalingv2.HorizontalPodAutoscaler) *HorizontalPodAutoscalerDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *HorizontalPodAutoscalerDie) DieSealFeedPtr(r *autoscalingv2.HorizontalPodAutoscaler) *HorizontalPodAutoscalerDie {
+	if r == nil {
+		r = &autoscalingv2.HorizontalPodAutoscaler{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *HorizontalPodAutoscalerDie) DieSealRelease() autoscalingv2.HorizontalPodAutoscaler {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *HorizontalPodAutoscalerDie) DieSealReleasePtr() *autoscalingv2.HorizontalPodAutoscaler {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *HorizontalPodAutoscalerDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *HorizontalPodAutoscalerDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*HorizontalPodAutoscalerDie)(nil)
@@ -255,9 +304,9 @@ func (d *HorizontalPodAutoscalerDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &autoscalingv2.HorizontalPodAutoscaler{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &autoscalingv2.HorizontalPodAutoscaler{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -354,6 +403,7 @@ var HorizontalPodAutoscalerSpecBlank = (&HorizontalPodAutoscalerSpecDie{}).DieFe
 type HorizontalPodAutoscalerSpecDie struct {
 	mutable bool
 	r       autoscalingv2.HorizontalPodAutoscalerSpec
+	seal    autoscalingv2.HorizontalPodAutoscalerSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -375,6 +425,7 @@ func (d *HorizontalPodAutoscalerSpecDie) DieFeed(r autoscalingv2.HorizontalPodAu
 	return &HorizontalPodAutoscalerSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -528,7 +579,51 @@ func (d *HorizontalPodAutoscalerSpecDie) DeepCopy() *HorizontalPodAutoscalerSpec
 	return &HorizontalPodAutoscalerSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *HorizontalPodAutoscalerSpecDie) DieSeal() *HorizontalPodAutoscalerSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *HorizontalPodAutoscalerSpecDie) DieSealFeed(r autoscalingv2.HorizontalPodAutoscalerSpec) *HorizontalPodAutoscalerSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *HorizontalPodAutoscalerSpecDie) DieSealFeedPtr(r *autoscalingv2.HorizontalPodAutoscalerSpec) *HorizontalPodAutoscalerSpecDie {
+	if r == nil {
+		r = &autoscalingv2.HorizontalPodAutoscalerSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *HorizontalPodAutoscalerSpecDie) DieSealRelease() autoscalingv2.HorizontalPodAutoscalerSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *HorizontalPodAutoscalerSpecDie) DieSealReleasePtr() *autoscalingv2.HorizontalPodAutoscalerSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *HorizontalPodAutoscalerSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *HorizontalPodAutoscalerSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // scaleTargetRef points to the target resource to scale, and is used to the pods for which metrics
@@ -601,6 +696,7 @@ var CrossVersionObjectReferenceBlank = (&CrossVersionObjectReferenceDie{}).DieFe
 type CrossVersionObjectReferenceDie struct {
 	mutable bool
 	r       autoscalingv2.CrossVersionObjectReference
+	seal    autoscalingv2.CrossVersionObjectReference
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -622,6 +718,7 @@ func (d *CrossVersionObjectReferenceDie) DieFeed(r autoscalingv2.CrossVersionObj
 	return &CrossVersionObjectReferenceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -775,7 +872,51 @@ func (d *CrossVersionObjectReferenceDie) DeepCopy() *CrossVersionObjectReference
 	return &CrossVersionObjectReferenceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *CrossVersionObjectReferenceDie) DieSeal() *CrossVersionObjectReferenceDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *CrossVersionObjectReferenceDie) DieSealFeed(r autoscalingv2.CrossVersionObjectReference) *CrossVersionObjectReferenceDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *CrossVersionObjectReferenceDie) DieSealFeedPtr(r *autoscalingv2.CrossVersionObjectReference) *CrossVersionObjectReferenceDie {
+	if r == nil {
+		r = &autoscalingv2.CrossVersionObjectReference{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *CrossVersionObjectReferenceDie) DieSealRelease() autoscalingv2.CrossVersionObjectReference {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *CrossVersionObjectReferenceDie) DieSealReleasePtr() *autoscalingv2.CrossVersionObjectReference {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *CrossVersionObjectReferenceDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *CrossVersionObjectReferenceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // kind is the kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
@@ -804,6 +945,7 @@ var MetricSpecBlank = (&MetricSpecDie{}).DieFeed(autoscalingv2.MetricSpec{})
 type MetricSpecDie struct {
 	mutable bool
 	r       autoscalingv2.MetricSpec
+	seal    autoscalingv2.MetricSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -825,6 +967,7 @@ func (d *MetricSpecDie) DieFeed(r autoscalingv2.MetricSpec) *MetricSpecDie {
 	return &MetricSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -978,7 +1121,51 @@ func (d *MetricSpecDie) DeepCopy() *MetricSpecDie {
 	return &MetricSpecDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *MetricSpecDie) DieSeal() *MetricSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *MetricSpecDie) DieSealFeed(r autoscalingv2.MetricSpec) *MetricSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *MetricSpecDie) DieSealFeedPtr(r *autoscalingv2.MetricSpec) *MetricSpecDie {
+	if r == nil {
+		r = &autoscalingv2.MetricSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *MetricSpecDie) DieSealRelease() autoscalingv2.MetricSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *MetricSpecDie) DieSealReleasePtr() *autoscalingv2.MetricSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *MetricSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *MetricSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // type is the type of metric source.  It should be one of "ContainerResource", "External",
@@ -1066,6 +1253,7 @@ var ObjectMetricSourceBlank = (&ObjectMetricSourceDie{}).DieFeed(autoscalingv2.O
 type ObjectMetricSourceDie struct {
 	mutable bool
 	r       autoscalingv2.ObjectMetricSource
+	seal    autoscalingv2.ObjectMetricSource
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1087,6 +1275,7 @@ func (d *ObjectMetricSourceDie) DieFeed(r autoscalingv2.ObjectMetricSource) *Obj
 	return &ObjectMetricSourceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1240,7 +1429,51 @@ func (d *ObjectMetricSourceDie) DeepCopy() *ObjectMetricSourceDie {
 	return &ObjectMetricSourceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ObjectMetricSourceDie) DieSeal() *ObjectMetricSourceDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ObjectMetricSourceDie) DieSealFeed(r autoscalingv2.ObjectMetricSource) *ObjectMetricSourceDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ObjectMetricSourceDie) DieSealFeedPtr(r *autoscalingv2.ObjectMetricSource) *ObjectMetricSourceDie {
+	if r == nil {
+		r = &autoscalingv2.ObjectMetricSource{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ObjectMetricSourceDie) DieSealRelease() autoscalingv2.ObjectMetricSource {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ObjectMetricSourceDie) DieSealReleasePtr() *autoscalingv2.ObjectMetricSource {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ObjectMetricSourceDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ObjectMetricSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // describedObject specifies the descriptions of a object,such as kind,name apiVersion
@@ -1269,6 +1502,7 @@ var MetricTargetBlank = (&MetricTargetDie{}).DieFeed(autoscalingv2.MetricTarget{
 type MetricTargetDie struct {
 	mutable bool
 	r       autoscalingv2.MetricTarget
+	seal    autoscalingv2.MetricTarget
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1290,6 +1524,7 @@ func (d *MetricTargetDie) DieFeed(r autoscalingv2.MetricTarget) *MetricTargetDie
 	return &MetricTargetDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1443,7 +1678,51 @@ func (d *MetricTargetDie) DeepCopy() *MetricTargetDie {
 	return &MetricTargetDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *MetricTargetDie) DieSeal() *MetricTargetDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *MetricTargetDie) DieSealFeed(r autoscalingv2.MetricTarget) *MetricTargetDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *MetricTargetDie) DieSealFeedPtr(r *autoscalingv2.MetricTarget) *MetricTargetDie {
+	if r == nil {
+		r = &autoscalingv2.MetricTarget{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *MetricTargetDie) DieSealRelease() autoscalingv2.MetricTarget {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *MetricTargetDie) DieSealReleasePtr() *autoscalingv2.MetricTarget {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *MetricTargetDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *MetricTargetDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // type represents whether the metric type is Utilization, Value, or AverageValue
@@ -1505,6 +1784,7 @@ var MetricIdentifierBlank = (&MetricIdentifierDie{}).DieFeed(autoscalingv2.Metri
 type MetricIdentifierDie struct {
 	mutable bool
 	r       autoscalingv2.MetricIdentifier
+	seal    autoscalingv2.MetricIdentifier
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1526,6 +1806,7 @@ func (d *MetricIdentifierDie) DieFeed(r autoscalingv2.MetricIdentifier) *MetricI
 	return &MetricIdentifierDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1679,7 +1960,51 @@ func (d *MetricIdentifierDie) DeepCopy() *MetricIdentifierDie {
 	return &MetricIdentifierDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *MetricIdentifierDie) DieSeal() *MetricIdentifierDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *MetricIdentifierDie) DieSealFeed(r autoscalingv2.MetricIdentifier) *MetricIdentifierDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *MetricIdentifierDie) DieSealFeedPtr(r *autoscalingv2.MetricIdentifier) *MetricIdentifierDie {
+	if r == nil {
+		r = &autoscalingv2.MetricIdentifier{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *MetricIdentifierDie) DieSealRelease() autoscalingv2.MetricIdentifier {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *MetricIdentifierDie) DieSealReleasePtr() *autoscalingv2.MetricIdentifier {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *MetricIdentifierDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *MetricIdentifierDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // name is the name of the given metric
@@ -1705,6 +2030,7 @@ var PodsMetricSourceBlank = (&PodsMetricSourceDie{}).DieFeed(autoscalingv2.PodsM
 type PodsMetricSourceDie struct {
 	mutable bool
 	r       autoscalingv2.PodsMetricSource
+	seal    autoscalingv2.PodsMetricSource
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1726,6 +2052,7 @@ func (d *PodsMetricSourceDie) DieFeed(r autoscalingv2.PodsMetricSource) *PodsMet
 	return &PodsMetricSourceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1879,7 +2206,51 @@ func (d *PodsMetricSourceDie) DeepCopy() *PodsMetricSourceDie {
 	return &PodsMetricSourceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *PodsMetricSourceDie) DieSeal() *PodsMetricSourceDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *PodsMetricSourceDie) DieSealFeed(r autoscalingv2.PodsMetricSource) *PodsMetricSourceDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *PodsMetricSourceDie) DieSealFeedPtr(r *autoscalingv2.PodsMetricSource) *PodsMetricSourceDie {
+	if r == nil {
+		r = &autoscalingv2.PodsMetricSource{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *PodsMetricSourceDie) DieSealRelease() autoscalingv2.PodsMetricSource {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *PodsMetricSourceDie) DieSealReleasePtr() *autoscalingv2.PodsMetricSource {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *PodsMetricSourceDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *PodsMetricSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // metric identifies the target metric by name and selector
@@ -1901,6 +2272,7 @@ var ResourceMetricSourceBlank = (&ResourceMetricSourceDie{}).DieFeed(autoscaling
 type ResourceMetricSourceDie struct {
 	mutable bool
 	r       autoscalingv2.ResourceMetricSource
+	seal    autoscalingv2.ResourceMetricSource
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1922,6 +2294,7 @@ func (d *ResourceMetricSourceDie) DieFeed(r autoscalingv2.ResourceMetricSource) 
 	return &ResourceMetricSourceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2075,7 +2448,51 @@ func (d *ResourceMetricSourceDie) DeepCopy() *ResourceMetricSourceDie {
 	return &ResourceMetricSourceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ResourceMetricSourceDie) DieSeal() *ResourceMetricSourceDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ResourceMetricSourceDie) DieSealFeed(r autoscalingv2.ResourceMetricSource) *ResourceMetricSourceDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ResourceMetricSourceDie) DieSealFeedPtr(r *autoscalingv2.ResourceMetricSource) *ResourceMetricSourceDie {
+	if r == nil {
+		r = &autoscalingv2.ResourceMetricSource{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ResourceMetricSourceDie) DieSealRelease() autoscalingv2.ResourceMetricSource {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ResourceMetricSourceDie) DieSealReleasePtr() *autoscalingv2.ResourceMetricSource {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ResourceMetricSourceDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ResourceMetricSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // name is the name of the resource in question.
@@ -2097,6 +2514,7 @@ var ContainerResourceMetricSourceBlank = (&ContainerResourceMetricSourceDie{}).D
 type ContainerResourceMetricSourceDie struct {
 	mutable bool
 	r       autoscalingv2.ContainerResourceMetricSource
+	seal    autoscalingv2.ContainerResourceMetricSource
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2118,6 +2536,7 @@ func (d *ContainerResourceMetricSourceDie) DieFeed(r autoscalingv2.ContainerReso
 	return &ContainerResourceMetricSourceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2271,7 +2690,51 @@ func (d *ContainerResourceMetricSourceDie) DeepCopy() *ContainerResourceMetricSo
 	return &ContainerResourceMetricSourceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ContainerResourceMetricSourceDie) DieSeal() *ContainerResourceMetricSourceDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ContainerResourceMetricSourceDie) DieSealFeed(r autoscalingv2.ContainerResourceMetricSource) *ContainerResourceMetricSourceDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ContainerResourceMetricSourceDie) DieSealFeedPtr(r *autoscalingv2.ContainerResourceMetricSource) *ContainerResourceMetricSourceDie {
+	if r == nil {
+		r = &autoscalingv2.ContainerResourceMetricSource{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ContainerResourceMetricSourceDie) DieSealRelease() autoscalingv2.ContainerResourceMetricSource {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ContainerResourceMetricSourceDie) DieSealReleasePtr() *autoscalingv2.ContainerResourceMetricSource {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ContainerResourceMetricSourceDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ContainerResourceMetricSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // name is the name of the resource in question.
@@ -2300,6 +2763,7 @@ var ExternalMetricSourceBlank = (&ExternalMetricSourceDie{}).DieFeed(autoscaling
 type ExternalMetricSourceDie struct {
 	mutable bool
 	r       autoscalingv2.ExternalMetricSource
+	seal    autoscalingv2.ExternalMetricSource
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2321,6 +2785,7 @@ func (d *ExternalMetricSourceDie) DieFeed(r autoscalingv2.ExternalMetricSource) 
 	return &ExternalMetricSourceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2474,7 +2939,51 @@ func (d *ExternalMetricSourceDie) DeepCopy() *ExternalMetricSourceDie {
 	return &ExternalMetricSourceDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ExternalMetricSourceDie) DieSeal() *ExternalMetricSourceDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ExternalMetricSourceDie) DieSealFeed(r autoscalingv2.ExternalMetricSource) *ExternalMetricSourceDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ExternalMetricSourceDie) DieSealFeedPtr(r *autoscalingv2.ExternalMetricSource) *ExternalMetricSourceDie {
+	if r == nil {
+		r = &autoscalingv2.ExternalMetricSource{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ExternalMetricSourceDie) DieSealRelease() autoscalingv2.ExternalMetricSource {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ExternalMetricSourceDie) DieSealReleasePtr() *autoscalingv2.ExternalMetricSource {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ExternalMetricSourceDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ExternalMetricSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // metric identifies the target metric by name and selector
@@ -2496,6 +3005,7 @@ var HorizontalPodAutoscalerBehaviorBlank = (&HorizontalPodAutoscalerBehaviorDie{
 type HorizontalPodAutoscalerBehaviorDie struct {
 	mutable bool
 	r       autoscalingv2.HorizontalPodAutoscalerBehavior
+	seal    autoscalingv2.HorizontalPodAutoscalerBehavior
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2517,6 +3027,7 @@ func (d *HorizontalPodAutoscalerBehaviorDie) DieFeed(r autoscalingv2.HorizontalP
 	return &HorizontalPodAutoscalerBehaviorDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2670,7 +3181,51 @@ func (d *HorizontalPodAutoscalerBehaviorDie) DeepCopy() *HorizontalPodAutoscaler
 	return &HorizontalPodAutoscalerBehaviorDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *HorizontalPodAutoscalerBehaviorDie) DieSeal() *HorizontalPodAutoscalerBehaviorDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *HorizontalPodAutoscalerBehaviorDie) DieSealFeed(r autoscalingv2.HorizontalPodAutoscalerBehavior) *HorizontalPodAutoscalerBehaviorDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *HorizontalPodAutoscalerBehaviorDie) DieSealFeedPtr(r *autoscalingv2.HorizontalPodAutoscalerBehavior) *HorizontalPodAutoscalerBehaviorDie {
+	if r == nil {
+		r = &autoscalingv2.HorizontalPodAutoscalerBehavior{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *HorizontalPodAutoscalerBehaviorDie) DieSealRelease() autoscalingv2.HorizontalPodAutoscalerBehavior {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *HorizontalPodAutoscalerBehaviorDie) DieSealReleasePtr() *autoscalingv2.HorizontalPodAutoscalerBehavior {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *HorizontalPodAutoscalerBehaviorDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *HorizontalPodAutoscalerBehaviorDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // scaleUp is scaling policy for scaling Up.
@@ -2706,6 +3261,7 @@ var HPAScalingRulesBlank = (&HPAScalingRulesDie{}).DieFeed(autoscalingv2.HPAScal
 type HPAScalingRulesDie struct {
 	mutable bool
 	r       autoscalingv2.HPAScalingRules
+	seal    autoscalingv2.HPAScalingRules
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2727,6 +3283,7 @@ func (d *HPAScalingRulesDie) DieFeed(r autoscalingv2.HPAScalingRules) *HPAScalin
 	return &HPAScalingRulesDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2880,7 +3437,51 @@ func (d *HPAScalingRulesDie) DeepCopy() *HPAScalingRulesDie {
 	return &HPAScalingRulesDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *HPAScalingRulesDie) DieSeal() *HPAScalingRulesDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *HPAScalingRulesDie) DieSealFeed(r autoscalingv2.HPAScalingRules) *HPAScalingRulesDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *HPAScalingRulesDie) DieSealFeedPtr(r *autoscalingv2.HPAScalingRules) *HPAScalingRulesDie {
+	if r == nil {
+		r = &autoscalingv2.HPAScalingRules{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *HPAScalingRulesDie) DieSealRelease() autoscalingv2.HPAScalingRules {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *HPAScalingRulesDie) DieSealReleasePtr() *autoscalingv2.HPAScalingRules {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *HPAScalingRulesDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *HPAScalingRulesDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // stabilizationWindowSeconds is the number of seconds for which past recommendations should be
@@ -2923,6 +3524,7 @@ var HPAScalingPolicyBlank = (&HPAScalingPolicyDie{}).DieFeed(autoscalingv2.HPASc
 type HPAScalingPolicyDie struct {
 	mutable bool
 	r       autoscalingv2.HPAScalingPolicy
+	seal    autoscalingv2.HPAScalingPolicy
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -2944,6 +3546,7 @@ func (d *HPAScalingPolicyDie) DieFeed(r autoscalingv2.HPAScalingPolicy) *HPAScal
 	return &HPAScalingPolicyDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3097,7 +3700,51 @@ func (d *HPAScalingPolicyDie) DeepCopy() *HPAScalingPolicyDie {
 	return &HPAScalingPolicyDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *HPAScalingPolicyDie) DieSeal() *HPAScalingPolicyDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *HPAScalingPolicyDie) DieSealFeed(r autoscalingv2.HPAScalingPolicy) *HPAScalingPolicyDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *HPAScalingPolicyDie) DieSealFeedPtr(r *autoscalingv2.HPAScalingPolicy) *HPAScalingPolicyDie {
+	if r == nil {
+		r = &autoscalingv2.HPAScalingPolicy{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *HPAScalingPolicyDie) DieSealRelease() autoscalingv2.HPAScalingPolicy {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *HPAScalingPolicyDie) DieSealReleasePtr() *autoscalingv2.HPAScalingPolicy {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *HPAScalingPolicyDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *HPAScalingPolicyDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // type is used to specify the scaling policy.
@@ -3130,6 +3777,7 @@ var HorizontalPodAutoscalerStatusBlank = (&HorizontalPodAutoscalerStatusDie{}).D
 type HorizontalPodAutoscalerStatusDie struct {
 	mutable bool
 	r       autoscalingv2.HorizontalPodAutoscalerStatus
+	seal    autoscalingv2.HorizontalPodAutoscalerStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3151,6 +3799,7 @@ func (d *HorizontalPodAutoscalerStatusDie) DieFeed(r autoscalingv2.HorizontalPod
 	return &HorizontalPodAutoscalerStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3304,7 +3953,51 @@ func (d *HorizontalPodAutoscalerStatusDie) DeepCopy() *HorizontalPodAutoscalerSt
 	return &HorizontalPodAutoscalerStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *HorizontalPodAutoscalerStatusDie) DieSeal() *HorizontalPodAutoscalerStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *HorizontalPodAutoscalerStatusDie) DieSealFeed(r autoscalingv2.HorizontalPodAutoscalerStatus) *HorizontalPodAutoscalerStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *HorizontalPodAutoscalerStatusDie) DieSealFeedPtr(r *autoscalingv2.HorizontalPodAutoscalerStatus) *HorizontalPodAutoscalerStatusDie {
+	if r == nil {
+		r = &autoscalingv2.HorizontalPodAutoscalerStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *HorizontalPodAutoscalerStatusDie) DieSealRelease() autoscalingv2.HorizontalPodAutoscalerStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *HorizontalPodAutoscalerStatusDie) DieSealReleasePtr() *autoscalingv2.HorizontalPodAutoscalerStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *HorizontalPodAutoscalerStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *HorizontalPodAutoscalerStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // observedGeneration is the most recent generation observed by this autoscaler.
@@ -3362,6 +4055,7 @@ var MetricStatusBlank = (&MetricStatusDie{}).DieFeed(autoscalingv2.MetricStatus{
 type MetricStatusDie struct {
 	mutable bool
 	r       autoscalingv2.MetricStatus
+	seal    autoscalingv2.MetricStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3383,6 +4077,7 @@ func (d *MetricStatusDie) DieFeed(r autoscalingv2.MetricStatus) *MetricStatusDie
 	return &MetricStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3536,7 +4231,51 @@ func (d *MetricStatusDie) DeepCopy() *MetricStatusDie {
 	return &MetricStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *MetricStatusDie) DieSeal() *MetricStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *MetricStatusDie) DieSealFeed(r autoscalingv2.MetricStatus) *MetricStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *MetricStatusDie) DieSealFeedPtr(r *autoscalingv2.MetricStatus) *MetricStatusDie {
+	if r == nil {
+		r = &autoscalingv2.MetricStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *MetricStatusDie) DieSealRelease() autoscalingv2.MetricStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *MetricStatusDie) DieSealReleasePtr() *autoscalingv2.MetricStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *MetricStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *MetricStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // type is the type of metric source.  It will be one of "ContainerResource", "External",
@@ -3622,6 +4361,7 @@ var ObjectMetricStatusBlank = (&ObjectMetricStatusDie{}).DieFeed(autoscalingv2.O
 type ObjectMetricStatusDie struct {
 	mutable bool
 	r       autoscalingv2.ObjectMetricStatus
+	seal    autoscalingv2.ObjectMetricStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3643,6 +4383,7 @@ func (d *ObjectMetricStatusDie) DieFeed(r autoscalingv2.ObjectMetricStatus) *Obj
 	return &ObjectMetricStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3796,7 +4537,51 @@ func (d *ObjectMetricStatusDie) DeepCopy() *ObjectMetricStatusDie {
 	return &ObjectMetricStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ObjectMetricStatusDie) DieSeal() *ObjectMetricStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ObjectMetricStatusDie) DieSealFeed(r autoscalingv2.ObjectMetricStatus) *ObjectMetricStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ObjectMetricStatusDie) DieSealFeedPtr(r *autoscalingv2.ObjectMetricStatus) *ObjectMetricStatusDie {
+	if r == nil {
+		r = &autoscalingv2.ObjectMetricStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ObjectMetricStatusDie) DieSealRelease() autoscalingv2.ObjectMetricStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ObjectMetricStatusDie) DieSealReleasePtr() *autoscalingv2.ObjectMetricStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ObjectMetricStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ObjectMetricStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // metric identifies the target metric by name and selector
@@ -3825,6 +4610,7 @@ var MetricValueStatusBlank = (&MetricValueStatusDie{}).DieFeed(autoscalingv2.Met
 type MetricValueStatusDie struct {
 	mutable bool
 	r       autoscalingv2.MetricValueStatus
+	seal    autoscalingv2.MetricValueStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -3846,6 +4632,7 @@ func (d *MetricValueStatusDie) DieFeed(r autoscalingv2.MetricValueStatus) *Metri
 	return &MetricValueStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -3999,7 +4786,51 @@ func (d *MetricValueStatusDie) DeepCopy() *MetricValueStatusDie {
 	return &MetricValueStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *MetricValueStatusDie) DieSeal() *MetricValueStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *MetricValueStatusDie) DieSealFeed(r autoscalingv2.MetricValueStatus) *MetricValueStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *MetricValueStatusDie) DieSealFeedPtr(r *autoscalingv2.MetricValueStatus) *MetricValueStatusDie {
+	if r == nil {
+		r = &autoscalingv2.MetricValueStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *MetricValueStatusDie) DieSealRelease() autoscalingv2.MetricValueStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *MetricValueStatusDie) DieSealReleasePtr() *autoscalingv2.MetricValueStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *MetricValueStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *MetricValueStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // value is the current value of the metric (as a quantity).
@@ -4052,6 +4883,7 @@ var PodsMetricStatusBlank = (&PodsMetricStatusDie{}).DieFeed(autoscalingv2.PodsM
 type PodsMetricStatusDie struct {
 	mutable bool
 	r       autoscalingv2.PodsMetricStatus
+	seal    autoscalingv2.PodsMetricStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -4073,6 +4905,7 @@ func (d *PodsMetricStatusDie) DieFeed(r autoscalingv2.PodsMetricStatus) *PodsMet
 	return &PodsMetricStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -4226,7 +5059,51 @@ func (d *PodsMetricStatusDie) DeepCopy() *PodsMetricStatusDie {
 	return &PodsMetricStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *PodsMetricStatusDie) DieSeal() *PodsMetricStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *PodsMetricStatusDie) DieSealFeed(r autoscalingv2.PodsMetricStatus) *PodsMetricStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *PodsMetricStatusDie) DieSealFeedPtr(r *autoscalingv2.PodsMetricStatus) *PodsMetricStatusDie {
+	if r == nil {
+		r = &autoscalingv2.PodsMetricStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *PodsMetricStatusDie) DieSealRelease() autoscalingv2.PodsMetricStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *PodsMetricStatusDie) DieSealReleasePtr() *autoscalingv2.PodsMetricStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *PodsMetricStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *PodsMetricStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // metric identifies the target metric by name and selector
@@ -4248,6 +5125,7 @@ var ResourceMetricStatusBlank = (&ResourceMetricStatusDie{}).DieFeed(autoscaling
 type ResourceMetricStatusDie struct {
 	mutable bool
 	r       autoscalingv2.ResourceMetricStatus
+	seal    autoscalingv2.ResourceMetricStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -4269,6 +5147,7 @@ func (d *ResourceMetricStatusDie) DieFeed(r autoscalingv2.ResourceMetricStatus) 
 	return &ResourceMetricStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -4422,7 +5301,51 @@ func (d *ResourceMetricStatusDie) DeepCopy() *ResourceMetricStatusDie {
 	return &ResourceMetricStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ResourceMetricStatusDie) DieSeal() *ResourceMetricStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ResourceMetricStatusDie) DieSealFeed(r autoscalingv2.ResourceMetricStatus) *ResourceMetricStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ResourceMetricStatusDie) DieSealFeedPtr(r *autoscalingv2.ResourceMetricStatus) *ResourceMetricStatusDie {
+	if r == nil {
+		r = &autoscalingv2.ResourceMetricStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ResourceMetricStatusDie) DieSealRelease() autoscalingv2.ResourceMetricStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ResourceMetricStatusDie) DieSealReleasePtr() *autoscalingv2.ResourceMetricStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ResourceMetricStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ResourceMetricStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // name is the name of the resource in question.
@@ -4444,6 +5367,7 @@ var ContainerResourceMetricStatusBlank = (&ContainerResourceMetricStatusDie{}).D
 type ContainerResourceMetricStatusDie struct {
 	mutable bool
 	r       autoscalingv2.ContainerResourceMetricStatus
+	seal    autoscalingv2.ContainerResourceMetricStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -4465,6 +5389,7 @@ func (d *ContainerResourceMetricStatusDie) DieFeed(r autoscalingv2.ContainerReso
 	return &ContainerResourceMetricStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -4618,7 +5543,51 @@ func (d *ContainerResourceMetricStatusDie) DeepCopy() *ContainerResourceMetricSt
 	return &ContainerResourceMetricStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ContainerResourceMetricStatusDie) DieSeal() *ContainerResourceMetricStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ContainerResourceMetricStatusDie) DieSealFeed(r autoscalingv2.ContainerResourceMetricStatus) *ContainerResourceMetricStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ContainerResourceMetricStatusDie) DieSealFeedPtr(r *autoscalingv2.ContainerResourceMetricStatus) *ContainerResourceMetricStatusDie {
+	if r == nil {
+		r = &autoscalingv2.ContainerResourceMetricStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ContainerResourceMetricStatusDie) DieSealRelease() autoscalingv2.ContainerResourceMetricStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ContainerResourceMetricStatusDie) DieSealReleasePtr() *autoscalingv2.ContainerResourceMetricStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ContainerResourceMetricStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ContainerResourceMetricStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // name is the name of the resource in question.
@@ -4647,6 +5616,7 @@ var ExternalMetricStatusBlank = (&ExternalMetricStatusDie{}).DieFeed(autoscaling
 type ExternalMetricStatusDie struct {
 	mutable bool
 	r       autoscalingv2.ExternalMetricStatus
+	seal    autoscalingv2.ExternalMetricStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -4668,6 +5638,7 @@ func (d *ExternalMetricStatusDie) DieFeed(r autoscalingv2.ExternalMetricStatus) 
 	return &ExternalMetricStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -4821,7 +5792,51 @@ func (d *ExternalMetricStatusDie) DeepCopy() *ExternalMetricStatusDie {
 	return &ExternalMetricStatusDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ExternalMetricStatusDie) DieSeal() *ExternalMetricStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ExternalMetricStatusDie) DieSealFeed(r autoscalingv2.ExternalMetricStatus) *ExternalMetricStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ExternalMetricStatusDie) DieSealFeedPtr(r *autoscalingv2.ExternalMetricStatus) *ExternalMetricStatusDie {
+	if r == nil {
+		r = &autoscalingv2.ExternalMetricStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ExternalMetricStatusDie) DieSealRelease() autoscalingv2.ExternalMetricStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ExternalMetricStatusDie) DieSealReleasePtr() *autoscalingv2.ExternalMetricStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ExternalMetricStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ExternalMetricStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // metric identifies the target metric by name and selector

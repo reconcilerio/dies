@@ -22,16 +22,19 @@ limitations under the License.
 package v1
 
 import (
-	json "encoding/json"
 	fmtx "fmt"
+	cmp "github.com/google/go-cmp/cmp"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	types "k8s.io/apimachinery/pkg/types"
+	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
 	metav1 "reconciler.io/dies/apis/meta/v1"
+	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
 )
@@ -42,6 +45,7 @@ type ClusterRoleDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       rbacv1.ClusterRole
+	seal    rbacv1.ClusterRole
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -65,6 +69,7 @@ func (d *ClusterRoleDie) DieFeed(r rbacv1.ClusterRole) *ClusterRoleDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -231,7 +236,51 @@ func (d *ClusterRoleDie) DeepCopy() *ClusterRoleDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ClusterRoleDie) DieSeal() *ClusterRoleDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ClusterRoleDie) DieSealFeed(r rbacv1.ClusterRole) *ClusterRoleDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ClusterRoleDie) DieSealFeedPtr(r *rbacv1.ClusterRole) *ClusterRoleDie {
+	if r == nil {
+		r = &rbacv1.ClusterRole{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ClusterRoleDie) DieSealRelease() rbacv1.ClusterRole {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ClusterRoleDie) DieSealReleasePtr() *rbacv1.ClusterRole {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ClusterRoleDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ClusterRoleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*ClusterRoleDie)(nil)
@@ -253,9 +302,9 @@ func (d *ClusterRoleDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &rbacv1.ClusterRole{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &rbacv1.ClusterRole{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -336,6 +385,7 @@ var AggregationRuleBlank = (&AggregationRuleDie{}).DieFeed(rbacv1.AggregationRul
 type AggregationRuleDie struct {
 	mutable bool
 	r       rbacv1.AggregationRule
+	seal    rbacv1.AggregationRule
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -357,6 +407,7 @@ func (d *AggregationRuleDie) DieFeed(r rbacv1.AggregationRule) *AggregationRuleD
 	return &AggregationRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -510,7 +561,51 @@ func (d *AggregationRuleDie) DeepCopy() *AggregationRuleDie {
 	return &AggregationRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *AggregationRuleDie) DieSeal() *AggregationRuleDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *AggregationRuleDie) DieSealFeed(r rbacv1.AggregationRule) *AggregationRuleDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *AggregationRuleDie) DieSealFeedPtr(r *rbacv1.AggregationRule) *AggregationRuleDie {
+	if r == nil {
+		r = &rbacv1.AggregationRule{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *AggregationRuleDie) DieSealRelease() rbacv1.AggregationRule {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *AggregationRuleDie) DieSealReleasePtr() *rbacv1.AggregationRule {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *AggregationRuleDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *AggregationRuleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // ClusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules.
@@ -528,6 +623,7 @@ type ClusterRoleBindingDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       rbacv1.ClusterRoleBinding
+	seal    rbacv1.ClusterRoleBinding
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -551,6 +647,7 @@ func (d *ClusterRoleBindingDie) DieFeed(r rbacv1.ClusterRoleBinding) *ClusterRol
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -717,7 +814,51 @@ func (d *ClusterRoleBindingDie) DeepCopy() *ClusterRoleBindingDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ClusterRoleBindingDie) DieSeal() *ClusterRoleBindingDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ClusterRoleBindingDie) DieSealFeed(r rbacv1.ClusterRoleBinding) *ClusterRoleBindingDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ClusterRoleBindingDie) DieSealFeedPtr(r *rbacv1.ClusterRoleBinding) *ClusterRoleBindingDie {
+	if r == nil {
+		r = &rbacv1.ClusterRoleBinding{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ClusterRoleBindingDie) DieSealRelease() rbacv1.ClusterRoleBinding {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ClusterRoleBindingDie) DieSealReleasePtr() *rbacv1.ClusterRoleBinding {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ClusterRoleBindingDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ClusterRoleBindingDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*ClusterRoleBindingDie)(nil)
@@ -739,9 +880,9 @@ func (d *ClusterRoleBindingDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &rbacv1.ClusterRoleBinding{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &rbacv1.ClusterRoleBinding{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -823,6 +964,7 @@ type RoleDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       rbacv1.Role
+	seal    rbacv1.Role
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -846,6 +988,7 @@ func (d *RoleDie) DieFeed(r rbacv1.Role) *RoleDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -1012,7 +1155,51 @@ func (d *RoleDie) DeepCopy() *RoleDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *RoleDie) DieSeal() *RoleDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *RoleDie) DieSealFeed(r rbacv1.Role) *RoleDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *RoleDie) DieSealFeedPtr(r *rbacv1.Role) *RoleDie {
+	if r == nil {
+		r = &rbacv1.Role{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *RoleDie) DieSealRelease() rbacv1.Role {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *RoleDie) DieSealReleasePtr() *rbacv1.Role {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *RoleDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *RoleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*RoleDie)(nil)
@@ -1034,9 +1221,9 @@ func (d *RoleDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &rbacv1.Role{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &rbacv1.Role{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -1106,6 +1293,7 @@ var PolicyRuleBlank = (&PolicyRuleDie{}).DieFeed(rbacv1.PolicyRule{})
 type PolicyRuleDie struct {
 	mutable bool
 	r       rbacv1.PolicyRule
+	seal    rbacv1.PolicyRule
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1127,6 +1315,7 @@ func (d *PolicyRuleDie) DieFeed(r rbacv1.PolicyRule) *PolicyRuleDie {
 	return &PolicyRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1280,7 +1469,51 @@ func (d *PolicyRuleDie) DeepCopy() *PolicyRuleDie {
 	return &PolicyRuleDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *PolicyRuleDie) DieSeal() *PolicyRuleDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *PolicyRuleDie) DieSealFeed(r rbacv1.PolicyRule) *PolicyRuleDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *PolicyRuleDie) DieSealFeedPtr(r *rbacv1.PolicyRule) *PolicyRuleDie {
+	if r == nil {
+		r = &rbacv1.PolicyRule{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *PolicyRuleDie) DieSealRelease() rbacv1.PolicyRule {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *PolicyRuleDie) DieSealReleasePtr() *rbacv1.PolicyRule {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *PolicyRuleDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *PolicyRuleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs.
@@ -1330,6 +1563,7 @@ type RoleBindingDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
 	r       rbacv1.RoleBinding
+	seal    rbacv1.RoleBinding
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1353,6 +1587,7 @@ func (d *RoleBindingDie) DieFeed(r rbacv1.RoleBinding) *RoleBindingDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
 }
 
@@ -1519,7 +1754,51 @@ func (d *RoleBindingDie) DeepCopy() *RoleBindingDie {
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
+		seal:             d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *RoleBindingDie) DieSeal() *RoleBindingDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *RoleBindingDie) DieSealFeed(r rbacv1.RoleBinding) *RoleBindingDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *RoleBindingDie) DieSealFeedPtr(r *rbacv1.RoleBinding) *RoleBindingDie {
+	if r == nil {
+		r = &rbacv1.RoleBinding{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *RoleBindingDie) DieSealRelease() rbacv1.RoleBinding {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *RoleBindingDie) DieSealReleasePtr() *rbacv1.RoleBinding {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *RoleBindingDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *RoleBindingDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 var _ runtime.Object = (*RoleBindingDie)(nil)
@@ -1541,9 +1820,9 @@ func (d *RoleBindingDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	r := &rbacv1.RoleBinding{}
-	err := json.Unmarshal(b, r)
-	*d = *d.DieFeed(*r)
+	resource := &rbacv1.RoleBinding{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
 	return err
 }
 
@@ -1624,6 +1903,7 @@ var SubjectBlank = (&SubjectDie{}).DieFeed(rbacv1.Subject{})
 type SubjectDie struct {
 	mutable bool
 	r       rbacv1.Subject
+	seal    rbacv1.Subject
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1645,6 +1925,7 @@ func (d *SubjectDie) DieFeed(r rbacv1.Subject) *SubjectDie {
 	return &SubjectDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -1798,7 +2079,51 @@ func (d *SubjectDie) DeepCopy() *SubjectDie {
 	return &SubjectDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *SubjectDie) DieSeal() *SubjectDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *SubjectDie) DieSealFeed(r rbacv1.Subject) *SubjectDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *SubjectDie) DieSealFeedPtr(r *rbacv1.Subject) *SubjectDie {
+	if r == nil {
+		r = &rbacv1.Subject{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *SubjectDie) DieSealRelease() rbacv1.Subject {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *SubjectDie) DieSealReleasePtr() *rbacv1.Subject {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *SubjectDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *SubjectDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
@@ -1842,6 +2167,7 @@ var RoleRefBlank = (&RoleRefDie{}).DieFeed(rbacv1.RoleRef{})
 type RoleRefDie struct {
 	mutable bool
 	r       rbacv1.RoleRef
+	seal    rbacv1.RoleRef
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
@@ -1863,6 +2189,7 @@ func (d *RoleRefDie) DieFeed(r rbacv1.RoleRef) *RoleRefDie {
 	return &RoleRefDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
 }
 
@@ -2016,7 +2343,51 @@ func (d *RoleRefDie) DeepCopy() *RoleRefDie {
 	return &RoleRefDie{
 		mutable: d.mutable,
 		r:       r,
+		seal:    d.seal,
 	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *RoleRefDie) DieSeal() *RoleRefDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *RoleRefDie) DieSealFeed(r rbacv1.RoleRef) *RoleRefDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *RoleRefDie) DieSealFeedPtr(r *rbacv1.RoleRef) *RoleRefDie {
+	if r == nil {
+		r = &rbacv1.RoleRef{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *RoleRefDie) DieSealRelease() rbacv1.RoleRef {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *RoleRefDie) DieSealReleasePtr() *rbacv1.RoleRef {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *RoleRefDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *RoleRefDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
 }
 
 // APIGroup is the group for the resource being referenced
