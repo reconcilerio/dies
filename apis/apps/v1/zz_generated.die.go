@@ -1310,6 +1310,35 @@ func (d *RollingUpdateDaemonSetDie) MaxUnavailable(v *intstr.IntOrString) *Rolli
 	})
 }
 
+// MaxUnavailableInt sets MaxUnavailable with the int value.
+//
+// # The maximum number of DaemonSet pods that can be unavailable during the
+//
+// update. Value can be an absolute number (ex: 5) or a percentage of total
+//
+// number of DaemonSet pods at the start of the update (ex: 10%). Absolute
+//
+// number is calculated from percentage by rounding up.
+//
+// # This cannot be 0 if MaxSurge is 0
+//
+// Default value is 1.
+//
+// Example: when this is set to 30%, at most 30% of the total number of nodes
+//
+// that should be running the daemon pod (i.e. status.desiredNumberScheduled)
+//
+// can have their pods stopped for an update at any given time. The update
+//
+// starts by stopping at most 30% of those DaemonSet pods and then brings
+//
+// up new DaemonSet pods in their place. Once the new pods are available,
+//
+// it then proceeds onto other DaemonSet pods, thus ensuring that at least
+//
+// 70% of original number of DaemonSet pods are available at all times during
+//
+// the update.
 func (d *RollingUpdateDaemonSetDie) MaxUnavailableInt(i int) *RollingUpdateDaemonSetDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDaemonSet) {
 		v := intstr.FromInt(i)
@@ -1317,6 +1346,35 @@ func (d *RollingUpdateDaemonSetDie) MaxUnavailableInt(i int) *RollingUpdateDaemo
 	})
 }
 
+// MaxUnavailableString sets MaxUnavailable with the string value.
+//
+// # The maximum number of DaemonSet pods that can be unavailable during the
+//
+// update. Value can be an absolute number (ex: 5) or a percentage of total
+//
+// number of DaemonSet pods at the start of the update (ex: 10%). Absolute
+//
+// number is calculated from percentage by rounding up.
+//
+// # This cannot be 0 if MaxSurge is 0
+//
+// Default value is 1.
+//
+// Example: when this is set to 30%, at most 30% of the total number of nodes
+//
+// that should be running the daemon pod (i.e. status.desiredNumberScheduled)
+//
+// can have their pods stopped for an update at any given time. The update
+//
+// starts by stopping at most 30% of those DaemonSet pods and then brings
+//
+// up new DaemonSet pods in their place. Once the new pods are available,
+//
+// it then proceeds onto other DaemonSet pods, thus ensuring that at least
+//
+// 70% of original number of DaemonSet pods are available at all times during
+//
+// the update.
 func (d *RollingUpdateDaemonSetDie) MaxUnavailableString(s string) *RollingUpdateDaemonSetDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDaemonSet) {
 		v := intstr.FromString(s)
@@ -1365,6 +1423,43 @@ func (d *RollingUpdateDaemonSetDie) MaxSurge(v *intstr.IntOrString) *RollingUpda
 	})
 }
 
+// MaxSurgeInt sets MaxSurge with the int value.
+//
+// # The maximum number of nodes with an existing available DaemonSet pod that
+//
+// can have an updated DaemonSet pod during during an update.
+//
+// Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
+//
+// This can not be 0 if MaxUnavailable is 0.
+//
+// Absolute number is calculated from percentage by rounding up to a minimum of 1.
+//
+// Default value is 0.
+//
+// Example: when this is set to 30%, at most 30% of the total number of nodes
+//
+// that should be running the daemon pod (i.e. status.desiredNumberScheduled)
+//
+// can have their a new pod created before the old pod is marked as deleted.
+//
+// The update starts by launching new pods on 30% of nodes. Once an updated
+//
+// pod is available (Ready for at least minReadySeconds) the old DaemonSet pod
+//
+// on that node is marked deleted. If the old pod becomes unavailable for any
+//
+// reason (Ready transitions to false, is evicted, or is drained) an updated
+//
+// pod is immediatedly created on that node without considering surge limits.
+//
+// # Allowing surge implies the possibility that the resources consumed by the
+//
+// daemonset on any given node can double if the readiness check fails, and
+//
+// so resource intensive daemonsets should take into account that they may
+//
+// cause evictions during disruption.
 func (d *RollingUpdateDaemonSetDie) MaxSurgeInt(i int) *RollingUpdateDaemonSetDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDaemonSet) {
 		v := intstr.FromInt(i)
@@ -1372,6 +1467,43 @@ func (d *RollingUpdateDaemonSetDie) MaxSurgeInt(i int) *RollingUpdateDaemonSetDi
 	})
 }
 
+// MaxSurgeString sets MaxSurge with the string value.
+//
+// # The maximum number of nodes with an existing available DaemonSet pod that
+//
+// can have an updated DaemonSet pod during during an update.
+//
+// Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
+//
+// This can not be 0 if MaxUnavailable is 0.
+//
+// Absolute number is calculated from percentage by rounding up to a minimum of 1.
+//
+// Default value is 0.
+//
+// Example: when this is set to 30%, at most 30% of the total number of nodes
+//
+// that should be running the daemon pod (i.e. status.desiredNumberScheduled)
+//
+// can have their a new pod created before the old pod is marked as deleted.
+//
+// The update starts by launching new pods on 30% of nodes. Once an updated
+//
+// pod is available (Ready for at least minReadySeconds) the old DaemonSet pod
+//
+// on that node is marked deleted. If the old pod becomes unavailable for any
+//
+// reason (Ready transitions to false, is evicted, or is drained) an updated
+//
+// pod is immediatedly created on that node without considering surge limits.
+//
+// # Allowing surge implies the possibility that the resources consumed by the
+//
+// daemonset on any given node can double if the readiness check fails, and
+//
+// so resource intensive daemonsets should take into account that they may
+//
+// cause evictions during disruption.
 func (d *RollingUpdateDaemonSetDie) MaxSurgeString(s string) *RollingUpdateDaemonSetDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDaemonSet) {
 		v := intstr.FromString(s)
@@ -2639,6 +2771,27 @@ func (d *RollingUpdateDeploymentDie) MaxUnavailable(v *intstr.IntOrString) *Roll
 	})
 }
 
+// MaxUnavailableInt sets MaxUnavailable with the int value.
+//
+// The maximum number of pods that can be unavailable during the update.
+//
+// Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
+//
+// Absolute number is calculated from percentage by rounding down.
+//
+// This can not be 0 if MaxSurge is 0.
+//
+// Defaults to 25%.
+//
+// Example: when this is set to 30%, the old ReplicaSet can be scaled down to 70% of desired pods
+//
+// immediately when the rolling update starts. Once new pods are ready, old ReplicaSet
+//
+// can be scaled down further, followed by scaling up the new ReplicaSet, ensuring
+//
+// that the total number of pods available at all times during the update is at
+//
+// least 70% of desired pods.
 func (d *RollingUpdateDeploymentDie) MaxUnavailableInt(i int) *RollingUpdateDeploymentDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDeployment) {
 		v := intstr.FromInt(i)
@@ -2646,6 +2799,27 @@ func (d *RollingUpdateDeploymentDie) MaxUnavailableInt(i int) *RollingUpdateDepl
 	})
 }
 
+// MaxUnavailableString sets MaxUnavailable with the string value.
+//
+// The maximum number of pods that can be unavailable during the update.
+//
+// Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
+//
+// Absolute number is calculated from percentage by rounding down.
+//
+// This can not be 0 if MaxSurge is 0.
+//
+// Defaults to 25%.
+//
+// Example: when this is set to 30%, the old ReplicaSet can be scaled down to 70% of desired pods
+//
+// immediately when the rolling update starts. Once new pods are ready, old ReplicaSet
+//
+// can be scaled down further, followed by scaling up the new ReplicaSet, ensuring
+//
+// that the total number of pods available at all times during the update is at
+//
+// least 70% of desired pods.
 func (d *RollingUpdateDeploymentDie) MaxUnavailableString(s string) *RollingUpdateDeploymentDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDeployment) {
 		v := intstr.FromString(s)
@@ -2680,6 +2854,29 @@ func (d *RollingUpdateDeploymentDie) MaxSurge(v *intstr.IntOrString) *RollingUpd
 	})
 }
 
+// MaxSurgeInt sets MaxSurge with the int value.
+//
+// # The maximum number of pods that can be scheduled above the desired number of
+//
+// pods.
+//
+// Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
+//
+// This can not be 0 if MaxUnavailable is 0.
+//
+// Absolute number is calculated from percentage by rounding up.
+//
+// Defaults to 25%.
+//
+// Example: when this is set to 30%, the new ReplicaSet can be scaled up immediately when
+//
+// the rolling update starts, such that the total number of old and new pods do not exceed
+//
+// 130% of desired pods. Once old pods have been killed,
+//
+// new ReplicaSet can be scaled up further, ensuring that total number of pods running
+//
+// at any time during the update is at most 130% of desired pods.
 func (d *RollingUpdateDeploymentDie) MaxSurgeInt(i int) *RollingUpdateDeploymentDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDeployment) {
 		v := intstr.FromInt(i)
@@ -2687,6 +2884,29 @@ func (d *RollingUpdateDeploymentDie) MaxSurgeInt(i int) *RollingUpdateDeployment
 	})
 }
 
+// MaxSurgeString sets MaxSurge with the string value.
+//
+// # The maximum number of pods that can be scheduled above the desired number of
+//
+// pods.
+//
+// Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
+//
+// This can not be 0 if MaxUnavailable is 0.
+//
+// Absolute number is calculated from percentage by rounding up.
+//
+// Defaults to 25%.
+//
+// Example: when this is set to 30%, the new ReplicaSet can be scaled up immediately when
+//
+// the rolling update starts, such that the total number of old and new pods do not exceed
+//
+// 130% of desired pods. Once old pods have been killed,
+//
+// new ReplicaSet can be scaled up further, ensuring that total number of pods running
+//
+// at any time during the update is at most 130% of desired pods.
 func (d *RollingUpdateDeploymentDie) MaxSurgeString(s string) *RollingUpdateDeploymentDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateDeployment) {
 		v := intstr.FromString(s)
@@ -4789,6 +5009,21 @@ func (d *RollingUpdateStatefulSetStrategyDie) MaxUnavailable(v *intstr.IntOrStri
 	})
 }
 
+// MaxUnavailableInt sets MaxUnavailable with the int value.
+//
+// The maximum number of pods that can be unavailable during the update.
+//
+// Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
+//
+// Absolute number is calculated from percentage by rounding up. This can not be 0.
+//
+// Defaults to 1. This field is alpha-level and is only honored by servers that enable the
+//
+// MaxUnavailableStatefulSet feature. The field applies to all pods in the range 0 to
+//
+// Replicas-1. That means if there is any unavailable pod in the range 0 to Replicas-1, it
+//
+// will be counted towards MaxUnavailable.
 func (d *RollingUpdateStatefulSetStrategyDie) MaxUnavailableInt(i int) *RollingUpdateStatefulSetStrategyDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateStatefulSetStrategy) {
 		v := intstr.FromInt(i)
@@ -4796,6 +5031,21 @@ func (d *RollingUpdateStatefulSetStrategyDie) MaxUnavailableInt(i int) *RollingU
 	})
 }
 
+// MaxUnavailableString sets MaxUnavailable with the string value.
+//
+// The maximum number of pods that can be unavailable during the update.
+//
+// Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
+//
+// Absolute number is calculated from percentage by rounding up. This can not be 0.
+//
+// Defaults to 1. This field is alpha-level and is only honored by servers that enable the
+//
+// MaxUnavailableStatefulSet feature. The field applies to all pods in the range 0 to
+//
+// Replicas-1. That means if there is any unavailable pod in the range 0 to Replicas-1, it
+//
+// will be counted towards MaxUnavailable.
 func (d *RollingUpdateStatefulSetStrategyDie) MaxUnavailableString(s string) *RollingUpdateStatefulSetStrategyDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateStatefulSetStrategy) {
 		v := intstr.FromString(s)

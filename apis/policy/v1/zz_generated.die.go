@@ -541,6 +541,15 @@ func (d *PodDisruptionBudgetSpecDie) MinAvailable(v *intstr.IntOrString) *PodDis
 	})
 }
 
+// MinAvailableInt sets MinAvailable with the int value.
+//
+// An eviction is allowed if at least "minAvailable" pods selected by
+//
+// "selector" will still be available after the eviction, i.e. even in the
+//
+// absence of the evicted pod.  So for example you can prevent all voluntary
+//
+// evictions by specifying "100%".
 func (d *PodDisruptionBudgetSpecDie) MinAvailableInt(i int) *PodDisruptionBudgetSpecDie {
 	return d.DieStamp(func(r *policyv1.PodDisruptionBudgetSpec) {
 		v := intstr.FromInt(i)
@@ -548,6 +557,15 @@ func (d *PodDisruptionBudgetSpecDie) MinAvailableInt(i int) *PodDisruptionBudget
 	})
 }
 
+// MinAvailableString sets MinAvailable with the string value.
+//
+// An eviction is allowed if at least "minAvailable" pods selected by
+//
+// "selector" will still be available after the eviction, i.e. even in the
+//
+// absence of the evicted pod.  So for example you can prevent all voluntary
+//
+// evictions by specifying "100%".
 func (d *PodDisruptionBudgetSpecDie) MinAvailableString(s string) *PodDisruptionBudgetSpecDie {
 	return d.DieStamp(func(r *policyv1.PodDisruptionBudgetSpec) {
 		v := intstr.FromString(s)
@@ -581,6 +599,15 @@ func (d *PodDisruptionBudgetSpecDie) MaxUnavailable(v *intstr.IntOrString) *PodD
 	})
 }
 
+// MaxUnavailableInt sets MaxUnavailable with the int value.
+//
+// An eviction is allowed if at most "maxUnavailable" pods selected by
+//
+// "selector" are unavailable after the eviction, i.e. even in absence of
+//
+// the evicted pod. For example, one can prevent all voluntary evictions
+//
+// by specifying 0. This is a mutually exclusive setting with "minAvailable".
 func (d *PodDisruptionBudgetSpecDie) MaxUnavailableInt(i int) *PodDisruptionBudgetSpecDie {
 	return d.DieStamp(func(r *policyv1.PodDisruptionBudgetSpec) {
 		v := intstr.FromInt(i)
@@ -588,6 +615,15 @@ func (d *PodDisruptionBudgetSpecDie) MaxUnavailableInt(i int) *PodDisruptionBudg
 	})
 }
 
+// MaxUnavailableString sets MaxUnavailable with the string value.
+//
+// An eviction is allowed if at most "maxUnavailable" pods selected by
+//
+// "selector" are unavailable after the eviction, i.e. even in absence of
+//
+// the evicted pod. For example, one can prevent all voluntary evictions
+//
+// by specifying 0. This is a mutually exclusive setting with "minAvailable".
 func (d *PodDisruptionBudgetSpecDie) MaxUnavailableString(s string) *PodDisruptionBudgetSpecDie {
 	return d.DieStamp(func(r *policyv1.PodDisruptionBudgetSpec) {
 		v := intstr.FromString(s)

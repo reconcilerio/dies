@@ -18,7 +18,6 @@ package v1beta1
 
 import (
 	storagev1beta1 "k8s.io/api/storage/v1beta1"
-	resource "k8s.io/apimachinery/pkg/api/resource"
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
@@ -31,14 +30,4 @@ func (d *CSIStorageCapacityDie) NodeTopologyDie(fn func(d *diemetav1.LabelSelect
 		fn(d)
 		r.NodeTopology = d.DieReleasePtr()
 	})
-}
-
-func (d *CSIStorageCapacityDie) CapacityString(quantity string) *CSIStorageCapacityDie {
-	q := resource.MustParse(quantity)
-	return d.Capacity(&q)
-}
-
-func (d *CSIStorageCapacityDie) MaximumVolumeSizeString(quantity string) *CSIStorageCapacityDie {
-	q := resource.MustParse(quantity)
-	return d.MaximumVolumeSize(&q)
 }

@@ -26,7 +26,7 @@ import (
 	fmtx "fmt"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
+	resource "k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -1460,6 +1460,14 @@ func (d *MetricTargetDie) Value(v *resource.Quantity) *MetricTargetDie {
 	})
 }
 
+// ValueString sets Value by parsing the string as a Quantity. Panics if the string is not parsable.
+//
+// value is the target value of the metric (as a quantity).
+func (d *MetricTargetDie) ValueString(s string) *MetricTargetDie {
+	q := resource.MustParse(s)
+	return d.Value(&q)
+}
+
 // averageValue is the target value of the average of the
 //
 // metric across all relevant pods (as a quantity)
@@ -1467,6 +1475,16 @@ func (d *MetricTargetDie) AverageValue(v *resource.Quantity) *MetricTargetDie {
 	return d.DieStamp(func(r *autoscalingv2.MetricTarget) {
 		r.AverageValue = v
 	})
+}
+
+// AverageValueString sets AverageValue by parsing the string as a Quantity. Panics if the string is not parsable.
+//
+// averageValue is the target value of the average of the
+//
+// metric across all relevant pods (as a quantity)
+func (d *MetricTargetDie) AverageValueString(s string) *MetricTargetDie {
+	q := resource.MustParse(s)
+	return d.AverageValue(&q)
 }
 
 // averageUtilization is the target value of the average of the
@@ -3991,6 +4009,14 @@ func (d *MetricValueStatusDie) Value(v *resource.Quantity) *MetricValueStatusDie
 	})
 }
 
+// ValueString sets Value by parsing the string as a Quantity. Panics if the string is not parsable.
+//
+// value is the current value of the metric (as a quantity).
+func (d *MetricValueStatusDie) ValueString(s string) *MetricValueStatusDie {
+	q := resource.MustParse(s)
+	return d.Value(&q)
+}
+
 // averageValue is the current value of the average of the
 //
 // metric across all relevant pods (as a quantity)
@@ -3998,6 +4024,16 @@ func (d *MetricValueStatusDie) AverageValue(v *resource.Quantity) *MetricValueSt
 	return d.DieStamp(func(r *autoscalingv2.MetricValueStatus) {
 		r.AverageValue = v
 	})
+}
+
+// AverageValueString sets AverageValue by parsing the string as a Quantity. Panics if the string is not parsable.
+//
+// averageValue is the current value of the average of the
+//
+// metric across all relevant pods (as a quantity)
+func (d *MetricValueStatusDie) AverageValueString(s string) *MetricValueStatusDie {
+	q := resource.MustParse(s)
+	return d.AverageValue(&q)
 }
 
 // currentAverageUtilization is the current value of the average of the

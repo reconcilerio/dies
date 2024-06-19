@@ -18,7 +18,6 @@ package v1
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
@@ -128,19 +127,6 @@ func (d *PodSpecDie) ReadinessGatesDie(gates ...*PodReadinessGateDie) *PodSpecDi
 			r.ReadinessGates[i] = gates[i].DieRelease()
 		}
 	})
-}
-
-func (d *PodSpecDie) AddOverhead(name corev1.ResourceName, quantity resource.Quantity) *PodSpecDie {
-	return d.DieStamp(func(r *corev1.PodSpec) {
-		if r.Overhead == nil {
-			r.Overhead = corev1.ResourceList{}
-		}
-		r.Overhead[name] = quantity
-	})
-}
-
-func (d *PodSpecDie) AddOverheadString(name corev1.ResourceName, quantity string) *PodSpecDie {
-	return d.AddOverhead(name, resource.MustParse(quantity))
 }
 
 func (d *PodSpecDie) TopologySpreadConstraintDie(topologyKey string, fn func(d *TopologySpreadConstraintDie)) *PodSpecDie {

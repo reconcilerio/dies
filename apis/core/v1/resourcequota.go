@@ -18,7 +18,6 @@ package v1
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 // +die:object=true,apiVersion=v1,kind=ResourceQuota
@@ -26,19 +25,6 @@ type _ = corev1.ResourceQuota
 
 // +die
 type _ = corev1.ResourceQuotaSpec
-
-func (d *ResourceQuotaSpecDie) AddHard(name corev1.ResourceName, quantity resource.Quantity) *ResourceQuotaSpecDie {
-	return d.DieStamp(func(r *corev1.ResourceQuotaSpec) {
-		if r.Hard == nil {
-			r.Hard = corev1.ResourceList{}
-		}
-		r.Hard[name] = quantity
-	})
-}
-
-func (d *ResourceQuotaSpecDie) AddHardString(name corev1.ResourceName, quantity string) *ResourceQuotaSpecDie {
-	return d.AddHard(name, resource.MustParse(quantity))
-}
 
 func (d *ResourceQuotaSpecDie) ScopeSelectorDie(fn func(d *ScopeSelectorDie)) *ResourceQuotaSpecDie {
 	return d.DieStamp(func(r *corev1.ResourceQuotaSpec) {
@@ -73,29 +59,3 @@ type _ = corev1.ScopedResourceSelectorRequirement
 
 // +die
 type _ = corev1.ResourceQuotaStatus
-
-func (d *ResourceQuotaStatusDie) AddHard(name corev1.ResourceName, quantity resource.Quantity) *ResourceQuotaStatusDie {
-	return d.DieStamp(func(r *corev1.ResourceQuotaStatus) {
-		if r.Hard == nil {
-			r.Hard = corev1.ResourceList{}
-		}
-		r.Hard[name] = quantity
-	})
-}
-
-func (d *ResourceQuotaStatusDie) AddHardString(name corev1.ResourceName, quantity string) *ResourceQuotaStatusDie {
-	return d.AddHard(name, resource.MustParse(quantity))
-}
-
-func (d *ResourceQuotaStatusDie) AddUsed(name corev1.ResourceName, quantity resource.Quantity) *ResourceQuotaStatusDie {
-	return d.DieStamp(func(r *corev1.ResourceQuotaStatus) {
-		if r.Used == nil {
-			r.Used = corev1.ResourceList{}
-		}
-		r.Used[name] = quantity
-	})
-}
-
-func (d *ResourceQuotaStatusDie) AddUsedString(name corev1.ResourceName, quantity string) *ResourceQuotaStatusDie {
-	return d.AddUsed(name, resource.MustParse(quantity))
-}

@@ -162,6 +162,11 @@ func (c *copyMethodMaker) GenerateFieldFor(field Field, die Die) {
 
 	if field.Type == "IntOrString" && field.TypePackage == "k8s.io/apimachinery/pkg/util/intstr" && (field.TypePrefix == "*" || field.TypePrefix == "") {
 		c.Linef("")
+		c.Linef("// %sInt sets %s with the int value.", field.Name, field.Name)
+		if field.Doc != "" {
+			c.Linef("//")
+			c.Linef("%s", c.Doc(field.Doc))
+		}
 		c.Linef("func (d *%s) %sInt(i int) *%s {", field.Receiver, field.Name, die.Type)
 		c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
 		c.Linef("		v := %s(i)", c.AliasedRef(field.TypePackage, "FromInt"))
@@ -174,6 +179,11 @@ func (c *copyMethodMaker) GenerateFieldFor(field Field, die Die) {
 		c.Linef("}")
 
 		c.Linef("")
+		c.Linef("// %sString sets %s with the string value.", field.Name, field.Name)
+		if field.Doc != "" {
+			c.Linef("//")
+			c.Linef("%s", c.Doc(field.Doc))
+		}
 		c.Linef("func (d *%s) %sString(s string) *%s {", field.Receiver, field.Name, die.Type)
 		c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
 		c.Linef("		v := %s(s)", c.AliasedRef(field.TypePackage, "FromString"))
@@ -183,6 +193,54 @@ func (c *copyMethodMaker) GenerateFieldFor(field Field, die Die) {
 			c.Linef("		r.%s = v", field.Name)
 		}
 		c.Linef("	})")
+		c.Linef("}")
+	}
+
+	if field.Type == "Quantity" && field.TypePackage == "k8s.io/apimachinery/pkg/api/resource" && (field.TypePrefix == "*" || field.TypePrefix == "") {
+		c.Linef("")
+		c.Linef("// %sString sets %s by parsing the string as a Quantity. Panics if the string is not parsable.", field.Name, field.Name)
+		if field.Doc != "" {
+			c.Linef("//")
+			c.Linef("%s", c.Doc(field.Doc))
+		}
+		c.Linef("func (d *%s) %sString(s string) *%s {", field.Receiver, field.Name, die.Type)
+		c.Linef("	q := %s(s)", c.AliasedRef("k8s.io/apimachinery/pkg/api/resource", "MustParse"))
+		if field.TypePrefix == "*" {
+			c.Linef("	return d.%s(&q)", field.Name)
+		} else {
+			c.Linef("	return d.%s(q)", field.Name)
+		}
+		c.Linef("}")
+	}
+
+	if field.Type == "ResourceList" && field.TypePackage == "k8s.io/api/core/v1" {
+		// TODO(scothis) allow a user to override the singularization
+		singular := strings.TrimSuffix(field.Name, "s")
+
+		c.Linef("")
+		c.Linef("// Add%s sets a single quantity on the %s resource list.", singular, field.Name)
+		if field.Doc != "" {
+			c.Linef("//")
+			c.Linef("%s", c.Doc(field.Doc))
+		}
+		c.Linef("func (d *%s) Add%s(name %s, quantity %s) *%s {", field.Receiver, singular, c.AliasedRef("k8s.io/api/core/v1", "ResourceName"), c.AliasedRef("k8s.io/apimachinery/pkg/api/resource", "Quantity"), die.Type)
+		c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
+		c.Linef("		if r.%s == nil {", field.Name)
+		c.Linef("			r.%s = %s{}", field.Name, c.AliasedRef("k8s.io/api/core/v1", "ResourceList"))
+		c.Linef("		}")
+		c.Linef("		r.%s[name] = quantity", field.Name)
+		c.Linef("	})")
+		c.Linef("}")
+
+		c.Linef("")
+		c.Linef("// Add%sString parses the quantity setting a single value on the %s resource list. Panics if the string is not parsable.", singular, field.Name)
+		if field.Doc != "" {
+			c.Linef("//")
+			c.Linef("%s", c.Doc(field.Doc))
+		}
+		c.Linef("func (d *%s) Add%sString(name %s, quantity string) *%s {", field.Receiver, singular, c.AliasedRef("k8s.io/api/core/v1", "ResourceName"), die.Type)
+		c.Linef("	q := %s(quantity)", c.AliasedRef("k8s.io/apimachinery/pkg/api/resource", "MustParse"))
+		c.Linef("	return d.Add%s(name, q)", singular)
 		c.Linef("}")
 	}
 }

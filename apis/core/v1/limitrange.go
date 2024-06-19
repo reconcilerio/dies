@@ -18,7 +18,6 @@ package v1
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 // +die:object=true,apiVersion=v1,kind=LimitRange
@@ -38,68 +37,3 @@ func (d *LimitRangeSpecDie) LimitsDie(limits ...*LimitRangeItemDie) *LimitRangeS
 
 // +die
 type _ = corev1.LimitRangeItem
-
-func (d *LimitRangeItemDie) AddMax(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
-	return d.DieStamp(func(r *corev1.LimitRangeItem) {
-		if r.Max == nil {
-			r.Max = corev1.ResourceList{}
-		}
-		r.Max[name] = quantity
-	})
-}
-
-func (d *LimitRangeItemDie) AddMaxString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
-	return d.AddMax(name, resource.MustParse(quantity))
-}
-
-func (d *LimitRangeItemDie) AddMin(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
-	return d.DieStamp(func(r *corev1.LimitRangeItem) {
-		if r.Min == nil {
-			r.Min = corev1.ResourceList{}
-		}
-		r.Min[name] = quantity
-	})
-}
-
-func (d *LimitRangeItemDie) AddMinString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
-	return d.AddMin(name, resource.MustParse(quantity))
-}
-
-func (d *LimitRangeItemDie) AddDefault(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
-	return d.DieStamp(func(r *corev1.LimitRangeItem) {
-		if r.Default == nil {
-			r.Default = corev1.ResourceList{}
-		}
-		r.Default[name] = quantity
-	})
-}
-
-func (d *LimitRangeItemDie) AddDefaultString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
-	return d.AddDefault(name, resource.MustParse(quantity))
-}
-
-func (d *LimitRangeItemDie) AddDefaultRequest(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
-	return d.DieStamp(func(r *corev1.LimitRangeItem) {
-		if r.DefaultRequest == nil {
-			r.DefaultRequest = corev1.ResourceList{}
-		}
-		r.DefaultRequest[name] = quantity
-	})
-}
-
-func (d *LimitRangeItemDie) AddDefaultRequestString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
-	return d.AddDefaultRequest(name, resource.MustParse(quantity))
-}
-
-func (d *LimitRangeItemDie) AddMaxLimitRequestRatio(name corev1.ResourceName, quantity resource.Quantity) *LimitRangeItemDie {
-	return d.DieStamp(func(r *corev1.LimitRangeItem) {
-		if r.MaxLimitRequestRatio == nil {
-			r.MaxLimitRequestRatio = corev1.ResourceList{}
-		}
-		r.MaxLimitRequestRatio[name] = quantity
-	})
-}
-
-func (d *LimitRangeItemDie) AddMaxLimitRequestRatioString(name corev1.ResourceName, quantity string) *LimitRangeItemDie {
-	return d.AddMaxLimitRequestRatio(name, resource.MustParse(quantity))
-}

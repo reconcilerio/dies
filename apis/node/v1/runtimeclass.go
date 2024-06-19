@@ -19,7 +19,6 @@ package v1
 import (
 	corev1 "k8s.io/api/core/v1"
 	nodev1 "k8s.io/api/node/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 	diecorev1 "reconciler.io/dies/apis/core/v1"
 )
 
@@ -28,19 +27,6 @@ type _ = nodev1.RuntimeClass
 
 // +die
 type _ = nodev1.Overhead
-
-func (d *OverheadDie) AddPodFixed(name corev1.ResourceName, quantity resource.Quantity) *OverheadDie {
-	return d.DieStamp(func(r *nodev1.Overhead) {
-		if r.PodFixed == nil {
-			r.PodFixed = corev1.ResourceList{}
-		}
-		r.PodFixed[name] = quantity
-	})
-}
-
-func (d *OverheadDie) AddPodFixedString(name corev1.ResourceName, quantity string) *OverheadDie {
-	return d.AddPodFixed(name, resource.MustParse(quantity))
-}
 
 // +die
 type _ = nodev1.Scheduling

@@ -19,7 +19,6 @@ package v2
 import (
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	corev1 "k8s.io/api/core/v1"
-	resource "k8s.io/apimachinery/pkg/api/resource"
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
@@ -129,16 +128,6 @@ func (d *ObjectMetricSourceDie) MetricDie(fn func(d *MetricIdentifierDie)) *Obje
 
 // +die
 type _ = autoscalingv2.MetricTarget
-
-func (d *MetricTargetDie) ValueString(quantity string) *MetricTargetDie {
-	q := resource.MustParse(quantity)
-	return d.Value(&q)
-}
-
-func (d *MetricTargetDie) AverageValueString(quantity string) *MetricTargetDie {
-	q := resource.MustParse(quantity)
-	return d.AverageValue(&q)
-}
 
 // +die
 type _ = autoscalingv2.MetricIdentifier
@@ -345,16 +334,6 @@ func (d *ObjectMetricStatusDie) DescribedObjectDie(fn func(d *CrossVersionObject
 
 // +die
 type _ = autoscalingv2.MetricValueStatus
-
-func (d *MetricValueStatusDie) ValueString(quantity string) *MetricValueStatusDie {
-	q := resource.MustParse(quantity)
-	return d.Value(&q)
-}
-
-func (d *MetricValueStatusDie) AverageValueString(quantity string) *MetricValueStatusDie {
-	q := resource.MustParse(quantity)
-	return d.AverageValue(&q)
-}
 
 // +die
 type _ = autoscalingv2.PodsMetricStatus
