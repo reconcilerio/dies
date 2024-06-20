@@ -18,38 +18,16 @@ package v1
 
 import (
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
-	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 // +die:object=true,apiVersion=admissionregistration.k8s.io/v1,kind=ValidatingAdmissionPolicyBinding
 type _ = admissionregistrationv1.ValidatingAdmissionPolicyBinding
 
 // +die
+// +die:field:name=ParamRef,die=ParamRefDie,pointer=true
+// +die:field:name=MatchResources,die=MatchResourcesDie,pointer=true
 type _ = admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec
 
-func (d *ValidatingAdmissionPolicyBindingSpecDie) ParamRefDie(fn func(d *ParamRefDie)) *ValidatingAdmissionPolicyBindingSpecDie {
-	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec) {
-		d := ParamRefBlank.DieImmutable(false).DieFeedPtr(r.ParamRef)
-		fn(d)
-		r.ParamRef = d.DieReleasePtr()
-	})
-}
-
-func (d *ValidatingAdmissionPolicyBindingSpecDie) MatchResourcesDie(fn func(d *MatchResourcesDie)) *ValidatingAdmissionPolicyBindingSpecDie {
-	return d.DieStamp(func(r *admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec) {
-		d := MatchResourcesBlank.DieImmutable(false).DieFeedPtr(r.MatchResources)
-		fn(d)
-		r.MatchResources = d.DieReleasePtr()
-	})
-}
-
 // +die
+// +die:field:name=Selector,package=_/meta/v1,die=LabelSelectorDie,pointer=true
 type _ = admissionregistrationv1.ParamRef
-
-func (d *ParamRefDie) SelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *ParamRefDie {
-	return d.DieStamp(func(r *admissionregistrationv1.ParamRef) {
-		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
-		fn(d)
-		r.Selector = d.DieReleasePtr()
-	})
-}

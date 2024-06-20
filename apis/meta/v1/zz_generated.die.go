@@ -23,16 +23,16 @@ package v1
 
 import (
 	fmtx "fmt"
-	cmp "github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	json "k8s.io/apimachinery/pkg/util/json"
-	jsonpath "k8s.io/client-go/util/jsonpath"
+	"k8s.io/client-go/util/jsonpath"
 	osx "os"
-	patch "reconciler.io/dies/patch"
+	"reconciler.io/dies/patch"
 	reflectx "reflect"
-	yaml "sigs.k8s.io/yaml"
+	"sigs.k8s.io/yaml"
 )
 
 var ConditionBlank = (&ConditionDie{}).DieFeed(metav1.Condition{})
@@ -2067,6 +2067,30 @@ func (d *ObjectMetaDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ManagedFieldsDie replaces ManagedFields by collecting the released value from each die passed.
+//
+// # ManagedFields maps workflow-id and version to the set of fields
+//
+// that are managed by that workflow. This is mostly for internal
+//
+// housekeeping, and users typically shouldn't need to set or
+//
+// understand this field. A workflow can be the user's name, a
+//
+// controller's name, or the name of a specific apply path like
+//
+// "ci-cd". The set of fields is always in the version that the
+//
+// workflow used when modifying the object.
+func (d *ObjectMetaDie) ManagedFieldsDie(v ...*ManagedFieldsEntryDie) *ObjectMetaDie {
+	return d.DieStamp(func(r *metav1.ObjectMeta) {
+		r.ManagedFields = make([]metav1.ManagedFieldsEntry, len(v))
+		for i := range v {
+			r.ManagedFields[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // Name must be unique within a namespace. Is required when creating resources, although
 //
 // some resources may allow a client to request the generation of an appropriate name
@@ -3125,6 +3149,36 @@ func (d *StatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ListMetaDie mutates ListMeta as a die.
+//
+// Standard list metadata.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *StatusDie) ListMetaDie(fn func(d *ListMetaDie)) *StatusDie {
+	return d.DieStamp(func(r *metav1.Status) {
+		d := ListMetaBlank.DieImmutable(false).DieFeed(r.ListMeta)
+		fn(d)
+		r.ListMeta = d.DieRelease()
+	})
+}
+
+// DetailsDie mutates Details as a die.
+//
+// Extended data associated with the reason.  Each reason may define its
+//
+// own extended details. This field is optional and the data returned
+//
+// is not guaranteed to conform to any schema except that defined by
+//
+// the reason type.
+func (d *StatusDie) DetailsDie(fn func(d *StatusDetailsDie)) *StatusDie {
+	return d.DieStamp(func(r *metav1.Status) {
+		d := StatusDetailsBlank.DieImmutable(false).DieFeedPtr(r.Details)
+		fn(d)
+		r.Details = d.DieReleasePtr()
+	})
+}
+
 func (d *StatusDie) TypeMeta(v metav1.TypeMeta) *StatusDie {
 	return d.DieStamp(func(r *metav1.Status) {
 		r.TypeMeta = v
@@ -3417,6 +3471,20 @@ func (d *StatusDetailsDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *StatusDetailsDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// CausesDie replaces Causes by collecting the released value from each die passed.
+//
+// # The Causes array includes more details associated with the StatusReason
+//
+// failure. Not all StatusReasons may provide detailed causes.
+func (d *StatusDetailsDie) CausesDie(v ...*StatusCauseDie) *StatusDetailsDie {
+	return d.DieStamp(func(r *metav1.StatusDetails) {
+		r.Causes = make([]metav1.StatusCause, len(v))
+		for i := range v {
+			r.Causes[i] = v[i].DieRelease()
+		}
+	})
 }
 
 // The name attribute of the resource associated with the status StatusReason

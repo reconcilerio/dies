@@ -24,15 +24,8 @@ import (
 type _ = authenticationv1.TokenReview
 
 // +die
+// +die:field:name=BoundObjectRef,die=BoundObjectReferenceDie,pointer=true
 type _ = authenticationv1.TokenRequestSpec
-
-func (d *TokenRequestSpecDie) BoundObjectRefDie(fn func(d *BoundObjectReferenceDie)) *TokenRequestSpecDie {
-	return d.DieStamp(func(r *authenticationv1.TokenRequestSpec) {
-		d := BoundObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.BoundObjectRef)
-		fn(d)
-		r.BoundObjectRef = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ = authenticationv1.BoundObjectReference

@@ -36,16 +36,8 @@ type _ = corev1.TypedObjectReference
 type _ = corev1.SecretReference
 
 // +die
+// +die:field:name=MatchLabelExpressions,die=TopologySelectorLabelRequirementDie,listType=atomic
 type _ = corev1.TopologySelectorTerm
-
-func (d *TopologySelectorTermDie) MatchLabelExpressionsDie(requirements ...*TopologySelectorLabelRequirementDie) *TopologySelectorTermDie {
-	return d.DieStamp(func(r *corev1.TopologySelectorTerm) {
-		r.MatchLabelExpressions = make([]corev1.TopologySelectorLabelRequirement, len(requirements))
-		for i := range requirements {
-			r.MatchLabelExpressions[i] = requirements[i].DieRelease()
-		}
-	})
-}
 
 // +die
 type _ = corev1.TopologySelectorLabelRequirement

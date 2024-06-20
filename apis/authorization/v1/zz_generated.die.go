@@ -961,6 +961,28 @@ func (d *SelfSubjectAccessReviewSpecDie) DiePatch(patchType types.PatchType) ([]
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ResourceAttributesDie mutates ResourceAttributes as a die.
+//
+// ResourceAuthorizationAttributes describes information for a resource access request
+func (d *SelfSubjectAccessReviewSpecDie) ResourceAttributesDie(fn func(d *ResourceAttributesDie)) *SelfSubjectAccessReviewSpecDie {
+	return d.DieStamp(func(r *authorizationv1.SelfSubjectAccessReviewSpec) {
+		d := ResourceAttributesBlank.DieImmutable(false).DieFeedPtr(r.ResourceAttributes)
+		fn(d)
+		r.ResourceAttributes = d.DieReleasePtr()
+	})
+}
+
+// NonResourceAttributesDie mutates NonResourceAttributes as a die.
+//
+// NonResourceAttributes describes information for a non-resource access request
+func (d *SelfSubjectAccessReviewSpecDie) NonResourceAttributesDie(fn func(d *NonResourceAttributesDie)) *SelfSubjectAccessReviewSpecDie {
+	return d.DieStamp(func(r *authorizationv1.SelfSubjectAccessReviewSpec) {
+		d := NonResourceAttributesBlank.DieImmutable(false).DieFeedPtr(r.NonResourceAttributes)
+		fn(d)
+		r.NonResourceAttributes = d.DieReleasePtr()
+	})
+}
+
 // ResourceAuthorizationAttributes describes information for a resource access request
 func (d *SelfSubjectAccessReviewSpecDie) ResourceAttributes(v *authorizationv1.ResourceAttributes) *SelfSubjectAccessReviewSpecDie {
 	return d.DieStamp(func(r *authorizationv1.SelfSubjectAccessReviewSpec) {
@@ -1791,6 +1813,34 @@ func (d *SubjectRulesReviewStatusDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *SubjectRulesReviewStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// ResourceRulesDie replaces ResourceRules by collecting the released value from each die passed.
+//
+// ResourceRules is the list of actions the subject is allowed to perform on resources.
+//
+// The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
+func (d *SubjectRulesReviewStatusDie) ResourceRulesDie(v ...*ResourceRuleDie) *SubjectRulesReviewStatusDie {
+	return d.DieStamp(func(r *authorizationv1.SubjectRulesReviewStatus) {
+		r.ResourceRules = make([]authorizationv1.ResourceRule, len(v))
+		for i := range v {
+			r.ResourceRules[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// NonResourceRulesDie replaces NonResourceRules by collecting the released value from each die passed.
+//
+// NonResourceRules is the list of actions the subject is allowed to perform on non-resources.
+//
+// The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
+func (d *SubjectRulesReviewStatusDie) NonResourceRulesDie(v ...*NonResourceRuleDie) *SubjectRulesReviewStatusDie {
+	return d.DieStamp(func(r *authorizationv1.SubjectRulesReviewStatus) {
+		r.NonResourceRules = make([]authorizationv1.NonResourceRule, len(v))
+		for i := range v {
+			r.NonResourceRules[i] = v[i].DieRelease()
+		}
+	})
 }
 
 // ResourceRules is the list of actions the subject is allowed to perform on resources.
@@ -2916,6 +2966,28 @@ func (d *SubjectAccessReviewSpecDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *SubjectAccessReviewSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// ResourceAttributesDie mutates ResourceAttributes as a die.
+//
+// ResourceAuthorizationAttributes describes information for a resource access request
+func (d *SubjectAccessReviewSpecDie) ResourceAttributesDie(fn func(d *ResourceAttributesDie)) *SubjectAccessReviewSpecDie {
+	return d.DieStamp(func(r *authorizationv1.SubjectAccessReviewSpec) {
+		d := ResourceAttributesBlank.DieImmutable(false).DieFeedPtr(r.ResourceAttributes)
+		fn(d)
+		r.ResourceAttributes = d.DieReleasePtr()
+	})
+}
+
+// NonResourceAttributesDie mutates NonResourceAttributes as a die.
+//
+// NonResourceAttributes describes information for a non-resource access request
+func (d *SubjectAccessReviewSpecDie) NonResourceAttributesDie(fn func(d *NonResourceAttributesDie)) *SubjectAccessReviewSpecDie {
+	return d.DieStamp(func(r *authorizationv1.SubjectAccessReviewSpec) {
+		d := NonResourceAttributesBlank.DieImmutable(false).DieFeedPtr(r.NonResourceAttributes)
+		fn(d)
+		r.NonResourceAttributes = d.DieReleasePtr()
+	})
 }
 
 // ResourceAuthorizationAttributes describes information for a resource access request

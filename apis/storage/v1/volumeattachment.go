@@ -18,52 +18,23 @@ package v1
 
 import (
 	storagev1 "k8s.io/api/storage/v1"
-	diecorev1 "reconciler.io/dies/apis/core/v1"
 )
 
 // +die:object=true,apiVersion=storage.k8s.io/v1,kind=VolumeAttachment
 type _ = storagev1.VolumeAttachment
 
 // +die
+// +die:field:name=Source,die=VolumeAttachmentSourceDie
 type _ = storagev1.VolumeAttachmentSpec
 
-func (d *VolumeAttachmentSpecDie) SourceDie(fn func(d *VolumeAttachmentSourceDie)) *VolumeAttachmentSpecDie {
-	return d.DieStamp(func(r *storagev1.VolumeAttachmentSpec) {
-		d := VolumeAttachmentSourceBlank.DieImmutable(false).DieFeed(r.Source)
-		fn(d)
-		r.Source = d.DieRelease()
-	})
-}
-
 // +die
+// +die:field:name=InlineVolumeSpec,package=_/core/v1,die=PersistentVolumeSpecDie,pointer=true
 type _ = storagev1.VolumeAttachmentSource
 
-func (d *VolumeAttachmentSourceDie) SourceDie(fn func(d *diecorev1.PersistentVolumeSpecDie)) *VolumeAttachmentSourceDie {
-	return d.DieStamp(func(r *storagev1.VolumeAttachmentSource) {
-		d := diecorev1.PersistentVolumeSpecBlank.DieImmutable(false).DieFeedPtr(r.InlineVolumeSpec)
-		fn(d)
-		r.InlineVolumeSpec = d.DieReleasePtr()
-	})
-}
-
 // +die
+// +die:field:name=AttachError,die=VolumeErrorDie,pointer=true
+// +die:field:name=DetachError,die=VolumeErrorDie,pointer=true
 type _ = storagev1.VolumeAttachmentStatus
-
-func (d *VolumeAttachmentStatusDie) AttachErrorDie(fn func(d *VolumeErrorDie)) *VolumeAttachmentStatusDie {
-	return d.DieStamp(func(r *storagev1.VolumeAttachmentStatus) {
-		d := VolumeErrorBlank.DieImmutable(false).DieFeedPtr(r.AttachError)
-		fn(d)
-		r.AttachError = d.DieReleasePtr()
-	})
-}
-
-func (d *VolumeAttachmentStatusDie) DetachErrorDie(fn func(d *VolumeErrorDie)) *VolumeAttachmentStatusDie {
-	return d.DieStamp(func(r *storagev1.VolumeAttachmentStatus) {
-		d := VolumeErrorBlank.DieImmutable(false).DieFeedPtr(r.DetachError)
-		fn(d)
-		r.DetachError = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ = storagev1.VolumeError

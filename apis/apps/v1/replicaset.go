@@ -19,7 +19,6 @@ package v1
 import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	diecorev1 "reconciler.io/dies/apis/core/v1"
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
@@ -27,23 +26,9 @@ import (
 type _ = appsv1.ReplicaSet
 
 // +die
+// +die:field:name=Selector,package=_/meta/v1,die=LabelSelectorDie,pointer=true
+// +die:field:name=Template,package=_/core/v1,die=PodTemplateSpecDie
 type _ = appsv1.ReplicaSetSpec
-
-func (d *ReplicaSetSpecDie) SelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *ReplicaSetSpecDie {
-	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
-		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
-		fn(d)
-		r.Selector = d.DieReleasePtr()
-	})
-}
-
-func (d *ReplicaSetSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *ReplicaSetSpecDie {
-	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
-		d := diecorev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
-		fn(d)
-		r.Template = d.DieRelease()
-	})
-}
 
 // +die
 type _ = appsv1.ReplicaSetStatus

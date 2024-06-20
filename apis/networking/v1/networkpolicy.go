@@ -18,112 +18,35 @@ package v1
 
 import (
 	networkingv1 "k8s.io/api/networking/v1"
-	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 // +die:object=true,apiVersion=networking.k8s.io/v1,kind=NetworkPolicy
 type _ = networkingv1.NetworkPolicy
 
 // +die
+// +die:field:name=PodSelector,package=_/meta/v1,die=LabelSelectorDie
+// +die:field:name=Ingress,die=NetworkPolicyIngressRuleDie,listType=atomic
+// +die:field:name=Egress,die=NetworkPolicyEgressRuleDie,listType=atomic
 type _ = networkingv1.NetworkPolicySpec
 
-func (d *NetworkPolicySpecDie) PodSelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *NetworkPolicySpecDie {
-	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
-		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeed(r.PodSelector)
-		fn(d)
-		r.PodSelector = d.DieRelease()
-	})
-}
-
-func (d *NetworkPolicySpecDie) IngressDie(ingress ...*NetworkPolicyIngressRuleDie) *NetworkPolicySpecDie {
-	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
-		r.Ingress = make([]networkingv1.NetworkPolicyIngressRule, len(ingress))
-		for i := range ingress {
-			r.Ingress[i] = ingress[i].DieRelease()
-		}
-	})
-}
-
-func (d *NetworkPolicySpecDie) EgressDie(egress ...*NetworkPolicyEgressRuleDie) *NetworkPolicySpecDie {
-	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
-		r.Egress = make([]networkingv1.NetworkPolicyEgressRule, len(egress))
-		for i := range egress {
-			r.Egress[i] = egress[i].DieRelease()
-		}
-	})
-}
-
 // +die
+// +die:field:name=Ports,die=NetworkPolicyPortDie,listType=atomic
+// +die:field:name=From,die=NetworkPolicyPeerDie,listType=atomic
 type _ = networkingv1.NetworkPolicyIngressRule
 
-func (d *NetworkPolicyIngressRuleDie) PortsDie(ports ...*NetworkPolicyPortDie) *NetworkPolicyIngressRuleDie {
-	return d.DieStamp(func(r *networkingv1.NetworkPolicyIngressRule) {
-		r.Ports = make([]networkingv1.NetworkPolicyPort, len(ports))
-		for i := range ports {
-			r.Ports[i] = ports[i].DieRelease()
-		}
-	})
-}
-
-func (d *NetworkPolicyIngressRuleDie) FromDie(from ...*NetworkPolicyPeerDie) *NetworkPolicyIngressRuleDie {
-	return d.DieStamp(func(r *networkingv1.NetworkPolicyIngressRule) {
-		r.From = make([]networkingv1.NetworkPolicyPeer, len(from))
-		for i := range from {
-			r.From[i] = from[i].DieRelease()
-		}
-	})
-}
-
 // +die
+// +die:field:name=Ports,die=NetworkPolicyPortDie,listType=atomic
+// +die:field:name=To,die=NetworkPolicyPeerDie,listType=atomic
 type _ = networkingv1.NetworkPolicyEgressRule
-
-func (d *NetworkPolicyEgressRuleDie) PortsDie(ports ...*NetworkPolicyPortDie) *NetworkPolicyEgressRuleDie {
-	return d.DieStamp(func(r *networkingv1.NetworkPolicyEgressRule) {
-		r.Ports = make([]networkingv1.NetworkPolicyPort, len(ports))
-		for i := range ports {
-			r.Ports[i] = ports[i].DieRelease()
-		}
-	})
-}
-
-func (d *NetworkPolicyEgressRuleDie) ToDie(to ...*NetworkPolicyPeerDie) *NetworkPolicyEgressRuleDie {
-	return d.DieStamp(func(r *networkingv1.NetworkPolicyEgressRule) {
-		r.To = make([]networkingv1.NetworkPolicyPeer, len(to))
-		for i := range to {
-			r.To[i] = to[i].DieRelease()
-		}
-	})
-}
 
 // +die
 type _ = networkingv1.NetworkPolicyPort
 
 // +die
+// +die:field:name=PodSelector,package=_/meta/v1,die=LabelSelectorDie,pointer=true
+// +die:field:name=NamespaceSelector,package=_/meta/v1,die=LabelSelectorDie,pointer=true
+// +die:field:name=IPBlock,die=IPBlockDie,pointer=true
 type _ = networkingv1.NetworkPolicyPeer
-
-func (d *NetworkPolicyPeerDie) PodSelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *NetworkPolicyPeerDie {
-	return d.DieStamp(func(r *networkingv1.NetworkPolicyPeer) {
-		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.PodSelector)
-		fn(d)
-		r.PodSelector = d.DieReleasePtr()
-	})
-}
-
-func (d *NetworkPolicyPeerDie) NamespaceSelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *NetworkPolicyPeerDie {
-	return d.DieStamp(func(r *networkingv1.NetworkPolicyPeer) {
-		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.NamespaceSelector)
-		fn(d)
-		r.NamespaceSelector = d.DieReleasePtr()
-	})
-}
-
-func (d *NetworkPolicyPeerDie) IPBlockDie(fn func(d *IPBlockDie)) *NetworkPolicyPeerDie {
-	return d.DieStamp(func(r *networkingv1.NetworkPolicyPeer) {
-		d := IPBlockBlank.DieImmutable(false).DieFeedPtr(r.IPBlock)
-		fn(d)
-		r.IPBlock = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ = networkingv1.IPBlock

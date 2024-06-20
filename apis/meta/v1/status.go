@@ -21,6 +21,8 @@ import (
 )
 
 // +die
+// +die:field:name=ListMeta,die=ListMetaDie
+// +die:field:name=Details,die=StatusDetailsDie,pointer=true
 type _ = metav1.Status
 
 // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
@@ -37,34 +39,9 @@ func (d *StatusDie) APIVersion(v string) *StatusDie {
 	})
 }
 
-func (d *StatusDie) ListMetaDie(fn func(d *ListMetaDie)) *StatusDie {
-	return d.DieStamp(func(r *metav1.Status) {
-		d := ListMetaBlank.DieImmutable(false).DieFeed(r.ListMeta)
-		fn(d)
-		r.ListMeta = d.DieRelease()
-	})
-}
-
-func (d *StatusDie) DetailDie(fn func(d *StatusDetailsDie)) *StatusDie {
-	return d.DieStamp(func(r *metav1.Status) {
-		d := StatusDetailsBlank.DieImmutable(false).DieFeedPtr(r.Details)
-		fn(d)
-		r.Details = d.DieReleasePtr()
-	})
-}
-
 // +die
+// +die:field:name=Causes,die=StatusCauseDie,listType=atomic
 type _ = metav1.StatusDetails
-
-func (d *StatusDetailsDie) CausesDie(causes ...*StatusCauseDie) *StatusDetailsDie {
-	return d.DieStamp(func(r *metav1.StatusDetails) {
-		r.Causes = make([]metav1.StatusCause, len(causes))
-		for i := range causes {
-			c := causes[i].DieRelease()
-			r.Causes[i] = c
-		}
-	})
-}
 
 // +die
 type _ = metav1.StatusCause

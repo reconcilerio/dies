@@ -25,45 +25,17 @@ import (
 type _ = flowcontrolv1beta1.PriorityLevelConfiguration
 
 // +die
+// +die:field:name=Limited,die=LimitedPriorityLevelConfigurationDie,pointer=true
+// +die:field:name=Exempt,die=ExemptPriorityLevelConfigurationDie,pointer=true
 type _ = flowcontrolv1beta1.PriorityLevelConfigurationSpec
 
-func (d *PriorityLevelConfigurationSpecDie) LimitedDie(fn func(d *LimitedPriorityLevelConfigurationDie)) *PriorityLevelConfigurationSpecDie {
-	return d.DieStamp(func(r *flowcontrolv1beta1.PriorityLevelConfigurationSpec) {
-		d := LimitedPriorityLevelConfigurationBlank.DieImmutable(false).DieFeedPtr(r.Limited)
-		fn(d)
-		r.Limited = d.DieReleasePtr()
-	})
-}
-
-func (d *PriorityLevelConfigurationSpecDie) ExemptDie(fn func(d *ExemptPriorityLevelConfigurationDie)) *PriorityLevelConfigurationSpecDie {
-	return d.DieStamp(func(r *flowcontrolv1beta1.PriorityLevelConfigurationSpec) {
-		d := ExemptPriorityLevelConfigurationBlank.DieImmutable(false).DieFeedPtr(r.Exempt)
-		fn(d)
-		r.Exempt = d.DieReleasePtr()
-	})
-}
-
 // +die
+// +die:field:name=LimitResponse,die=LimitResponseDie
 type _ = flowcontrolv1beta1.LimitedPriorityLevelConfiguration
 
-func (d *LimitedPriorityLevelConfigurationDie) LimitResponseDie(fn func(d *LimitResponseDie)) *LimitedPriorityLevelConfigurationDie {
-	return d.DieStamp(func(r *flowcontrolv1beta1.LimitedPriorityLevelConfiguration) {
-		d := LimitResponseBlank.DieImmutable(false).DieFeed(r.LimitResponse)
-		fn(d)
-		r.LimitResponse = d.DieRelease()
-	})
-}
-
 // +die
+// +die:field:name=Queuing,die=QueuingConfigurationDie,pointer=true
 type _ = flowcontrolv1beta1.LimitResponse
-
-func (d *LimitResponseDie) QueuingDie(fn func(d *QueuingConfigurationDie)) *LimitResponseDie {
-	return d.DieStamp(func(r *flowcontrolv1beta1.LimitResponse) {
-		d := QueuingConfigurationBlank.DieImmutable(false).DieFeedPtr(r.Queuing)
-		fn(d)
-		r.Queuing = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ = flowcontrolv1beta1.ExemptPriorityLevelConfiguration

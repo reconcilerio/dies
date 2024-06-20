@@ -24,7 +24,7 @@ package v1
 import (
 	fmtx "fmt"
 	cmp "github.com/google/go-cmp/cmp"
-	corev1 "k8s.io/api/core/v1"
+	apicorev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 	resource "k8s.io/apimachinery/pkg/api/resource"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -35,6 +35,7 @@ import (
 	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
+	corev1 "reconciler.io/dies/apis/core/v1"
 	metav1 "reconciler.io/dies/apis/meta/v1"
 	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
@@ -606,6 +607,44 @@ func (d *CSIDriverSpecDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *CSIDriverSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// TokenRequestsDie replaces TokenRequests by collecting the released value from each die passed.
+//
+// tokenRequests indicates the CSI driver needs pods' service account
+//
+// tokens it is mounting volume for to do necessary authentication. Kubelet
+//
+// will pass the tokens in VolumeContext in the CSI NodePublishVolume calls.
+//
+// The CSI driver should parse and validate the following VolumeContext:
+//
+// "csi.storage.k8s.io/serviceAccount.tokens": {
+//
+// "<audience>": {
+//
+// "token": <token>,
+//
+// "expirationTimestamp": <expiration timestamp in RFC3339>,
+//
+// },
+//
+// ...
+//
+// }
+//
+// Note: Audience in each TokenRequest should be different and at
+//
+// most one token is empty string. To receive a new token after expiry,
+//
+// RequiresRepublish can be used to trigger NodePublishVolume periodically.
+func (d *CSIDriverSpecDie) TokenRequestsDie(v ...*TokenRequestDie) *CSIDriverSpecDie {
+	return d.DieStamp(func(r *storagev1.CSIDriverSpec) {
+		r.TokenRequests = make([]storagev1.TokenRequest, len(v))
+		for i := range v {
+			r.TokenRequests[i] = v[i].DieRelease()
+		}
+	})
 }
 
 // attachRequired indicates this CSI volume driver requires an attach
@@ -1653,6 +1692,20 @@ func (d *CSINodeSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// DriversDie replaces Drivers by collecting the released value from each die passed.
+//
+// drivers is a list of information of all CSI Drivers existing on a node.
+//
+// If all drivers in the list are uninstalled, this can become empty.
+func (d *CSINodeSpecDie) DriversDie(v ...*CSINodeDriverDie) *CSINodeSpecDie {
+	return d.DieStamp(func(r *storagev1.CSINodeSpec) {
+		r.Drivers = make([]storagev1.CSINodeDriver, len(v))
+		for i := range v {
+			r.Drivers[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // drivers is a list of information of all CSI Drivers existing on a node.
 //
 // If all drivers in the list are uninstalled, this can become empty.
@@ -1888,6 +1941,19 @@ func (d *CSINodeDriverDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *CSINodeDriverDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// AllocatableDie mutates Allocatable as a die.
+//
+// allocatable represents the volume resources of a node that are available for scheduling.
+//
+// This field is beta.
+func (d *CSINodeDriverDie) AllocatableDie(fn func(d *VolumeNodeResourcesDie)) *CSINodeDriverDie {
+	return d.DieStamp(func(r *storagev1.CSINodeDriver) {
+		d := VolumeNodeResourcesBlank.DieImmutable(false).DieFeedPtr(r.Allocatable)
+		fn(d)
+		r.Allocatable = d.DieReleasePtr()
+	})
 }
 
 // name represents the name of the CSI driver that this object refers to.
@@ -2522,6 +2588,25 @@ func (d *CSIStorageCapacityDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *C
 	})
 }
 
+// NodeTopologyDie mutates NodeTopology as a die.
+//
+// nodeTopology defines which nodes have access to the storage
+//
+// for which capacity was reported. If not set, the storage is
+//
+// not accessible from any node in the cluster. If empty, the
+//
+// storage is accessible from all nodes. This field is
+//
+// immutable.
+func (d *CSIStorageCapacityDie) NodeTopologyDie(fn func(d *metav1.LabelSelectorDie)) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1.CSIStorageCapacity) {
+		d := metav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.NodeTopology)
+		fn(d)
+		r.NodeTopology = d.DieReleasePtr()
+	})
+}
+
 // nodeTopology defines which nodes have access to the storage
 //
 // for which capacity was reported. If not set, the storage is
@@ -2963,6 +3048,24 @@ func (d *StorageClassDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Storage
 	})
 }
 
+// AllowedTopologiesDie replaces AllowedTopologies by collecting the released value from each die passed.
+//
+// allowedTopologies restrict the node topologies where volumes can be dynamically provisioned.
+//
+// Each volume plugin defines its own supported topology specifications.
+//
+// An empty TopologySelectorTerm list means there is no topology restriction.
+//
+// This field is only honored by servers that enable the VolumeScheduling feature.
+func (d *StorageClassDie) AllowedTopologiesDie(v ...*corev1.TopologySelectorTermDie) *StorageClassDie {
+	return d.DieStamp(func(r *storagev1.StorageClass) {
+		r.AllowedTopologies = make([]apicorev1.TopologySelectorTerm, len(v))
+		for i := range v {
+			r.AllowedTopologies[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // provisioner indicates the type of the provisioner.
 func (d *StorageClassDie) Provisioner(v string) *StorageClassDie {
 	return d.DieStamp(func(r *storagev1.StorageClass) {
@@ -2982,7 +3085,7 @@ func (d *StorageClassDie) Parameters(v map[string]string) *StorageClassDie {
 // reclaimPolicy controls the reclaimPolicy for dynamically provisioned PersistentVolumes of this storage class.
 //
 // Defaults to Delete.
-func (d *StorageClassDie) ReclaimPolicy(v *corev1.PersistentVolumeReclaimPolicy) *StorageClassDie {
+func (d *StorageClassDie) ReclaimPolicy(v *apicorev1.PersistentVolumeReclaimPolicy) *StorageClassDie {
 	return d.DieStamp(func(r *storagev1.StorageClass) {
 		r.ReclaimPolicy = v
 	})
@@ -3024,7 +3127,7 @@ func (d *StorageClassDie) VolumeBindingMode(v *storagev1.VolumeBindingMode) *Sto
 // An empty TopologySelectorTerm list means there is no topology restriction.
 //
 // This field is only honored by servers that enable the VolumeScheduling feature.
-func (d *StorageClassDie) AllowedTopologies(v ...corev1.TopologySelectorTerm) *StorageClassDie {
+func (d *StorageClassDie) AllowedTopologies(v ...apicorev1.TopologySelectorTerm) *StorageClassDie {
 	return d.DieStamp(func(r *storagev1.StorageClass) {
 		r.AllowedTopologies = v
 	})
@@ -3619,6 +3722,17 @@ func (d *VolumeAttachmentSpecDie) DiePatch(patchType types.PatchType) ([]byte, e
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SourceDie mutates Source as a die.
+//
+// source represents the volume that should be attached.
+func (d *VolumeAttachmentSpecDie) SourceDie(fn func(d *VolumeAttachmentSourceDie)) *VolumeAttachmentSpecDie {
+	return d.DieStamp(func(r *storagev1.VolumeAttachmentSpec) {
+		d := VolumeAttachmentSourceBlank.DieImmutable(false).DieFeed(r.Source)
+		fn(d)
+		r.Source = d.DieRelease()
+	})
+}
+
 // attacher indicates the name of the volume driver that MUST handle this
 //
 // request. This is the name returned by GetPluginName().
@@ -3870,6 +3984,27 @@ func (d *VolumeAttachmentSourceDie) DiePatch(patchType types.PatchType) ([]byte,
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// InlineVolumeSpecDie mutates InlineVolumeSpec as a die.
+//
+// inlineVolumeSpec contains all the information necessary to attach
+//
+// a persistent volume defined by a pod's inline VolumeSource. This field
+//
+// is populated only for the CSIMigration feature. It contains
+//
+// translated fields from a pod's inline VolumeSource to a
+//
+// PersistentVolumeSpec. This field is beta-level and is only
+//
+// honored by servers that enabled the CSIMigration feature.
+func (d *VolumeAttachmentSourceDie) InlineVolumeSpecDie(fn func(d *corev1.PersistentVolumeSpecDie)) *VolumeAttachmentSourceDie {
+	return d.DieStamp(func(r *storagev1.VolumeAttachmentSource) {
+		d := corev1.PersistentVolumeSpecBlank.DieImmutable(false).DieFeedPtr(r.InlineVolumeSpec)
+		fn(d)
+		r.InlineVolumeSpec = d.DieReleasePtr()
+	})
+}
+
 // persistentVolumeName represents the name of the persistent volume to attach.
 func (d *VolumeAttachmentSourceDie) PersistentVolumeName(v *string) *VolumeAttachmentSourceDie {
 	return d.DieStamp(func(r *storagev1.VolumeAttachmentSource) {
@@ -3888,7 +4023,7 @@ func (d *VolumeAttachmentSourceDie) PersistentVolumeName(v *string) *VolumeAttac
 // PersistentVolumeSpec. This field is beta-level and is only
 //
 // honored by servers that enabled the CSIMigration feature.
-func (d *VolumeAttachmentSourceDie) InlineVolumeSpec(v *corev1.PersistentVolumeSpec) *VolumeAttachmentSourceDie {
+func (d *VolumeAttachmentSourceDie) InlineVolumeSpec(v *apicorev1.PersistentVolumeSpec) *VolumeAttachmentSourceDie {
 	return d.DieStamp(func(r *storagev1.VolumeAttachmentSource) {
 		r.InlineVolumeSpec = v
 	})
@@ -4120,6 +4255,36 @@ func (d *VolumeAttachmentStatusDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *VolumeAttachmentStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// AttachErrorDie mutates AttachError as a die.
+//
+// attachError represents the last error encountered during attach operation, if any.
+//
+// # This field must only be set by the entity completing the attach
+//
+// operation, i.e. the external-attacher.
+func (d *VolumeAttachmentStatusDie) AttachErrorDie(fn func(d *VolumeErrorDie)) *VolumeAttachmentStatusDie {
+	return d.DieStamp(func(r *storagev1.VolumeAttachmentStatus) {
+		d := VolumeErrorBlank.DieImmutable(false).DieFeedPtr(r.AttachError)
+		fn(d)
+		r.AttachError = d.DieReleasePtr()
+	})
+}
+
+// DetachErrorDie mutates DetachError as a die.
+//
+// detachError represents the last error encountered during detach operation, if any.
+//
+// # This field must only be set by the entity completing the detach
+//
+// operation, i.e. the external-attacher.
+func (d *VolumeAttachmentStatusDie) DetachErrorDie(fn func(d *VolumeErrorDie)) *VolumeAttachmentStatusDie {
+	return d.DieStamp(func(r *storagev1.VolumeAttachmentStatus) {
+		d := VolumeErrorBlank.DieImmutable(false).DieFeedPtr(r.DetachError)
+		fn(d)
+		r.DetachError = d.DieReleasePtr()
+	})
 }
 
 // attached indicates the volume is successfully attached.

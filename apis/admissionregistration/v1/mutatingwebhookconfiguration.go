@@ -18,78 +18,16 @@ package v1
 
 import (
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
-	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 // +die:object=true,apiVersion=admissionregistration.k8s.io/v1,kind=MutatingWebhookConfiguration
+// +die:field:name=Webhooks,die=MutatingWebhookDie,listType=map
 type _ = admissionregistrationv1.MutatingWebhookConfiguration
 
-func (d *MutatingWebhookConfigurationDie) WebhookDie(name string, fn func(d *MutatingWebhookDie)) *MutatingWebhookConfigurationDie {
-	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhookConfiguration) {
-		for i := range r.Webhooks {
-			if name == r.Webhooks[i].Name {
-				d := MutatingWebhookBlank.DieImmutable(false).DieFeed(r.Webhooks[i])
-				fn(d)
-				r.Webhooks[i] = d.DieRelease()
-				return
-			}
-		}
-
-		d := MutatingWebhookBlank.DieImmutable(false).DieFeed(admissionregistrationv1.MutatingWebhook{Name: name})
-		fn(d)
-		r.Webhooks = append(r.Webhooks, d.DieRelease())
-	})
-}
-
 // +die
+// +die:field:name=ClientConfig,die=WebhookClientConfigDie
+// +die:field:name=NamespaceSelector,package=_/meta/v1,die=LabelSelectorDie,pointer=true
+// +die:field:name=ObjectSelector,package=_/meta/v1,die=LabelSelectorDie,pointer=true
+// +die:field:name=Rules,die=RuleWithOperationsDie,listType=atomic
+// +die:field:name=MatchConditions,die=MatchConditionDie,listType=map
 type _ = admissionregistrationv1.MutatingWebhook
-
-func (d *MutatingWebhookDie) ClientConfigDie(fn func(d *WebhookClientConfigDie)) *MutatingWebhookDie {
-	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
-		d := WebhookClientConfigBlank.DieImmutable(false).DieFeed(r.ClientConfig)
-		fn(d)
-		r.ClientConfig = d.DieRelease()
-	})
-}
-
-func (d *MutatingWebhookDie) RulesDie(rules ...*RuleWithOperationsDie) *MutatingWebhookDie {
-	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
-		r.Rules = make([]admissionregistrationv1.RuleWithOperations, len(rules))
-		for i := range rules {
-			r.Rules[i] = rules[i].DieRelease()
-		}
-	})
-}
-
-func (d *MutatingWebhookDie) NamespaceSelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *MutatingWebhookDie {
-	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
-		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.NamespaceSelector)
-		fn(d)
-		r.NamespaceSelector = d.DieReleasePtr()
-	})
-}
-
-func (d *MutatingWebhookDie) ObjectSelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *MutatingWebhookDie {
-	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
-		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.ObjectSelector)
-		fn(d)
-		r.ObjectSelector = d.DieReleasePtr()
-	})
-}
-
-func (d *MutatingWebhookDie) MatchConditionDie(name string, fn func(d *MatchConditionDie)) *MutatingWebhookDie {
-	return d.DieStamp(func(r *admissionregistrationv1.MutatingWebhook) {
-		for i := range r.MatchConditions {
-			if name == r.MatchConditions[i].Name {
-				d := MatchConditionBlank.DieImmutable(false).DieFeed(r.MatchConditions[i])
-				fn(d)
-				r.MatchConditions[i] = d.DieRelease()
-				return
-			}
-		}
-
-		d := MatchConditionBlank.DieImmutable(false).DieFeed(admissionregistrationv1.MatchCondition{Name: name})
-		fn(d)
-		r.MatchConditions = append(r.MatchConditions, d.DieRelease())
-	})
-}

@@ -27,25 +27,9 @@ type _ = authorizationv1.SelfSubjectRulesReview
 type _ = authorizationv1.SelfSubjectRulesReviewSpec
 
 // +die
+// +die:field:name=ResourceRules,die=ResourceRuleDie,listType=atomic
+// +die:field:name=NonResourceRules,die=NonResourceRuleDie,listType=atomic
 type _ = authorizationv1.SubjectRulesReviewStatus
-
-func (d *SubjectRulesReviewStatusDie) ResourceRulesDie(rules ...*ResourceRuleDie) *SubjectRulesReviewStatusDie {
-	return d.DieStamp(func(r *authorizationv1.SubjectRulesReviewStatus) {
-		r.ResourceRules = make([]authorizationv1.ResourceRule, len(rules))
-		for i := range rules {
-			r.ResourceRules[i] = rules[i].DieRelease()
-		}
-	})
-}
-
-func (d *SubjectRulesReviewStatusDie) NonResourceRulesDie(rules ...*NonResourceRuleDie) *SubjectRulesReviewStatusDie {
-	return d.DieStamp(func(r *authorizationv1.SubjectRulesReviewStatus) {
-		r.NonResourceRules = make([]authorizationv1.NonResourceRule, len(rules))
-		for i := range rules {
-			r.NonResourceRules[i] = rules[i].DieRelease()
-		}
-	})
-}
 
 // +die
 type _ = authorizationv1.ResourceRule

@@ -622,6 +622,62 @@ func (d *CustomResourceDefinitionSpecDie) DiePatch(patchType types.PatchType) ([
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// NamesDie mutates Names as a die.
+//
+// names specify the resource and kind names for the custom resource.
+func (d *CustomResourceDefinitionSpecDie) NamesDie(fn func(d *CustomResourceDefinitionNamesDie)) *CustomResourceDefinitionSpecDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
+		d := CustomResourceDefinitionNamesBlank.DieImmutable(false).DieFeed(r.Names)
+		fn(d)
+		r.Names = d.DieRelease()
+	})
+}
+
+// ConversionDie mutates Conversion as a die.
+//
+// conversion defines conversion settings for the CRD.
+func (d *CustomResourceDefinitionSpecDie) ConversionDie(fn func(d *CustomResourceConversionDie)) *CustomResourceDefinitionSpecDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
+		d := CustomResourceConversionBlank.DieImmutable(false).DieFeedPtr(r.Conversion)
+		fn(d)
+		r.Conversion = d.DieReleasePtr()
+	})
+}
+
+// VersionDie mutates a single item in Versions matched by the nested field Name, appending a new item if no match is found.
+//
+// versions is the list of all API versions of the defined custom resource.
+//
+// Version names are used to compute the order in which served versions are listed in API discovery.
+//
+// If the version string is "kube-like", it will sort above non "kube-like" version strings, which are ordered
+//
+// lexicographically. "Kube-like" versions start with a "v", then are followed by a number (the major version),
+//
+// then optionally the string "alpha" or "beta" and another number (the minor version). These are sorted first
+//
+// by GA > beta > alpha (where GA is a version with no suffix such as beta or alpha), and then by comparing
+//
+// major version, then minor version. An example sorted list of versions:
+//
+// v10, v2, v1, v11beta2, v10beta3, v3beta1, v12alpha1, v11alpha2, foo1, foo10.
+func (d *CustomResourceDefinitionSpecDie) VersionDie(v string, fn func(d *CustomResourceDefinitionVersionDie)) *CustomResourceDefinitionSpecDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
+		for i := range r.Versions {
+			if v == r.Versions[i].Name {
+				d := CustomResourceDefinitionVersionBlank.DieImmutable(false).DieFeed(r.Versions[i])
+				fn(d)
+				r.Versions[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := CustomResourceDefinitionVersionBlank.DieImmutable(false).DieFeed(apiextensionsv1.CustomResourceDefinitionVersion{Name: v})
+		fn(d)
+		r.Versions = append(r.Versions, d.DieRelease())
+	})
+}
+
 // group is the API group of the defined custom resource.
 //
 // The custom resources are served under `/apis/<group>/...`.
@@ -918,6 +974,68 @@ func (d *CustomResourceDefinitionVersionDie) DieDiff(opts ...cmp.Option) string 
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *CustomResourceDefinitionVersionDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// SchemaDie mutates Schema as a die.
+//
+// schema describes the schema used for validation, pruning, and defaulting of this version of the custom resource.
+func (d *CustomResourceDefinitionVersionDie) SchemaDie(fn func(d *CustomResourceValidationDie)) *CustomResourceDefinitionVersionDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
+		d := CustomResourceValidationBlank.DieImmutable(false).DieFeedPtr(r.Schema)
+		fn(d)
+		r.Schema = d.DieReleasePtr()
+	})
+}
+
+// SubresourcesDie mutates Subresources as a die.
+//
+// subresources specify what subresources this version of the defined custom resource have.
+func (d *CustomResourceDefinitionVersionDie) SubresourcesDie(fn func(d *CustomResourceSubresourcesDie)) *CustomResourceDefinitionVersionDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
+		d := CustomResourceSubresourcesBlank.DieImmutable(false).DieFeedPtr(r.Subresources)
+		fn(d)
+		r.Subresources = d.DieReleasePtr()
+	})
+}
+
+// AdditionalPrinterColumnDie mutates a single item in AdditionalPrinterColumns matched by the nested field Name, appending a new item if no match is found.
+//
+// additionalPrinterColumns specifies additional columns returned in Table output.
+//
+// See https://kubernetes.io/docs/reference/using-api/api-concepts/#receiving-resources-as-tables for details.
+//
+// If no columns are specified, a single column displaying the age of the custom resource is used.
+func (d *CustomResourceDefinitionVersionDie) AdditionalPrinterColumnDie(v string, fn func(d *CustomResourceColumnDefinitionDie)) *CustomResourceDefinitionVersionDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
+		for i := range r.AdditionalPrinterColumns {
+			if v == r.AdditionalPrinterColumns[i].Name {
+				d := CustomResourceColumnDefinitionBlank.DieImmutable(false).DieFeed(r.AdditionalPrinterColumns[i])
+				fn(d)
+				r.AdditionalPrinterColumns[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := CustomResourceColumnDefinitionBlank.DieImmutable(false).DieFeed(apiextensionsv1.CustomResourceColumnDefinition{Name: v})
+		fn(d)
+		r.AdditionalPrinterColumns = append(r.AdditionalPrinterColumns, d.DieRelease())
+	})
+}
+
+// SelectableFieldsDie replaces SelectableFields by collecting the released value from each die passed.
+//
+// selectableFields specifies paths to fields that may be used as field selectors.
+//
+// A maximum of 8 selectable fields are allowed.
+//
+// See https://kubernetes.io/docs/concepts/overview/working-with-objects/field-selectors
+func (d *CustomResourceDefinitionVersionDie) SelectableFieldsDie(v ...*SelectableFieldDie) *CustomResourceDefinitionVersionDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
+		r.SelectableFields = make([]apiextensionsv1.SelectableField, len(v))
+		for i := range v {
+			r.SelectableFields[i] = v[i].DieRelease()
+		}
+	})
 }
 
 // name is the version name, e.g. “v1”, “v2beta1”, etc.
@@ -1466,6 +1584,17 @@ func (d *CustomResourceSubresourcesDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *CustomResourceSubresourcesDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// ScaleDie mutates Scale as a die.
+//
+// scale indicates the custom resource should serve a `/scale` subresource that returns an `autoscaling/v1` Scale object.
+func (d *CustomResourceSubresourcesDie) ScaleDie(fn func(d *CustomResourceSubresourceScaleDie)) *CustomResourceSubresourcesDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceSubresources) {
+		d := CustomResourceSubresourceScaleBlank.DieImmutable(false).DieFeedPtr(r.Scale)
+		fn(d)
+		r.Scale = d.DieReleasePtr()
+	})
 }
 
 // status indicates the custom resource should serve a `/status` subresource.
@@ -2277,6 +2406,17 @@ func (d *CustomResourceConversionDie) DiePatch(patchType types.PatchType) ([]byt
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// WebhookDie mutates Webhook as a die.
+//
+// webhook describes how to call the conversion webhook. Required when `strategy` is set to `"Webhook"`.
+func (d *CustomResourceConversionDie) WebhookDie(fn func(d *WebhookConversionDie)) *CustomResourceConversionDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceConversion) {
+		d := WebhookConversionBlank.DieImmutable(false).DieFeedPtr(r.Webhook)
+		fn(d)
+		r.Webhook = d.DieReleasePtr()
+	})
+}
+
 // strategy specifies how custom resources are converted between versions. Allowed values are:
 //
 // - `"None"`: The converter only change the apiVersion and would not touch any other field in the custom resource.
@@ -2523,6 +2663,17 @@ func (d *WebhookConversionDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *WebhookConversionDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// ClientConfigDie mutates ClientConfig as a die.
+//
+// clientConfig is the instructions for how to call the webhook if strategy is `Webhook`.
+func (d *WebhookConversionDie) ClientConfigDie(fn func(d *WebhookClientConfigDie)) *WebhookConversionDie {
+	return d.DieStamp(func(r *apiextensionsv1.WebhookConversion) {
+		d := WebhookClientConfigBlank.DieImmutable(false).DieFeedPtr(r.ClientConfig)
+		fn(d)
+		r.ClientConfig = d.DieReleasePtr()
+	})
 }
 
 // clientConfig is the instructions for how to call the webhook if strategy is `Webhook`.
@@ -2775,6 +2926,21 @@ func (d *WebhookClientConfigDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *WebhookClientConfigDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// ServiceDie mutates Service as a die.
+//
+// service is a reference to the service for this webhook. Either
+//
+// service or url must be specified.
+//
+// If the webhook is running within the cluster, then you should use `service`.
+func (d *WebhookClientConfigDie) ServiceDie(fn func(d *ServiceReferenceDie)) *WebhookClientConfigDie {
+	return d.DieStamp(func(r *apiextensionsv1.WebhookClientConfig) {
+		d := ServiceReferenceBlank.DieImmutable(false).DieFeedPtr(r.Service)
+		fn(d)
+		r.Service = d.DieReleasePtr()
+	})
 }
 
 // url gives the location of the webhook, in standard URL form
@@ -3581,6 +3747,19 @@ func (d *CustomResourceDefinitionStatusDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *CustomResourceDefinitionStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// AcceptedNamesDie mutates AcceptedNames as a die.
+//
+// acceptedNames are the names that are actually being used to serve discovery.
+//
+// They may be different than the names in spec.
+func (d *CustomResourceDefinitionStatusDie) AcceptedNamesDie(fn func(d *CustomResourceDefinitionNamesDie)) *CustomResourceDefinitionStatusDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionStatus) {
+		d := CustomResourceDefinitionNamesBlank.DieImmutable(false).DieFeed(r.AcceptedNames)
+		fn(d)
+		r.AcceptedNames = d.DieRelease()
+	})
 }
 
 // conditions indicate state for particular aspects of a CustomResourceDefinition

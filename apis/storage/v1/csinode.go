@@ -24,27 +24,12 @@ import (
 type _ = storagev1.CSINode
 
 // +die
+// +die:field:name=Drivers,die=CSINodeDriverDie,listType=atomic
 type _ = storagev1.CSINodeSpec
 
-func (d *CSINodeSpecDie) DriversDie(drivers ...*CSINodeDriverDie) *CSINodeSpecDie {
-	return d.DieStamp(func(r *storagev1.CSINodeSpec) {
-		r.Drivers = make([]storagev1.CSINodeDriver, len(drivers))
-		for i := range drivers {
-			r.Drivers[i] = drivers[i].DieRelease()
-		}
-	})
-}
-
 // +die
+// +die:field:name=Allocatable,die=VolumeNodeResourcesDie,pointer=true
 type _ = storagev1.CSINodeDriver
-
-func (d *CSINodeDriverDie) AllocatableDie(fn func(d *VolumeNodeResourcesDie)) *CSINodeDriverDie {
-	return d.DieStamp(func(r *storagev1.CSINodeDriver) {
-		d := VolumeNodeResourcesBlank.DieImmutable(false).DieFeedPtr(r.Allocatable)
-		fn(d)
-		r.Allocatable = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ = storagev1.VolumeNodeResources

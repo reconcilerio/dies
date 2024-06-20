@@ -21,12 +21,5 @@ import (
 )
 
 // +die:object=true,apiVersion=v1,kind=Binding
+// +die:field:name=Target,die=ObjectReferenceDie
 type _ = corev1.Binding
-
-func (d *BindingDie) TargetDie(fn func(d *ObjectReferenceDie)) *BindingDie {
-	return d.DieStamp(func(r *corev1.Binding) {
-		d := ObjectReferenceBlank.DieImmutable(false).DieFeed(r.Target)
-		fn(d)
-		r.Target = d.DieRelease()
-	})
-}

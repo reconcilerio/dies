@@ -25,32 +25,10 @@ import (
 type _ = flowcontrolv1beta1.FlowSchema
 
 // +die
+// +die:field:name=PriorityLevelConfiguration,die=PriorityLevelConfigurationReferenceDie
+// +die:field:name=DistinguisherMethod,die=FlowDistinguisherMethodDie,pointer=true
+// +die:field:name=Rules,die=PolicyRulesWithSubjectsDie,listType=atomic
 type _ = flowcontrolv1beta1.FlowSchemaSpec
-
-func (d *FlowSchemaSpecDie) PriorityLevelConfigurationDie(fn func(d *PriorityLevelConfigurationReferenceDie)) *FlowSchemaSpecDie {
-	return d.DieStamp(func(r *flowcontrolv1beta1.FlowSchemaSpec) {
-		d := PriorityLevelConfigurationReferenceBlank.DieImmutable(false).DieFeed(r.PriorityLevelConfiguration)
-		fn(d)
-		r.PriorityLevelConfiguration = d.DieRelease()
-	})
-}
-
-func (d *FlowSchemaSpecDie) DistinguisherMethodDie(fn func(d *FlowDistinguisherMethodDie)) *FlowSchemaSpecDie {
-	return d.DieStamp(func(r *flowcontrolv1beta1.FlowSchemaSpec) {
-		d := FlowDistinguisherMethodBlank.DieImmutable(false).DieFeedPtr(r.DistinguisherMethod)
-		fn(d)
-		r.DistinguisherMethod = d.DieReleasePtr()
-	})
-}
-
-func (d *FlowSchemaSpecDie) RulesDie(rules ...*PolicyRulesWithSubjectsDie) *FlowSchemaSpecDie {
-	return d.DieStamp(func(r *flowcontrolv1beta1.FlowSchemaSpec) {
-		r.Rules = make([]flowcontrolv1beta1.PolicyRulesWithSubjects, len(rules))
-		for i := range rules {
-			r.Rules[i] = rules[i].DieRelease()
-		}
-	})
-}
 
 // +die
 type _ = flowcontrolv1beta1.FlowSchemaStatus
@@ -78,33 +56,14 @@ type _ = flowcontrolv1beta1.PriorityLevelConfigurationReference
 type _ = flowcontrolv1beta1.FlowDistinguisherMethod
 
 // +die
+// +die:field:name=Subjects,die=SubjectDie,listType=atomic
+// +die:field:name=ResourceRules,die=ResourcePolicyRuleDie,listType=atomic
+// +die:field:name=NonResourceRules,die=NonResourcePolicyRuleDie,listType=atomic
 type _ = flowcontrolv1beta1.PolicyRulesWithSubjects
 
-func (d *PolicyRulesWithSubjectsDie) SubjectsDie(subjects ...*SubjectDie) *PolicyRulesWithSubjectsDie {
-	return d.DieStamp(func(r *flowcontrolv1beta1.PolicyRulesWithSubjects) {
-		r.Subjects = make([]flowcontrolv1beta1.Subject, len(subjects))
-		for i := range subjects {
-			r.Subjects[i] = subjects[i].DieRelease()
-		}
-	})
-}
-
-func (d *PolicyRulesWithSubjectsDie) ResourceRulesDie(rules ...*ResourcePolicyRuleDie) *PolicyRulesWithSubjectsDie {
-	return d.DieStamp(func(r *flowcontrolv1beta1.PolicyRulesWithSubjects) {
-		r.ResourceRules = make([]flowcontrolv1beta1.ResourcePolicyRule, len(rules))
-		for i := range rules {
-			r.ResourceRules[i] = rules[i].DieRelease()
-		}
-	})
-}
-
+// deprecated: use NonResourceRulesDie
 func (d *PolicyRulesWithSubjectsDie) NonResourcePolicyRuleDie(rules ...*NonResourcePolicyRuleDie) *PolicyRulesWithSubjectsDie {
-	return d.DieStamp(func(r *flowcontrolv1beta1.PolicyRulesWithSubjects) {
-		r.NonResourceRules = make([]flowcontrolv1beta1.NonResourcePolicyRule, len(rules))
-		for i := range rules {
-			r.NonResourceRules[i] = rules[i].DieRelease()
-		}
-	})
+	return d.NonResourceRulesDie(rules...)
 }
 
 // +die

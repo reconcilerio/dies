@@ -26,23 +26,9 @@ type _ = authorizationv1.SubjectAccessReview
 // TODO(scothis) fix import for maps with struct values, ignore the 'Extra' field until then
 
 // +die:ignore={Extra}
+// +die:field:name=ResourceAttributes,die=ResourceAttributesDie,pointer=true
+// +die:field:name=NonResourceAttributes,die=NonResourceAttributesDie,pointer=true
 type _ = authorizationv1.SubjectAccessReviewSpec
-
-func (d *SubjectAccessReviewSpecDie) ResourceAttributesDie(fn func(d *ResourceAttributesDie)) *SubjectAccessReviewSpecDie {
-	return d.DieStamp(func(r *authorizationv1.SubjectAccessReviewSpec) {
-		d := ResourceAttributesBlank.DieImmutable(false).DieFeedPtr(r.ResourceAttributes)
-		fn(d)
-		r.ResourceAttributes = d.DieReleasePtr()
-	})
-}
-
-func (d *SubjectAccessReviewSpecDie) NonResourceAttributesDie(fn func(d *NonResourceAttributesDie)) *SubjectAccessReviewSpecDie {
-	return d.DieStamp(func(r *authorizationv1.SubjectAccessReviewSpec) {
-		d := NonResourceAttributesBlank.DieImmutable(false).DieFeedPtr(r.NonResourceAttributes)
-		fn(d)
-		r.NonResourceAttributes = d.DieReleasePtr()
-	})
-}
 
 // Extra corresponds to the user.Info.GetExtra() method from the authenticator.  Since that is input to the authorizer it needs a reflection here.
 func (d *SubjectAccessReviewSpecDie) Extra(v map[string]authorizationv1.ExtraValue) *SubjectAccessReviewSpecDie {

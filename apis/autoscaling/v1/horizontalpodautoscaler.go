@@ -24,15 +24,8 @@ import (
 type _ = autoscalingv1.HorizontalPodAutoscaler
 
 // +die
+// +die:field:name=ScaleTargetRef,die=CrossVersionObjectReferenceDie
 type _ = autoscalingv1.HorizontalPodAutoscalerSpec
-
-func (d *HorizontalPodAutoscalerSpecDie) ScaleTargetRefDie(fn func(d *CrossVersionObjectReferenceDie)) *HorizontalPodAutoscalerSpecDie {
-	return d.DieStamp(func(r *autoscalingv1.HorizontalPodAutoscalerSpec) {
-		d := CrossVersionObjectReferenceBlank.DieImmutable(false).DieFeed(r.ScaleTargetRef)
-		fn(d)
-		r.ScaleTargetRef = d.DieRelease()
-	})
-}
 
 // +die
 type _ = autoscalingv1.CrossVersionObjectReference

@@ -144,9 +144,10 @@ type copyMethodMaker struct {
 	dies sets.Set[string]
 }
 
-func (c *copyMethodMaker) GenerateMethodsFor(die Die, fields []Field) {
+func (c *copyMethodMaker) GenerateMethodsFor(die Die, fields []Field, dieFields []DieField) {
 	c.generateDieFor(die)
 	c.generateObjectMethodsFor(die)
+	c.generateDieFieldMethodsFor(die, fields, dieFields)
 }
 
 func (c *copyMethodMaker) GenerateFieldFor(field Field, die Die) {
@@ -544,6 +545,80 @@ func (c *copyMethodMaker) generateSealMethodFor(die Die) {
 	c.Linef("func (d *%s) DiePatch(patchType %s) ([]byte, error) {", die.Type, c.AliasedRef("k8s.io/apimachinery/pkg/types", "PatchType"))
 	c.Linef("	return %s(d.seal, d.r, patchType)", c.AliasedRef("reconciler.io/dies/patch", "Create"))
 	c.Linef("}")
+}
+
+func (c *copyMethodMaker) generateDieFieldMethodsFor(die Die, resourceFields []Field, dieFields []DieField) {
+	resourceFieldByName := map[string]Field{}
+	for _, field := range resourceFields {
+		resourceFieldByName[field.Name] = field
+	}
+
+	for _, field := range dieFields {
+		resourceField := resourceFieldByName[field.Field]
+
+		ptr := ""
+		if *field.Pointer {
+			ptr = "Ptr"
+		}
+
+		switch field.ListType {
+		case "atomic":
+			c.Linef("")
+			c.Linef("// %s replaces %s by collecting the released value from each die passed.", field.Method, field.Field)
+			if resourceField.Doc != "" {
+				c.Linef("//")
+				c.Linef("%s", c.Doc(resourceField.Doc))
+			}
+			c.Linef("func (d *%s) %s(v ...*%s) *%s {", die.Type, field.Method, c.AliasedRef(field.Package, field.Die), die.Type)
+			c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
+			c.Linef("		r.%s = make([]%s, len(v))", field.Field, c.AliasedRef(resourceField.TypePackage, resourceField.Type))
+			c.Linef("		for i := range v {")
+			c.Linef("			r.%s[i] = v[i].DieRelease%s()", field.Field, ptr)
+			c.Linef("		}")
+			c.Linef("	})")
+			c.Linef("}")
+
+		case "map":
+			c.Linef("")
+			c.Linef("// %s mutates a single item in %s matched by the nested field %s, appending a new item if no match is found.", field.Method, field.Field, field.ListMapKey)
+			if resourceField.Doc != "" {
+				c.Linef("//")
+				c.Linef("%s", c.Doc(resourceField.Doc))
+			}
+			c.Linef("func (d *%s) %s(v %s, fn func(d *%s)) *%s {", die.Type, field.Method, c.AliasedRef(field.ListMapKeyPackage, field.ListMapKeyType), c.AliasedRef(field.Package, field.Die), die.Type)
+			c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
+			c.Linef("		for i := range r.%s {", field.Name)
+			c.Linef("			if v == r.%s[i].%s {", field.Name, field.ListMapKey)
+			c.Linef("				d := %s.DieImmutable(false).DieFeed%s(r.%s[i])", c.AliasedRef(field.Package, field.Blank), ptr, field.Field)
+			c.Linef("				fn(d)")
+			c.Linef("				r.%s[i] = d.DieRelease%s()", field.Field, ptr)
+			c.Linef("				return")
+			c.Linef("			}")
+			c.Linef("		}")
+			c.Linef("")
+			c.Linef("		d := %s.DieImmutable(false).DieFeed%s(%s{%s: v})", c.AliasedRef(field.Package, field.Blank), ptr, c.AliasedRef(resourceField.TypePackage, resourceField.Type), field.ListMapKey)
+			c.Linef("		fn(d)")
+			c.Linef("		r.%s = append(r.%s, d.DieRelease%s())", field.Field, field.Field, ptr)
+			c.Linef("	})")
+			c.Linef("}")
+
+		default:
+			c.Linef("")
+			c.Linef("// %s mutates %s as a die.", field.Method, field.Field)
+			if resourceField.Doc != "" {
+				c.Linef("//")
+				c.Linef("%s", c.Doc(resourceField.Doc))
+			}
+			c.Linef("func (d *%s) %s(fn func(d *%s)) *%s {", die.Type, field.Method, c.AliasedRef(field.Package, field.Die), die.Type)
+			c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
+			c.Linef("		d := %s.DieImmutable(false).DieFeed%s(r.%s)", c.AliasedRef(field.Package, field.Blank), ptr, field.Field)
+			c.Linef("		fn(d)")
+			c.Linef("		r.%s = d.DieRelease%s()", field.Field, ptr)
+			c.Linef("	})")
+			c.Linef("}")
+		}
+
+	}
 }
 
 func (c *copyMethodMaker) generateObjectMethodsFor(die Die) {

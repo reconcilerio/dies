@@ -25,13 +25,15 @@ import (
 	fmtx "fmt"
 	cmp "github.com/google/go-cmp/cmp"
 	admissionv1 "k8s.io/api/admission/v1"
-	authenticationv1 "k8s.io/api/authentication/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	apiauthenticationv1 "k8s.io/api/authentication/v1"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	types "k8s.io/apimachinery/pkg/types"
 	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
+	authenticationv1 "reconciler.io/dies/apis/authentication/v1"
+	metav1 "reconciler.io/dies/apis/meta/v1"
 	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
@@ -265,6 +267,89 @@ func (d *AdmissionRequestDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// KindDie mutates Kind as a die.
+//
+// Kind is the fully-qualified type of object being submitted (for example, v1.Pod or autoscaling.v1.Scale)
+func (d *AdmissionRequestDie) KindDie(fn func(d *metav1.GroupVersionKindDie)) *AdmissionRequestDie {
+	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
+		d := metav1.GroupVersionKindBlank.DieImmutable(false).DieFeed(r.Kind)
+		fn(d)
+		r.Kind = d.DieRelease()
+	})
+}
+
+// ResourceDie mutates Resource as a die.
+//
+// Resource is the fully-qualified resource being requested (for example, v1.pods)
+func (d *AdmissionRequestDie) ResourceDie(fn func(d *metav1.GroupVersionResourceDie)) *AdmissionRequestDie {
+	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
+		d := metav1.GroupVersionResourceBlank.DieImmutable(false).DieFeed(r.Resource)
+		fn(d)
+		r.Resource = d.DieRelease()
+	})
+}
+
+// RequestKindDie mutates RequestKind as a die.
+//
+// RequestKind is the fully-qualified type of the original API request (for example, v1.Pod or autoscaling.v1.Scale).
+//
+// If this is specified and differs from the value in "kind", an equivalent match and conversion was performed.
+//
+// For example, if deployments can be modified via apps/v1 and apps/v1beta1, and a webhook registered a rule of
+//
+// `apiGroups:["apps"], apiVersions:["v1"], resources: ["deployments"]` and `matchPolicy: Equivalent`,
+//
+// an API request to apps/v1beta1 deployments would be converted and sent to the webhook
+//
+// with `kind: {group:"apps", version:"v1", kind:"Deployment"}` (matching the rule the webhook registered for),
+//
+// and `requestKind: {group:"apps", version:"v1beta1", kind:"Deployment"}` (indicating the kind of the original API request).
+//
+// See documentation for the "matchPolicy" field in the webhook configuration type for more details.
+func (d *AdmissionRequestDie) RequestKindDie(fn func(d *metav1.GroupVersionKindDie)) *AdmissionRequestDie {
+	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
+		d := metav1.GroupVersionKindBlank.DieImmutable(false).DieFeedPtr(r.RequestKind)
+		fn(d)
+		r.RequestKind = d.DieReleasePtr()
+	})
+}
+
+// RequestResourceDie mutates RequestResource as a die.
+//
+// RequestResource is the fully-qualified resource of the original API request (for example, v1.pods).
+//
+// If this is specified and differs from the value in "resource", an equivalent match and conversion was performed.
+//
+// For example, if deployments can be modified via apps/v1 and apps/v1beta1, and a webhook registered a rule of
+//
+// `apiGroups:["apps"], apiVersions:["v1"], resources: ["deployments"]` and `matchPolicy: Equivalent`,
+//
+// an API request to apps/v1beta1 deployments would be converted and sent to the webhook
+//
+// with `resource: {group:"apps", version:"v1", resource:"deployments"}` (matching the resource the webhook registered for),
+//
+// and `requestResource: {group:"apps", version:"v1beta1", resource:"deployments"}` (indicating the resource of the original API request).
+//
+// See documentation for the "matchPolicy" field in the webhook configuration type.
+func (d *AdmissionRequestDie) RequestResourceDie(fn func(d *metav1.GroupVersionResourceDie)) *AdmissionRequestDie {
+	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
+		d := metav1.GroupVersionResourceBlank.DieImmutable(false).DieFeedPtr(r.RequestResource)
+		fn(d)
+		r.RequestResource = d.DieReleasePtr()
+	})
+}
+
+// UserInfoDie mutates UserInfo as a die.
+//
+// UserInfo is information about the requesting user
+func (d *AdmissionRequestDie) UserInfoDie(fn func(d *authenticationv1.UserInfoDie)) *AdmissionRequestDie {
+	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
+		d := authenticationv1.UserInfoBlank.DieImmutable(false).DieFeed(r.UserInfo)
+		fn(d)
+		r.UserInfo = d.DieRelease()
+	})
+}
+
 // UID is an identifier for the individual request/response. It allows us to distinguish instances of requests which are
 //
 // otherwise identical (parallel requests, requests when earlier requests did not modify etc)
@@ -279,14 +364,14 @@ func (d *AdmissionRequestDie) UID(v types.UID) *AdmissionRequestDie {
 }
 
 // Kind is the fully-qualified type of object being submitted (for example, v1.Pod or autoscaling.v1.Scale)
-func (d *AdmissionRequestDie) Kind(v metav1.GroupVersionKind) *AdmissionRequestDie {
+func (d *AdmissionRequestDie) Kind(v apismetav1.GroupVersionKind) *AdmissionRequestDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
 		r.Kind = v
 	})
 }
 
 // Resource is the fully-qualified resource being requested (for example, v1.pods)
-func (d *AdmissionRequestDie) Resource(v metav1.GroupVersionResource) *AdmissionRequestDie {
+func (d *AdmissionRequestDie) Resource(v apismetav1.GroupVersionResource) *AdmissionRequestDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
 		r.Resource = v
 	})
@@ -314,7 +399,7 @@ func (d *AdmissionRequestDie) SubResource(v string) *AdmissionRequestDie {
 // and `requestKind: {group:"apps", version:"v1beta1", kind:"Deployment"}` (indicating the kind of the original API request).
 //
 // See documentation for the "matchPolicy" field in the webhook configuration type for more details.
-func (d *AdmissionRequestDie) RequestKind(v *metav1.GroupVersionKind) *AdmissionRequestDie {
+func (d *AdmissionRequestDie) RequestKind(v *apismetav1.GroupVersionKind) *AdmissionRequestDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
 		r.RequestKind = v
 	})
@@ -335,7 +420,7 @@ func (d *AdmissionRequestDie) RequestKind(v *metav1.GroupVersionKind) *Admission
 // and `requestResource: {group:"apps", version:"v1beta1", resource:"deployments"}` (indicating the resource of the original API request).
 //
 // See documentation for the "matchPolicy" field in the webhook configuration type.
-func (d *AdmissionRequestDie) RequestResource(v *metav1.GroupVersionResource) *AdmissionRequestDie {
+func (d *AdmissionRequestDie) RequestResource(v *apismetav1.GroupVersionResource) *AdmissionRequestDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
 		r.RequestResource = v
 	})
@@ -378,7 +463,7 @@ func (d *AdmissionRequestDie) Operation(v admissionv1.Operation) *AdmissionReque
 }
 
 // UserInfo is information about the requesting user
-func (d *AdmissionRequestDie) UserInfo(v authenticationv1.UserInfo) *AdmissionRequestDie {
+func (d *AdmissionRequestDie) UserInfo(v apiauthenticationv1.UserInfo) *AdmissionRequestDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
 		r.UserInfo = v
 	})
@@ -650,6 +735,19 @@ func (d *AdmissionResponseDie) DiePatch(patchType types.PatchType) ([]byte, erro
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ResultDie mutates Result as a die.
+//
+// Result contains extra details into why an admission request was denied.
+//
+// This field IS NOT consulted in any way if "Allowed" is "true".
+func (d *AdmissionResponseDie) ResultDie(fn func(d *metav1.StatusDie)) *AdmissionResponseDie {
+	return d.DieStamp(func(r *admissionv1.AdmissionResponse) {
+		d := metav1.StatusBlank.DieImmutable(false).DieFeedPtr(r.Result)
+		fn(d)
+		r.Result = d.DieReleasePtr()
+	})
+}
+
 // UID is an identifier for the individual request/response.
 //
 // This must be copied over from the corresponding AdmissionRequest.
@@ -669,7 +767,7 @@ func (d *AdmissionResponseDie) Allowed(v bool) *AdmissionResponseDie {
 // Result contains extra details into why an admission request was denied.
 //
 // This field IS NOT consulted in any way if "Allowed" is "true".
-func (d *AdmissionResponseDie) Result(v *metav1.Status) *AdmissionResponseDie {
+func (d *AdmissionResponseDie) Result(v *apismetav1.Status) *AdmissionResponseDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionResponse) {
 		r.Result = v
 	})
@@ -943,7 +1041,29 @@ func (d *AdmissionReviewDie) DiePatch(patchType types.PatchType) ([]byte, error)
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-func (d *AdmissionReviewDie) TypeMeta(v metav1.TypeMeta) *AdmissionReviewDie {
+// RequestDie mutates Request as a die.
+//
+// Request describes the attributes for the admission request.
+func (d *AdmissionReviewDie) RequestDie(fn func(d *AdmissionRequestDie)) *AdmissionReviewDie {
+	return d.DieStamp(func(r *admissionv1.AdmissionReview) {
+		d := AdmissionRequestBlank.DieImmutable(false).DieFeedPtr(r.Request)
+		fn(d)
+		r.Request = d.DieReleasePtr()
+	})
+}
+
+// ResponseDie mutates Response as a die.
+//
+// Response describes the attributes for the admission response.
+func (d *AdmissionReviewDie) ResponseDie(fn func(d *AdmissionResponseDie)) *AdmissionReviewDie {
+	return d.DieStamp(func(r *admissionv1.AdmissionReview) {
+		d := AdmissionResponseBlank.DieImmutable(false).DieFeedPtr(r.Response)
+		fn(d)
+		r.Response = d.DieReleasePtr()
+	})
+}
+
+func (d *AdmissionReviewDie) TypeMeta(v apismetav1.TypeMeta) *AdmissionReviewDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionReview) {
 		r.TypeMeta = v
 	})

@@ -18,43 +18,14 @@ package v1
 
 import (
 	eventsv1 "k8s.io/api/events/v1"
-	diecorev1 "reconciler.io/dies/apis/core/v1"
 )
 
 // +die:object=true,apiVersion=events.k8s.io/v1,kind=Event
+// +die:field:name=Series,die=EventSeriesDie,pointer=true
+// +die:field:name=Regarding,package=_/core/v1,die=ObjectReferenceDie
+// +die:field:name=Related,package=_/core/v1,die=ObjectReferenceDie,pointer=true
+// +die:field:name=DeprecatedSource,package=_/core/v1,die=EventSourceDie
 type _ = eventsv1.Event
-
-func (d *EventDie) SeriesDie(fn func(d *EventSeriesDie)) *EventDie {
-	return d.DieStamp(func(r *eventsv1.Event) {
-		d := EventSeriesBlank.DieImmutable(false).DieFeedPtr(r.Series)
-		fn(d)
-		r.Series = d.DieReleasePtr()
-	})
-}
-
-func (d *EventDie) RegardingDie(fn func(d *diecorev1.ObjectReferenceDie)) *EventDie {
-	return d.DieStamp(func(r *eventsv1.Event) {
-		d := diecorev1.ObjectReferenceBlank.DieImmutable(false).DieFeed(r.Regarding)
-		fn(d)
-		r.Regarding = d.DieRelease()
-	})
-}
-
-func (d *EventDie) RelatedDie(fn func(d *diecorev1.ObjectReferenceDie)) *EventDie {
-	return d.DieStamp(func(r *eventsv1.Event) {
-		d := diecorev1.ObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.Related)
-		fn(d)
-		r.Related = d.DieReleasePtr()
-	})
-}
-
-func (d *EventDie) DeprecatedSourceDie(fn func(d *diecorev1.EventSourceDie)) *EventDie {
-	return d.DieStamp(func(r *eventsv1.Event) {
-		d := diecorev1.EventSourceBlank.DieImmutable(false).DieFeed(r.DeprecatedSource)
-		fn(d)
-		r.DeprecatedSource = d.DieRelease()
-	})
-}
 
 // +die
 type _ = eventsv1.EventSeries

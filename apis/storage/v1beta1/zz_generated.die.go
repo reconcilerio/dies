@@ -34,7 +34,7 @@ import (
 	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
-	"reconciler.io/dies/apis/meta/v1"
+	v1 "reconciler.io/dies/apis/meta/v1"
 	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
@@ -360,6 +360,25 @@ func (d *CSIStorageCapacityDie) MetadataDie(fn func(d *v1.ObjectMetaDie)) *CSISt
 		d := v1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
 		r.ObjectMeta = d.DieRelease()
+	})
+}
+
+// NodeTopologyDie mutates NodeTopology as a die.
+//
+// nodeTopology defines which nodes have access to the storage
+//
+// for which capacity was reported. If not set, the storage is
+//
+// not accessible from any node in the cluster. If empty, the
+//
+// storage is accessible from all nodes. This field is
+//
+// immutable.
+func (d *CSIStorageCapacityDie) NodeTopologyDie(fn func(d *v1.LabelSelectorDie)) *CSIStorageCapacityDie {
+	return d.DieStamp(func(r *storagev1beta1.CSIStorageCapacity) {
+		d := v1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.NodeTopology)
+		fn(d)
+		r.NodeTopology = d.DieReleasePtr()
 	})
 }
 

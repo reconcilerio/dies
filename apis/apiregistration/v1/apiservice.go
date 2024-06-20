@@ -25,15 +25,8 @@ import (
 type _ = apiregistrationv1.APIService
 
 // +die
+// +die:field:name=Service,die=ServiceReferenceDie,pointer=true
 type _ = apiregistrationv1.APIServiceSpec
-
-func (d *APIServiceSpecDie) TargetDie(fn func(d *ServiceReferenceDie)) *APIServiceSpecDie {
-	return d.DieStamp(func(r *apiregistrationv1.APIServiceSpec) {
-		d := ServiceReferenceBlank.DieImmutable(false).DieFeedPtr(r.Service)
-		fn(d)
-		r.Service = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ = apiregistrationv1.ServiceReference

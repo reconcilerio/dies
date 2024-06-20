@@ -18,21 +18,12 @@ package v1
 
 import (
 	rbacv1 "k8s.io/api/rbac/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 // +die:object=true,apiVersion=rbac.authorization.k8s.io/v1,kind=ClusterRole
+// +die:field:name=AggregationRule,die=AggregationRuleDie,pointer=true
+// +die:field:name=Rules,die=PolicyRuleDie,listType=atomic
 type _ = rbacv1.ClusterRole
-
-func (d *ClusterRoleDie) RulesDie(rules ...*PolicyRuleDie) *ClusterRoleDie {
-	return d.DieStamp(func(r *rbacv1.ClusterRole) {
-		r.Rules = make([]rbacv1.PolicyRule, len(rules))
-		for i := range rules {
-			r.Rules[i] = rules[i].DieRelease()
-		}
-	})
-}
 
 func (d *ClusterRoleDie) AddRuleDie(rule *PolicyRuleDie) *ClusterRoleDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRole) {
@@ -40,22 +31,6 @@ func (d *ClusterRoleDie) AddRuleDie(rule *PolicyRuleDie) *ClusterRoleDie {
 	})
 }
 
-func (d *ClusterRoleDie) AggregationRuleDie(fn func(d *AggregationRuleDie)) *ClusterRoleDie {
-	return d.DieStamp(func(r *rbacv1.ClusterRole) {
-		d := AggregationRuleBlank.DieImmutable(false).DieFeedPtr(r.AggregationRule)
-		fn(d)
-		r.AggregationRule = d.DieReleasePtr()
-	})
-}
-
 // +die
+// +die:field:name=ClusterRoleSelectors,package=_/meta/v1,die=LabelSelectorDie,listType=atomic
 type _ = rbacv1.AggregationRule
-
-func (d *AggregationRuleDie) ClusterRoleSelectorsDie(selectors ...*diemetav1.LabelSelectorDie) *AggregationRuleDie {
-	return d.DieStamp(func(r *rbacv1.AggregationRule) {
-		r.ClusterRoleSelectors = make([]metav1.LabelSelector, len(selectors))
-		for i := range selectors {
-			r.ClusterRoleSelectors[i] = selectors[i].DieRelease()
-		}
-	})
-}

@@ -24,16 +24,8 @@ import (
 type _ = corev1.LimitRange
 
 // +die
+// +die:field:name=Limits,die=LimitRangeItemDie,listType=atomic
 type _ = corev1.LimitRangeSpec
-
-func (d *LimitRangeSpecDie) LimitsDie(limits ...*LimitRangeItemDie) *LimitRangeSpecDie {
-	return d.DieStamp(func(r *corev1.LimitRangeSpec) {
-		r.Limits = make([]corev1.LimitRangeItem, len(limits))
-		for i := range r.Limits {
-			r.Limits[i] = limits[i].DieRelease()
-		}
-	})
-}
 
 // +die
 type _ = corev1.LimitRangeItem

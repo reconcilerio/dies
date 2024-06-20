@@ -24,7 +24,7 @@ package v1
 import (
 	fmtx "fmt"
 	cmp "github.com/google/go-cmp/cmp"
-	corev1 "k8s.io/api/core/v1"
+	apicorev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -35,6 +35,7 @@ import (
 	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
+	corev1 "reconciler.io/dies/apis/core/v1"
 	metav1 "reconciler.io/dies/apis/meta/v1"
 	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
@@ -628,6 +629,57 @@ func (d *IngressSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// DefaultBackendDie mutates DefaultBackend as a die.
+//
+// defaultBackend is the backend that should handle requests that don't
+//
+// match any rule. If Rules are not specified, DefaultBackend must be specified.
+//
+// # If DefaultBackend is not set, the handling of requests that do not match any
+//
+// of the rules will be up to the Ingress controller.
+func (d *IngressSpecDie) DefaultBackendDie(fn func(d *IngressBackendDie)) *IngressSpecDie {
+	return d.DieStamp(func(r *networkingv1.IngressSpec) {
+		d := IngressBackendBlank.DieImmutable(false).DieFeedPtr(r.DefaultBackend)
+		fn(d)
+		r.DefaultBackend = d.DieReleasePtr()
+	})
+}
+
+// TLSDie replaces TLS by collecting the released value from each die passed.
+//
+// tls represents the TLS configuration. Currently the Ingress only supports a
+//
+// single TLS port, 443. If multiple members of this list specify different hosts,
+//
+// they will be multiplexed on the same port according to the hostname specified
+//
+// through the SNI TLS extension, if the ingress controller fulfilling the
+//
+// ingress supports SNI.
+func (d *IngressSpecDie) TLSDie(v ...*IngressTLSDie) *IngressSpecDie {
+	return d.DieStamp(func(r *networkingv1.IngressSpec) {
+		r.TLS = make([]networkingv1.IngressTLS, len(v))
+		for i := range v {
+			r.TLS[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// RulesDie replaces Rules by collecting the released value from each die passed.
+//
+// rules is a list of host rules used to configure the Ingress. If unspecified,
+//
+// or no rule matches, all traffic is sent to the default backend.
+func (d *IngressSpecDie) RulesDie(v ...*IngressRuleDie) *IngressSpecDie {
+	return d.DieStamp(func(r *networkingv1.IngressSpec) {
+		r.Rules = make([]networkingv1.IngressRule, len(v))
+		for i := range v {
+			r.Rules[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // ingressClassName is the name of an IngressClass cluster resource. Ingress
 //
 // controller implementations use this field to know whether they should be
@@ -918,6 +970,36 @@ func (d *IngressBackendDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ServiceDie mutates Service as a die.
+//
+// service references a service as a backend.
+//
+// This is a mutually exclusive setting with "Resource".
+func (d *IngressBackendDie) ServiceDie(fn func(d *IngressServiceBackendDie)) *IngressBackendDie {
+	return d.DieStamp(func(r *networkingv1.IngressBackend) {
+		d := IngressServiceBackendBlank.DieImmutable(false).DieFeedPtr(r.Service)
+		fn(d)
+		r.Service = d.DieReleasePtr()
+	})
+}
+
+// ResourceDie mutates Resource as a die.
+//
+// resource is an ObjectRef to another Kubernetes resource in the namespace
+//
+// of the Ingress object. If resource is specified, a service.Name and
+//
+// service.Port must not be specified.
+//
+// This is a mutually exclusive setting with "Service".
+func (d *IngressBackendDie) ResourceDie(fn func(d *corev1.TypedLocalObjectReferenceDie)) *IngressBackendDie {
+	return d.DieStamp(func(r *networkingv1.IngressBackend) {
+		d := corev1.TypedLocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.Resource)
+		fn(d)
+		r.Resource = d.DieReleasePtr()
+	})
+}
+
 // service references a service as a backend.
 //
 // This is a mutually exclusive setting with "Resource".
@@ -934,7 +1016,7 @@ func (d *IngressBackendDie) Service(v *networkingv1.IngressServiceBackend) *Ingr
 // service.Port must not be specified.
 //
 // This is a mutually exclusive setting with "Service".
-func (d *IngressBackendDie) Resource(v *corev1.TypedLocalObjectReference) *IngressBackendDie {
+func (d *IngressBackendDie) Resource(v *apicorev1.TypedLocalObjectReference) *IngressBackendDie {
 	return d.DieStamp(func(r *networkingv1.IngressBackend) {
 		r.Resource = v
 	})
@@ -1166,6 +1248,19 @@ func (d *IngressServiceBackendDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *IngressServiceBackendDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// PortDie mutates Port as a die.
+//
+// port of the referenced service. A port name or port number
+//
+// is required for a IngressServiceBackend.
+func (d *IngressServiceBackendDie) PortDie(fn func(d *ServiceBackendPortDie)) *IngressServiceBackendDie {
+	return d.DieStamp(func(r *networkingv1.IngressServiceBackend) {
+		d := ServiceBackendPortBlank.DieImmutable(false).DieFeed(r.Port)
+		fn(d)
+		r.Port = d.DieRelease()
+	})
 }
 
 // name is the referenced service. The service must exist in
@@ -1916,6 +2011,15 @@ func (d *IngressRuleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// HTTPDie mutates HTTP as a die.
+func (d *IngressRuleDie) HTTPDie(fn func(d *HTTPIngressRuleValueDie)) *IngressRuleDie {
+	return d.DieStamp(func(r *networkingv1.IngressRule) {
+		d := HTTPIngressRuleValueBlank.DieImmutable(false).DieFeedPtr(r.HTTP)
+		fn(d)
+		r.HTTP = d.DieReleasePtr()
+	})
+}
+
 // host is the fully qualified domain name of a network host, as defined by RFC 3986.
 //
 // Note the following deviations from the "host" part of the
@@ -2206,6 +2310,18 @@ func (d *HTTPIngressRuleValueDie) DiePatch(patchType types.PatchType) ([]byte, e
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// PathsDie replaces Paths by collecting the released value from each die passed.
+//
+// paths is a collection of paths that map requests to backends.
+func (d *HTTPIngressRuleValueDie) PathsDie(v ...*HTTPIngressPathDie) *HTTPIngressRuleValueDie {
+	return d.DieStamp(func(r *networkingv1.HTTPIngressRuleValue) {
+		r.Paths = make([]networkingv1.HTTPIngressPath, len(v))
+		for i := range v {
+			r.Paths[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // paths is a collection of paths that map requests to backends.
 func (d *HTTPIngressRuleValueDie) Paths(v ...networkingv1.HTTPIngressPath) *HTTPIngressRuleValueDie {
 	return d.DieStamp(func(r *networkingv1.HTTPIngressRuleValue) {
@@ -2439,6 +2555,19 @@ func (d *HTTPIngressPathDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *HTTPIngressPathDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// BackendDie mutates Backend as a die.
+//
+// backend defines the referenced service endpoint to which the traffic
+//
+// will be forwarded to.
+func (d *HTTPIngressPathDie) BackendDie(fn func(d *IngressBackendDie)) *HTTPIngressPathDie {
+	return d.DieStamp(func(r *networkingv1.HTTPIngressPath) {
+		d := IngressBackendBlank.DieImmutable(false).DieFeed(r.Backend)
+		fn(d)
+		r.Backend = d.DieRelease()
+	})
 }
 
 // path is matched against the path of an incoming request. Currently it can
@@ -2724,6 +2853,17 @@ func (d *IngressStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// LoadBalancerDie mutates LoadBalancer as a die.
+//
+// loadBalancer contains the current status of the load-balancer.
+func (d *IngressStatusDie) LoadBalancerDie(fn func(d *IngressLoadBalancerStatusDie)) *IngressStatusDie {
+	return d.DieStamp(func(r *networkingv1.IngressStatus) {
+		d := IngressLoadBalancerStatusBlank.DieImmutable(false).DieFeed(r.LoadBalancer)
+		fn(d)
+		r.LoadBalancer = d.DieRelease()
+	})
+}
+
 // loadBalancer contains the current status of the load-balancer.
 func (d *IngressStatusDie) LoadBalancer(v networkingv1.IngressLoadBalancerStatus) *IngressStatusDie {
 	return d.DieStamp(func(r *networkingv1.IngressStatus) {
@@ -2959,6 +3099,18 @@ func (d *IngressLoadBalancerStatusDie) DiePatch(patchType types.PatchType) ([]by
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// IngressDie replaces Ingress by collecting the released value from each die passed.
+//
+// ingress is a list containing ingress points for the load-balancer.
+func (d *IngressLoadBalancerStatusDie) IngressDie(v ...*IngressLoadBalancerIngressDie) *IngressLoadBalancerStatusDie {
+	return d.DieStamp(func(r *networkingv1.IngressLoadBalancerStatus) {
+		r.Ingress = make([]networkingv1.IngressLoadBalancerIngress, len(v))
+		for i := range v {
+			r.Ingress[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // ingress is a list containing ingress points for the load-balancer.
 func (d *IngressLoadBalancerStatusDie) Ingress(v ...networkingv1.IngressLoadBalancerIngress) *IngressLoadBalancerStatusDie {
 	return d.DieStamp(func(r *networkingv1.IngressLoadBalancerStatus) {
@@ -3192,6 +3344,18 @@ func (d *IngressLoadBalancerIngressDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *IngressLoadBalancerIngressDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// PortsDie replaces Ports by collecting the released value from each die passed.
+//
+// ports provides information about the ports exposed by this LoadBalancer.
+func (d *IngressLoadBalancerIngressDie) PortsDie(v ...*IngressPortStatusDie) *IngressLoadBalancerIngressDie {
+	return d.DieStamp(func(r *networkingv1.IngressLoadBalancerIngress) {
+		r.Ports = make([]networkingv1.IngressPortStatus, len(v))
+		for i := range v {
+			r.Ports[i] = v[i].DieRelease()
+		}
+	})
 }
 
 // ip is set for load-balancer ingress points that are IP based.
@@ -3453,7 +3617,7 @@ func (d *IngressPortStatusDie) Port(v int32) *IngressPortStatusDie {
 // protocol is the protocol of the ingress port.
 //
 // The supported values are: "TCP", "UDP", "SCTP"
-func (d *IngressPortStatusDie) Protocol(v corev1.Protocol) *IngressPortStatusDie {
+func (d *IngressPortStatusDie) Protocol(v apicorev1.Protocol) *IngressPortStatusDie {
 	return d.DieStamp(func(r *networkingv1.IngressPortStatus) {
 		r.Protocol = v
 	})
@@ -4047,6 +4211,21 @@ func (d *IngressClassSpecDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *IngressClassSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// ParametersDie mutates Parameters as a die.
+//
+// parameters is a link to a custom resource containing additional
+//
+// configuration for the controller. This is optional if the controller does
+//
+// not require extra parameters.
+func (d *IngressClassSpecDie) ParametersDie(fn func(d *IngressClassParametersReferenceDie)) *IngressClassSpecDie {
+	return d.DieStamp(func(r *networkingv1.IngressClassSpec) {
+		d := IngressClassParametersReferenceBlank.DieImmutable(false).DieFeedPtr(r.Parameters)
+		fn(d)
+		r.Parameters = d.DieReleasePtr()
+	})
 }
 
 // controller refers to the name of the controller that should handle this
@@ -4917,6 +5096,75 @@ func (d *NetworkPolicySpecDie) DiePatch(patchType types.PatchType) ([]byte, erro
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// PodSelectorDie mutates PodSelector as a die.
+//
+// podSelector selects the pods to which this NetworkPolicy object applies.
+//
+// The array of ingress rules is applied to any pods selected by this field.
+//
+// Multiple network policies can select the same set of pods. In this case,
+//
+// the ingress rules for each are combined additively.
+//
+// This field is NOT optional and follows standard label selector semantics.
+//
+// An empty podSelector matches all pods in this namespace.
+func (d *NetworkPolicySpecDie) PodSelectorDie(fn func(d *metav1.LabelSelectorDie)) *NetworkPolicySpecDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
+		d := metav1.LabelSelectorBlank.DieImmutable(false).DieFeed(r.PodSelector)
+		fn(d)
+		r.PodSelector = d.DieRelease()
+	})
+}
+
+// IngressDie replaces Ingress by collecting the released value from each die passed.
+//
+// ingress is a list of ingress rules to be applied to the selected pods.
+//
+// # Traffic is allowed to a pod if there are no NetworkPolicies selecting the pod
+//
+// (and cluster policy otherwise allows the traffic), OR if the traffic source is
+//
+// the pod's local node, OR if the traffic matches at least one ingress rule
+//
+// across all of the NetworkPolicy objects whose podSelector matches the pod. If
+//
+// this field is empty then this NetworkPolicy does not allow any traffic (and serves
+//
+// solely to ensure that the pods it selects are isolated by default)
+func (d *NetworkPolicySpecDie) IngressDie(v ...*NetworkPolicyIngressRuleDie) *NetworkPolicySpecDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
+		r.Ingress = make([]networkingv1.NetworkPolicyIngressRule, len(v))
+		for i := range v {
+			r.Ingress[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// EgressDie replaces Egress by collecting the released value from each die passed.
+//
+// egress is a list of egress rules to be applied to the selected pods. Outgoing traffic
+//
+// is allowed if there are no NetworkPolicies selecting the pod (and cluster policy
+//
+// otherwise allows the traffic), OR if the traffic matches at least one egress rule
+//
+// across all of the NetworkPolicy objects whose podSelector matches the pod. If
+//
+// this field is empty then this NetworkPolicy limits all outgoing traffic (and serves
+//
+// solely to ensure that the pods it selects are isolated by default).
+//
+// This field is beta-level in 1.8
+func (d *NetworkPolicySpecDie) EgressDie(v ...*NetworkPolicyEgressRuleDie) *NetworkPolicySpecDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
+		r.Egress = make([]networkingv1.NetworkPolicyEgressRule, len(v))
+		for i := range v {
+			r.Egress[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // podSelector selects the pods to which this NetworkPolicy object applies.
 //
 // The array of ingress rules is applied to any pods selected by this field.
@@ -5225,6 +5473,46 @@ func (d *NetworkPolicyIngressRuleDie) DiePatch(patchType types.PatchType) ([]byt
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// PortsDie replaces Ports by collecting the released value from each die passed.
+//
+// ports is a list of ports which should be made accessible on the pods selected for
+//
+// this rule. Each item in this list is combined using a logical OR. If this field is
+//
+// empty or missing, this rule matches all ports (traffic not restricted by port).
+//
+// # If this field is present and contains at least one item, then this rule allows
+//
+// traffic only if the traffic matches at least one port in the list.
+func (d *NetworkPolicyIngressRuleDie) PortsDie(v ...*NetworkPolicyPortDie) *NetworkPolicyIngressRuleDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicyIngressRule) {
+		r.Ports = make([]networkingv1.NetworkPolicyPort, len(v))
+		for i := range v {
+			r.Ports[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// FromDie replaces From by collecting the released value from each die passed.
+//
+// from is a list of sources which should be able to access the pods selected for this rule.
+//
+// Items in this list are combined using a logical OR operation. If this field is
+//
+// empty or missing, this rule matches all sources (traffic not restricted by
+//
+// source). If this field is present and contains at least one item, this rule
+//
+// allows traffic only if the traffic matches at least one item in the from list.
+func (d *NetworkPolicyIngressRuleDie) FromDie(v ...*NetworkPolicyPeerDie) *NetworkPolicyIngressRuleDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicyIngressRule) {
+		r.From = make([]networkingv1.NetworkPolicyPeer, len(v))
+		for i := range v {
+			r.From[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // ports is a list of ports which should be made accessible on the pods selected for
 //
 // this rule. Each item in this list is combined using a logical OR. If this field is
@@ -5481,6 +5769,46 @@ func (d *NetworkPolicyEgressRuleDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *NetworkPolicyEgressRuleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// PortsDie replaces Ports by collecting the released value from each die passed.
+//
+// ports is a list of destination ports for outgoing traffic.
+//
+// Each item in this list is combined using a logical OR. If this field is
+//
+// empty or missing, this rule matches all ports (traffic not restricted by port).
+//
+// # If this field is present and contains at least one item, then this rule allows
+//
+// traffic only if the traffic matches at least one port in the list.
+func (d *NetworkPolicyEgressRuleDie) PortsDie(v ...*NetworkPolicyPortDie) *NetworkPolicyEgressRuleDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicyEgressRule) {
+		r.Ports = make([]networkingv1.NetworkPolicyPort, len(v))
+		for i := range v {
+			r.Ports[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// ToDie replaces To by collecting the released value from each die passed.
+//
+// to is a list of destinations for outgoing traffic of pods selected for this rule.
+//
+// Items in this list are combined using a logical OR operation. If this field is
+//
+// empty or missing, this rule matches all destinations (traffic not restricted by
+//
+// destination). If this field is present and contains at least one item, this rule
+//
+// allows traffic only if the traffic matches at least one item in the to list.
+func (d *NetworkPolicyEgressRuleDie) ToDie(v ...*NetworkPolicyPeerDie) *NetworkPolicyEgressRuleDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicyEgressRule) {
+		r.To = make([]networkingv1.NetworkPolicyPeer, len(v))
+		for i := range v {
+			r.To[i] = v[i].DieRelease()
+		}
+	})
 }
 
 // ports is a list of destination ports for outgoing traffic.
@@ -5744,7 +6072,7 @@ func (d *NetworkPolicyPortDie) DiePatch(patchType types.PatchType) ([]byte, erro
 // protocol represents the protocol (TCP, UDP, or SCTP) which traffic must match.
 //
 // If not specified, this field defaults to TCP.
-func (d *NetworkPolicyPortDie) Protocol(v *corev1.Protocol) *NetworkPolicyPortDie {
+func (d *NetworkPolicyPortDie) Protocol(v *apicorev1.Protocol) *NetworkPolicyPortDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicyPort) {
 		r.Protocol = v
 	})
@@ -6034,6 +6362,57 @@ func (d *NetworkPolicyPeerDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *NetworkPolicyPeerDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// PodSelectorDie mutates PodSelector as a die.
+//
+// podSelector is a label selector which selects pods. This field follows standard label
+//
+// selector semantics; if present but empty, it selects all pods.
+//
+// # If namespaceSelector is also set, then the NetworkPolicyPeer as a whole selects
+//
+// the pods matching podSelector in the Namespaces selected by NamespaceSelector.
+//
+// Otherwise it selects the pods matching podSelector in the policy's own namespace.
+func (d *NetworkPolicyPeerDie) PodSelectorDie(fn func(d *metav1.LabelSelectorDie)) *NetworkPolicyPeerDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicyPeer) {
+		d := metav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.PodSelector)
+		fn(d)
+		r.PodSelector = d.DieReleasePtr()
+	})
+}
+
+// NamespaceSelectorDie mutates NamespaceSelector as a die.
+//
+// namespaceSelector selects namespaces using cluster-scoped labels. This field follows
+//
+// standard label selector semantics; if present but empty, it selects all namespaces.
+//
+// # If podSelector is also set, then the NetworkPolicyPeer as a whole selects
+//
+// the pods matching podSelector in the namespaces selected by namespaceSelector.
+//
+// Otherwise it selects all pods in the namespaces selected by namespaceSelector.
+func (d *NetworkPolicyPeerDie) NamespaceSelectorDie(fn func(d *metav1.LabelSelectorDie)) *NetworkPolicyPeerDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicyPeer) {
+		d := metav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.NamespaceSelector)
+		fn(d)
+		r.NamespaceSelector = d.DieReleasePtr()
+	})
+}
+
+// IPBlockDie mutates IPBlock as a die.
+//
+// ipBlock defines policy on a particular IPBlock. If this field is set then
+//
+// neither of the other fields can be.
+func (d *NetworkPolicyPeerDie) IPBlockDie(fn func(d *IPBlockDie)) *NetworkPolicyPeerDie {
+	return d.DieStamp(func(r *networkingv1.NetworkPolicyPeer) {
+		d := IPBlockBlank.DieImmutable(false).DieFeedPtr(r.IPBlock)
+		fn(d)
+		r.IPBlock = d.DieReleasePtr()
+	})
 }
 
 // podSelector is a label selector which selects pods. This field follows standard label

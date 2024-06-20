@@ -18,16 +18,8 @@ package v1beta1
 
 import (
 	storagev1beta1 "k8s.io/api/storage/v1beta1"
-	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 // +die:object=true,apiVersion=storage.k8s.io/v1beta1,kind=CSIStorageCapacity
+// +die:field:name=NodeTopology,package=_/meta/v1,die=LabelSelectorDie,pointer=true
 type _ = storagev1beta1.CSIStorageCapacity
-
-func (d *CSIStorageCapacityDie) NodeTopologyDie(fn func(d *diemetav1.LabelSelectorDie)) *CSIStorageCapacityDie {
-	return d.DieStamp(func(r *storagev1beta1.CSIStorageCapacity) {
-		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.NodeTopology)
-		fn(d)
-		r.NodeTopology = d.DieReleasePtr()
-	})
-}

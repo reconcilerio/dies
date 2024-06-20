@@ -25,51 +25,28 @@ import (
 type _ = corev1.Node
 
 // +die
+// +die:field:name=ConfigSource,die=NodeConfigSourceDie,pointer=true
+// +die:field:name=Taints,die=TaintDie,listType=map,listMapKey=Key
 type _ = corev1.NodeSpec
-
-func (d *NodeSpecDie) TaintDie(key string, fn func(d *TaintDie)) *NodeSpecDie {
-	return d.DieStamp(func(r *corev1.NodeSpec) {
-		for i := range r.Taints {
-			if key == r.Taints[i].Key {
-				d := TaintBlank.DieImmutable(false).DieFeed(r.Taints[i])
-				fn(d)
-				r.Taints[i] = d.DieRelease()
-				return
-			}
-		}
-
-		d := TaintBlank.DieImmutable(false).DieFeed(corev1.Taint{Key: key})
-		fn(d)
-		r.Taints = append(r.Taints, d.DieRelease())
-	})
-}
-
-func (d *NodeSpecDie) ConfigSourceDie(fn func(d *NodeConfigSourceDie)) *NodeSpecDie {
-	return d.DieStamp(func(r *corev1.NodeSpec) {
-		d := NodeConfigSourceBlank.DieImmutable(false).DieFeedPtr(r.ConfigSource)
-		fn(d)
-		r.ConfigSource = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ = corev1.Taint
 
 // +die
+// +die:field:name=ConfigMap,die=ConfigMapNodeConfigSourceDie,pointer=true
 type _ = corev1.NodeConfigSource
-
-func (d *NodeConfigSourceDie) ConfigMapDie(fn func(d *ConfigMapNodeConfigSourceDie)) *NodeConfigSourceDie {
-	return d.DieStamp(func(r *corev1.NodeConfigSource) {
-		d := ConfigMapNodeConfigSourceBlank.DieImmutable(false).DieFeedPtr(r.ConfigMap)
-		fn(d)
-		r.ConfigMap = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ = corev1.ConfigMapNodeConfigSource
 
 // +die
+// +die:field:name=DaemonEndpoints,die=NodeDaemonEndpointsDie
+// +die:field:name=NodeInfo,die=NodeSystemInfoDie
+// +die:field:name=Config,die=NodeConfigStatusDie,pointer=true
+// +die:field:name=Addresses,die=NodeAddressDie,listType=atomic
+// +die:field:name=Images,die=ContainerImageDie,listType=atomic
+// +die:field:name=VolumesAttached,method=VolumeAttachedDie,die=AttachedVolumeDie,listType=map,listMapKeyPackage=k8s.io/api/core/v1,listMapKeyType=UniqueVolumeName
+// +die:field:name=RuntimeHandlers,die=NodeRuntimeHandlerDie,listType=atomic
 type _ = corev1.NodeStatus
 
 func (d *NodeStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *NodeStatusDie {
@@ -88,87 +65,17 @@ func (d *NodeStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *No
 	})
 }
 
+// deprecated: use AddressesDie
 func (d *NodeStatusDie) AddresssDie(addresses ...*NodeAddressDie) *NodeStatusDie {
-	return d.DieStamp(func(r *corev1.NodeStatus) {
-		r.Addresses = make([]corev1.NodeAddress, len(addresses))
-		for i := range addresses {
-			r.Addresses[i] = addresses[i].DieRelease()
-		}
-	})
-}
-
-func (d *NodeStatusDie) DaemonEndpointsDie(fn func(d *NodeDaemonEndpointsDie)) *NodeStatusDie {
-	return d.DieStamp(func(r *corev1.NodeStatus) {
-		d := NodeDaemonEndpointsBlank.DieImmutable(false).DieFeed(r.DaemonEndpoints)
-		fn(d)
-		r.DaemonEndpoints = d.DieRelease()
-	})
-}
-
-func (d *NodeStatusDie) NodeInfoDie(fn func(d *NodeSystemInfoDie)) *NodeStatusDie {
-	return d.DieStamp(func(r *corev1.NodeStatus) {
-		d := NodeSystemInfoBlank.DieImmutable(false).DieFeed(r.NodeInfo)
-		fn(d)
-		r.NodeInfo = d.DieRelease()
-	})
-}
-
-func (d *NodeStatusDie) ImagesDie(images ...*ContainerImageDie) *NodeStatusDie {
-	return d.DieStamp(func(r *corev1.NodeStatus) {
-		r.Images = make([]corev1.ContainerImage, len(images))
-		for i := range images {
-			r.Images[i] = images[i].DieRelease()
-		}
-	})
-}
-
-func (d *NodeStatusDie) VolumeAttachedDie(name corev1.UniqueVolumeName, fn func(d *AttachedVolumeDie)) *NodeStatusDie {
-	return d.DieStamp(func(r *corev1.NodeStatus) {
-		for i := range r.VolumesAttached {
-			if name == r.VolumesAttached[i].Name {
-				d := AttachedVolumeBlank.DieImmutable(false).DieFeed(r.VolumesAttached[i])
-				fn(d)
-				r.VolumesAttached[i] = d.DieRelease()
-				return
-			}
-		}
-
-		d := AttachedVolumeBlank.DieImmutable(false).DieFeed(corev1.AttachedVolume{Name: name})
-		fn(d)
-		r.VolumesAttached = append(r.VolumesAttached, d.DieRelease())
-	})
-}
-
-func (d *NodeStatusDie) ConfigDie(fn func(d *NodeConfigStatusDie)) *NodeStatusDie {
-	return d.DieStamp(func(r *corev1.NodeStatus) {
-		d := NodeConfigStatusBlank.DieImmutable(false).DieFeedPtr(r.Config)
-		fn(d)
-		r.Config = d.DieReleasePtr()
-	})
-}
-
-func (d *NodeStatusDie) RuntimeHandlersDie(handlers ...*NodeRuntimeHandlerDie) *NodeStatusDie {
-	return d.DieStamp(func(r *corev1.NodeStatus) {
-		r.RuntimeHandlers = make([]corev1.NodeRuntimeHandler, len(handlers))
-		for i := range handlers {
-			r.RuntimeHandlers[i] = handlers[i].DieRelease()
-		}
-	})
+	return d.AddressesDie(addresses...)
 }
 
 // +die
 type _ = corev1.NodeAddress
 
 // +die
+// +die:field:name=KubeletEndpoint,die=DaemonEndpointDie
 type _ = corev1.NodeDaemonEndpoints
-
-func (d *NodeDaemonEndpointsDie) KubeletEndpointDie(fn func(d *DaemonEndpointDie)) *NodeDaemonEndpointsDie {
-	return d.DieStamp(func(r *corev1.NodeDaemonEndpoints) {
-		d := DaemonEndpointBlank.DieImmutable(false).DieFeed(r.KubeletEndpoint)
-		fn(d)
-		r.KubeletEndpoint = d.DieRelease()
-	})
-}
 
 // +die
 type _ = corev1.DaemonEndpoint
@@ -183,42 +90,14 @@ type _ = corev1.ContainerImage
 type _ = corev1.AttachedVolume
 
 // +die
+// +die:field:name=Assigned,die=NodeConfigSourceDie,pointer=true
+// +die:field:name=Active,die=NodeConfigSourceDie,pointer=true
+// +die:field:name=LastKnownGood,die=NodeConfigSourceDie,pointer=true
 type _ = corev1.NodeConfigStatus
 
-func (d *NodeConfigStatusDie) AssignedDie(fn func(d *NodeConfigSourceDie)) *NodeConfigStatusDie {
-	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
-		d := NodeConfigSourceBlank.DieImmutable(false).DieFeedPtr(r.Assigned)
-		fn(d)
-		r.Assigned = d.DieReleasePtr()
-	})
-}
-
-func (d *NodeConfigStatusDie) ActiveDie(fn func(d *NodeConfigSourceDie)) *NodeConfigStatusDie {
-	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
-		d := NodeConfigSourceBlank.DieImmutable(false).DieFeedPtr(r.Active)
-		fn(d)
-		r.Active = d.DieReleasePtr()
-	})
-}
-
-func (d *NodeConfigStatusDie) LastKnownGoodDie(fn func(d *NodeConfigSourceDie)) *NodeConfigStatusDie {
-	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
-		d := NodeConfigSourceBlank.DieImmutable(false).DieFeedPtr(r.LastKnownGood)
-		fn(d)
-		r.LastKnownGood = d.DieReleasePtr()
-	})
-}
-
 // +die
+// +die:field:name=Features,die=NodeRuntimeHandlerFeaturesDie,pointer=true
 type _ = corev1.NodeRuntimeHandler
-
-func (d *NodeRuntimeHandlerDie) FeaturesDie(fn func(d *NodeRuntimeHandlerFeaturesDie)) *NodeRuntimeHandlerDie {
-	return d.DieStamp(func(r *corev1.NodeRuntimeHandler) {
-		d := NodeRuntimeHandlerFeaturesBlank.DieImmutable(false).DieFeedPtr(r.Features)
-		fn(d)
-		r.Features = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ = corev1.NodeRuntimeHandlerFeatures

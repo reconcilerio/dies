@@ -25,7 +25,7 @@ import (
 	fmtx "fmt"
 	cmp "github.com/google/go-cmp/cmp"
 	appsv1 "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
+	apicorev1 "k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -35,6 +35,7 @@ import (
 	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
+	corev1 "reconciler.io/dies/apis/core/v1"
 	metav1 "reconciler.io/dies/apis/meta/v1"
 	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
@@ -971,6 +972,55 @@ func (d *DaemonSetSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SelectorDie mutates Selector as a die.
+//
+// A label query over pods that are managed by the daemon set.
+//
+// Must match in order to be controlled.
+//
+// It must match the pod template's labels.
+//
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
+func (d *DaemonSetSpecDie) SelectorDie(fn func(d *metav1.LabelSelectorDie)) *DaemonSetSpecDie {
+	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
+		d := metav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
+		fn(d)
+		r.Selector = d.DieReleasePtr()
+	})
+}
+
+// TemplateDie mutates Template as a die.
+//
+// An object that describes the pod that will be created.
+//
+// # The DaemonSet will create exactly one copy of this pod on every node
+//
+// that matches the template's node selector (or on every node if no node
+//
+// selector is specified).
+//
+// The only allowed template.spec.restartPolicy value is "Always".
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
+func (d *DaemonSetSpecDie) TemplateDie(fn func(d *corev1.PodTemplateSpecDie)) *DaemonSetSpecDie {
+	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
+		d := corev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
+		fn(d)
+		r.Template = d.DieRelease()
+	})
+}
+
+// UpdateStrategyDie mutates UpdateStrategy as a die.
+//
+// An update strategy to replace existing DaemonSet pods with new pods.
+func (d *DaemonSetSpecDie) UpdateStrategyDie(fn func(d *DaemonSetUpdateStrategyDie)) *DaemonSetSpecDie {
+	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
+		d := DaemonSetUpdateStrategyBlank.DieImmutable(false).DieFeed(r.UpdateStrategy)
+		fn(d)
+		r.UpdateStrategy = d.DieRelease()
+	})
+}
+
 // A label query over pods that are managed by the daemon set.
 //
 // Must match in order to be controlled.
@@ -995,7 +1045,7 @@ func (d *DaemonSetSpecDie) Selector(v *apismetav1.LabelSelector) *DaemonSetSpecD
 // The only allowed template.spec.restartPolicy value is "Always".
 //
 // More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
-func (d *DaemonSetSpecDie) Template(v corev1.PodTemplateSpec) *DaemonSetSpecDie {
+func (d *DaemonSetSpecDie) Template(v apicorev1.PodTemplateSpec) *DaemonSetSpecDie {
 	return d.DieStamp(func(r *appsv1.DaemonSetSpec) {
 		r.Template = v
 	})
@@ -2651,6 +2701,45 @@ func (d *DeploymentSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SelectorDie mutates Selector as a die.
+//
+// Label selector for pods. Existing ReplicaSets whose pods are
+//
+// selected by this will be the ones affected by this deployment.
+//
+// It must match the pod template's labels.
+func (d *DeploymentSpecDie) SelectorDie(fn func(d *metav1.LabelSelectorDie)) *DeploymentSpecDie {
+	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
+		d := metav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
+		fn(d)
+		r.Selector = d.DieReleasePtr()
+	})
+}
+
+// TemplateDie mutates Template as a die.
+//
+// Template describes the pods that will be created.
+//
+// The only allowed template.spec.restartPolicy value is "Always".
+func (d *DeploymentSpecDie) TemplateDie(fn func(d *corev1.PodTemplateSpecDie)) *DeploymentSpecDie {
+	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
+		d := corev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
+		fn(d)
+		r.Template = d.DieRelease()
+	})
+}
+
+// StrategyDie mutates Strategy as a die.
+//
+// The deployment strategy to use to replace existing pods with new ones.
+func (d *DeploymentSpecDie) StrategyDie(fn func(d *DeploymentStrategyDie)) *DeploymentSpecDie {
+	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
+		d := DeploymentStrategyBlank.DieImmutable(false).DieFeed(r.Strategy)
+		fn(d)
+		r.Strategy = d.DieRelease()
+	})
+}
+
 // Number of desired pods. This is a pointer to distinguish between explicit
 //
 // zero and not specified. Defaults to 1.
@@ -2674,7 +2763,7 @@ func (d *DeploymentSpecDie) Selector(v *apismetav1.LabelSelector) *DeploymentSpe
 // Template describes the pods that will be created.
 //
 // The only allowed template.spec.restartPolicy value is "Always".
-func (d *DeploymentSpecDie) Template(v corev1.PodTemplateSpec) *DeploymentSpecDie {
+func (d *DeploymentSpecDie) Template(v apicorev1.PodTemplateSpec) *DeploymentSpecDie {
 	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
 		r.Template = v
 	})
@@ -4262,6 +4351,38 @@ func (d *ReplicaSetSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SelectorDie mutates Selector as a die.
+//
+// Selector is a label query over pods that should match the replica count.
+//
+// Label keys and values that must match in order to be controlled by this replica set.
+//
+// It must match the pod template's labels.
+//
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
+func (d *ReplicaSetSpecDie) SelectorDie(fn func(d *metav1.LabelSelectorDie)) *ReplicaSetSpecDie {
+	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
+		d := metav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
+		fn(d)
+		r.Selector = d.DieReleasePtr()
+	})
+}
+
+// TemplateDie mutates Template as a die.
+//
+// # Template is the object that describes the pod that will be created if
+//
+// insufficient replicas are detected.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
+func (d *ReplicaSetSpecDie) TemplateDie(fn func(d *corev1.PodTemplateSpecDie)) *ReplicaSetSpecDie {
+	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
+		d := corev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
+		fn(d)
+		r.Template = d.DieRelease()
+	})
+}
+
 // Replicas is the number of desired replicas.
 //
 // This is a pointer to distinguish between explicit zero and unspecified.
@@ -4304,7 +4425,7 @@ func (d *ReplicaSetSpecDie) Selector(v *apismetav1.LabelSelector) *ReplicaSetSpe
 // insufficient replicas are detected.
 //
 // More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
-func (d *ReplicaSetSpecDie) Template(v corev1.PodTemplateSpec) *ReplicaSetSpecDie {
+func (d *ReplicaSetSpecDie) Template(v apicorev1.PodTemplateSpec) *ReplicaSetSpecDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
 		r.Template = v
 	})
@@ -5167,6 +5288,125 @@ func (d *StatefulSetSpecDie) DiePatch(patchType types.PatchType) ([]byte, error)
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SelectorDie mutates Selector as a die.
+//
+// selector is a label query over pods that should match the replica count.
+//
+// It must match the pod template's labels.
+//
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
+func (d *StatefulSetSpecDie) SelectorDie(fn func(d *metav1.LabelSelectorDie)) *StatefulSetSpecDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
+		d := metav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
+		fn(d)
+		r.Selector = d.DieReleasePtr()
+	})
+}
+
+// TemplateDie mutates Template as a die.
+//
+// template is the object that describes the pod that will be created if
+//
+// insufficient replicas are detected. Each pod stamped out by the StatefulSet
+//
+// will fulfill this Template, but have a unique identity from the rest
+//
+// of the StatefulSet. Each pod will be named with the format
+//
+// <statefulsetname>-<podindex>. For example, a pod in a StatefulSet named
+//
+// "web" with index number "3" would be named "web-3".
+//
+// The only allowed template.spec.restartPolicy value is "Always".
+func (d *StatefulSetSpecDie) TemplateDie(fn func(d *corev1.PodTemplateSpecDie)) *StatefulSetSpecDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
+		d := corev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
+		fn(d)
+		r.Template = d.DieRelease()
+	})
+}
+
+// UpdateStrategyDie mutates UpdateStrategy as a die.
+//
+// updateStrategy indicates the StatefulSetUpdateStrategy that will be
+//
+// employed to update Pods in the StatefulSet when a revision is made to
+//
+// Template.
+func (d *StatefulSetSpecDie) UpdateStrategyDie(fn func(d *StatefulSetUpdateStrategyDie)) *StatefulSetSpecDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
+		d := StatefulSetUpdateStrategyBlank.DieImmutable(false).DieFeed(r.UpdateStrategy)
+		fn(d)
+		r.UpdateStrategy = d.DieRelease()
+	})
+}
+
+// PersistentVolumeClaimRetentionPolicyDie mutates PersistentVolumeClaimRetentionPolicy as a die.
+//
+// persistentVolumeClaimRetentionPolicy describes the lifecycle of persistent
+//
+// volume claims created from volumeClaimTemplates. By default, all persistent
+//
+// volume claims are created as needed and retained until manually deleted. This
+//
+// policy allows the lifecycle to be altered, for example by deleting persistent
+//
+// volume claims when their stateful set is deleted, or when their pod is scaled
+//
+// down. This requires the StatefulSetAutoDeletePVC feature gate to be enabled,
+//
+// which is alpha.  +optional
+func (d *StatefulSetSpecDie) PersistentVolumeClaimRetentionPolicyDie(fn func(d *StatefulSetPersistentVolumeClaimRetentionPolicyDie)) *StatefulSetSpecDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
+		d := StatefulSetPersistentVolumeClaimRetentionPolicyBlank.DieImmutable(false).DieFeedPtr(r.PersistentVolumeClaimRetentionPolicy)
+		fn(d)
+		r.PersistentVolumeClaimRetentionPolicy = d.DieReleasePtr()
+	})
+}
+
+// OrdinalsDie mutates Ordinals as a die.
+//
+// ordinals controls the numbering of replica indices in a StatefulSet. The
+//
+// default ordinals behavior assigns a "0" index to the first replica and
+//
+// increments the index by one for each additional replica requested. Using
+//
+// the ordinals field requires the StatefulSetStartOrdinal feature gate to be
+//
+// enabled, which is beta.
+func (d *StatefulSetSpecDie) OrdinalsDie(fn func(d *StatefulSetOrdinalsDie)) *StatefulSetSpecDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
+		d := StatefulSetOrdinalsBlank.DieImmutable(false).DieFeedPtr(r.Ordinals)
+		fn(d)
+		r.Ordinals = d.DieReleasePtr()
+	})
+}
+
+// VolumeClaimTemplatesDie replaces VolumeClaimTemplates by collecting the released value from each die passed.
+//
+// volumeClaimTemplates is a list of claims that pods are allowed to reference.
+//
+// # The StatefulSet controller is responsible for mapping network identities to
+//
+// claims in a way that maintains the identity of a pod. Every claim in
+//
+// this list must have at least one matching (by name) volumeMount in one
+//
+// container in the template. A claim in this list takes precedence over
+//
+// any volumes in the template, with the same name.
+//
+// TODO: Define the behavior if a claim already exists with the same name.
+func (d *StatefulSetSpecDie) VolumeClaimTemplatesDie(v ...*corev1.PersistentVolumeClaimDie) *StatefulSetSpecDie {
+	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
+		r.VolumeClaimTemplates = make([]apicorev1.PersistentVolumeClaim, len(v))
+		for i := range v {
+			r.VolumeClaimTemplates[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // replicas is the desired number of replicas of the given Template.
 //
 // # These are replicas in the sense that they are instantiations of the
@@ -5206,7 +5446,7 @@ func (d *StatefulSetSpecDie) Selector(v *apismetav1.LabelSelector) *StatefulSetS
 // "web" with index number "3" would be named "web-3".
 //
 // The only allowed template.spec.restartPolicy value is "Always".
-func (d *StatefulSetSpecDie) Template(v corev1.PodTemplateSpec) *StatefulSetSpecDie {
+func (d *StatefulSetSpecDie) Template(v apicorev1.PodTemplateSpec) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.Template = v
 	})
@@ -5225,7 +5465,7 @@ func (d *StatefulSetSpecDie) Template(v corev1.PodTemplateSpec) *StatefulSetSpec
 // any volumes in the template, with the same name.
 //
 // TODO: Define the behavior if a claim already exists with the same name.
-func (d *StatefulSetSpecDie) VolumeClaimTemplates(v ...corev1.PersistentVolumeClaim) *StatefulSetSpecDie {
+func (d *StatefulSetSpecDie) VolumeClaimTemplates(v ...apicorev1.PersistentVolumeClaim) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.VolumeClaimTemplates = v
 	})

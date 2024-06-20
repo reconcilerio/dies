@@ -25,15 +25,8 @@ import (
 type _ = corev1.ReplicationController
 
 // +die
+// +die:field:name=Template,die=PodTemplateSpecDie,pointer=true
 type _ = corev1.ReplicationControllerSpec
-
-func (d *ReplicationControllerSpecDie) TemplateDie(fn func(d *PodTemplateSpecDie)) *ReplicationControllerSpecDie {
-	return d.DieStamp(func(r *corev1.ReplicationControllerSpec) {
-		d := PodTemplateSpecBlank.DieImmutable(false).DieFeedPtr(r.Template)
-		fn(d)
-		r.Template = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ = corev1.ReplicationControllerStatus

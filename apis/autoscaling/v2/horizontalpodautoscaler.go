@@ -26,225 +26,68 @@ import (
 type _ = autoscalingv2.HorizontalPodAutoscaler
 
 // +die
+// +die:field:name=ScaleTargetRef,die=CrossVersionObjectReferenceDie
+// +die:field:name=Behavior,die=HorizontalPodAutoscalerBehaviorDie,pointer=true
+// +die:field:name=Metrics,die=MetricSpecDie,listType=atomic
 type _ = autoscalingv2.HorizontalPodAutoscalerSpec
-
-func (d *HorizontalPodAutoscalerSpecDie) ScaleTargetRefDie(fn func(d *CrossVersionObjectReferenceDie)) *HorizontalPodAutoscalerSpecDie {
-	return d.DieStamp(func(r *autoscalingv2.HorizontalPodAutoscalerSpec) {
-		d := CrossVersionObjectReferenceBlank.DieImmutable(false).DieFeed(r.ScaleTargetRef)
-		fn(d)
-		r.ScaleTargetRef = d.DieRelease()
-	})
-}
-
-func (d *HorizontalPodAutoscalerSpecDie) ConditionsDie(metrics ...*MetricSpecDie) *HorizontalPodAutoscalerSpecDie {
-	return d.DieStamp(func(r *autoscalingv2.HorizontalPodAutoscalerSpec) {
-		r.Metrics = make([]autoscalingv2.MetricSpec, len(metrics))
-		for i := range metrics {
-			r.Metrics[i] = metrics[i].DieRelease()
-		}
-	})
-}
-
-func (d *HorizontalPodAutoscalerSpecDie) BehaviorDie(fn func(d *HorizontalPodAutoscalerBehaviorDie)) *HorizontalPodAutoscalerSpecDie {
-	return d.DieStamp(func(r *autoscalingv2.HorizontalPodAutoscalerSpec) {
-		d := HorizontalPodAutoscalerBehaviorBlank.DieImmutable(false).DieFeedPtr(r.Behavior)
-		fn(d)
-		r.Behavior = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ = autoscalingv2.CrossVersionObjectReference
 
 // +die
+// +die:field:name=Object,die=ObjectMetricSourceDie,pointer=true
+// +die:field:name=Pods,die=PodsMetricSourceDie,pointer=true
+// +die:field:name=Resource,die=ResourceMetricSourceDie,pointer=true
+// +die:field:name=ContainerResource,die=ContainerResourceMetricSourceDie,pointer=true
+// +die:field:name=External,die=ExternalMetricSourceDie,pointer=true
 type _ = autoscalingv2.MetricSpec
 
-func (d *MetricSpecDie) BehaviorDie(fn func(d *ObjectMetricSourceDie)) *MetricSpecDie {
-	return d.DieStamp(func(r *autoscalingv2.MetricSpec) {
-		d := ObjectMetricSourceBlank.DieImmutable(false).DieFeedPtr(r.Object)
-		fn(d)
-		r.Object = d.DieReleasePtr()
-	})
-}
-
-func (d *MetricSpecDie) PodsDie(fn func(d *PodsMetricSourceDie)) *MetricSpecDie {
-	return d.DieStamp(func(r *autoscalingv2.MetricSpec) {
-		d := PodsMetricSourceBlank.DieImmutable(false).DieFeedPtr(r.Pods)
-		fn(d)
-		r.Pods = d.DieReleasePtr()
-	})
-}
-
-func (d *MetricSpecDie) ResourceDie(fn func(d *ResourceMetricSourceDie)) *MetricSpecDie {
-	return d.DieStamp(func(r *autoscalingv2.MetricSpec) {
-		d := ResourceMetricSourceBlank.DieImmutable(false).DieFeedPtr(r.Resource)
-		fn(d)
-		r.Resource = d.DieReleasePtr()
-	})
-}
-
-func (d *MetricSpecDie) ContainerResourceDie(fn func(d *ContainerResourceMetricSourceDie)) *MetricSpecDie {
-	return d.DieStamp(func(r *autoscalingv2.MetricSpec) {
-		d := ContainerResourceMetricSourceBlank.DieImmutable(false).DieFeedPtr(r.ContainerResource)
-		fn(d)
-		r.ContainerResource = d.DieReleasePtr()
-	})
-}
-
-func (d *MetricSpecDie) ExternalDie(fn func(d *ExternalMetricSourceDie)) *MetricSpecDie {
-	return d.DieStamp(func(r *autoscalingv2.MetricSpec) {
-		d := ExternalMetricSourceBlank.DieImmutable(false).DieFeedPtr(r.External)
-		fn(d)
-		r.External = d.DieReleasePtr()
-	})
-}
-
 // +die
+// +die:field:name=DescribedObject,die=CrossVersionObjectReferenceDie
+// +die:field:name=Target,die=MetricTargetDie
+// +die:field:name=Metric,die=MetricIdentifierDie
 type _ = autoscalingv2.ObjectMetricSource
-
-func (d *ObjectMetricSourceDie) DescribedObjectDie(fn func(d *CrossVersionObjectReferenceDie)) *ObjectMetricSourceDie {
-	return d.DieStamp(func(r *autoscalingv2.ObjectMetricSource) {
-		d := CrossVersionObjectReferenceBlank.DieImmutable(false).DieFeed(r.DescribedObject)
-		fn(d)
-		r.DescribedObject = d.DieRelease()
-	})
-}
-
-func (d *ObjectMetricSourceDie) TargetDie(fn func(d *MetricTargetDie)) *ObjectMetricSourceDie {
-	return d.DieStamp(func(r *autoscalingv2.ObjectMetricSource) {
-		d := MetricTargetBlank.DieImmutable(false).DieFeed(r.Target)
-		fn(d)
-		r.Target = d.DieRelease()
-	})
-}
-
-func (d *ObjectMetricSourceDie) MetricDie(fn func(d *MetricIdentifierDie)) *ObjectMetricSourceDie {
-	return d.DieStamp(func(r *autoscalingv2.ObjectMetricSource) {
-		d := MetricIdentifierBlank.DieImmutable(false).DieFeed(r.Metric)
-		fn(d)
-		r.Metric = d.DieRelease()
-	})
-}
 
 // +die
 type _ = autoscalingv2.MetricTarget
 
 // +die
+// +die:field:name=Selector,package=_/meta/v1,die=LabelSelectorDie,pointer=true
 type _ = autoscalingv2.MetricIdentifier
 
-func (d *MetricIdentifierDie) SelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *MetricIdentifierDie {
-	return d.DieStamp(func(r *autoscalingv2.MetricIdentifier) {
-		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
-		fn(d)
-		r.Selector = d.DieReleasePtr()
-	})
-}
-
 // +die
+// +die:field:name=Metric,die=MetricIdentifierDie
+// +die:field:name=Target,die=MetricTargetDie
 type _ = autoscalingv2.PodsMetricSource
 
-func (d *PodsMetricSourceDie) MetricDie(fn func(d *MetricIdentifierDie)) *PodsMetricSourceDie {
-	return d.DieStamp(func(r *autoscalingv2.PodsMetricSource) {
-		d := MetricIdentifierBlank.DieImmutable(false).DieFeed(r.Metric)
-		fn(d)
-		r.Metric = d.DieRelease()
-	})
-}
-
-func (d *PodsMetricSourceDie) TargetDie(fn func(d *MetricTargetDie)) *PodsMetricSourceDie {
-	return d.DieStamp(func(r *autoscalingv2.PodsMetricSource) {
-		d := MetricTargetBlank.DieImmutable(false).DieFeed(r.Target)
-		fn(d)
-		r.Target = d.DieRelease()
-	})
-}
-
 // +die
+// +die:field:name=Target,die=MetricTargetDie
 type _ = autoscalingv2.ResourceMetricSource
 
-func (d *ResourceMetricSourceDie) TargetDie(fn func(d *MetricTargetDie)) *ResourceMetricSourceDie {
-	return d.DieStamp(func(r *autoscalingv2.ResourceMetricSource) {
-		d := MetricTargetBlank.DieImmutable(false).DieFeed(r.Target)
-		fn(d)
-		r.Target = d.DieRelease()
-	})
-}
-
 // +die
+// +die:field:name=Target,die=MetricTargetDie
 type _ = autoscalingv2.ContainerResourceMetricSource
 
-func (d *ContainerResourceMetricSourceDie) TargetDie(fn func(d *MetricTargetDie)) *ContainerResourceMetricSourceDie {
-	return d.DieStamp(func(r *autoscalingv2.ContainerResourceMetricSource) {
-		d := MetricTargetBlank.DieImmutable(false).DieFeed(r.Target)
-		fn(d)
-		r.Target = d.DieRelease()
-	})
-}
-
 // +die
+// +die:field:name=Metric,die=MetricIdentifierDie
+// +die:field:name=Target,die=MetricTargetDie
 type _ = autoscalingv2.ExternalMetricSource
 
-func (d *ExternalMetricSourceDie) MetricDie(fn func(d *MetricIdentifierDie)) *ExternalMetricSourceDie {
-	return d.DieStamp(func(r *autoscalingv2.ExternalMetricSource) {
-		d := MetricIdentifierBlank.DieImmutable(false).DieFeed(r.Metric)
-		fn(d)
-		r.Metric = d.DieRelease()
-	})
-}
-
-func (d *ExternalMetricSourceDie) TargetDie(fn func(d *MetricTargetDie)) *ExternalMetricSourceDie {
-	return d.DieStamp(func(r *autoscalingv2.ExternalMetricSource) {
-		d := MetricTargetBlank.DieImmutable(false).DieFeed(r.Target)
-		fn(d)
-		r.Target = d.DieRelease()
-	})
-}
-
 // +die
+// +die:field:name=ScaleUp,die=HPAScalingRulesDie,pointer=true
+// +die:field:name=ScaleDown,die=HPAScalingRulesDie,pointer=true
 type _ = autoscalingv2.HorizontalPodAutoscalerBehavior
 
-func (d *HorizontalPodAutoscalerBehaviorDie) ScaleUpDie(fn func(d *HPAScalingRulesDie)) *HorizontalPodAutoscalerBehaviorDie {
-	return d.DieStamp(func(r *autoscalingv2.HorizontalPodAutoscalerBehavior) {
-		d := HPAScalingRulesBlank.DieImmutable(false).DieFeedPtr(r.ScaleUp)
-		fn(d)
-		r.ScaleUp = d.DieReleasePtr()
-	})
-}
-
-func (d *HorizontalPodAutoscalerBehaviorDie) ScaleDownDie(fn func(d *HPAScalingRulesDie)) *HorizontalPodAutoscalerBehaviorDie {
-	return d.DieStamp(func(r *autoscalingv2.HorizontalPodAutoscalerBehavior) {
-		d := HPAScalingRulesBlank.DieImmutable(false).DieFeedPtr(r.ScaleDown)
-		fn(d)
-		r.ScaleDown = d.DieReleasePtr()
-	})
-}
-
 // +die
+// +die:field:name=Policies,die=HPAScalingPolicyDie,listType=atomic
 type _ = autoscalingv2.HPAScalingRules
-
-func (d *HPAScalingRulesDie) PoliciesDie(policies ...*HPAScalingPolicyDie) *HPAScalingRulesDie {
-	return d.DieStamp(func(r *autoscalingv2.HPAScalingRules) {
-		r.Policies = make([]autoscalingv2.HPAScalingPolicy, len(policies))
-		for i := range policies {
-			r.Policies[i] = policies[i].DieRelease()
-		}
-	})
-}
 
 // +die
 type _ = autoscalingv2.HPAScalingPolicy
 
 // +die
+// +die:field:name=CurrentMetrics,die=MetricStatusDie,listType=atomic
 type _ = autoscalingv2.HorizontalPodAutoscalerStatus
-
-func (d *HorizontalPodAutoscalerStatusDie) CurrentMetricsDie(metrics ...*MetricStatusDie) *HorizontalPodAutoscalerStatusDie {
-	return d.DieStamp(func(r *autoscalingv2.HorizontalPodAutoscalerStatus) {
-		r.CurrentMetrics = make([]autoscalingv2.MetricStatus, len(metrics))
-		for i := range metrics {
-			r.CurrentMetrics[i] = metrics[i].DieRelease()
-		}
-	})
-}
 
 func (d *HorizontalPodAutoscalerStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *HorizontalPodAutoscalerStatusDie {
 	return d.DieStamp(func(r *autoscalingv2.HorizontalPodAutoscalerStatus) {
@@ -263,134 +106,36 @@ func (d *HorizontalPodAutoscalerStatusDie) ConditionsDie(conditions ...*diemetav
 }
 
 // +die
+// +die:field:name=Object,die=ObjectMetricStatusDie,pointer=true
+// +die:field:name=Pods,die=PodsMetricStatusDie,pointer=true
+// +die:field:name=Resource,die=ResourceMetricStatusDie,pointer=true
+// +die:field:name=ContainerResource,die=ContainerResourceMetricStatusDie,pointer=true
+// +die:field:name=External,die=ExternalMetricStatusDie,pointer=true
 type _ = autoscalingv2.MetricStatus
 
-func (d *MetricStatusDie) ObjectDie(fn func(d *ObjectMetricStatusDie)) *MetricStatusDie {
-	return d.DieStamp(func(r *autoscalingv2.MetricStatus) {
-		d := ObjectMetricStatusBlank.DieImmutable(false).DieFeedPtr(r.Object)
-		fn(d)
-		r.Object = d.DieReleasePtr()
-	})
-}
-
-func (d *MetricStatusDie) PodDie(fn func(d *PodsMetricStatusDie)) *MetricStatusDie {
-	return d.DieStamp(func(r *autoscalingv2.MetricStatus) {
-		d := PodsMetricStatusBlank.DieImmutable(false).DieFeedPtr(r.Pods)
-		fn(d)
-		r.Pods = d.DieReleasePtr()
-	})
-}
-
-func (d *MetricStatusDie) ResourceDie(fn func(d *ResourceMetricStatusDie)) *MetricStatusDie {
-	return d.DieStamp(func(r *autoscalingv2.MetricStatus) {
-		d := ResourceMetricStatusBlank.DieImmutable(false).DieFeedPtr(r.Resource)
-		fn(d)
-		r.Resource = d.DieReleasePtr()
-	})
-}
-
-func (d *MetricStatusDie) ContainerResourceDie(fn func(d *ContainerResourceMetricStatusDie)) *MetricStatusDie {
-	return d.DieStamp(func(r *autoscalingv2.MetricStatus) {
-		d := ContainerResourceMetricStatusBlank.DieImmutable(false).DieFeedPtr(r.ContainerResource)
-		fn(d)
-		r.ContainerResource = d.DieReleasePtr()
-	})
-}
-
-func (d *MetricStatusDie) ExternalDie(fn func(d *ExternalMetricStatusDie)) *MetricStatusDie {
-	return d.DieStamp(func(r *autoscalingv2.MetricStatus) {
-		d := ExternalMetricStatusBlank.DieImmutable(false).DieFeedPtr(r.External)
-		fn(d)
-		r.External = d.DieReleasePtr()
-	})
-}
-
 // +die
+// +die:field:name=Metric,die=MetricIdentifierDie
+// +die:field:name=Current,die=MetricValueStatusDie
+// +die:field:name=DescribedObject,die=CrossVersionObjectReferenceDie
 type _ = autoscalingv2.ObjectMetricStatus
-
-func (d *ObjectMetricStatusDie) MetricDie(fn func(d *MetricIdentifierDie)) *ObjectMetricStatusDie {
-	return d.DieStamp(func(r *autoscalingv2.ObjectMetricStatus) {
-		d := MetricIdentifierBlank.DieImmutable(false).DieFeed(r.Metric)
-		fn(d)
-		r.Metric = d.DieRelease()
-	})
-}
-
-func (d *ObjectMetricStatusDie) CurrentDie(fn func(d *MetricValueStatusDie)) *ObjectMetricStatusDie {
-	return d.DieStamp(func(r *autoscalingv2.ObjectMetricStatus) {
-		d := MetricValueStatusBlank.DieImmutable(false).DieFeed(r.Current)
-		fn(d)
-		r.Current = d.DieRelease()
-	})
-}
-
-func (d *ObjectMetricStatusDie) DescribedObjectDie(fn func(d *CrossVersionObjectReferenceDie)) *ObjectMetricStatusDie {
-	return d.DieStamp(func(r *autoscalingv2.ObjectMetricStatus) {
-		d := CrossVersionObjectReferenceBlank.DieImmutable(false).DieFeed(r.DescribedObject)
-		fn(d)
-		r.DescribedObject = d.DieRelease()
-	})
-}
 
 // +die
 type _ = autoscalingv2.MetricValueStatus
 
 // +die
+// +die:field:name=Metric,die=MetricIdentifierDie
+// +die:field:name=Current,die=MetricValueStatusDie
 type _ = autoscalingv2.PodsMetricStatus
 
-func (d *PodsMetricStatusDie) MetricDie(fn func(d *MetricIdentifierDie)) *PodsMetricStatusDie {
-	return d.DieStamp(func(r *autoscalingv2.PodsMetricStatus) {
-		d := MetricIdentifierBlank.DieImmutable(false).DieFeed(r.Metric)
-		fn(d)
-		r.Metric = d.DieRelease()
-	})
-}
-
-func (d *PodsMetricStatusDie) CurrentDie(fn func(d *MetricValueStatusDie)) *PodsMetricStatusDie {
-	return d.DieStamp(func(r *autoscalingv2.PodsMetricStatus) {
-		d := MetricValueStatusBlank.DieImmutable(false).DieFeed(r.Current)
-		fn(d)
-		r.Current = d.DieRelease()
-	})
-}
-
 // +die
+// +die:field:name=Current,die=MetricValueStatusDie
 type _ = autoscalingv2.ResourceMetricStatus
 
-func (d *ResourceMetricStatusDie) CurrentDie(fn func(d *MetricValueStatusDie)) *ResourceMetricStatusDie {
-	return d.DieStamp(func(r *autoscalingv2.ResourceMetricStatus) {
-		d := MetricValueStatusBlank.DieImmutable(false).DieFeed(r.Current)
-		fn(d)
-		r.Current = d.DieRelease()
-	})
-}
-
 // +die
+// +die:field:name=Current,die=MetricValueStatusDie
 type _ = autoscalingv2.ContainerResourceMetricStatus
 
-func (d *ContainerResourceMetricStatusDie) CurrentDie(fn func(d *MetricValueStatusDie)) *ContainerResourceMetricStatusDie {
-	return d.DieStamp(func(r *autoscalingv2.ContainerResourceMetricStatus) {
-		d := MetricValueStatusBlank.DieImmutable(false).DieFeed(r.Current)
-		fn(d)
-		r.Current = d.DieRelease()
-	})
-}
-
 // +die
+// +die:field:name=Metric,die=MetricIdentifierDie
+// +die:field:name=Current,die=MetricValueStatusDie
 type _ = autoscalingv2.ExternalMetricStatus
-
-func (d *ExternalMetricStatusDie) MetricDie(fn func(d *MetricIdentifierDie)) *ExternalMetricStatusDie {
-	return d.DieStamp(func(r *autoscalingv2.ExternalMetricStatus) {
-		d := MetricIdentifierBlank.DieImmutable(false).DieFeed(r.Metric)
-		fn(d)
-		r.Metric = d.DieRelease()
-	})
-}
-
-func (d *ExternalMetricStatusDie) CurrentDie(fn func(d *MetricValueStatusDie)) *ExternalMetricStatusDie {
-	return d.DieStamp(func(r *autoscalingv2.ExternalMetricStatus) {
-		d := MetricValueStatusBlank.DieImmutable(false).DieFeed(r.Current)
-		fn(d)
-		r.Current = d.DieRelease()
-	})
-}

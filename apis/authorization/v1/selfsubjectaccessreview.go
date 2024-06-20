@@ -24,20 +24,6 @@ import (
 type _ = authorizationv1.SelfSubjectAccessReview
 
 // +die
+// +die:field:name=ResourceAttributes,die=ResourceAttributesDie,pointer=true
+// +die:field:name=NonResourceAttributes,die=NonResourceAttributesDie,pointer=true
 type _ = authorizationv1.SelfSubjectAccessReviewSpec
-
-func (d *SelfSubjectAccessReviewSpecDie) ResourceAttributesDie(fn func(d *ResourceAttributesDie)) *SelfSubjectAccessReviewSpecDie {
-	return d.DieStamp(func(r *authorizationv1.SelfSubjectAccessReviewSpec) {
-		d := ResourceAttributesBlank.DieImmutable(false).DieFeedPtr(r.ResourceAttributes)
-		fn(d)
-		r.ResourceAttributes = d.DieReleasePtr()
-	})
-}
-
-func (d *SelfSubjectAccessReviewSpecDie) NonResourceAttributesDie(fn func(d *NonResourceAttributesDie)) *SelfSubjectAccessReviewSpecDie {
-	return d.DieStamp(func(r *authorizationv1.SelfSubjectAccessReviewSpec) {
-		d := NonResourceAttributesBlank.DieImmutable(false).DieFeedPtr(r.NonResourceAttributes)
-		fn(d)
-		r.NonResourceAttributes = d.DieReleasePtr()
-	})
-}

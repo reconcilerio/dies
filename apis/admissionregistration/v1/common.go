@@ -21,15 +21,8 @@ import (
 )
 
 // +die
+// +die:field:name=Service,die=ServiceReferenceDie,pointer=true
 type _ = admissionregistrationv1.WebhookClientConfig
-
-func (d *WebhookClientConfigDie) ServiceDie(fn func(d *ServiceReferenceDie)) *WebhookClientConfigDie {
-	return d.DieStamp(func(r *admissionregistrationv1.WebhookClientConfig) {
-		d := ServiceReferenceBlank.DieImmutable(false).DieFeedPtr(r.Service)
-		fn(d)
-		r.Service = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ admissionregistrationv1.ServiceReference

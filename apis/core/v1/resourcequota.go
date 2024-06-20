@@ -24,35 +24,12 @@ import (
 type _ = corev1.ResourceQuota
 
 // +die
+// +die:field:name=ScopeSelector,die=ScopeSelectorDie,pointer=true
 type _ = corev1.ResourceQuotaSpec
 
-func (d *ResourceQuotaSpecDie) ScopeSelectorDie(fn func(d *ScopeSelectorDie)) *ResourceQuotaSpecDie {
-	return d.DieStamp(func(r *corev1.ResourceQuotaSpec) {
-		d := ScopeSelectorBlank.DieImmutable(false).DieFeedPtr(r.ScopeSelector)
-		fn(d)
-		r.ScopeSelector = d.DieReleasePtr()
-	})
-}
-
 // +die
+// +die:field:name=MatchExpressions,die=ScopedResourceSelectorRequirementDie,listType=map,listMapKey=ScopeName,listMapKeyPackage=k8s.io/api/core/v1,listMapKeyType=ResourceQuotaScope
 type _ = corev1.ScopeSelector
-
-func (d *ScopeSelectorDie) MatchExpressionDie(scope corev1.ResourceQuotaScope, fn func(d *ScopedResourceSelectorRequirementDie)) *ScopeSelectorDie {
-	return d.DieStamp(func(r *corev1.ScopeSelector) {
-		for i := range r.MatchExpressions {
-			if scope == r.MatchExpressions[i].ScopeName {
-				d := ScopedResourceSelectorRequirementBlank.DieImmutable(false).DieFeed(r.MatchExpressions[i])
-				fn(d)
-				r.MatchExpressions[i] = d.DieRelease()
-				return
-			}
-		}
-
-		d := ScopedResourceSelectorRequirementBlank.DieImmutable(false).DieFeed(corev1.ScopedResourceSelectorRequirement{ScopeName: scope})
-		fn(d)
-		r.MatchExpressions = append(r.MatchExpressions, d.DieRelease())
-	})
-}
 
 // +die
 type _ = corev1.ScopedResourceSelectorRequirement

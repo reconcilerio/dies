@@ -25,99 +25,24 @@ import (
 type _ = apiextensionsv1.CustomResourceDefinition
 
 // +die
+// +die:field:name=Names,die=CustomResourceDefinitionNamesDie
+// +die:field:name=Conversion,die=CustomResourceConversionDie,pointer=true
+// +die:field:name=Versions,die=CustomResourceDefinitionVersionDie,listType=map
 type _ = apiextensionsv1.CustomResourceDefinitionSpec
 
-func (d *CustomResourceDefinitionSpecDie) NamesDie(fn func(d *CustomResourceDefinitionNamesDie)) *CustomResourceDefinitionSpecDie {
-	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
-		d := CustomResourceDefinitionNamesBlank.DieImmutable(false).DieFeed(r.Names)
-		fn(d)
-		r.Names = d.DieRelease()
-	})
-}
-
-func (d *CustomResourceDefinitionSpecDie) VersionDie(name string, fn func(d *CustomResourceDefinitionVersionDie)) *CustomResourceDefinitionSpecDie {
-	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
-		for i := range r.Versions {
-			if name == r.Versions[i].Name {
-				d := CustomResourceDefinitionVersionBlank.DieImmutable(false).DieFeed(r.Versions[i])
-				fn(d)
-				r.Versions[i] = d.DieRelease()
-				return
-			}
-		}
-
-		d := CustomResourceDefinitionVersionBlank.DieImmutable(false).DieFeed(apiextensionsv1.CustomResourceDefinitionVersion{Name: name})
-		fn(d)
-		r.Versions = append(r.Versions, d.DieRelease())
-	})
-}
-
-func (d *CustomResourceDefinitionSpecDie) ConversionDie(fn func(d *CustomResourceConversionDie)) *CustomResourceDefinitionSpecDie {
-	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionSpec) {
-		d := CustomResourceConversionBlank.DieImmutable(false).DieFeedPtr(r.Conversion)
-		fn(d)
-		r.Conversion = d.DieReleasePtr()
-	})
-}
-
 // +die
+// +die:field:name=Schema,die=CustomResourceValidationDie,pointer=true
+// +die:field:name=Subresources,die=CustomResourceSubresourcesDie,pointer=true
+// +die:field:name=AdditionalPrinterColumns,die=CustomResourceColumnDefinitionDie,listType=map
+// +die:field:name=SelectableFields,die=SelectableFieldDie,listType=atomic
 type _ apiextensionsv1.CustomResourceDefinitionVersion
-
-func (d *CustomResourceDefinitionVersionDie) SchemaDie(fn func(d *CustomResourceValidationDie)) *CustomResourceDefinitionVersionDie {
-	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
-		d := CustomResourceValidationBlank.DieImmutable(false).DieFeedPtr(r.Schema)
-		fn(d)
-		r.Schema = d.DieReleasePtr()
-	})
-}
-
-func (d *CustomResourceDefinitionVersionDie) SubresourcesDie(fn func(d *CustomResourceSubresourcesDie)) *CustomResourceDefinitionVersionDie {
-	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
-		d := CustomResourceSubresourcesBlank.DieImmutable(false).DieFeedPtr(r.Subresources)
-		fn(d)
-		r.Subresources = d.DieReleasePtr()
-	})
-}
-
-func (d *CustomResourceDefinitionVersionDie) AdditionalPrinterColumnDie(name string, fn func(d *CustomResourceColumnDefinitionDie)) *CustomResourceDefinitionVersionDie {
-	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
-		for i := range r.AdditionalPrinterColumns {
-			if name == r.AdditionalPrinterColumns[i].Name {
-				d := CustomResourceColumnDefinitionBlank.DieImmutable(false).DieFeed(r.AdditionalPrinterColumns[i])
-				fn(d)
-				r.AdditionalPrinterColumns[i] = d.DieRelease()
-				return
-			}
-		}
-
-		d := CustomResourceColumnDefinitionBlank.DieImmutable(false).DieFeed(apiextensionsv1.CustomResourceColumnDefinition{Name: name})
-		fn(d)
-		r.AdditionalPrinterColumns = append(r.AdditionalPrinterColumns, d.DieRelease())
-	})
-}
-
-func (d *CustomResourceDefinitionVersionDie) SelectableFieldsDie(fields ...*SelectableFieldDie) *CustomResourceDefinitionVersionDie {
-	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionVersion) {
-		r.SelectableFields = make([]apiextensionsv1.SelectableField, len(fields))
-		for i := range fields {
-			r.SelectableFields[i] = fields[i].DieRelease()
-		}
-	})
-}
 
 // +die
 type _ apiextensionsv1.CustomResourceValidation
 
 // +die
+// +die:field:name=Scale,die=CustomResourceSubresourceScaleDie,pointer=true
 type _ apiextensionsv1.CustomResourceSubresources
-
-func (d *CustomResourceSubresourcesDie) ScaleDie(fn func(d *CustomResourceSubresourceScaleDie)) *CustomResourceSubresourcesDie {
-	return d.DieStamp(func(r *apiextensionsv1.CustomResourceSubresources) {
-		d := CustomResourceSubresourceScaleBlank.DieImmutable(false).DieFeedPtr(r.Scale)
-		fn(d)
-		r.Scale = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ apiextensionsv1.CustomResourceSubresourceScale
@@ -126,37 +51,16 @@ type _ apiextensionsv1.CustomResourceSubresourceScale
 type _ apiextensionsv1.CustomResourceColumnDefinition
 
 // +die
+// +die:field:name=Webhook,die=WebhookConversionDie,pointer=true
 type _ apiextensionsv1.CustomResourceConversion
 
-func (d *CustomResourceConversionDie) WebhookDie(fn func(d *WebhookConversionDie)) *CustomResourceConversionDie {
-	return d.DieStamp(func(r *apiextensionsv1.CustomResourceConversion) {
-		d := WebhookConversionBlank.DieImmutable(false).DieFeedPtr(r.Webhook)
-		fn(d)
-		r.Webhook = d.DieReleasePtr()
-	})
-}
-
 // +die
+// +die:field:name=ClientConfig,die=WebhookClientConfigDie,pointer=true
 type _ apiextensionsv1.WebhookConversion
 
-func (d *WebhookConversionDie) ClientConfigDie(fn func(d *WebhookClientConfigDie)) *WebhookConversionDie {
-	return d.DieStamp(func(r *apiextensionsv1.WebhookConversion) {
-		d := WebhookClientConfigBlank.DieImmutable(false).DieFeedPtr(r.ClientConfig)
-		fn(d)
-		r.ClientConfig = d.DieReleasePtr()
-	})
-}
-
 // +die
+// +die:field:name=Service,die=ServiceReferenceDie,pointer=true
 type _ apiextensionsv1.WebhookClientConfig
-
-func (d *WebhookClientConfigDie) ServiceDie(fn func(d *ServiceReferenceDie)) *WebhookClientConfigDie {
-	return d.DieStamp(func(r *apiextensionsv1.WebhookClientConfig) {
-		d := ServiceReferenceBlank.DieImmutable(false).DieFeedPtr(r.Service)
-		fn(d)
-		r.Service = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ apiextensionsv1.ServiceReference
@@ -165,6 +69,7 @@ type _ apiextensionsv1.ServiceReference
 type _ apiextensionsv1.SelectableField
 
 // +die
+// +die:field:name=AcceptedNames,die=CustomResourceDefinitionNamesDie
 type _ = apiextensionsv1.CustomResourceDefinitionStatus
 
 func (d *CustomResourceDefinitionStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *CustomResourceDefinitionStatusDie {
@@ -180,14 +85,6 @@ func (d *CustomResourceDefinitionStatusDie) ConditionsDie(conditions ...*diemeta
 				LastTransitionTime: c.LastTransitionTime,
 			}
 		}
-	})
-}
-
-func (d *CustomResourceDefinitionStatusDie) AcceptedNamesDie(fn func(d *CustomResourceDefinitionNamesDie)) *CustomResourceDefinitionStatusDie {
-	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionStatus) {
-		d := CustomResourceDefinitionNamesBlank.DieImmutable(false).DieFeed(r.AcceptedNames)
-		fn(d)
-		r.AcceptedNames = d.DieRelease()
 	})
 }
 

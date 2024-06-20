@@ -35,6 +35,7 @@ import (
 	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
+	apiscorev1 "reconciler.io/dies/apis/core/v1"
 	metav1 "reconciler.io/dies/apis/meta/v1"
 	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
@@ -894,6 +895,30 @@ func (d *SchedulingDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *SchedulingDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// TolerationDie mutates a single item in Tolerations matched by the nested field Key, appending a new item if no match is found.
+//
+// tolerations are appended (excluding duplicates) to pods running with this
+//
+// # RuntimeClass during admission, effectively unioning the set of nodes
+//
+// tolerated by the pod and the RuntimeClass.
+func (d *SchedulingDie) TolerationDie(v string, fn func(d *apiscorev1.TolerationDie)) *SchedulingDie {
+	return d.DieStamp(func(r *nodev1.Scheduling) {
+		for i := range r.Tolerations {
+			if v == r.Tolerations[i].Key {
+				d := apiscorev1.TolerationBlank.DieImmutable(false).DieFeed(r.Tolerations[i])
+				fn(d)
+				r.Tolerations[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := apiscorev1.TolerationBlank.DieImmutable(false).DieFeed(corev1.Toleration{Key: v})
+		fn(d)
+		r.Tolerations = append(r.Tolerations, d.DieRelease())
+	})
 }
 
 // nodeSelector lists labels that must be present on nodes that support this

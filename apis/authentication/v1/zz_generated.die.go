@@ -606,6 +606,17 @@ func (d *SelfSubjectReviewStatusDie) DiePatch(patchType types.PatchType) ([]byte
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// UserInfoDie mutates UserInfo as a die.
+//
+// User attributes of the user making this request.
+func (d *SelfSubjectReviewStatusDie) UserInfoDie(fn func(d *UserInfoDie)) *SelfSubjectReviewStatusDie {
+	return d.DieStamp(func(r *authenticationv1.SelfSubjectReviewStatus) {
+		d := UserInfoBlank.DieImmutable(false).DieFeed(r.UserInfo)
+		fn(d)
+		r.UserInfo = d.DieRelease()
+	})
+}
+
 // User attributes of the user making this request.
 func (d *SelfSubjectReviewStatusDie) UserInfo(v authenticationv1.UserInfo) *SelfSubjectReviewStatusDie {
 	return d.DieStamp(func(r *authenticationv1.SelfSubjectReviewStatus) {
@@ -1429,6 +1440,25 @@ func (d *TokenRequestSpecDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *TokenRequestSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// BoundObjectRefDie mutates BoundObjectRef as a die.
+//
+// BoundObjectRef is a reference to an object that the token will be bound to.
+//
+// The token will only be valid for as long as the bound object exists.
+//
+// NOTE: The API server's TokenReview endpoint will validate the
+//
+// BoundObjectRef, but other audiences may not. Keep ExpirationSeconds
+//
+// small if you want prompt revocation.
+func (d *TokenRequestSpecDie) BoundObjectRefDie(fn func(d *BoundObjectReferenceDie)) *TokenRequestSpecDie {
+	return d.DieStamp(func(r *authenticationv1.TokenRequestSpec) {
+		d := BoundObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.BoundObjectRef)
+		fn(d)
+		r.BoundObjectRef = d.DieReleasePtr()
+	})
 }
 
 // Audiences are the intendend audiences of the token. A recipient of a
