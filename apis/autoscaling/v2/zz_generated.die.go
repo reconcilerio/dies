@@ -626,6 +626,60 @@ func (d *HorizontalPodAutoscalerSpecDie) DiePatch(patchType types.PatchType) ([]
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ScaleTargetRefDie mutates ScaleTargetRef as a die.
+//
+// scaleTargetRef points to the target resource to scale, and is used to the pods for which metrics
+//
+// should be collected, as well as to actually change the replica count.
+func (d *HorizontalPodAutoscalerSpecDie) ScaleTargetRefDie(fn func(d *CrossVersionObjectReferenceDie)) *HorizontalPodAutoscalerSpecDie {
+	return d.DieStamp(func(r *autoscalingv2.HorizontalPodAutoscalerSpec) {
+		d := CrossVersionObjectReferenceBlank.DieImmutable(false).DieFeed(r.ScaleTargetRef)
+		fn(d)
+		r.ScaleTargetRef = d.DieRelease()
+	})
+}
+
+// BehaviorDie mutates Behavior as a die.
+//
+// behavior configures the scaling behavior of the target
+//
+// in both Up and Down directions (scaleUp and scaleDown fields respectively).
+//
+// If not set, the default HPAScalingRules for scale up and scale down are used.
+func (d *HorizontalPodAutoscalerSpecDie) BehaviorDie(fn func(d *HorizontalPodAutoscalerBehaviorDie)) *HorizontalPodAutoscalerSpecDie {
+	return d.DieStamp(func(r *autoscalingv2.HorizontalPodAutoscalerSpec) {
+		d := HorizontalPodAutoscalerBehaviorBlank.DieImmutable(false).DieFeedPtr(r.Behavior)
+		fn(d)
+		r.Behavior = d.DieReleasePtr()
+	})
+}
+
+// MetricsDie replaces Metrics by collecting the released value from each die passed.
+//
+// metrics contains the specifications for which to use to calculate the
+//
+// desired replica count (the maximum replica count across all metrics will
+//
+// be used).  The desired replica count is calculated multiplying the
+//
+// ratio between the target value and the current value by the current
+//
+// number of pods.  Ergo, metrics used must decrease as the pod count is
+//
+// increased, and vice-versa.  See the individual metric source types for
+//
+// more information about how each type of metric must respond.
+//
+// If not set, the default metric will be set to 80% average CPU utilization.
+func (d *HorizontalPodAutoscalerSpecDie) MetricsDie(v ...*MetricSpecDie) *HorizontalPodAutoscalerSpecDie {
+	return d.DieStamp(func(r *autoscalingv2.HorizontalPodAutoscalerSpec) {
+		r.Metrics = make([]autoscalingv2.MetricSpec, len(v))
+		for i := range v {
+			r.Metrics[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // scaleTargetRef points to the target resource to scale, and is used to the pods for which metrics
 //
 // should be collected, as well as to actually change the replica count.
@@ -1168,6 +1222,93 @@ func (d *MetricSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ObjectDie mutates Object as a die.
+//
+// object refers to a metric describing a single kubernetes object
+//
+// (for example, hits-per-second on an Ingress object).
+func (d *MetricSpecDie) ObjectDie(fn func(d *ObjectMetricSourceDie)) *MetricSpecDie {
+	return d.DieStamp(func(r *autoscalingv2.MetricSpec) {
+		d := ObjectMetricSourceBlank.DieImmutable(false).DieFeedPtr(r.Object)
+		fn(d)
+		r.Object = d.DieReleasePtr()
+	})
+}
+
+// PodsDie mutates Pods as a die.
+//
+// pods refers to a metric describing each pod in the current scale target
+//
+// (for example, transactions-processed-per-second).  The values will be
+//
+// averaged together before being compared to the target value.
+func (d *MetricSpecDie) PodsDie(fn func(d *PodsMetricSourceDie)) *MetricSpecDie {
+	return d.DieStamp(func(r *autoscalingv2.MetricSpec) {
+		d := PodsMetricSourceBlank.DieImmutable(false).DieFeedPtr(r.Pods)
+		fn(d)
+		r.Pods = d.DieReleasePtr()
+	})
+}
+
+// ResourceDie mutates Resource as a die.
+//
+// resource refers to a resource metric (such as those specified in
+//
+// requests and limits) known to Kubernetes describing each pod in the
+//
+// current scale target (e.g. CPU or memory). Such metrics are built in to
+//
+// # Kubernetes, and have special scaling options on top of those available
+//
+// to normal per-pod metrics using the "pods" source.
+func (d *MetricSpecDie) ResourceDie(fn func(d *ResourceMetricSourceDie)) *MetricSpecDie {
+	return d.DieStamp(func(r *autoscalingv2.MetricSpec) {
+		d := ResourceMetricSourceBlank.DieImmutable(false).DieFeedPtr(r.Resource)
+		fn(d)
+		r.Resource = d.DieReleasePtr()
+	})
+}
+
+// ContainerResourceDie mutates ContainerResource as a die.
+//
+// containerResource refers to a resource metric (such as those specified in
+//
+// requests and limits) known to Kubernetes describing a single container in
+//
+// each pod of the current scale target (e.g. CPU or memory). Such metrics are
+//
+// built in to Kubernetes, and have special scaling options on top of those
+//
+// available to normal per-pod metrics using the "pods" source.
+//
+// This is an alpha feature and can be enabled by the HPAContainerMetrics feature flag.
+func (d *MetricSpecDie) ContainerResourceDie(fn func(d *ContainerResourceMetricSourceDie)) *MetricSpecDie {
+	return d.DieStamp(func(r *autoscalingv2.MetricSpec) {
+		d := ContainerResourceMetricSourceBlank.DieImmutable(false).DieFeedPtr(r.ContainerResource)
+		fn(d)
+		r.ContainerResource = d.DieReleasePtr()
+	})
+}
+
+// ExternalDie mutates External as a die.
+//
+// external refers to a global metric that is not associated
+//
+// with any Kubernetes object. It allows autoscaling based on information
+//
+// coming from components running outside of cluster
+//
+// (for example length of queue in cloud messaging service, or
+//
+// QPS from loadbalancer running outside of cluster).
+func (d *MetricSpecDie) ExternalDie(fn func(d *ExternalMetricSourceDie)) *MetricSpecDie {
+	return d.DieStamp(func(r *autoscalingv2.MetricSpec) {
+		d := ExternalMetricSourceBlank.DieImmutable(false).DieFeedPtr(r.External)
+		fn(d)
+		r.External = d.DieReleasePtr()
+	})
+}
+
 // type is the type of metric source.  It should be one of "ContainerResource", "External",
 //
 // "Object", "Pods" or "Resource", each mapping to a matching field in the object.
@@ -1474,6 +1615,39 @@ func (d *ObjectMetricSourceDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *ObjectMetricSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// DescribedObjectDie mutates DescribedObject as a die.
+//
+// describedObject specifies the descriptions of a object,such as kind,name apiVersion
+func (d *ObjectMetricSourceDie) DescribedObjectDie(fn func(d *CrossVersionObjectReferenceDie)) *ObjectMetricSourceDie {
+	return d.DieStamp(func(r *autoscalingv2.ObjectMetricSource) {
+		d := CrossVersionObjectReferenceBlank.DieImmutable(false).DieFeed(r.DescribedObject)
+		fn(d)
+		r.DescribedObject = d.DieRelease()
+	})
+}
+
+// TargetDie mutates Target as a die.
+//
+// target specifies the target value for the given metric
+func (d *ObjectMetricSourceDie) TargetDie(fn func(d *MetricTargetDie)) *ObjectMetricSourceDie {
+	return d.DieStamp(func(r *autoscalingv2.ObjectMetricSource) {
+		d := MetricTargetBlank.DieImmutable(false).DieFeed(r.Target)
+		fn(d)
+		r.Target = d.DieRelease()
+	})
+}
+
+// MetricDie mutates Metric as a die.
+//
+// metric identifies the target metric by name and selector
+func (d *ObjectMetricSourceDie) MetricDie(fn func(d *MetricIdentifierDie)) *ObjectMetricSourceDie {
+	return d.DieStamp(func(r *autoscalingv2.ObjectMetricSource) {
+		d := MetricIdentifierBlank.DieImmutable(false).DieFeed(r.Metric)
+		fn(d)
+		r.Metric = d.DieRelease()
+	})
 }
 
 // describedObject specifies the descriptions of a object,such as kind,name apiVersion
@@ -2007,6 +2181,21 @@ func (d *MetricIdentifierDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SelectorDie mutates Selector as a die.
+//
+// selector is the string-encoded form of a standard kubernetes label selector for the given metric
+//
+// When set, it is passed as an additional parameter to the metrics server for more specific metrics scoping.
+//
+// When unset, just the metricName will be used to gather metrics.
+func (d *MetricIdentifierDie) SelectorDie(fn func(d *v1.LabelSelectorDie)) *MetricIdentifierDie {
+	return d.DieStamp(func(r *autoscalingv2.MetricIdentifier) {
+		d := v1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
+		fn(d)
+		r.Selector = d.DieReleasePtr()
+	})
+}
+
 // name is the name of the given metric
 func (d *MetricIdentifierDie) Name(v string) *MetricIdentifierDie {
 	return d.DieStamp(func(r *autoscalingv2.MetricIdentifier) {
@@ -2253,6 +2442,28 @@ func (d *PodsMetricSourceDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// MetricDie mutates Metric as a die.
+//
+// metric identifies the target metric by name and selector
+func (d *PodsMetricSourceDie) MetricDie(fn func(d *MetricIdentifierDie)) *PodsMetricSourceDie {
+	return d.DieStamp(func(r *autoscalingv2.PodsMetricSource) {
+		d := MetricIdentifierBlank.DieImmutable(false).DieFeed(r.Metric)
+		fn(d)
+		r.Metric = d.DieRelease()
+	})
+}
+
+// TargetDie mutates Target as a die.
+//
+// target specifies the target value for the given metric
+func (d *PodsMetricSourceDie) TargetDie(fn func(d *MetricTargetDie)) *PodsMetricSourceDie {
+	return d.DieStamp(func(r *autoscalingv2.PodsMetricSource) {
+		d := MetricTargetBlank.DieImmutable(false).DieFeed(r.Target)
+		fn(d)
+		r.Target = d.DieRelease()
+	})
+}
+
 // metric identifies the target metric by name and selector
 func (d *PodsMetricSourceDie) Metric(v autoscalingv2.MetricIdentifier) *PodsMetricSourceDie {
 	return d.DieStamp(func(r *autoscalingv2.PodsMetricSource) {
@@ -2495,6 +2706,17 @@ func (d *ResourceMetricSourceDie) DiePatch(patchType types.PatchType) ([]byte, e
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// TargetDie mutates Target as a die.
+//
+// target specifies the target value for the given metric
+func (d *ResourceMetricSourceDie) TargetDie(fn func(d *MetricTargetDie)) *ResourceMetricSourceDie {
+	return d.DieStamp(func(r *autoscalingv2.ResourceMetricSource) {
+		d := MetricTargetBlank.DieImmutable(false).DieFeed(r.Target)
+		fn(d)
+		r.Target = d.DieRelease()
+	})
+}
+
 // name is the name of the resource in question.
 func (d *ResourceMetricSourceDie) Name(v corev1.ResourceName) *ResourceMetricSourceDie {
 	return d.DieStamp(func(r *autoscalingv2.ResourceMetricSource) {
@@ -2735,6 +2957,17 @@ func (d *ContainerResourceMetricSourceDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *ContainerResourceMetricSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// TargetDie mutates Target as a die.
+//
+// target specifies the target value for the given metric
+func (d *ContainerResourceMetricSourceDie) TargetDie(fn func(d *MetricTargetDie)) *ContainerResourceMetricSourceDie {
+	return d.DieStamp(func(r *autoscalingv2.ContainerResourceMetricSource) {
+		d := MetricTargetBlank.DieImmutable(false).DieFeed(r.Target)
+		fn(d)
+		r.Target = d.DieRelease()
+	})
 }
 
 // name is the name of the resource in question.
@@ -2986,6 +3219,28 @@ func (d *ExternalMetricSourceDie) DiePatch(patchType types.PatchType) ([]byte, e
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// MetricDie mutates Metric as a die.
+//
+// metric identifies the target metric by name and selector
+func (d *ExternalMetricSourceDie) MetricDie(fn func(d *MetricIdentifierDie)) *ExternalMetricSourceDie {
+	return d.DieStamp(func(r *autoscalingv2.ExternalMetricSource) {
+		d := MetricIdentifierBlank.DieImmutable(false).DieFeed(r.Metric)
+		fn(d)
+		r.Metric = d.DieRelease()
+	})
+}
+
+// TargetDie mutates Target as a die.
+//
+// target specifies the target value for the given metric
+func (d *ExternalMetricSourceDie) TargetDie(fn func(d *MetricTargetDie)) *ExternalMetricSourceDie {
+	return d.DieStamp(func(r *autoscalingv2.ExternalMetricSource) {
+		d := MetricTargetBlank.DieImmutable(false).DieFeed(r.Target)
+		fn(d)
+		r.Target = d.DieRelease()
+	})
+}
+
 // metric identifies the target metric by name and selector
 func (d *ExternalMetricSourceDie) Metric(v autoscalingv2.MetricIdentifier) *ExternalMetricSourceDie {
 	return d.DieStamp(func(r *autoscalingv2.ExternalMetricSource) {
@@ -3226,6 +3481,42 @@ func (d *HorizontalPodAutoscalerBehaviorDie) DieDiff(opts ...cmp.Option) string 
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *HorizontalPodAutoscalerBehaviorDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// ScaleUpDie mutates ScaleUp as a die.
+//
+// scaleUp is scaling policy for scaling Up.
+//
+// If not set, the default value is the higher of:
+//
+// * increase no more than 4 pods per 60 seconds
+//
+// * double the number of pods per 60 seconds
+//
+// No stabilization is used.
+func (d *HorizontalPodAutoscalerBehaviorDie) ScaleUpDie(fn func(d *HPAScalingRulesDie)) *HorizontalPodAutoscalerBehaviorDie {
+	return d.DieStamp(func(r *autoscalingv2.HorizontalPodAutoscalerBehavior) {
+		d := HPAScalingRulesBlank.DieImmutable(false).DieFeedPtr(r.ScaleUp)
+		fn(d)
+		r.ScaleUp = d.DieReleasePtr()
+	})
+}
+
+// ScaleDownDie mutates ScaleDown as a die.
+//
+// scaleDown is scaling policy for scaling Down.
+//
+// # If not set, the default value is to allow to scale down to minReplicas pods, with a
+//
+// 300 second stabilization window (i.e., the highest recommendation for
+//
+// the last 300sec is used).
+func (d *HorizontalPodAutoscalerBehaviorDie) ScaleDownDie(fn func(d *HPAScalingRulesDie)) *HorizontalPodAutoscalerBehaviorDie {
+	return d.DieStamp(func(r *autoscalingv2.HorizontalPodAutoscalerBehavior) {
+		d := HPAScalingRulesBlank.DieImmutable(false).DieFeedPtr(r.ScaleDown)
+		fn(d)
+		r.ScaleDown = d.DieReleasePtr()
+	})
 }
 
 // scaleUp is scaling policy for scaling Up.
@@ -3482,6 +3773,20 @@ func (d *HPAScalingRulesDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *HPAScalingRulesDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// PoliciesDie replaces Policies by collecting the released value from each die passed.
+//
+// policies is a list of potential scaling polices which can be used during scaling.
+//
+// At least one policy must be specified, otherwise the HPAScalingRules will be discarded as invalid
+func (d *HPAScalingRulesDie) PoliciesDie(v ...*HPAScalingPolicyDie) *HPAScalingRulesDie {
+	return d.DieStamp(func(r *autoscalingv2.HPAScalingRules) {
+		r.Policies = make([]autoscalingv2.HPAScalingPolicy, len(v))
+		for i := range v {
+			r.Policies[i] = v[i].DieRelease()
+		}
+	})
 }
 
 // stabilizationWindowSeconds is the number of seconds for which past recommendations should be
@@ -4000,6 +4305,18 @@ func (d *HorizontalPodAutoscalerStatusDie) DiePatch(patchType types.PatchType) (
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// CurrentMetricsDie replaces CurrentMetrics by collecting the released value from each die passed.
+//
+// currentMetrics is the last read state of the metrics used by this autoscaler.
+func (d *HorizontalPodAutoscalerStatusDie) CurrentMetricsDie(v ...*MetricStatusDie) *HorizontalPodAutoscalerStatusDie {
+	return d.DieStamp(func(r *autoscalingv2.HorizontalPodAutoscalerStatus) {
+		r.CurrentMetrics = make([]autoscalingv2.MetricStatus, len(v))
+		for i := range v {
+			r.CurrentMetrics[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // observedGeneration is the most recent generation observed by this autoscaler.
 func (d *HorizontalPodAutoscalerStatusDie) ObservedGeneration(v *int64) *HorizontalPodAutoscalerStatusDie {
 	return d.DieStamp(func(r *autoscalingv2.HorizontalPodAutoscalerStatus) {
@@ -4276,6 +4593,91 @@ func (d *MetricStatusDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *MetricStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// ObjectDie mutates Object as a die.
+//
+// object refers to a metric describing a single kubernetes object
+//
+// (for example, hits-per-second on an Ingress object).
+func (d *MetricStatusDie) ObjectDie(fn func(d *ObjectMetricStatusDie)) *MetricStatusDie {
+	return d.DieStamp(func(r *autoscalingv2.MetricStatus) {
+		d := ObjectMetricStatusBlank.DieImmutable(false).DieFeedPtr(r.Object)
+		fn(d)
+		r.Object = d.DieReleasePtr()
+	})
+}
+
+// PodsDie mutates Pods as a die.
+//
+// pods refers to a metric describing each pod in the current scale target
+//
+// (for example, transactions-processed-per-second).  The values will be
+//
+// averaged together before being compared to the target value.
+func (d *MetricStatusDie) PodsDie(fn func(d *PodsMetricStatusDie)) *MetricStatusDie {
+	return d.DieStamp(func(r *autoscalingv2.MetricStatus) {
+		d := PodsMetricStatusBlank.DieImmutable(false).DieFeedPtr(r.Pods)
+		fn(d)
+		r.Pods = d.DieReleasePtr()
+	})
+}
+
+// ResourceDie mutates Resource as a die.
+//
+// resource refers to a resource metric (such as those specified in
+//
+// requests and limits) known to Kubernetes describing each pod in the
+//
+// current scale target (e.g. CPU or memory). Such metrics are built in to
+//
+// # Kubernetes, and have special scaling options on top of those available
+//
+// to normal per-pod metrics using the "pods" source.
+func (d *MetricStatusDie) ResourceDie(fn func(d *ResourceMetricStatusDie)) *MetricStatusDie {
+	return d.DieStamp(func(r *autoscalingv2.MetricStatus) {
+		d := ResourceMetricStatusBlank.DieImmutable(false).DieFeedPtr(r.Resource)
+		fn(d)
+		r.Resource = d.DieReleasePtr()
+	})
+}
+
+// ContainerResourceDie mutates ContainerResource as a die.
+//
+// container resource refers to a resource metric (such as those specified in
+//
+// requests and limits) known to Kubernetes describing a single container in each pod in the
+//
+// current scale target (e.g. CPU or memory). Such metrics are built in to
+//
+// # Kubernetes, and have special scaling options on top of those available
+//
+// to normal per-pod metrics using the "pods" source.
+func (d *MetricStatusDie) ContainerResourceDie(fn func(d *ContainerResourceMetricStatusDie)) *MetricStatusDie {
+	return d.DieStamp(func(r *autoscalingv2.MetricStatus) {
+		d := ContainerResourceMetricStatusBlank.DieImmutable(false).DieFeedPtr(r.ContainerResource)
+		fn(d)
+		r.ContainerResource = d.DieReleasePtr()
+	})
+}
+
+// ExternalDie mutates External as a die.
+//
+// external refers to a global metric that is not associated
+//
+// with any Kubernetes object. It allows autoscaling based on information
+//
+// coming from components running outside of cluster
+//
+// (for example length of queue in cloud messaging service, or
+//
+// QPS from loadbalancer running outside of cluster).
+func (d *MetricStatusDie) ExternalDie(fn func(d *ExternalMetricStatusDie)) *MetricStatusDie {
+	return d.DieStamp(func(r *autoscalingv2.MetricStatus) {
+		d := ExternalMetricStatusBlank.DieImmutable(false).DieFeedPtr(r.External)
+		fn(d)
+		r.External = d.DieReleasePtr()
+	})
 }
 
 // type is the type of metric source.  It will be one of "ContainerResource", "External",
@@ -4582,6 +4984,39 @@ func (d *ObjectMetricStatusDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *ObjectMetricStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// MetricDie mutates Metric as a die.
+//
+// metric identifies the target metric by name and selector
+func (d *ObjectMetricStatusDie) MetricDie(fn func(d *MetricIdentifierDie)) *ObjectMetricStatusDie {
+	return d.DieStamp(func(r *autoscalingv2.ObjectMetricStatus) {
+		d := MetricIdentifierBlank.DieImmutable(false).DieFeed(r.Metric)
+		fn(d)
+		r.Metric = d.DieRelease()
+	})
+}
+
+// CurrentDie mutates Current as a die.
+//
+// current contains the current value for the given metric
+func (d *ObjectMetricStatusDie) CurrentDie(fn func(d *MetricValueStatusDie)) *ObjectMetricStatusDie {
+	return d.DieStamp(func(r *autoscalingv2.ObjectMetricStatus) {
+		d := MetricValueStatusBlank.DieImmutable(false).DieFeed(r.Current)
+		fn(d)
+		r.Current = d.DieRelease()
+	})
+}
+
+// DescribedObjectDie mutates DescribedObject as a die.
+//
+// DescribedObject specifies the descriptions of a object,such as kind,name apiVersion
+func (d *ObjectMetricStatusDie) DescribedObjectDie(fn func(d *CrossVersionObjectReferenceDie)) *ObjectMetricStatusDie {
+	return d.DieStamp(func(r *autoscalingv2.ObjectMetricStatus) {
+		d := CrossVersionObjectReferenceBlank.DieImmutable(false).DieFeed(r.DescribedObject)
+		fn(d)
+		r.DescribedObject = d.DieRelease()
+	})
 }
 
 // metric identifies the target metric by name and selector
@@ -5106,6 +5541,28 @@ func (d *PodsMetricStatusDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// MetricDie mutates Metric as a die.
+//
+// metric identifies the target metric by name and selector
+func (d *PodsMetricStatusDie) MetricDie(fn func(d *MetricIdentifierDie)) *PodsMetricStatusDie {
+	return d.DieStamp(func(r *autoscalingv2.PodsMetricStatus) {
+		d := MetricIdentifierBlank.DieImmutable(false).DieFeed(r.Metric)
+		fn(d)
+		r.Metric = d.DieRelease()
+	})
+}
+
+// CurrentDie mutates Current as a die.
+//
+// current contains the current value for the given metric
+func (d *PodsMetricStatusDie) CurrentDie(fn func(d *MetricValueStatusDie)) *PodsMetricStatusDie {
+	return d.DieStamp(func(r *autoscalingv2.PodsMetricStatus) {
+		d := MetricValueStatusBlank.DieImmutable(false).DieFeed(r.Current)
+		fn(d)
+		r.Current = d.DieRelease()
+	})
+}
+
 // metric identifies the target metric by name and selector
 func (d *PodsMetricStatusDie) Metric(v autoscalingv2.MetricIdentifier) *PodsMetricStatusDie {
 	return d.DieStamp(func(r *autoscalingv2.PodsMetricStatus) {
@@ -5348,6 +5805,17 @@ func (d *ResourceMetricStatusDie) DiePatch(patchType types.PatchType) ([]byte, e
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// CurrentDie mutates Current as a die.
+//
+// current contains the current value for the given metric
+func (d *ResourceMetricStatusDie) CurrentDie(fn func(d *MetricValueStatusDie)) *ResourceMetricStatusDie {
+	return d.DieStamp(func(r *autoscalingv2.ResourceMetricStatus) {
+		d := MetricValueStatusBlank.DieImmutable(false).DieFeed(r.Current)
+		fn(d)
+		r.Current = d.DieRelease()
+	})
+}
+
 // name is the name of the resource in question.
 func (d *ResourceMetricStatusDie) Name(v corev1.ResourceName) *ResourceMetricStatusDie {
 	return d.DieStamp(func(r *autoscalingv2.ResourceMetricStatus) {
@@ -5588,6 +6056,17 @@ func (d *ContainerResourceMetricStatusDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *ContainerResourceMetricStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// CurrentDie mutates Current as a die.
+//
+// current contains the current value for the given metric
+func (d *ContainerResourceMetricStatusDie) CurrentDie(fn func(d *MetricValueStatusDie)) *ContainerResourceMetricStatusDie {
+	return d.DieStamp(func(r *autoscalingv2.ContainerResourceMetricStatus) {
+		d := MetricValueStatusBlank.DieImmutable(false).DieFeed(r.Current)
+		fn(d)
+		r.Current = d.DieRelease()
+	})
 }
 
 // name is the name of the resource in question.
@@ -5837,6 +6316,28 @@ func (d *ExternalMetricStatusDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *ExternalMetricStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// MetricDie mutates Metric as a die.
+//
+// metric identifies the target metric by name and selector
+func (d *ExternalMetricStatusDie) MetricDie(fn func(d *MetricIdentifierDie)) *ExternalMetricStatusDie {
+	return d.DieStamp(func(r *autoscalingv2.ExternalMetricStatus) {
+		d := MetricIdentifierBlank.DieImmutable(false).DieFeed(r.Metric)
+		fn(d)
+		r.Metric = d.DieRelease()
+	})
+}
+
+// CurrentDie mutates Current as a die.
+//
+// current contains the current value for the given metric
+func (d *ExternalMetricStatusDie) CurrentDie(fn func(d *MetricValueStatusDie)) *ExternalMetricStatusDie {
+	return d.DieStamp(func(r *autoscalingv2.ExternalMetricStatus) {
+		d := MetricValueStatusBlank.DieImmutable(false).DieFeed(r.Current)
+		fn(d)
+		r.Current = d.DieRelease()
+	})
 }
 
 // metric identifies the target metric by name and selector

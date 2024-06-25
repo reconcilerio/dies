@@ -24,7 +24,7 @@ package v1
 import (
 	fmtx "fmt"
 	cmp "github.com/google/go-cmp/cmp"
-	corev1 "k8s.io/api/core/v1"
+	apicorev1 "k8s.io/api/core/v1"
 	discoveryv1 "k8s.io/api/discovery/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -34,6 +34,7 @@ import (
 	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
+	corev1 "reconciler.io/dies/apis/core/v1"
 	metav1 "reconciler.io/dies/apis/meta/v1"
 	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
@@ -363,6 +364,40 @@ func (d *EndpointSliceDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Endpoi
 	})
 }
 
+// EndpointsDie replaces Endpoints by collecting the released value from each die passed.
+//
+// endpoints is a list of unique endpoints in this slice. Each slice may
+//
+// include a maximum of 1000 endpoints.
+func (d *EndpointSliceDie) EndpointsDie(v ...*EndpointDie) *EndpointSliceDie {
+	return d.DieStamp(func(r *discoveryv1.EndpointSlice) {
+		r.Endpoints = make([]discoveryv1.Endpoint, len(v))
+		for i := range v {
+			r.Endpoints[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// PortsDie replaces Ports by collecting the released value from each die passed.
+//
+// ports specifies the list of network ports exposed by each endpoint in
+//
+// this slice. Each port must have a unique name. When ports is empty, it
+//
+// indicates that there are no defined ports. When a port is defined with a
+//
+// nil port value, it indicates "all ports". Each slice may include a
+//
+// maximum of 100 ports.
+func (d *EndpointSliceDie) PortsDie(v ...*EndpointPortDie) *EndpointSliceDie {
+	return d.DieStamp(func(r *discoveryv1.EndpointSlice) {
+		r.Ports = make([]discoveryv1.EndpointPort, len(v))
+		for i := range v {
+			r.Ports[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // addressType specifies the type of address carried by this EndpointSlice.
 //
 // All addresses in this slice must be the same type. This field is
@@ -634,6 +669,43 @@ func (d *EndpointDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ConditionsDie mutates Conditions as a die.
+//
+// conditions contains information about the current status of the endpoint.
+func (d *EndpointDie) ConditionsDie(fn func(d *EndpointConditionsDie)) *EndpointDie {
+	return d.DieStamp(func(r *discoveryv1.Endpoint) {
+		d := EndpointConditionsBlank.DieImmutable(false).DieFeed(r.Conditions)
+		fn(d)
+		r.Conditions = d.DieRelease()
+	})
+}
+
+// TargetRefDie mutates TargetRef as a die.
+//
+// targetRef is a reference to a Kubernetes object that represents this
+//
+// endpoint.
+func (d *EndpointDie) TargetRefDie(fn func(d *corev1.ObjectReferenceDie)) *EndpointDie {
+	return d.DieStamp(func(r *discoveryv1.Endpoint) {
+		d := corev1.ObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.TargetRef)
+		fn(d)
+		r.TargetRef = d.DieReleasePtr()
+	})
+}
+
+// HintsDie mutates Hints as a die.
+//
+// hints contains information associated with how an endpoint should be
+//
+// consumed.
+func (d *EndpointDie) HintsDie(fn func(d *EndpointHintsDie)) *EndpointDie {
+	return d.DieStamp(func(r *discoveryv1.Endpoint) {
+		d := EndpointHintsBlank.DieImmutable(false).DieFeedPtr(r.Hints)
+		fn(d)
+		r.Hints = d.DieReleasePtr()
+	})
+}
+
 // addresses of this endpoint. The contents of this field are interpreted
 //
 // according to the corresponding EndpointSlice addressType field. Consumers
@@ -676,7 +748,7 @@ func (d *EndpointDie) Hostname(v *string) *EndpointDie {
 // targetRef is a reference to a Kubernetes object that represents this
 //
 // endpoint.
-func (d *EndpointDie) TargetRef(v *corev1.ObjectReference) *EndpointDie {
+func (d *EndpointDie) TargetRef(v *apicorev1.ObjectReference) *EndpointDie {
 	return d.DieStamp(func(r *discoveryv1.Endpoint) {
 		r.TargetRef = v
 	})
@@ -1223,6 +1295,20 @@ func (d *EndpointHintsDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ForZonesDie replaces ForZones by collecting the released value from each die passed.
+//
+// forZones indicates the zone(s) this endpoint should be consumed by to
+//
+// enable topology aware routing.
+func (d *EndpointHintsDie) ForZonesDie(v ...*ForZoneDie) *EndpointHintsDie {
+	return d.DieStamp(func(r *discoveryv1.EndpointHints) {
+		r.ForZones = make([]discoveryv1.ForZone, len(v))
+		for i := range v {
+			r.ForZones[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // forZones indicates the zone(s) this endpoint should be consumed by to
 //
 // enable topology aware routing.
@@ -1719,7 +1805,7 @@ func (d *EndpointPortDie) Name(v *string) *EndpointPortDie {
 // Must be UDP, TCP, or SCTP.
 //
 // Default is TCP.
-func (d *EndpointPortDie) Protocol(v *corev1.Protocol) *EndpointPortDie {
+func (d *EndpointPortDie) Protocol(v *apicorev1.Protocol) *EndpointPortDie {
 	return d.DieStamp(func(r *discoveryv1.EndpointPort) {
 		r.Protocol = v
 	})

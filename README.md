@@ -16,6 +16,7 @@
   - [diegen](#diegen)
   - [die markers](#die-markers)
     - [+die](#die)
+    - [+die:field](#diefield)
 
 ---
 
@@ -427,3 +428,118 @@ Properties:
 - **apiVersion** `string` (optional): defaults the blanks die's APIVersion (only for objects)
 - **kind** `string` (optional): defaults the blank die's Kind (only for objects)
 - **ignore** `[]string` (optional): set of fields to ignore on the type
+
+#### +die:field
+
+```go
+// +die
+// +die:field:name=Selector,package=reconciler.io/dies/apis/meta/v1,die=LabelSelectorDie,pointer=true
+// +die:field:name=Template,package=reconciler.io/dies/apis/core/v1,die=PodTemplateSpecDie
+type MyResourceSpec struct {
+    Selector *metav1.LabelSelector  `json:"selector`"
+    Template corev1.PodTemplateSpec `json:"template"`
+}
+```
+
+Results in the standard die method and two additional mutation methods for the defined fields:
+
+```go
+// SelectorDie mutates Selector as a die
+//
+// Label selector for pods. It must match the pod template's labels.
+func (d *MyResourceSpecDie) SelectorDie(fn func(d *metav1.LabelSelectorDie)) *MyResourceSpecDie {
+	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
+		d := metav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
+		fn(d)
+		r.Selector = d.DieReleasePtr()
+	})
+}
+
+// TemplateDie mutates Template as a die
+//
+// Template describes the pods that will be created.
+func (d *MyResourceSpecDie) TemplateDie(fn func(d *corev1.PodTemplateSpecDie)) *MyResourceSpecDie {
+	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
+		d := corev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
+		fn(d)
+		r.Template = d.DieRelease()
+	})
+}
+```
+
+Mutation methods for fields backed by slices require additional metadata. Depending on the content of the list it the whole listing can be replaced, or a single item in the list can be mutated.
+
+Atomic lists cannot be mutated incrementally, the whole content is replaced. This pattern is common where there is no unique field inside the list to find a specific entry for.
+
+```go
+// +die:field:name=Ports,die=ContainerPortDie,listType=atomic
+```
+
+```go
+// PortsDie replaces Ports by collecting the released value from each die passed.
+func (d *ContainerDie) PortsDie(ports ...*ContainerPortDie) *ContainerDie {
+	...snip...
+}
+```
+[Full source](https://pkg.go.dev/reconciler.io/dies/apis/core/v1#ContainerDie.PortsDie)
+
+The env field is a map list type with the default key. The named env var in the list will be loaded into the EnvVarDie and passed to the callback with the mutated value updated in the slice.
+
+Because a single item is mutated the method name uses a singular form. If the conversion from plural to singular produces a non-ideal name, the default method name can be overridden with the **method** parameter.
+
+```go
+// +die:field:name=Env,die=EnvSourceDie,listType=map
+```
+
+```go
+// EnvDie mutates a single item in Env matched by the nested field Name, appending a new item if no match is found.
+func (d *ContainerDie) EnvDie(name string, fn func(d *EnvVarDie)) *ContainerDie {
+    ...snip...
+}
+```
+[Full source](https://pkg.go.dev/reconciler.io/dies/apis/core/v1#ContainerDie.EnvDie)
+
+The env from field is a map list type with a custom key. The default map key is `Name`.
+
+```go
+// +die:field:name=EnvFrom,die=EnvFromSourceDie,listType=map,listMapKey=Prefix
+```
+
+```go
+// EnvFromDie mutates a single item in EnvFrom matched by the nested field Prefix, appending a new item if no match is found.
+func (d *ContainerDie) EnvFromDie(prefix string, fn func(d *EnvFromSourceDie)) *ContainerDie {
+    ...snip...
+}
+```
+[Full source](https://pkg.go.dev/reconciler.io/dies/apis/core/v1#ContainerDie.EnvFromDie)
+
+
+The resize policy field is also a map list type, but the map key field is defined with a custom type.
+
+```go
+// +die:field:name=ResizePolicy,die=ContainerResizePolicyDie,listType=map,listMapKey=ResourceName,listMapKeyPackage=k8s.io/api/core/v1,listMapKeyType=ResourceName
+```
+
+```go
+// ResizePolicyDie mutates a single item in ResizePolicy matched by the nested field ResourceName, appending a new item if no match is found.
+func (d *ContainerDie) ResizePolicyDie(resourceName corev1.ResourceName, fn func(d *ContainerResizePolicyDie)) *ContainerDie {
+    ...snip...
+}
+```
+[Full source](https://pkg.go.dev/reconciler.io/dies/apis/core/v1#ContainerDie.ResizePolicyDie)
+
+
+Properties:
+- **name** `string`: name of the field on the target resource to mutate
+- **method** `string` (optional): name of the generated mutation method on the host die (defaults to the name with "Die" appended, for list type map the name is made singular)
+- **package** `string` (optional): go package containing the target die and blank. `_/` is an alias to the package prefix for the built in dies, for example `_/core/v1` expands to `reconciler.io/dies/apis/core/v1`.
+- **die** `string`: go type for the die backing the field's struct
+- **blank** `string` (optional): go type for a blank of the die's type (defaults to the die replacing the "Die" suffix with "Blank")
+- **pointer** `bool` (optional): the field is defined as a pointer reference, uses DieFeedPtr and DieReleasePtr
+- **listType** `string` (optional):
+  - ``: field is not a list (default)
+  - `map`: a single value in the list is mutated, or a new item appended
+  - `atomic`: the list is replaced
+- **listMapKey** `string` (optional): defaults to `Name` for map list types (only for list type map)
+- **listMapKeyPackage** `string` (optional): the go package containing the type representing the key field on the target struct, defaults to the current package (only for list type map)
+- **listMapKeyType** `string` (optional): the go type representing the key field on the target struct, defaults to `string` (only for list type map)

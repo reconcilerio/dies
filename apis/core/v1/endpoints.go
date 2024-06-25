@@ -21,57 +21,18 @@ import (
 )
 
 // +die:object=true,apiVersion=v1,kind=Endpoints
+// +die:field:name=Subsets,die=EndpointSubsetDie,listType=atomic
 type _ = corev1.Endpoints
 
-func (d *EndpointsDie) SubsetsDie(subsets ...*EndpointSubsetDie) *EndpointsDie {
-	return d.DieStamp(func(r *corev1.Endpoints) {
-		r.Subsets = make([]corev1.EndpointSubset, len(subsets))
-		for i := range subsets {
-			r.Subsets[i] = subsets[i].DieRelease()
-		}
-	})
-}
-
 // +die
+// +die:field:name=Addresses,die=EndpointAddressDie,listType=atomic
+// +die:field:name=NotReadyAddresses,die=EndpointAddressDie,listType=atomic
+// +die:field:name=Ports,die=EndpointPortDie,listType=atomic
 type _ = corev1.EndpointSubset
 
-func (d *EndpointSubsetDie) AddressesDie(addresses ...*EndpointAddressDie) *EndpointSubsetDie {
-	return d.DieStamp(func(r *corev1.EndpointSubset) {
-		r.Addresses = make([]corev1.EndpointAddress, len(addresses))
-		for i := range addresses {
-			r.Addresses[i] = addresses[i].DieRelease()
-		}
-	})
-}
-
-func (d *EndpointSubsetDie) NotReadyAddressesDie(addresses ...*EndpointAddressDie) *EndpointSubsetDie {
-	return d.DieStamp(func(r *corev1.EndpointSubset) {
-		r.NotReadyAddresses = make([]corev1.EndpointAddress, len(addresses))
-		for i := range addresses {
-			r.NotReadyAddresses[i] = addresses[i].DieRelease()
-		}
-	})
-}
-
-func (d *EndpointSubsetDie) PortsDie(ports ...*EndpointPortDie) *EndpointSubsetDie {
-	return d.DieStamp(func(r *corev1.EndpointSubset) {
-		r.Ports = make([]corev1.EndpointPort, len(ports))
-		for i := range ports {
-			r.Ports[i] = ports[i].DieRelease()
-		}
-	})
-}
-
 // +die
+// +die:field:name=TargetRef,die=ObjectReferenceDie,pointer=true
 type _ = corev1.EndpointAddress
-
-func (d *EndpointAddressDie) TargetRefDie(fn func(d *ObjectReferenceDie)) *EndpointAddressDie {
-	return d.DieStamp(func(r *corev1.EndpointAddress) {
-		d := ObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.TargetRef)
-		fn(d)
-		r.TargetRef = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ = corev1.EndpointPort

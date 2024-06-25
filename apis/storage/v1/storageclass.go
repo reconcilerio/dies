@@ -17,12 +17,11 @@ limitations under the License.
 package v1
 
 import (
-	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
-	diecorev1 "reconciler.io/dies/apis/core/v1"
 )
 
 // +die:object=true,apiVersion=storage.k8s.io/v1,kind=StorageClass
+// +die:field:name=AllowedTopologies,package=_/core/v1,die=TopologySelectorTermDie,listType=atomic
 type _ = storagev1.StorageClass
 
 func (d *StorageClassDie) AddParameter(key, value string) *StorageClassDie {
@@ -31,14 +30,5 @@ func (d *StorageClassDie) AddParameter(key, value string) *StorageClassDie {
 			r.Parameters = map[string]string{}
 		}
 		r.Parameters[key] = value
-	})
-}
-
-func (d *StorageClassDie) AllowedTopologiesDie(topologies ...*diecorev1.TopologySelectorTermDie) *StorageClassDie {
-	return d.DieStamp(func(r *storagev1.StorageClass) {
-		r.AllowedTopologies = make([]corev1.TopologySelectorTerm, len(topologies))
-		for i := range topologies {
-			r.AllowedTopologies[i] = topologies[i].DieRelease()
-		}
 	})
 }

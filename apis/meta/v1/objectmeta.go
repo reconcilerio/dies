@@ -26,6 +26,7 @@ import (
 )
 
 // +die
+// +die:field:name=ManagedFields,die=ManagedFieldsEntryDie,listType=atomic
 type _ = metav1.ObjectMeta
 
 func (d *ObjectMetaDie) AddLabel(key, value string) *ObjectMetaDie {
@@ -60,15 +61,6 @@ func (d *ObjectMetaDie) ControlledBy(obj runtime.Object, scheme *runtime.Scheme)
 		UID:                obj.(metav1.Object).GetUID(),
 		BlockOwnerDeletion: ptr.To(true),
 		Controller:         ptr.To(true),
-	})
-}
-
-func (d *ObjectMetaDie) ManagedFieldsDie(fields ...*ManagedFieldsEntryDie) *ObjectMetaDie {
-	return d.DieStamp(func(r *metav1.ObjectMeta) {
-		r.ManagedFields = make([]metav1.ManagedFieldsEntry, len(fields))
-		for i := range fields {
-			r.ManagedFields[i] = fields[i].DieRelease()
-		}
 	})
 }
 

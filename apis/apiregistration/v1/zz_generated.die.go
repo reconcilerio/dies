@@ -622,6 +622,23 @@ func (d *APIServiceSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ServiceDie mutates Service as a die.
+//
+// Service is a reference to the service for this API server.  It must communicate
+//
+// on port 443.
+//
+// If the Service is nil, that means the handling for the API groupversion is handled locally on this server.
+//
+// The call will simply delegate to the normal handler chain to be fulfilled.
+func (d *APIServiceSpecDie) ServiceDie(fn func(d *ServiceReferenceDie)) *APIServiceSpecDie {
+	return d.DieStamp(func(r *apiregistration.APIServiceSpec) {
+		d := ServiceReferenceBlank.DieImmutable(false).DieFeedPtr(r.Service)
+		fn(d)
+		r.Service = d.DieReleasePtr()
+	})
+}
+
 // Service is a reference to the service for this API server.  It must communicate
 //
 // on port 443.

@@ -21,20 +21,6 @@ import (
 )
 
 // +die
+// +die:field:name=Request,die=AdmissionRequestDie,pointer=true
+// +die:field:name=Response,die=AdmissionResponseDie,pointer=true
 type _ = admissionv1.AdmissionReview
-
-func (d *AdmissionReviewDie) RequestDie(fn func(d *AdmissionRequestDie)) *AdmissionReviewDie {
-	return d.DieStamp(func(r *admissionv1.AdmissionReview) {
-		d := AdmissionRequestBlank.DieImmutable(false).DieFeedPtr(r.Request)
-		fn(d)
-		r.Request = d.DieReleasePtr()
-	})
-}
-
-func (d *AdmissionReviewDie) ResponseDie(fn func(d *AdmissionResponseDie)) *AdmissionReviewDie {
-	return d.DieStamp(func(r *admissionv1.AdmissionReview) {
-		d := AdmissionResponseBlank.DieImmutable(false).DieFeedPtr(r.Response)
-		fn(d)
-		r.Response = d.DieReleasePtr()
-	})
-}

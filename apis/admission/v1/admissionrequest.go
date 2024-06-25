@@ -18,49 +18,12 @@ package v1
 
 import (
 	admissionv1 "k8s.io/api/admission/v1"
-	dieauthenticationv1 "reconciler.io/dies/apis/authentication/v1"
-	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 // +die
+// +die:field:name=Kind,package=_/meta/v1,die=GroupVersionKindDie
+// +die:field:name=Resource,package=_/meta/v1,die=GroupVersionResourceDie
+// +die:field:name=RequestKind,package=_/meta/v1,die=GroupVersionKindDie,pointer=true
+// +die:field:name=RequestResource,package=_/meta/v1,die=GroupVersionResourceDie,pointer=true
+// +die:field:name=UserInfo,package=_/authentication/v1,die=UserInfoDie
 type _ = admissionv1.AdmissionRequest
-
-func (d *AdmissionRequestDie) KindDie(fn func(d *diemetav1.GroupVersionKindDie)) *AdmissionRequestDie {
-	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
-		d := diemetav1.GroupVersionKindBlank.DieImmutable(false).DieFeed(r.Kind)
-		fn(d)
-		r.Kind = d.DieRelease()
-	})
-}
-
-func (d *AdmissionRequestDie) ResourceDie(fn func(d *diemetav1.GroupVersionResourceDie)) *AdmissionRequestDie {
-	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
-		d := diemetav1.GroupVersionResourceBlank.DieImmutable(false).DieFeed(r.Resource)
-		fn(d)
-		r.Resource = d.DieRelease()
-	})
-}
-
-func (d *AdmissionRequestDie) RequestKindDie(fn func(d *diemetav1.GroupVersionKindDie)) *AdmissionRequestDie {
-	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
-		d := diemetav1.GroupVersionKindBlank.DieImmutable(false).DieFeedPtr(r.RequestKind)
-		fn(d)
-		r.RequestKind = d.DieReleasePtr()
-	})
-}
-
-func (d *AdmissionRequestDie) RequestResourceDie(fn func(d *diemetav1.GroupVersionResourceDie)) *AdmissionRequestDie {
-	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
-		d := diemetav1.GroupVersionResourceBlank.DieImmutable(false).DieFeedPtr(r.RequestResource)
-		fn(d)
-		r.RequestResource = d.DieReleasePtr()
-	})
-}
-
-func (d *AdmissionRequestDie) UserInfoDie(fn func(d *dieauthenticationv1.UserInfoDie)) *AdmissionRequestDie {
-	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
-		d := dieauthenticationv1.UserInfoBlank.DieImmutable(false).DieFeed(r.UserInfo)
-		fn(d)
-		r.UserInfo = d.DieRelease()
-	})
-}

@@ -24,7 +24,7 @@ package v1
 import (
 	fmtx "fmt"
 	cmp "github.com/google/go-cmp/cmp"
-	corev1 "k8s.io/api/core/v1"
+	apicorev1 "k8s.io/api/core/v1"
 	eventsv1 "k8s.io/api/events/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -34,6 +34,7 @@ import (
 	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
+	corev1 "reconciler.io/dies/apis/core/v1"
 	metav1 "reconciler.io/dies/apis/meta/v1"
 	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
@@ -363,6 +364,56 @@ func (d *EventDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *EventDie {
 	})
 }
 
+// SeriesDie mutates Series as a die.
+//
+// series is data about the Event series this event represents or nil if it's a singleton Event.
+func (d *EventDie) SeriesDie(fn func(d *EventSeriesDie)) *EventDie {
+	return d.DieStamp(func(r *eventsv1.Event) {
+		d := EventSeriesBlank.DieImmutable(false).DieFeedPtr(r.Series)
+		fn(d)
+		r.Series = d.DieReleasePtr()
+	})
+}
+
+// RegardingDie mutates Regarding as a die.
+//
+// regarding contains the object this Event is about. In most cases it's an Object reporting controller
+//
+// implements, e.g. ReplicaSetController implements ReplicaSets and this event is emitted because
+//
+// it acts on some changes in a ReplicaSet object.
+func (d *EventDie) RegardingDie(fn func(d *corev1.ObjectReferenceDie)) *EventDie {
+	return d.DieStamp(func(r *eventsv1.Event) {
+		d := corev1.ObjectReferenceBlank.DieImmutable(false).DieFeed(r.Regarding)
+		fn(d)
+		r.Regarding = d.DieRelease()
+	})
+}
+
+// RelatedDie mutates Related as a die.
+//
+// related is the optional secondary object for more complex actions. E.g. when regarding object triggers
+//
+// a creation or deletion of related object.
+func (d *EventDie) RelatedDie(fn func(d *corev1.ObjectReferenceDie)) *EventDie {
+	return d.DieStamp(func(r *eventsv1.Event) {
+		d := corev1.ObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.Related)
+		fn(d)
+		r.Related = d.DieReleasePtr()
+	})
+}
+
+// DeprecatedSourceDie mutates DeprecatedSource as a die.
+//
+// deprecatedSource is the deprecated field assuring backward compatibility with core.v1 Event type.
+func (d *EventDie) DeprecatedSourceDie(fn func(d *corev1.EventSourceDie)) *EventDie {
+	return d.DieStamp(func(r *eventsv1.Event) {
+		d := corev1.EventSourceBlank.DieImmutable(false).DieFeed(r.DeprecatedSource)
+		fn(d)
+		r.DeprecatedSource = d.DieRelease()
+	})
+}
+
 // eventTime is the time when this Event was first observed. It is required.
 func (d *EventDie) EventTime(v apismetav1.MicroTime) *EventDie {
 	return d.DieStamp(func(r *eventsv1.Event) {
@@ -418,7 +469,7 @@ func (d *EventDie) Reason(v string) *EventDie {
 // implements, e.g. ReplicaSetController implements ReplicaSets and this event is emitted because
 //
 // it acts on some changes in a ReplicaSet object.
-func (d *EventDie) Regarding(v corev1.ObjectReference) *EventDie {
+func (d *EventDie) Regarding(v apicorev1.ObjectReference) *EventDie {
 	return d.DieStamp(func(r *eventsv1.Event) {
 		r.Regarding = v
 	})
@@ -427,7 +478,7 @@ func (d *EventDie) Regarding(v corev1.ObjectReference) *EventDie {
 // related is the optional secondary object for more complex actions. E.g. when regarding object triggers
 //
 // a creation or deletion of related object.
-func (d *EventDie) Related(v *corev1.ObjectReference) *EventDie {
+func (d *EventDie) Related(v *apicorev1.ObjectReference) *EventDie {
 	return d.DieStamp(func(r *eventsv1.Event) {
 		r.Related = v
 	})
@@ -456,7 +507,7 @@ func (d *EventDie) Type(v string) *EventDie {
 }
 
 // deprecatedSource is the deprecated field assuring backward compatibility with core.v1 Event type.
-func (d *EventDie) DeprecatedSource(v corev1.EventSource) *EventDie {
+func (d *EventDie) DeprecatedSource(v apicorev1.EventSource) *EventDie {
 	return d.DieStamp(func(r *eventsv1.Event) {
 		r.DeprecatedSource = v
 	})

@@ -17,7 +17,6 @@ limitations under the License.
 package v1
 
 import (
-	corev1 "k8s.io/api/core/v1"
 	nodev1 "k8s.io/api/node/v1"
 	diecorev1 "reconciler.io/dies/apis/core/v1"
 )
@@ -29,21 +28,10 @@ type _ = nodev1.RuntimeClass
 type _ = nodev1.Overhead
 
 // +die
+// +die:field:name=Tolerations,package=_/core/v1,die=TolerationDie,listMapKey=Key
 type _ = nodev1.Scheduling
 
+// deprecated?: use TolerationDie
 func (d *SchedulingDie) TolerationsDie(key string, fn func(d *diecorev1.TolerationDie)) *SchedulingDie {
-	return d.DieStamp(func(r *nodev1.Scheduling) {
-		for i := range r.Tolerations {
-			if key == r.Tolerations[i].Key {
-				d := diecorev1.TolerationBlank.DieImmutable(false).DieFeed(r.Tolerations[i])
-				fn(d)
-				r.Tolerations[i] = d.DieRelease()
-				return
-			}
-		}
-
-		d := diecorev1.TolerationBlank.DieImmutable(false).DieFeed(corev1.Toleration{Key: key})
-		fn(d)
-		r.Tolerations = append(r.Tolerations, d.DieRelease())
-	})
+	return d.TolerationDie(key, fn)
 }

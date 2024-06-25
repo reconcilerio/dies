@@ -19,7 +19,6 @@ package v1
 import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	diecorev1 "reconciler.io/dies/apis/core/v1"
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
@@ -27,56 +26,13 @@ import (
 type _ = appsv1.StatefulSet
 
 // +die
+// +die:field:name=Selector,package=_/meta/v1,die=LabelSelectorDie,pointer=true
+// +die:field:name=Template,package=_/core/v1,die=PodTemplateSpecDie
+// +die:field:name=UpdateStrategy,die=StatefulSetUpdateStrategyDie
+// +die:field:name=PersistentVolumeClaimRetentionPolicy,die=StatefulSetPersistentVolumeClaimRetentionPolicyDie,pointer=true
+// +die:field:name=Ordinals,die=StatefulSetOrdinalsDie,pointer=true
+// +die:field:name=VolumeClaimTemplates,package=_/core/v1,die=PersistentVolumeClaimDie,listType=atomic
 type _ = appsv1.StatefulSetSpec
-
-func (d *StatefulSetSpecDie) SelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *StatefulSetSpecDie {
-	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
-		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
-		fn(d)
-		r.Selector = d.DieReleasePtr()
-	})
-}
-
-func (d *StatefulSetSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *StatefulSetSpecDie {
-	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
-		d := diecorev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
-		fn(d)
-		r.Template = d.DieRelease()
-	})
-}
-
-func (d *StatefulSetSpecDie) VolumeClaimTemplatesDie(volumeClaimTemplates ...*diecorev1.PersistentVolumeClaimDie) *StatefulSetSpecDie {
-	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
-		r.VolumeClaimTemplates = make([]corev1.PersistentVolumeClaim, len(volumeClaimTemplates))
-		for i, v := range volumeClaimTemplates {
-			r.VolumeClaimTemplates[i] = v.DieRelease()
-		}
-	})
-}
-
-func (d *StatefulSetSpecDie) UpdateStrategyDie(fn func(d *StatefulSetUpdateStrategyDie)) *StatefulSetSpecDie {
-	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
-		d := StatefulSetUpdateStrategyBlank.DieImmutable(false).DieFeed(r.UpdateStrategy)
-		fn(d)
-		r.UpdateStrategy = d.DieRelease()
-	})
-}
-
-func (d *StatefulSetSpecDie) PersistentVolumeClaimRetentionPolicyDie(fn func(d *StatefulSetPersistentVolumeClaimRetentionPolicyDie)) *StatefulSetSpecDie {
-	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
-		d := StatefulSetPersistentVolumeClaimRetentionPolicyBlank.DieImmutable(false).DieFeedPtr(r.PersistentVolumeClaimRetentionPolicy)
-		fn(d)
-		r.PersistentVolumeClaimRetentionPolicy = d.DieReleasePtr()
-	})
-}
-
-func (d *StatefulSetSpecDie) OrdinalsDie(fn func(d *StatefulSetOrdinalsDie)) *StatefulSetSpecDie {
-	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
-		d := StatefulSetOrdinalsBlank.DieImmutable(false).DieFeedPtr(r.Ordinals)
-		fn(d)
-		r.Ordinals = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ = appsv1.StatefulSetUpdateStrategy

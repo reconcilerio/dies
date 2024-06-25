@@ -21,22 +21,6 @@ import (
 )
 
 // +die:object=true,apiVersion=v1,kind=ServiceAccount
+// +die:field:name=Secrets,die=ObjectReferenceDie,listType=atomic
+// +die:field:name=ImagePullSecrets,die=LocalObjectReferenceDie,listType=atomic
 type _ = corev1.ServiceAccount
-
-func (d *ServiceAccountDie) SecretsDie(secrets ...*ObjectReferenceDie) *ServiceAccountDie {
-	return d.DieStamp(func(r *corev1.ServiceAccount) {
-		r.Secrets = make([]corev1.ObjectReference, len(secrets))
-		for i := range secrets {
-			r.Secrets[i] = secrets[i].DieRelease()
-		}
-	})
-}
-
-func (d *ServiceAccountDie) ImagePullSecretsDie(secrets ...*LocalObjectReferenceDie) *ServiceAccountDie {
-	return d.DieStamp(func(r *corev1.ServiceAccount) {
-		r.ImagePullSecrets = make([]corev1.LocalObjectReference, len(secrets))
-		for i := range secrets {
-			r.ImagePullSecrets[i] = secrets[i].DieRelease()
-		}
-	})
-}

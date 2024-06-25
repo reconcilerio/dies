@@ -24,15 +24,8 @@ import (
 type _ = networkingv1.IngressClass
 
 // +die
+// +die:field:name=Parameters,die=IngressClassParametersReferenceDie,pointer=true
 type _ = networkingv1.IngressClassSpec
-
-func (d *IngressClassSpecDie) ParametersDie(fn func(d *IngressClassParametersReferenceDie)) *IngressClassSpecDie {
-	return d.DieStamp(func(r *networkingv1.IngressClassSpec) {
-		d := IngressClassParametersReferenceBlank.DieImmutable(false).DieFeedPtr(r.Parameters)
-		fn(d)
-		r.Parameters = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ = networkingv1.IngressClassParametersReference

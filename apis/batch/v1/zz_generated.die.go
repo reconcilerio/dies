@@ -34,6 +34,7 @@ import (
 	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
+	apiscorev1 "reconciler.io/dies/apis/core/v1"
 	metav1 "reconciler.io/dies/apis/meta/v1"
 	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
@@ -1551,6 +1552,86 @@ func (d *JobSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// PodFailurePolicyDie mutates PodFailurePolicy as a die.
+//
+// Specifies the policy of handling failed pods. In particular, it allows to
+//
+// specify the set of actions and conditions which need to be
+//
+// satisfied to take the associated action.
+//
+// If empty, the default behaviour applies - the counter of failed pods,
+//
+// represented by the jobs's .status.failed field, is incremented and it is
+//
+// checked against the backoffLimit. This field cannot be used in combination
+//
+// with restartPolicy=OnFailure.
+//
+// This field is beta-level. It can be used when the `JobPodFailurePolicy`
+//
+// feature gate is enabled (enabled by default).
+func (d *JobSpecDie) PodFailurePolicyDie(fn func(d *PodFailurePolicyDie)) *JobSpecDie {
+	return d.DieStamp(func(r *batchv1.JobSpec) {
+		d := PodFailurePolicyBlank.DieImmutable(false).DieFeedPtr(r.PodFailurePolicy)
+		fn(d)
+		r.PodFailurePolicy = d.DieReleasePtr()
+	})
+}
+
+// SuccessPolicyDie mutates SuccessPolicy as a die.
+//
+// successPolicy specifies the policy when the Job can be declared as succeeded.
+//
+// # If empty, the default behavior applies - the Job is declared as succeeded
+//
+// only when the number of succeeded pods equals to the completions.
+//
+// When the field is specified, it must be immutable and works only for the Indexed Jobs.
+//
+// Once the Job meets the SuccessPolicy, the lingering pods are terminated.
+//
+// This field  is alpha-level. To use this field, you must enable the
+//
+// `JobSuccessPolicy` feature gate (disabled by default).
+func (d *JobSpecDie) SuccessPolicyDie(fn func(d *SuccessPolicyDie)) *JobSpecDie {
+	return d.DieStamp(func(r *batchv1.JobSpec) {
+		d := SuccessPolicyBlank.DieImmutable(false).DieFeedPtr(r.SuccessPolicy)
+		fn(d)
+		r.SuccessPolicy = d.DieReleasePtr()
+	})
+}
+
+// SelectorDie mutates Selector as a die.
+//
+// A label query over pods that should match the pod count.
+//
+// Normally, the system sets this field for you.
+//
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
+func (d *JobSpecDie) SelectorDie(fn func(d *metav1.LabelSelectorDie)) *JobSpecDie {
+	return d.DieStamp(func(r *batchv1.JobSpec) {
+		d := metav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
+		fn(d)
+		r.Selector = d.DieReleasePtr()
+	})
+}
+
+// TemplateDie mutates Template as a die.
+//
+// Describes the pod that will be created when executing a job.
+//
+// The only allowed template.spec.restartPolicy values are "Never" or "OnFailure".
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
+func (d *JobSpecDie) TemplateDie(fn func(d *apiscorev1.PodTemplateSpecDie)) *JobSpecDie {
+	return d.DieStamp(func(r *batchv1.JobSpec) {
+		d := apiscorev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
+		fn(d)
+		r.Template = d.DieRelease()
+	})
+}
+
 // Specifies the maximum desired number of pods the job should
 //
 // run at any given time. The actual number of pods running in steady state will
@@ -2101,6 +2182,26 @@ func (d *PodFailurePolicyDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// RulesDie replaces Rules by collecting the released value from each die passed.
+//
+// A list of pod failure policy rules. The rules are evaluated in order.
+//
+// Once a rule matches a Pod failure, the remaining of the rules are ignored.
+//
+// # When no rule matches the Pod failure, the default handling applies - the
+//
+// counter of pod failures is incremented and it is checked against
+//
+// the backoffLimit. At most 20 elements are allowed.
+func (d *PodFailurePolicyDie) RulesDie(v ...*PodFailurePolicyRuleDie) *PodFailurePolicyDie {
+	return d.DieStamp(func(r *batchv1.PodFailurePolicy) {
+		r.Rules = make([]batchv1.PodFailurePolicyRule, len(v))
+		for i := range v {
+			r.Rules[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // A list of pod failure policy rules. The rules are evaluated in order.
 //
 // Once a rule matches a Pod failure, the remaining of the rules are ignored.
@@ -2342,6 +2443,33 @@ func (d *PodFailurePolicyRuleDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *PodFailurePolicyRuleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// OnExitCodesDie mutates OnExitCodes as a die.
+//
+// Represents the requirement on the container exit codes.
+func (d *PodFailurePolicyRuleDie) OnExitCodesDie(fn func(d *PodFailurePolicyOnExitCodesRequirementDie)) *PodFailurePolicyRuleDie {
+	return d.DieStamp(func(r *batchv1.PodFailurePolicyRule) {
+		d := PodFailurePolicyOnExitCodesRequirementBlank.DieImmutable(false).DieFeedPtr(r.OnExitCodes)
+		fn(d)
+		r.OnExitCodes = d.DieReleasePtr()
+	})
+}
+
+// OnPodConditionsDie replaces OnPodConditions by collecting the released value from each die passed.
+//
+// Represents the requirement on the pod conditions. The requirement is represented
+//
+// as a list of pod condition patterns. The requirement is satisfied if at
+//
+// least one pattern matches an actual pod condition. At most 20 elements are allowed.
+func (d *PodFailurePolicyRuleDie) OnPodConditionsDie(v ...*PodFailurePolicyOnPodConditionsPatternDie) *PodFailurePolicyRuleDie {
+	return d.DieStamp(func(r *batchv1.PodFailurePolicyRule) {
+		r.OnPodConditions = make([]batchv1.PodFailurePolicyOnPodConditionsPattern, len(v))
+		for i := range v {
+			r.OnPodConditions[i] = v[i].DieRelease()
+		}
+	})
 }
 
 // Specifies the action taken on a pod failure when the requirements are satisfied.
@@ -3154,6 +3282,28 @@ func (d *SuccessPolicyDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// RulesDie replaces Rules by collecting the released value from each die passed.
+//
+// rules represents the list of alternative rules for the declaring the Jobs
+//
+// as successful before `.status.succeeded >= .spec.completions`. Once any of the rules are met,
+//
+// the "SucceededCriteriaMet" condition is added, and the lingering pods are removed.
+//
+// The terminal state for such a Job has the "Complete" condition.
+//
+// Additionally, these rules are evaluated in order; Once the Job meets one of the rules,
+//
+// other rules are ignored. At most 20 elements are allowed.
+func (d *SuccessPolicyDie) RulesDie(v ...*SuccessPolicyRuleDie) *SuccessPolicyDie {
+	return d.DieStamp(func(r *batchv1.SuccessPolicy) {
+		r.Rules = make([]batchv1.SuccessPolicyRule, len(v))
+		for i := range v {
+			r.Rules[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // rules represents the list of alternative rules for the declaring the Jobs
 //
 // as successful before `.status.succeeded >= .spec.completions`. Once any of the rules are met,
@@ -3677,6 +3827,39 @@ func (d *JobStatusDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *JobStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// UncountedTerminatedPodsDie mutates UncountedTerminatedPods as a die.
+//
+// uncountedTerminatedPods holds the UIDs of Pods that have terminated but
+//
+// the job controller hasn't yet accounted for in the status counters.
+//
+// The job controller creates pods with a finalizer. When a pod terminates
+//
+// (succeeded or failed), the controller does three steps to account for it
+//
+// in the job status:
+//
+// 1. Add the pod UID to the arrays in this field.
+//
+// 2. Remove the pod finalizer.
+//
+// 3. Remove the pod UID from the arrays while increasing the corresponding
+//
+// counter.
+//
+// # Old jobs might not be tracked using this field, in which case the field
+//
+// remains null.
+//
+// The structure is empty for finished jobs.
+func (d *JobStatusDie) UncountedTerminatedPodsDie(fn func(d *UncountedTerminatedPodsDie)) *JobStatusDie {
+	return d.DieStamp(func(r *batchv1.JobStatus) {
+		d := UncountedTerminatedPodsBlank.DieImmutable(false).DieFeedPtr(r.UncountedTerminatedPods)
+		fn(d)
+		r.UncountedTerminatedPods = d.DieReleasePtr()
+	})
 }
 
 // The latest available observations of an object's current state. When a Job

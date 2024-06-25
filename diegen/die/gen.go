@@ -26,13 +26,15 @@ import (
 	"unicode"
 
 	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-tools/pkg/genall"
 	"sigs.k8s.io/controller-tools/pkg/loader"
 	"sigs.k8s.io/controller-tools/pkg/markers"
 )
 
 var (
-	dieMarker = markers.Must(markers.MakeDefinition("die", markers.DescribesType, Die{}))
+	dieMarker      = markers.Must(markers.MakeDefinition("die", markers.DescribesType, Die{}))
+	dieFieldMarker = markers.Must(markers.MakeDefinition("die:field", markers.DescribesType, DieField{}))
 )
 
 type Die struct {
@@ -125,6 +127,57 @@ func (d *Field) Default() {
 	}
 }
 
+type DieField struct {
+	Name    string `marker:"name"`
+	Method  string `marker:"method,optional"`
+	Field   string `marker:"field,optional"`
+	Package string `marker:"package,optional"`
+	Die     string `marker:"die"`
+	Blank   string `marker:"blank,optional"`
+	Pointer *bool  `marker:"pointer,optional"`
+
+	ListType          string `marker:"listType,optional"`
+	ListMapKey        string `marker:"listMapKey,optional"`
+	ListMapKeyPackage string `marker:"listMapKeyPackage,optional"`
+	ListMapKeyType    string `marker:"listMapKeyType,optional"`
+}
+
+func (d *DieField) Default() {
+	if d.ListType == "" && d.ListMapKey != "" {
+		// TODO(scothis) default from +listType +listMapKey on target field
+		d.ListType = "map"
+	}
+	if d.ListType == "map" {
+		if d.ListMapKey == "" {
+			d.ListMapKey = "Name"
+		}
+		if d.ListMapKeyType == "" {
+			d.ListMapKeyType = "string"
+		}
+	}
+	if d.Method == "" {
+		name := d.Name
+		if d.ListType == "map" {
+			// try to singularize the name
+			name = strings.TrimSuffix(name, "s")
+		}
+		d.Method = fmt.Sprintf("%sDie", name)
+
+	}
+	if d.Field == "" {
+		d.Field = d.Name
+	}
+	if strings.HasPrefix(d.Package, "_/") {
+		d.Package = strings.Replace(d.Package, "_/", "reconciler.io/dies/apis/", 1)
+	}
+	if d.Blank == "" {
+		d.Blank = fmt.Sprintf("%sBlank", strings.TrimSuffix(d.Die, "Die"))
+	}
+	if d.Pointer == nil {
+		d.Pointer = ptr.To(false)
+	}
+}
+
 type Generator struct {
 	// HeaderFile specifies the header text (e.g. license) to prepend to generated files.
 	HeaderFile string `marker:",optional"`
@@ -145,6 +198,11 @@ func (Generator) RegisterMarkers(into *markers.Registry) error {
 		return err
 	}
 	into.AddHelp(dieMarker, markers.SimpleHelp("die", "generates a die for the type"))
+
+	if err := into.Register(dieFieldMarker); err != nil {
+		return err
+	}
+	into.AddHelp(dieFieldMarker, markers.SimpleHelp("die:field", "generates a helper method for a field on the type using another die"))
 
 	return nil
 }
@@ -241,6 +299,7 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) ([]byte, []byt
 	dies := []Die{}
 	dieSet := sets.New[string]()
 	fieldMap := map[string][]Field{}
+	dieFieldMap := map[string][]DieField{}
 
 	if err := markers.EachType(ctx.Collector, root, func(info *markers.TypeInfo) {
 		if dieMarkers, ok := info.Markers[dieMarker.Name]; ok {
@@ -251,6 +310,15 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) ([]byte, []byt
 				die.Target = qualifyField(info.RawSpec.Type, root.ID, info.RawFile.Imports)
 			}
 			die.Default()
+
+			if dieFieldMarkers, ok := info.Markers[dieFieldMarker.Name]; ok {
+				dieFieldMap[die.Type] = []DieField{}
+				for i := range dieFieldMarkers {
+					dieField := dieFieldMarkers[i].(DieField)
+					dieField.Default()
+					dieFieldMap[die.Type] = append(dieFieldMap[die.Type], dieField)
+				}
+			}
 
 			dies = append(dies, die)
 			dieSet.Insert(die.Name)
@@ -292,7 +360,6 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) ([]byte, []byt
 				root.AddError(err)
 				return
 			}
-
 		}
 	}); err != nil {
 		root.AddError(err)
@@ -315,8 +382,9 @@ func (ctx *ObjectGenCtx) generateForPackage(root *loader.Package) ([]byte, []byt
 	for _, die := range dies {
 		fmt.Printf("Generating die for %q\n", die.Name)
 		fields := fieldMap[die.Type]
+		dieFields := dieFieldMap[die.Type]
 
-		copyCtx.GenerateMethodsFor(die, fields)
+		copyCtx.GenerateMethodsFor(die, fields, dieFields)
 
 		// print fields for this die
 		for _, field := range fields {

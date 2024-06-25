@@ -21,21 +21,6 @@ import (
 )
 
 // +die:object=true,apiVersion=rbac.authorization.k8s.io/v1,kind=ClusterRoleBinding
+// +die:field:name=RoleRef,die=RoleRefDie
+// +die:field:name=Subjects,die=SubjectDie,listType=atomic
 type _ = rbacv1.ClusterRoleBinding
-
-func (d *ClusterRoleBindingDie) SubjectsDie(subjects ...*SubjectDie) *ClusterRoleBindingDie {
-	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
-		r.Subjects = make([]rbacv1.Subject, len(subjects))
-		for i := range subjects {
-			r.Subjects[i] = subjects[i].DieRelease()
-		}
-	})
-}
-
-func (d *ClusterRoleBindingDie) RoleRefDie(fn func(d *RoleRefDie)) *ClusterRoleBindingDie {
-	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
-		d := RoleRefBlank.DieImmutable(false).DieFeed(r.RoleRef)
-		fn(d)
-		r.RoleRef = d.DieRelease()
-	})
-}

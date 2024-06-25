@@ -626,6 +626,50 @@ func (d *FlowSchemaSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// PriorityLevelConfigurationDie mutates PriorityLevelConfiguration as a die.
+//
+// `priorityLevelConfiguration` should reference a PriorityLevelConfiguration in the cluster. If the reference cannot
+//
+// be resolved, the FlowSchema will be ignored and marked as invalid in its status.
+//
+// Required.
+func (d *FlowSchemaSpecDie) PriorityLevelConfigurationDie(fn func(d *PriorityLevelConfigurationReferenceDie)) *FlowSchemaSpecDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.FlowSchemaSpec) {
+		d := PriorityLevelConfigurationReferenceBlank.DieImmutable(false).DieFeed(r.PriorityLevelConfiguration)
+		fn(d)
+		r.PriorityLevelConfiguration = d.DieRelease()
+	})
+}
+
+// DistinguisherMethodDie mutates DistinguisherMethod as a die.
+//
+// `distinguisherMethod` defines how to compute the flow distinguisher for requests that match this schema.
+//
+// `nil` specifies that the distinguisher is disabled and thus will always be the empty string.
+func (d *FlowSchemaSpecDie) DistinguisherMethodDie(fn func(d *FlowDistinguisherMethodDie)) *FlowSchemaSpecDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.FlowSchemaSpec) {
+		d := FlowDistinguisherMethodBlank.DieImmutable(false).DieFeedPtr(r.DistinguisherMethod)
+		fn(d)
+		r.DistinguisherMethod = d.DieReleasePtr()
+	})
+}
+
+// RulesDie replaces Rules by collecting the released value from each die passed.
+//
+// `rules` describes which requests will match this flow schema. This FlowSchema matches a request if and only if
+//
+// at least one member of rules matches the request.
+//
+// if it is an empty slice, there will be no requests matching the FlowSchema.
+func (d *FlowSchemaSpecDie) RulesDie(v ...*PolicyRulesWithSubjectsDie) *FlowSchemaSpecDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.FlowSchemaSpec) {
+		r.Rules = make([]flowcontrolv1beta1.PolicyRulesWithSubjects, len(v))
+		for i := range v {
+			r.Rules[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // `priorityLevelConfiguration` should reference a PriorityLevelConfiguration in the cluster. If the reference cannot
 //
 // be resolved, the FlowSchema will be ignored and marked as invalid in its status.
@@ -1607,6 +1651,54 @@ func (d *PolicyRulesWithSubjectsDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *PolicyRulesWithSubjectsDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// SubjectsDie replaces Subjects by collecting the released value from each die passed.
+//
+// subjects is the list of normal user, serviceaccount, or group that this rule cares about.
+//
+// There must be at least one member in this slice.
+//
+// A slice that includes both the system:authenticated and system:unauthenticated user groups matches every request.
+//
+// Required.
+func (d *PolicyRulesWithSubjectsDie) SubjectsDie(v ...*SubjectDie) *PolicyRulesWithSubjectsDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.PolicyRulesWithSubjects) {
+		r.Subjects = make([]flowcontrolv1beta1.Subject, len(v))
+		for i := range v {
+			r.Subjects[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// ResourceRulesDie replaces ResourceRules by collecting the released value from each die passed.
+//
+// `resourceRules` is a slice of ResourcePolicyRules that identify matching requests according to their verb and the
+//
+// target resource.
+//
+// At least one of `resourceRules` and `nonResourceRules` has to be non-empty.
+func (d *PolicyRulesWithSubjectsDie) ResourceRulesDie(v ...*ResourcePolicyRuleDie) *PolicyRulesWithSubjectsDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.PolicyRulesWithSubjects) {
+		r.ResourceRules = make([]flowcontrolv1beta1.ResourcePolicyRule, len(v))
+		for i := range v {
+			r.ResourceRules[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// NonResourceRulesDie replaces NonResourceRules by collecting the released value from each die passed.
+//
+// `nonResourceRules` is a list of NonResourcePolicyRules that identify matching requests according to their verb
+//
+// and the target non-resource URL.
+func (d *PolicyRulesWithSubjectsDie) NonResourceRulesDie(v ...*NonResourcePolicyRuleDie) *PolicyRulesWithSubjectsDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.PolicyRulesWithSubjects) {
+		r.NonResourceRules = make([]flowcontrolv1beta1.NonResourcePolicyRule, len(v))
+		for i := range v {
+			r.NonResourceRules[i] = v[i].DieRelease()
+		}
+	})
 }
 
 // subjects is the list of normal user, serviceaccount, or group that this rule cares about.
@@ -3774,6 +3866,38 @@ func (d *PriorityLevelConfigurationSpecDie) DiePatch(patchType types.PatchType) 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// LimitedDie mutates Limited as a die.
+//
+// `limited` specifies how requests are handled for a Limited priority level.
+//
+// This field must be non-empty if and only if `type` is `"Limited"`.
+func (d *PriorityLevelConfigurationSpecDie) LimitedDie(fn func(d *LimitedPriorityLevelConfigurationDie)) *PriorityLevelConfigurationSpecDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.PriorityLevelConfigurationSpec) {
+		d := LimitedPriorityLevelConfigurationBlank.DieImmutable(false).DieFeedPtr(r.Limited)
+		fn(d)
+		r.Limited = d.DieReleasePtr()
+	})
+}
+
+// ExemptDie mutates Exempt as a die.
+//
+// `exempt` specifies how requests are handled for an exempt priority level.
+//
+// This field MUST be empty if `type` is `"Limited"`.
+//
+// This field MAY be non-empty if `type` is `"Exempt"`.
+//
+// If empty and `type` is `"Exempt"` then the default values
+//
+// for `ExemptPriorityLevelConfiguration` apply.
+func (d *PriorityLevelConfigurationSpecDie) ExemptDie(fn func(d *ExemptPriorityLevelConfigurationDie)) *PriorityLevelConfigurationSpecDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.PriorityLevelConfigurationSpec) {
+		d := ExemptPriorityLevelConfigurationBlank.DieImmutable(false).DieFeedPtr(r.Exempt)
+		fn(d)
+		r.Exempt = d.DieReleasePtr()
+	})
+}
+
 // `type` indicates whether this priority level is subject to
 //
 // limitation on request execution.  A value of `"Exempt"` means
@@ -4047,6 +4171,17 @@ func (d *LimitedPriorityLevelConfigurationDie) DieDiff(opts ...cmp.Option) strin
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *LimitedPriorityLevelConfigurationDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// LimitResponseDie mutates LimitResponse as a die.
+//
+// `limitResponse` indicates what to do with requests that can not be executed right now
+func (d *LimitedPriorityLevelConfigurationDie) LimitResponseDie(fn func(d *LimitResponseDie)) *LimitedPriorityLevelConfigurationDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.LimitedPriorityLevelConfiguration) {
+		d := LimitResponseBlank.DieImmutable(false).DieFeed(r.LimitResponse)
+		fn(d)
+		r.LimitResponse = d.DieRelease()
+	})
 }
 
 // `assuredConcurrencyShares` (ACS) configures the execution
@@ -4361,6 +4496,19 @@ func (d *LimitResponseDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *LimitResponseDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// QueuingDie mutates Queuing as a die.
+//
+// `queuing` holds the configuration parameters for queuing.
+//
+// This field may be non-empty only if `type` is `"Queue"`.
+func (d *LimitResponseDie) QueuingDie(fn func(d *QueuingConfigurationDie)) *LimitResponseDie {
+	return d.DieStamp(func(r *flowcontrolv1beta1.LimitResponse) {
+		d := QueuingConfigurationBlank.DieImmutable(false).DieFeedPtr(r.Queuing)
+		fn(d)
+		r.Queuing = d.DieReleasePtr()
+	})
 }
 
 // `type` is "Queue" or "Reject".

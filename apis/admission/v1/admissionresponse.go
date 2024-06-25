@@ -18,19 +18,11 @@ package v1
 
 import (
 	admissionv1 "k8s.io/api/admission/v1"
-	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
 // +die
+// +die:field:name=Result,package=_/meta/v1,die=StatusDie,pointer=true
 type _ = admissionv1.AdmissionResponse
-
-func (d *AdmissionResponseDie) ResultDie(fn func(d *diemetav1.StatusDie)) *AdmissionResponseDie {
-	return d.DieStamp(func(r *admissionv1.AdmissionResponse) {
-		d := diemetav1.StatusBlank.DieImmutable(false).DieFeedPtr(r.Result)
-		fn(d)
-		r.Result = d.DieReleasePtr()
-	})
-}
 
 func (d *AdmissionResponseDie) AddAuditAnnotation(key, value string) *AdmissionResponseDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionResponse) {

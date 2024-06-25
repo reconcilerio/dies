@@ -26,6 +26,7 @@ import (
 type _ = corev1.Service
 
 // +die
+// +die:field:name=SessionAffinityConfig,die=SessionAffinityConfigDie,pointer=true
 type _ = corev1.ServiceSpec
 
 func (d *ServiceSpecDie) PortDie(protocol corev1.Protocol, port int32, fn func(d *ServicePortDie)) *ServiceSpecDie {
@@ -54,41 +55,19 @@ func (d *ServiceSpecDie) AddSelector(key, value string) *ServiceSpecDie {
 	})
 }
 
-func (d *ServiceSpecDie) SessionAffinityConfigDie(fn func(d *SessionAffinityConfigDie)) *ServiceSpecDie {
-	return d.DieStamp(func(r *corev1.ServiceSpec) {
-		d := SessionAffinityConfigBlank.DieImmutable(false).DieFeedPtr(r.SessionAffinityConfig)
-		fn(d)
-		r.SessionAffinityConfig = d.DieReleasePtr()
-	})
-}
-
 // +die
 type _ = corev1.ServicePort
 
 // +die
+// +die:field:name=ClientIP,die=ClientIPConfigDie,pointer=true
 type _ = corev1.SessionAffinityConfig
-
-func (d *SessionAffinityConfigDie) ClientIPDie(fn func(d *ClientIPConfigDie)) *SessionAffinityConfigDie {
-	return d.DieStamp(func(r *corev1.SessionAffinityConfig) {
-		d := ClientIPConfigBlank.DieImmutable(false).DieFeedPtr(r.ClientIP)
-		fn(d)
-		r.ClientIP = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ = corev1.ClientIPConfig
 
 // +die
+// +die:field:name=LoadBalancer,die=LoadBalancerStatusDie
 type _ = corev1.ServiceStatus
-
-func (d *ServiceStatusDie) LoadBalancerDie(fn func(d *LoadBalancerStatusDie)) *ServiceStatusDie {
-	return d.DieStamp(func(r *corev1.ServiceStatus) {
-		d := LoadBalancerStatusBlank.DieImmutable(false).DieFeed(r.LoadBalancer)
-		fn(d)
-		r.LoadBalancer = d.DieRelease()
-	})
-}
 
 func (d *ServiceStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *ServiceStatusDie {
 	return d.DieStamp(func(r *corev1.ServiceStatus) {
@@ -100,28 +79,17 @@ func (d *ServiceStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) 
 }
 
 // +die
+// +die:field:name=Ingress,die=LoadBalancerIngressDie,listType=atomic
 type _ = corev1.LoadBalancerStatus
 
+// deprecated: use IngressDie
 func (d *LoadBalancerStatusDie) LoadBalancerDie(ingress ...*LoadBalancerIngressDie) *LoadBalancerStatusDie {
-	return d.DieStamp(func(r *corev1.LoadBalancerStatus) {
-		r.Ingress = make([]corev1.LoadBalancerIngress, len(ingress))
-		for i := range ingress {
-			r.Ingress[i] = ingress[i].DieRelease()
-		}
-	})
+	return d.IngressDie(ingress...)
 }
 
 // +die
+// +die:field:name=Ports,die=PortStatusDie,listType=atomic
 type _ = corev1.LoadBalancerIngress
-
-func (d *LoadBalancerIngressDie) PortsDie(ports ...*PortStatusDie) *LoadBalancerIngressDie {
-	return d.DieStamp(func(r *corev1.LoadBalancerIngress) {
-		r.Ports = make([]corev1.PortStatus, len(ports))
-		for i := range ports {
-			r.Ports[i] = ports[i].DieRelease()
-		}
-	})
-}
 
 // +die
 type _ = corev1.PortStatus

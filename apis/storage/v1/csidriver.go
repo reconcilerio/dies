@@ -24,16 +24,8 @@ import (
 type _ = storagev1.CSIDriver
 
 // +die
+// +die:field:name=TokenRequests,die=TokenRequestDie,listType=atomic
 type _ = storagev1.CSIDriverSpec
-
-func (d *CSIDriverSpecDie) TokenRequestsDie(requests ...*TokenRequestDie) *CSIDriverSpecDie {
-	return d.DieStamp(func(r *storagev1.CSIDriverSpec) {
-		r.TokenRequests = make([]storagev1.TokenRequest, len(requests))
-		for i := range requests {
-			r.TokenRequests[i] = requests[i].DieRelease()
-		}
-	})
-}
 
 // +die
 type _ = storagev1.TokenRequest

@@ -24,15 +24,8 @@ import (
 type _ = authenticationv1.SelfSubjectReview
 
 // +die
+// +die:field:name=UserInfo,die=UserInfoDie
 type _ = authenticationv1.SelfSubjectReviewStatus
-
-func (d *SelfSubjectReviewStatusDie) UserInfoDie(fn func(d *UserInfoDie)) *SelfSubjectReviewStatusDie {
-	return d.DieStamp(func(r *authenticationv1.SelfSubjectReviewStatus) {
-		d := UserInfoBlank.DieImmutable(false).DieFeed(r.UserInfo)
-		fn(d)
-		r.UserInfo = d.DieRelease()
-	})
-}
 
 // +die:ignore={Extra}
 type _ = authenticationv1.UserInfo

@@ -364,6 +364,17 @@ func (d *BindingDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *BindingDie {
 	})
 }
 
+// TargetDie mutates Target as a die.
+//
+// The target object that you want to bind to the standard object.
+func (d *BindingDie) TargetDie(fn func(d *ObjectReferenceDie)) *BindingDie {
+	return d.DieStamp(func(r *corev1.Binding) {
+		d := ObjectReferenceBlank.DieImmutable(false).DieFeed(r.Target)
+		fn(d)
+		r.Target = d.DieRelease()
+	})
+}
+
 // The target object that you want to bind to the standard object.
 func (d *BindingDie) Target(v corev1.ObjectReference) *BindingDie {
 	return d.DieStamp(func(r *corev1.Binding) {
@@ -1898,6 +1909,18 @@ func (d *TopologySelectorTermDie) DiePatch(patchType types.PatchType) ([]byte, e
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// MatchLabelExpressionsDie replaces MatchLabelExpressions by collecting the released value from each die passed.
+//
+// A list of topology selector requirements by labels.
+func (d *TopologySelectorTermDie) MatchLabelExpressionsDie(v ...*TopologySelectorLabelRequirementDie) *TopologySelectorTermDie {
+	return d.DieStamp(func(r *corev1.TopologySelectorTerm) {
+		r.MatchLabelExpressions = make([]corev1.TopologySelectorLabelRequirement, len(v))
+		for i := range v {
+			r.MatchLabelExpressions[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // A list of topology selector requirements by labels.
 func (d *TopologySelectorTermDie) MatchLabelExpressions(v ...corev1.TopologySelectorLabelRequirement) *TopologySelectorTermDie {
 	return d.DieStamp(func(r *corev1.TopologySelectorTerm) {
@@ -3043,6 +3066,244 @@ func (d *ContainerDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ResourcesDie mutates Resources as a die.
+//
+// Compute Resources required by this container.
+//
+// Cannot be updated.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+func (d *ContainerDie) ResourcesDie(fn func(d *ResourceRequirementsDie)) *ContainerDie {
+	return d.DieStamp(func(r *corev1.Container) {
+		d := ResourceRequirementsBlank.DieImmutable(false).DieFeed(r.Resources)
+		fn(d)
+		r.Resources = d.DieRelease()
+	})
+}
+
+// LivenessProbeDie mutates LivenessProbe as a die.
+//
+// Periodic probe of container liveness.
+//
+// Container will be restarted if the probe fails.
+//
+// Cannot be updated.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+func (d *ContainerDie) LivenessProbeDie(fn func(d *ProbeDie)) *ContainerDie {
+	return d.DieStamp(func(r *corev1.Container) {
+		d := ProbeBlank.DieImmutable(false).DieFeedPtr(r.LivenessProbe)
+		fn(d)
+		r.LivenessProbe = d.DieReleasePtr()
+	})
+}
+
+// ReadinessProbeDie mutates ReadinessProbe as a die.
+//
+// Periodic probe of container service readiness.
+//
+// Container will be removed from service endpoints if the probe fails.
+//
+// Cannot be updated.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+func (d *ContainerDie) ReadinessProbeDie(fn func(d *ProbeDie)) *ContainerDie {
+	return d.DieStamp(func(r *corev1.Container) {
+		d := ProbeBlank.DieImmutable(false).DieFeedPtr(r.ReadinessProbe)
+		fn(d)
+		r.ReadinessProbe = d.DieReleasePtr()
+	})
+}
+
+// StartupProbeDie mutates StartupProbe as a die.
+//
+// StartupProbe indicates that the Pod has successfully initialized.
+//
+// If specified, no other probes are executed until this completes successfully.
+//
+// If this probe fails, the Pod will be restarted, just as if the livenessProbe failed.
+//
+// This can be used to provide different probe parameters at the beginning of a Pod's lifecycle,
+//
+// when it might take a long time to load data or warm a cache, than during steady-state operation.
+//
+// This cannot be updated.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+func (d *ContainerDie) StartupProbeDie(fn func(d *ProbeDie)) *ContainerDie {
+	return d.DieStamp(func(r *corev1.Container) {
+		d := ProbeBlank.DieImmutable(false).DieFeedPtr(r.StartupProbe)
+		fn(d)
+		r.StartupProbe = d.DieReleasePtr()
+	})
+}
+
+// LifecycleDie mutates Lifecycle as a die.
+//
+// Actions that the management system should take in response to container lifecycle events.
+//
+// Cannot be updated.
+func (d *ContainerDie) LifecycleDie(fn func(d *LifecycleDie)) *ContainerDie {
+	return d.DieStamp(func(r *corev1.Container) {
+		d := LifecycleBlank.DieImmutable(false).DieFeedPtr(r.Lifecycle)
+		fn(d)
+		r.Lifecycle = d.DieReleasePtr()
+	})
+}
+
+// SecurityContextDie mutates SecurityContext as a die.
+//
+// SecurityContext defines the security options the container should be run with.
+//
+// If set, the fields of SecurityContext override the equivalent fields of PodSecurityContext.
+//
+// More info: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+func (d *ContainerDie) SecurityContextDie(fn func(d *SecurityContextDie)) *ContainerDie {
+	return d.DieStamp(func(r *corev1.Container) {
+		d := SecurityContextBlank.DieImmutable(false).DieFeedPtr(r.SecurityContext)
+		fn(d)
+		r.SecurityContext = d.DieReleasePtr()
+	})
+}
+
+// PortsDie replaces Ports by collecting the released value from each die passed.
+//
+// List of ports to expose from the container. Not specifying a port here
+//
+// DOES NOT prevent that port from being exposed. Any port which is
+//
+// listening on the default "0.0.0.0" address inside a container will be
+//
+// accessible from the network.
+//
+// Modifying this array with strategic merge patch may corrupt the data.
+//
+// For more information See https://github.com/kubernetes/kubernetes/issues/108255.
+//
+// Cannot be updated.
+func (d *ContainerDie) PortsDie(v ...*ContainerPortDie) *ContainerDie {
+	return d.DieStamp(func(r *corev1.Container) {
+		r.Ports = make([]corev1.ContainerPort, len(v))
+		for i := range v {
+			r.Ports[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// EnvFromDie mutates a single item in EnvFrom matched by the nested field Prefix, appending a new item if no match is found.
+//
+// List of sources to populate environment variables in the container.
+//
+// The keys defined within a source must be a C_IDENTIFIER. All invalid keys
+//
+// will be reported as an event when the container is starting. When a key exists in multiple
+//
+// sources, the value associated with the last source will take precedence.
+//
+// Values defined by an Env with a duplicate key will take precedence.
+//
+// Cannot be updated.
+func (d *ContainerDie) EnvFromDie(v string, fn func(d *EnvFromSourceDie)) *ContainerDie {
+	return d.DieStamp(func(r *corev1.Container) {
+		for i := range r.EnvFrom {
+			if v == r.EnvFrom[i].Prefix {
+				d := EnvFromSourceBlank.DieImmutable(false).DieFeed(r.EnvFrom[i])
+				fn(d)
+				r.EnvFrom[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := EnvFromSourceBlank.DieImmutable(false).DieFeed(corev1.EnvFromSource{Prefix: v})
+		fn(d)
+		r.EnvFrom = append(r.EnvFrom, d.DieRelease())
+	})
+}
+
+// EnvDie mutates a single item in Env matched by the nested field Name, appending a new item if no match is found.
+//
+// List of environment variables to set in the container.
+//
+// Cannot be updated.
+func (d *ContainerDie) EnvDie(v string, fn func(d *EnvVarDie)) *ContainerDie {
+	return d.DieStamp(func(r *corev1.Container) {
+		for i := range r.Env {
+			if v == r.Env[i].Name {
+				d := EnvVarBlank.DieImmutable(false).DieFeed(r.Env[i])
+				fn(d)
+				r.Env[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := EnvVarBlank.DieImmutable(false).DieFeed(corev1.EnvVar{Name: v})
+		fn(d)
+		r.Env = append(r.Env, d.DieRelease())
+	})
+}
+
+// ResizePolicyDie mutates a single item in ResizePolicy matched by the nested field ResourceName, appending a new item if no match is found.
+//
+// Resources resize policy for the container.
+func (d *ContainerDie) ResizePolicyDie(v corev1.ResourceName, fn func(d *ContainerResizePolicyDie)) *ContainerDie {
+	return d.DieStamp(func(r *corev1.Container) {
+		for i := range r.ResizePolicy {
+			if v == r.ResizePolicy[i].ResourceName {
+				d := ContainerResizePolicyBlank.DieImmutable(false).DieFeed(r.ResizePolicy[i])
+				fn(d)
+				r.ResizePolicy[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := ContainerResizePolicyBlank.DieImmutable(false).DieFeed(corev1.ContainerResizePolicy{ResourceName: v})
+		fn(d)
+		r.ResizePolicy = append(r.ResizePolicy, d.DieRelease())
+	})
+}
+
+// VolumeMountDie mutates a single item in VolumeMounts matched by the nested field Name, appending a new item if no match is found.
+//
+// Pod volumes to mount into the container's filesystem.
+//
+// Cannot be updated.
+func (d *ContainerDie) VolumeMountDie(v string, fn func(d *VolumeMountDie)) *ContainerDie {
+	return d.DieStamp(func(r *corev1.Container) {
+		for i := range r.VolumeMounts {
+			if v == r.VolumeMounts[i].Name {
+				d := VolumeMountBlank.DieImmutable(false).DieFeed(r.VolumeMounts[i])
+				fn(d)
+				r.VolumeMounts[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := VolumeMountBlank.DieImmutable(false).DieFeed(corev1.VolumeMount{Name: v})
+		fn(d)
+		r.VolumeMounts = append(r.VolumeMounts, d.DieRelease())
+	})
+}
+
+// VolumeDeviceDie mutates a single item in VolumeDevices matched by the nested field Name, appending a new item if no match is found.
+//
+// volumeDevices is the list of block devices to be used by the container.
+func (d *ContainerDie) VolumeDeviceDie(v string, fn func(d *VolumeDeviceDie)) *ContainerDie {
+	return d.DieStamp(func(r *corev1.Container) {
+		for i := range r.VolumeDevices {
+			if v == r.VolumeDevices[i].Name {
+				d := VolumeDeviceBlank.DieImmutable(false).DieFeed(r.VolumeDevices[i])
+				fn(d)
+				r.VolumeDevices[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := VolumeDeviceBlank.DieImmutable(false).DieFeed(corev1.VolumeDevice{Name: v})
+		fn(d)
+		r.VolumeDevices = append(r.VolumeDevices, d.DieRelease())
+	})
+}
+
 // Name of the container specified as a DNS_LABEL.
 //
 // Each container in a pod must have a unique name (DNS_LABEL).
@@ -3898,6 +4159,28 @@ func (d *EnvFromSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ConfigMapRefDie mutates ConfigMapRef as a die.
+//
+// The ConfigMap to select from
+func (d *EnvFromSourceDie) ConfigMapRefDie(fn func(d *ConfigMapEnvSourceDie)) *EnvFromSourceDie {
+	return d.DieStamp(func(r *corev1.EnvFromSource) {
+		d := ConfigMapEnvSourceBlank.DieImmutable(false).DieFeedPtr(r.ConfigMapRef)
+		fn(d)
+		r.ConfigMapRef = d.DieReleasePtr()
+	})
+}
+
+// SecretRefDie mutates SecretRef as a die.
+//
+// The Secret to select from
+func (d *EnvFromSourceDie) SecretRefDie(fn func(d *SecretEnvSourceDie)) *EnvFromSourceDie {
+	return d.DieStamp(func(r *corev1.EnvFromSource) {
+		d := SecretEnvSourceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
+		fn(d)
+		r.SecretRef = d.DieReleasePtr()
+	})
+}
+
 // An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
 func (d *EnvFromSourceDie) Prefix(v string) *EnvFromSourceDie {
 	return d.DieStamp(func(r *corev1.EnvFromSource) {
@@ -4631,6 +4914,17 @@ func (d *EnvVarDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ValueFromDie mutates ValueFrom as a die.
+//
+// Source for the environment variable's value. Cannot be used if value is not empty.
+func (d *EnvVarDie) ValueFromDie(fn func(d *EnvVarSourceDie)) *EnvVarDie {
+	return d.DieStamp(func(r *corev1.EnvVar) {
+		d := EnvVarSourceBlank.DieImmutable(false).DieFeedPtr(r.ValueFrom)
+		fn(d)
+		r.ValueFrom = d.DieReleasePtr()
+	})
+}
+
 // Name of the environment variable. Must be a C_IDENTIFIER.
 func (d *EnvVarDie) Name(v string) *EnvVarDie {
 	return d.DieStamp(func(r *corev1.EnvVar) {
@@ -4894,6 +5188,54 @@ func (d *EnvVarSourceDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *EnvVarSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// FieldRefDie mutates FieldRef as a die.
+//
+// Selects a field of the pod: supports metadata.name, metadata.namespace, `metadata.labels['<KEY>']`, `metadata.annotations['<KEY>']`,
+//
+// spec.nodeName, spec.serviceAccountName, status.hostIP, status.podIP, status.podIPs.
+func (d *EnvVarSourceDie) FieldRefDie(fn func(d *ObjectFieldSelectorDie)) *EnvVarSourceDie {
+	return d.DieStamp(func(r *corev1.EnvVarSource) {
+		d := ObjectFieldSelectorBlank.DieImmutable(false).DieFeedPtr(r.FieldRef)
+		fn(d)
+		r.FieldRef = d.DieReleasePtr()
+	})
+}
+
+// ResourceFieldRefDie mutates ResourceFieldRef as a die.
+//
+// Selects a resource of the container: only resources limits and requests
+//
+// (limits.cpu, limits.memory, limits.ephemeral-storage, requests.cpu, requests.memory and requests.ephemeral-storage) are currently supported.
+func (d *EnvVarSourceDie) ResourceFieldRefDie(fn func(d *ResourceFieldSelectorDie)) *EnvVarSourceDie {
+	return d.DieStamp(func(r *corev1.EnvVarSource) {
+		d := ResourceFieldSelectorBlank.DieImmutable(false).DieFeedPtr(r.ResourceFieldRef)
+		fn(d)
+		r.ResourceFieldRef = d.DieReleasePtr()
+	})
+}
+
+// ConfigMapKeyRefDie mutates ConfigMapKeyRef as a die.
+//
+// Selects a key of a ConfigMap.
+func (d *EnvVarSourceDie) ConfigMapKeyRefDie(fn func(d *ConfigMapKeySelectorDie)) *EnvVarSourceDie {
+	return d.DieStamp(func(r *corev1.EnvVarSource) {
+		d := ConfigMapKeySelectorBlank.DieImmutable(false).DieFeedPtr(r.ConfigMapKeyRef)
+		fn(d)
+		r.ConfigMapKeyRef = d.DieReleasePtr()
+	})
+}
+
+// SecretKeyRefDie mutates SecretKeyRef as a die.
+//
+// Selects a key of a secret in the pod's namespace
+func (d *EnvVarSourceDie) SecretKeyRefDie(fn func(d *SecretKeySelectorDie)) *EnvVarSourceDie {
+	return d.DieStamp(func(r *corev1.EnvVarSource) {
+		d := SecretKeySelectorBlank.DieImmutable(false).DieFeedPtr(r.SecretKeyRef)
+		fn(d)
+		r.SecretKeyRef = d.DieReleasePtr()
+	})
 }
 
 // Selects a field of the pod: supports metadata.name, metadata.namespace, `metadata.labels['<KEY>']`, `metadata.annotations['<KEY>']`,
@@ -6151,6 +6493,54 @@ func (d *ResourceRequirementsDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *ResourceRequirementsDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// ClaimsDie replaces Claims by collecting the released value from each die passed.
+//
+// Claims lists the names of resources, defined in spec.resourceClaims,
+//
+// that are used by this container.
+//
+// # This is an alpha field and requires enabling the
+//
+// DynamicResourceAllocation feature gate.
+//
+// This field is immutable. It can only be set for containers.
+func (d *ResourceRequirementsDie) ClaimsDie(v ...*ResourceClaimDie) *ResourceRequirementsDie {
+	return d.DieStamp(func(r *corev1.ResourceRequirements) {
+		r.Claims = make([]corev1.ResourceClaim, len(v))
+		for i := range v {
+			r.Claims[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// ClaimDie mutates a single item in Claims matched by the nested field Name, appending a new item if no match is found.
+//
+// Claims lists the names of resources, defined in spec.resourceClaims,
+//
+// that are used by this container.
+//
+// # This is an alpha field and requires enabling the
+//
+// DynamicResourceAllocation feature gate.
+//
+// This field is immutable. It can only be set for containers.
+func (d *ResourceRequirementsDie) ClaimDie(v string, fn func(d *ResourceClaimDie)) *ResourceRequirementsDie {
+	return d.DieStamp(func(r *corev1.ResourceRequirements) {
+		for i := range r.Claims {
+			if v == r.Claims[i].Name {
+				d := ResourceClaimBlank.DieImmutable(false).DieFeed(r.Claims[i])
+				fn(d)
+				r.Claims[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := ResourceClaimBlank.DieImmutable(false).DieFeed(corev1.ResourceClaim{Name: v})
+		fn(d)
+		r.Claims = append(r.Claims, d.DieRelease())
+	})
 }
 
 // Limits describes the maximum amount of compute resources allowed.
@@ -7522,6 +7912,17 @@ func (d *ProbeDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ProbeHandlerDie mutates ProbeHandler as a die.
+//
+// The action taken to determine the health of a container
+func (d *ProbeDie) ProbeHandlerDie(fn func(d *ProbeHandlerDie)) *ProbeDie {
+	return d.DieStamp(func(r *corev1.Probe) {
+		d := ProbeHandlerBlank.DieImmutable(false).DieFeed(r.ProbeHandler)
+		fn(d)
+		r.ProbeHandler = d.DieRelease()
+	})
+}
+
 // The action taken to determine the health of a container
 func (d *ProbeDie) ProbeHandler(v corev1.ProbeHandler) *ProbeDie {
 	return d.DieStamp(func(r *corev1.Probe) {
@@ -7829,6 +8230,50 @@ func (d *LifecycleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// PostStartDie mutates PostStart as a die.
+//
+// PostStart is called immediately after a container is created. If the handler fails,
+//
+// the container is terminated and restarted according to its restart policy.
+//
+// Other management of the container blocks until the hook completes.
+//
+// More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
+func (d *LifecycleDie) PostStartDie(fn func(d *LifecycleHandlerDie)) *LifecycleDie {
+	return d.DieStamp(func(r *corev1.Lifecycle) {
+		d := LifecycleHandlerBlank.DieImmutable(false).DieFeedPtr(r.PostStart)
+		fn(d)
+		r.PostStart = d.DieReleasePtr()
+	})
+}
+
+// PreStopDie mutates PreStop as a die.
+//
+// # PreStop is called immediately before a container is terminated due to an
+//
+// API request or management event such as liveness/startup probe failure,
+//
+// preemption, resource contention, etc. The handler is not called if the
+//
+// container crashes or exits. The Pod's termination grace period countdown begins before the
+//
+// PreStop hook is executed. Regardless of the outcome of the handler, the
+//
+// container will eventually terminate within the Pod's termination grace
+//
+// period (unless delayed by finalizers). Other management of the container blocks until the hook completes
+//
+// or until the termination grace period is reached.
+//
+// More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
+func (d *LifecycleDie) PreStopDie(fn func(d *LifecycleHandlerDie)) *LifecycleDie {
+	return d.DieStamp(func(r *corev1.Lifecycle) {
+		d := LifecycleHandlerBlank.DieImmutable(false).DieFeedPtr(r.PreStop)
+		fn(d)
+		r.PreStop = d.DieReleasePtr()
+	})
+}
+
 // PostStart is called immediately after a container is created. If the handler fails,
 //
 // the container is terminated and restarted according to its restart policy.
@@ -8093,6 +8538,54 @@ func (d *LifecycleHandlerDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ExecDie mutates Exec as a die.
+//
+// Exec specifies the action to take.
+func (d *LifecycleHandlerDie) ExecDie(fn func(d *ExecActionDie)) *LifecycleHandlerDie {
+	return d.DieStamp(func(r *corev1.LifecycleHandler) {
+		d := ExecActionBlank.DieImmutable(false).DieFeedPtr(r.Exec)
+		fn(d)
+		r.Exec = d.DieReleasePtr()
+	})
+}
+
+// HTTPGetDie mutates HTTPGet as a die.
+//
+// HTTPGet specifies the http request to perform.
+func (d *LifecycleHandlerDie) HTTPGetDie(fn func(d *HTTPGetActionDie)) *LifecycleHandlerDie {
+	return d.DieStamp(func(r *corev1.LifecycleHandler) {
+		d := HTTPGetActionBlank.DieImmutable(false).DieFeedPtr(r.HTTPGet)
+		fn(d)
+		r.HTTPGet = d.DieReleasePtr()
+	})
+}
+
+// TCPSocketDie mutates TCPSocket as a die.
+//
+// Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
+//
+// for the backward compatibility. There are no validation of this field and
+//
+// lifecycle hooks will fail in runtime when tcp handler is specified.
+func (d *LifecycleHandlerDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *LifecycleHandlerDie {
+	return d.DieStamp(func(r *corev1.LifecycleHandler) {
+		d := TCPSocketActionBlank.DieImmutable(false).DieFeedPtr(r.TCPSocket)
+		fn(d)
+		r.TCPSocket = d.DieReleasePtr()
+	})
+}
+
+// SleepDie mutates Sleep as a die.
+//
+// Sleep represents the duration that the container should sleep before being terminated.
+func (d *LifecycleHandlerDie) SleepDie(fn func(d *SleepActionDie)) *LifecycleHandlerDie {
+	return d.DieStamp(func(r *corev1.LifecycleHandler) {
+		d := SleepActionBlank.DieImmutable(false).DieFeedPtr(r.Sleep)
+		fn(d)
+		r.Sleep = d.DieReleasePtr()
+	})
+}
+
 // Exec specifies the action to take.
 func (d *LifecycleHandlerDie) Exec(v *corev1.ExecAction) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
@@ -8351,6 +8844,50 @@ func (d *ProbeHandlerDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *ProbeHandlerDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// ExecDie mutates Exec as a die.
+//
+// Exec specifies the action to take.
+func (d *ProbeHandlerDie) ExecDie(fn func(d *ExecActionDie)) *ProbeHandlerDie {
+	return d.DieStamp(func(r *corev1.ProbeHandler) {
+		d := ExecActionBlank.DieImmutable(false).DieFeedPtr(r.Exec)
+		fn(d)
+		r.Exec = d.DieReleasePtr()
+	})
+}
+
+// HTTPGetDie mutates HTTPGet as a die.
+//
+// HTTPGet specifies the http request to perform.
+func (d *ProbeHandlerDie) HTTPGetDie(fn func(d *HTTPGetActionDie)) *ProbeHandlerDie {
+	return d.DieStamp(func(r *corev1.ProbeHandler) {
+		d := HTTPGetActionBlank.DieImmutable(false).DieFeedPtr(r.HTTPGet)
+		fn(d)
+		r.HTTPGet = d.DieReleasePtr()
+	})
+}
+
+// TCPSocketDie mutates TCPSocket as a die.
+//
+// TCPSocket specifies an action involving a TCP port.
+func (d *ProbeHandlerDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *ProbeHandlerDie {
+	return d.DieStamp(func(r *corev1.ProbeHandler) {
+		d := TCPSocketActionBlank.DieImmutable(false).DieFeedPtr(r.TCPSocket)
+		fn(d)
+		r.TCPSocket = d.DieReleasePtr()
+	})
+}
+
+// GRPCDie mutates GRPC as a die.
+//
+// GRPC specifies an action involving a GRPC port.
+func (d *ProbeHandlerDie) GRPCDie(fn func(d *GRPCActionDie)) *ProbeHandlerDie {
+	return d.DieStamp(func(r *corev1.ProbeHandler) {
+		d := GRPCActionBlank.DieImmutable(false).DieFeedPtr(r.GRPC)
+		fn(d)
+		r.GRPC = d.DieReleasePtr()
+	})
 }
 
 // Exec specifies the action to take.
@@ -8850,6 +9387,18 @@ func (d *HTTPGetActionDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *HTTPGetActionDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// HTTPHeadersDie replaces HTTPHeaders by collecting the released value from each die passed.
+//
+// Custom headers to set in the request. HTTP allows repeated headers.
+func (d *HTTPGetActionDie) HTTPHeadersDie(v ...*HTTPHeaderDie) *HTTPGetActionDie {
+	return d.DieStamp(func(r *corev1.HTTPGetAction) {
+		r.HTTPHeaders = make([]corev1.HTTPHeader, len(v))
+		for i := range v {
+			r.HTTPHeaders[i] = v[i].DieRelease()
+		}
+	})
 }
 
 // Path to access on the HTTP server.
@@ -10148,6 +10697,89 @@ func (d *SecurityContextDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *SecurityContextDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// CapabilitiesDie mutates Capabilities as a die.
+//
+// The capabilities to add/drop when running containers.
+//
+// Defaults to the default set of capabilities granted by the container runtime.
+//
+// Note that this field cannot be set when spec.os.name is windows.
+func (d *SecurityContextDie) CapabilitiesDie(fn func(d *CapabilitiesDie)) *SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		d := CapabilitiesBlank.DieImmutable(false).DieFeedPtr(r.Capabilities)
+		fn(d)
+		r.Capabilities = d.DieReleasePtr()
+	})
+}
+
+// SELinuxOptionsDie mutates SELinuxOptions as a die.
+//
+// The SELinux context to be applied to the container.
+//
+// # If unspecified, the container runtime will allocate a random SELinux context for each
+//
+// container.  May also be set in PodSecurityContext.  If set in both SecurityContext and
+//
+// PodSecurityContext, the value specified in SecurityContext takes precedence.
+//
+// Note that this field cannot be set when spec.os.name is windows.
+func (d *SecurityContextDie) SELinuxOptionsDie(fn func(d *SELinuxOptionsDie)) *SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		d := SELinuxOptionsBlank.DieImmutable(false).DieFeedPtr(r.SELinuxOptions)
+		fn(d)
+		r.SELinuxOptions = d.DieReleasePtr()
+	})
+}
+
+// WindowsOptionsDie mutates WindowsOptions as a die.
+//
+// The Windows specific settings applied to all containers.
+//
+// If unspecified, the options from the PodSecurityContext will be used.
+//
+// If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+//
+// Note that this field cannot be set when spec.os.name is linux.
+func (d *SecurityContextDie) WindowsOptionsDie(fn func(d *WindowsSecurityContextOptionsDie)) *SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		d := WindowsSecurityContextOptionsBlank.DieImmutable(false).DieFeedPtr(r.WindowsOptions)
+		fn(d)
+		r.WindowsOptions = d.DieReleasePtr()
+	})
+}
+
+// SeccompProfileDie mutates SeccompProfile as a die.
+//
+// The seccomp options to use by this container. If seccomp options are
+//
+// provided at both the pod & container level, the container options
+//
+// override the pod options.
+//
+// Note that this field cannot be set when spec.os.name is windows.
+func (d *SecurityContextDie) SeccompProfileDie(fn func(d *SeccompProfileDie)) *SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		d := SeccompProfileBlank.DieImmutable(false).DieFeedPtr(r.SeccompProfile)
+		fn(d)
+		r.SeccompProfile = d.DieReleasePtr()
+	})
+}
+
+// AppArmorProfileDie mutates AppArmorProfile as a die.
+//
+// appArmorProfile is the AppArmor options to use by this container. If set, this profile
+//
+// overrides the pod's appArmorProfile.
+//
+// Note that this field cannot be set when spec.os.name is windows.
+func (d *SecurityContextDie) AppArmorProfileDie(fn func(d *AppArmorProfileDie)) *SecurityContextDie {
+	return d.DieStamp(func(r *corev1.SecurityContext) {
+		d := AppArmorProfileBlank.DieImmutable(false).DieFeedPtr(r.AppArmorProfile)
+		fn(d)
+		r.AppArmorProfile = d.DieReleasePtr()
+	})
 }
 
 // The capabilities to add/drop when running containers.
@@ -11828,6 +12460,65 @@ func (d *ContainerStatusDie) DiePatch(patchType types.PatchType) ([]byte, error)
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// StateDie mutates State as a die.
+//
+// State holds details about the container's current condition.
+func (d *ContainerStatusDie) StateDie(fn func(d *ContainerStateDie)) *ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		d := ContainerStateBlank.DieImmutable(false).DieFeed(r.State)
+		fn(d)
+		r.State = d.DieRelease()
+	})
+}
+
+// LastTerminationStateDie mutates LastTerminationState as a die.
+//
+// # LastTerminationState holds the last termination state of the container to
+//
+// help debug container crashes and restarts. This field is not
+//
+// populated if the container is still running and RestartCount is 0.
+func (d *ContainerStatusDie) LastTerminationStateDie(fn func(d *ContainerStateDie)) *ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		d := ContainerStateBlank.DieImmutable(false).DieFeed(r.LastTerminationState)
+		fn(d)
+		r.LastTerminationState = d.DieRelease()
+	})
+}
+
+// ResourcesDie mutates Resources as a die.
+//
+// # Resources represents the compute resource requests and limits that have been successfully
+//
+// enacted on the running container after it has been started or has been successfully resized.
+func (d *ContainerStatusDie) ResourcesDie(fn func(d *ResourceRequirementsDie)) *ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		d := ResourceRequirementsBlank.DieImmutable(false).DieFeedPtr(r.Resources)
+		fn(d)
+		r.Resources = d.DieReleasePtr()
+	})
+}
+
+// VolumeMountDie mutates a single item in VolumeMounts matched by the nested field Name, appending a new item if no match is found.
+//
+// Status of volume mounts.
+func (d *ContainerStatusDie) VolumeMountDie(v string, fn func(d *VolumeMountStatusDie)) *ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		for i := range r.VolumeMounts {
+			if v == r.VolumeMounts[i].Name {
+				d := VolumeMountStatusBlank.DieImmutable(false).DieFeed(r.VolumeMounts[i])
+				fn(d)
+				r.VolumeMounts[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := VolumeMountStatusBlank.DieImmutable(false).DieFeed(corev1.VolumeMountStatus{Name: v})
+		fn(d)
+		r.VolumeMounts = append(r.VolumeMounts, d.DieRelease())
+	})
+}
+
 // Name is a DNS_LABEL representing the unique name of the container.
 //
 // Each container in a pod must have a unique name across all container types.
@@ -12224,6 +12915,39 @@ func (d *ContainerStateDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *ContainerStateDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// WaitingDie mutates Waiting as a die.
+//
+// Details about a waiting container
+func (d *ContainerStateDie) WaitingDie(fn func(d *ContainerStateWaitingDie)) *ContainerStateDie {
+	return d.DieStamp(func(r *corev1.ContainerState) {
+		d := ContainerStateWaitingBlank.DieImmutable(false).DieFeedPtr(r.Waiting)
+		fn(d)
+		r.Waiting = d.DieReleasePtr()
+	})
+}
+
+// RunningDie mutates Running as a die.
+//
+// Details about a running container
+func (d *ContainerStateDie) RunningDie(fn func(d *ContainerStateRunningDie)) *ContainerStateDie {
+	return d.DieStamp(func(r *corev1.ContainerState) {
+		d := ContainerStateRunningBlank.DieImmutable(false).DieFeedPtr(r.Running)
+		fn(d)
+		r.Running = d.DieReleasePtr()
+	})
+}
+
+// TerminatedDie mutates Terminated as a die.
+//
+// Details about a terminated container
+func (d *ContainerStateDie) TerminatedDie(fn func(d *ContainerStateTerminatedDie)) *ContainerStateDie {
+	return d.DieStamp(func(r *corev1.ContainerState) {
+		d := ContainerStateTerminatedBlank.DieImmutable(false).DieFeedPtr(r.Terminated)
+		fn(d)
+		r.Terminated = d.DieReleasePtr()
+	})
 }
 
 // Details about a waiting container
@@ -13584,6 +14308,30 @@ func (d *EndpointsDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *EndpointsD
 	})
 }
 
+// SubsetsDie replaces Subsets by collecting the released value from each die passed.
+//
+// The set of all endpoints is the union of all subsets. Addresses are placed into
+//
+// subsets according to the IPs they share. A single address with multiple ports,
+//
+// some of which are ready and some of which are not (because they come from
+//
+// different containers) will result in the address being displayed in different
+//
+// subsets for the different ports. No address will appear in both Addresses and
+//
+// NotReadyAddresses in the same subset.
+//
+// Sets of addresses and ports that comprise a service.
+func (d *EndpointsDie) SubsetsDie(v ...*EndpointSubsetDie) *EndpointsDie {
+	return d.DieStamp(func(r *corev1.Endpoints) {
+		r.Subsets = make([]corev1.EndpointSubset, len(v))
+		for i := range v {
+			r.Subsets[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // The set of all endpoints is the union of all subsets. Addresses are placed into
 //
 // subsets according to the IPs they share. A single address with multiple ports,
@@ -13829,6 +14577,48 @@ func (d *EndpointSubsetDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *EndpointSubsetDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// AddressesDie replaces Addresses by collecting the released value from each die passed.
+//
+// IP addresses which offer the related ports that are marked as ready. These endpoints
+//
+// should be considered safe for load balancers and clients to utilize.
+func (d *EndpointSubsetDie) AddressesDie(v ...*EndpointAddressDie) *EndpointSubsetDie {
+	return d.DieStamp(func(r *corev1.EndpointSubset) {
+		r.Addresses = make([]corev1.EndpointAddress, len(v))
+		for i := range v {
+			r.Addresses[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// NotReadyAddressesDie replaces NotReadyAddresses by collecting the released value from each die passed.
+//
+// # IP addresses which offer the related ports but are not currently marked as ready
+//
+// because they have not yet finished starting, have recently failed a readiness check,
+//
+// or have recently failed a liveness check.
+func (d *EndpointSubsetDie) NotReadyAddressesDie(v ...*EndpointAddressDie) *EndpointSubsetDie {
+	return d.DieStamp(func(r *corev1.EndpointSubset) {
+		r.NotReadyAddresses = make([]corev1.EndpointAddress, len(v))
+		for i := range v {
+			r.NotReadyAddresses[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// PortsDie replaces Ports by collecting the released value from each die passed.
+//
+// Port numbers available on the related IP addresses.
+func (d *EndpointSubsetDie) PortsDie(v ...*EndpointPortDie) *EndpointSubsetDie {
+	return d.DieStamp(func(r *corev1.EndpointSubset) {
+		r.Ports = make([]corev1.EndpointPort, len(v))
+		for i := range v {
+			r.Ports[i] = v[i].DieRelease()
+		}
+	})
 }
 
 // IP addresses which offer the related ports that are marked as ready. These endpoints
@@ -14084,6 +14874,17 @@ func (d *EndpointAddressDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *EndpointAddressDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// TargetRefDie mutates TargetRef as a die.
+//
+// Reference to object providing the endpoint.
+func (d *EndpointAddressDie) TargetRefDie(fn func(d *ObjectReferenceDie)) *EndpointAddressDie {
+	return d.DieStamp(func(r *corev1.EndpointAddress) {
+		d := ObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.TargetRef)
+		fn(d)
+		r.TargetRef = d.DieReleasePtr()
+	})
 }
 
 // The IP of this endpoint.
@@ -14726,6 +15527,50 @@ func (d *EventDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *EventDie {
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
 		r.ObjectMeta = d.DieRelease()
+	})
+}
+
+// InvolvedObjectDie mutates InvolvedObject as a die.
+//
+// The object that this event is about.
+func (d *EventDie) InvolvedObjectDie(fn func(d *ObjectReferenceDie)) *EventDie {
+	return d.DieStamp(func(r *corev1.Event) {
+		d := ObjectReferenceBlank.DieImmutable(false).DieFeed(r.InvolvedObject)
+		fn(d)
+		r.InvolvedObject = d.DieRelease()
+	})
+}
+
+// SourceDie mutates Source as a die.
+//
+// The component reporting this event. Should be a short machine understandable string.
+func (d *EventDie) SourceDie(fn func(d *EventSourceDie)) *EventDie {
+	return d.DieStamp(func(r *corev1.Event) {
+		d := EventSourceBlank.DieImmutable(false).DieFeed(r.Source)
+		fn(d)
+		r.Source = d.DieRelease()
+	})
+}
+
+// SeriesDie mutates Series as a die.
+//
+// Data about the Event series this event represents or nil if it's a singleton Event.
+func (d *EventDie) SeriesDie(fn func(d *EventSeriesDie)) *EventDie {
+	return d.DieStamp(func(r *corev1.Event) {
+		d := EventSeriesBlank.DieImmutable(false).DieFeedPtr(r.Series)
+		fn(d)
+		r.Series = d.DieReleasePtr()
+	})
+}
+
+// RelatedDie mutates Related as a die.
+//
+// Optional secondary object for more complex actions.
+func (d *EventDie) RelatedDie(fn func(d *ObjectReferenceDie)) *EventDie {
+	return d.DieStamp(func(r *corev1.Event) {
+		d := ObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.Related)
+		fn(d)
+		r.Related = d.DieReleasePtr()
 	})
 }
 
@@ -15884,6 +16729,18 @@ func (d *LimitRangeSpecDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *LimitRangeSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// LimitsDie replaces Limits by collecting the released value from each die passed.
+//
+// Limits is the list of LimitRangeItem objects that are enforced.
+func (d *LimitRangeSpecDie) LimitsDie(v ...*LimitRangeItemDie) *LimitRangeSpecDie {
+	return d.DieStamp(func(r *corev1.LimitRangeSpec) {
+		r.Limits = make([]corev1.LimitRangeItem, len(v))
+		for i := range v {
+			r.Limits[i] = v[i].DieRelease()
+		}
+	})
 }
 
 // Limits is the list of LimitRangeItem objects that are enforced.
@@ -17694,6 +18551,37 @@ func (d *NodeSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ConfigSourceDie mutates ConfigSource as a die.
+//
+// Deprecated: Previously used to specify the source of the node's configuration for the DynamicKubeletConfig feature. This feature is removed.
+func (d *NodeSpecDie) ConfigSourceDie(fn func(d *NodeConfigSourceDie)) *NodeSpecDie {
+	return d.DieStamp(func(r *corev1.NodeSpec) {
+		d := NodeConfigSourceBlank.DieImmutable(false).DieFeedPtr(r.ConfigSource)
+		fn(d)
+		r.ConfigSource = d.DieReleasePtr()
+	})
+}
+
+// TaintDie mutates a single item in Taints matched by the nested field Key, appending a new item if no match is found.
+//
+// If specified, the node's taints.
+func (d *NodeSpecDie) TaintDie(v string, fn func(d *TaintDie)) *NodeSpecDie {
+	return d.DieStamp(func(r *corev1.NodeSpec) {
+		for i := range r.Taints {
+			if v == r.Taints[i].Key {
+				d := TaintBlank.DieImmutable(false).DieFeed(r.Taints[i])
+				fn(d)
+				r.Taints[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := TaintBlank.DieImmutable(false).DieFeed(corev1.Taint{Key: v})
+		fn(d)
+		r.Taints = append(r.Taints, d.DieRelease())
+	})
+}
+
 // PodCIDR represents the pod IP range assigned to the node.
 func (d *NodeSpecDie) PodCIDR(v string) *NodeSpecDie {
 	return d.DieStamp(func(r *corev1.NodeSpec) {
@@ -18241,6 +19129,17 @@ func (d *NodeConfigSourceDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ConfigMapDie mutates ConfigMap as a die.
+//
+// ConfigMap is a reference to a Node's ConfigMap
+func (d *NodeConfigSourceDie) ConfigMapDie(fn func(d *ConfigMapNodeConfigSourceDie)) *NodeConfigSourceDie {
+	return d.DieStamp(func(r *corev1.NodeConfigSource) {
+		d := ConfigMapNodeConfigSourceBlank.DieImmutable(false).DieFeedPtr(r.ConfigMap)
+		fn(d)
+		r.ConfigMap = d.DieReleasePtr()
+	})
+}
+
 // ConfigMap is a reference to a Node's ConfigMap
 func (d *NodeConfigSourceDie) ConfigMap(v *corev1.ConfigMapNodeConfigSource) *NodeConfigSourceDie {
 	return d.DieStamp(func(r *corev1.NodeConfigSource) {
@@ -18747,6 +19646,115 @@ func (d *NodeStatusDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *NodeStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// DaemonEndpointsDie mutates DaemonEndpoints as a die.
+//
+// Endpoints of daemons running on the Node.
+func (d *NodeStatusDie) DaemonEndpointsDie(fn func(d *NodeDaemonEndpointsDie)) *NodeStatusDie {
+	return d.DieStamp(func(r *corev1.NodeStatus) {
+		d := NodeDaemonEndpointsBlank.DieImmutable(false).DieFeed(r.DaemonEndpoints)
+		fn(d)
+		r.DaemonEndpoints = d.DieRelease()
+	})
+}
+
+// NodeInfoDie mutates NodeInfo as a die.
+//
+// Set of ids/uuids to uniquely identify the node.
+//
+// More info: https://kubernetes.io/docs/concepts/nodes/node/#info
+func (d *NodeStatusDie) NodeInfoDie(fn func(d *NodeSystemInfoDie)) *NodeStatusDie {
+	return d.DieStamp(func(r *corev1.NodeStatus) {
+		d := NodeSystemInfoBlank.DieImmutable(false).DieFeed(r.NodeInfo)
+		fn(d)
+		r.NodeInfo = d.DieRelease()
+	})
+}
+
+// ConfigDie mutates Config as a die.
+//
+// Status of the config assigned to the node via the dynamic Kubelet config feature.
+func (d *NodeStatusDie) ConfigDie(fn func(d *NodeConfigStatusDie)) *NodeStatusDie {
+	return d.DieStamp(func(r *corev1.NodeStatus) {
+		d := NodeConfigStatusBlank.DieImmutable(false).DieFeedPtr(r.Config)
+		fn(d)
+		r.Config = d.DieReleasePtr()
+	})
+}
+
+// AddressesDie replaces Addresses by collecting the released value from each die passed.
+//
+// List of addresses reachable to the node.
+//
+// Queried from cloud provider, if available.
+//
+// More info: https://kubernetes.io/docs/concepts/nodes/node/#addresses
+//
+// Note: This field is declared as mergeable, but the merge key is not sufficiently
+//
+// unique, which can cause data corruption when it is merged. Callers should instead
+//
+// use a full-replacement patch. See https://pr.k8s.io/79391 for an example.
+//
+// # Consumers should assume that addresses can change during the
+//
+// lifetime of a Node. However, there are some exceptions where this may not
+//
+// be possible, such as Pods that inherit a Node's address in its own status or
+//
+// consumers of the downward API (status.hostIP).
+func (d *NodeStatusDie) AddressesDie(v ...*NodeAddressDie) *NodeStatusDie {
+	return d.DieStamp(func(r *corev1.NodeStatus) {
+		r.Addresses = make([]corev1.NodeAddress, len(v))
+		for i := range v {
+			r.Addresses[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// ImagesDie replaces Images by collecting the released value from each die passed.
+//
+// List of container images on this node
+func (d *NodeStatusDie) ImagesDie(v ...*ContainerImageDie) *NodeStatusDie {
+	return d.DieStamp(func(r *corev1.NodeStatus) {
+		r.Images = make([]corev1.ContainerImage, len(v))
+		for i := range v {
+			r.Images[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// VolumeAttachedDie mutates a single item in VolumesAttached matched by the nested field Name, appending a new item if no match is found.
+//
+// List of volumes that are attached to the node.
+func (d *NodeStatusDie) VolumeAttachedDie(v corev1.UniqueVolumeName, fn func(d *AttachedVolumeDie)) *NodeStatusDie {
+	return d.DieStamp(func(r *corev1.NodeStatus) {
+		for i := range r.VolumesAttached {
+			if v == r.VolumesAttached[i].Name {
+				d := AttachedVolumeBlank.DieImmutable(false).DieFeed(r.VolumesAttached[i])
+				fn(d)
+				r.VolumesAttached[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := AttachedVolumeBlank.DieImmutable(false).DieFeed(corev1.AttachedVolume{Name: v})
+		fn(d)
+		r.VolumesAttached = append(r.VolumesAttached, d.DieRelease())
+	})
+}
+
+// RuntimeHandlersDie replaces RuntimeHandlers by collecting the released value from each die passed.
+//
+// The available runtime handlers.
+func (d *NodeStatusDie) RuntimeHandlersDie(v ...*NodeRuntimeHandlerDie) *NodeStatusDie {
+	return d.DieStamp(func(r *corev1.NodeStatus) {
+		r.RuntimeHandlers = make([]corev1.NodeRuntimeHandler, len(v))
+		for i := range v {
+			r.RuntimeHandlers[i] = v[i].DieRelease()
+		}
+	})
 }
 
 // Capacity represents the total resources of a node.
@@ -19379,6 +20387,17 @@ func (d *NodeDaemonEndpointsDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *NodeDaemonEndpointsDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// KubeletEndpointDie mutates KubeletEndpoint as a die.
+//
+// Endpoint on which Kubelet is listening.
+func (d *NodeDaemonEndpointsDie) KubeletEndpointDie(fn func(d *DaemonEndpointDie)) *NodeDaemonEndpointsDie {
+	return d.DieStamp(func(r *corev1.NodeDaemonEndpoints) {
+		d := DaemonEndpointBlank.DieImmutable(false).DieFeed(r.KubeletEndpoint)
+		fn(d)
+		r.KubeletEndpoint = d.DieRelease()
+	})
 }
 
 // Endpoint on which Kubelet is listening.
@@ -20643,6 +21662,79 @@ func (d *NodeConfigStatusDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// AssignedDie mutates Assigned as a die.
+//
+// Assigned reports the checkpointed config the node will try to use.
+//
+// # When Node.Spec.ConfigSource is updated, the node checkpoints the associated
+//
+// config payload to local disk, along with a record indicating intended
+//
+// config. The node refers to this record to choose its config checkpoint, and
+//
+// reports this record in Assigned. Assigned only updates in the status after
+//
+// the record has been checkpointed to disk. When the Kubelet is restarted,
+//
+// it tries to make the Assigned config the Active config by loading and
+//
+// validating the checkpointed payload identified by Assigned.
+func (d *NodeConfigStatusDie) AssignedDie(fn func(d *NodeConfigSourceDie)) *NodeConfigStatusDie {
+	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
+		d := NodeConfigSourceBlank.DieImmutable(false).DieFeedPtr(r.Assigned)
+		fn(d)
+		r.Assigned = d.DieReleasePtr()
+	})
+}
+
+// ActiveDie mutates Active as a die.
+//
+// Active reports the checkpointed config the node is actively using.
+//
+// Active will represent either the current version of the Assigned config,
+//
+// or the current LastKnownGood config, depending on whether attempting to use the
+//
+// Assigned config results in an error.
+func (d *NodeConfigStatusDie) ActiveDie(fn func(d *NodeConfigSourceDie)) *NodeConfigStatusDie {
+	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
+		d := NodeConfigSourceBlank.DieImmutable(false).DieFeedPtr(r.Active)
+		fn(d)
+		r.Active = d.DieReleasePtr()
+	})
+}
+
+// LastKnownGoodDie mutates LastKnownGood as a die.
+//
+// # LastKnownGood reports the checkpointed config the node will fall back to
+//
+// when it encounters an error attempting to use the Assigned config.
+//
+// # The Assigned config becomes the LastKnownGood config when the node determines
+//
+// that the Assigned config is stable and correct.
+//
+// # This is currently implemented as a 10-minute soak period starting when the local
+//
+// record of Assigned config is updated. If the Assigned config is Active at the end
+//
+// of this period, it becomes the LastKnownGood. Note that if Spec.ConfigSource is
+//
+// reset to nil (use local defaults), the LastKnownGood is also immediately reset to nil,
+//
+// because the local default config is always assumed good.
+//
+// # You should not make assumptions about the node's method of determining config stability
+//
+// and correctness, as this may change or become configurable in the future.
+func (d *NodeConfigStatusDie) LastKnownGoodDie(fn func(d *NodeConfigSourceDie)) *NodeConfigStatusDie {
+	return d.DieStamp(func(r *corev1.NodeConfigStatus) {
+		d := NodeConfigSourceBlank.DieImmutable(false).DieFeedPtr(r.LastKnownGood)
+		fn(d)
+		r.LastKnownGood = d.DieReleasePtr()
+	})
+}
+
 // Assigned reports the checkpointed config the node will try to use.
 //
 // # When Node.Spec.ConfigSource is updated, the node checkpoints the associated
@@ -20959,6 +22051,17 @@ func (d *NodeRuntimeHandlerDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *NodeRuntimeHandlerDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// FeaturesDie mutates Features as a die.
+//
+// Supported features.
+func (d *NodeRuntimeHandlerDie) FeaturesDie(fn func(d *NodeRuntimeHandlerFeaturesDie)) *NodeRuntimeHandlerDie {
+	return d.DieStamp(func(r *corev1.NodeRuntimeHandler) {
+		d := NodeRuntimeHandlerFeaturesBlank.DieImmutable(false).DieFeedPtr(r.Features)
+		fn(d)
+		r.Features = d.DieReleasePtr()
+	})
 }
 
 // Runtime handler name.
@@ -21803,6 +22906,19 @@ func (d *PersistentVolumeSpecDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *PersistentVolumeSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// NodeAffinityDie mutates NodeAffinity as a die.
+//
+// nodeAffinity defines constraints that limit what nodes this volume can be accessed from.
+//
+// This field influences the scheduling of pods that use this volume.
+func (d *PersistentVolumeSpecDie) NodeAffinityDie(fn func(d *VolumeNodeAffinityDie)) *PersistentVolumeSpecDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
+		d := VolumeNodeAffinityBlank.DieImmutable(false).DieFeedPtr(r.NodeAffinity)
+		fn(d)
+		r.NodeAffinity = d.DieReleasePtr()
+	})
 }
 
 // capacity is the description of the persistent volume's resources and capacity.
@@ -22699,6 +23815,23 @@ func (d *RBDPersistentVolumeSourceDie) DiePatch(patchType types.PatchType) ([]by
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SecretRefDie mutates SecretRef as a die.
+//
+// secretRef is name of the authentication secret for RBDUser. If provided
+//
+// overrides keyring.
+//
+// Default is nil.
+//
+// More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
+func (d *RBDPersistentVolumeSourceDie) SecretRefDie(fn func(d *SecretReferenceDie)) *RBDPersistentVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.RBDPersistentVolumeSource) {
+		d := SecretReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
+		fn(d)
+		r.SecretRef = d.DieReleasePtr()
+	})
+}
+
 // monitors is a collection of Ceph monitors.
 //
 // More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
@@ -23015,6 +24148,17 @@ func (d *ISCSIPersistentVolumeSourceDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *ISCSIPersistentVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// SecretRefDie mutates SecretRef as a die.
+//
+// secretRef is the CHAP Secret for iSCSI target and initiator authentication
+func (d *ISCSIPersistentVolumeSourceDie) SecretRefDie(fn func(d *SecretReferenceDie)) *ISCSIPersistentVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.ISCSIPersistentVolumeSource) {
+		d := SecretReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
+		fn(d)
+		r.SecretRef = d.DieReleasePtr()
+	})
 }
 
 // targetPortal is iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port
@@ -23342,6 +24486,19 @@ func (d *CinderPersistentVolumeSourceDie) DiePatch(patchType types.PatchType) ([
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SecretRefDie mutates SecretRef as a die.
+//
+// secretRef is Optional: points to a secret object containing parameters used to connect
+//
+// to OpenStack.
+func (d *CinderPersistentVolumeSourceDie) SecretRefDie(fn func(d *SecretReferenceDie)) *CinderPersistentVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.CinderPersistentVolumeSource) {
+		d := SecretReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
+		fn(d)
+		r.SecretRef = d.DieReleasePtr()
+	})
+}
+
 // volumeID used to identify the volume in cinder.
 //
 // More info: https://examples.k8s.io/mysql-cinder-pd/README.md
@@ -23610,6 +24767,19 @@ func (d *CephFSPersistentVolumeSourceDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *CephFSPersistentVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// SecretRefDie mutates SecretRef as a die.
+//
+// secretRef is Optional: SecretRef is reference to the authentication secret for User, default is empty.
+//
+// More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
+func (d *CephFSPersistentVolumeSourceDie) SecretRefDie(fn func(d *SecretReferenceDie)) *CephFSPersistentVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.CephFSPersistentVolumeSource) {
+		d := SecretReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
+		fn(d)
+		r.SecretRef = d.DieReleasePtr()
+	})
 }
 
 // monitors is Required: Monitors is a collection of Ceph monitors
@@ -23892,6 +25062,25 @@ func (d *FlexPersistentVolumeSourceDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *FlexPersistentVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// SecretRefDie mutates SecretRef as a die.
+//
+// secretRef is Optional: SecretRef is reference to the secret object containing
+//
+// sensitive information to pass to the plugin scripts. This may be
+//
+// empty if no secret object is specified. If the secret object
+//
+// contains more than one secret, all secrets are passed to the plugin
+//
+// scripts.
+func (d *FlexPersistentVolumeSourceDie) SecretRefDie(fn func(d *SecretReferenceDie)) *FlexPersistentVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.FlexPersistentVolumeSource) {
+		d := SecretReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
+		fn(d)
+		r.SecretRef = d.DieReleasePtr()
+	})
 }
 
 // driver is the name of the driver to use for this volume.
@@ -24429,6 +25618,19 @@ func (d *ScaleIOPersistentVolumeSourceDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *ScaleIOPersistentVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// SecretRefDie mutates SecretRef as a die.
+//
+// secretRef references to the secret for ScaleIO user and other
+//
+// sensitive information. If this is not provided, Login operation will fail.
+func (d *ScaleIOPersistentVolumeSourceDie) SecretRefDie(fn func(d *SecretReferenceDie)) *ScaleIOPersistentVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.ScaleIOPersistentVolumeSource) {
+		d := SecretReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
+		fn(d)
+		r.SecretRef = d.DieReleasePtr()
+	})
 }
 
 // gateway is the host address of the ScaleIO API Gateway.
@@ -24993,6 +26195,19 @@ func (d *StorageOSPersistentVolumeSourceDie) DiePatch(patchType types.PatchType)
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SecretRefDie mutates SecretRef as a die.
+//
+// secretRef specifies the secret to use for obtaining the StorageOS API
+//
+// credentials.  If not specified, default values will be attempted.
+func (d *StorageOSPersistentVolumeSourceDie) SecretRefDie(fn func(d *ObjectReferenceDie)) *StorageOSPersistentVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.StorageOSPersistentVolumeSource) {
+		d := ObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
+		fn(d)
+		r.SecretRef = d.DieReleasePtr()
+	})
+}
+
 // volumeName is the human-readable name of the StorageOS volume.  Volume
 //
 // names are only unique within a namespace.
@@ -25274,6 +26489,101 @@ func (d *CSIPersistentVolumeSourceDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *CSIPersistentVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// ControllerPublishSecretRefDie mutates ControllerPublishSecretRef as a die.
+//
+// controllerPublishSecretRef is a reference to the secret object containing
+//
+// sensitive information to pass to the CSI driver to complete the CSI
+//
+// ControllerPublishVolume and ControllerUnpublishVolume calls.
+//
+// This field is optional, and may be empty if no secret is required. If the
+//
+// secret object contains more than one secret, all secrets are passed.
+func (d *CSIPersistentVolumeSourceDie) ControllerPublishSecretRefDie(fn func(d *SecretReferenceDie)) *CSIPersistentVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
+		d := SecretReferenceBlank.DieImmutable(false).DieFeedPtr(r.ControllerPublishSecretRef)
+		fn(d)
+		r.ControllerPublishSecretRef = d.DieReleasePtr()
+	})
+}
+
+// NodeStageSecretRefDie mutates NodeStageSecretRef as a die.
+//
+// nodeStageSecretRef is a reference to the secret object containing sensitive
+//
+// information to pass to the CSI driver to complete the CSI NodeStageVolume
+//
+// and NodeStageVolume and NodeUnstageVolume calls.
+//
+// This field is optional, and may be empty if no secret is required. If the
+//
+// secret object contains more than one secret, all secrets are passed.
+func (d *CSIPersistentVolumeSourceDie) NodeStageSecretRefDie(fn func(d *SecretReferenceDie)) *CSIPersistentVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
+		d := SecretReferenceBlank.DieImmutable(false).DieFeedPtr(r.NodeStageSecretRef)
+		fn(d)
+		r.NodeStageSecretRef = d.DieReleasePtr()
+	})
+}
+
+// NodePublishSecretRefDie mutates NodePublishSecretRef as a die.
+//
+// nodePublishSecretRef is a reference to the secret object containing
+//
+// sensitive information to pass to the CSI driver to complete the CSI
+//
+// NodePublishVolume and NodeUnpublishVolume calls.
+//
+// This field is optional, and may be empty if no secret is required. If the
+//
+// secret object contains more than one secret, all secrets are passed.
+func (d *CSIPersistentVolumeSourceDie) NodePublishSecretRefDie(fn func(d *SecretReferenceDie)) *CSIPersistentVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
+		d := SecretReferenceBlank.DieImmutable(false).DieFeedPtr(r.NodePublishSecretRef)
+		fn(d)
+		r.NodePublishSecretRef = d.DieReleasePtr()
+	})
+}
+
+// ControllerExpandSecretRefDie mutates ControllerExpandSecretRef as a die.
+//
+// controllerExpandSecretRef is a reference to the secret object containing
+//
+// sensitive information to pass to the CSI driver to complete the CSI
+//
+// ControllerExpandVolume call.
+//
+// This field is optional, and may be empty if no secret is required. If the
+//
+// secret object contains more than one secret, all secrets are passed.
+func (d *CSIPersistentVolumeSourceDie) ControllerExpandSecretRefDie(fn func(d *SecretReferenceDie)) *CSIPersistentVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
+		d := SecretReferenceBlank.DieImmutable(false).DieFeedPtr(r.ControllerExpandSecretRef)
+		fn(d)
+		r.ControllerExpandSecretRef = d.DieReleasePtr()
+	})
+}
+
+// NodeExpandSecretRefDie mutates NodeExpandSecretRef as a die.
+//
+// nodeExpandSecretRef is a reference to the secret object containing
+//
+// sensitive information to pass to the CSI driver to complete the CSI
+//
+// NodeExpandVolume call.
+//
+// This field is optional, may be omitted if no secret is required. If the
+//
+// secret object contains more than one secret, all secrets are passed.
+func (d *CSIPersistentVolumeSourceDie) NodeExpandSecretRefDie(fn func(d *SecretReferenceDie)) *CSIPersistentVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.CSIPersistentVolumeSource) {
+		d := SecretReferenceBlank.DieImmutable(false).DieFeedPtr(r.NodeExpandSecretRef)
+		fn(d)
+		r.NodeExpandSecretRef = d.DieReleasePtr()
+	})
 }
 
 // driver is the name of the driver to use for this volume.
@@ -25624,6 +26934,17 @@ func (d *VolumeNodeAffinityDie) DiePatch(patchType types.PatchType) ([]byte, err
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// RequiredDie mutates Required as a die.
+//
+// required specifies hard node constraints that must be met.
+func (d *VolumeNodeAffinityDie) RequiredDie(fn func(d *NodeSelectorDie)) *VolumeNodeAffinityDie {
+	return d.DieStamp(func(r *corev1.VolumeNodeAffinity) {
+		d := NodeSelectorBlank.DieImmutable(false).DieFeedPtr(r.Required)
+		fn(d)
+		r.Required = d.DieReleasePtr()
+	})
+}
+
 // required specifies hard node constraints that must be met.
 func (d *VolumeNodeAffinityDie) Required(v *corev1.NodeSelector) *VolumeNodeAffinityDie {
 	return d.DieStamp(func(r *corev1.VolumeNodeAffinity) {
@@ -25859,6 +27180,18 @@ func (d *NodeSelectorDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// NodeSelectorTermsDie replaces NodeSelectorTerms by collecting the released value from each die passed.
+//
+// Required. A list of node selector terms. The terms are ORed.
+func (d *NodeSelectorDie) NodeSelectorTermsDie(v ...*NodeSelectorTermDie) *NodeSelectorDie {
+	return d.DieStamp(func(r *corev1.NodeSelector) {
+		r.NodeSelectorTerms = make([]corev1.NodeSelectorTerm, len(v))
+		for i := range v {
+			r.NodeSelectorTerms[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // Required. A list of node selector terms. The terms are ORed.
 func (d *NodeSelectorDie) NodeSelectorTerms(v ...corev1.NodeSelectorTerm) *NodeSelectorDie {
 	return d.DieStamp(func(r *corev1.NodeSelector) {
@@ -26092,6 +27425,46 @@ func (d *NodeSelectorTermDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *NodeSelectorTermDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// MatchExpressionDie mutates a single item in MatchExpressions matched by the nested field Key, appending a new item if no match is found.
+//
+// A list of node selector requirements by node's labels.
+func (d *NodeSelectorTermDie) MatchExpressionDie(v string, fn func(d *NodeSelectorRequirementDie)) *NodeSelectorTermDie {
+	return d.DieStamp(func(r *corev1.NodeSelectorTerm) {
+		for i := range r.MatchExpressions {
+			if v == r.MatchExpressions[i].Key {
+				d := NodeSelectorRequirementBlank.DieImmutable(false).DieFeed(r.MatchExpressions[i])
+				fn(d)
+				r.MatchExpressions[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := NodeSelectorRequirementBlank.DieImmutable(false).DieFeed(corev1.NodeSelectorRequirement{Key: v})
+		fn(d)
+		r.MatchExpressions = append(r.MatchExpressions, d.DieRelease())
+	})
+}
+
+// MatchFieldDie mutates a single item in MatchFields matched by the nested field Key, appending a new item if no match is found.
+//
+// A list of node selector requirements by node's fields.
+func (d *NodeSelectorTermDie) MatchFieldDie(v string, fn func(d *NodeSelectorRequirementDie)) *NodeSelectorTermDie {
+	return d.DieStamp(func(r *corev1.NodeSelectorTerm) {
+		for i := range r.MatchFields {
+			if v == r.MatchFields[i].Key {
+				d := NodeSelectorRequirementBlank.DieImmutable(false).DieFeed(r.MatchFields[i])
+				fn(d)
+				r.MatchFields[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := NodeSelectorRequirementBlank.DieImmutable(false).DieFeed(corev1.NodeSelectorRequirement{Key: v})
+		fn(d)
+		r.MatchFields = append(r.MatchFields, d.DieRelease())
+	})
 }
 
 // A list of node selector requirements by node's labels.
@@ -26956,6 +28329,116 @@ func (d *PersistentVolumeClaimSpecDie) DiePatch(patchType types.PatchType) ([]by
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SelectorDie mutates Selector as a die.
+//
+// selector is a label query over volumes to consider for binding.
+func (d *PersistentVolumeClaimSpecDie) SelectorDie(fn func(d *metav1.LabelSelectorDie)) *PersistentVolumeClaimSpecDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
+		d := metav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
+		fn(d)
+		r.Selector = d.DieReleasePtr()
+	})
+}
+
+// ResourcesDie mutates Resources as a die.
+//
+// resources represents the minimum resources the volume should have.
+//
+// # If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+//
+// that are lower than previous value but must still be higher than capacity recorded in the
+//
+// status field of the claim.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+func (d *PersistentVolumeClaimSpecDie) ResourcesDie(fn func(d *VolumeResourceRequirementsDie)) *PersistentVolumeClaimSpecDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
+		d := VolumeResourceRequirementsBlank.DieImmutable(false).DieFeed(r.Resources)
+		fn(d)
+		r.Resources = d.DieRelease()
+	})
+}
+
+// DataSourceDie mutates DataSource as a die.
+//
+// dataSource field can be used to specify either:
+//
+// * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
+//
+// * An existing PVC (PersistentVolumeClaim)
+//
+// If the provisioner or an external controller can support the specified data source,
+//
+// it will create a new volume based on the contents of the specified data source.
+//
+// When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
+//
+// and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+//
+// If the namespace is specified, then dataSourceRef will not be copied to dataSource.
+func (d *PersistentVolumeClaimSpecDie) DataSourceDie(fn func(d *TypedLocalObjectReferenceDie)) *PersistentVolumeClaimSpecDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
+		d := TypedLocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.DataSource)
+		fn(d)
+		r.DataSource = d.DieReleasePtr()
+	})
+}
+
+// DataSourceRefDie mutates DataSourceRef as a die.
+//
+// dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
+//
+// volume is desired. This may be any object from a non-empty API group (non
+//
+// core object) or a PersistentVolumeClaim object.
+//
+// # When this field is specified, volume binding will only succeed if the type of
+//
+// the specified object matches some installed volume populator or dynamic
+//
+// provisioner.
+//
+// # This field will replace the functionality of the dataSource field and as such
+//
+// if both fields are non-empty, they must have the same value. For backwards
+//
+// compatibility, when namespace isn't specified in dataSourceRef,
+//
+// both fields (dataSource and dataSourceRef) will be set to the same
+//
+// value automatically if one of them is empty and the other is non-empty.
+//
+// When namespace is specified in dataSourceRef,
+//
+// dataSource isn't set to the same value and must be empty.
+//
+// There are three important differences between dataSource and dataSourceRef:
+//
+// * While dataSource only allows two specific types of objects, dataSourceRef
+//
+// allows any non-core object, as well as PersistentVolumeClaim objects.
+//
+// * While dataSource ignores disallowed values (dropping them), dataSourceRef
+//
+// preserves all values, and generates an error if a disallowed value is
+//
+// specified.
+//
+// * While dataSource only allows local objects, dataSourceRef allows objects
+//
+// in any namespaces.
+//
+// (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
+//
+// (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+func (d *PersistentVolumeClaimSpecDie) DataSourceRefDie(fn func(d *TypedObjectReferenceDie)) *PersistentVolumeClaimSpecDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimSpec) {
+		d := TypedObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.DataSourceRef)
+		fn(d)
+		r.DataSourceRef = d.DieReleasePtr()
+	})
+}
+
 // accessModes contains the desired access modes the volume should have.
 //
 // More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
@@ -27645,6 +29128,21 @@ func (d *PersistentVolumeClaimStatusDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *PersistentVolumeClaimStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// ModifyVolumeStatusDie mutates ModifyVolumeStatus as a die.
+//
+// ModifyVolumeStatus represents the status object of ControllerModifyVolume operation.
+//
+// When this is unset, there is no ModifyVolume operation being attempted.
+//
+// This is an alpha field and requires enabling VolumeAttributesClass feature.
+func (d *PersistentVolumeClaimStatusDie) ModifyVolumeStatusDie(fn func(d *ModifyVolumeStatusDie)) *PersistentVolumeClaimStatusDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
+		d := ModifyVolumeStatusBlank.DieImmutable(false).DieFeedPtr(r.ModifyVolumeStatus)
+		fn(d)
+		r.ModifyVolumeStatus = d.DieReleasePtr()
+	})
 }
 
 // phase represents the current phase of PersistentVolumeClaim.
@@ -28344,6 +29842,38 @@ func (d *PersistentVolumeClaimTemplateDie) DiePatch(patchType types.PatchType) (
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ObjectMetaDie mutates ObjectMeta as a die.
+//
+// # May contain labels and annotations that will be copied into the PVC
+//
+// when creating it. No other fields are allowed and will be rejected during
+//
+// validation.
+func (d *PersistentVolumeClaimTemplateDie) ObjectMetaDie(fn func(d *metav1.ObjectMetaDie)) *PersistentVolumeClaimTemplateDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimTemplate) {
+		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
+		fn(d)
+		r.ObjectMeta = d.DieRelease()
+	})
+}
+
+// SpecDie mutates Spec as a die.
+//
+// The specification for the PersistentVolumeClaim. The entire content is
+//
+// copied unchanged into the PVC that gets created from this
+//
+// template. The same fields as in a PersistentVolumeClaim
+//
+// are also valid here.
+func (d *PersistentVolumeClaimTemplateDie) SpecDie(fn func(d *PersistentVolumeClaimSpecDie)) *PersistentVolumeClaimTemplateDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimTemplate) {
+		d := PersistentVolumeClaimSpecBlank.DieImmutable(false).DieFeed(r.Spec)
+		fn(d)
+		r.Spec = d.DieRelease()
+	})
+}
+
 // May contain labels and annotations that will be copied into the PVC
 //
 // when creating it. No other fields are allowed and will be rejected during
@@ -28959,6 +30489,309 @@ func (d *PodSpecDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *PodSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// SecurityContextDie mutates SecurityContext as a die.
+//
+// SecurityContext holds pod-level security attributes and common container settings.
+//
+// Optional: Defaults to empty.  See type description for default values of each field.
+func (d *PodSpecDie) SecurityContextDie(fn func(d *PodSecurityContextDie)) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		d := PodSecurityContextBlank.DieImmutable(false).DieFeedPtr(r.SecurityContext)
+		fn(d)
+		r.SecurityContext = d.DieReleasePtr()
+	})
+}
+
+// DNSConfigDie mutates DNSConfig as a die.
+//
+// Specifies the DNS parameters of a pod.
+//
+// # Parameters specified here will be merged to the generated DNS
+//
+// configuration based on DNSPolicy.
+func (d *PodSpecDie) DNSConfigDie(fn func(d *PodDNSConfigDie)) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		d := PodDNSConfigBlank.DieImmutable(false).DieFeedPtr(r.DNSConfig)
+		fn(d)
+		r.DNSConfig = d.DieReleasePtr()
+	})
+}
+
+// OSDie mutates OS as a die.
+//
+// Specifies the OS of the containers in the pod.
+//
+// Some pod and container fields are restricted if this is set.
+//
+// If the OS field is set to linux, the following fields must be unset:
+//
+// -securityContext.windowsOptions
+//
+// If the OS field is set to windows, following fields must be unset:
+//
+// - spec.hostPID
+//
+// - spec.hostIPC
+//
+// - spec.hostUsers
+//
+// - spec.securityContext.appArmorProfile
+//
+// - spec.securityContext.seLinuxOptions
+//
+// - spec.securityContext.seccompProfile
+//
+// - spec.securityContext.fsGroup
+//
+// - spec.securityContext.fsGroupChangePolicy
+//
+// - spec.securityContext.sysctls
+//
+// - spec.shareProcessNamespace
+//
+// - spec.securityContext.runAsUser
+//
+// - spec.securityContext.runAsGroup
+//
+// - spec.securityContext.supplementalGroups
+//
+// - spec.containers[*].securityContext.appArmorProfile
+//
+// - spec.containers[*].securityContext.seLinuxOptions
+//
+// - spec.containers[*].securityContext.seccompProfile
+//
+// - spec.containers[*].securityContext.capabilities
+//
+// - spec.containers[*].securityContext.readOnlyRootFilesystem
+//
+// - spec.containers[*].securityContext.privileged
+//
+// - spec.containers[*].securityContext.allowPrivilegeEscalation
+//
+// - spec.containers[*].securityContext.procMount
+//
+// - spec.containers[*].securityContext.runAsUser
+//
+// - spec.containers[*].securityContext.runAsGroup
+func (d *PodSpecDie) OSDie(fn func(d *PodOSDie)) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		d := PodOSBlank.DieImmutable(false).DieFeedPtr(r.OS)
+		fn(d)
+		r.OS = d.DieReleasePtr()
+	})
+}
+
+// VolumeDie mutates a single item in Volumes matched by the nested field Name, appending a new item if no match is found.
+//
+// List of volumes that can be mounted by containers belonging to the pod.
+//
+// More info: https://kubernetes.io/docs/concepts/storage/volumes
+func (d *PodSpecDie) VolumeDie(v string, fn func(d *VolumeDie)) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		for i := range r.Volumes {
+			if v == r.Volumes[i].Name {
+				d := VolumeBlank.DieImmutable(false).DieFeed(r.Volumes[i])
+				fn(d)
+				r.Volumes[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := VolumeBlank.DieImmutable(false).DieFeed(corev1.Volume{Name: v})
+		fn(d)
+		r.Volumes = append(r.Volumes, d.DieRelease())
+	})
+}
+
+// InitContainerDie mutates a single item in InitContainers matched by the nested field Name, appending a new item if no match is found.
+//
+// List of initialization containers belonging to the pod.
+//
+// Init containers are executed in order prior to containers being started. If any
+//
+// init container fails, the pod is considered to have failed and is handled according
+//
+// to its restartPolicy. The name for an init container or normal container must be
+//
+// unique among all containers.
+//
+// Init containers may not have Lifecycle actions, Readiness probes, Liveness probes, or Startup probes.
+//
+// # The resourceRequirements of an init container are taken into account during scheduling
+//
+// by finding the highest request/limit for each resource type, and then using the max of
+//
+// of that value or the sum of the normal containers. Limits are applied to init containers
+//
+// in a similar fashion.
+//
+// Init containers cannot currently be added or removed.
+//
+// Cannot be updated.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+func (d *PodSpecDie) InitContainerDie(v string, fn func(d *ContainerDie)) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		for i := range r.InitContainers {
+			if v == r.InitContainers[i].Name {
+				d := ContainerBlank.DieImmutable(false).DieFeed(r.InitContainers[i])
+				fn(d)
+				r.InitContainers[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := ContainerBlank.DieImmutable(false).DieFeed(corev1.Container{Name: v})
+		fn(d)
+		r.InitContainers = append(r.InitContainers, d.DieRelease())
+	})
+}
+
+// ContainerDie mutates a single item in Containers matched by the nested field Name, appending a new item if no match is found.
+//
+// List of containers belonging to the pod.
+//
+// Containers cannot currently be added or removed.
+//
+// There must be at least one container in a Pod.
+//
+// Cannot be updated.
+func (d *PodSpecDie) ContainerDie(v string, fn func(d *ContainerDie)) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		for i := range r.Containers {
+			if v == r.Containers[i].Name {
+				d := ContainerBlank.DieImmutable(false).DieFeed(r.Containers[i])
+				fn(d)
+				r.Containers[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := ContainerBlank.DieImmutable(false).DieFeed(corev1.Container{Name: v})
+		fn(d)
+		r.Containers = append(r.Containers, d.DieRelease())
+	})
+}
+
+// TolerationDie mutates a single item in Tolerations matched by the nested field Key, appending a new item if no match is found.
+//
+// If specified, the pod's tolerations.
+func (d *PodSpecDie) TolerationDie(v string, fn func(d *TolerationDie)) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		for i := range r.Tolerations {
+			if v == r.Tolerations[i].Key {
+				d := TolerationBlank.DieImmutable(false).DieFeed(r.Tolerations[i])
+				fn(d)
+				r.Tolerations[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := TolerationBlank.DieImmutable(false).DieFeed(corev1.Toleration{Key: v})
+		fn(d)
+		r.Tolerations = append(r.Tolerations, d.DieRelease())
+	})
+}
+
+// HostAliasesDie replaces HostAliases by collecting the released value from each die passed.
+//
+// # HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts
+//
+// file if specified.
+func (d *PodSpecDie) HostAliasesDie(v ...*HostAliasDie) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		r.HostAliases = make([]corev1.HostAlias, len(v))
+		for i := range v {
+			r.HostAliases[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// ReadinessGatesDie replaces ReadinessGates by collecting the released value from each die passed.
+//
+// If specified, all readiness gates will be evaluated for pod readiness.
+//
+// # A pod is ready when all its containers are ready AND
+//
+// all conditions specified in the readiness gates have status equal to "True"
+//
+// More info: https://git.k8s.io/enhancements/keps/sig-network/580-pod-readiness-gates
+func (d *PodSpecDie) ReadinessGatesDie(v ...*PodReadinessGateDie) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		r.ReadinessGates = make([]corev1.PodReadinessGate, len(v))
+		for i := range v {
+			r.ReadinessGates[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// TopologySpreadConstraintDie mutates a single item in TopologySpreadConstraints matched by the nested field TopologyKey, appending a new item if no match is found.
+//
+// # TopologySpreadConstraints describes how a group of pods ought to spread across topology
+//
+// domains. Scheduler will schedule pods in a way which abides by the constraints.
+//
+// All topologySpreadConstraints are ANDed.
+func (d *PodSpecDie) TopologySpreadConstraintDie(v string, fn func(d *TopologySpreadConstraintDie)) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		for i := range r.TopologySpreadConstraints {
+			if v == r.TopologySpreadConstraints[i].TopologyKey {
+				d := TopologySpreadConstraintBlank.DieImmutable(false).DieFeed(r.TopologySpreadConstraints[i])
+				fn(d)
+				r.TopologySpreadConstraints[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := TopologySpreadConstraintBlank.DieImmutable(false).DieFeed(corev1.TopologySpreadConstraint{TopologyKey: v})
+		fn(d)
+		r.TopologySpreadConstraints = append(r.TopologySpreadConstraints, d.DieRelease())
+	})
+}
+
+// SchedulingGatesDie replaces SchedulingGates by collecting the released value from each die passed.
+//
+// SchedulingGates is an opaque list of values that if specified will block scheduling the pod.
+//
+// # If schedulingGates is not empty, the pod will stay in the SchedulingGated state and the
+//
+// scheduler will not attempt to schedule the pod.
+//
+// SchedulingGates can only be set at pod creation time, and be removed only afterwards.
+func (d *PodSpecDie) SchedulingGatesDie(v ...*PodSchedulingGateDie) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		r.SchedulingGates = make([]corev1.PodSchedulingGate, len(v))
+		for i := range v {
+			r.SchedulingGates[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// ResourceClaimsDie replaces ResourceClaims by collecting the released value from each die passed.
+//
+// # ResourceClaims defines which ResourceClaims must be allocated
+//
+// and reserved before the Pod is allowed to start. The resources
+//
+// will be made available to those containers which consume them
+//
+// by name.
+//
+// # This is an alpha field and requires enabling the
+//
+// DynamicResourceAllocation feature gate.
+//
+// This field is immutable.
+func (d *PodSpecDie) ResourceClaimsDie(v ...*PodResourceClaimDie) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		r.ResourceClaims = make([]corev1.PodResourceClaim, len(v))
+		for i := range v {
+			r.ResourceClaims[i] = v[i].DieRelease()
+		}
+	})
 }
 
 // List of volumes that can be mounted by containers belonging to the pod.
@@ -30013,6 +31846,17 @@ func (d *PodResourceClaimDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SourceDie mutates Source as a die.
+//
+// Source describes where to find the ResourceClaim.
+func (d *PodResourceClaimDie) SourceDie(fn func(d *ClaimSourceDie)) *PodResourceClaimDie {
+	return d.DieStamp(func(r *corev1.PodResourceClaim) {
+		d := ClaimSourceBlank.DieImmutable(false).DieFeed(r.Source)
+		fn(d)
+		r.Source = d.DieRelease()
+	})
+}
+
 // Name uniquely identifies this resource claim inside the pod.
 //
 // This must be a DNS_LABEL.
@@ -30517,6 +32361,86 @@ func (d *PodSecurityContextDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *PodSecurityContextDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// SELinuxOptionsDie mutates SELinuxOptions as a die.
+//
+// The SELinux context to be applied to all containers.
+//
+// # If unspecified, the container runtime will allocate a random SELinux context for each
+//
+// container.  May also be set in SecurityContext.  If set in
+//
+// both SecurityContext and PodSecurityContext, the value specified in SecurityContext
+//
+// takes precedence for that container.
+//
+// Note that this field cannot be set when spec.os.name is windows.
+func (d *PodSecurityContextDie) SELinuxOptionsDie(fn func(d *SELinuxOptionsDie)) *PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		d := SELinuxOptionsBlank.DieImmutable(false).DieFeedPtr(r.SELinuxOptions)
+		fn(d)
+		r.SELinuxOptions = d.DieReleasePtr()
+	})
+}
+
+// WindowsOptionsDie mutates WindowsOptions as a die.
+//
+// The Windows specific settings applied to all containers.
+//
+// If unspecified, the options within a container's SecurityContext will be used.
+//
+// If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+//
+// Note that this field cannot be set when spec.os.name is linux.
+func (d *PodSecurityContextDie) WindowsOptionsDie(fn func(d *WindowsSecurityContextOptionsDie)) *PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		d := WindowsSecurityContextOptionsBlank.DieImmutable(false).DieFeedPtr(r.WindowsOptions)
+		fn(d)
+		r.WindowsOptions = d.DieReleasePtr()
+	})
+}
+
+// AppArmorProfileDie mutates AppArmorProfile as a die.
+//
+// appArmorProfile is the AppArmor options to use by the containers in this pod.
+//
+// Note that this field cannot be set when spec.os.name is windows.
+func (d *PodSecurityContextDie) AppArmorProfileDie(fn func(d *AppArmorProfileDie)) *PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		d := AppArmorProfileBlank.DieImmutable(false).DieFeedPtr(r.AppArmorProfile)
+		fn(d)
+		r.AppArmorProfile = d.DieReleasePtr()
+	})
+}
+
+// SysctlsDie replaces Sysctls by collecting the released value from each die passed.
+//
+// Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported
+//
+// sysctls (by the container runtime) might fail to launch.
+//
+// Note that this field cannot be set when spec.os.name is windows.
+func (d *PodSecurityContextDie) SysctlsDie(v ...*SysctlDie) *PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		r.Sysctls = make([]corev1.Sysctl, len(v))
+		for i := range v {
+			r.Sysctls[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// SeccompProfileDie mutates SeccompProfile as a die.
+//
+// The seccomp options to use by the containers in this pod.
+//
+// Note that this field cannot be set when spec.os.name is windows.
+func (d *PodSecurityContextDie) SeccompProfileDie(fn func(d *SeccompProfileDie)) *PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		d := SeccompProfileBlank.DieImmutable(false).DieFeedPtr(r.SeccompProfile)
+		fn(d)
+		r.SeccompProfile = d.DieReleasePtr()
+	})
 }
 
 // The SELinux context to be applied to all containers.
@@ -31681,6 +33605,24 @@ func (d *PodDNSConfigDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// OptionsDie replaces Options by collecting the released value from each die passed.
+//
+// A list of DNS resolver options.
+//
+// This will be merged with the base options generated from DNSPolicy.
+//
+// Duplicated entries will be removed. Resolution options given in Options
+//
+// will override those that appear in the base DNSPolicy.
+func (d *PodDNSConfigDie) OptionsDie(v ...*PodDNSConfigOptionDie) *PodDNSConfigDie {
+	return d.DieStamp(func(r *corev1.PodDNSConfig) {
+		r.Options = make([]corev1.PodDNSConfigOption, len(v))
+		for i := range v {
+			r.Options[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // A list of DNS name server IP addresses.
 //
 // This will be appended to the base nameservers generated from DNSPolicy.
@@ -32420,6 +34362,21 @@ func (d *TopologySpreadConstraintDie) DiePatch(patchType types.PatchType) ([]byt
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// LabelSelectorDie mutates LabelSelector as a die.
+//
+// LabelSelector is used to find matching pods.
+//
+// # Pods that match this label selector are counted to determine the number of pods
+//
+// in their corresponding topology domain.
+func (d *TopologySpreadConstraintDie) LabelSelectorDie(fn func(d *metav1.LabelSelectorDie)) *TopologySpreadConstraintDie {
+	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
+		d := metav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.LabelSelector)
+		fn(d)
+		r.LabelSelector = d.DieReleasePtr()
+	})
+}
+
 // MaxSkew describes the degree to which pods may be unevenly distributed.
 //
 // When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference
@@ -33105,6 +35062,74 @@ func (d *PodStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// InitContainerStatusDie mutates a single item in InitContainerStatuses matched by the nested field Name, appending a new item if no match is found.
+//
+// The list has one entry per init container in the manifest. The most recent successful
+//
+// init container will have ready = true, the most recently started container will have
+//
+// startTime set.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
+func (d *PodStatusDie) InitContainerStatusDie(v string, fn func(d *ContainerStatusDie)) *PodStatusDie {
+	return d.DieStamp(func(r *corev1.PodStatus) {
+		for i := range r.InitContainerStatuses {
+			if v == r.InitContainerStatuses[i].Name {
+				d := ContainerStatusBlank.DieImmutable(false).DieFeed(r.InitContainerStatuses[i])
+				fn(d)
+				r.InitContainerStatuses[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := ContainerStatusBlank.DieImmutable(false).DieFeed(corev1.ContainerStatus{Name: v})
+		fn(d)
+		r.InitContainerStatuses = append(r.InitContainerStatuses, d.DieRelease())
+	})
+}
+
+// ContainerStatusDie mutates a single item in ContainerStatuses matched by the nested field Name, appending a new item if no match is found.
+//
+// The list has one entry per container in the manifest.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
+func (d *PodStatusDie) ContainerStatusDie(v string, fn func(d *ContainerStatusDie)) *PodStatusDie {
+	return d.DieStamp(func(r *corev1.PodStatus) {
+		for i := range r.ContainerStatuses {
+			if v == r.ContainerStatuses[i].Name {
+				d := ContainerStatusBlank.DieImmutable(false).DieFeed(r.ContainerStatuses[i])
+				fn(d)
+				r.ContainerStatuses[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := ContainerStatusBlank.DieImmutable(false).DieFeed(corev1.ContainerStatus{Name: v})
+		fn(d)
+		r.ContainerStatuses = append(r.ContainerStatuses, d.DieRelease())
+	})
+}
+
+// EphemeralContainerStatusDie mutates a single item in EphemeralContainerStatuses matched by the nested field Name, appending a new item if no match is found.
+//
+// Status for any ephemeral containers that have run in this pod.
+func (d *PodStatusDie) EphemeralContainerStatusDie(v string, fn func(d *ContainerStatusDie)) *PodStatusDie {
+	return d.DieStamp(func(r *corev1.PodStatus) {
+		for i := range r.EphemeralContainerStatuses {
+			if v == r.EphemeralContainerStatuses[i].Name {
+				d := ContainerStatusBlank.DieImmutable(false).DieFeed(r.EphemeralContainerStatuses[i])
+				fn(d)
+				r.EphemeralContainerStatuses[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := ContainerStatusBlank.DieImmutable(false).DieFeed(corev1.ContainerStatus{Name: v})
+		fn(d)
+		r.EphemeralContainerStatuses = append(r.EphemeralContainerStatuses, d.DieRelease())
+	})
+}
+
 // The phase of a Pod is a simple, high-level summary of where the Pod is in its lifecycle.
 //
 // # The conditions array, the reason and message fields, and the individual container status
@@ -33612,6 +35637,19 @@ func (d *PodTemplateDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *PodTempl
 	})
 }
 
+// TemplateDie mutates Template as a die.
+//
+// Template defines the pods that will be created from this pod template.
+//
+// https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *PodTemplateDie) TemplateDie(fn func(d *PodTemplateSpecDie)) *PodTemplateDie {
+	return d.DieStamp(func(r *corev1.PodTemplate) {
+		d := PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
+		fn(d)
+		r.Template = d.DieRelease()
+	})
+}
+
 // Template defines the pods that will be created from this pod template.
 //
 // https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
@@ -33847,6 +35885,32 @@ func (d *PodTemplateSpecDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *PodTemplateSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// MetadataDie mutates ObjectMeta as a die.
+//
+// Standard object's metadata.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *PodTemplateSpecDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *PodTemplateSpecDie {
+	return d.DieStamp(func(r *corev1.PodTemplateSpec) {
+		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
+		fn(d)
+		r.ObjectMeta = d.DieRelease()
+	})
+}
+
+// SpecDie mutates Spec as a die.
+//
+// Specification of the desired behavior of the pod.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *PodTemplateSpecDie) SpecDie(fn func(d *PodSpecDie)) *PodTemplateSpecDie {
+	return d.DieStamp(func(r *corev1.PodTemplateSpec) {
+		d := PodSpecBlank.DieImmutable(false).DieFeed(r.Spec)
+		fn(d)
+		r.Spec = d.DieRelease()
+	})
 }
 
 // Standard object's metadata.
@@ -34458,6 +36522,23 @@ func (d *ReplicationControllerSpecDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *ReplicationControllerSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// TemplateDie mutates Template as a die.
+//
+// # Template is the object that describes the pod that will be created if
+//
+// insufficient replicas are detected. This takes precedence over a TemplateRef.
+//
+// The only allowed template.spec.restartPolicy value is "Always".
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
+func (d *ReplicationControllerSpecDie) TemplateDie(fn func(d *PodTemplateSpecDie)) *ReplicationControllerSpecDie {
+	return d.DieStamp(func(r *corev1.ReplicationControllerSpec) {
+		d := PodTemplateSpecBlank.DieImmutable(false).DieFeedPtr(r.Template)
+		fn(d)
+		r.Template = d.DieReleasePtr()
+	})
 }
 
 // Replicas is the number of desired replicas.
@@ -35371,6 +37452,21 @@ func (d *ResourceQuotaSpecDie) DiePatch(patchType types.PatchType) ([]byte, erro
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ScopeSelectorDie mutates ScopeSelector as a die.
+//
+// scopeSelector is also a collection of filters like scopes that must match each object tracked by a quota
+//
+// but expressed using ScopeSelectorOperator in combination with possible values.
+//
+// For a resource to match, both scopes AND scopeSelector (if specified in spec), must be matched.
+func (d *ResourceQuotaSpecDie) ScopeSelectorDie(fn func(d *ScopeSelectorDie)) *ResourceQuotaSpecDie {
+	return d.DieStamp(func(r *corev1.ResourceQuotaSpec) {
+		d := ScopeSelectorBlank.DieImmutable(false).DieFeedPtr(r.ScopeSelector)
+		fn(d)
+		r.ScopeSelector = d.DieReleasePtr()
+	})
+}
+
 // hard is the set of desired hard limits for each named resource.
 //
 // More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
@@ -35650,6 +37746,26 @@ func (d *ScopeSelectorDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *ScopeSelectorDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// MatchExpressionDie mutates a single item in MatchExpressions matched by the nested field ScopeName, appending a new item if no match is found.
+//
+// A list of scope selector requirements by scope of the resources.
+func (d *ScopeSelectorDie) MatchExpressionDie(v corev1.ResourceQuotaScope, fn func(d *ScopedResourceSelectorRequirementDie)) *ScopeSelectorDie {
+	return d.DieStamp(func(r *corev1.ScopeSelector) {
+		for i := range r.MatchExpressions {
+			if v == r.MatchExpressions[i].ScopeName {
+				d := ScopedResourceSelectorRequirementBlank.DieImmutable(false).DieFeed(r.MatchExpressions[i])
+				fn(d)
+				r.MatchExpressions[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := ScopedResourceSelectorRequirementBlank.DieImmutable(false).DieFeed(corev1.ScopedResourceSelectorRequirement{ScopeName: v})
+		fn(d)
+		r.MatchExpressions = append(r.MatchExpressions, d.DieRelease())
+	})
 }
 
 // A list of scope selector requirements by scope of the resources.
@@ -37140,6 +39256,17 @@ func (d *ServiceSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SessionAffinityConfigDie mutates SessionAffinityConfig as a die.
+//
+// sessionAffinityConfig contains the configurations of session affinity.
+func (d *ServiceSpecDie) SessionAffinityConfigDie(fn func(d *SessionAffinityConfigDie)) *ServiceSpecDie {
+	return d.DieStamp(func(r *corev1.ServiceSpec) {
+		d := SessionAffinityConfigBlank.DieImmutable(false).DieFeedPtr(r.SessionAffinityConfig)
+		fn(d)
+		r.SessionAffinityConfig = d.DieReleasePtr()
+	})
+}
+
 // The list of ports that are exposed by this service.
 //
 // More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
@@ -38188,6 +40315,17 @@ func (d *SessionAffinityConfigDie) DiePatch(patchType types.PatchType) ([]byte, 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ClientIPDie mutates ClientIP as a die.
+//
+// clientIP contains the configurations of Client IP based session affinity.
+func (d *SessionAffinityConfigDie) ClientIPDie(fn func(d *ClientIPConfigDie)) *SessionAffinityConfigDie {
+	return d.DieStamp(func(r *corev1.SessionAffinityConfig) {
+		d := ClientIPConfigBlank.DieImmutable(false).DieFeedPtr(r.ClientIP)
+		fn(d)
+		r.ClientIP = d.DieReleasePtr()
+	})
+}
+
 // clientIP contains the configurations of Client IP based session affinity.
 func (d *SessionAffinityConfigDie) ClientIP(v *corev1.ClientIPConfig) *SessionAffinityConfigDie {
 	return d.DieStamp(func(r *corev1.SessionAffinityConfig) {
@@ -38662,6 +40800,19 @@ func (d *ServiceStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// LoadBalancerDie mutates LoadBalancer as a die.
+//
+// LoadBalancer contains the current status of the load-balancer,
+//
+// if one is present.
+func (d *ServiceStatusDie) LoadBalancerDie(fn func(d *LoadBalancerStatusDie)) *ServiceStatusDie {
+	return d.DieStamp(func(r *corev1.ServiceStatus) {
+		d := LoadBalancerStatusBlank.DieImmutable(false).DieFeed(r.LoadBalancer)
+		fn(d)
+		r.LoadBalancer = d.DieRelease()
+	})
+}
+
 // LoadBalancer contains the current status of the load-balancer,
 //
 // if one is present.
@@ -38906,6 +41057,20 @@ func (d *LoadBalancerStatusDie) DiePatch(patchType types.PatchType) ([]byte, err
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// IngressDie replaces Ingress by collecting the released value from each die passed.
+//
+// Ingress is a list containing ingress points for the load-balancer.
+//
+// Traffic intended for the service should be sent to these ingress points.
+func (d *LoadBalancerStatusDie) IngressDie(v ...*LoadBalancerIngressDie) *LoadBalancerStatusDie {
+	return d.DieStamp(func(r *corev1.LoadBalancerStatus) {
+		r.Ingress = make([]corev1.LoadBalancerIngress, len(v))
+		for i := range v {
+			r.Ingress[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // Ingress is a list containing ingress points for the load-balancer.
 //
 // Traffic intended for the service should be sent to these ingress points.
@@ -39141,6 +41306,20 @@ func (d *LoadBalancerIngressDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *LoadBalancerIngressDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// PortsDie replaces Ports by collecting the released value from each die passed.
+//
+// # Ports is a list of records of service ports
+//
+// If used, every port defined in the service should have an entry in it
+func (d *LoadBalancerIngressDie) PortsDie(v ...*PortStatusDie) *LoadBalancerIngressDie {
+	return d.DieStamp(func(r *corev1.LoadBalancerIngress) {
+		r.Ports = make([]corev1.PortStatus, len(v))
+		for i := range v {
+			r.Ports[i] = v[i].DieRelease()
+		}
+	})
 }
 
 // IP is set for load-balancer ingress points that are IP based
@@ -39772,6 +41951,44 @@ func (d *ServiceAccountDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Servi
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
 		r.ObjectMeta = d.DieRelease()
+	})
+}
+
+// SecretsDie replaces Secrets by collecting the released value from each die passed.
+//
+// Secrets is a list of the secrets in the same namespace that pods running using this ServiceAccount are allowed to use.
+//
+// Pods are only limited to this list if this service account has a "kubernetes.io/enforce-mountable-secrets" annotation set to "true".
+//
+// This field should not be used to find auto-generated service account token secrets for use outside of pods.
+//
+// Instead, tokens can be requested directly using the TokenRequest API, or service account token secrets can be manually created.
+//
+// More info: https://kubernetes.io/docs/concepts/configuration/secret
+func (d *ServiceAccountDie) SecretsDie(v ...*ObjectReferenceDie) *ServiceAccountDie {
+	return d.DieStamp(func(r *corev1.ServiceAccount) {
+		r.Secrets = make([]corev1.ObjectReference, len(v))
+		for i := range v {
+			r.Secrets[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// ImagePullSecretsDie replaces ImagePullSecrets by collecting the released value from each die passed.
+//
+// # ImagePullSecrets is a list of references to secrets in the same namespace to use for pulling any images
+//
+// in pods that reference this ServiceAccount. ImagePullSecrets are distinct from Secrets because Secrets
+//
+// can be mounted in the pod, but ImagePullSecrets are only accessed by the kubelet.
+//
+// More info: https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
+func (d *ServiceAccountDie) ImagePullSecretsDie(v ...*LocalObjectReferenceDie) *ServiceAccountDie {
+	return d.DieStamp(func(r *corev1.ServiceAccount) {
+		r.ImagePullSecrets = make([]corev1.LocalObjectReference, len(v))
+		for i := range v {
+			r.ImagePullSecrets[i] = v[i].DieRelease()
+		}
 	})
 }
 
@@ -41623,6 +43840,38 @@ func (d *SecretVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, err
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ItemDie mutates a single item in Items matched by the nested field Key, appending a new item if no match is found.
+//
+// items If unspecified, each key-value pair in the Data field of the referenced
+//
+// # Secret will be projected into the volume as a file whose name is the
+//
+// key and content is the value. If specified, the listed keys will be
+//
+// projected into the specified paths, and unlisted keys will not be
+//
+// present. If a key is specified which is not present in the Secret,
+//
+// the volume setup will error unless it is marked optional. Paths must be
+//
+// relative and may not contain the '..' path or start with '..'.
+func (d *SecretVolumeSourceDie) ItemDie(v string, fn func(d *KeyToPathDie)) *SecretVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.SecretVolumeSource) {
+		for i := range r.Items {
+			if v == r.Items[i].Key {
+				d := KeyToPathBlank.DieImmutable(false).DieFeed(r.Items[i])
+				fn(d)
+				r.Items[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := KeyToPathBlank.DieImmutable(false).DieFeed(corev1.KeyToPath{Key: v})
+		fn(d)
+		r.Items = append(r.Items, d.DieRelease())
+	})
+}
+
 // secretName is the name of the secret in the pod's namespace to use.
 //
 // More info: https://kubernetes.io/docs/concepts/storage/volumes#secret
@@ -42160,6 +44409,17 @@ func (d *ISCSIVolumeSourceDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *ISCSIVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// SecretRefDie mutates SecretRef as a die.
+//
+// secretRef is the CHAP Secret for iSCSI target and initiator authentication
+func (d *ISCSIVolumeSourceDie) SecretRefDie(fn func(d *LocalObjectReferenceDie)) *ISCSIVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.ISCSIVolumeSource) {
+		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
+		fn(d)
+		r.SecretRef = d.DieReleasePtr()
+	})
 }
 
 // targetPortal is iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port
@@ -42990,6 +45250,23 @@ func (d *RBDVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, error)
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SecretRefDie mutates SecretRef as a die.
+//
+// secretRef is name of the authentication secret for RBDUser. If provided
+//
+// overrides keyring.
+//
+// Default is nil.
+//
+// More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
+func (d *RBDVolumeSourceDie) SecretRefDie(fn func(d *LocalObjectReferenceDie)) *RBDVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.RBDVolumeSource) {
+		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
+		fn(d)
+		r.SecretRef = d.DieReleasePtr()
+	})
+}
+
 // monitors is a collection of Ceph monitors.
 //
 // More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
@@ -43308,6 +45585,25 @@ func (d *FlexVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SecretRefDie mutates SecretRef as a die.
+//
+// secretRef is Optional: secretRef is reference to the secret object containing
+//
+// sensitive information to pass to the plugin scripts. This may be
+//
+// empty if no secret object is specified. If the secret object
+//
+// contains more than one secret, all secrets are passed to the plugin
+//
+// scripts.
+func (d *FlexVolumeSourceDie) SecretRefDie(fn func(d *LocalObjectReferenceDie)) *FlexVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.FlexVolumeSource) {
+		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
+		fn(d)
+		r.SecretRef = d.DieReleasePtr()
+	})
+}
+
 // driver is the name of the driver to use for this volume.
 func (d *FlexVolumeSourceDie) Driver(v string) *FlexVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.FlexVolumeSource) {
@@ -43585,6 +45881,19 @@ func (d *CinderVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, err
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SecretRefDie mutates SecretRef as a die.
+//
+// secretRef is optional: points to a secret object containing parameters used to connect
+//
+// to OpenStack.
+func (d *CinderVolumeSourceDie) SecretRefDie(fn func(d *LocalObjectReferenceDie)) *CinderVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.CinderVolumeSource) {
+		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
+		fn(d)
+		r.SecretRef = d.DieReleasePtr()
+	})
+}
+
 // volumeID used to identify the volume in cinder.
 //
 // More info: https://examples.k8s.io/mysql-cinder-pd/README.md
@@ -43853,6 +46162,19 @@ func (d *CephFSVolumeSourceDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *CephFSVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// SecretRefDie mutates SecretRef as a die.
+//
+// secretRef is Optional: SecretRef is reference to the authentication secret for User, default is empty.
+//
+// More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
+func (d *CephFSVolumeSourceDie) SecretRefDie(fn func(d *LocalObjectReferenceDie)) *CephFSVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.CephFSVolumeSource) {
+		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
+		fn(d)
+		r.SecretRef = d.DieReleasePtr()
+	})
 }
 
 // monitors is Required: Monitors is a collection of Ceph monitors
@@ -44381,6 +46703,26 @@ func (d *DownwardAPIVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ItemDie mutates a single item in Items matched by the nested field Path, appending a new item if no match is found.
+//
+// Items is a list of downward API volume file
+func (d *DownwardAPIVolumeSourceDie) ItemDie(v string, fn func(d *DownwardAPIVolumeFileDie)) *DownwardAPIVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.DownwardAPIVolumeSource) {
+		for i := range r.Items {
+			if v == r.Items[i].Path {
+				d := DownwardAPIVolumeFileBlank.DieImmutable(false).DieFeed(r.Items[i])
+				fn(d)
+				r.Items[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := DownwardAPIVolumeFileBlank.DieImmutable(false).DieFeed(corev1.DownwardAPIVolumeFile{Path: v})
+		fn(d)
+		r.Items = append(r.Items, d.DieRelease())
+	})
+}
+
 // Items is a list of downward API volume file
 func (d *DownwardAPIVolumeSourceDie) Items(v ...corev1.DownwardAPIVolumeFile) *DownwardAPIVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeSource) {
@@ -44635,6 +46977,30 @@ func (d *DownwardAPIVolumeFileDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *DownwardAPIVolumeFileDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// FieldRefDie mutates FieldRef as a die.
+//
+// Required: Selects a field of the pod: only annotations, labels, name, namespace and uid are supported.
+func (d *DownwardAPIVolumeFileDie) FieldRefDie(fn func(d *ObjectFieldSelectorDie)) *DownwardAPIVolumeFileDie {
+	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
+		d := ObjectFieldSelectorBlank.DieImmutable(false).DieFeedPtr(r.FieldRef)
+		fn(d)
+		r.FieldRef = d.DieReleasePtr()
+	})
+}
+
+// ResourceFieldRefDie mutates ResourceFieldRef as a die.
+//
+// Selects a resource of the container: only resources limits and requests
+//
+// (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported.
+func (d *DownwardAPIVolumeFileDie) ResourceFieldRefDie(fn func(d *ResourceFieldSelectorDie)) *DownwardAPIVolumeFileDie {
+	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
+		d := ResourceFieldSelectorBlank.DieImmutable(false).DieFeedPtr(r.ResourceFieldRef)
+		fn(d)
+		r.ResourceFieldRef = d.DieReleasePtr()
+	})
 }
 
 // Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'
@@ -45427,6 +47793,38 @@ func (d *ConfigMapVolumeSourceDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *ConfigMapVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// ItemDie mutates a single item in Items matched by the nested field Key, appending a new item if no match is found.
+//
+// items if unspecified, each key-value pair in the Data field of the referenced
+//
+// # ConfigMap will be projected into the volume as a file whose name is the
+//
+// key and content is the value. If specified, the listed keys will be
+//
+// projected into the specified paths, and unlisted keys will not be
+//
+// present. If a key is specified which is not present in the ConfigMap,
+//
+// the volume setup will error unless it is marked optional. Paths must be
+//
+// relative and may not contain the '..' path or start with '..'.
+func (d *ConfigMapVolumeSourceDie) ItemDie(v string, fn func(d *KeyToPathDie)) *ConfigMapVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.ConfigMapVolumeSource) {
+		for i := range r.Items {
+			if v == r.Items[i].Key {
+				d := KeyToPathBlank.DieImmutable(false).DieFeed(r.Items[i])
+				fn(d)
+				r.Items[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := KeyToPathBlank.DieImmutable(false).DieFeed(corev1.KeyToPath{Key: v})
+		fn(d)
+		r.Items = append(r.Items, d.DieRelease())
+	})
 }
 
 func (d *ConfigMapVolumeSourceDie) LocalObjectReference(v corev1.LocalObjectReference) *ConfigMapVolumeSourceDie {
@@ -46772,6 +49170,18 @@ func (d *ProjectedVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SourcesDie replaces Sources by collecting the released value from each die passed.
+//
+// sources is the list of volume projections
+func (d *ProjectedVolumeSourceDie) SourcesDie(v ...*VolumeProjectionDie) *ProjectedVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.ProjectedVolumeSource) {
+		r.Sources = make([]corev1.VolumeProjection, len(v))
+		for i := range v {
+			r.Sources[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // sources is the list of volume projections
 func (d *ProjectedVolumeSourceDie) Sources(v ...corev1.VolumeProjection) *ProjectedVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ProjectedVolumeSource) {
@@ -47022,6 +49432,79 @@ func (d *VolumeProjectionDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *VolumeProjectionDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// SecretDie mutates Secret as a die.
+//
+// secret information about the secret data to project
+func (d *VolumeProjectionDie) SecretDie(fn func(d *SecretProjectionDie)) *VolumeProjectionDie {
+	return d.DieStamp(func(r *corev1.VolumeProjection) {
+		d := SecretProjectionBlank.DieImmutable(false).DieFeedPtr(r.Secret)
+		fn(d)
+		r.Secret = d.DieReleasePtr()
+	})
+}
+
+// DownwardAPIDie mutates DownwardAPI as a die.
+//
+// downwardAPI information about the downwardAPI data to project
+func (d *VolumeProjectionDie) DownwardAPIDie(fn func(d *DownwardAPIProjectionDie)) *VolumeProjectionDie {
+	return d.DieStamp(func(r *corev1.VolumeProjection) {
+		d := DownwardAPIProjectionBlank.DieImmutable(false).DieFeedPtr(r.DownwardAPI)
+		fn(d)
+		r.DownwardAPI = d.DieReleasePtr()
+	})
+}
+
+// ConfigMapDie mutates ConfigMap as a die.
+//
+// configMap information about the configMap data to project
+func (d *VolumeProjectionDie) ConfigMapDie(fn func(d *ConfigMapProjectionDie)) *VolumeProjectionDie {
+	return d.DieStamp(func(r *corev1.VolumeProjection) {
+		d := ConfigMapProjectionBlank.DieImmutable(false).DieFeedPtr(r.ConfigMap)
+		fn(d)
+		r.ConfigMap = d.DieReleasePtr()
+	})
+}
+
+// ServiceAccountTokenDie mutates ServiceAccountToken as a die.
+//
+// serviceAccountToken is information about the serviceAccountToken data to project
+func (d *VolumeProjectionDie) ServiceAccountTokenDie(fn func(d *ServiceAccountTokenProjectionDie)) *VolumeProjectionDie {
+	return d.DieStamp(func(r *corev1.VolumeProjection) {
+		d := ServiceAccountTokenProjectionBlank.DieImmutable(false).DieFeedPtr(r.ServiceAccountToken)
+		fn(d)
+		r.ServiceAccountToken = d.DieReleasePtr()
+	})
+}
+
+// ClusterTrustBundleDie mutates ClusterTrustBundle as a die.
+//
+// # ClusterTrustBundle allows a pod to access the `.spec.trustBundle` field
+//
+// of ClusterTrustBundle objects in an auto-updating file.
+//
+// Alpha, gated by the ClusterTrustBundleProjection feature gate.
+//
+// # ClusterTrustBundle objects can either be selected by name, or by the
+//
+// combination of signer name and a label selector.
+//
+// # Kubelet performs aggressive normalization of the PEM contents written
+//
+// into the pod filesystem.  Esoteric PEM features such as inter-block
+//
+// comments and block headers are stripped.  Certificates are deduplicated.
+//
+// # The ordering of certificates within the file is arbitrary, and Kubelet
+//
+// may change the order over time.
+func (d *VolumeProjectionDie) ClusterTrustBundleDie(fn func(d *ClusterTrustBundleProjectionDie)) *VolumeProjectionDie {
+	return d.DieStamp(func(r *corev1.VolumeProjection) {
+		d := ClusterTrustBundleProjectionBlank.DieImmutable(false).DieFeedPtr(r.ClusterTrustBundle)
+		fn(d)
+		r.ClusterTrustBundle = d.DieReleasePtr()
+	})
 }
 
 // secret information about the secret data to project
@@ -47305,6 +49788,38 @@ func (d *SecretProjectionDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ItemDie mutates a single item in Items matched by the nested field Key, appending a new item if no match is found.
+//
+// items if unspecified, each key-value pair in the Data field of the referenced
+//
+// # Secret will be projected into the volume as a file whose name is the
+//
+// key and content is the value. If specified, the listed keys will be
+//
+// projected into the specified paths, and unlisted keys will not be
+//
+// present. If a key is specified which is not present in the Secret,
+//
+// the volume setup will error unless it is marked optional. Paths must be
+//
+// relative and may not contain the '..' path or start with '..'.
+func (d *SecretProjectionDie) ItemDie(v string, fn func(d *KeyToPathDie)) *SecretProjectionDie {
+	return d.DieStamp(func(r *corev1.SecretProjection) {
+		for i := range r.Items {
+			if v == r.Items[i].Key {
+				d := KeyToPathBlank.DieImmutable(false).DieFeed(r.Items[i])
+				fn(d)
+				r.Items[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := KeyToPathBlank.DieImmutable(false).DieFeed(corev1.KeyToPath{Key: v})
+		fn(d)
+		r.Items = append(r.Items, d.DieRelease())
+	})
+}
+
 func (d *SecretProjectionDie) LocalObjectReference(v corev1.LocalObjectReference) *SecretProjectionDie {
 	return d.DieStamp(func(r *corev1.SecretProjection) {
 		r.LocalObjectReference = v
@@ -47565,6 +50080,26 @@ func (d *DownwardAPIProjectionDie) DiePatch(patchType types.PatchType) ([]byte, 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ItemDie mutates a single item in Items matched by the nested field Path, appending a new item if no match is found.
+//
+// Items is a list of DownwardAPIVolume file
+func (d *DownwardAPIProjectionDie) ItemDie(v string, fn func(d *DownwardAPIVolumeFileDie)) *DownwardAPIProjectionDie {
+	return d.DieStamp(func(r *corev1.DownwardAPIProjection) {
+		for i := range r.Items {
+			if v == r.Items[i].Path {
+				d := DownwardAPIVolumeFileBlank.DieImmutable(false).DieFeed(r.Items[i])
+				fn(d)
+				r.Items[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := DownwardAPIVolumeFileBlank.DieImmutable(false).DieFeed(corev1.DownwardAPIVolumeFile{Path: v})
+		fn(d)
+		r.Items = append(r.Items, d.DieRelease())
+	})
+}
+
 // Items is a list of DownwardAPIVolume file
 func (d *DownwardAPIProjectionDie) Items(v ...corev1.DownwardAPIVolumeFile) *DownwardAPIProjectionDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIProjection) {
@@ -47798,6 +50333,38 @@ func (d *ConfigMapProjectionDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *ConfigMapProjectionDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// ItemDie mutates a single item in Items matched by the nested field Key, appending a new item if no match is found.
+//
+// items if unspecified, each key-value pair in the Data field of the referenced
+//
+// # ConfigMap will be projected into the volume as a file whose name is the
+//
+// key and content is the value. If specified, the listed keys will be
+//
+// projected into the specified paths, and unlisted keys will not be
+//
+// present. If a key is specified which is not present in the ConfigMap,
+//
+// the volume setup will error unless it is marked optional. Paths must be
+//
+// relative and may not contain the '..' path or start with '..'.
+func (d *ConfigMapProjectionDie) ItemDie(v string, fn func(d *KeyToPathDie)) *ConfigMapProjectionDie {
+	return d.DieStamp(func(r *corev1.ConfigMapProjection) {
+		for i := range r.Items {
+			if v == r.Items[i].Key {
+				d := KeyToPathBlank.DieImmutable(false).DieFeed(r.Items[i])
+				fn(d)
+				r.Items[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := KeyToPathBlank.DieImmutable(false).DieFeed(corev1.KeyToPath{Key: v})
+		fn(d)
+		r.Items = append(r.Items, d.DieRelease())
+	})
 }
 
 func (d *ConfigMapProjectionDie) LocalObjectReference(v corev1.LocalObjectReference) *ConfigMapProjectionDie {
@@ -48325,6 +50892,23 @@ func (d *ClusterTrustBundleProjectionDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *ClusterTrustBundleProjectionDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// LabelSelectorDie mutates LabelSelector as a die.
+//
+// Select all ClusterTrustBundles that match this label selector.  Only has
+//
+// effect if signerName is set.  Mutually-exclusive with name.  If unset,
+//
+// interpreted as "match nothing".  If set but empty, interpreted as "match
+//
+// everything".
+func (d *ClusterTrustBundleProjectionDie) LabelSelectorDie(fn func(d *metav1.LabelSelectorDie)) *ClusterTrustBundleProjectionDie {
+	return d.DieStamp(func(r *corev1.ClusterTrustBundleProjection) {
+		d := metav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.LabelSelector)
+		fn(d)
+		r.LabelSelector = d.DieReleasePtr()
+	})
 }
 
 // Select a single ClusterTrustBundle by object name.  Mutually-exclusive
@@ -48865,6 +51449,19 @@ func (d *ScaleIOVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, er
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SecretRefDie mutates SecretRef as a die.
+//
+// secretRef references to the secret for ScaleIO user and other
+//
+// sensitive information. If this is not provided, Login operation will fail.
+func (d *ScaleIOVolumeSourceDie) SecretRefDie(fn func(d *LocalObjectReferenceDie)) *ScaleIOVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.ScaleIOVolumeSource) {
+		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
+		fn(d)
+		r.SecretRef = d.DieReleasePtr()
+	})
+}
+
 // gateway is the host address of the ScaleIO API Gateway.
 func (d *ScaleIOVolumeSourceDie) Gateway(v string) *ScaleIOVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ScaleIOVolumeSource) {
@@ -49177,6 +51774,19 @@ func (d *StorageOSVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SecretRefDie mutates SecretRef as a die.
+//
+// secretRef specifies the secret to use for obtaining the StorageOS API
+//
+// credentials.  If not specified, default values will be attempted.
+func (d *StorageOSVolumeSourceDie) SecretRefDie(fn func(d *LocalObjectReferenceDie)) *StorageOSVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.StorageOSVolumeSource) {
+		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.SecretRef)
+		fn(d)
+		r.SecretRef = d.DieReleasePtr()
+	})
+}
+
 // volumeName is the human-readable name of the StorageOS volume.  Volume
 //
 // names are only unique within a namespace.
@@ -49460,6 +52070,25 @@ func (d *CSIVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, error)
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// NodePublishSecretRefDie mutates NodePublishSecretRef as a die.
+//
+// nodePublishSecretRef is a reference to the secret object containing
+//
+// sensitive information to pass to the CSI driver to complete the CSI
+//
+// NodePublishVolume and NodeUnpublishVolume calls.
+//
+// This field is optional, and  may be empty if no secret is required. If the
+//
+// secret object contains more than one secret, all secret references are passed.
+func (d *CSIVolumeSourceDie) NodePublishSecretRefDie(fn func(d *LocalObjectReferenceDie)) *CSIVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.CSIVolumeSource) {
+		d := LocalObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.NodePublishSecretRef)
+		fn(d)
+		r.NodePublishSecretRef = d.DieReleasePtr()
+	})
+}
+
 // driver is the name of the CSI driver that handles this volume.
 //
 // Consult with your admin for the correct name as registered in the cluster.
@@ -49739,6 +52368,51 @@ func (d *EphemeralVolumeSourceDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *EphemeralVolumeSourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// VolumeClaimTemplateDie mutates VolumeClaimTemplate as a die.
+//
+// Will be used to create a stand-alone PVC to provision the volume.
+//
+// # The pod in which this EphemeralVolumeSource is embedded will be the
+//
+// owner of the PVC, i.e. the PVC will be deleted together with the
+//
+// pod.  The name of the PVC will be `<pod name>-<volume name>` where
+//
+// `<volume name>` is the name from the `PodSpec.Volumes` array
+//
+// entry. Pod validation will reject the pod if the concatenated name
+//
+// is not valid for a PVC (for example, too long).
+//
+// # An existing PVC with that name that is not owned by the pod
+//
+// will *not* be used for the pod to avoid using an unrelated
+//
+// volume by mistake. Starting the pod is then blocked until
+//
+// the unrelated PVC is removed. If such a pre-created PVC is
+//
+// meant to be used by the pod, the PVC has to updated with an
+//
+// owner reference to the pod once the pod exists. Normally
+//
+// this should not be necessary, but it may be useful when
+//
+// manually reconstructing a broken cluster.
+//
+// # This field is read-only and no changes will be made by Kubernetes
+//
+// to the PVC after it has been created.
+//
+// Required, must not be nil.
+func (d *EphemeralVolumeSourceDie) VolumeClaimTemplateDie(fn func(d *PersistentVolumeClaimTemplateDie)) *EphemeralVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.EphemeralVolumeSource) {
+		d := PersistentVolumeClaimTemplateBlank.DieImmutable(false).DieFeedPtr(r.VolumeClaimTemplate)
+		fn(d)
+		r.VolumeClaimTemplate = d.DieReleasePtr()
+	})
 }
 
 // Will be used to create a stand-alone PVC to provision the volume.

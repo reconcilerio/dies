@@ -21,39 +21,11 @@ import (
 )
 
 // +die:object=true,apiVersion=v1,kind=Event
+// +die:field:name=InvolvedObject,die=ObjectReferenceDie
+// +die:field:name=Source,die=EventSourceDie
+// +die:field:name=Series,die=EventSeriesDie,pointer=true
+// +die:field:name=Related,die=ObjectReferenceDie,pointer=true
 type _ = corev1.Event
-
-func (d *EventDie) InvolvedObjectDie(fn func(d *ObjectReferenceDie)) *EventDie {
-	return d.DieStamp(func(r *corev1.Event) {
-		d := ObjectReferenceBlank.DieImmutable(false).DieFeed(r.InvolvedObject)
-		fn(d)
-		r.InvolvedObject = d.DieRelease()
-	})
-}
-
-func (d *EventDie) SourceDie(fn func(d *EventSourceDie)) *EventDie {
-	return d.DieStamp(func(r *corev1.Event) {
-		d := EventSourceBlank.DieImmutable(false).DieFeed(r.Source)
-		fn(d)
-		r.Source = d.DieRelease()
-	})
-}
-
-func (d *EventDie) SeriesDie(fn func(d *EventSeriesDie)) *EventDie {
-	return d.DieStamp(func(r *corev1.Event) {
-		d := EventSeriesBlank.DieImmutable(false).DieFeedPtr(r.Series)
-		fn(d)
-		r.Series = d.DieReleasePtr()
-	})
-}
-
-func (d *EventDie) RelatedDie(fn func(d *ObjectReferenceDie)) *EventDie {
-	return d.DieStamp(func(r *corev1.Event) {
-		d := ObjectReferenceBlank.DieImmutable(false).DieFeedPtr(r.Related)
-		fn(d)
-		r.Related = d.DieReleasePtr()
-	})
-}
 
 // +die
 type _ = corev1.EventSource

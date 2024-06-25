@@ -19,7 +19,6 @@ package v1
 import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	diecorev1 "reconciler.io/dies/apis/core/v1"
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
@@ -27,31 +26,10 @@ import (
 type _ = appsv1.Deployment
 
 // +die
+// +die:field:name=Selector,package=_/meta/v1,die=LabelSelectorDie,pointer=true
+// +die:field:name=Template,package=_/core/v1,die=PodTemplateSpecDie
+// +die:field:name=Strategy,die=DeploymentStrategyDie
 type _ = appsv1.DeploymentSpec
-
-func (d *DeploymentSpecDie) SelectorDie(fn func(d *diemetav1.LabelSelectorDie)) *DeploymentSpecDie {
-	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
-		d := diemetav1.LabelSelectorBlank.DieImmutable(false).DieFeedPtr(r.Selector)
-		fn(d)
-		r.Selector = d.DieReleasePtr()
-	})
-}
-
-func (d *DeploymentSpecDie) TemplateDie(fn func(d *diecorev1.PodTemplateSpecDie)) *DeploymentSpecDie {
-	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
-		d := diecorev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
-		fn(d)
-		r.Template = d.DieRelease()
-	})
-}
-
-func (d *DeploymentSpecDie) StrategyDie(fn func(d *DeploymentStrategyDie)) *DeploymentSpecDie {
-	return d.DieStamp(func(r *appsv1.DeploymentSpec) {
-		d := DeploymentStrategyBlank.DieImmutable(false).DieFeed(r.Strategy)
-		fn(d)
-		r.Strategy = d.DieRelease()
-	})
-}
 
 // +die
 type _ = appsv1.DeploymentStrategy

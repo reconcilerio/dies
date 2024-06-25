@@ -362,6 +362,33 @@ func (d *ClusterRoleDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *ClusterR
 	})
 }
 
+// AggregationRuleDie mutates AggregationRule as a die.
+//
+// AggregationRule is an optional field that describes how to build the Rules for this ClusterRole.
+//
+// # If AggregationRule is set, then the Rules are controller managed and direct changes to Rules will be
+//
+// stomped by the controller.
+func (d *ClusterRoleDie) AggregationRuleDie(fn func(d *AggregationRuleDie)) *ClusterRoleDie {
+	return d.DieStamp(func(r *rbacv1.ClusterRole) {
+		d := AggregationRuleBlank.DieImmutable(false).DieFeedPtr(r.AggregationRule)
+		fn(d)
+		r.AggregationRule = d.DieReleasePtr()
+	})
+}
+
+// RulesDie replaces Rules by collecting the released value from each die passed.
+//
+// Rules holds all the PolicyRules for this ClusterRole
+func (d *ClusterRoleDie) RulesDie(v ...*PolicyRuleDie) *ClusterRoleDie {
+	return d.DieStamp(func(r *rbacv1.ClusterRole) {
+		r.Rules = make([]rbacv1.PolicyRule, len(v))
+		for i := range v {
+			r.Rules[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // Rules holds all the PolicyRules for this ClusterRole
 func (d *ClusterRoleDie) Rules(v ...rbacv1.PolicyRule) *ClusterRoleDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRole) {
@@ -606,6 +633,20 @@ func (d *AggregationRuleDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *AggregationRuleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+// ClusterRoleSelectorsDie replaces ClusterRoleSelectors by collecting the released value from each die passed.
+//
+// ClusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules.
+//
+// If any of the selectors match, then the ClusterRole's permissions will be added
+func (d *AggregationRuleDie) ClusterRoleSelectorsDie(v ...*metav1.LabelSelectorDie) *AggregationRuleDie {
+	return d.DieStamp(func(r *rbacv1.AggregationRule) {
+		r.ClusterRoleSelectors = make([]apismetav1.LabelSelector, len(v))
+		for i := range v {
+			r.ClusterRoleSelectors[i] = v[i].DieRelease()
+		}
+	})
 }
 
 // ClusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules.
@@ -937,6 +978,33 @@ func (d *ClusterRoleBindingDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *C
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
 		r.ObjectMeta = d.DieRelease()
+	})
+}
+
+// RoleRefDie mutates RoleRef as a die.
+//
+// RoleRef can only reference a ClusterRole in the global namespace.
+//
+// If the RoleRef cannot be resolved, the Authorizer must return an error.
+//
+// This field is immutable.
+func (d *ClusterRoleBindingDie) RoleRefDie(fn func(d *RoleRefDie)) *ClusterRoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
+		d := RoleRefBlank.DieImmutable(false).DieFeed(r.RoleRef)
+		fn(d)
+		r.RoleRef = d.DieRelease()
+	})
+}
+
+// SubjectsDie replaces Subjects by collecting the released value from each die passed.
+//
+// Subjects holds references to the objects the role applies to.
+func (d *ClusterRoleBindingDie) SubjectsDie(v ...*SubjectDie) *ClusterRoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
+		r.Subjects = make([]rbacv1.Subject, len(v))
+		for i := range v {
+			r.Subjects[i] = v[i].DieRelease()
+		}
 	})
 }
 
@@ -1278,6 +1346,18 @@ func (d *RoleDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *RoleDie {
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
 		r.ObjectMeta = d.DieRelease()
+	})
+}
+
+// RulesDie replaces Rules by collecting the released value from each die passed.
+//
+// Rules holds all the PolicyRules for this Role
+func (d *RoleDie) RulesDie(v ...*PolicyRuleDie) *RoleDie {
+	return d.DieStamp(func(r *rbacv1.Role) {
+		r.Rules = make([]rbacv1.PolicyRule, len(v))
+		for i := range v {
+			r.Rules[i] = v[i].DieRelease()
+		}
 	})
 }
 
@@ -1877,6 +1957,33 @@ func (d *RoleBindingDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *RoleBind
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
 		r.ObjectMeta = d.DieRelease()
+	})
+}
+
+// RoleRefDie mutates RoleRef as a die.
+//
+// RoleRef can reference a Role in the current namespace or a ClusterRole in the global namespace.
+//
+// If the RoleRef cannot be resolved, the Authorizer must return an error.
+//
+// This field is immutable.
+func (d *RoleBindingDie) RoleRefDie(fn func(d *RoleRefDie)) *RoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.RoleBinding) {
+		d := RoleRefBlank.DieImmutable(false).DieFeed(r.RoleRef)
+		fn(d)
+		r.RoleRef = d.DieRelease()
+	})
+}
+
+// SubjectsDie replaces Subjects by collecting the released value from each die passed.
+//
+// Subjects holds references to the objects the role applies to.
+func (d *RoleBindingDie) SubjectsDie(v ...*SubjectDie) *RoleBindingDie {
+	return d.DieStamp(func(r *rbacv1.RoleBinding) {
+		r.Subjects = make([]rbacv1.Subject, len(v))
+		for i := range v {
+			r.Subjects[i] = v[i].DieRelease()
+		}
 	})
 }
 

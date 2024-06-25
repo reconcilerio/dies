@@ -999,6 +999,40 @@ func (d *PodDisruptionBudgetStatusDie) DiePatch(patchType types.PatchType) ([]by
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// ConditionsDie replaces Conditions by collecting the released value from each die passed.
+//
+// Conditions contain conditions for PDB. The disruption controller sets the
+//
+// DisruptionAllowed condition. The following are known values for the reason field
+//
+// (additional reasons could be added in the future):
+//
+// - SyncFailed: The controller encountered an error and wasn't able to compute
+//
+// the number of allowed disruptions. Therefore no disruptions are
+//
+// allowed and the status of the condition will be False.
+//
+// - InsufficientPods: The number of pods are either at or below the number
+//
+// required by the PodDisruptionBudget. No disruptions are
+//
+// allowed and the status of the condition will be False.
+//
+// - SufficientPods: There are more pods than required by the PodDisruptionBudget.
+//
+// # The condition will be True, and the number of allowed
+//
+// disruptions are provided by the disruptionsAllowed property.
+func (d *PodDisruptionBudgetStatusDie) ConditionsDie(v ...*metav1.ConditionDie) *PodDisruptionBudgetStatusDie {
+	return d.DieStamp(func(r *policyv1.PodDisruptionBudgetStatus) {
+		r.Conditions = make([]apismetav1.Condition, len(v))
+		for i := range v {
+			r.Conditions[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // Most recent generation observed when updating this PDB status. DisruptionsAllowed and other
 //
 // status information is valid only if observedGeneration equals to PDB's object generation.
