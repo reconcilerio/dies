@@ -2921,6 +2921,520 @@ func (d *LabelSelectorDie) MatchExpressions(v ...metav1.LabelSelectorRequirement
 	})
 }
 
+var LabelSelectorRequirementBlank = (&LabelSelectorRequirementDie{}).DieFeed(metav1.LabelSelectorRequirement{})
+
+type LabelSelectorRequirementDie struct {
+	mutable bool
+	r       metav1.LabelSelectorRequirement
+	seal    metav1.LabelSelectorRequirement
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *LabelSelectorRequirementDie) DieImmutable(immutable bool) *LabelSelectorRequirementDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *LabelSelectorRequirementDie) DieFeed(r metav1.LabelSelectorRequirement) *LabelSelectorRequirementDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &LabelSelectorRequirementDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *LabelSelectorRequirementDie) DieFeedPtr(r *metav1.LabelSelectorRequirement) *LabelSelectorRequirementDie {
+	if r == nil {
+		r = &metav1.LabelSelectorRequirement{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *LabelSelectorRequirementDie) DieFeedJSON(j []byte) *LabelSelectorRequirementDie {
+	r := metav1.LabelSelectorRequirement{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *LabelSelectorRequirementDie) DieFeedYAML(y []byte) *LabelSelectorRequirementDie {
+	r := metav1.LabelSelectorRequirement{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *LabelSelectorRequirementDie) DieFeedYAMLFile(name string) *LabelSelectorRequirementDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *LabelSelectorRequirementDie) DieFeedRawExtension(raw runtime.RawExtension) *LabelSelectorRequirementDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *LabelSelectorRequirementDie) DieRelease() metav1.LabelSelectorRequirement {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *LabelSelectorRequirementDie) DieReleasePtr() *metav1.LabelSelectorRequirement {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *LabelSelectorRequirementDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *LabelSelectorRequirementDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *LabelSelectorRequirementDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *LabelSelectorRequirementDie) DieStamp(fn func(r *metav1.LabelSelectorRequirement)) *LabelSelectorRequirementDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *LabelSelectorRequirementDie) DieStampAt(jp string, fn interface{}) *LabelSelectorRequirementDie {
+	return d.DieStamp(func(r *metav1.LabelSelectorRequirement) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *LabelSelectorRequirementDie) DieWith(fns ...func(d *LabelSelectorRequirementDie)) *LabelSelectorRequirementDie {
+	nd := LabelSelectorRequirementBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *LabelSelectorRequirementDie) DeepCopy() *LabelSelectorRequirementDie {
+	r := *d.r.DeepCopy()
+	return &LabelSelectorRequirementDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *LabelSelectorRequirementDie) DieSeal() *LabelSelectorRequirementDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *LabelSelectorRequirementDie) DieSealFeed(r metav1.LabelSelectorRequirement) *LabelSelectorRequirementDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *LabelSelectorRequirementDie) DieSealFeedPtr(r *metav1.LabelSelectorRequirement) *LabelSelectorRequirementDie {
+	if r == nil {
+		r = &metav1.LabelSelectorRequirement{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *LabelSelectorRequirementDie) DieSealRelease() metav1.LabelSelectorRequirement {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *LabelSelectorRequirementDie) DieSealReleasePtr() *metav1.LabelSelectorRequirement {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *LabelSelectorRequirementDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *LabelSelectorRequirementDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// key is the label key that the selector applies to.
+func (d *LabelSelectorRequirementDie) Key(v string) *LabelSelectorRequirementDie {
+	return d.DieStamp(func(r *metav1.LabelSelectorRequirement) {
+		r.Key = v
+	})
+}
+
+// operator represents a key's relationship to a set of values.
+//
+// Valid operators are In, NotIn, Exists and DoesNotExist.
+func (d *LabelSelectorRequirementDie) Operator(v metav1.LabelSelectorOperator) *LabelSelectorRequirementDie {
+	return d.DieStamp(func(r *metav1.LabelSelectorRequirement) {
+		r.Operator = v
+	})
+}
+
+// values is an array of string values. If the operator is In or NotIn,
+//
+// the values array must be non-empty. If the operator is Exists or DoesNotExist,
+//
+// the values array must be empty. This array is replaced during a strategic
+//
+// merge patch.
+func (d *LabelSelectorRequirementDie) Values(v ...string) *LabelSelectorRequirementDie {
+	return d.DieStamp(func(r *metav1.LabelSelectorRequirement) {
+		r.Values = v
+	})
+}
+
+var FieldSelectorRequirementBlank = (&FieldSelectorRequirementDie{}).DieFeed(metav1.FieldSelectorRequirement{})
+
+type FieldSelectorRequirementDie struct {
+	mutable bool
+	r       metav1.FieldSelectorRequirement
+	seal    metav1.FieldSelectorRequirement
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *FieldSelectorRequirementDie) DieImmutable(immutable bool) *FieldSelectorRequirementDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *FieldSelectorRequirementDie) DieFeed(r metav1.FieldSelectorRequirement) *FieldSelectorRequirementDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &FieldSelectorRequirementDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *FieldSelectorRequirementDie) DieFeedPtr(r *metav1.FieldSelectorRequirement) *FieldSelectorRequirementDie {
+	if r == nil {
+		r = &metav1.FieldSelectorRequirement{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *FieldSelectorRequirementDie) DieFeedJSON(j []byte) *FieldSelectorRequirementDie {
+	r := metav1.FieldSelectorRequirement{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *FieldSelectorRequirementDie) DieFeedYAML(y []byte) *FieldSelectorRequirementDie {
+	r := metav1.FieldSelectorRequirement{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *FieldSelectorRequirementDie) DieFeedYAMLFile(name string) *FieldSelectorRequirementDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *FieldSelectorRequirementDie) DieFeedRawExtension(raw runtime.RawExtension) *FieldSelectorRequirementDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *FieldSelectorRequirementDie) DieRelease() metav1.FieldSelectorRequirement {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *FieldSelectorRequirementDie) DieReleasePtr() *metav1.FieldSelectorRequirement {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *FieldSelectorRequirementDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *FieldSelectorRequirementDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *FieldSelectorRequirementDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *FieldSelectorRequirementDie) DieStamp(fn func(r *metav1.FieldSelectorRequirement)) *FieldSelectorRequirementDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *FieldSelectorRequirementDie) DieStampAt(jp string, fn interface{}) *FieldSelectorRequirementDie {
+	return d.DieStamp(func(r *metav1.FieldSelectorRequirement) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *FieldSelectorRequirementDie) DieWith(fns ...func(d *FieldSelectorRequirementDie)) *FieldSelectorRequirementDie {
+	nd := FieldSelectorRequirementBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *FieldSelectorRequirementDie) DeepCopy() *FieldSelectorRequirementDie {
+	r := *d.r.DeepCopy()
+	return &FieldSelectorRequirementDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *FieldSelectorRequirementDie) DieSeal() *FieldSelectorRequirementDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *FieldSelectorRequirementDie) DieSealFeed(r metav1.FieldSelectorRequirement) *FieldSelectorRequirementDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *FieldSelectorRequirementDie) DieSealFeedPtr(r *metav1.FieldSelectorRequirement) *FieldSelectorRequirementDie {
+	if r == nil {
+		r = &metav1.FieldSelectorRequirement{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *FieldSelectorRequirementDie) DieSealRelease() metav1.FieldSelectorRequirement {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *FieldSelectorRequirementDie) DieSealReleasePtr() *metav1.FieldSelectorRequirement {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *FieldSelectorRequirementDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *FieldSelectorRequirementDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// key is the field selector key that the requirement applies to.
+func (d *FieldSelectorRequirementDie) Key(v string) *FieldSelectorRequirementDie {
+	return d.DieStamp(func(r *metav1.FieldSelectorRequirement) {
+		r.Key = v
+	})
+}
+
+// operator represents a key's relationship to a set of values.
+//
+// Valid operators are In, NotIn, Exists, DoesNotExist.
+//
+// The list of operators may grow in the future.
+func (d *FieldSelectorRequirementDie) Operator(v metav1.FieldSelectorOperator) *FieldSelectorRequirementDie {
+	return d.DieStamp(func(r *metav1.FieldSelectorRequirement) {
+		r.Operator = v
+	})
+}
+
+// values is an array of string values.
+//
+// If the operator is In or NotIn, the values array must be non-empty.
+//
+// If the operator is Exists or DoesNotExist, the values array must be empty.
+func (d *FieldSelectorRequirementDie) Values(v ...string) *FieldSelectorRequirementDie {
+	return d.DieStamp(func(r *metav1.FieldSelectorRequirement) {
+		r.Values = v
+	})
+}
+
 var StatusBlank = (&StatusDie{}).DieFeed(metav1.Status{})
 
 type StatusDie struct {

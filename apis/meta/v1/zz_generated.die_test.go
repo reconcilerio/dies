@@ -116,6 +116,24 @@ func TestLabelSelectorDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestLabelSelectorRequirementDie_MissingMethods(t *testingx.T) {
+	die := LabelSelectorRequirementBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for LabelSelectorRequirementDie: %s", diff.List())
+	}
+}
+
+func TestFieldSelectorRequirementDie_MissingMethods(t *testingx.T) {
+	die := FieldSelectorRequirementBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for FieldSelectorRequirementDie: %s", diff.List())
+	}
+}
+
 func TestStatusDie_MissingMethods(t *testingx.T) {
 	die := StatusBlank
 	ignore := []string{}

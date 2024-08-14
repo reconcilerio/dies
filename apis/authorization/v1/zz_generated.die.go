@@ -3255,6 +3255,36 @@ func (d *ResourceAttributesDie) DiePatch(patchType types.PatchType) ([]byte, err
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// FieldSelectorDie mutates FieldSelector as a die.
+//
+// fieldSelector describes the limitation on access based on field.  It can only limit access, not broaden it.
+//
+// This field  is alpha-level. To use this field, you must enable the
+//
+// `AuthorizeWithSelectors` feature gate (disabled by default).
+func (d *ResourceAttributesDie) FieldSelectorDie(fn func(d *FieldSelectorAttributesDie)) *ResourceAttributesDie {
+	return d.DieStamp(func(r *authorizationv1.ResourceAttributes) {
+		d := FieldSelectorAttributesBlank.DieImmutable(false).DieFeedPtr(r.FieldSelector)
+		fn(d)
+		r.FieldSelector = d.DieReleasePtr()
+	})
+}
+
+// LabelSelectorDie mutates LabelSelector as a die.
+//
+// labelSelector describes the limitation on access based on labels.  It can only limit access, not broaden it.
+//
+// This field  is alpha-level. To use this field, you must enable the
+//
+// `AuthorizeWithSelectors` feature gate (disabled by default).
+func (d *ResourceAttributesDie) LabelSelectorDie(fn func(d *LabelSelectorAttributesDie)) *ResourceAttributesDie {
+	return d.DieStamp(func(r *authorizationv1.ResourceAttributes) {
+		d := LabelSelectorAttributesBlank.DieImmutable(false).DieFeedPtr(r.LabelSelector)
+		fn(d)
+		r.LabelSelector = d.DieReleasePtr()
+	})
+}
+
 // Namespace is the namespace of the action being requested.  Currently, there is no distinction between no namespace and all namespaces
 //
 // "" (empty) is defaulted for LocalSubjectAccessReviews
@@ -3307,6 +3337,28 @@ func (d *ResourceAttributesDie) Subresource(v string) *ResourceAttributesDie {
 func (d *ResourceAttributesDie) Name(v string) *ResourceAttributesDie {
 	return d.DieStamp(func(r *authorizationv1.ResourceAttributes) {
 		r.Name = v
+	})
+}
+
+// fieldSelector describes the limitation on access based on field.  It can only limit access, not broaden it.
+//
+// This field  is alpha-level. To use this field, you must enable the
+//
+// `AuthorizeWithSelectors` feature gate (disabled by default).
+func (d *ResourceAttributesDie) FieldSelector(v *authorizationv1.FieldSelectorAttributes) *ResourceAttributesDie {
+	return d.DieStamp(func(r *authorizationv1.ResourceAttributes) {
+		r.FieldSelector = v
+	})
+}
+
+// labelSelector describes the limitation on access based on labels.  It can only limit access, not broaden it.
+//
+// This field  is alpha-level. To use this field, you must enable the
+//
+// `AuthorizeWithSelectors` feature gate (disabled by default).
+func (d *ResourceAttributesDie) LabelSelector(v *authorizationv1.LabelSelectorAttributes) *ResourceAttributesDie {
+	return d.DieStamp(func(r *authorizationv1.ResourceAttributes) {
+		r.LabelSelector = v
 	})
 }
 
@@ -3815,5 +3867,553 @@ func (d *SubjectAccessReviewStatusDie) Reason(v string) *SubjectAccessReviewStat
 func (d *SubjectAccessReviewStatusDie) EvaluationError(v string) *SubjectAccessReviewStatusDie {
 	return d.DieStamp(func(r *authorizationv1.SubjectAccessReviewStatus) {
 		r.EvaluationError = v
+	})
+}
+
+var FieldSelectorAttributesBlank = (&FieldSelectorAttributesDie{}).DieFeed(authorizationv1.FieldSelectorAttributes{})
+
+type FieldSelectorAttributesDie struct {
+	mutable bool
+	r       authorizationv1.FieldSelectorAttributes
+	seal    authorizationv1.FieldSelectorAttributes
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *FieldSelectorAttributesDie) DieImmutable(immutable bool) *FieldSelectorAttributesDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *FieldSelectorAttributesDie) DieFeed(r authorizationv1.FieldSelectorAttributes) *FieldSelectorAttributesDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &FieldSelectorAttributesDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *FieldSelectorAttributesDie) DieFeedPtr(r *authorizationv1.FieldSelectorAttributes) *FieldSelectorAttributesDie {
+	if r == nil {
+		r = &authorizationv1.FieldSelectorAttributes{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *FieldSelectorAttributesDie) DieFeedJSON(j []byte) *FieldSelectorAttributesDie {
+	r := authorizationv1.FieldSelectorAttributes{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *FieldSelectorAttributesDie) DieFeedYAML(y []byte) *FieldSelectorAttributesDie {
+	r := authorizationv1.FieldSelectorAttributes{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *FieldSelectorAttributesDie) DieFeedYAMLFile(name string) *FieldSelectorAttributesDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *FieldSelectorAttributesDie) DieFeedRawExtension(raw runtime.RawExtension) *FieldSelectorAttributesDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *FieldSelectorAttributesDie) DieRelease() authorizationv1.FieldSelectorAttributes {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *FieldSelectorAttributesDie) DieReleasePtr() *authorizationv1.FieldSelectorAttributes {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *FieldSelectorAttributesDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *FieldSelectorAttributesDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *FieldSelectorAttributesDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *FieldSelectorAttributesDie) DieStamp(fn func(r *authorizationv1.FieldSelectorAttributes)) *FieldSelectorAttributesDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *FieldSelectorAttributesDie) DieStampAt(jp string, fn interface{}) *FieldSelectorAttributesDie {
+	return d.DieStamp(func(r *authorizationv1.FieldSelectorAttributes) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *FieldSelectorAttributesDie) DieWith(fns ...func(d *FieldSelectorAttributesDie)) *FieldSelectorAttributesDie {
+	nd := FieldSelectorAttributesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *FieldSelectorAttributesDie) DeepCopy() *FieldSelectorAttributesDie {
+	r := *d.r.DeepCopy()
+	return &FieldSelectorAttributesDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *FieldSelectorAttributesDie) DieSeal() *FieldSelectorAttributesDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *FieldSelectorAttributesDie) DieSealFeed(r authorizationv1.FieldSelectorAttributes) *FieldSelectorAttributesDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *FieldSelectorAttributesDie) DieSealFeedPtr(r *authorizationv1.FieldSelectorAttributes) *FieldSelectorAttributesDie {
+	if r == nil {
+		r = &authorizationv1.FieldSelectorAttributes{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *FieldSelectorAttributesDie) DieSealRelease() authorizationv1.FieldSelectorAttributes {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *FieldSelectorAttributesDie) DieSealReleasePtr() *authorizationv1.FieldSelectorAttributes {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *FieldSelectorAttributesDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *FieldSelectorAttributesDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// RequirementsDie replaces Requirements by collecting the released value from each die passed.
+//
+// requirements is the parsed interpretation of a field selector.
+//
+// All requirements must be met for a resource instance to match the selector.
+//
+// Webhook implementations should handle requirements, but how to handle them is up to the webhook.
+//
+// # Since requirements can only limit the request, it is safe to authorize as unlimited request if the requirements
+//
+// are not understood.
+func (d *FieldSelectorAttributesDie) RequirementsDie(v ...*metav1.FieldSelectorRequirementDie) *FieldSelectorAttributesDie {
+	return d.DieStamp(func(r *authorizationv1.FieldSelectorAttributes) {
+		r.Requirements = make([]apismetav1.FieldSelectorRequirement, len(v))
+		for i := range v {
+			r.Requirements[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// rawSelector is the serialization of a field selector that would be included in a query parameter.
+//
+// Webhook implementations are encouraged to ignore rawSelector.
+//
+// The kube-apiserver's *SubjectAccessReview will parse the rawSelector as long as the requirements are not present.
+func (d *FieldSelectorAttributesDie) RawSelector(v string) *FieldSelectorAttributesDie {
+	return d.DieStamp(func(r *authorizationv1.FieldSelectorAttributes) {
+		r.RawSelector = v
+	})
+}
+
+// requirements is the parsed interpretation of a field selector.
+//
+// All requirements must be met for a resource instance to match the selector.
+//
+// Webhook implementations should handle requirements, but how to handle them is up to the webhook.
+//
+// # Since requirements can only limit the request, it is safe to authorize as unlimited request if the requirements
+//
+// are not understood.
+func (d *FieldSelectorAttributesDie) Requirements(v ...apismetav1.FieldSelectorRequirement) *FieldSelectorAttributesDie {
+	return d.DieStamp(func(r *authorizationv1.FieldSelectorAttributes) {
+		r.Requirements = v
+	})
+}
+
+var LabelSelectorAttributesBlank = (&LabelSelectorAttributesDie{}).DieFeed(authorizationv1.LabelSelectorAttributes{})
+
+type LabelSelectorAttributesDie struct {
+	mutable bool
+	r       authorizationv1.LabelSelectorAttributes
+	seal    authorizationv1.LabelSelectorAttributes
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *LabelSelectorAttributesDie) DieImmutable(immutable bool) *LabelSelectorAttributesDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *LabelSelectorAttributesDie) DieFeed(r authorizationv1.LabelSelectorAttributes) *LabelSelectorAttributesDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &LabelSelectorAttributesDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *LabelSelectorAttributesDie) DieFeedPtr(r *authorizationv1.LabelSelectorAttributes) *LabelSelectorAttributesDie {
+	if r == nil {
+		r = &authorizationv1.LabelSelectorAttributes{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *LabelSelectorAttributesDie) DieFeedJSON(j []byte) *LabelSelectorAttributesDie {
+	r := authorizationv1.LabelSelectorAttributes{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *LabelSelectorAttributesDie) DieFeedYAML(y []byte) *LabelSelectorAttributesDie {
+	r := authorizationv1.LabelSelectorAttributes{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *LabelSelectorAttributesDie) DieFeedYAMLFile(name string) *LabelSelectorAttributesDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *LabelSelectorAttributesDie) DieFeedRawExtension(raw runtime.RawExtension) *LabelSelectorAttributesDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *LabelSelectorAttributesDie) DieRelease() authorizationv1.LabelSelectorAttributes {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *LabelSelectorAttributesDie) DieReleasePtr() *authorizationv1.LabelSelectorAttributes {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *LabelSelectorAttributesDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *LabelSelectorAttributesDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *LabelSelectorAttributesDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *LabelSelectorAttributesDie) DieStamp(fn func(r *authorizationv1.LabelSelectorAttributes)) *LabelSelectorAttributesDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *LabelSelectorAttributesDie) DieStampAt(jp string, fn interface{}) *LabelSelectorAttributesDie {
+	return d.DieStamp(func(r *authorizationv1.LabelSelectorAttributes) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *LabelSelectorAttributesDie) DieWith(fns ...func(d *LabelSelectorAttributesDie)) *LabelSelectorAttributesDie {
+	nd := LabelSelectorAttributesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *LabelSelectorAttributesDie) DeepCopy() *LabelSelectorAttributesDie {
+	r := *d.r.DeepCopy()
+	return &LabelSelectorAttributesDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *LabelSelectorAttributesDie) DieSeal() *LabelSelectorAttributesDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *LabelSelectorAttributesDie) DieSealFeed(r authorizationv1.LabelSelectorAttributes) *LabelSelectorAttributesDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *LabelSelectorAttributesDie) DieSealFeedPtr(r *authorizationv1.LabelSelectorAttributes) *LabelSelectorAttributesDie {
+	if r == nil {
+		r = &authorizationv1.LabelSelectorAttributes{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *LabelSelectorAttributesDie) DieSealRelease() authorizationv1.LabelSelectorAttributes {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *LabelSelectorAttributesDie) DieSealReleasePtr() *authorizationv1.LabelSelectorAttributes {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *LabelSelectorAttributesDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *LabelSelectorAttributesDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// RequirementsDie replaces Requirements by collecting the released value from each die passed.
+//
+// requirements is the parsed interpretation of a label selector.
+//
+// All requirements must be met for a resource instance to match the selector.
+//
+// Webhook implementations should handle requirements, but how to handle them is up to the webhook.
+//
+// # Since requirements can only limit the request, it is safe to authorize as unlimited request if the requirements
+//
+// are not understood.
+func (d *LabelSelectorAttributesDie) RequirementsDie(v ...*metav1.LabelSelectorRequirementDie) *LabelSelectorAttributesDie {
+	return d.DieStamp(func(r *authorizationv1.LabelSelectorAttributes) {
+		r.Requirements = make([]apismetav1.LabelSelectorRequirement, len(v))
+		for i := range v {
+			r.Requirements[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// rawSelector is the serialization of a field selector that would be included in a query parameter.
+//
+// Webhook implementations are encouraged to ignore rawSelector.
+//
+// The kube-apiserver's *SubjectAccessReview will parse the rawSelector as long as the requirements are not present.
+func (d *LabelSelectorAttributesDie) RawSelector(v string) *LabelSelectorAttributesDie {
+	return d.DieStamp(func(r *authorizationv1.LabelSelectorAttributes) {
+		r.RawSelector = v
+	})
+}
+
+// requirements is the parsed interpretation of a label selector.
+//
+// All requirements must be met for a resource instance to match the selector.
+//
+// Webhook implementations should handle requirements, but how to handle them is up to the webhook.
+//
+// # Since requirements can only limit the request, it is safe to authorize as unlimited request if the requirements
+//
+// are not understood.
+func (d *LabelSelectorAttributesDie) Requirements(v ...apismetav1.LabelSelectorRequirement) *LabelSelectorAttributesDie {
+	return d.DieStamp(func(r *authorizationv1.LabelSelectorAttributes) {
+		r.Requirements = v
 	})
 }

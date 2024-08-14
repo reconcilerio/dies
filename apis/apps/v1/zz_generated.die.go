@@ -5355,7 +5355,7 @@ func (d *StatefulSetSpecDie) UpdateStrategyDie(fn func(d *StatefulSetUpdateStrat
 //
 // down. This requires the StatefulSetAutoDeletePVC feature gate to be enabled,
 //
-// which is alpha.  +optional
+// which is beta.
 func (d *StatefulSetSpecDie) PersistentVolumeClaimRetentionPolicyDie(fn func(d *StatefulSetPersistentVolumeClaimRetentionPolicyDie)) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		d := StatefulSetPersistentVolumeClaimRetentionPolicyBlank.DieImmutable(false).DieFeedPtr(r.PersistentVolumeClaimRetentionPolicy)
@@ -5370,11 +5370,7 @@ func (d *StatefulSetSpecDie) PersistentVolumeClaimRetentionPolicyDie(fn func(d *
 //
 // default ordinals behavior assigns a "0" index to the first replica and
 //
-// increments the index by one for each additional replica requested. Using
-//
-// the ordinals field requires the StatefulSetStartOrdinal feature gate to be
-//
-// enabled, which is beta.
+// increments the index by one for each additional replica requested.
 func (d *StatefulSetSpecDie) OrdinalsDie(fn func(d *StatefulSetOrdinalsDie)) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		d := StatefulSetOrdinalsBlank.DieImmutable(false).DieFeedPtr(r.Ordinals)
@@ -5554,7 +5550,7 @@ func (d *StatefulSetSpecDie) MinReadySeconds(v int32) *StatefulSetSpecDie {
 //
 // down. This requires the StatefulSetAutoDeletePVC feature gate to be enabled,
 //
-// which is alpha.  +optional
+// which is beta.
 func (d *StatefulSetSpecDie) PersistentVolumeClaimRetentionPolicy(v *appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.PersistentVolumeClaimRetentionPolicy = v
@@ -5565,11 +5561,7 @@ func (d *StatefulSetSpecDie) PersistentVolumeClaimRetentionPolicy(v *appsv1.Stat
 //
 // default ordinals behavior assigns a "0" index to the first replica and
 //
-// increments the index by one for each additional replica requested. Using
-//
-// the ordinals field requires the StatefulSetStartOrdinal feature gate to be
-//
-// enabled, which is beta.
+// increments the index by one for each additional replica requested.
 func (d *StatefulSetSpecDie) Ordinals(v *appsv1.StatefulSetOrdinals) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.Ordinals = v

@@ -142,3 +142,21 @@ func TestSubjectAccessReviewStatusDie_MissingMethods(t *testingx.T) {
 		t.Errorf("found missing fields for SubjectAccessReviewStatusDie: %s", diff.List())
 	}
 }
+
+func TestFieldSelectorAttributesDie_MissingMethods(t *testingx.T) {
+	die := FieldSelectorAttributesBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for FieldSelectorAttributesDie: %s", diff.List())
+	}
+}
+
+func TestLabelSelectorAttributesDie_MissingMethods(t *testingx.T) {
+	die := LabelSelectorAttributesBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for LabelSelectorAttributesDie: %s", diff.List())
+	}
+}

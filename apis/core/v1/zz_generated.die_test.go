@@ -413,6 +413,42 @@ func TestContainerStatusDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestContainerUserDie_MissingMethods(t *testingx.T) {
+	die := ContainerUserBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ContainerUserDie: %s", diff.List())
+	}
+}
+
+func TestLinuxContainerUserDie_MissingMethods(t *testingx.T) {
+	die := LinuxContainerUserBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for LinuxContainerUserDie: %s", diff.List())
+	}
+}
+
+func TestResourceStatusDie_MissingMethods(t *testingx.T) {
+	die := ResourceStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ResourceStatusDie: %s", diff.List())
+	}
+}
+
+func TestResourceHealthDie_MissingMethods(t *testingx.T) {
+	die := ResourceHealthBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ResourceHealthDie: %s", diff.List())
+	}
+}
+
 func TestContainerStateDie_MissingMethods(t *testingx.T) {
 	die := ContainerStateBlank
 	ignore := []string{}
@@ -710,6 +746,15 @@ func TestNodeRuntimeHandlerFeaturesDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestNodeFeaturesDie_MissingMethods(t *testingx.T) {
+	die := NodeFeaturesBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodeFeaturesDie: %s", diff.List())
+	}
+}
+
 func TestPersistentVolumeDie_MissingMethods(t *testingx.T) {
 	die := PersistentVolumeBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
@@ -959,15 +1004,6 @@ func TestPodResourceClaimDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for PodResourceClaimDie: %s", diff.List())
-	}
-}
-
-func TestClaimSourceDie_MissingMethods(t *testingx.T) {
-	die := ClaimSourceBlank
-	ignore := []string{}
-	diff := testing.DieFieldDiff(die).Delete(ignore...)
-	if diff.Len() != 0 {
-		t.Errorf("found missing fields for ClaimSourceDie: %s", diff.List())
 	}
 }
 

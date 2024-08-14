@@ -609,6 +609,10 @@ func (d *LeaseSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 }
 
 // holderIdentity contains the identity of the holder of a current lease.
+//
+// # If Coordinated Leader Election is used, the holder identity must be
+//
+// equal to the elected LeaseCandidate.metadata.name field.
 func (d *LeaseSpecDie) HolderIdentity(v *string) *LeaseSpecDie {
 	return d.DieStamp(func(r *coordinationv1.LeaseSpec) {
 		r.HolderIdentity = v
@@ -617,7 +621,7 @@ func (d *LeaseSpecDie) HolderIdentity(v *string) *LeaseSpecDie {
 
 // leaseDurationSeconds is a duration that candidates for a lease need
 //
-// to wait to force acquire it. This is measure against time of last
+// to wait to force acquire it. This is measured against the time of last
 //
 // observed renewTime.
 func (d *LeaseSpecDie) LeaseDurationSeconds(v *int32) *LeaseSpecDie {
@@ -648,5 +652,27 @@ func (d *LeaseSpecDie) RenewTime(v *apismetav1.MicroTime) *LeaseSpecDie {
 func (d *LeaseSpecDie) LeaseTransitions(v *int32) *LeaseSpecDie {
 	return d.DieStamp(func(r *coordinationv1.LeaseSpec) {
 		r.LeaseTransitions = v
+	})
+}
+
+// Strategy indicates the strategy for picking the leader for coordinated leader election.
+//
+// If the field is not specified, there is no active coordination for this lease.
+//
+// (Alpha) Using this field requires the CoordinatedLeaderElection feature gate to be enabled.
+func (d *LeaseSpecDie) Strategy(v *coordinationv1.CoordinatedLeaseStrategy) *LeaseSpecDie {
+	return d.DieStamp(func(r *coordinationv1.LeaseSpec) {
+		r.Strategy = v
+	})
+}
+
+// PreferredHolder signals to a lease holder that the lease has a
+//
+// more optimal holder and should be given up.
+//
+// This field can only be set if Strategy is also set.
+func (d *LeaseSpecDie) PreferredHolder(v *string) *LeaseSpecDie {
+	return d.DieStamp(func(r *coordinationv1.LeaseSpec) {
+		r.PreferredHolder = v
 	})
 }

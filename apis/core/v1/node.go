@@ -47,6 +47,7 @@ type _ = corev1.ConfigMapNodeConfigSource
 // +die:field:name=Images,die=ContainerImageDie,listType=atomic
 // +die:field:name=VolumesAttached,method=VolumeAttachedDie,die=AttachedVolumeDie,listType=map,listMapKeyPackage=k8s.io/api/core/v1,listMapKeyType=UniqueVolumeName
 // +die:field:name=RuntimeHandlers,die=NodeRuntimeHandlerDie,listType=atomic
+// +die:field:name=Features,die=NodeFeaturesDie,pointer=true
 type _ = corev1.NodeStatus
 
 func (d *NodeStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *NodeStatusDie {
@@ -101,3 +102,6 @@ type _ = corev1.NodeRuntimeHandler
 
 // +die
 type _ = corev1.NodeRuntimeHandlerFeatures
+
+// +die
+type _ = corev1.NodeFeatures
