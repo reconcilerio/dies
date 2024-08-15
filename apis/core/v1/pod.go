@@ -43,11 +43,7 @@ type _ = corev1.PodSpec
 type _ = corev1.PodSchedulingGate
 
 // +die
-// +die:field:name=Source,die=ClaimSourceDie
 type _ = corev1.PodResourceClaim
-
-// +die
-type _ = corev1.ClaimSource
 
 // +die
 // +die:field:name=SELinuxOptions,die=SELinuxOptionsDie,pointer=true

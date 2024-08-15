@@ -47,6 +47,8 @@ func (d *SubjectAccessReviewSpecDie) AddExtra(key string, value authorizationv1.
 }
 
 // +die
+// +die:field:name=FieldSelector,die=FieldSelectorAttributesDie,pointer=true
+// +die:field:name=LabelSelector,die=LabelSelectorAttributesDie,pointer=true
 type _ = authorizationv1.ResourceAttributes
 
 // +die
@@ -54,3 +56,11 @@ type _ = authorizationv1.NonResourceAttributes
 
 // +die
 type _ = authorizationv1.SubjectAccessReviewStatus
+
+// +die
+// +die:field:name=Requirements,package=_/meta/v1,die=FieldSelectorRequirementDie,listType=atomic
+type _ = authorizationv1.FieldSelectorAttributes
+
+// +die
+// +die:field:name=Requirements,package=_/meta/v1,die=LabelSelectorRequirementDie,listType=atomic
+type _ = authorizationv1.LabelSelectorAttributes

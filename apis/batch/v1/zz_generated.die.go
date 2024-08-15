@@ -1567,10 +1567,6 @@ func (d *JobSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 // checked against the backoffLimit. This field cannot be used in combination
 //
 // with restartPolicy=OnFailure.
-//
-// This field is beta-level. It can be used when the `JobPodFailurePolicy`
-//
-// feature gate is enabled (enabled by default).
 func (d *JobSpecDie) PodFailurePolicyDie(fn func(d *PodFailurePolicyDie)) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		d := PodFailurePolicyBlank.DieImmutable(false).DieFeedPtr(r.PodFailurePolicy)
@@ -1591,9 +1587,9 @@ func (d *JobSpecDie) PodFailurePolicyDie(fn func(d *PodFailurePolicyDie)) *JobSp
 //
 // Once the Job meets the SuccessPolicy, the lingering pods are terminated.
 //
-// This field  is alpha-level. To use this field, you must enable the
+// This field is beta-level. To use this field, you must enable the
 //
-// `JobSuccessPolicy` feature gate (disabled by default).
+// `JobSuccessPolicy` feature gate (enabled by default).
 func (d *JobSpecDie) SuccessPolicyDie(fn func(d *SuccessPolicyDie)) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		d := SuccessPolicyBlank.DieImmutable(false).DieFeedPtr(r.SuccessPolicy)
@@ -1692,10 +1688,6 @@ func (d *JobSpecDie) ActiveDeadlineSeconds(v *int64) *JobSpecDie {
 // checked against the backoffLimit. This field cannot be used in combination
 //
 // with restartPolicy=OnFailure.
-//
-// This field is beta-level. It can be used when the `JobPodFailurePolicy`
-//
-// feature gate is enabled (enabled by default).
 func (d *JobSpecDie) PodFailurePolicy(v *batchv1.PodFailurePolicy) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.PodFailurePolicy = v
@@ -1712,9 +1704,9 @@ func (d *JobSpecDie) PodFailurePolicy(v *batchv1.PodFailurePolicy) *JobSpecDie {
 //
 // Once the Job meets the SuccessPolicy, the lingering pods are terminated.
 //
-// This field  is alpha-level. To use this field, you must enable the
+// This field is beta-level. To use this field, you must enable the
 //
-// `JobSuccessPolicy` feature gate (disabled by default).
+// `JobSuccessPolicy` feature gate (enabled by default).
 func (d *JobSpecDie) SuccessPolicy(v *batchv1.SuccessPolicy) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.SuccessPolicy = v
@@ -1943,7 +1935,9 @@ func (d *JobSpecDie) PodReplacementPolicy(v *batchv1.PodReplacementPolicy) *JobS
 //
 // by RFC 1123. All characters trailing the first "/" must be valid HTTP Path
 //
-// characters as defined by RFC 3986. The value cannot exceed 64 characters.
+// characters as defined by RFC 3986. The value cannot exceed 63 characters.
+//
+// This field is immutable.
 //
 // This field is alpha-level. The job controller accepts setting the field
 //
@@ -4042,7 +4036,9 @@ func (d *JobStatusDie) UncountedTerminatedPods(v *batchv1.UncountedTerminatedPod
 	})
 }
 
-// The number of pods which have a Ready condition.
+// The number of active pods which have a Ready condition and are not
+//
+// terminating (without a deletionTimestamp).
 func (d *JobStatusDie) Ready(v *int32) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.Ready = v

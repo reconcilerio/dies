@@ -213,7 +213,23 @@ type _ = corev1.AppArmorProfile
 // +die:field:name=LastTerminationState,die=ContainerStateDie
 // +die:field:name=Resources,die=ResourceRequirementsDie,pointer=true
 // +die:field:name=VolumeMounts,die=VolumeMountStatusDie,listType=map
+// +die:field:name=User,die=ContainerUserDie,pointer=true
+// +die:field:name=AllocatedResourcesStatus,die=ResourceStatusDie,listType=map,listMapKeyPackage=k8s.io/api/core/v1,listMapKeyType=ResourceName
 type _ = corev1.ContainerStatus
+
+// +die
+// +die:field:name=Linux,die=LinuxContainerUserDie,pointer=true
+type _ = corev1.ContainerUser
+
+// +die
+type _ = corev1.LinuxContainerUser
+
+// +die
+// +die:field:name=Resources,die=ResourceHealthDie,listType=map,listMapKeyPackage=k8s.io/api/core/v1,listMapKeyType=ResourceID,listMapKey=ResourceID
+type _ = corev1.ResourceStatus
+
+// +die
+type _ = corev1.ResourceHealth
 
 // +die
 // +die:field:name=Waiting,die=ContainerStateWaitingDie,pointer=true

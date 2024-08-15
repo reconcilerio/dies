@@ -52,3 +52,9 @@ func (d *LabelSelectorDie) AddMatchExpression(key string, operator metav1.LabelS
 		}
 	})
 }
+
+// +die
+type _ = metav1.LabelSelectorRequirement
+
+// +die
+type _ = metav1.FieldSelectorRequirement
