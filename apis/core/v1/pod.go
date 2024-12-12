@@ -37,6 +37,7 @@ type _ = corev1.Pod
 // +die:field:name=TopologySpreadConstraints,die=TopologySpreadConstraintDie,listMapKey=TopologyKey
 // +die:field:name=SchedulingGates,die=PodSchedulingGateDie,listType=atomic
 // +die:field:name=ResourceClaims,die=PodResourceClaimDie,listType=atomic
+// +die:field:name=Resources,die=ResourceRequirementsDie,pointer=true
 type _ = corev1.PodSpec
 
 // +die

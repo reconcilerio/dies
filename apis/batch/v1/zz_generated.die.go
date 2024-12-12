@@ -1939,9 +1939,9 @@ func (d *JobSpecDie) PodReplacementPolicy(v *batchv1.PodReplacementPolicy) *JobS
 //
 // This field is immutable.
 //
-// This field is alpha-level. The job controller accepts setting the field
+// This field is beta-level. The job controller accepts setting the field
 //
-// when the feature gate JobManagedBy is enabled (disabled by default).
+// when the feature gate JobManagedBy is enabled (enabled by default).
 func (d *JobSpecDie) ManagedBy(v *string) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.ManagedBy = v
