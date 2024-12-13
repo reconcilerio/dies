@@ -1280,8 +1280,6 @@ func (d *MetricSpecDie) ResourceDie(fn func(d *ResourceMetricSourceDie)) *Metric
 // built in to Kubernetes, and have special scaling options on top of those
 //
 // available to normal per-pod metrics using the "pods" source.
-//
-// This is an alpha feature and can be enabled by the HPAContainerMetrics feature flag.
 func (d *MetricSpecDie) ContainerResourceDie(fn func(d *ContainerResourceMetricSourceDie)) *MetricSpecDie {
 	return d.DieStamp(func(r *autoscalingv2.MetricSpec) {
 		d := ContainerResourceMetricSourceBlank.DieImmutable(false).DieFeedPtr(r.ContainerResource)
@@ -1312,10 +1310,6 @@ func (d *MetricSpecDie) ExternalDie(fn func(d *ExternalMetricSourceDie)) *Metric
 // type is the type of metric source.  It should be one of "ContainerResource", "External",
 //
 // "Object", "Pods" or "Resource", each mapping to a matching field in the object.
-//
-// Note: "ContainerResource" type is available on when the feature-gate
-//
-// HPAContainerMetrics is enabled
 func (d *MetricSpecDie) Type(v autoscalingv2.MetricSourceType) *MetricSpecDie {
 	return d.DieStamp(func(r *autoscalingv2.MetricSpec) {
 		r.Type = v
@@ -1366,8 +1360,6 @@ func (d *MetricSpecDie) Resource(v *autoscalingv2.ResourceMetricSource) *MetricS
 // built in to Kubernetes, and have special scaling options on top of those
 //
 // available to normal per-pod metrics using the "pods" source.
-//
-// This is an alpha feature and can be enabled by the HPAContainerMetrics feature flag.
 func (d *MetricSpecDie) ContainerResource(v *autoscalingv2.ContainerResourceMetricSource) *MetricSpecDie {
 	return d.DieStamp(func(r *autoscalingv2.MetricSpec) {
 		r.ContainerResource = v
@@ -4683,10 +4675,6 @@ func (d *MetricStatusDie) ExternalDie(fn func(d *ExternalMetricStatusDie)) *Metr
 // type is the type of metric source.  It will be one of "ContainerResource", "External",
 //
 // "Object", "Pods" or "Resource", each corresponds to a matching field in the object.
-//
-// Note: "ContainerResource" type is available on when the feature-gate
-//
-// HPAContainerMetrics is enabled
 func (d *MetricStatusDie) Type(v autoscalingv2.MetricSourceType) *MetricStatusDie {
 	return d.DieStamp(func(r *autoscalingv2.MetricStatus) {
 		r.Type = v

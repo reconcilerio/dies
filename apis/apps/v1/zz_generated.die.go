@@ -5353,9 +5353,7 @@ func (d *StatefulSetSpecDie) UpdateStrategyDie(fn func(d *StatefulSetUpdateStrat
 //
 // volume claims when their stateful set is deleted, or when their pod is scaled
 //
-// down. This requires the StatefulSetAutoDeletePVC feature gate to be enabled,
-//
-// which is beta.
+// down.
 func (d *StatefulSetSpecDie) PersistentVolumeClaimRetentionPolicyDie(fn func(d *StatefulSetPersistentVolumeClaimRetentionPolicyDie)) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		d := StatefulSetPersistentVolumeClaimRetentionPolicyBlank.DieImmutable(false).DieFeedPtr(r.PersistentVolumeClaimRetentionPolicy)
@@ -5548,9 +5546,7 @@ func (d *StatefulSetSpecDie) MinReadySeconds(v int32) *StatefulSetSpecDie {
 //
 // volume claims when their stateful set is deleted, or when their pod is scaled
 //
-// down. This requires the StatefulSetAutoDeletePVC feature gate to be enabled,
-//
-// which is beta.
+// down.
 func (d *StatefulSetSpecDie) PersistentVolumeClaimRetentionPolicy(v *appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy) *StatefulSetSpecDie {
 	return d.DieStamp(func(r *appsv1.StatefulSetSpec) {
 		r.PersistentVolumeClaimRetentionPolicy = v

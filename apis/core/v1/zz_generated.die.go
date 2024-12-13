@@ -919,8 +919,6 @@ func (d *LocalObjectReferenceDie) DiePatch(patchType types.PatchType) ([]byte, e
 //
 // almost certainly wrong.
 //
-// TODO: Add other useful fields. apiVersion, kind, uid?
-//
 // More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 //
 // TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
@@ -8559,7 +8557,7 @@ func (d *LifecycleHandlerDie) DiePatch(patchType types.PatchType) ([]byte, error
 
 // ExecDie mutates Exec as a die.
 //
-// Exec specifies the action to take.
+// Exec specifies a command to execute in the container.
 func (d *LifecycleHandlerDie) ExecDie(fn func(d *ExecActionDie)) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		d := ExecActionBlank.DieImmutable(false).DieFeedPtr(r.Exec)
@@ -8570,7 +8568,7 @@ func (d *LifecycleHandlerDie) ExecDie(fn func(d *ExecActionDie)) *LifecycleHandl
 
 // HTTPGetDie mutates HTTPGet as a die.
 //
-// HTTPGet specifies the http request to perform.
+// HTTPGet specifies an HTTP GET request to perform.
 func (d *LifecycleHandlerDie) HTTPGetDie(fn func(d *HTTPGetActionDie)) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		d := HTTPGetActionBlank.DieImmutable(false).DieFeedPtr(r.HTTPGet)
@@ -8583,9 +8581,9 @@ func (d *LifecycleHandlerDie) HTTPGetDie(fn func(d *HTTPGetActionDie)) *Lifecycl
 //
 // Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
 //
-// for the backward compatibility. There are no validation of this field and
+// for backward compatibility. There is no validation of this field and
 //
-// lifecycle hooks will fail in runtime when tcp handler is specified.
+// lifecycle hooks will fail at runtime when it is specified.
 func (d *LifecycleHandlerDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		d := TCPSocketActionBlank.DieImmutable(false).DieFeedPtr(r.TCPSocket)
@@ -8596,7 +8594,7 @@ func (d *LifecycleHandlerDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *Life
 
 // SleepDie mutates Sleep as a die.
 //
-// Sleep represents the duration that the container should sleep before being terminated.
+// Sleep represents a duration that the container should sleep.
 func (d *LifecycleHandlerDie) SleepDie(fn func(d *SleepActionDie)) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		d := SleepActionBlank.DieImmutable(false).DieFeedPtr(r.Sleep)
@@ -8605,14 +8603,14 @@ func (d *LifecycleHandlerDie) SleepDie(fn func(d *SleepActionDie)) *LifecycleHan
 	})
 }
 
-// Exec specifies the action to take.
+// Exec specifies a command to execute in the container.
 func (d *LifecycleHandlerDie) Exec(v *corev1.ExecAction) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		r.Exec = v
 	})
 }
 
-// HTTPGet specifies the http request to perform.
+// HTTPGet specifies an HTTP GET request to perform.
 func (d *LifecycleHandlerDie) HTTPGet(v *corev1.HTTPGetAction) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		r.HTTPGet = v
@@ -8621,16 +8619,16 @@ func (d *LifecycleHandlerDie) HTTPGet(v *corev1.HTTPGetAction) *LifecycleHandler
 
 // Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
 //
-// for the backward compatibility. There are no validation of this field and
+// for backward compatibility. There is no validation of this field and
 //
-// lifecycle hooks will fail in runtime when tcp handler is specified.
+// lifecycle hooks will fail at runtime when it is specified.
 func (d *LifecycleHandlerDie) TCPSocket(v *corev1.TCPSocketAction) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		r.TCPSocket = v
 	})
 }
 
-// Sleep represents the duration that the container should sleep before being terminated.
+// Sleep represents a duration that the container should sleep.
 func (d *LifecycleHandlerDie) Sleep(v *corev1.SleepAction) *LifecycleHandlerDie {
 	return d.DieStamp(func(r *corev1.LifecycleHandler) {
 		r.Sleep = v
@@ -8867,7 +8865,7 @@ func (d *ProbeHandlerDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // ExecDie mutates Exec as a die.
 //
-// Exec specifies the action to take.
+// Exec specifies a command to execute in the container.
 func (d *ProbeHandlerDie) ExecDie(fn func(d *ExecActionDie)) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
 		d := ExecActionBlank.DieImmutable(false).DieFeedPtr(r.Exec)
@@ -8878,7 +8876,7 @@ func (d *ProbeHandlerDie) ExecDie(fn func(d *ExecActionDie)) *ProbeHandlerDie {
 
 // HTTPGetDie mutates HTTPGet as a die.
 //
-// HTTPGet specifies the http request to perform.
+// HTTPGet specifies an HTTP GET request to perform.
 func (d *ProbeHandlerDie) HTTPGetDie(fn func(d *HTTPGetActionDie)) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
 		d := HTTPGetActionBlank.DieImmutable(false).DieFeedPtr(r.HTTPGet)
@@ -8889,7 +8887,7 @@ func (d *ProbeHandlerDie) HTTPGetDie(fn func(d *HTTPGetActionDie)) *ProbeHandler
 
 // TCPSocketDie mutates TCPSocket as a die.
 //
-// TCPSocket specifies an action involving a TCP port.
+// TCPSocket specifies a connection to a TCP port.
 func (d *ProbeHandlerDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
 		d := TCPSocketActionBlank.DieImmutable(false).DieFeedPtr(r.TCPSocket)
@@ -8900,7 +8898,7 @@ func (d *ProbeHandlerDie) TCPSocketDie(fn func(d *TCPSocketActionDie)) *ProbeHan
 
 // GRPCDie mutates GRPC as a die.
 //
-// GRPC specifies an action involving a GRPC port.
+// GRPC specifies a GRPC HealthCheckRequest.
 func (d *ProbeHandlerDie) GRPCDie(fn func(d *GRPCActionDie)) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
 		d := GRPCActionBlank.DieImmutable(false).DieFeedPtr(r.GRPC)
@@ -8909,28 +8907,28 @@ func (d *ProbeHandlerDie) GRPCDie(fn func(d *GRPCActionDie)) *ProbeHandlerDie {
 	})
 }
 
-// Exec specifies the action to take.
+// Exec specifies a command to execute in the container.
 func (d *ProbeHandlerDie) Exec(v *corev1.ExecAction) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
 		r.Exec = v
 	})
 }
 
-// HTTPGet specifies the http request to perform.
+// HTTPGet specifies an HTTP GET request to perform.
 func (d *ProbeHandlerDie) HTTPGet(v *corev1.HTTPGetAction) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
 		r.HTTPGet = v
 	})
 }
 
-// TCPSocket specifies an action involving a TCP port.
+// TCPSocket specifies a connection to a TCP port.
 func (d *ProbeHandlerDie) TCPSocket(v *corev1.TCPSocketAction) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
 		r.TCPSocket = v
 	})
 }
 
-// GRPC specifies an action involving a GRPC port.
+// GRPC specifies a GRPC HealthCheckRequest.
 func (d *ProbeHandlerDie) GRPC(v *corev1.GRPCAction) *ProbeHandlerDie {
 	return d.DieStamp(func(r *corev1.ProbeHandler) {
 		r.GRPC = v
@@ -13486,13 +13484,13 @@ func (d *ResourceStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 
 // ResourceDie mutates a single item in Resources matched by the nested field ResourceID, appending a new item if no match is found.
 //
-// List of unique Resources health. Each element in the list contains an unique resource ID and resource health.
+// List of unique resources health. Each element in the list contains an unique resource ID and its health.
 //
-// # At a minimum, ResourceID must uniquely identify the Resource
+// At a minimum, for the lifetime of a Pod, resource ID must uniquely identify the resource allocated to the Pod on the Node.
 //
-// allocated to the Pod on the Node for the lifetime of a Pod.
+// If other Pod on the same Node reports the status with the same resource ID, it must be the same resource they share.
 //
-// See ResourceID type for it's definition.
+// See ResourceID type definition for a specific format it has in various use cases.
 func (d *ResourceStatusDie) ResourceDie(v corev1.ResourceID, fn func(d *ResourceHealthDie)) *ResourceStatusDie {
 	return d.DieStamp(func(r *corev1.ResourceStatus) {
 		for i := range r.Resources {
@@ -13510,20 +13508,24 @@ func (d *ResourceStatusDie) ResourceDie(v corev1.ResourceID, fn func(d *Resource
 	})
 }
 
-// Name of the resource. Must be unique within the pod and match one of the resources from the pod spec.
+// Name of the resource. Must be unique within the pod and in case of non-DRA resource, match one of the resources from the pod spec.
+//
+// For DRA resources, the value must be "claim:<claim_name>/<request>".
+//
+// When this status is reported about a container, the "claim_name" and "request" must match one of the claims of this container.
 func (d *ResourceStatusDie) Name(v corev1.ResourceName) *ResourceStatusDie {
 	return d.DieStamp(func(r *corev1.ResourceStatus) {
 		r.Name = v
 	})
 }
 
-// List of unique Resources health. Each element in the list contains an unique resource ID and resource health.
+// List of unique resources health. Each element in the list contains an unique resource ID and its health.
 //
-// # At a minimum, ResourceID must uniquely identify the Resource
+// At a minimum, for the lifetime of a Pod, resource ID must uniquely identify the resource allocated to the Pod on the Node.
 //
-// allocated to the Pod on the Node for the lifetime of a Pod.
+// If other Pod on the same Node reports the status with the same resource ID, it must be the same resource they share.
 //
-// See ResourceID type for it's definition.
+// See ResourceID type definition for a specific format it has in various use cases.
 func (d *ResourceStatusDie) Resources(v ...corev1.ResourceHealth) *ResourceStatusDie {
 	return d.DieStamp(func(r *corev1.ResourceStatus) {
 		r.Resources = v
@@ -20762,7 +20764,7 @@ func (d *NodeStatusDie) DaemonEndpointsDie(fn func(d *NodeDaemonEndpointsDie)) *
 //
 // Set of ids/uuids to uniquely identify the node.
 //
-// More info: https://kubernetes.io/docs/concepts/nodes/node/#info
+// More info: https://kubernetes.io/docs/reference/node/node-status/#info
 func (d *NodeStatusDie) NodeInfoDie(fn func(d *NodeSystemInfoDie)) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		d := NodeSystemInfoBlank.DieImmutable(false).DieFeed(r.NodeInfo)
@@ -20788,7 +20790,7 @@ func (d *NodeStatusDie) ConfigDie(fn func(d *NodeConfigStatusDie)) *NodeStatusDi
 //
 // Queried from cloud provider, if available.
 //
-// More info: https://kubernetes.io/docs/concepts/nodes/node/#addresses
+// More info: https://kubernetes.io/docs/reference/node/node-status/#addresses
 //
 // Note: This field is declared as mergeable, but the merge key is not sufficiently
 //
@@ -20946,7 +20948,7 @@ func (d *NodeStatusDie) Phase(v corev1.NodePhase) *NodeStatusDie {
 
 // Conditions is an array of current observed node conditions.
 //
-// More info: https://kubernetes.io/docs/concepts/nodes/node/#condition
+// More info: https://kubernetes.io/docs/reference/node/node-status/#condition
 func (d *NodeStatusDie) Conditions(v ...corev1.NodeCondition) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.Conditions = v
@@ -20957,7 +20959,7 @@ func (d *NodeStatusDie) Conditions(v ...corev1.NodeCondition) *NodeStatusDie {
 //
 // Queried from cloud provider, if available.
 //
-// More info: https://kubernetes.io/docs/concepts/nodes/node/#addresses
+// More info: https://kubernetes.io/docs/reference/node/node-status/#addresses
 //
 // Note: This field is declared as mergeable, but the merge key is not sufficiently
 //
@@ -20987,7 +20989,7 @@ func (d *NodeStatusDie) DaemonEndpoints(v corev1.NodeDaemonEndpoints) *NodeStatu
 
 // Set of ids/uuids to uniquely identify the node.
 //
-// More info: https://kubernetes.io/docs/concepts/nodes/node/#info
+// More info: https://kubernetes.io/docs/reference/node/node-status/#info
 func (d *NodeStatusDie) NodeInfo(v corev1.NodeSystemInfo) *NodeStatusDie {
 	return d.DieStamp(func(r *corev1.NodeStatus) {
 		r.NodeInfo = v
@@ -32153,6 +32155,31 @@ func (d *PodSpecDie) ResourceClaimsDie(v ...*PodResourceClaimDie) *PodSpecDie {
 	})
 }
 
+// ResourcesDie mutates Resources as a die.
+//
+// # Resources is the total amount of CPU and Memory resources required by all
+//
+// containers in the pod. It supports specifying Requests and Limits for
+//
+// "cpu" and "memory" resource names only. ResourceClaims are not supported.
+//
+// # This field enables fine-grained control over resource allocation for the
+//
+// entire pod, allowing resource sharing among containers in a pod.
+//
+// TODO: For beta graduation, expand this comment with a detailed explanation.
+//
+// # This is an alpha field and requires enabling the PodLevelResources feature
+//
+// gate.
+func (d *PodSpecDie) ResourcesDie(fn func(d *ResourceRequirementsDie)) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		d := ResourceRequirementsBlank.DieImmutable(false).DieFeedPtr(r.Resources)
+		fn(d)
+		r.Resources = d.DieReleasePtr()
+	})
+}
+
 // List of volumes that can be mounted by containers belonging to the pod.
 //
 // More info: https://kubernetes.io/docs/concepts/storage/volumes
@@ -32743,6 +32770,27 @@ func (d *PodSpecDie) SchedulingGates(v ...corev1.PodSchedulingGate) *PodSpecDie 
 func (d *PodSpecDie) ResourceClaims(v ...corev1.PodResourceClaim) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.ResourceClaims = v
+	})
+}
+
+// Resources is the total amount of CPU and Memory resources required by all
+//
+// containers in the pod. It supports specifying Requests and Limits for
+//
+// "cpu" and "memory" resource names only. ResourceClaims are not supported.
+//
+// # This field enables fine-grained control over resource allocation for the
+//
+// entire pod, allowing resource sharing among containers in a pod.
+//
+// TODO: For beta graduation, expand this comment with a detailed explanation.
+//
+// # This is an alpha field and requires enabling the PodLevelResources feature
+//
+// gate.
+func (d *PodSpecDie) Resources(v *corev1.ResourceRequirements) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		r.Resources = v
 	})
 }
 
@@ -33757,6 +33805,47 @@ func (d *PodSecurityContextDie) SeccompProfile(v *corev1.SeccompProfile) *PodSec
 func (d *PodSecurityContextDie) AppArmorProfile(v *corev1.AppArmorProfile) *PodSecurityContextDie {
 	return d.DieStamp(func(r *corev1.PodSecurityContext) {
 		r.AppArmorProfile = v
+	})
+}
+
+// seLinuxChangePolicy defines how the container's SELinux label is applied to all volumes used by the Pod.
+//
+// It has no effect on nodes that do not support SELinux or to volumes does not support SELinux.
+//
+// Valid values are "MountOption" and "Recursive".
+//
+// "Recursive" means relabeling of all files on all Pod volumes by the container runtime.
+//
+// This may be slow for large volumes, but allows mixing privileged and unprivileged Pods sharing the same volume on the same node.
+//
+// "MountOption" mounts all eligible Pod volumes with `-o context` mount option.
+//
+// This requires all Pods that share the same volume to use the same SELinux label.
+//
+// It is not possible to share the same volume among privileged and unprivileged Pods.
+//
+// # Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
+//
+// whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
+//
+// CSIDriver instance. Other volumes are always re-labelled recursively.
+//
+// "MountOption" value is allowed only when SELinuxMount feature gate is enabled.
+//
+// If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
+//
+// If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
+//
+// and "Recursive" for all other volumes.
+//
+// This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
+//
+// All Pods that use the same volume should use the same seLinuxChangePolicy, otherwise some pods can get stuck in ContainerCreating state.
+//
+// Note that this field cannot be set when spec.os.name is windows.
+func (d *PodSecurityContextDie) SELinuxChangePolicy(v *corev1.PodSELinuxChangePolicy) *PodSecurityContextDie {
+	return d.DieStamp(func(r *corev1.PodSecurityContext) {
+		r.SELinuxChangePolicy = v
 	})
 }
 
@@ -35034,6 +35123,8 @@ func (d *PodDNSConfigOptionDie) DiePatch(patchType types.PatchType) ([]byte, err
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// Name is this DNS resolver option's name.
+//
 // Required.
 func (d *PodDNSConfigOptionDie) Name(v string) *PodDNSConfigOptionDie {
 	return d.DieStamp(func(r *corev1.PodDNSConfigOption) {
@@ -35041,6 +35132,7 @@ func (d *PodDNSConfigOptionDie) Name(v string) *PodDNSConfigOptionDie {
 	})
 }
 
+// Value is this DNS resolver option's value.
 func (d *PodDNSConfigOptionDie) Value(v *string) *PodDNSConfigOptionDie {
 	return d.DieStamp(func(r *corev1.PodDNSConfigOption) {
 		r.Value = v
@@ -36212,13 +36304,25 @@ func (d *PodStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // InitContainerStatusDie mutates a single item in InitContainerStatuses matched by the nested field Name, appending a new item if no match is found.
 //
-// The list has one entry per init container in the manifest. The most recent successful
+// Statuses of init containers in this pod. The most recent successful non-restartable
 //
 // init container will have ready = true, the most recently started container will have
 //
 // startTime set.
 //
-// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
+// Each init container in the pod should have at most one status in this list,
+//
+// and all statuses should be for containers in the pod.
+//
+// However this is not enforced.
+//
+// If a status for a non-existent container is present in the list, or the list has duplicate names,
+//
+// the behavior of various Kubernetes components is not defined and those statuses might be
+//
+// ignored.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-and-container-status
 func (d *PodStatusDie) InitContainerStatusDie(v string, fn func(d *ContainerStatusDie)) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		for i := range r.InitContainerStatuses {
@@ -36238,7 +36342,19 @@ func (d *PodStatusDie) InitContainerStatusDie(v string, fn func(d *ContainerStat
 
 // ContainerStatusDie mutates a single item in ContainerStatuses matched by the nested field Name, appending a new item if no match is found.
 //
-// The list has one entry per container in the manifest.
+// Statuses of containers in this pod.
+//
+// Each container in the pod should have at most one status in this list,
+//
+// and all statuses should be for containers in the pod.
+//
+// However this is not enforced.
+//
+// If a status for a non-existent container is present in the list, or the list has duplicate names,
+//
+// the behavior of various Kubernetes components is not defined and those statuses might be
+//
+// ignored.
 //
 // More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
 func (d *PodStatusDie) ContainerStatusDie(v string, fn func(d *ContainerStatusDie)) *PodStatusDie {
@@ -36260,7 +36376,21 @@ func (d *PodStatusDie) ContainerStatusDie(v string, fn func(d *ContainerStatusDi
 
 // EphemeralContainerStatusDie mutates a single item in EphemeralContainerStatuses matched by the nested field Name, appending a new item if no match is found.
 //
-// Status for any ephemeral containers that have run in this pod.
+// Statuses for any ephemeral containers that have run in this pod.
+//
+// Each ephemeral container in the pod should have at most one status in this list,
+//
+// and all statuses should be for containers in the pod.
+//
+// However this is not enforced.
+//
+// If a status for a non-existent container is present in the list, or the list has duplicate names,
+//
+// the behavior of various Kubernetes components is not defined and those statuses might be
+//
+// ignored.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
 func (d *PodStatusDie) EphemeralContainerStatusDie(v string, fn func(d *ContainerStatusDie)) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		for i := range r.EphemeralContainerStatuses {
@@ -36412,20 +36542,44 @@ func (d *PodStatusDie) StartTime(v *apismetav1.Time) *PodStatusDie {
 	})
 }
 
-// The list has one entry per init container in the manifest. The most recent successful
+// Statuses of init containers in this pod. The most recent successful non-restartable
 //
 // init container will have ready = true, the most recently started container will have
 //
 // startTime set.
 //
-// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
+// Each init container in the pod should have at most one status in this list,
+//
+// and all statuses should be for containers in the pod.
+//
+// However this is not enforced.
+//
+// If a status for a non-existent container is present in the list, or the list has duplicate names,
+//
+// the behavior of various Kubernetes components is not defined and those statuses might be
+//
+// ignored.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-and-container-status
 func (d *PodStatusDie) InitContainerStatuses(v ...corev1.ContainerStatus) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.InitContainerStatuses = v
 	})
 }
 
-// The list has one entry per container in the manifest.
+// Statuses of containers in this pod.
+//
+// Each container in the pod should have at most one status in this list,
+//
+// and all statuses should be for containers in the pod.
+//
+// However this is not enforced.
+//
+// If a status for a non-existent container is present in the list, or the list has duplicate names,
+//
+// the behavior of various Kubernetes components is not defined and those statuses might be
+//
+// ignored.
 //
 // More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
 func (d *PodStatusDie) ContainerStatuses(v ...corev1.ContainerStatus) *PodStatusDie {
@@ -36445,7 +36599,21 @@ func (d *PodStatusDie) QOSClass(v corev1.PodQOSClass) *PodStatusDie {
 	})
 }
 
-// Status for any ephemeral containers that have run in this pod.
+// Statuses for any ephemeral containers that have run in this pod.
+//
+// Each ephemeral container in the pod should have at most one status in this list,
+//
+// and all statuses should be for containers in the pod.
+//
+// However this is not enforced.
+//
+// If a status for a non-existent container is present in the list, or the list has duplicate names,
+//
+// the behavior of various Kubernetes components is not defined and those statuses might be
+//
+// ignored.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
 func (d *PodStatusDie) EphemeralContainerStatuses(v ...corev1.ContainerStatus) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.EphemeralContainerStatuses = v
@@ -40850,7 +41018,7 @@ func (d *ServiceSpecDie) InternalTrafficPolicy(v *corev1.ServiceInternalTrafficP
 //
 // topologically close (e.g., same zone).
 //
-// This is an alpha field and requires enabling ServiceTrafficDistribution feature.
+// This is a beta field and requires enabling ServiceTrafficDistribution feature.
 func (d *ServiceSpecDie) TrafficDistribution(v *string) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.TrafficDistribution = v
@@ -43110,6 +43278,10 @@ func (d *ServiceAccountDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Servi
 //
 // Pods are only limited to this list if this service account has a "kubernetes.io/enforce-mountable-secrets" annotation set to "true".
 //
+// The "kubernetes.io/enforce-mountable-secrets" annotation is deprecated since v1.32.
+//
+// Prefer separate namespaces to isolate access to mounted secrets.
+//
 // This field should not be used to find auto-generated service account token secrets for use outside of pods.
 //
 // Instead, tokens can be requested directly using the TokenRequest API, or service account token secrets can be manually created.
@@ -43145,6 +43317,10 @@ func (d *ServiceAccountDie) ImagePullSecretsDie(v ...*LocalObjectReferenceDie) *
 // Secrets is a list of the secrets in the same namespace that pods running using this ServiceAccount are allowed to use.
 //
 // Pods are only limited to this list if this service account has a "kubernetes.io/enforce-mountable-secrets" annotation set to "true".
+//
+// The "kubernetes.io/enforce-mountable-secrets" annotation is deprecated since v1.32.
+//
+// Prefer separate namespaces to isolate access to mounted secrets.
 //
 // This field should not be used to find auto-generated service account token secrets for use outside of pods.
 //
