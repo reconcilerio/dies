@@ -26,7 +26,7 @@ import (
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
-func TestreplicationController(t *testing.T) {
+func TestReplicationController(t *testing.T) {
 	tests := []struct {
 		name     string
 		die      *diecorev1.ReplicationControllerDie
