@@ -88,6 +88,58 @@ func TestObjectMeta(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "controlled by - local typemeta ignored if type in scheme",
+			die: diemetav1.ObjectMetaBlank.
+				ControlledBy(
+					diecorev1.PodBlank.
+						APIVersion("v1").
+						Kind("NotAPod").
+						MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+							d.Name("my-name")
+							d.UID("123e4567-e89b-12d3-a456-426614174000")
+						}),
+					scheme,
+				),
+			expected: metav1.ObjectMeta{
+				OwnerReferences: []metav1.OwnerReference{
+					{
+						APIVersion:         "v1",
+						Kind:               "Pod",
+						Name:               "my-name",
+						UID:                "123e4567-e89b-12d3-a456-426614174000",
+						BlockOwnerDeletion: ptr.To(true),
+						Controller:         ptr.To(true),
+					},
+				},
+			},
+		},
+		{
+			name: "controlled by - local typemeta use if type not in scheme",
+			die: diemetav1.ObjectMetaBlank.
+				ControlledBy(
+					diecorev1.PodBlank.
+						APIVersion("v1").
+						Kind("NotAPod").
+						MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+							d.Name("my-name")
+							d.UID("123e4567-e89b-12d3-a456-426614174000")
+						}),
+					runtime.NewScheme(),
+				),
+			expected: metav1.ObjectMeta{
+				OwnerReferences: []metav1.OwnerReference{
+					{
+						APIVersion:         "v1",
+						Kind:               "NotAPod",
+						Name:               "my-name",
+						UID:                "123e4567-e89b-12d3-a456-426614174000",
+						BlockOwnerDeletion: ptr.To(true),
+						Controller:         ptr.To(true),
+					},
+				},
+			},
+		},
 	}
 
 	for _, c := range tests {

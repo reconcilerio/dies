@@ -21,6 +21,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
 )
@@ -52,7 +53,11 @@ func (d *ObjectMetaDie) ControlledBy(obj runtime.Object, scheme *runtime.Scheme)
 	obj = obj.DeepCopyObject()
 	gvks, _, err := scheme.ObjectKinds(obj)
 	if err != nil {
-		panic(err)
+		if gvk := obj.GetObjectKind().GroupVersionKind(); gvk != (schema.GroupVersionKind{}) {
+			gvks = []schema.GroupVersionKind{gvk}
+		} else {
+			panic(err)
+		}
 	}
 	return d.OwnerReferences(metav1.OwnerReference{
 		APIVersion:         gvks[0].GroupVersion().String(),
