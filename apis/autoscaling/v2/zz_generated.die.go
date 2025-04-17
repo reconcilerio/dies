@@ -83,6 +83,15 @@ func (d *HorizontalPodAutoscalerDie) DieFeedPtr(r *autoscalingv2.HorizontalPodAu
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *HorizontalPodAutoscalerDie) DieFeedDuck(v any) *HorizontalPodAutoscalerDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *HorizontalPodAutoscalerDie) DieFeedJSON(j []byte) *HorizontalPodAutoscalerDie {
 	r := autoscalingv2.HorizontalPodAutoscaler{}
@@ -143,6 +152,15 @@ func (d *HorizontalPodAutoscalerDie) DieReleaseUnstructured() *unstructured.Unst
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *HorizontalPodAutoscalerDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -437,6 +455,15 @@ func (d *HorizontalPodAutoscalerSpecDie) DieFeedPtr(r *autoscalingv2.HorizontalP
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *HorizontalPodAutoscalerSpecDie) DieFeedDuck(v any) *HorizontalPodAutoscalerSpecDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *HorizontalPodAutoscalerSpecDie) DieFeedJSON(j []byte) *HorizontalPodAutoscalerSpecDie {
 	r := autoscalingv2.HorizontalPodAutoscalerSpec{}
@@ -485,6 +512,15 @@ func (d *HorizontalPodAutoscalerSpecDie) DieRelease() autoscalingv2.HorizontalPo
 func (d *HorizontalPodAutoscalerSpecDie) DieReleasePtr() *autoscalingv2.HorizontalPodAutoscalerSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *HorizontalPodAutoscalerSpecDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -784,6 +820,15 @@ func (d *CrossVersionObjectReferenceDie) DieFeedPtr(r *autoscalingv2.CrossVersio
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CrossVersionObjectReferenceDie) DieFeedDuck(v any) *CrossVersionObjectReferenceDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *CrossVersionObjectReferenceDie) DieFeedJSON(j []byte) *CrossVersionObjectReferenceDie {
 	r := autoscalingv2.CrossVersionObjectReference{}
@@ -832,6 +877,15 @@ func (d *CrossVersionObjectReferenceDie) DieRelease() autoscalingv2.CrossVersion
 func (d *CrossVersionObjectReferenceDie) DieReleasePtr() *autoscalingv2.CrossVersionObjectReference {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CrossVersionObjectReferenceDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1033,6 +1087,15 @@ func (d *MetricSpecDie) DieFeedPtr(r *autoscalingv2.MetricSpec) *MetricSpecDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *MetricSpecDie) DieFeedDuck(v any) *MetricSpecDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *MetricSpecDie) DieFeedJSON(j []byte) *MetricSpecDie {
 	r := autoscalingv2.MetricSpec{}
@@ -1081,6 +1144,15 @@ func (d *MetricSpecDie) DieRelease() autoscalingv2.MetricSpec {
 func (d *MetricSpecDie) DieReleasePtr() *autoscalingv2.MetricSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *MetricSpecDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1420,6 +1492,15 @@ func (d *ObjectMetricSourceDie) DieFeedPtr(r *autoscalingv2.ObjectMetricSource) 
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ObjectMetricSourceDie) DieFeedDuck(v any) *ObjectMetricSourceDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *ObjectMetricSourceDie) DieFeedJSON(j []byte) *ObjectMetricSourceDie {
 	r := autoscalingv2.ObjectMetricSource{}
@@ -1468,6 +1549,15 @@ func (d *ObjectMetricSourceDie) DieRelease() autoscalingv2.ObjectMetricSource {
 func (d *ObjectMetricSourceDie) DieReleasePtr() *autoscalingv2.ObjectMetricSource {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ObjectMetricSourceDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1702,6 +1792,15 @@ func (d *MetricTargetDie) DieFeedPtr(r *autoscalingv2.MetricTarget) *MetricTarge
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *MetricTargetDie) DieFeedDuck(v any) *MetricTargetDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *MetricTargetDie) DieFeedJSON(j []byte) *MetricTargetDie {
 	r := autoscalingv2.MetricTarget{}
@@ -1750,6 +1849,15 @@ func (d *MetricTargetDie) DieRelease() autoscalingv2.MetricTarget {
 func (d *MetricTargetDie) DieReleasePtr() *autoscalingv2.MetricTarget {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *MetricTargetDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1984,6 +2092,15 @@ func (d *MetricIdentifierDie) DieFeedPtr(r *autoscalingv2.MetricIdentifier) *Met
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *MetricIdentifierDie) DieFeedDuck(v any) *MetricIdentifierDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *MetricIdentifierDie) DieFeedJSON(j []byte) *MetricIdentifierDie {
 	r := autoscalingv2.MetricIdentifier{}
@@ -2032,6 +2149,15 @@ func (d *MetricIdentifierDie) DieRelease() autoscalingv2.MetricIdentifier {
 func (d *MetricIdentifierDie) DieReleasePtr() *autoscalingv2.MetricIdentifier {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *MetricIdentifierDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -2245,6 +2371,15 @@ func (d *PodsMetricSourceDie) DieFeedPtr(r *autoscalingv2.PodsMetricSource) *Pod
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *PodsMetricSourceDie) DieFeedDuck(v any) *PodsMetricSourceDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *PodsMetricSourceDie) DieFeedJSON(j []byte) *PodsMetricSourceDie {
 	r := autoscalingv2.PodsMetricSource{}
@@ -2293,6 +2428,15 @@ func (d *PodsMetricSourceDie) DieRelease() autoscalingv2.PodsMetricSource {
 func (d *PodsMetricSourceDie) DieReleasePtr() *autoscalingv2.PodsMetricSource {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *PodsMetricSourceDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -2509,6 +2653,15 @@ func (d *ResourceMetricSourceDie) DieFeedPtr(r *autoscalingv2.ResourceMetricSour
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ResourceMetricSourceDie) DieFeedDuck(v any) *ResourceMetricSourceDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *ResourceMetricSourceDie) DieFeedJSON(j []byte) *ResourceMetricSourceDie {
 	r := autoscalingv2.ResourceMetricSource{}
@@ -2557,6 +2710,15 @@ func (d *ResourceMetricSourceDie) DieRelease() autoscalingv2.ResourceMetricSourc
 func (d *ResourceMetricSourceDie) DieReleasePtr() *autoscalingv2.ResourceMetricSource {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ResourceMetricSourceDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -2762,6 +2924,15 @@ func (d *ContainerResourceMetricSourceDie) DieFeedPtr(r *autoscalingv2.Container
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ContainerResourceMetricSourceDie) DieFeedDuck(v any) *ContainerResourceMetricSourceDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *ContainerResourceMetricSourceDie) DieFeedJSON(j []byte) *ContainerResourceMetricSourceDie {
 	r := autoscalingv2.ContainerResourceMetricSource{}
@@ -2810,6 +2981,15 @@ func (d *ContainerResourceMetricSourceDie) DieRelease() autoscalingv2.ContainerR
 func (d *ContainerResourceMetricSourceDie) DieReleasePtr() *autoscalingv2.ContainerResourceMetricSource {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ContainerResourceMetricSourceDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -3022,6 +3202,15 @@ func (d *ExternalMetricSourceDie) DieFeedPtr(r *autoscalingv2.ExternalMetricSour
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ExternalMetricSourceDie) DieFeedDuck(v any) *ExternalMetricSourceDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *ExternalMetricSourceDie) DieFeedJSON(j []byte) *ExternalMetricSourceDie {
 	r := autoscalingv2.ExternalMetricSource{}
@@ -3070,6 +3259,15 @@ func (d *ExternalMetricSourceDie) DieRelease() autoscalingv2.ExternalMetricSourc
 func (d *ExternalMetricSourceDie) DieReleasePtr() *autoscalingv2.ExternalMetricSource {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ExternalMetricSourceDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -3286,6 +3484,15 @@ func (d *HorizontalPodAutoscalerBehaviorDie) DieFeedPtr(r *autoscalingv2.Horizon
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *HorizontalPodAutoscalerBehaviorDie) DieFeedDuck(v any) *HorizontalPodAutoscalerBehaviorDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *HorizontalPodAutoscalerBehaviorDie) DieFeedJSON(j []byte) *HorizontalPodAutoscalerBehaviorDie {
 	r := autoscalingv2.HorizontalPodAutoscalerBehavior{}
@@ -3334,6 +3541,15 @@ func (d *HorizontalPodAutoscalerBehaviorDie) DieRelease() autoscalingv2.Horizont
 func (d *HorizontalPodAutoscalerBehaviorDie) DieReleasePtr() *autoscalingv2.HorizontalPodAutoscalerBehavior {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *HorizontalPodAutoscalerBehaviorDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -3578,6 +3794,15 @@ func (d *HPAScalingRulesDie) DieFeedPtr(r *autoscalingv2.HPAScalingRules) *HPASc
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *HPAScalingRulesDie) DieFeedDuck(v any) *HPAScalingRulesDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *HPAScalingRulesDie) DieFeedJSON(j []byte) *HPAScalingRulesDie {
 	r := autoscalingv2.HPAScalingRules{}
@@ -3626,6 +3851,15 @@ func (d *HPAScalingRulesDie) DieRelease() autoscalingv2.HPAScalingRules {
 func (d *HPAScalingRulesDie) DieReleasePtr() *autoscalingv2.HPAScalingRules {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *HPAScalingRulesDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -3855,6 +4089,15 @@ func (d *HPAScalingPolicyDie) DieFeedPtr(r *autoscalingv2.HPAScalingPolicy) *HPA
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *HPAScalingPolicyDie) DieFeedDuck(v any) *HPAScalingPolicyDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *HPAScalingPolicyDie) DieFeedJSON(j []byte) *HPAScalingPolicyDie {
 	r := autoscalingv2.HPAScalingPolicy{}
@@ -3903,6 +4146,15 @@ func (d *HPAScalingPolicyDie) DieRelease() autoscalingv2.HPAScalingPolicy {
 func (d *HPAScalingPolicyDie) DieReleasePtr() *autoscalingv2.HPAScalingPolicy {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *HPAScalingPolicyDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -4108,6 +4360,15 @@ func (d *HorizontalPodAutoscalerStatusDie) DieFeedPtr(r *autoscalingv2.Horizonta
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *HorizontalPodAutoscalerStatusDie) DieFeedDuck(v any) *HorizontalPodAutoscalerStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *HorizontalPodAutoscalerStatusDie) DieFeedJSON(j []byte) *HorizontalPodAutoscalerStatusDie {
 	r := autoscalingv2.HorizontalPodAutoscalerStatus{}
@@ -4156,6 +4417,15 @@ func (d *HorizontalPodAutoscalerStatusDie) DieRelease() autoscalingv2.Horizontal
 func (d *HorizontalPodAutoscalerStatusDie) DieReleasePtr() *autoscalingv2.HorizontalPodAutoscalerStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *HorizontalPodAutoscalerStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -4398,6 +4668,15 @@ func (d *MetricStatusDie) DieFeedPtr(r *autoscalingv2.MetricStatus) *MetricStatu
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *MetricStatusDie) DieFeedDuck(v any) *MetricStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *MetricStatusDie) DieFeedJSON(j []byte) *MetricStatusDie {
 	r := autoscalingv2.MetricStatus{}
@@ -4446,6 +4725,15 @@ func (d *MetricStatusDie) DieRelease() autoscalingv2.MetricStatus {
 func (d *MetricStatusDie) DieReleasePtr() *autoscalingv2.MetricStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *MetricStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -4785,6 +5073,15 @@ func (d *ObjectMetricStatusDie) DieFeedPtr(r *autoscalingv2.ObjectMetricStatus) 
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ObjectMetricStatusDie) DieFeedDuck(v any) *ObjectMetricStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *ObjectMetricStatusDie) DieFeedJSON(j []byte) *ObjectMetricStatusDie {
 	r := autoscalingv2.ObjectMetricStatus{}
@@ -4833,6 +5130,15 @@ func (d *ObjectMetricStatusDie) DieRelease() autoscalingv2.ObjectMetricStatus {
 func (d *ObjectMetricStatusDie) DieReleasePtr() *autoscalingv2.ObjectMetricStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ObjectMetricStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -5067,6 +5373,15 @@ func (d *MetricValueStatusDie) DieFeedPtr(r *autoscalingv2.MetricValueStatus) *M
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *MetricValueStatusDie) DieFeedDuck(v any) *MetricValueStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *MetricValueStatusDie) DieFeedJSON(j []byte) *MetricValueStatusDie {
 	r := autoscalingv2.MetricValueStatus{}
@@ -5115,6 +5430,15 @@ func (d *MetricValueStatusDie) DieRelease() autoscalingv2.MetricValueStatus {
 func (d *MetricValueStatusDie) DieReleasePtr() *autoscalingv2.MetricValueStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *MetricValueStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -5340,6 +5664,15 @@ func (d *PodsMetricStatusDie) DieFeedPtr(r *autoscalingv2.PodsMetricStatus) *Pod
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *PodsMetricStatusDie) DieFeedDuck(v any) *PodsMetricStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *PodsMetricStatusDie) DieFeedJSON(j []byte) *PodsMetricStatusDie {
 	r := autoscalingv2.PodsMetricStatus{}
@@ -5388,6 +5721,15 @@ func (d *PodsMetricStatusDie) DieRelease() autoscalingv2.PodsMetricStatus {
 func (d *PodsMetricStatusDie) DieReleasePtr() *autoscalingv2.PodsMetricStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *PodsMetricStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -5604,6 +5946,15 @@ func (d *ResourceMetricStatusDie) DieFeedPtr(r *autoscalingv2.ResourceMetricStat
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ResourceMetricStatusDie) DieFeedDuck(v any) *ResourceMetricStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *ResourceMetricStatusDie) DieFeedJSON(j []byte) *ResourceMetricStatusDie {
 	r := autoscalingv2.ResourceMetricStatus{}
@@ -5652,6 +6003,15 @@ func (d *ResourceMetricStatusDie) DieRelease() autoscalingv2.ResourceMetricStatu
 func (d *ResourceMetricStatusDie) DieReleasePtr() *autoscalingv2.ResourceMetricStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ResourceMetricStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -5857,6 +6217,15 @@ func (d *ContainerResourceMetricStatusDie) DieFeedPtr(r *autoscalingv2.Container
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ContainerResourceMetricStatusDie) DieFeedDuck(v any) *ContainerResourceMetricStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *ContainerResourceMetricStatusDie) DieFeedJSON(j []byte) *ContainerResourceMetricStatusDie {
 	r := autoscalingv2.ContainerResourceMetricStatus{}
@@ -5905,6 +6274,15 @@ func (d *ContainerResourceMetricStatusDie) DieRelease() autoscalingv2.ContainerR
 func (d *ContainerResourceMetricStatusDie) DieReleasePtr() *autoscalingv2.ContainerResourceMetricStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ContainerResourceMetricStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -6117,6 +6495,15 @@ func (d *ExternalMetricStatusDie) DieFeedPtr(r *autoscalingv2.ExternalMetricStat
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ExternalMetricStatusDie) DieFeedDuck(v any) *ExternalMetricStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *ExternalMetricStatusDie) DieFeedJSON(j []byte) *ExternalMetricStatusDie {
 	r := autoscalingv2.ExternalMetricStatus{}
@@ -6165,6 +6552,15 @@ func (d *ExternalMetricStatusDie) DieRelease() autoscalingv2.ExternalMetricStatu
 func (d *ExternalMetricStatusDie) DieReleasePtr() *autoscalingv2.ExternalMetricStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ExternalMetricStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.

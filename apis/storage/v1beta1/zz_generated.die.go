@@ -82,6 +82,15 @@ func (d *CSIStorageCapacityDie) DieFeedPtr(r *storagev1beta1.CSIStorageCapacity)
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CSIStorageCapacityDie) DieFeedDuck(v any) *CSIStorageCapacityDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *CSIStorageCapacityDie) DieFeedJSON(j []byte) *CSIStorageCapacityDie {
 	r := storagev1beta1.CSIStorageCapacity{}
@@ -142,6 +151,15 @@ func (d *CSIStorageCapacityDie) DieReleaseUnstructured() *unstructured.Unstructu
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CSIStorageCapacityDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.

@@ -81,6 +81,15 @@ func (d *CustomResourceDefinitionDie) DieFeedPtr(r *apiextensionsv1.CustomResour
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CustomResourceDefinitionDie) DieFeedDuck(v any) *CustomResourceDefinitionDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *CustomResourceDefinitionDie) DieFeedJSON(j []byte) *CustomResourceDefinitionDie {
 	r := apiextensionsv1.CustomResourceDefinition{}
@@ -141,6 +150,15 @@ func (d *CustomResourceDefinitionDie) DieReleaseUnstructured() *unstructured.Uns
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CustomResourceDefinitionDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -433,6 +451,15 @@ func (d *CustomResourceDefinitionSpecDie) DieFeedPtr(r *apiextensionsv1.CustomRe
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CustomResourceDefinitionSpecDie) DieFeedDuck(v any) *CustomResourceDefinitionSpecDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *CustomResourceDefinitionSpecDie) DieFeedJSON(j []byte) *CustomResourceDefinitionSpecDie {
 	r := apiextensionsv1.CustomResourceDefinitionSpec{}
@@ -481,6 +508,15 @@ func (d *CustomResourceDefinitionSpecDie) DieRelease() apiextensionsv1.CustomRes
 func (d *CustomResourceDefinitionSpecDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CustomResourceDefinitionSpecDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -787,6 +823,15 @@ func (d *CustomResourceDefinitionVersionDie) DieFeedPtr(r *apiextensionsv1.Custo
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CustomResourceDefinitionVersionDie) DieFeedDuck(v any) *CustomResourceDefinitionVersionDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *CustomResourceDefinitionVersionDie) DieFeedJSON(j []byte) *CustomResourceDefinitionVersionDie {
 	r := apiextensionsv1.CustomResourceDefinitionVersion{}
@@ -835,6 +880,15 @@ func (d *CustomResourceDefinitionVersionDie) DieRelease() apiextensionsv1.Custom
 func (d *CustomResourceDefinitionVersionDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionVersion {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CustomResourceDefinitionVersionDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1162,6 +1216,15 @@ func (d *CustomResourceValidationDie) DieFeedPtr(r *apiextensionsv1.CustomResour
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CustomResourceValidationDie) DieFeedDuck(v any) *CustomResourceValidationDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *CustomResourceValidationDie) DieFeedJSON(j []byte) *CustomResourceValidationDie {
 	r := apiextensionsv1.CustomResourceValidation{}
@@ -1210,6 +1273,15 @@ func (d *CustomResourceValidationDie) DieRelease() apiextensionsv1.CustomResourc
 func (d *CustomResourceValidationDie) DieReleasePtr() *apiextensionsv1.CustomResourceValidation {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CustomResourceValidationDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1397,6 +1469,15 @@ func (d *CustomResourceSubresourcesDie) DieFeedPtr(r *apiextensionsv1.CustomReso
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CustomResourceSubresourcesDie) DieFeedDuck(v any) *CustomResourceSubresourcesDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *CustomResourceSubresourcesDie) DieFeedJSON(j []byte) *CustomResourceSubresourcesDie {
 	r := apiextensionsv1.CustomResourceSubresources{}
@@ -1445,6 +1526,15 @@ func (d *CustomResourceSubresourcesDie) DieRelease() apiextensionsv1.CustomResou
 func (d *CustomResourceSubresourcesDie) DieReleasePtr() *apiextensionsv1.CustomResourceSubresources {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CustomResourceSubresourcesDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1656,6 +1746,15 @@ func (d *CustomResourceSubresourceScaleDie) DieFeedPtr(r *apiextensionsv1.Custom
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CustomResourceSubresourceScaleDie) DieFeedDuck(v any) *CustomResourceSubresourceScaleDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *CustomResourceSubresourceScaleDie) DieFeedJSON(j []byte) *CustomResourceSubresourceScaleDie {
 	r := apiextensionsv1.CustomResourceSubresourceScale{}
@@ -1704,6 +1803,15 @@ func (d *CustomResourceSubresourceScaleDie) DieRelease() apiextensionsv1.CustomR
 func (d *CustomResourceSubresourceScaleDie) DieReleasePtr() *apiextensionsv1.CustomResourceSubresourceScale {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CustomResourceSubresourceScaleDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1935,6 +2043,15 @@ func (d *CustomResourceColumnDefinitionDie) DieFeedPtr(r *apiextensionsv1.Custom
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CustomResourceColumnDefinitionDie) DieFeedDuck(v any) *CustomResourceColumnDefinitionDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *CustomResourceColumnDefinitionDie) DieFeedJSON(j []byte) *CustomResourceColumnDefinitionDie {
 	r := apiextensionsv1.CustomResourceColumnDefinition{}
@@ -1983,6 +2100,15 @@ func (d *CustomResourceColumnDefinitionDie) DieRelease() apiextensionsv1.CustomR
 func (d *CustomResourceColumnDefinitionDie) DieReleasePtr() *apiextensionsv1.CustomResourceColumnDefinition {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CustomResourceColumnDefinitionDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -2217,6 +2343,15 @@ func (d *CustomResourceConversionDie) DieFeedPtr(r *apiextensionsv1.CustomResour
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CustomResourceConversionDie) DieFeedDuck(v any) *CustomResourceConversionDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *CustomResourceConversionDie) DieFeedJSON(j []byte) *CustomResourceConversionDie {
 	r := apiextensionsv1.CustomResourceConversion{}
@@ -2265,6 +2400,15 @@ func (d *CustomResourceConversionDie) DieRelease() apiextensionsv1.CustomResourc
 func (d *CustomResourceConversionDie) DieReleasePtr() *apiextensionsv1.CustomResourceConversion {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CustomResourceConversionDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -2476,6 +2620,15 @@ func (d *WebhookConversionDie) DieFeedPtr(r *apiextensionsv1.WebhookConversion) 
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *WebhookConversionDie) DieFeedDuck(v any) *WebhookConversionDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *WebhookConversionDie) DieFeedJSON(j []byte) *WebhookConversionDie {
 	r := apiextensionsv1.WebhookConversion{}
@@ -2524,6 +2677,15 @@ func (d *WebhookConversionDie) DieRelease() apiextensionsv1.WebhookConversion {
 func (d *WebhookConversionDie) DieReleasePtr() *apiextensionsv1.WebhookConversion {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *WebhookConversionDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -2739,6 +2901,15 @@ func (d *WebhookClientConfigDie) DieFeedPtr(r *apiextensionsv1.WebhookClientConf
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *WebhookClientConfigDie) DieFeedDuck(v any) *WebhookClientConfigDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *WebhookClientConfigDie) DieFeedJSON(j []byte) *WebhookClientConfigDie {
 	r := apiextensionsv1.WebhookClientConfig{}
@@ -2787,6 +2958,15 @@ func (d *WebhookClientConfigDie) DieRelease() apiextensionsv1.WebhookClientConfi
 func (d *WebhookClientConfigDie) DieReleasePtr() *apiextensionsv1.WebhookClientConfig {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *WebhookClientConfigDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -3047,6 +3227,15 @@ func (d *ServiceReferenceDie) DieFeedPtr(r *apiextensionsv1.ServiceReference) *S
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ServiceReferenceDie) DieFeedDuck(v any) *ServiceReferenceDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *ServiceReferenceDie) DieFeedJSON(j []byte) *ServiceReferenceDie {
 	r := apiextensionsv1.ServiceReference{}
@@ -3095,6 +3284,15 @@ func (d *ServiceReferenceDie) DieRelease() apiextensionsv1.ServiceReference {
 func (d *ServiceReferenceDie) DieReleasePtr() *apiextensionsv1.ServiceReference {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ServiceReferenceDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -3311,6 +3509,15 @@ func (d *SelectableFieldDie) DieFeedPtr(r *apiextensionsv1.SelectableField) *Sel
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *SelectableFieldDie) DieFeedDuck(v any) *SelectableFieldDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *SelectableFieldDie) DieFeedJSON(j []byte) *SelectableFieldDie {
 	r := apiextensionsv1.SelectableField{}
@@ -3359,6 +3566,15 @@ func (d *SelectableFieldDie) DieRelease() apiextensionsv1.SelectableField {
 func (d *SelectableFieldDie) DieReleasePtr() *apiextensionsv1.SelectableField {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *SelectableFieldDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -3560,6 +3776,15 @@ func (d *CustomResourceDefinitionStatusDie) DieFeedPtr(r *apiextensionsv1.Custom
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CustomResourceDefinitionStatusDie) DieFeedDuck(v any) *CustomResourceDefinitionStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *CustomResourceDefinitionStatusDie) DieFeedJSON(j []byte) *CustomResourceDefinitionStatusDie {
 	r := apiextensionsv1.CustomResourceDefinitionStatus{}
@@ -3608,6 +3833,15 @@ func (d *CustomResourceDefinitionStatusDie) DieRelease() apiextensionsv1.CustomR
 func (d *CustomResourceDefinitionStatusDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CustomResourceDefinitionStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -3834,6 +4068,15 @@ func (d *CustomResourceDefinitionNamesDie) DieFeedPtr(r *apiextensionsv1.CustomR
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CustomResourceDefinitionNamesDie) DieFeedDuck(v any) *CustomResourceDefinitionNamesDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *CustomResourceDefinitionNamesDie) DieFeedJSON(j []byte) *CustomResourceDefinitionNamesDie {
 	r := apiextensionsv1.CustomResourceDefinitionNames{}
@@ -3882,6 +4125,15 @@ func (d *CustomResourceDefinitionNamesDie) DieRelease() apiextensionsv1.CustomRe
 func (d *CustomResourceDefinitionNamesDie) DieReleasePtr() *apiextensionsv1.CustomResourceDefinitionNames {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CustomResourceDefinitionNamesDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.

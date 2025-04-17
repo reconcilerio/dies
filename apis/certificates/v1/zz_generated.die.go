@@ -81,6 +81,15 @@ func (d *CertificateSigningRequestDie) DieFeedPtr(r *certificatesv1.CertificateS
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CertificateSigningRequestDie) DieFeedDuck(v any) *CertificateSigningRequestDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *CertificateSigningRequestDie) DieFeedJSON(j []byte) *CertificateSigningRequestDie {
 	r := certificatesv1.CertificateSigningRequest{}
@@ -141,6 +150,15 @@ func (d *CertificateSigningRequestDie) DieReleaseUnstructured() *unstructured.Un
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CertificateSigningRequestDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -439,6 +457,15 @@ func (d *CertificateSigningRequestSpecDie) DieFeedPtr(r *certificatesv1.Certific
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CertificateSigningRequestSpecDie) DieFeedDuck(v any) *CertificateSigningRequestSpecDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *CertificateSigningRequestSpecDie) DieFeedJSON(j []byte) *CertificateSigningRequestSpecDie {
 	r := certificatesv1.CertificateSigningRequestSpec{}
@@ -487,6 +514,15 @@ func (d *CertificateSigningRequestSpecDie) DieRelease() certificatesv1.Certifica
 func (d *CertificateSigningRequestSpecDie) DieReleasePtr() *certificatesv1.CertificateSigningRequestSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CertificateSigningRequestSpecDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -802,6 +838,15 @@ func (d *CertificateSigningRequestStatusDie) DieFeedPtr(r *certificatesv1.Certif
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CertificateSigningRequestStatusDie) DieFeedDuck(v any) *CertificateSigningRequestStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *CertificateSigningRequestStatusDie) DieFeedJSON(j []byte) *CertificateSigningRequestStatusDie {
 	r := certificatesv1.CertificateSigningRequestStatus{}
@@ -850,6 +895,15 @@ func (d *CertificateSigningRequestStatusDie) DieRelease() certificatesv1.Certifi
 func (d *CertificateSigningRequestStatusDie) DieReleasePtr() *certificatesv1.CertificateSigningRequestStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CertificateSigningRequestStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.

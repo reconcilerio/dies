@@ -84,6 +84,15 @@ func (d *IngressDie) DieFeedPtr(r *networkingv1.Ingress) *IngressDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *IngressDie) DieFeedDuck(v any) *IngressDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *IngressDie) DieFeedJSON(j []byte) *IngressDie {
 	r := networkingv1.Ingress{}
@@ -144,6 +153,15 @@ func (d *IngressDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *IngressDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -440,6 +458,15 @@ func (d *IngressSpecDie) DieFeedPtr(r *networkingv1.IngressSpec) *IngressSpecDie
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *IngressSpecDie) DieFeedDuck(v any) *IngressSpecDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *IngressSpecDie) DieFeedJSON(j []byte) *IngressSpecDie {
 	r := networkingv1.IngressSpec{}
@@ -488,6 +515,15 @@ func (d *IngressSpecDie) DieRelease() networkingv1.IngressSpec {
 func (d *IngressSpecDie) DieReleasePtr() *networkingv1.IngressSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *IngressSpecDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -781,6 +817,15 @@ func (d *IngressBackendDie) DieFeedPtr(r *networkingv1.IngressBackend) *IngressB
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *IngressBackendDie) DieFeedDuck(v any) *IngressBackendDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *IngressBackendDie) DieFeedJSON(j []byte) *IngressBackendDie {
 	r := networkingv1.IngressBackend{}
@@ -829,6 +874,15 @@ func (d *IngressBackendDie) DieRelease() networkingv1.IngressBackend {
 func (d *IngressBackendDie) DieReleasePtr() *networkingv1.IngressBackend {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *IngressBackendDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1061,6 +1115,15 @@ func (d *IngressServiceBackendDie) DieFeedPtr(r *networkingv1.IngressServiceBack
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *IngressServiceBackendDie) DieFeedDuck(v any) *IngressServiceBackendDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *IngressServiceBackendDie) DieFeedJSON(j []byte) *IngressServiceBackendDie {
 	r := networkingv1.IngressServiceBackend{}
@@ -1109,6 +1172,15 @@ func (d *IngressServiceBackendDie) DieRelease() networkingv1.IngressServiceBacke
 func (d *IngressServiceBackendDie) DieReleasePtr() *networkingv1.IngressServiceBackend {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *IngressServiceBackendDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1320,6 +1392,15 @@ func (d *ServiceBackendPortDie) DieFeedPtr(r *networkingv1.ServiceBackendPort) *
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ServiceBackendPortDie) DieFeedDuck(v any) *ServiceBackendPortDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *ServiceBackendPortDie) DieFeedJSON(j []byte) *ServiceBackendPortDie {
 	r := networkingv1.ServiceBackendPort{}
@@ -1368,6 +1449,15 @@ func (d *ServiceBackendPortDie) DieRelease() networkingv1.ServiceBackendPort {
 func (d *ServiceBackendPortDie) DieReleasePtr() *networkingv1.ServiceBackendPort {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ServiceBackendPortDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1566,6 +1656,15 @@ func (d *IngressTLSDie) DieFeedPtr(r *networkingv1.IngressTLS) *IngressTLSDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *IngressTLSDie) DieFeedDuck(v any) *IngressTLSDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *IngressTLSDie) DieFeedJSON(j []byte) *IngressTLSDie {
 	r := networkingv1.IngressTLS{}
@@ -1614,6 +1713,15 @@ func (d *IngressTLSDie) DieRelease() networkingv1.IngressTLS {
 func (d *IngressTLSDie) DieReleasePtr() *networkingv1.IngressTLS {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *IngressTLSDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1822,6 +1930,15 @@ func (d *IngressRuleDie) DieFeedPtr(r *networkingv1.IngressRule) *IngressRuleDie
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *IngressRuleDie) DieFeedDuck(v any) *IngressRuleDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *IngressRuleDie) DieFeedJSON(j []byte) *IngressRuleDie {
 	r := networkingv1.IngressRule{}
@@ -1870,6 +1987,15 @@ func (d *IngressRuleDie) DieRelease() networkingv1.IngressRule {
 func (d *IngressRuleDie) DieReleasePtr() *networkingv1.IngressRule {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *IngressRuleDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -2121,6 +2247,15 @@ func (d *HTTPIngressRuleValueDie) DieFeedPtr(r *networkingv1.HTTPIngressRuleValu
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *HTTPIngressRuleValueDie) DieFeedDuck(v any) *HTTPIngressRuleValueDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *HTTPIngressRuleValueDie) DieFeedJSON(j []byte) *HTTPIngressRuleValueDie {
 	r := networkingv1.HTTPIngressRuleValue{}
@@ -2169,6 +2304,15 @@ func (d *HTTPIngressRuleValueDie) DieRelease() networkingv1.HTTPIngressRuleValue
 func (d *HTTPIngressRuleValueDie) DieReleasePtr() *networkingv1.HTTPIngressRuleValue {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *HTTPIngressRuleValueDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -2368,6 +2512,15 @@ func (d *HTTPIngressPathDie) DieFeedPtr(r *networkingv1.HTTPIngressPath) *HTTPIn
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *HTTPIngressPathDie) DieFeedDuck(v any) *HTTPIngressPathDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *HTTPIngressPathDie) DieFeedJSON(j []byte) *HTTPIngressPathDie {
 	r := networkingv1.HTTPIngressPath{}
@@ -2416,6 +2569,15 @@ func (d *HTTPIngressPathDie) DieRelease() networkingv1.HTTPIngressPath {
 func (d *HTTPIngressPathDie) DieReleasePtr() *networkingv1.HTTPIngressPath {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *HTTPIngressPathDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -2664,6 +2826,15 @@ func (d *IngressStatusDie) DieFeedPtr(r *networkingv1.IngressStatus) *IngressSta
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *IngressStatusDie) DieFeedDuck(v any) *IngressStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *IngressStatusDie) DieFeedJSON(j []byte) *IngressStatusDie {
 	r := networkingv1.IngressStatus{}
@@ -2712,6 +2883,15 @@ func (d *IngressStatusDie) DieRelease() networkingv1.IngressStatus {
 func (d *IngressStatusDie) DieReleasePtr() *networkingv1.IngressStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *IngressStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -2910,6 +3090,15 @@ func (d *IngressLoadBalancerStatusDie) DieFeedPtr(r *networkingv1.IngressLoadBal
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *IngressLoadBalancerStatusDie) DieFeedDuck(v any) *IngressLoadBalancerStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *IngressLoadBalancerStatusDie) DieFeedJSON(j []byte) *IngressLoadBalancerStatusDie {
 	r := networkingv1.IngressLoadBalancerStatus{}
@@ -2958,6 +3147,15 @@ func (d *IngressLoadBalancerStatusDie) DieRelease() networkingv1.IngressLoadBala
 func (d *IngressLoadBalancerStatusDie) DieReleasePtr() *networkingv1.IngressLoadBalancerStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *IngressLoadBalancerStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -3157,6 +3355,15 @@ func (d *IngressLoadBalancerIngressDie) DieFeedPtr(r *networkingv1.IngressLoadBa
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *IngressLoadBalancerIngressDie) DieFeedDuck(v any) *IngressLoadBalancerIngressDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *IngressLoadBalancerIngressDie) DieFeedJSON(j []byte) *IngressLoadBalancerIngressDie {
 	r := networkingv1.IngressLoadBalancerIngress{}
@@ -3205,6 +3412,15 @@ func (d *IngressLoadBalancerIngressDie) DieRelease() networkingv1.IngressLoadBal
 func (d *IngressLoadBalancerIngressDie) DieReleasePtr() *networkingv1.IngressLoadBalancerIngress {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *IngressLoadBalancerIngressDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -3418,6 +3634,15 @@ func (d *IngressPortStatusDie) DieFeedPtr(r *networkingv1.IngressPortStatus) *In
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *IngressPortStatusDie) DieFeedDuck(v any) *IngressPortStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *IngressPortStatusDie) DieFeedJSON(j []byte) *IngressPortStatusDie {
 	r := networkingv1.IngressPortStatus{}
@@ -3466,6 +3691,15 @@ func (d *IngressPortStatusDie) DieRelease() networkingv1.IngressPortStatus {
 func (d *IngressPortStatusDie) DieReleasePtr() *networkingv1.IngressPortStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *IngressPortStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -3686,6 +3920,15 @@ func (d *IngressClassDie) DieFeedPtr(r *networkingv1.IngressClass) *IngressClass
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *IngressClassDie) DieFeedDuck(v any) *IngressClassDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *IngressClassDie) DieFeedJSON(j []byte) *IngressClassDie {
 	r := networkingv1.IngressClass{}
@@ -3746,6 +3989,15 @@ func (d *IngressClassDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *IngressClassDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -4024,6 +4276,15 @@ func (d *IngressClassSpecDie) DieFeedPtr(r *networkingv1.IngressClassSpec) *Ingr
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *IngressClassSpecDie) DieFeedDuck(v any) *IngressClassSpecDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *IngressClassSpecDie) DieFeedJSON(j []byte) *IngressClassSpecDie {
 	r := networkingv1.IngressClassSpec{}
@@ -4072,6 +4333,15 @@ func (d *IngressClassSpecDie) DieRelease() networkingv1.IngressClassSpec {
 func (d *IngressClassSpecDie) DieReleasePtr() *networkingv1.IngressClassSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *IngressClassSpecDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -4295,6 +4565,15 @@ func (d *IngressClassParametersReferenceDie) DieFeedPtr(r *networkingv1.IngressC
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *IngressClassParametersReferenceDie) DieFeedDuck(v any) *IngressClassParametersReferenceDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *IngressClassParametersReferenceDie) DieFeedJSON(j []byte) *IngressClassParametersReferenceDie {
 	r := networkingv1.IngressClassParametersReference{}
@@ -4343,6 +4622,15 @@ func (d *IngressClassParametersReferenceDie) DieRelease() networkingv1.IngressCl
 func (d *IngressClassParametersReferenceDie) DieReleasePtr() *networkingv1.IngressClassParametersReference {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *IngressClassParametersReferenceDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -4571,6 +4859,15 @@ func (d *NetworkPolicyDie) DieFeedPtr(r *networkingv1.NetworkPolicy) *NetworkPol
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *NetworkPolicyDie) DieFeedDuck(v any) *NetworkPolicyDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *NetworkPolicyDie) DieFeedJSON(j []byte) *NetworkPolicyDie {
 	r := networkingv1.NetworkPolicy{}
@@ -4631,6 +4928,15 @@ func (d *NetworkPolicyDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *NetworkPolicyDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -4907,6 +5213,15 @@ func (d *NetworkPolicySpecDie) DieFeedPtr(r *networkingv1.NetworkPolicySpec) *Ne
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *NetworkPolicySpecDie) DieFeedDuck(v any) *NetworkPolicySpecDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *NetworkPolicySpecDie) DieFeedJSON(j []byte) *NetworkPolicySpecDie {
 	r := networkingv1.NetworkPolicySpec{}
@@ -4955,6 +5270,15 @@ func (d *NetworkPolicySpecDie) DieRelease() networkingv1.NetworkPolicySpec {
 func (d *NetworkPolicySpecDie) DieReleasePtr() *networkingv1.NetworkPolicySpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *NetworkPolicySpecDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -5284,6 +5608,15 @@ func (d *NetworkPolicyIngressRuleDie) DieFeedPtr(r *networkingv1.NetworkPolicyIn
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *NetworkPolicyIngressRuleDie) DieFeedDuck(v any) *NetworkPolicyIngressRuleDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *NetworkPolicyIngressRuleDie) DieFeedJSON(j []byte) *NetworkPolicyIngressRuleDie {
 	r := networkingv1.NetworkPolicyIngressRule{}
@@ -5332,6 +5665,15 @@ func (d *NetworkPolicyIngressRuleDie) DieRelease() networkingv1.NetworkPolicyIng
 func (d *NetworkPolicyIngressRuleDie) DieReleasePtr() *networkingv1.NetworkPolicyIngressRule {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *NetworkPolicyIngressRuleDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -5582,6 +5924,15 @@ func (d *NetworkPolicyEgressRuleDie) DieFeedPtr(r *networkingv1.NetworkPolicyEgr
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *NetworkPolicyEgressRuleDie) DieFeedDuck(v any) *NetworkPolicyEgressRuleDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *NetworkPolicyEgressRuleDie) DieFeedJSON(j []byte) *NetworkPolicyEgressRuleDie {
 	r := networkingv1.NetworkPolicyEgressRule{}
@@ -5630,6 +5981,15 @@ func (d *NetworkPolicyEgressRuleDie) DieRelease() networkingv1.NetworkPolicyEgre
 func (d *NetworkPolicyEgressRuleDie) DieReleasePtr() *networkingv1.NetworkPolicyEgressRule {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *NetworkPolicyEgressRuleDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -5880,6 +6240,15 @@ func (d *NetworkPolicyPortDie) DieFeedPtr(r *networkingv1.NetworkPolicyPort) *Ne
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *NetworkPolicyPortDie) DieFeedDuck(v any) *NetworkPolicyPortDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *NetworkPolicyPortDie) DieFeedJSON(j []byte) *NetworkPolicyPortDie {
 	r := networkingv1.NetworkPolicyPort{}
@@ -5928,6 +6297,15 @@ func (d *NetworkPolicyPortDie) DieRelease() networkingv1.NetworkPolicyPort {
 func (d *NetworkPolicyPortDie) DieReleasePtr() *networkingv1.NetworkPolicyPort {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *NetworkPolicyPortDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -6175,6 +6553,15 @@ func (d *NetworkPolicyPeerDie) DieFeedPtr(r *networkingv1.NetworkPolicyPeer) *Ne
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *NetworkPolicyPeerDie) DieFeedDuck(v any) *NetworkPolicyPeerDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *NetworkPolicyPeerDie) DieFeedJSON(j []byte) *NetworkPolicyPeerDie {
 	r := networkingv1.NetworkPolicyPeer{}
@@ -6223,6 +6610,15 @@ func (d *NetworkPolicyPeerDie) DieRelease() networkingv1.NetworkPolicyPeer {
 func (d *NetworkPolicyPeerDie) DieReleasePtr() *networkingv1.NetworkPolicyPeer {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *NetworkPolicyPeerDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -6493,6 +6889,15 @@ func (d *IPBlockDie) DieFeedPtr(r *networkingv1.IPBlock) *IPBlockDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *IPBlockDie) DieFeedDuck(v any) *IPBlockDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *IPBlockDie) DieFeedJSON(j []byte) *IPBlockDie {
 	r := networkingv1.IPBlock{}
@@ -6541,6 +6946,15 @@ func (d *IPBlockDie) DieRelease() networkingv1.IPBlock {
 func (d *IPBlockDie) DieReleasePtr() *networkingv1.IPBlock {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *IPBlockDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
