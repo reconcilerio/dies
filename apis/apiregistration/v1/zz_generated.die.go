@@ -81,6 +81,15 @@ func (d *APIServiceDie) DieFeedPtr(r *apiregistration.APIService) *APIServiceDie
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *APIServiceDie) DieFeedDuck(v any) *APIServiceDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *APIServiceDie) DieFeedJSON(j []byte) *APIServiceDie {
 	r := apiregistration.APIService{}
@@ -141,6 +150,15 @@ func (d *APIServiceDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *APIServiceDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -433,6 +451,15 @@ func (d *APIServiceSpecDie) DieFeedPtr(r *apiregistration.APIServiceSpec) *APISe
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *APIServiceSpecDie) DieFeedDuck(v any) *APIServiceSpecDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *APIServiceSpecDie) DieFeedJSON(j []byte) *APIServiceSpecDie {
 	r := apiregistration.APIServiceSpec{}
@@ -481,6 +508,15 @@ func (d *APIServiceSpecDie) DieRelease() apiregistration.APIServiceSpec {
 func (d *APIServiceSpecDie) DieReleasePtr() *apiregistration.APIServiceSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *APIServiceSpecDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -765,6 +801,15 @@ func (d *ServiceReferenceDie) DieFeedPtr(r *apiregistration.ServiceReference) *S
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ServiceReferenceDie) DieFeedDuck(v any) *ServiceReferenceDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *ServiceReferenceDie) DieFeedJSON(j []byte) *ServiceReferenceDie {
 	r := apiregistration.ServiceReference{}
@@ -813,6 +858,15 @@ func (d *ServiceReferenceDie) DieRelease() apiregistration.ServiceReference {
 func (d *ServiceReferenceDie) DieReleasePtr() *apiregistration.ServiceReference {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ServiceReferenceDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1018,6 +1072,15 @@ func (d *APIServiceStatusDie) DieFeedPtr(r *apiregistration.APIServiceStatus) *A
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *APIServiceStatusDie) DieFeedDuck(v any) *APIServiceStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *APIServiceStatusDie) DieFeedJSON(j []byte) *APIServiceStatusDie {
 	r := apiregistration.APIServiceStatus{}
@@ -1066,6 +1129,15 @@ func (d *APIServiceStatusDie) DieRelease() apiregistration.APIServiceStatus {
 func (d *APIServiceStatusDie) DieReleasePtr() *apiregistration.APIServiceStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *APIServiceStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.

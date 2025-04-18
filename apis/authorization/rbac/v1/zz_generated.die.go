@@ -81,6 +81,15 @@ func (d *ClusterRoleDie) DieFeedPtr(r *rbacv1.ClusterRole) *ClusterRoleDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ClusterRoleDie) DieFeedDuck(v any) *ClusterRoleDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *ClusterRoleDie) DieFeedJSON(j []byte) *ClusterRoleDie {
 	r := rbacv1.ClusterRole{}
@@ -141,6 +150,15 @@ func (d *ClusterRoleDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ClusterRoleDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -446,6 +464,15 @@ func (d *AggregationRuleDie) DieFeedPtr(r *rbacv1.AggregationRule) *AggregationR
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *AggregationRuleDie) DieFeedDuck(v any) *AggregationRuleDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *AggregationRuleDie) DieFeedJSON(j []byte) *AggregationRuleDie {
 	r := rbacv1.AggregationRule{}
@@ -494,6 +521,15 @@ func (d *AggregationRuleDie) DieRelease() rbacv1.AggregationRule {
 func (d *AggregationRuleDie) DieReleasePtr() *rbacv1.AggregationRule {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *AggregationRuleDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -700,6 +736,15 @@ func (d *ClusterRoleBindingDie) DieFeedPtr(r *rbacv1.ClusterRoleBinding) *Cluste
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ClusterRoleBindingDie) DieFeedDuck(v any) *ClusterRoleBindingDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *ClusterRoleBindingDie) DieFeedJSON(j []byte) *ClusterRoleBindingDie {
 	r := rbacv1.ClusterRoleBinding{}
@@ -760,6 +805,15 @@ func (d *ClusterRoleBindingDie) DieReleaseUnstructured() *unstructured.Unstructu
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ClusterRoleBindingDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1068,6 +1122,15 @@ func (d *RoleDie) DieFeedPtr(r *rbacv1.Role) *RoleDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *RoleDie) DieFeedDuck(v any) *RoleDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *RoleDie) DieFeedJSON(j []byte) *RoleDie {
 	r := rbacv1.Role{}
@@ -1128,6 +1191,15 @@ func (d *RoleDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *RoleDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1407,6 +1479,15 @@ func (d *PolicyRuleDie) DieFeedPtr(r *rbacv1.PolicyRule) *PolicyRuleDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *PolicyRuleDie) DieFeedDuck(v any) *PolicyRuleDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *PolicyRuleDie) DieFeedJSON(j []byte) *PolicyRuleDie {
 	r := rbacv1.PolicyRule{}
@@ -1455,6 +1536,15 @@ func (d *PolicyRuleDie) DieRelease() rbacv1.PolicyRule {
 func (d *PolicyRuleDie) DieReleasePtr() *rbacv1.PolicyRule {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *PolicyRuleDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1679,6 +1769,15 @@ func (d *RoleBindingDie) DieFeedPtr(r *rbacv1.RoleBinding) *RoleBindingDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *RoleBindingDie) DieFeedDuck(v any) *RoleBindingDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *RoleBindingDie) DieFeedJSON(j []byte) *RoleBindingDie {
 	r := rbacv1.RoleBinding{}
@@ -1739,6 +1838,15 @@ func (d *RoleBindingDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *RoleBindingDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -2044,6 +2152,15 @@ func (d *SubjectDie) DieFeedPtr(r *rbacv1.Subject) *SubjectDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *SubjectDie) DieFeedDuck(v any) *SubjectDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *SubjectDie) DieFeedJSON(j []byte) *SubjectDie {
 	r := rbacv1.Subject{}
@@ -2092,6 +2209,15 @@ func (d *SubjectDie) DieRelease() rbacv1.Subject {
 func (d *SubjectDie) DieReleasePtr() *rbacv1.Subject {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *SubjectDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -2308,6 +2434,15 @@ func (d *RoleRefDie) DieFeedPtr(r *rbacv1.RoleRef) *RoleRefDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *RoleRefDie) DieFeedDuck(v any) *RoleRefDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *RoleRefDie) DieFeedJSON(j []byte) *RoleRefDie {
 	r := rbacv1.RoleRef{}
@@ -2356,6 +2491,15 @@ func (d *RoleRefDie) DieRelease() rbacv1.RoleRef {
 func (d *RoleRefDie) DieReleasePtr() *rbacv1.RoleRef {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *RoleRefDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.

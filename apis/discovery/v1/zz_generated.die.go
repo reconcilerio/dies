@@ -83,6 +83,15 @@ func (d *EndpointSliceDie) DieFeedPtr(r *discoveryv1.EndpointSlice) *EndpointSli
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *EndpointSliceDie) DieFeedDuck(v any) *EndpointSliceDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *EndpointSliceDie) DieFeedJSON(j []byte) *EndpointSliceDie {
 	r := discoveryv1.EndpointSlice{}
@@ -143,6 +152,15 @@ func (d *EndpointSliceDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *EndpointSliceDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -480,6 +498,15 @@ func (d *EndpointDie) DieFeedPtr(r *discoveryv1.Endpoint) *EndpointDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *EndpointDie) DieFeedDuck(v any) *EndpointDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *EndpointDie) DieFeedJSON(j []byte) *EndpointDie {
 	r := discoveryv1.Endpoint{}
@@ -528,6 +555,15 @@ func (d *EndpointDie) DieRelease() discoveryv1.Endpoint {
 func (d *EndpointDie) DieReleasePtr() *discoveryv1.Endpoint {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *EndpointDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -835,6 +871,15 @@ func (d *EndpointConditionsDie) DieFeedPtr(r *discoveryv1.EndpointConditions) *E
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *EndpointConditionsDie) DieFeedDuck(v any) *EndpointConditionsDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *EndpointConditionsDie) DieFeedJSON(j []byte) *EndpointConditionsDie {
 	r := discoveryv1.EndpointConditions{}
@@ -883,6 +928,15 @@ func (d *EndpointConditionsDie) DieRelease() discoveryv1.EndpointConditions {
 func (d *EndpointConditionsDie) DieReleasePtr() *discoveryv1.EndpointConditions {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *EndpointConditionsDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1106,6 +1160,15 @@ func (d *EndpointHintsDie) DieFeedPtr(r *discoveryv1.EndpointHints) *EndpointHin
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *EndpointHintsDie) DieFeedDuck(v any) *EndpointHintsDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *EndpointHintsDie) DieFeedJSON(j []byte) *EndpointHintsDie {
 	r := discoveryv1.EndpointHints{}
@@ -1154,6 +1217,15 @@ func (d *EndpointHintsDie) DieRelease() discoveryv1.EndpointHints {
 func (d *EndpointHintsDie) DieReleasePtr() *discoveryv1.EndpointHints {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *EndpointHintsDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1357,6 +1429,15 @@ func (d *ForZoneDie) DieFeedPtr(r *discoveryv1.ForZone) *ForZoneDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ForZoneDie) DieFeedDuck(v any) *ForZoneDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *ForZoneDie) DieFeedJSON(j []byte) *ForZoneDie {
 	r := discoveryv1.ForZone{}
@@ -1405,6 +1486,15 @@ func (d *ForZoneDie) DieRelease() discoveryv1.ForZone {
 func (d *ForZoneDie) DieReleasePtr() *discoveryv1.ForZone {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ForZoneDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1592,6 +1682,15 @@ func (d *EndpointPortDie) DieFeedPtr(r *discoveryv1.EndpointPort) *EndpointPortD
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *EndpointPortDie) DieFeedDuck(v any) *EndpointPortDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *EndpointPortDie) DieFeedJSON(j []byte) *EndpointPortDie {
 	r := discoveryv1.EndpointPort{}
@@ -1640,6 +1739,15 @@ func (d *EndpointPortDie) DieRelease() discoveryv1.EndpointPort {
 func (d *EndpointPortDie) DieReleasePtr() *discoveryv1.EndpointPort {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *EndpointPortDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.

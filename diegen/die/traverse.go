@@ -318,6 +318,16 @@ func (c *copyMethodMaker) generateDieFeedMethodFor(die Die) {
 	c.Linef("}")
 
 	c.Linef("")
+	c.Linef("// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.")
+	c.Linef("func (d *%s) DieFeedDuck(v any) *%s {", die.Type, die.Type)
+	c.Linef("	data, err := %s(v)", c.AliasedRef("k8s.io/apimachinery/pkg/util/json", "Marshal"))
+	c.Linef("	if err != nil {")
+	c.Linef("		panic(err)")
+	c.Linef("	}")
+	c.Linef("	return d.DieFeedJSON(data)")
+	c.Linef("}")
+
+	c.Linef("")
 	c.Linef("// DieFeedJSON returns a new die with the provided JSON. Panics on error.")
 	c.Linef("func (d *%s) DieFeedJSON(j []byte) *%s {", die.Type, die.Type)
 	c.Linef("	r := %s{}", c.AliasedRef(die.TargetPackage, die.TargetType))
@@ -388,6 +398,16 @@ func (c *copyMethodMaker) generateDieReleaseMethodFor(die Die) {
 		c.Linef("	}")
 		c.Linef("}")
 	}
+
+	c.Linef("")
+	c.Linef("// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.")
+	c.Linef("func (d *%s) DieReleaseDuck(v any) any {", die.Type)
+	c.Linef("	data := d.DieReleaseJSON()")
+	c.Linef("	if err := %s(data, v); err != nil {", c.AliasedRef("k8s.io/apimachinery/pkg/util/json", "Unmarshal"))
+	c.Linef("		panic(err)")
+	c.Linef("	}")
+	c.Linef("	return v")
+	c.Linef("}")
 
 	c.Linef("")
 	c.Linef("// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.")

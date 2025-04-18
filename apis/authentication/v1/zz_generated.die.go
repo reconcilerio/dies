@@ -81,6 +81,15 @@ func (d *SelfSubjectReviewDie) DieFeedPtr(r *authenticationv1.SelfSubjectReview)
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *SelfSubjectReviewDie) DieFeedDuck(v any) *SelfSubjectReviewDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *SelfSubjectReviewDie) DieFeedJSON(j []byte) *SelfSubjectReviewDie {
 	r := authenticationv1.SelfSubjectReview{}
@@ -141,6 +150,15 @@ func (d *SelfSubjectReviewDie) DieReleaseUnstructured() *unstructured.Unstructur
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *SelfSubjectReviewDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -417,6 +435,15 @@ func (d *SelfSubjectReviewStatusDie) DieFeedPtr(r *authenticationv1.SelfSubjectR
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *SelfSubjectReviewStatusDie) DieFeedDuck(v any) *SelfSubjectReviewStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *SelfSubjectReviewStatusDie) DieFeedJSON(j []byte) *SelfSubjectReviewStatusDie {
 	r := authenticationv1.SelfSubjectReviewStatus{}
@@ -465,6 +492,15 @@ func (d *SelfSubjectReviewStatusDie) DieRelease() authenticationv1.SelfSubjectRe
 func (d *SelfSubjectReviewStatusDie) DieReleasePtr() *authenticationv1.SelfSubjectReviewStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *SelfSubjectReviewStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -663,6 +699,15 @@ func (d *UserInfoDie) DieFeedPtr(r *authenticationv1.UserInfo) *UserInfoDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *UserInfoDie) DieFeedDuck(v any) *UserInfoDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *UserInfoDie) DieFeedJSON(j []byte) *UserInfoDie {
 	r := authenticationv1.UserInfo{}
@@ -711,6 +756,15 @@ func (d *UserInfoDie) DieRelease() authenticationv1.UserInfo {
 func (d *UserInfoDie) DieReleasePtr() *authenticationv1.UserInfo {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *UserInfoDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -919,6 +973,15 @@ func (d *TokenReviewDie) DieFeedPtr(r *authenticationv1.TokenReview) *TokenRevie
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *TokenReviewDie) DieFeedDuck(v any) *TokenReviewDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *TokenReviewDie) DieFeedJSON(j []byte) *TokenReviewDie {
 	r := authenticationv1.TokenReview{}
@@ -979,6 +1042,15 @@ func (d *TokenReviewDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *TokenReviewDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1253,6 +1325,15 @@ func (d *TokenRequestSpecDie) DieFeedPtr(r *authenticationv1.TokenRequestSpec) *
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *TokenRequestSpecDie) DieFeedDuck(v any) *TokenRequestSpecDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *TokenRequestSpecDie) DieFeedJSON(j []byte) *TokenRequestSpecDie {
 	r := authenticationv1.TokenRequestSpec{}
@@ -1301,6 +1382,15 @@ func (d *TokenRequestSpecDie) DieRelease() authenticationv1.TokenRequestSpec {
 func (d *TokenRequestSpecDie) DieReleasePtr() *authenticationv1.TokenRequestSpec {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *TokenRequestSpecDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1543,6 +1633,15 @@ func (d *BoundObjectReferenceDie) DieFeedPtr(r *authenticationv1.BoundObjectRefe
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *BoundObjectReferenceDie) DieFeedDuck(v any) *BoundObjectReferenceDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *BoundObjectReferenceDie) DieFeedJSON(j []byte) *BoundObjectReferenceDie {
 	r := authenticationv1.BoundObjectReference{}
@@ -1591,6 +1690,15 @@ func (d *BoundObjectReferenceDie) DieRelease() authenticationv1.BoundObjectRefer
 func (d *BoundObjectReferenceDie) DieReleasePtr() *authenticationv1.BoundObjectReference {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *BoundObjectReferenceDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -1799,6 +1907,15 @@ func (d *TokenRequestStatusDie) DieFeedPtr(r *authenticationv1.TokenRequestStatu
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *TokenRequestStatusDie) DieFeedDuck(v any) *TokenRequestStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *TokenRequestStatusDie) DieFeedJSON(j []byte) *TokenRequestStatusDie {
 	r := authenticationv1.TokenRequestStatus{}
@@ -1847,6 +1964,15 @@ func (d *TokenRequestStatusDie) DieRelease() authenticationv1.TokenRequestStatus
 func (d *TokenRequestStatusDie) DieReleasePtr() *authenticationv1.TokenRequestStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *TokenRequestStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.

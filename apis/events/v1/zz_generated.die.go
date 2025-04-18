@@ -83,6 +83,15 @@ func (d *EventDie) DieFeedPtr(r *eventsv1.Event) *EventDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *EventDie) DieFeedDuck(v any) *EventDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *EventDie) DieFeedJSON(j []byte) *EventDie {
 	r := eventsv1.Event{}
@@ -143,6 +152,15 @@ func (d *EventDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *EventDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -573,6 +591,15 @@ func (d *EventSeriesDie) DieFeedPtr(r *eventsv1.EventSeries) *EventSeriesDie {
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *EventSeriesDie) DieFeedDuck(v any) *EventSeriesDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *EventSeriesDie) DieFeedJSON(j []byte) *EventSeriesDie {
 	r := eventsv1.EventSeries{}
@@ -621,6 +648,15 @@ func (d *EventSeriesDie) DieRelease() eventsv1.EventSeries {
 func (d *EventSeriesDie) DieReleasePtr() *eventsv1.EventSeries {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *EventSeriesDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.

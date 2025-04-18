@@ -143,6 +143,9 @@ type MyResourceDie interface {
     // resource is nil, the empty value is used instead.
     DieFeedPtr(r *MyResource) *MyResourceDie
 
+    // DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+    DieFeedDuck(v any) *MyResourceDie
+
     // DieFeedJSON returns a new die with the provided JSON. Panics on error.
     DieFeedJSON(j []byte) *MyResourceDie
 
@@ -160,6 +163,9 @@ type MyResourceDie interface {
 
     // DieReleasePtr returns a pointer to the resource managed by the die.
     DieReleasePtr() *MyResource
+
+	// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+	DieReleaseDuck(v any) any
 
     // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
     DieReleaseJSON() []byte

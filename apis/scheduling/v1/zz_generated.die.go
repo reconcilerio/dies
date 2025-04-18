@@ -82,6 +82,15 @@ func (d *PriorityClassDie) DieFeedPtr(r *schedulingv1.PriorityClass) *PriorityCl
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *PriorityClassDie) DieFeedDuck(v any) *PriorityClassDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *PriorityClassDie) DieFeedJSON(j []byte) *PriorityClassDie {
 	r := schedulingv1.PriorityClass{}
@@ -142,6 +151,15 @@ func (d *PriorityClassDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *PriorityClassDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
