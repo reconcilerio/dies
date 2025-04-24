@@ -3899,28 +3899,28 @@ func (d *DeploymentStatusDie) ObservedGeneration(v int64) *DeploymentStatusDie {
 	})
 }
 
-// Total number of non-terminated pods targeted by this deployment (their labels match the selector).
+// Total number of non-terminating pods targeted by this deployment (their labels match the selector).
 func (d *DeploymentStatusDie) Replicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.Replicas = v
 	})
 }
 
-// Total number of non-terminated pods targeted by this deployment that have the desired template spec.
+// Total number of non-terminating pods targeted by this deployment that have the desired template spec.
 func (d *DeploymentStatusDie) UpdatedReplicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.UpdatedReplicas = v
 	})
 }
 
-// readyReplicas is the number of pods targeted by this Deployment with a Ready Condition.
+// Total number of non-terminating pods targeted by this Deployment with a Ready Condition.
 func (d *DeploymentStatusDie) ReadyReplicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.ReadyReplicas = v
 	})
 }
 
-// Total number of available pods (ready for at least minReadySeconds) targeted by this deployment.
+// Total number of available non-terminating pods (ready for at least minReadySeconds) targeted by this deployment.
 func (d *DeploymentStatusDie) AvailableReplicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.AvailableReplicas = v
@@ -3935,6 +3935,17 @@ func (d *DeploymentStatusDie) AvailableReplicas(v int32) *DeploymentStatusDie {
 func (d *DeploymentStatusDie) UnavailableReplicas(v int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.UnavailableReplicas = v
+	})
+}
+
+// Total number of terminating pods targeted by this deployment. Terminating pods have a non-null
+//
+// .metadata.deletionTimestamp and have not yet reached the Failed or Succeeded .status.phase.
+//
+// This is an alpha field. Enable DeploymentReplicaSetTerminatingReplicas to be able to use this field.
+func (d *DeploymentStatusDie) TerminatingReplicas(v *int32) *DeploymentStatusDie {
+	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
+		r.TerminatingReplicas = v
 	})
 }
 
@@ -4608,7 +4619,7 @@ func (d *ReplicaSetSpecDie) SelectorDie(fn func(d *metav1.LabelSelectorDie)) *Re
 //
 // insufficient replicas are detected.
 //
-// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
+// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/#pod-template
 func (d *ReplicaSetSpecDie) TemplateDie(fn func(d *corev1.PodTemplateSpecDie)) *ReplicaSetSpecDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
 		d := corev1.PodTemplateSpecBlank.DieImmutable(false).DieFeed(r.Template)
@@ -4617,13 +4628,13 @@ func (d *ReplicaSetSpecDie) TemplateDie(fn func(d *corev1.PodTemplateSpecDie)) *
 	})
 }
 
-// Replicas is the number of desired replicas.
+// Replicas is the number of desired pods.
 //
 // This is a pointer to distinguish between explicit zero and unspecified.
 //
 // Defaults to 1.
 //
-// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/#what-is-a-replicationcontroller
+// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset
 func (d *ReplicaSetSpecDie) Replicas(v *int32) *ReplicaSetSpecDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
 		r.Replicas = v
@@ -4658,7 +4669,7 @@ func (d *ReplicaSetSpecDie) Selector(v *apismetav1.LabelSelector) *ReplicaSetSpe
 //
 // insufficient replicas are detected.
 //
-// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
+// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/#pod-template
 func (d *ReplicaSetSpecDie) Template(v apicorev1.PodTemplateSpec) *ReplicaSetSpecDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetSpec) {
 		r.Template = v
@@ -4911,33 +4922,44 @@ func (d *ReplicaSetStatusDie) DiePatch(patchType types.PatchType) ([]byte, error
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Replicas is the most recently observed number of replicas.
+// Replicas is the most recently observed number of non-terminating pods.
 //
-// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/#what-is-a-replicationcontroller
+// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset
 func (d *ReplicaSetStatusDie) Replicas(v int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.Replicas = v
 	})
 }
 
-// The number of pods that have labels matching the labels of the pod template of the replicaset.
+// The number of non-terminating pods that have labels matching the labels of the pod template of the replicaset.
 func (d *ReplicaSetStatusDie) FullyLabeledReplicas(v int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.FullyLabeledReplicas = v
 	})
 }
 
-// readyReplicas is the number of pods targeted by this ReplicaSet with a Ready Condition.
+// The number of non-terminating pods targeted by this ReplicaSet with a Ready Condition.
 func (d *ReplicaSetStatusDie) ReadyReplicas(v int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.ReadyReplicas = v
 	})
 }
 
-// The number of available replicas (ready for at least minReadySeconds) for this replica set.
+// The number of available non-terminating pods (ready for at least minReadySeconds) for this replica set.
 func (d *ReplicaSetStatusDie) AvailableReplicas(v int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.AvailableReplicas = v
+	})
+}
+
+// The number of terminating pods for this replica set. Terminating pods have a non-null .metadata.deletionTimestamp
+//
+// and have not yet reached the Failed or Succeeded .status.phase.
+//
+// This is an alpha field. Enable DeploymentReplicaSetTerminatingReplicas to be able to use this field.
+func (d *ReplicaSetStatusDie) TerminatingReplicas(v *int32) *ReplicaSetStatusDie {
+	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
+		r.TerminatingReplicas = v
 	})
 }
 

@@ -701,6 +701,15 @@ func TestNodeSystemInfoDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestNodeSwapStatusDie_MissingMethods(t *testingx.T) {
+	die := NodeSwapStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodeSwapStatusDie: %s", diff.List())
+	}
+}
+
 func TestContainerImageDie_MissingMethods(t *testingx.T) {
 	die := ContainerImageBlank
 	ignore := []string{}

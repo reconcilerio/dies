@@ -4005,7 +4005,11 @@ func (d *HPAScalingRulesDie) DiePatch(patchType types.PatchType) ([]byte, error)
 //
 // policies is a list of potential scaling polices which can be used during scaling.
 //
-// At least one policy must be specified, otherwise the HPAScalingRules will be discarded as invalid
+// If not set, use the default values:
+//
+// - For scale up: allow doubling the number of pods, or an absolute change of 4 pods in a 15s window.
+//
+// - For scale down: allow all pods to be removed in a 15s window.
 func (d *HPAScalingRulesDie) PoliciesDie(v ...*HPAScalingPolicyDie) *HPAScalingRulesDie {
 	return d.DieStamp(func(r *autoscalingv2.HPAScalingRules) {
 		r.Policies = make([]autoscalingv2.HPAScalingPolicy, len(v))
@@ -4043,11 +4047,62 @@ func (d *HPAScalingRulesDie) SelectPolicy(v *autoscalingv2.ScalingPolicySelect) 
 
 // policies is a list of potential scaling polices which can be used during scaling.
 //
-// At least one policy must be specified, otherwise the HPAScalingRules will be discarded as invalid
+// If not set, use the default values:
+//
+// - For scale up: allow doubling the number of pods, or an absolute change of 4 pods in a 15s window.
+//
+// - For scale down: allow all pods to be removed in a 15s window.
 func (d *HPAScalingRulesDie) Policies(v ...autoscalingv2.HPAScalingPolicy) *HPAScalingRulesDie {
 	return d.DieStamp(func(r *autoscalingv2.HPAScalingRules) {
 		r.Policies = v
 	})
+}
+
+// tolerance is the tolerance on the ratio between the current and desired
+//
+// metric value under which no updates are made to the desired number of
+//
+// replicas (e.g. 0.01 for 1%). Must be greater than or equal to zero. If not
+//
+// set, the default cluster-wide tolerance is applied (by default 10%).
+//
+// For example, if autoscaling is configured with a memory consumption target of 100Mi,
+//
+// and scale-down and scale-up tolerances of 5% and 1% respectively, scaling will be
+//
+// triggered when the actual consumption falls below 95Mi or exceeds 101Mi.
+//
+// # This is an alpha field and requires enabling the HPAConfigurableTolerance
+//
+// feature gate.
+func (d *HPAScalingRulesDie) Tolerance(v *resource.Quantity) *HPAScalingRulesDie {
+	return d.DieStamp(func(r *autoscalingv2.HPAScalingRules) {
+		r.Tolerance = v
+	})
+}
+
+// ToleranceString sets Tolerance by parsing the string as a Quantity. Panics if the string is not parsable.
+//
+// tolerance is the tolerance on the ratio between the current and desired
+//
+// metric value under which no updates are made to the desired number of
+//
+// replicas (e.g. 0.01 for 1%). Must be greater than or equal to zero. If not
+//
+// set, the default cluster-wide tolerance is applied (by default 10%).
+//
+// For example, if autoscaling is configured with a memory consumption target of 100Mi,
+//
+// and scale-down and scale-up tolerances of 5% and 1% respectively, scaling will be
+//
+// triggered when the actual consumption falls below 95Mi or exceeds 101Mi.
+//
+// # This is an alpha field and requires enabling the HPAConfigurableTolerance
+//
+// feature gate.
+func (d *HPAScalingRulesDie) ToleranceString(s string) *HPAScalingRulesDie {
+	q := resource.MustParse(s)
+	return d.Tolerance(&q)
 }
 
 var HPAScalingPolicyBlank = (&HPAScalingPolicyDie{}).DieFeed(autoscalingv2.HPAScalingPolicy{})

@@ -45,10 +45,14 @@ type _ = discoveryv1.EndpointConditions
 
 // +die
 // +die:field:name=ForZones,die=ForZoneDie,listType=atomic
+// +die:field:name=ForNodes,die=ForNodeDie,listType=atomic
 type _ = discoveryv1.EndpointHints
 
 // +die
 type _ = discoveryv1.ForZone
+
+// +die
+type _ = discoveryv1.ForNode
 
 // +die
 type _ = discoveryv1.EndpointPort

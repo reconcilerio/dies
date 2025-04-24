@@ -4421,7 +4421,7 @@ func (d *EnvFromSourceDie) SecretRefDie(fn func(d *SecretEnvSourceDie)) *EnvFrom
 	})
 }
 
-// An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
+// Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
 func (d *EnvFromSourceDie) Prefix(v string) *EnvFromSourceDie {
 	return d.DieStamp(func(r *corev1.EnvFromSource) {
 		r.Prefix = v
@@ -8828,6 +8828,17 @@ func (d *LifecycleDie) PostStart(v *corev1.LifecycleHandler) *LifecycleDie {
 func (d *LifecycleDie) PreStop(v *corev1.LifecycleHandler) *LifecycleDie {
 	return d.DieStamp(func(r *corev1.Lifecycle) {
 		r.PreStop = v
+	})
+}
+
+// StopSignal defines which signal will be sent to a container when it is being stopped.
+//
+// If not specified, the default is defined by the container runtime in use.
+//
+// StopSignal can only be set for Pods with a non-empty .spec.os.name
+func (d *LifecycleDie) StopSignal(v *corev1.Signal) *LifecycleDie {
+	return d.DieStamp(func(r *corev1.Lifecycle) {
+		r.StopSignal = v
 	})
 }
 
@@ -13526,6 +13537,13 @@ func (d *ContainerStatusDie) User(v *corev1.ContainerUser) *ContainerStatusDie {
 func (d *ContainerStatusDie) AllocatedResourcesStatus(v ...corev1.ResourceStatus) *ContainerStatusDie {
 	return d.DieStamp(func(r *corev1.ContainerStatus) {
 		r.AllocatedResourcesStatus = v
+	})
+}
+
+// StopSignal reports the effective stop signal for this container
+func (d *ContainerStatusDie) StopSignal(v *corev1.Signal) *ContainerStatusDie {
+	return d.DieStamp(func(r *corev1.ContainerStatus) {
+		r.StopSignal = v
 	})
 }
 
@@ -23339,6 +23357,17 @@ func (d *NodeSystemInfoDie) DiePatch(patchType types.PatchType) ([]byte, error) 
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// SwapDie mutates Swap as a die.
+//
+// Swap Info reported by the node.
+func (d *NodeSystemInfoDie) SwapDie(fn func(d *NodeSwapStatusDie)) *NodeSystemInfoDie {
+	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
+		d := NodeSwapStatusBlank.DieImmutable(false).DieFeedPtr(r.Swap)
+		fn(d)
+		r.Swap = d.DieReleasePtr()
+	})
+}
+
 // MachineID reported by the node. For unique machine identification
 //
 // in the cluster this field is preferred. Learn more from man(5)
@@ -23414,6 +23443,266 @@ func (d *NodeSystemInfoDie) OperatingSystem(v string) *NodeSystemInfoDie {
 func (d *NodeSystemInfoDie) Architecture(v string) *NodeSystemInfoDie {
 	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
 		r.Architecture = v
+	})
+}
+
+// Swap Info reported by the node.
+func (d *NodeSystemInfoDie) Swap(v *corev1.NodeSwapStatus) *NodeSystemInfoDie {
+	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
+		r.Swap = v
+	})
+}
+
+var NodeSwapStatusBlank = (&NodeSwapStatusDie{}).DieFeed(corev1.NodeSwapStatus{})
+
+type NodeSwapStatusDie struct {
+	mutable bool
+	r       corev1.NodeSwapStatus
+	seal    corev1.NodeSwapStatus
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *NodeSwapStatusDie) DieImmutable(immutable bool) *NodeSwapStatusDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *NodeSwapStatusDie) DieFeed(r corev1.NodeSwapStatus) *NodeSwapStatusDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &NodeSwapStatusDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *NodeSwapStatusDie) DieFeedPtr(r *corev1.NodeSwapStatus) *NodeSwapStatusDie {
+	if r == nil {
+		r = &corev1.NodeSwapStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *NodeSwapStatusDie) DieFeedDuck(v any) *NodeSwapStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *NodeSwapStatusDie) DieFeedJSON(j []byte) *NodeSwapStatusDie {
+	r := corev1.NodeSwapStatus{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *NodeSwapStatusDie) DieFeedYAML(y []byte) *NodeSwapStatusDie {
+	r := corev1.NodeSwapStatus{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *NodeSwapStatusDie) DieFeedYAMLFile(name string) *NodeSwapStatusDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NodeSwapStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *NodeSwapStatusDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *NodeSwapStatusDie) DieRelease() corev1.NodeSwapStatus {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *NodeSwapStatusDie) DieReleasePtr() *corev1.NodeSwapStatus {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *NodeSwapStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *NodeSwapStatusDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *NodeSwapStatusDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NodeSwapStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *NodeSwapStatusDie) DieStamp(fn func(r *corev1.NodeSwapStatus)) *NodeSwapStatusDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *NodeSwapStatusDie) DieStampAt(jp string, fn interface{}) *NodeSwapStatusDie {
+	return d.DieStamp(func(r *corev1.NodeSwapStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeSwapStatusDie) DieWith(fns ...func(d *NodeSwapStatusDie)) *NodeSwapStatusDie {
+	nd := NodeSwapStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *NodeSwapStatusDie) DeepCopy() *NodeSwapStatusDie {
+	r := *d.r.DeepCopy()
+	return &NodeSwapStatusDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *NodeSwapStatusDie) DieSeal() *NodeSwapStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *NodeSwapStatusDie) DieSealFeed(r corev1.NodeSwapStatus) *NodeSwapStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *NodeSwapStatusDie) DieSealFeedPtr(r *corev1.NodeSwapStatus) *NodeSwapStatusDie {
+	if r == nil {
+		r = &corev1.NodeSwapStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *NodeSwapStatusDie) DieSealRelease() corev1.NodeSwapStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *NodeSwapStatusDie) DieSealReleasePtr() *corev1.NodeSwapStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *NodeSwapStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *NodeSwapStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// Total amount of swap memory in bytes.
+func (d *NodeSwapStatusDie) Capacity(v *int64) *NodeSwapStatusDie {
+	return d.DieStamp(func(r *corev1.NodeSwapStatus) {
+		r.Capacity = v
 	})
 }
 
@@ -33911,7 +34200,7 @@ func (d *PodSpecDie) VolumeDie(v string, fn func(d *VolumeDie)) *PodSpecDie {
 //
 // by finding the highest request/limit for each resource type, and then using the max of
 //
-// of that value or the sum of the normal containers. Limits are applied to init containers
+// that value or the sum of the normal containers. Limits are applied to init containers
 //
 // in a similar fashion.
 //
@@ -34131,7 +34420,7 @@ func (d *PodSpecDie) Volumes(v ...corev1.Volume) *PodSpecDie {
 //
 // by finding the highest request/limit for each resource type, and then using the max of
 //
-// of that value or the sum of the normal containers. Limits are applied to init containers
+// that value or the sum of the normal containers. Limits are applied to init containers
 //
 // in a similar fashion.
 //
@@ -37889,8 +38178,6 @@ func (d *TopologySpreadConstraintDie) MinDomains(v *int32) *TopologySpreadConstr
 // - Ignore: nodeAffinity/nodeSelector are ignored. All nodes are included in the calculations.
 //
 // If this value is nil, the behavior is equivalent to the Honor policy.
-//
-// This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
 func (d *TopologySpreadConstraintDie) NodeAffinityPolicy(v *corev1.NodeInclusionPolicy) *TopologySpreadConstraintDie {
 	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
 		r.NodeAffinityPolicy = v
@@ -37908,8 +38195,6 @@ func (d *TopologySpreadConstraintDie) NodeAffinityPolicy(v *corev1.NodeInclusion
 // - Ignore: node taints are ignored. All nodes are included.
 //
 // If this value is nil, the behavior is equivalent to the Ignore policy.
-//
-// This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
 func (d *TopologySpreadConstraintDie) NodeTaintsPolicy(v *corev1.NodeInclusionPolicy) *TopologySpreadConstraintDie {
 	return d.DieStamp(func(r *corev1.TopologySpreadConstraint) {
 		r.NodeTaintsPolicy = v
@@ -38550,6 +38835,15 @@ func (d *PodStatusDie) EphemeralContainerStatusDie(v string, fn func(d *Containe
 	})
 }
 
+// If set, this represents the .metadata.generation that the pod status was set based upon.
+//
+// This is an alpha field. Enable PodObservedGenerationTracking to be able to use this field.
+func (d *PodStatusDie) ObservedGeneration(v int64) *PodStatusDie {
+	return d.DieStamp(func(r *corev1.PodStatus) {
+		r.ObservedGeneration = v
+	})
+}
+
 // The phase of a Pod is a simple, high-level summary of where the Pod is in its lifecycle.
 //
 // # The conditions array, the reason and message fields, and the individual container status
@@ -38767,6 +39061,12 @@ func (d *PodStatusDie) EphemeralContainerStatuses(v ...corev1.ContainerStatus) *
 // It is empty if no resources resize is pending.
 //
 // Any changes to container resources will automatically set this to "Proposed"
+//
+// Deprecated: Resize status is moved to two pod conditions PodResizePending and PodResizeInProgress.
+//
+// PodResizePending will track states where the spec has been resized, but the Kubelet has not yet allocated the resources.
+//
+// PodResizeInProgress will track in-progress resizes, and should be present whenever allocated resources != acknowledged resources.
 func (d *PodStatusDie) Resize(v corev1.PodResizeStatus) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.Resize = v
@@ -43382,19 +43682,17 @@ func (d *ServiceSpecDie) InternalTrafficPolicy(v *corev1.ServiceInternalTrafficP
 	})
 }
 
-// TrafficDistribution offers a way to express preferences for how traffic is
+// TrafficDistribution offers a way to express preferences for how traffic
 //
-// distributed to Service endpoints. Implementations can use this field as a
+// is distributed to Service endpoints. Implementations can use this field
 //
-// hint, but are not required to guarantee strict adherence. If the field is
+// as a hint, but are not required to guarantee strict adherence. If the
 //
-// not set, the implementation will apply its default routing strategy. If set
+// field is not set, the implementation will apply its default routing
 //
-// to "PreferClose", implementations should prioritize endpoints that are
+// strategy. If set to "PreferClose", implementations should prioritize
 //
-// topologically close (e.g., same zone).
-//
-// This is a beta field and requires enabling ServiceTrafficDistribution feature.
+// endpoints that are in the same zone.
 func (d *ServiceSpecDie) TrafficDistribution(v *string) *ServiceSpecDie {
 	return d.DieStamp(func(r *corev1.ServiceSpec) {
 		r.TrafficDistribution = v
