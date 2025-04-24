@@ -1676,10 +1676,6 @@ func (d *JobSpecDie) PodFailurePolicyDie(fn func(d *PodFailurePolicyDie)) *JobSp
 // When the field is specified, it must be immutable and works only for the Indexed Jobs.
 //
 // Once the Job meets the SuccessPolicy, the lingering pods are terminated.
-//
-// This field is beta-level. To use this field, you must enable the
-//
-// `JobSuccessPolicy` feature gate (enabled by default).
 func (d *JobSpecDie) SuccessPolicyDie(fn func(d *SuccessPolicyDie)) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		d := SuccessPolicyBlank.DieImmutable(false).DieFeedPtr(r.SuccessPolicy)
@@ -1793,10 +1789,6 @@ func (d *JobSpecDie) PodFailurePolicy(v *batchv1.PodFailurePolicy) *JobSpecDie {
 // When the field is specified, it must be immutable and works only for the Indexed Jobs.
 //
 // Once the Job meets the SuccessPolicy, the lingering pods are terminated.
-//
-// This field is beta-level. To use this field, you must enable the
-//
-// `JobSuccessPolicy` feature gate (enabled by default).
 func (d *JobSpecDie) SuccessPolicy(v *batchv1.SuccessPolicy) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.SuccessPolicy = v
@@ -1823,10 +1815,6 @@ func (d *JobSpecDie) BackoffLimit(v *int32) *JobSpecDie {
 // be set when Job's completionMode=Indexed, and the Pod's restart
 //
 // policy is Never. The field is immutable.
-//
-// This field is beta-level. It can be used when the `JobBackoffLimitPerIndex`
-//
-// feature gate is enabled (enabled by default).
 func (d *JobSpecDie) BackoffLimitPerIndex(v *int32) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.BackoffLimitPerIndex = v
@@ -1848,10 +1836,6 @@ func (d *JobSpecDie) BackoffLimitPerIndex(v *int32) *JobSpecDie {
 // It can be null or up to completions. It is required and must be
 //
 // less than or equal to 10^4 when is completions greater than 10^5.
-//
-// This field is beta-level. It can be used when the `JobBackoffLimitPerIndex`
-//
-// feature gate is enabled (enabled by default).
 func (d *JobSpecDie) MaxFailedIndexes(v *int32) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.MaxFailedIndexes = v
@@ -2603,10 +2587,6 @@ func (d *PodFailurePolicyRuleDie) OnPodConditionsDie(v ...*PodFailurePolicyOnPod
 // - FailIndex: indicates that the pod's index is marked as Failed and will
 //
 // not be restarted.
-//
-// This value is beta-level. It can be used when the
-//
-// `JobBackoffLimitPerIndex` feature gate is enabled (enabled by default).
 //
 // - Ignore: indicates that the counter towards the .backoffLimit is not
 //
@@ -4213,10 +4193,6 @@ func (d *JobStatusDie) CompletedIndexes(v string) *JobStatusDie {
 // represented as "1,3-5,7".
 //
 // The set of failed indexes cannot overlap with the set of completed indexes.
-//
-// This field is beta-level. It can be used when the `JobBackoffLimitPerIndex`
-//
-// feature gate is enabled (enabled by default).
 func (d *JobStatusDie) FailedIndexes(v *string) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.FailedIndexes = v

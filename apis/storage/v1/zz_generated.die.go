@@ -915,6 +915,25 @@ func (d *CSIDriverSpecDie) SELinuxMount(v *bool) *CSIDriverSpecDie {
 	})
 }
 
+// nodeAllocatableUpdatePeriodSeconds specifies the interval between periodic updates of
+//
+// the CSINode allocatable capacity for this driver. When set, both periodic updates and
+//
+// updates triggered by capacity-related failures are enabled. If not set, no updates
+//
+// occur (neither periodic nor upon detecting capacity-related failures), and the
+//
+// allocatable.count remains static. The minimum allowed value for this field is 10 seconds.
+//
+// This is an alpha feature and requires the MutableCSINodeAllocatableCount feature gate to be enabled.
+//
+// This field is mutable.
+func (d *CSIDriverSpecDie) NodeAllocatableUpdatePeriodSeconds(v *int64) *CSIDriverSpecDie {
+	return d.DieStamp(func(r *storagev1.CSIDriverSpec) {
+		r.NodeAllocatableUpdatePeriodSeconds = v
+	})
+}
+
 var TokenRequestBlank = (&TokenRequestDie{}).DieFeed(storagev1.TokenRequest{})
 
 type TokenRequestDie struct {
@@ -4830,5 +4849,14 @@ func (d *VolumeErrorDie) Time(v apismetav1.Time) *VolumeErrorDie {
 func (d *VolumeErrorDie) Message(v string) *VolumeErrorDie {
 	return d.DieStamp(func(r *storagev1.VolumeError) {
 		r.Message = v
+	})
+}
+
+// errorCode is a numeric gRPC code representing the error encountered during Attach or Detach operations.
+//
+// This is an optional, alpha field that requires the MutableCSINodeAllocatableCount feature gate being enabled to be set.
+func (d *VolumeErrorDie) ErrorCode(v *int32) *VolumeErrorDie {
+	return d.DieStamp(func(r *storagev1.VolumeError) {
+		r.ErrorCode = v
 	})
 }

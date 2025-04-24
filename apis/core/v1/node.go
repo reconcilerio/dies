@@ -82,7 +82,11 @@ type _ = corev1.NodeDaemonEndpoints
 type _ = corev1.DaemonEndpoint
 
 // +die
+// +die:field:name=Swap,die=NodeSwapStatusDie,pointer=true
 type _ = corev1.NodeSystemInfo
+
+// +die
+type _ = corev1.NodeSwapStatus
 
 // +die
 type _ = corev1.ContainerImage

@@ -71,6 +71,15 @@ func TestForZoneDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestForNodeDie_MissingMethods(t *testingx.T) {
+	die := ForNodeBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ForNodeDie: %s", diff.List())
+	}
+}
+
 func TestEndpointPortDie_MissingMethods(t *testingx.T) {
 	die := EndpointPortBlank
 	ignore := []string{}

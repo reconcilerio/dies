@@ -1505,11 +1505,11 @@ func (d *MatchResourcesDie) NamespaceSelectorDie(fn func(d *v1.LabelSelectorDie)
 
 // ObjectSelectorDie mutates ObjectSelector as a die.
 //
-// # ObjectSelector decides whether to run the validation based on if the
+// # ObjectSelector decides whether to run the policy based on if the
 //
 // object has matching labels. objectSelector is evaluated against both
 //
-// the oldObject and newObject that would be sent to the cel validation, and
+// the oldObject and newObject that would be sent to the policy's expression (CEL), and
 //
 // is considered to match if either object matches the selector. A null
 //
@@ -1536,7 +1536,7 @@ func (d *MatchResourcesDie) ObjectSelectorDie(fn func(d *v1.LabelSelectorDie)) *
 
 // ResourceRulesDie replaces ResourceRules by collecting the released value from each die passed.
 //
-// ResourceRules describes what operations on what resources/subresources the ValidatingAdmissionPolicy matches.
+// ResourceRules describes what operations on what resources/subresources the admission policy matches.
 //
 // The policy cares about an operation if it matches _any_ Rule.
 func (d *MatchResourcesDie) ResourceRulesDie(v ...*NamedRuleWithOperationsDie) *MatchResourcesDie {
@@ -1550,7 +1550,7 @@ func (d *MatchResourcesDie) ResourceRulesDie(v ...*NamedRuleWithOperationsDie) *
 
 // ExcludeResourceRulesDie replaces ExcludeResourceRules by collecting the released value from each die passed.
 //
-// ExcludeResourceRules describes what operations on what resources/subresources the ValidatingAdmissionPolicy should not care about.
+// ExcludeResourceRules describes what operations on what resources/subresources the policy should not care about.
 //
 // The exclude rules take precedence over include rules (if a resource matches both, it is excluded)
 func (d *MatchResourcesDie) ExcludeResourceRulesDie(v ...*NamedRuleWithOperationsDie) *MatchResourcesDie {
@@ -1645,11 +1645,11 @@ func (d *MatchResourcesDie) NamespaceSelector(v *metav1.LabelSelector) *MatchRes
 	})
 }
 
-// ObjectSelector decides whether to run the validation based on if the
+// ObjectSelector decides whether to run the policy based on if the
 //
 // object has matching labels. objectSelector is evaluated against both
 //
-// the oldObject and newObject that would be sent to the cel validation, and
+// the oldObject and newObject that would be sent to the policy's expression (CEL), and
 //
 // is considered to match if either object matches the selector. A null
 //
@@ -1672,7 +1672,7 @@ func (d *MatchResourcesDie) ObjectSelector(v *metav1.LabelSelector) *MatchResour
 	})
 }
 
-// ResourceRules describes what operations on what resources/subresources the ValidatingAdmissionPolicy matches.
+// ResourceRules describes what operations on what resources/subresources the admission policy matches.
 //
 // The policy cares about an operation if it matches _any_ Rule.
 func (d *MatchResourcesDie) ResourceRules(v ...admissionregistrationv1alpha1.NamedRuleWithOperations) *MatchResourcesDie {
@@ -1681,7 +1681,7 @@ func (d *MatchResourcesDie) ResourceRules(v ...admissionregistrationv1alpha1.Nam
 	})
 }
 
-// ExcludeResourceRules describes what operations on what resources/subresources the ValidatingAdmissionPolicy should not care about.
+// ExcludeResourceRules describes what operations on what resources/subresources the policy should not care about.
 //
 // The exclude rules take precedence over include rules (if a resource matches both, it is excluded)
 func (d *MatchResourcesDie) ExcludeResourceRules(v ...admissionregistrationv1alpha1.NamedRuleWithOperations) *MatchResourcesDie {
@@ -1700,7 +1700,7 @@ func (d *MatchResourcesDie) ExcludeResourceRules(v ...admissionregistrationv1alp
 //
 // but "rules" only included `apiGroups:["apps"], apiVersions:["v1"], resources: ["deployments"]`,
 //
-// a request to apps/v1beta1 or extensions/v1beta1 would not be sent to the ValidatingAdmissionPolicy.
+// the admission policy does not consider requests to apps/v1beta1 or extensions/v1beta1 API groups.
 //
 // - Equivalent: match a request if modifies a resource listed in rules, even via another API group or version.
 //
@@ -1708,7 +1708,9 @@ func (d *MatchResourcesDie) ExcludeResourceRules(v ...admissionregistrationv1alp
 //
 // and "rules" only included `apiGroups:["apps"], apiVersions:["v1"], resources: ["deployments"]`,
 //
-// a request to apps/v1beta1 or extensions/v1beta1 would be converted to apps/v1 and sent to the ValidatingAdmissionPolicy.
+// the admission policy **does** consider requests made to apps/v1beta1 or extensions/v1beta1
+//
+// API groups. The API server translates the request to a matched resource API if necessary.
 //
 // Defaults to "Equivalent"
 func (d *MatchResourcesDie) MatchPolicy(v *admissionregistrationv1alpha1.MatchPolicyType) *MatchResourcesDie {
