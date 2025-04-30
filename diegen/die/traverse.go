@@ -146,7 +146,7 @@ type copyMethodMaker struct {
 
 func (c *copyMethodMaker) GenerateMethodsFor(die Die, fields []Field, dieFields []DieField) {
 	c.generateDieFor(die)
-	c.generateObjectMethodsFor(die)
+	c.generateObjectMethodsFor(die, fields)
 	c.generateDieFieldMethodsFor(die, fields, dieFields)
 }
 
@@ -641,16 +641,21 @@ func (c *copyMethodMaker) generateDieFieldMethodsFor(die Die, resourceFields []F
 	}
 }
 
-func (c *copyMethodMaker) generateObjectMethodsFor(die Die) {
+func (c *copyMethodMaker) generateObjectMethodsFor(die Die, fields []Field) {
+	fieldsByNames := map[string]Field{}
+	for _, field := range fields {
+		fieldsByNames[field.Name] = field
+	}
+
 	if die.Object {
 		c.generateRuntimeObjectMethodsFor(die)
 		c.generateJSONMethodsFor(die)
 		c.generateMetadataDieMethodFor(die)
-		if c.dies.Has(die.Spec) {
-			c.generateSpecMethodFor(die)
+		if field, ok := fieldsByNames["Spec"]; ok && c.dies.Has(die.Spec) {
+			c.generateSpecMethodFor(die, field)
 		}
-		if c.dies.Has(die.Status) {
-			c.generateStatusMethodFor(die)
+		if field, ok := fieldsByNames["Status"]; ok && c.dies.Has(die.Status) {
+			c.generateStatusMethodFor(die, field)
 		}
 	}
 }
@@ -754,26 +759,42 @@ func (c *copyMethodMaker) generateMetadataDieMethodFor(die Die) {
 	c.Linef("}")
 }
 
-func (c *copyMethodMaker) generateSpecMethodFor(die Die) {
+func (c *copyMethodMaker) generateSpecMethodFor(die Die, field Field) {
 	c.Linef("")
 	c.Linef("// SpecDie stamps the resource's spec field with a mutable die.")
 	c.Linef("func (d *%s) SpecDie(fn func(d *%s)) *%s {", die.Type, die.SpecType, die.Type)
 	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
-	c.Linef("		d := %s.DieImmutable(false).DieFeed(r.Spec)", die.SpecBlank)
+	if field.TypePrefix == "*" {
+		c.Linef("		d := %s.DieImmutable(false).DieFeedPtr(r.Spec)", die.SpecBlank)
+	} else {
+		c.Linef("		d := %s.DieImmutable(false).DieFeed(r.Spec)", die.SpecBlank)
+	}
 	c.Linef("		fn(d)")
-	c.Linef("		r.Spec = d.DieRelease()")
+	if field.TypePrefix == "*" {
+		c.Linef("		r.Spec = d.DieReleasePtr()")
+	} else {
+		c.Linef("		r.Spec = d.DieRelease()")
+	}
 	c.Linef("	})")
 	c.Linef("}")
 }
 
-func (c *copyMethodMaker) generateStatusMethodFor(die Die) {
+func (c *copyMethodMaker) generateStatusMethodFor(die Die, field Field) {
 	c.Linef("")
 	c.Linef("// StatusDie stamps the resource's status field with a mutable die.")
 	c.Linef("func (d *%s) StatusDie(fn func(d *%s)) *%s {", die.Type, die.StatusType, die.Type)
 	c.Linef("	return d.DieStamp(func(r *%s) {", c.AliasedRef(die.TargetPackage, die.TargetType))
-	c.Linef("		d := %s.DieImmutable(false).DieFeed(r.Status)", die.StatusBlank)
+	if field.TypePrefix == "*" {
+		c.Linef("		d := %s.DieImmutable(false).DieFeedPtr(r.Status)", die.StatusBlank)
+	} else {
+		c.Linef("		d := %s.DieImmutable(false).DieFeed(r.Status)", die.StatusBlank)
+	}
 	c.Linef("		fn(d)")
-	c.Linef("		r.Status = d.DieRelease()")
+	if field.TypePrefix == "*" {
+		c.Linef("		r.Status = d.DieReleasePtr()")
+	} else {
+		c.Linef("		r.Status = d.DieRelease()")
+	}
 	c.Linef("	})")
 	c.Linef("}")
 }

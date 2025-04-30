@@ -34,3 +34,57 @@ func TestDirectDie_MissingMethods(t *testingx.T) {
 		t.Errorf("found missing fields for DirectDie: %s", diff.List())
 	}
 }
+
+func TestResourceDie_MissingMethods(t *testingx.T) {
+	die := ResourceBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ResourceDie: %s", diff.List())
+	}
+}
+
+func TestResourceSpecDie_MissingMethods(t *testingx.T) {
+	die := ResourceSpecBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ResourceSpecDie: %s", diff.List())
+	}
+}
+
+func TestResourceStatusDie_MissingMethods(t *testingx.T) {
+	die := ResourceStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ResourceStatusDie: %s", diff.List())
+	}
+}
+
+func TestResourceStatusPointerDie_MissingMethods(t *testingx.T) {
+	die := ResourceStatusPointerBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ResourceStatusPointerDie: %s", diff.List())
+	}
+}
+
+func TestResourceStatusPointerSpecDie_MissingMethods(t *testingx.T) {
+	die := ResourceStatusPointerSpecBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ResourceStatusPointerSpecDie: %s", diff.List())
+	}
+}
+
+func TestResourceStatusPointerStatusDie_MissingMethods(t *testingx.T) {
+	die := ResourceStatusPointerStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ResourceStatusPointerStatusDie: %s", diff.List())
+	}
+}
