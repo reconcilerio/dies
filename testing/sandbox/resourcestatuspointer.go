@@ -23,9 +23,9 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // +kubebuilder:object:root=true
 type ResourceStatusPointer struct {
 	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata"`
-	Spec              ResourceStatusPointerSpec    `json:"spec"`
-	Status            *ResourceStatusPointerStatus `json:"status"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+	Spec              ResourceStatusPointerSpec    `json:"spec,omitempty"`
+	Status            *ResourceStatusPointerStatus `json:"status,omitempty"`
 }
 
 // +die

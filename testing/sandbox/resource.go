@@ -25,9 +25,9 @@ import (
 // +kubebuilder:object:root=true
 type Resource struct {
 	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata"`
-	Spec              ResourceSpec   `json:"spec"`
-	Status            ResourceStatus `json:"status"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+	Spec              ResourceSpec   `json:"spec,omitempty"`
+	Status            ResourceStatus `json:"status,omitempty"`
 }
 
 // +die
