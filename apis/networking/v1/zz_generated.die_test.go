@@ -170,6 +170,33 @@ func TestIngressClassParametersReferenceDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestIPAddressDie_MissingMethods(t *testingx.T) {
+	die := IPAddressBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for IPAddressDie: %s", diff.List())
+	}
+}
+
+func TestIPAddressSpecDie_MissingMethods(t *testingx.T) {
+	die := IPAddressSpecBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for IPAddressSpecDie: %s", diff.List())
+	}
+}
+
+func TestParentReferenceDie_MissingMethods(t *testingx.T) {
+	die := ParentReferenceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ParentReferenceDie: %s", diff.List())
+	}
+}
+
 func TestNetworkPolicyDie_MissingMethods(t *testingx.T) {
 	die := NetworkPolicyBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
