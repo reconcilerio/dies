@@ -329,6 +329,14 @@ func (d *DeviceClassDie) UnmarshalJSON(b []byte) error {
 	return err
 }
 
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "resource.k8s.io/v1" and "DeviceClass" respectively.
+func (d *DeviceClassDie) DieDefaultTypeMetadata() *DeviceClassDie {
+	return d.DieStamp(func(r *resourcev1.DeviceClass) {
+		r.APIVersion = "resource.k8s.io/v1"
+		r.Kind = "DeviceClass"
+	})
+}
+
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
 func (d *DeviceClassDie) APIVersion(v string) *DeviceClassDie {
 	return d.DieStamp(func(r *resourcev1.DeviceClass) {
@@ -2398,6 +2406,14 @@ func (d *ResourceClaimDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, resource)
 	*d = *d.DieFeed(*resource)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "resource.k8s.io/v1" and "ResourceClaim" respectively.
+func (d *ResourceClaimDie) DieDefaultTypeMetadata() *ResourceClaimDie {
+	return d.DieStamp(func(r *resourcev1.ResourceClaim) {
+		r.APIVersion = "resource.k8s.io/v1"
+		r.Kind = "ResourceClaim"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
@@ -8971,6 +8987,14 @@ func (d *ResourceSliceDie) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, resource)
 	*d = *d.DieFeed(*resource)
 	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "resource.k8s.io/v1" and "ResourceSlice" respectively.
+func (d *ResourceSliceDie) DieDefaultTypeMetadata() *ResourceSliceDie {
+	return d.DieStamp(func(r *resourcev1.ResourceSlice) {
+		r.APIVersion = "resource.k8s.io/v1"
+		r.Kind = "ResourceSlice"
+	})
 }
 
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources

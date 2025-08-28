@@ -20,7 +20,7 @@ import (
 	resourcev1 "k8s.io/api/resource/v1"
 )
 
-// +die:object=true
+// +die:object=true,apiVersion=resource.k8s.io/v1,kind=DeviceClass
 type _ = resourcev1.DeviceClass
 
 // +die
