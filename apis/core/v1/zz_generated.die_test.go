@@ -215,6 +215,15 @@ func TestSecretKeySelectorDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestFileKeySelectorDie_MissingMethods(t *testingx.T) {
+	die := FileKeySelectorBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for FileKeySelectorDie: %s", diff.List())
+	}
+}
+
 func TestResourceRequirementsDie_MissingMethods(t *testingx.T) {
 	die := ResourceRequirementsBlank
 	ignore := []string{}
@@ -239,6 +248,24 @@ func TestContainerResizePolicyDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for ContainerResizePolicyDie: %s", diff.List())
+	}
+}
+
+func TestContainerRestartRuleDie_MissingMethods(t *testingx.T) {
+	die := ContainerRestartRuleBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ContainerRestartRuleDie: %s", diff.List())
+	}
+}
+
+func TestContainerRestartRuleOnExitCodesDie_MissingMethods(t *testingx.T) {
+	die := ContainerRestartRuleOnExitCodesBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ContainerRestartRuleOnExitCodesDie: %s", diff.List())
 	}
 }
 
@@ -1106,6 +1133,24 @@ func TestPodStatusDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestPodExtendedResourceClaimStatusDie_MissingMethods(t *testingx.T) {
+	die := PodExtendedResourceClaimStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PodExtendedResourceClaimStatusDie: %s", diff.List())
+	}
+}
+
+func TestContainerExtendedResourceRequestDie_MissingMethods(t *testingx.T) {
+	die := ContainerExtendedResourceRequestBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ContainerExtendedResourceRequestDie: %s", diff.List())
+	}
+}
+
 func TestPodTemplateDie_MissingMethods(t *testingx.T) {
 	die := PodTemplateBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
@@ -1580,6 +1625,15 @@ func TestClusterTrustBundleProjectionDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for ClusterTrustBundleProjectionDie: %s", diff.List())
+	}
+}
+
+func TestPodCertificateProjectionDie_MissingMethods(t *testingx.T) {
+	die := PodCertificateProjectionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for PodCertificateProjectionDie: %s", diff.List())
 	}
 }
 

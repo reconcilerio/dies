@@ -1797,7 +1797,9 @@ func (d *JobSpecDie) SuccessPolicy(v *batchv1.SuccessPolicy) *JobSpecDie {
 
 // Specifies the number of retries before marking this job failed.
 //
-// Defaults to 6
+// Defaults to 6, unless backoffLimitPerIndex (only Indexed Job) is specified.
+//
+// When backoffLimitPerIndex is specified, backoffLimit defaults to 2147483647.
 func (d *JobSpecDie) BackoffLimit(v *int32) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.BackoffLimit = v
@@ -1985,10 +1987,6 @@ func (d *JobSpecDie) Suspend(v *bool) *JobSpecDie {
 // When using podFailurePolicy, Failed is the the only allowed value.
 //
 // TerminatingOrFailed and Failed are allowed values when podFailurePolicy is not in use.
-//
-// This is an beta field. To use this, enable the JobPodReplacementPolicy feature toggle.
-//
-// This is on by default.
 func (d *JobSpecDie) PodReplacementPolicy(v *batchv1.PodReplacementPolicy) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.PodReplacementPolicy = v
@@ -3442,7 +3440,7 @@ func (d *SuccessPolicyDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 //
 // as successful before `.status.succeeded >= .spec.completions`. Once any of the rules are met,
 //
-// the "SucceededCriteriaMet" condition is added, and the lingering pods are removed.
+// the "SuccessCriteriaMet" condition is added, and the lingering pods are removed.
 //
 // The terminal state for such a Job has the "Complete" condition.
 //
@@ -3462,7 +3460,7 @@ func (d *SuccessPolicyDie) RulesDie(v ...*SuccessPolicyRuleDie) *SuccessPolicyDi
 //
 // as successful before `.status.succeeded >= .spec.completions`. Once any of the rules are met,
 //
-// the "SucceededCriteriaMet" condition is added, and the lingering pods are removed.
+// the "SuccessCriteriaMet" condition is added, and the lingering pods are removed.
 //
 // The terminal state for such a Job has the "Complete" condition.
 //

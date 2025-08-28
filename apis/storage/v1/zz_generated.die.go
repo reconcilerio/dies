@@ -697,9 +697,7 @@ func (d *CSIDriverSpecDie) TokenRequestsDie(v ...*TokenRequestDie) *CSIDriverSpe
 //
 // the volumeattachment status when the attach operation is complete.
 //
-// # If the CSIDriverRegistry feature gate is enabled and the value is
-//
-// specified to false, the attach operation will be skipped.
+// If the value is specified to false, the attach operation will be skipped.
 //
 // Otherwise the attach operation will be called.
 //
@@ -925,7 +923,7 @@ func (d *CSIDriverSpecDie) SELinuxMount(v *bool) *CSIDriverSpecDie {
 //
 // allocatable.count remains static. The minimum allowed value for this field is 10 seconds.
 //
-// This is an alpha feature and requires the MutableCSINodeAllocatableCount feature gate to be enabled.
+// This is a beta feature and requires the MutableCSINodeAllocatableCount feature gate to be enabled.
 //
 // This field is mutable.
 func (d *CSIDriverSpecDie) NodeAllocatableUpdatePeriodSeconds(v *int64) *CSIDriverSpecDie {
@@ -4854,7 +4852,7 @@ func (d *VolumeErrorDie) Message(v string) *VolumeErrorDie {
 
 // errorCode is a numeric gRPC code representing the error encountered during Attach or Detach operations.
 //
-// This is an optional, alpha field that requires the MutableCSINodeAllocatableCount feature gate being enabled to be set.
+// This is an optional, beta field that requires the MutableCSINodeAllocatableCount feature gate being enabled to be set.
 func (d *VolumeErrorDie) ErrorCode(v *int32) *VolumeErrorDie {
 	return d.DieStamp(func(r *storagev1.VolumeError) {
 		r.ErrorCode = v

@@ -5424,15 +5424,15 @@ func (d *NetworkPolicySpecDie) DiePatch(patchType types.PatchType) ([]byte, erro
 //
 // podSelector selects the pods to which this NetworkPolicy object applies.
 //
-// The array of ingress rules is applied to any pods selected by this field.
+// The array of rules is applied to any pods selected by this field. An empty
+//
+// selector matches all pods in the policy's namespace.
 //
 // Multiple network policies can select the same set of pods. In this case,
 //
 // the ingress rules for each are combined additively.
 //
-// This field is NOT optional and follows standard label selector semantics.
-//
-// An empty podSelector matches all pods in this namespace.
+// This field is optional. If it is not specified, it defaults to an empty selector.
 func (d *NetworkPolicySpecDie) PodSelectorDie(fn func(d *metav1.LabelSelectorDie)) *NetworkPolicySpecDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
 		d := metav1.LabelSelectorBlank.DieImmutable(false).DieFeed(r.PodSelector)
@@ -5491,15 +5491,15 @@ func (d *NetworkPolicySpecDie) EgressDie(v ...*NetworkPolicyEgressRuleDie) *Netw
 
 // podSelector selects the pods to which this NetworkPolicy object applies.
 //
-// The array of ingress rules is applied to any pods selected by this field.
+// The array of rules is applied to any pods selected by this field. An empty
+//
+// selector matches all pods in the policy's namespace.
 //
 // Multiple network policies can select the same set of pods. In this case,
 //
 // the ingress rules for each are combined additively.
 //
-// This field is NOT optional and follows standard label selector semantics.
-//
-// An empty podSelector matches all pods in this namespace.
+// This field is optional. If it is not specified, it defaults to an empty selector.
 func (d *NetworkPolicySpecDie) PodSelector(v apismetav1.LabelSelector) *NetworkPolicySpecDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
 		r.PodSelector = v

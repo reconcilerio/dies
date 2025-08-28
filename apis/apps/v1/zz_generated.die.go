@@ -1781,7 +1781,7 @@ func (d *RollingUpdateDaemonSetDie) MaxUnavailableString(s string) *RollingUpdat
 //
 // reason (Ready transitions to false, is evicted, or is drained) an updated
 //
-// pod is immediatedly created on that node without considering surge limits.
+// pod is immediately created on that node without considering surge limits.
 //
 // # Allowing surge implies the possibility that the resources consumed by the
 //
@@ -1824,7 +1824,7 @@ func (d *RollingUpdateDaemonSetDie) MaxSurge(v *intstr.IntOrString) *RollingUpda
 //
 // reason (Ready transitions to false, is evicted, or is drained) an updated
 //
-// pod is immediatedly created on that node without considering surge limits.
+// pod is immediately created on that node without considering surge limits.
 //
 // # Allowing surge implies the possibility that the resources consumed by the
 //
@@ -1868,7 +1868,7 @@ func (d *RollingUpdateDaemonSetDie) MaxSurgeInt(i int) *RollingUpdateDaemonSetDi
 //
 // reason (Ready transitions to false, is evicted, or is drained) an updated
 //
-// pod is immediatedly created on that node without considering surge limits.
+// pod is immediately created on that node without considering surge limits.
 //
 // # Allowing surge implies the possibility that the resources consumed by the
 //

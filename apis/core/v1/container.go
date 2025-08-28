@@ -31,6 +31,7 @@ import (
 // +die:field:name=EnvFrom,die=EnvFromSourceDie,listType=map,listMapKey=Prefix
 // +die:field:name=Env,die=EnvVarDie,listType=map
 // +die:field:name=ResizePolicy,die=ContainerResizePolicyDie,listType=map,listMapKey=ResourceName,listMapKeyPackage=k8s.io/api/core/v1,listMapKeyType=ResourceName
+// +die:field:name=RestartPolicyRules,die=ContainerRestartRuleDie,listType=atomic
 // +die:field:name=VolumeMounts,die=VolumeMountDie,listType=map
 // +die:field:name=VolumeDevices,die=VolumeDeviceDie,listType=map
 type _ = corev1.Container
@@ -70,6 +71,7 @@ type _ = corev1.EnvVar
 // +die:field:name=ResourceFieldRef,die=ResourceFieldSelectorDie,pointer=true
 // +die:field:name=ConfigMapKeyRef,die=ConfigMapKeySelectorDie,pointer=true
 // +die:field:name=SecretKeyRef,die=SecretKeySelectorDie,pointer=true
+// +die:field:name=FileKeyRef,die=FileKeySelectorDie,pointer=true
 type _ = corev1.EnvVarSource
 
 // +die
@@ -97,6 +99,9 @@ func (d *SecretKeySelectorDie) Name(v string) *SecretKeySelectorDie {
 }
 
 // +die
+type _ = corev1.FileKeySelector
+
+// +die
 // +die:field:name=Claims,die=ResourceClaimDie,listType=atomic
 // +die:field:name=Claims,die=ResourceClaimDie,listType=map
 type _ = corev1.ResourceRequirements
@@ -106,6 +111,13 @@ type _ = corev1.ResourceClaim
 
 // +die
 type _ = corev1.ContainerResizePolicy
+
+// +die
+// +die:field:name=ExitCodes,die=ContainerRestartRuleOnExitCodesDie,pointer=true
+type _ = corev1.ContainerRestartRule
+
+// +die
+type _ = corev1.ContainerRestartRuleOnExitCodes
 
 // +die
 type _ = corev1.VolumeMount
