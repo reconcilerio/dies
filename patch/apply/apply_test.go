@@ -47,13 +47,13 @@ func TestCreate(t *testing.T) {
 			original:      original.DieRelease(),
 			modified:      original.DieRelease(),
 			patchType:     types.ApplyPatchType,
-			expectedPatch: `{"metadata":{"creationTimestamp":null},"spec":{"replicas":1,"selector":null,"template":{"metadata":{"creationTimestamp":null},"spec":{"containers":null}},"strategy":{}},"status":{}}`,
+			expectedPatch: `{"metadata":{},"spec":{"replicas":1,"selector":null,"template":{"metadata":{},"spec":{"containers":null}},"strategy":{}},"status":{}}`,
 		},
 		"diff ApplyPatchType": {
 			original:      original.DieRelease(),
 			modified:      modified.DieRelease(),
 			patchType:     types.ApplyPatchType,
-			expectedPatch: `{"metadata":{"creationTimestamp":null},"spec":{"replicas":2,"selector":null,"template":{"metadata":{"creationTimestamp":null},"spec":{"containers":null}},"strategy":{}},"status":{}}`,
+			expectedPatch: `{"metadata":{},"spec":{"replicas":2,"selector":null,"template":{"metadata":{},"spec":{"containers":null}},"strategy":{}},"status":{}}`,
 		},
 	}
 	for name, tc := range tests {

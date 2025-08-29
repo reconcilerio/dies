@@ -3456,10 +3456,6 @@ func (d *ResourceAttributesDie) DiePatch(patchType types.PatchType) ([]byte, err
 // FieldSelectorDie mutates FieldSelector as a die.
 //
 // fieldSelector describes the limitation on access based on field.  It can only limit access, not broaden it.
-//
-// This field  is alpha-level. To use this field, you must enable the
-//
-// `AuthorizeWithSelectors` feature gate (disabled by default).
 func (d *ResourceAttributesDie) FieldSelectorDie(fn func(d *FieldSelectorAttributesDie)) *ResourceAttributesDie {
 	return d.DieStamp(func(r *authorizationv1.ResourceAttributes) {
 		d := FieldSelectorAttributesBlank.DieImmutable(false).DieFeedPtr(r.FieldSelector)
@@ -3471,10 +3467,6 @@ func (d *ResourceAttributesDie) FieldSelectorDie(fn func(d *FieldSelectorAttribu
 // LabelSelectorDie mutates LabelSelector as a die.
 //
 // labelSelector describes the limitation on access based on labels.  It can only limit access, not broaden it.
-//
-// This field  is alpha-level. To use this field, you must enable the
-//
-// `AuthorizeWithSelectors` feature gate (disabled by default).
 func (d *ResourceAttributesDie) LabelSelectorDie(fn func(d *LabelSelectorAttributesDie)) *ResourceAttributesDie {
 	return d.DieStamp(func(r *authorizationv1.ResourceAttributes) {
 		d := LabelSelectorAttributesBlank.DieImmutable(false).DieFeedPtr(r.LabelSelector)
@@ -3539,10 +3531,6 @@ func (d *ResourceAttributesDie) Name(v string) *ResourceAttributesDie {
 }
 
 // fieldSelector describes the limitation on access based on field.  It can only limit access, not broaden it.
-//
-// This field  is alpha-level. To use this field, you must enable the
-//
-// `AuthorizeWithSelectors` feature gate (disabled by default).
 func (d *ResourceAttributesDie) FieldSelector(v *authorizationv1.FieldSelectorAttributes) *ResourceAttributesDie {
 	return d.DieStamp(func(r *authorizationv1.ResourceAttributes) {
 		r.FieldSelector = v
@@ -3550,10 +3538,6 @@ func (d *ResourceAttributesDie) FieldSelector(v *authorizationv1.FieldSelectorAt
 }
 
 // labelSelector describes the limitation on access based on labels.  It can only limit access, not broaden it.
-//
-// This field  is alpha-level. To use this field, you must enable the
-//
-// `AuthorizeWithSelectors` feature gate (disabled by default).
 func (d *ResourceAttributesDie) LabelSelector(v *authorizationv1.LabelSelectorAttributes) *ResourceAttributesDie {
 	return d.DieStamp(func(r *authorizationv1.ResourceAttributes) {
 		r.LabelSelector = v

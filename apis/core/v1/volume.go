@@ -411,6 +411,7 @@ type _ = corev1.ProjectedVolumeSource
 // +die:field:name=ConfigMap,die=ConfigMapProjectionDie,pointer=true
 // +die:field:name=ServiceAccountToken,die=ServiceAccountTokenProjectionDie,pointer=true
 // +die:field:name=ClusterTrustBundle,die=ClusterTrustBundleProjectionDie,pointer=true
+// +die:field:name=PodCertificate,die=PodCertificateProjectionDie,pointer=true
 type _ = corev1.VolumeProjection
 
 // +die
@@ -443,6 +444,9 @@ type _ = corev1.ServiceAccountTokenProjection
 // +die
 // +die:field:name=LabelSelector,package=_/meta/v1,die=LabelSelectorDie,pointer=true
 type _ = corev1.ClusterTrustBundleProjection
+
+// +die
+type _ = corev1.PodCertificateProjection
 
 // +die
 type _ = corev1.PortworxVolumeSource

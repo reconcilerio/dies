@@ -85,6 +85,7 @@ type _ = corev1.PodOS
 // +die:field:name=InitContainerStatuses,method=InitContainerStatusDie,die=ContainerStatusDie,listType=map
 // +die:field:name=ContainerStatuses,method=ContainerStatusDie,die=ContainerStatusDie,listType=map
 // +die:field:name=EphemeralContainerStatuses,method=EphemeralContainerStatusDie,die=ContainerStatusDie,listType=map
+// +die:field:name=ExtendedResourceClaimStatus,die=PodExtendedResourceClaimStatusDie,pointer=true
 type _ = corev1.PodStatus
 
 func (d *PodStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *PodStatusDie {
@@ -102,3 +103,10 @@ func (d *PodStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *Pod
 		}
 	})
 }
+
+// +die
+// +die:field:name=RequestMappings,die=ContainerExtendedResourceRequestDie,listType=atomic
+type _ = corev1.PodExtendedResourceClaimStatus
+
+// +die
+type _ = corev1.ContainerExtendedResourceRequest

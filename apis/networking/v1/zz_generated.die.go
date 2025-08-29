@@ -4817,6 +4817,907 @@ func (d *IngressClassParametersReferenceDie) Namespace(v *string) *IngressClassP
 	})
 }
 
+var IPAddressBlank = (&IPAddressDie{}).DieFeed(networkingv1.IPAddress{})
+
+type IPAddressDie struct {
+	metav1.FrozenObjectMeta
+	mutable bool
+	r       networkingv1.IPAddress
+	seal    networkingv1.IPAddress
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *IPAddressDie) DieImmutable(immutable bool) *IPAddressDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *IPAddressDie) DieFeed(r networkingv1.IPAddress) *IPAddressDie {
+	if d.mutable {
+		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
+		d.r = r
+		return d
+	}
+	return &IPAddressDie{
+		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
+		mutable:          d.mutable,
+		r:                r,
+		seal:             d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *IPAddressDie) DieFeedPtr(r *networkingv1.IPAddress) *IPAddressDie {
+	if r == nil {
+		r = &networkingv1.IPAddress{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *IPAddressDie) DieFeedDuck(v any) *IPAddressDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *IPAddressDie) DieFeedJSON(j []byte) *IPAddressDie {
+	r := networkingv1.IPAddress{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *IPAddressDie) DieFeedYAML(y []byte) *IPAddressDie {
+	r := networkingv1.IPAddress{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *IPAddressDie) DieFeedYAMLFile(name string) *IPAddressDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *IPAddressDie) DieFeedRawExtension(raw runtime.RawExtension) *IPAddressDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *IPAddressDie) DieRelease() networkingv1.IPAddress {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *IPAddressDie) DieReleasePtr() *networkingv1.IPAddress {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseUnstructured returns the resource managed by the die as an unstructured object. Panics on error.
+func (d *IPAddressDie) DieReleaseUnstructured() *unstructured.Unstructured {
+	r := d.DieReleasePtr()
+	u, err := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	if err != nil {
+		panic(err)
+	}
+	return &unstructured.Unstructured{
+		Object: u,
+	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *IPAddressDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *IPAddressDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *IPAddressDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *IPAddressDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *IPAddressDie) DieStamp(fn func(r *networkingv1.IPAddress)) *IPAddressDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *IPAddressDie) DieStampAt(jp string, fn interface{}) *IPAddressDie {
+	return d.DieStamp(func(r *networkingv1.IPAddress) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *IPAddressDie) DieWith(fns ...func(d *IPAddressDie)) *IPAddressDie {
+	nd := IPAddressBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *IPAddressDie) DeepCopy() *IPAddressDie {
+	r := *d.r.DeepCopy()
+	return &IPAddressDie{
+		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
+		mutable:          d.mutable,
+		r:                r,
+		seal:             d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *IPAddressDie) DieSeal() *IPAddressDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *IPAddressDie) DieSealFeed(r networkingv1.IPAddress) *IPAddressDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *IPAddressDie) DieSealFeedPtr(r *networkingv1.IPAddress) *IPAddressDie {
+	if r == nil {
+		r = &networkingv1.IPAddress{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *IPAddressDie) DieSealRelease() networkingv1.IPAddress {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *IPAddressDie) DieSealReleasePtr() *networkingv1.IPAddress {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *IPAddressDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *IPAddressDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+var _ runtime.Object = (*IPAddressDie)(nil)
+
+func (d *IPAddressDie) DeepCopyObject() runtime.Object {
+	return d.r.DeepCopy()
+}
+
+func (d *IPAddressDie) GetObjectKind() schema.ObjectKind {
+	r := d.DieRelease()
+	return r.GetObjectKind()
+}
+
+func (d *IPAddressDie) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.r)
+}
+
+func (d *IPAddressDie) UnmarshalJSON(b []byte) error {
+	if !d.mutable {
+		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
+	}
+	resource := &networkingv1.IPAddress{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
+	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "networking.k8s.io/v1" and "IPAddress" respectively.
+func (d *IPAddressDie) DieDefaultTypeMetadata() *IPAddressDie {
+	return d.DieStamp(func(r *networkingv1.IPAddress) {
+		r.APIVersion = "networking.k8s.io/v1"
+		r.Kind = "IPAddress"
+	})
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *IPAddressDie) APIVersion(v string) *IPAddressDie {
+	return d.DieStamp(func(r *networkingv1.IPAddress) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *IPAddressDie) Kind(v string) *IPAddressDie {
+	return d.DieStamp(func(r *networkingv1.IPAddress) {
+		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *IPAddressDie) TypeMetadata(v apismetav1.TypeMeta) *IPAddressDie {
+	return d.DieStamp(func(r *networkingv1.IPAddress) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *IPAddressDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *IPAddressDie {
+	return d.DieStamp(func(r *networkingv1.IPAddress) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *IPAddressDie) Metadata(v apismetav1.ObjectMeta) *IPAddressDie {
+	return d.DieStamp(func(r *networkingv1.IPAddress) {
+		r.ObjectMeta = v
+	})
+}
+
+// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+func (d *IPAddressDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *IPAddressDie {
+	return d.DieStamp(func(r *networkingv1.IPAddress) {
+		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
+		fn(d)
+		r.ObjectMeta = d.DieRelease()
+	})
+}
+
+// SpecDie stamps the resource's spec field with a mutable die.
+func (d *IPAddressDie) SpecDie(fn func(d *IPAddressSpecDie)) *IPAddressDie {
+	return d.DieStamp(func(r *networkingv1.IPAddress) {
+		d := IPAddressSpecBlank.DieImmutable(false).DieFeed(r.Spec)
+		fn(d)
+		r.Spec = d.DieRelease()
+	})
+}
+
+// spec is the desired state of the IPAddress.
+//
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *IPAddressDie) Spec(v networkingv1.IPAddressSpec) *IPAddressDie {
+	return d.DieStamp(func(r *networkingv1.IPAddress) {
+		r.Spec = v
+	})
+}
+
+var IPAddressSpecBlank = (&IPAddressSpecDie{}).DieFeed(networkingv1.IPAddressSpec{})
+
+type IPAddressSpecDie struct {
+	mutable bool
+	r       networkingv1.IPAddressSpec
+	seal    networkingv1.IPAddressSpec
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *IPAddressSpecDie) DieImmutable(immutable bool) *IPAddressSpecDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *IPAddressSpecDie) DieFeed(r networkingv1.IPAddressSpec) *IPAddressSpecDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &IPAddressSpecDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *IPAddressSpecDie) DieFeedPtr(r *networkingv1.IPAddressSpec) *IPAddressSpecDie {
+	if r == nil {
+		r = &networkingv1.IPAddressSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *IPAddressSpecDie) DieFeedDuck(v any) *IPAddressSpecDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *IPAddressSpecDie) DieFeedJSON(j []byte) *IPAddressSpecDie {
+	r := networkingv1.IPAddressSpec{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *IPAddressSpecDie) DieFeedYAML(y []byte) *IPAddressSpecDie {
+	r := networkingv1.IPAddressSpec{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *IPAddressSpecDie) DieFeedYAMLFile(name string) *IPAddressSpecDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *IPAddressSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *IPAddressSpecDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *IPAddressSpecDie) DieRelease() networkingv1.IPAddressSpec {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *IPAddressSpecDie) DieReleasePtr() *networkingv1.IPAddressSpec {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *IPAddressSpecDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *IPAddressSpecDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *IPAddressSpecDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *IPAddressSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *IPAddressSpecDie) DieStamp(fn func(r *networkingv1.IPAddressSpec)) *IPAddressSpecDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *IPAddressSpecDie) DieStampAt(jp string, fn interface{}) *IPAddressSpecDie {
+	return d.DieStamp(func(r *networkingv1.IPAddressSpec) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *IPAddressSpecDie) DieWith(fns ...func(d *IPAddressSpecDie)) *IPAddressSpecDie {
+	nd := IPAddressSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *IPAddressSpecDie) DeepCopy() *IPAddressSpecDie {
+	r := *d.r.DeepCopy()
+	return &IPAddressSpecDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *IPAddressSpecDie) DieSeal() *IPAddressSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *IPAddressSpecDie) DieSealFeed(r networkingv1.IPAddressSpec) *IPAddressSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *IPAddressSpecDie) DieSealFeedPtr(r *networkingv1.IPAddressSpec) *IPAddressSpecDie {
+	if r == nil {
+		r = &networkingv1.IPAddressSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *IPAddressSpecDie) DieSealRelease() networkingv1.IPAddressSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *IPAddressSpecDie) DieSealReleasePtr() *networkingv1.IPAddressSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *IPAddressSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *IPAddressSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// ParentRefDie mutates ParentRef as a die.
+//
+// ParentRef references the resource that an IPAddress is attached to.
+//
+// An IPAddress must reference a parent object.
+func (d *IPAddressSpecDie) ParentRefDie(fn func(d *ParentReferenceDie)) *IPAddressSpecDie {
+	return d.DieStamp(func(r *networkingv1.IPAddressSpec) {
+		d := ParentReferenceBlank.DieImmutable(false).DieFeedPtr(r.ParentRef)
+		fn(d)
+		r.ParentRef = d.DieReleasePtr()
+	})
+}
+
+// ParentRef references the resource that an IPAddress is attached to.
+//
+// An IPAddress must reference a parent object.
+func (d *IPAddressSpecDie) ParentRef(v *networkingv1.ParentReference) *IPAddressSpecDie {
+	return d.DieStamp(func(r *networkingv1.IPAddressSpec) {
+		r.ParentRef = v
+	})
+}
+
+var ParentReferenceBlank = (&ParentReferenceDie{}).DieFeed(networkingv1.ParentReference{})
+
+type ParentReferenceDie struct {
+	mutable bool
+	r       networkingv1.ParentReference
+	seal    networkingv1.ParentReference
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ParentReferenceDie) DieImmutable(immutable bool) *ParentReferenceDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ParentReferenceDie) DieFeed(r networkingv1.ParentReference) *ParentReferenceDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ParentReferenceDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ParentReferenceDie) DieFeedPtr(r *networkingv1.ParentReference) *ParentReferenceDie {
+	if r == nil {
+		r = &networkingv1.ParentReference{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ParentReferenceDie) DieFeedDuck(v any) *ParentReferenceDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ParentReferenceDie) DieFeedJSON(j []byte) *ParentReferenceDie {
+	r := networkingv1.ParentReference{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ParentReferenceDie) DieFeedYAML(y []byte) *ParentReferenceDie {
+	r := networkingv1.ParentReference{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ParentReferenceDie) DieFeedYAMLFile(name string) *ParentReferenceDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ParentReferenceDie) DieFeedRawExtension(raw runtime.RawExtension) *ParentReferenceDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ParentReferenceDie) DieRelease() networkingv1.ParentReference {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ParentReferenceDie) DieReleasePtr() *networkingv1.ParentReference {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ParentReferenceDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ParentReferenceDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ParentReferenceDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ParentReferenceDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ParentReferenceDie) DieStamp(fn func(r *networkingv1.ParentReference)) *ParentReferenceDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ParentReferenceDie) DieStampAt(jp string, fn interface{}) *ParentReferenceDie {
+	return d.DieStamp(func(r *networkingv1.ParentReference) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ParentReferenceDie) DieWith(fns ...func(d *ParentReferenceDie)) *ParentReferenceDie {
+	nd := ParentReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ParentReferenceDie) DeepCopy() *ParentReferenceDie {
+	r := *d.r.DeepCopy()
+	return &ParentReferenceDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ParentReferenceDie) DieSeal() *ParentReferenceDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ParentReferenceDie) DieSealFeed(r networkingv1.ParentReference) *ParentReferenceDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ParentReferenceDie) DieSealFeedPtr(r *networkingv1.ParentReference) *ParentReferenceDie {
+	if r == nil {
+		r = &networkingv1.ParentReference{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ParentReferenceDie) DieSealRelease() networkingv1.ParentReference {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ParentReferenceDie) DieSealReleasePtr() *networkingv1.ParentReference {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ParentReferenceDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ParentReferenceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// Group is the group of the object being referenced.
+func (d *ParentReferenceDie) Group(v string) *ParentReferenceDie {
+	return d.DieStamp(func(r *networkingv1.ParentReference) {
+		r.Group = v
+	})
+}
+
+// Resource is the resource of the object being referenced.
+func (d *ParentReferenceDie) Resource(v string) *ParentReferenceDie {
+	return d.DieStamp(func(r *networkingv1.ParentReference) {
+		r.Resource = v
+	})
+}
+
+// Namespace is the namespace of the object being referenced.
+func (d *ParentReferenceDie) Namespace(v string) *ParentReferenceDie {
+	return d.DieStamp(func(r *networkingv1.ParentReference) {
+		r.Namespace = v
+	})
+}
+
+// Name is the name of the object being referenced.
+func (d *ParentReferenceDie) Name(v string) *ParentReferenceDie {
+	return d.DieStamp(func(r *networkingv1.ParentReference) {
+		r.Name = v
+	})
+}
+
 var NetworkPolicyBlank = (&NetworkPolicyDie{}).DieFeed(networkingv1.NetworkPolicy{})
 
 type NetworkPolicyDie struct {
@@ -5424,15 +6325,15 @@ func (d *NetworkPolicySpecDie) DiePatch(patchType types.PatchType) ([]byte, erro
 //
 // podSelector selects the pods to which this NetworkPolicy object applies.
 //
-// The array of ingress rules is applied to any pods selected by this field.
+// The array of rules is applied to any pods selected by this field. An empty
+//
+// selector matches all pods in the policy's namespace.
 //
 // Multiple network policies can select the same set of pods. In this case,
 //
 // the ingress rules for each are combined additively.
 //
-// This field is NOT optional and follows standard label selector semantics.
-//
-// An empty podSelector matches all pods in this namespace.
+// This field is optional. If it is not specified, it defaults to an empty selector.
 func (d *NetworkPolicySpecDie) PodSelectorDie(fn func(d *metav1.LabelSelectorDie)) *NetworkPolicySpecDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
 		d := metav1.LabelSelectorBlank.DieImmutable(false).DieFeed(r.PodSelector)
@@ -5491,15 +6392,15 @@ func (d *NetworkPolicySpecDie) EgressDie(v ...*NetworkPolicyEgressRuleDie) *Netw
 
 // podSelector selects the pods to which this NetworkPolicy object applies.
 //
-// The array of ingress rules is applied to any pods selected by this field.
+// The array of rules is applied to any pods selected by this field. An empty
+//
+// selector matches all pods in the policy's namespace.
 //
 // Multiple network policies can select the same set of pods. In this case,
 //
 // the ingress rules for each are combined additively.
 //
-// This field is NOT optional and follows standard label selector semantics.
-//
-// An empty podSelector matches all pods in this namespace.
+// This field is optional. If it is not specified, it defaults to an empty selector.
 func (d *NetworkPolicySpecDie) PodSelector(v apismetav1.LabelSelector) *NetworkPolicySpecDie {
 	return d.DieStamp(func(r *networkingv1.NetworkPolicySpec) {
 		r.PodSelector = v
