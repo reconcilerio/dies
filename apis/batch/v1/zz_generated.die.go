@@ -2010,10 +2010,6 @@ func (d *JobSpecDie) PodReplacementPolicy(v *batchv1.PodReplacementPolicy) *JobS
 // characters as defined by RFC 3986. The value cannot exceed 63 characters.
 //
 // This field is immutable.
-//
-// This field is beta-level. The job controller accepts setting the field
-//
-// when the feature gate JobManagedBy is enabled (enabled by default).
 func (d *JobSpecDie) ManagedBy(v *string) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.ManagedBy = v

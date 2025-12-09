@@ -1394,10 +1394,6 @@ func (d *EndpointHintsDie) ForZonesDie(v ...*ForZoneDie) *EndpointHintsDie {
 // forNodes indicates the node(s) this endpoint should be consumed by when
 //
 // using topology aware routing. May contain a maximum of 8 entries.
-//
-// # This is an Alpha feature and is only used when the PreferSameTrafficDistribution
-//
-// feature gate is enabled.
 func (d *EndpointHintsDie) ForNodesDie(v ...*ForNodeDie) *EndpointHintsDie {
 	return d.DieStamp(func(r *discoveryv1.EndpointHints) {
 		r.ForNodes = make([]discoveryv1.ForNode, len(v))
@@ -1419,10 +1415,6 @@ func (d *EndpointHintsDie) ForZones(v ...discoveryv1.ForZone) *EndpointHintsDie 
 // forNodes indicates the node(s) this endpoint should be consumed by when
 //
 // using topology aware routing. May contain a maximum of 8 entries.
-//
-// # This is an Alpha feature and is only used when the PreferSameTrafficDistribution
-//
-// feature gate is enabled.
 func (d *EndpointHintsDie) ForNodes(v ...discoveryv1.ForNode) *EndpointHintsDie {
 	return d.DieStamp(func(r *discoveryv1.EndpointHints) {
 		r.ForNodes = v

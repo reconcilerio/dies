@@ -287,7 +287,7 @@ func (d *AdmissionRequestDie) DiePatch(patchType types.PatchType) ([]byte, error
 
 // KindDie mutates Kind as a die.
 //
-// Kind is the fully-qualified type of object being submitted (for example, v1.Pod or autoscaling.v1.Scale)
+// kind is the fully-qualified type of object being submitted (for example, v1.Pod or autoscaling.v1.Scale)
 func (d *AdmissionRequestDie) KindDie(fn func(d *metav1.GroupVersionKindDie)) *AdmissionRequestDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
 		d := metav1.GroupVersionKindBlank.DieImmutable(false).DieFeed(r.Kind)
@@ -298,7 +298,7 @@ func (d *AdmissionRequestDie) KindDie(fn func(d *metav1.GroupVersionKindDie)) *A
 
 // ResourceDie mutates Resource as a die.
 //
-// Resource is the fully-qualified resource being requested (for example, v1.pods)
+// resource is the fully-qualified resource being requested (for example, v1.pods)
 func (d *AdmissionRequestDie) ResourceDie(fn func(d *metav1.GroupVersionResourceDie)) *AdmissionRequestDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
 		d := metav1.GroupVersionResourceBlank.DieImmutable(false).DieFeed(r.Resource)
@@ -309,7 +309,7 @@ func (d *AdmissionRequestDie) ResourceDie(fn func(d *metav1.GroupVersionResource
 
 // RequestKindDie mutates RequestKind as a die.
 //
-// RequestKind is the fully-qualified type of the original API request (for example, v1.Pod or autoscaling.v1.Scale).
+// requestKind is the fully-qualified type of the original API request (for example, v1.Pod or autoscaling.v1.Scale).
 //
 // If this is specified and differs from the value in "kind", an equivalent match and conversion was performed.
 //
@@ -334,7 +334,7 @@ func (d *AdmissionRequestDie) RequestKindDie(fn func(d *metav1.GroupVersionKindD
 
 // RequestResourceDie mutates RequestResource as a die.
 //
-// RequestResource is the fully-qualified resource of the original API request (for example, v1.pods).
+// requestResource is the fully-qualified resource of the original API request (for example, v1.pods).
 //
 // If this is specified and differs from the value in "resource", an equivalent match and conversion was performed.
 //
@@ -359,7 +359,7 @@ func (d *AdmissionRequestDie) RequestResourceDie(fn func(d *metav1.GroupVersionR
 
 // UserInfoDie mutates UserInfo as a die.
 //
-// UserInfo is information about the requesting user
+// userInfo is information about the requesting user
 func (d *AdmissionRequestDie) UserInfoDie(fn func(d *authenticationv1.UserInfoDie)) *AdmissionRequestDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
 		d := authenticationv1.UserInfoBlank.DieImmutable(false).DieFeed(r.UserInfo)
@@ -368,7 +368,7 @@ func (d *AdmissionRequestDie) UserInfoDie(fn func(d *authenticationv1.UserInfoDi
 	})
 }
 
-// UID is an identifier for the individual request/response. It allows us to distinguish instances of requests which are
+// uid is an identifier for the individual request/response. It allows us to distinguish instances of requests which are
 //
 // otherwise identical (parallel requests, requests when earlier requests did not modify etc)
 //
@@ -381,28 +381,28 @@ func (d *AdmissionRequestDie) UID(v types.UID) *AdmissionRequestDie {
 	})
 }
 
-// Kind is the fully-qualified type of object being submitted (for example, v1.Pod or autoscaling.v1.Scale)
+// kind is the fully-qualified type of object being submitted (for example, v1.Pod or autoscaling.v1.Scale)
 func (d *AdmissionRequestDie) Kind(v apismetav1.GroupVersionKind) *AdmissionRequestDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
 		r.Kind = v
 	})
 }
 
-// Resource is the fully-qualified resource being requested (for example, v1.pods)
+// resource is the fully-qualified resource being requested (for example, v1.pods)
 func (d *AdmissionRequestDie) Resource(v apismetav1.GroupVersionResource) *AdmissionRequestDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
 		r.Resource = v
 	})
 }
 
-// SubResource is the subresource being requested, if any (for example, "status" or "scale")
+// subResource is the subresource being requested, if any (for example, "status" or "scale")
 func (d *AdmissionRequestDie) SubResource(v string) *AdmissionRequestDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
 		r.SubResource = v
 	})
 }
 
-// RequestKind is the fully-qualified type of the original API request (for example, v1.Pod or autoscaling.v1.Scale).
+// requestKind is the fully-qualified type of the original API request (for example, v1.Pod or autoscaling.v1.Scale).
 //
 // If this is specified and differs from the value in "kind", an equivalent match and conversion was performed.
 //
@@ -423,7 +423,7 @@ func (d *AdmissionRequestDie) RequestKind(v *apismetav1.GroupVersionKind) *Admis
 	})
 }
 
-// RequestResource is the fully-qualified resource of the original API request (for example, v1.pods).
+// requestResource is the fully-qualified resource of the original API request (for example, v1.pods).
 //
 // If this is specified and differs from the value in "resource", an equivalent match and conversion was performed.
 //
@@ -444,7 +444,7 @@ func (d *AdmissionRequestDie) RequestResource(v *apismetav1.GroupVersionResource
 	})
 }
 
-// RequestSubResource is the name of the subresource of the original API request, if any (for example, "status" or "scale")
+// requestSubResource is the name of the subresource of the original API request, if any (for example, "status" or "scale")
 //
 // If this is specified and differs from the value in "subResource", an equivalent match and conversion was performed.
 //
@@ -455,7 +455,7 @@ func (d *AdmissionRequestDie) RequestSubResource(v string) *AdmissionRequestDie 
 	})
 }
 
-// Name is the name of the object as presented in the request.  On a CREATE operation, the client may omit name and
+// name is the name of the object as presented in the request.  On a CREATE operation, the client may omit name and
 //
 // rely on the server to generate the name.  If that is the case, this field will contain an empty string.
 func (d *AdmissionRequestDie) Name(v string) *AdmissionRequestDie {
@@ -464,14 +464,14 @@ func (d *AdmissionRequestDie) Name(v string) *AdmissionRequestDie {
 	})
 }
 
-// Namespace is the namespace associated with the request (if any).
+// namespace is the namespace associated with the request (if any).
 func (d *AdmissionRequestDie) Namespace(v string) *AdmissionRequestDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
 		r.Namespace = v
 	})
 }
 
-// Operation is the operation being performed. This may be different than the operation
+// operation is the operation being performed. This may be different than the operation
 //
 // requested. e.g. a patch can result in either a CREATE or UPDATE Operation.
 func (d *AdmissionRequestDie) Operation(v admissionv1.Operation) *AdmissionRequestDie {
@@ -480,28 +480,28 @@ func (d *AdmissionRequestDie) Operation(v admissionv1.Operation) *AdmissionReque
 	})
 }
 
-// UserInfo is information about the requesting user
+// userInfo is information about the requesting user
 func (d *AdmissionRequestDie) UserInfo(v apiauthenticationv1.UserInfo) *AdmissionRequestDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
 		r.UserInfo = v
 	})
 }
 
-// Object is the object from the incoming request.
+// object is the object from the incoming request.
 func (d *AdmissionRequestDie) Object(v runtime.RawExtension) *AdmissionRequestDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
 		r.Object = v
 	})
 }
 
-// OldObject is the existing object. Only populated for DELETE and UPDATE requests.
+// oldObject is the existing object. Only populated for DELETE and UPDATE requests.
 func (d *AdmissionRequestDie) OldObject(v runtime.RawExtension) *AdmissionRequestDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionRequest) {
 		r.OldObject = v
 	})
 }
 
-// DryRun indicates that modifications will definitely not be persisted for this request.
+// dryRun indicates that modifications will definitely not be persisted for this request.
 //
 // Defaults to false.
 func (d *AdmissionRequestDie) DryRun(v *bool) *AdmissionRequestDie {
@@ -510,7 +510,7 @@ func (d *AdmissionRequestDie) DryRun(v *bool) *AdmissionRequestDie {
 	})
 }
 
-// Options is the operation option structure of the operation being performed.
+// options is the operation option structure of the operation being performed.
 //
 // e.g. `meta.k8s.io/v1.DeleteOptions` or `meta.k8s.io/v1.CreateOptions`. This may be
 //
@@ -773,7 +773,7 @@ func (d *AdmissionResponseDie) DiePatch(patchType types.PatchType) ([]byte, erro
 
 // ResultDie mutates Result as a die.
 //
-// Result contains extra details into why an admission request was denied.
+// status is the result contains extra details into why an admission request was denied.
 //
 // This field IS NOT consulted in any way if "Allowed" is "true".
 func (d *AdmissionResponseDie) ResultDie(fn func(d *metav1.StatusDie)) *AdmissionResponseDie {
@@ -784,7 +784,7 @@ func (d *AdmissionResponseDie) ResultDie(fn func(d *metav1.StatusDie)) *Admissio
 	})
 }
 
-// UID is an identifier for the individual request/response.
+// uid is an identifier for the individual request/response.
 //
 // This must be copied over from the corresponding AdmissionRequest.
 func (d *AdmissionResponseDie) UID(v types.UID) *AdmissionResponseDie {
@@ -793,14 +793,14 @@ func (d *AdmissionResponseDie) UID(v types.UID) *AdmissionResponseDie {
 	})
 }
 
-// Allowed indicates whether or not the admission request was permitted.
+// allowed indicates whether or not the admission request was permitted.
 func (d *AdmissionResponseDie) Allowed(v bool) *AdmissionResponseDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionResponse) {
 		r.Allowed = v
 	})
 }
 
-// Result contains extra details into why an admission request was denied.
+// status is the result contains extra details into why an admission request was denied.
 //
 // This field IS NOT consulted in any way if "Allowed" is "true".
 func (d *AdmissionResponseDie) Result(v *apismetav1.Status) *AdmissionResponseDie {
@@ -809,21 +809,21 @@ func (d *AdmissionResponseDie) Result(v *apismetav1.Status) *AdmissionResponseDi
 	})
 }
 
-// The patch body. Currently we only support "JSONPatch" which implements RFC 6902.
+// patch is the patch body. Currently we only support "JSONPatch" which implements RFC 6902.
 func (d *AdmissionResponseDie) Patch(v []byte) *AdmissionResponseDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionResponse) {
 		r.Patch = v
 	})
 }
 
-// The type of Patch. Currently we only allow "JSONPatch".
+// patchType is the type of Patch. Currently we only allow "JSONPatch".
 func (d *AdmissionResponseDie) PatchType(v *admissionv1.PatchType) *AdmissionResponseDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionResponse) {
 		r.PatchType = v
 	})
 }
 
-// AuditAnnotations is an unstructured key value map set by remote admission controller (e.g. error=image-blacklisted).
+// auditAnnotations is an unstructured key value map set by remote admission controller (e.g. error=image-blacklisted).
 //
 // # MutatingAdmissionWebhook and ValidatingAdmissionWebhook admission controller will prefix the keys with
 //
@@ -1097,7 +1097,7 @@ func (d *AdmissionReviewDie) DiePatch(patchType types.PatchType) ([]byte, error)
 
 // RequestDie mutates Request as a die.
 //
-// Request describes the attributes for the admission request.
+// request describes the attributes for the admission request.
 func (d *AdmissionReviewDie) RequestDie(fn func(d *AdmissionRequestDie)) *AdmissionReviewDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionReview) {
 		d := AdmissionRequestBlank.DieImmutable(false).DieFeedPtr(r.Request)
@@ -1108,7 +1108,7 @@ func (d *AdmissionReviewDie) RequestDie(fn func(d *AdmissionRequestDie)) *Admiss
 
 // ResponseDie mutates Response as a die.
 //
-// Response describes the attributes for the admission response.
+// response describes the attributes for the admission response.
 func (d *AdmissionReviewDie) ResponseDie(fn func(d *AdmissionResponseDie)) *AdmissionReviewDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionReview) {
 		d := AdmissionResponseBlank.DieImmutable(false).DieFeedPtr(r.Response)
@@ -1123,14 +1123,14 @@ func (d *AdmissionReviewDie) TypeMeta(v apismetav1.TypeMeta) *AdmissionReviewDie
 	})
 }
 
-// Request describes the attributes for the admission request.
+// request describes the attributes for the admission request.
 func (d *AdmissionReviewDie) Request(v *admissionv1.AdmissionRequest) *AdmissionReviewDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionReview) {
 		r.Request = v
 	})
 }
 
-// Response describes the attributes for the admission response.
+// response describes the attributes for the admission response.
 func (d *AdmissionReviewDie) Response(v *admissionv1.AdmissionResponse) *AdmissionReviewDie {
 	return d.DieStamp(func(r *admissionv1.AdmissionReview) {
 		r.Response = v

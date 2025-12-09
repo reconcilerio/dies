@@ -38,6 +38,7 @@ type _ = corev1.Pod
 // +die:field:name=SchedulingGates,die=PodSchedulingGateDie,listType=atomic
 // +die:field:name=ResourceClaims,die=PodResourceClaimDie,listType=atomic
 // +die:field:name=Resources,die=ResourceRequirementsDie,pointer=true
+// +die:field:name=WorkloadRef,die=WorkloadReferenceDie,pointer=true
 type _ = corev1.PodSpec
 
 // +die
@@ -82,10 +83,14 @@ type _ = corev1.TopologySpreadConstraint
 type _ = corev1.PodOS
 
 // +die
+type _ = corev1.WorkloadReference
+
+// +die
 // +die:field:name=InitContainerStatuses,method=InitContainerStatusDie,die=ContainerStatusDie,listType=map
 // +die:field:name=ContainerStatuses,method=ContainerStatusDie,die=ContainerStatusDie,listType=map
 // +die:field:name=EphemeralContainerStatuses,method=EphemeralContainerStatusDie,die=ContainerStatusDie,listType=map
 // +die:field:name=ExtendedResourceClaimStatus,die=PodExtendedResourceClaimStatusDie,pointer=true
+// +die:field:name=Resources,die=ResourceRequirementsDie,pointer=true
 type _ = corev1.PodStatus
 
 func (d *PodStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *PodStatusDie {
