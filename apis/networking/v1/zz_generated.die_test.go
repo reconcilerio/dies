@@ -259,3 +259,30 @@ func TestIPBlockDie_MissingMethods(t *testingx.T) {
 		t.Errorf("found missing fields for IPBlockDie: %s", diff.List())
 	}
 }
+
+func TestServiceCIDRDie_MissingMethods(t *testingx.T) {
+	die := ServiceCIDRBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ServiceCIDRDie: %s", diff.List())
+	}
+}
+
+func TestServiceCIDRSpecDie_MissingMethods(t *testingx.T) {
+	die := ServiceCIDRSpecBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ServiceCIDRSpecDie: %s", diff.List())
+	}
+}
+
+func TestServiceCIDRStatusDie_MissingMethods(t *testingx.T) {
+	die := ServiceCIDRStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ServiceCIDRStatusDie: %s", diff.List())
+	}
+}
