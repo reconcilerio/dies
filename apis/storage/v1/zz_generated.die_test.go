@@ -151,3 +151,12 @@ func TestVolumeErrorDie_MissingMethods(t *testingx.T) {
 		t.Errorf("found missing fields for VolumeErrorDie: %s", diff.List())
 	}
 }
+
+func TestVolumeAttributesClassDie_MissingMethods(t *testingx.T) {
+	die := VolumeAttributesClassBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for VolumeAttributesClassDie: %s", diff.List())
+	}
+}

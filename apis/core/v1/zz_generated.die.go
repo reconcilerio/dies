@@ -3449,6 +3449,8 @@ func (d *ContainerDie) EnvDie(v string, fn func(d *EnvVarDie)) *ContainerDie {
 // ResizePolicyDie mutates a single item in ResizePolicy matched by the nested field ResourceName, appending a new item if no match is found.
 //
 // Resources resize policy for the container.
+//
+// This field cannot be set on ephemeral containers.
 func (d *ContainerDie) ResizePolicyDie(v corev1.ResourceName, fn func(d *ContainerResizePolicyDie)) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		for i := range r.ResizePolicy {
@@ -3676,6 +3678,8 @@ func (d *ContainerDie) Resources(v corev1.ResourceRequirements) *ContainerDie {
 }
 
 // Resources resize policy for the container.
+//
+// This field cannot be set on ephemeral containers.
 func (d *ContainerDie) ResizePolicy(v ...corev1.ContainerResizePolicy) *ContainerDie {
 	return d.DieStamp(func(r *corev1.Container) {
 		r.ResizePolicy = v
@@ -23254,6 +23258,13 @@ func (d *NodeStatusDie) Features(v *corev1.NodeFeatures) *NodeStatusDie {
 	})
 }
 
+// DeclaredFeatures represents the features related to feature gates that are declared by the node.
+func (d *NodeStatusDie) DeclaredFeatures(v ...string) *NodeStatusDie {
+	return d.DieStamp(func(r *corev1.NodeStatus) {
+		r.DeclaredFeatures = v
+	})
+}
+
 var NodeAddressBlank = (&NodeAddressDie{}).DieFeed(corev1.NodeAddress{})
 
 type NodeAddressDie struct {
@@ -26977,6 +26988,8 @@ func (d *PersistentVolumeSpecDie) DiePatch(patchType types.PatchType) ([]byte, e
 // nodeAffinity defines constraints that limit what nodes this volume can be accessed from.
 //
 // This field influences the scheduling of pods that use this volume.
+//
+// This field is mutable if MutablePVNodeAffinity feature gate is enabled.
 func (d *PersistentVolumeSpecDie) NodeAffinityDie(fn func(d *VolumeNodeAffinityDie)) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
 		d := VolumeNodeAffinityBlank.DieImmutable(false).DieFeedPtr(r.NodeAffinity)
@@ -27094,6 +27107,8 @@ func (d *PersistentVolumeSpecDie) VolumeMode(v *corev1.PersistentVolumeMode) *Pe
 // nodeAffinity defines constraints that limit what nodes this volume can be accessed from.
 //
 // This field influences the scheduling of pods that use this volume.
+//
+// This field is mutable if MutablePVNodeAffinity feature gate is enabled.
 func (d *PersistentVolumeSpecDie) NodeAffinity(v *corev1.VolumeNodeAffinity) *PersistentVolumeSpecDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeSpec) {
 		r.NodeAffinity = v
@@ -32728,7 +32743,7 @@ func (d *PersistentVolumeClaimSpecDie) SelectorDie(fn func(d *metav1.LabelSelect
 //
 // resources represents the minimum resources the volume should have.
 //
-// # If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+// # Users are allowed to specify resource requirements
 //
 // that are lower than previous value but must still be higher than capacity recorded in the
 //
@@ -32841,7 +32856,7 @@ func (d *PersistentVolumeClaimSpecDie) Selector(v *apismetav1.LabelSelector) *Pe
 
 // resources represents the minimum resources the volume should have.
 //
-// # If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+// # Users are allowed to specify resource requirements
 //
 // that are lower than previous value but must still be higher than capacity recorded in the
 //
@@ -33646,8 +33661,6 @@ func (d *PersistentVolumeClaimStatusDie) Conditions(v ...corev1.PersistentVolume
 // only is responsible for resizing capacity of the volume, should ignore PVC updates that change other valid
 //
 // resources associated with PVC.
-//
-// This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature.
 func (d *PersistentVolumeClaimStatusDie) AllocatedResources(v corev1.ResourceList) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		r.AllocatedResources = v
@@ -33691,8 +33704,6 @@ func (d *PersistentVolumeClaimStatusDie) AllocatedResources(v corev1.ResourceLis
 // only is responsible for resizing capacity of the volume, should ignore PVC updates that change other valid
 //
 // resources associated with PVC.
-//
-// This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature.
 func (d *PersistentVolumeClaimStatusDie) AddAllocatedResource(name corev1.ResourceName, quantity resource.Quantity) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		if r.AllocatedResources == nil {
@@ -33739,8 +33750,6 @@ func (d *PersistentVolumeClaimStatusDie) AddAllocatedResource(name corev1.Resour
 // only is responsible for resizing capacity of the volume, should ignore PVC updates that change other valid
 //
 // resources associated with PVC.
-//
-// This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature.
 func (d *PersistentVolumeClaimStatusDie) AddAllocatedResourceString(name corev1.ResourceName, quantity string) *PersistentVolumeClaimStatusDie {
 	q := resource.MustParse(quantity)
 	return d.AddAllocatedResource(name, q)
@@ -35266,9 +35275,9 @@ func (d *PodSpecDie) SchedulingGatesDie(v ...*PodSchedulingGateDie) *PodSpecDie 
 //
 // by name.
 //
-// # This is an alpha field and requires enabling the
+// # This is a stable field but requires that the
 //
-// DynamicResourceAllocation feature gate.
+// DynamicResourceAllocation feature gate is enabled.
 //
 // This field is immutable.
 func (d *PodSpecDie) ResourceClaimsDie(v ...*PodResourceClaimDie) *PodSpecDie {
@@ -35302,6 +35311,29 @@ func (d *PodSpecDie) ResourcesDie(fn func(d *ResourceRequirementsDie)) *PodSpecD
 		d := ResourceRequirementsBlank.DieImmutable(false).DieFeedPtr(r.Resources)
 		fn(d)
 		r.Resources = d.DieReleasePtr()
+	})
+}
+
+// WorkloadRefDie mutates WorkloadRef as a die.
+//
+// WorkloadRef provides a reference to the Workload object that this Pod belongs to.
+//
+// # This field is used by the scheduler to identify the PodGroup and apply the
+//
+// correct group scheduling policies. The Workload object referenced
+//
+// by this field may not exist at the time the Pod is created.
+//
+// # This field is immutable, but a Workload object with the same name
+//
+// may be recreated with different policies. Doing this during pod scheduling
+//
+// may result in the placement not conforming to the expected policies.
+func (d *PodSpecDie) WorkloadRefDie(fn func(d *WorkloadReferenceDie)) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		d := WorkloadReferenceBlank.DieImmutable(false).DieFeedPtr(r.WorkloadRef)
+		fn(d)
+		r.WorkloadRef = d.DieReleasePtr()
 	})
 }
 
@@ -35893,9 +35925,9 @@ func (d *PodSpecDie) SchedulingGates(v ...corev1.PodSchedulingGate) *PodSpecDie 
 //
 // by name.
 //
-// # This is an alpha field and requires enabling the
+// # This is a stable field but requires that the
 //
-// DynamicResourceAllocation feature gate.
+// DynamicResourceAllocation feature gate is enabled.
 //
 // This field is immutable.
 func (d *PodSpecDie) ResourceClaims(v ...corev1.PodResourceClaim) *PodSpecDie {
@@ -35945,6 +35977,25 @@ func (d *PodSpecDie) Resources(v *corev1.ResourceRequirements) *PodSpecDie {
 func (d *PodSpecDie) HostnameOverride(v *string) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.HostnameOverride = v
+	})
+}
+
+// WorkloadRef provides a reference to the Workload object that this Pod belongs to.
+//
+// # This field is used by the scheduler to identify the PodGroup and apply the
+//
+// correct group scheduling policies. The Workload object referenced
+//
+// by this field may not exist at the time the Pod is created.
+//
+// # This field is immutable, but a Workload object with the same name
+//
+// may be recreated with different policies. Doing this during pod scheduling
+//
+// may result in the placement not conforming to the expected policies.
+func (d *PodSpecDie) WorkloadRef(v *corev1.WorkloadReference) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		r.WorkloadRef = v
 	})
 }
 
@@ -37574,11 +37625,13 @@ func (d *TolerationDie) Key(v string) *TolerationDie {
 
 // Operator represents a key's relationship to the value.
 //
-// Valid operators are Exists and Equal. Defaults to Equal.
+// Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
 //
 // # Exists is equivalent to wildcard for value, so that a pod can
 //
 // tolerate all taints of a particular category.
+//
+// Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
 func (d *TolerationDie) Operator(v corev1.TolerationOperator) *TolerationDie {
 	return d.DieStamp(func(r *corev1.Toleration) {
 		r.Operator = v
@@ -39422,6 +39475,293 @@ func (d *PodOSDie) Name(v corev1.OSName) *PodOSDie {
 	})
 }
 
+var WorkloadReferenceBlank = (&WorkloadReferenceDie{}).DieFeed(corev1.WorkloadReference{})
+
+type WorkloadReferenceDie struct {
+	mutable bool
+	r       corev1.WorkloadReference
+	seal    corev1.WorkloadReference
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *WorkloadReferenceDie) DieImmutable(immutable bool) *WorkloadReferenceDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *WorkloadReferenceDie) DieFeed(r corev1.WorkloadReference) *WorkloadReferenceDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &WorkloadReferenceDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *WorkloadReferenceDie) DieFeedPtr(r *corev1.WorkloadReference) *WorkloadReferenceDie {
+	if r == nil {
+		r = &corev1.WorkloadReference{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *WorkloadReferenceDie) DieFeedDuck(v any) *WorkloadReferenceDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *WorkloadReferenceDie) DieFeedJSON(j []byte) *WorkloadReferenceDie {
+	r := corev1.WorkloadReference{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *WorkloadReferenceDie) DieFeedYAML(y []byte) *WorkloadReferenceDie {
+	r := corev1.WorkloadReference{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *WorkloadReferenceDie) DieFeedYAMLFile(name string) *WorkloadReferenceDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadReferenceDie) DieFeedRawExtension(raw runtime.RawExtension) *WorkloadReferenceDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *WorkloadReferenceDie) DieRelease() corev1.WorkloadReference {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *WorkloadReferenceDie) DieReleasePtr() *corev1.WorkloadReference {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *WorkloadReferenceDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *WorkloadReferenceDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *WorkloadReferenceDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadReferenceDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *WorkloadReferenceDie) DieStamp(fn func(r *corev1.WorkloadReference)) *WorkloadReferenceDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *WorkloadReferenceDie) DieStampAt(jp string, fn interface{}) *WorkloadReferenceDie {
+	return d.DieStamp(func(r *corev1.WorkloadReference) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *WorkloadReferenceDie) DieWith(fns ...func(d *WorkloadReferenceDie)) *WorkloadReferenceDie {
+	nd := WorkloadReferenceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *WorkloadReferenceDie) DeepCopy() *WorkloadReferenceDie {
+	r := *d.r.DeepCopy()
+	return &WorkloadReferenceDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *WorkloadReferenceDie) DieSeal() *WorkloadReferenceDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *WorkloadReferenceDie) DieSealFeed(r corev1.WorkloadReference) *WorkloadReferenceDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *WorkloadReferenceDie) DieSealFeedPtr(r *corev1.WorkloadReference) *WorkloadReferenceDie {
+	if r == nil {
+		r = &corev1.WorkloadReference{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *WorkloadReferenceDie) DieSealRelease() corev1.WorkloadReference {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *WorkloadReferenceDie) DieSealReleasePtr() *corev1.WorkloadReference {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *WorkloadReferenceDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *WorkloadReferenceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// Name defines the name of the Workload object this Pod belongs to.
+//
+// Workload must be in the same namespace as the Pod.
+//
+// If it doesn't match any existing Workload, the Pod will remain unschedulable
+//
+// until a Workload object is created and observed by the kube-scheduler.
+//
+// It must be a DNS subdomain.
+func (d *WorkloadReferenceDie) Name(v string) *WorkloadReferenceDie {
+	return d.DieStamp(func(r *corev1.WorkloadReference) {
+		r.Name = v
+	})
+}
+
+// PodGroup is the name of the PodGroup within the Workload that this Pod
+//
+// belongs to. If it doesn't match any existing PodGroup within the Workload,
+//
+// the Pod will remain unschedulable until the Workload object is recreated
+//
+// and observed by the kube-scheduler. It must be a DNS label.
+func (d *WorkloadReferenceDie) PodGroup(v string) *WorkloadReferenceDie {
+	return d.DieStamp(func(r *corev1.WorkloadReference) {
+		r.PodGroup = v
+	})
+}
+
+// PodGroupReplicaKey specifies the replica key of the PodGroup to which this
+//
+// Pod belongs. It is used to distinguish pods belonging to different replicas
+//
+// of the same pod group. The pod group policy is applied separately to each replica.
+//
+// When set, it must be a DNS label.
+func (d *WorkloadReferenceDie) PodGroupReplicaKey(v string) *WorkloadReferenceDie {
+	return d.DieStamp(func(r *corev1.WorkloadReference) {
+		r.PodGroupReplicaKey = v
+	})
+}
+
 var PodStatusBlank = (&PodStatusDie{}).DieFeed(corev1.PodStatus{})
 
 type PodStatusDie struct {
@@ -39785,9 +40125,24 @@ func (d *PodStatusDie) ExtendedResourceClaimStatusDie(fn func(d *PodExtendedReso
 	})
 }
 
+// ResourcesDie mutates Resources as a die.
+//
+// # Resources represents the compute resource requests and limits that have been
+//
+// applied at the pod level if pod-level requests or limits are set in
+//
+// PodSpec.Resources
+func (d *PodStatusDie) ResourcesDie(fn func(d *ResourceRequirementsDie)) *PodStatusDie {
+	return d.DieStamp(func(r *corev1.PodStatus) {
+		d := ResourceRequirementsBlank.DieImmutable(false).DieFeedPtr(r.Resources)
+		fn(d)
+		r.Resources = d.DieReleasePtr()
+	})
+}
+
 // If set, this represents the .metadata.generation that the pod status was set based upon.
 //
-// This is an alpha field. Enable PodObservedGenerationTracking to be able to use this field.
+// The PodObservedGenerationTracking feature gate must be enabled to use this field.
 func (d *PodStatusDie) ObservedGeneration(v int64) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.ObservedGeneration = v
@@ -40034,6 +40389,56 @@ func (d *PodStatusDie) ResourceClaimStatuses(v ...corev1.PodResourceClaimStatus)
 func (d *PodStatusDie) ExtendedResourceClaimStatus(v *corev1.PodExtendedResourceClaimStatus) *PodStatusDie {
 	return d.DieStamp(func(r *corev1.PodStatus) {
 		r.ExtendedResourceClaimStatus = v
+	})
+}
+
+// AllocatedResources is the total requests allocated for this pod by the node.
+//
+// # If pod-level requests are not set, this will be the total requests aggregated
+//
+// across containers in the pod.
+func (d *PodStatusDie) AllocatedResources(v corev1.ResourceList) *PodStatusDie {
+	return d.DieStamp(func(r *corev1.PodStatus) {
+		r.AllocatedResources = v
+	})
+}
+
+// AddAllocatedResource sets a single quantity on the AllocatedResources resource list.
+//
+// AllocatedResources is the total requests allocated for this pod by the node.
+//
+// # If pod-level requests are not set, this will be the total requests aggregated
+//
+// across containers in the pod.
+func (d *PodStatusDie) AddAllocatedResource(name corev1.ResourceName, quantity resource.Quantity) *PodStatusDie {
+	return d.DieStamp(func(r *corev1.PodStatus) {
+		if r.AllocatedResources == nil {
+			r.AllocatedResources = corev1.ResourceList{}
+		}
+		r.AllocatedResources[name] = quantity
+	})
+}
+
+// AddAllocatedResourceString parses the quantity setting a single value on the AllocatedResources resource list. Panics if the string is not parsable.
+//
+// AllocatedResources is the total requests allocated for this pod by the node.
+//
+// # If pod-level requests are not set, this will be the total requests aggregated
+//
+// across containers in the pod.
+func (d *PodStatusDie) AddAllocatedResourceString(name corev1.ResourceName, quantity string) *PodStatusDie {
+	q := resource.MustParse(quantity)
+	return d.AddAllocatedResource(name, q)
+}
+
+// Resources represents the compute resource requests and limits that have been
+//
+// applied at the pod level if pod-level requests or limits are set in
+//
+// PodSpec.Resources
+func (d *PodStatusDie) Resources(v *corev1.ResourceRequirements) *PodStatusDie {
+	return d.DieStamp(func(r *corev1.PodStatus) {
+		r.Resources = v
 	})
 }
 
@@ -57661,6 +58066,31 @@ func (d *PodCertificateProjectionDie) KeyPath(v string) *PodCertificateProjectio
 func (d *PodCertificateProjectionDie) CertificateChainPath(v string) *PodCertificateProjectionDie {
 	return d.DieStamp(func(r *corev1.PodCertificateProjection) {
 		r.CertificateChainPath = v
+	})
+}
+
+// userAnnotations allow pod authors to pass additional information to
+//
+// the signer implementation.  Kubernetes does not restrict or validate this
+//
+// metadata in any way.
+//
+// # These values are copied verbatim into the `spec.unverifiedUserAnnotations` field of
+//
+// the PodCertificateRequest objects that Kubelet creates.
+//
+// Entries are subject to the same validation as object metadata annotations,
+//
+// with the addition that all keys must be domain-prefixed. No restrictions
+//
+// are placed on values, except an overall size limitation on the entire field.
+//
+// Signers should document the keys and values they support. Signers should
+//
+// deny requests that contain keys they do not recognize.
+func (d *PodCertificateProjectionDie) UserAnnotations(v map[string]string) *PodCertificateProjectionDie {
+	return d.DieStamp(func(r *corev1.PodCertificateProjection) {
+		r.UserAnnotations = v
 	})
 }
 

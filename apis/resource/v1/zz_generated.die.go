@@ -2099,7 +2099,7 @@ func (d *OpaqueDeviceConfigurationDie) DiePatch(patchType types.PatchType) ([]by
 //
 // # Must be a DNS subdomain and should end with a DNS domain owned by the
 //
-// vendor of the driver.
+// vendor of the driver. It should use only lower case characters.
 func (d *OpaqueDeviceConfigurationDie) Driver(v string) *OpaqueDeviceConfigurationDie {
 	return d.DieStamp(func(r *resourcev1.OpaqueDeviceConfiguration) {
 		r.Driver = v
@@ -6157,7 +6157,7 @@ func (d *AllocatedDeviceStatusDie) NetworkDataDie(fn func(d *NetworkDeviceDataDi
 //
 // # Must be a DNS subdomain and should end with a DNS domain owned by the
 //
-// vendor of the driver.
+// vendor of the driver. It should use only lower case characters.
 func (d *AllocatedDeviceStatusDie) Driver(v string) *AllocatedDeviceStatusDie {
 	return d.DieStamp(func(r *resourcev1.AllocatedDeviceStatus) {
 		r.Driver = v
@@ -7399,7 +7399,7 @@ func (d *DeviceRequestAllocationResultDie) Request(v string) *DeviceRequestAlloc
 //
 // # Must be a DNS subdomain and should end with a DNS domain owned by the
 //
-// vendor of the driver.
+// vendor of the driver. It should use only lower case characters.
 func (d *DeviceRequestAllocationResultDie) Driver(v string) *DeviceRequestAllocationResultDie {
 	return d.DieStamp(func(r *resourcev1.DeviceRequestAllocationResult) {
 		r.Driver = v
@@ -9339,7 +9339,9 @@ func (d *ResourceSliceSpecDie) NodeSelectorDie(fn func(d *corev1.NodeSelectorDie
 //
 // Devices lists some or all of the devices in this pool.
 //
-// Must not have more than 128 entries.
+// Must not have more than 128 entries. If any device uses taints or consumes counters the limit is 64.
+//
+// Only one of Devices and SharedCounters can be set in a ResourceSlice.
 func (d *ResourceSliceSpecDie) DevicesDie(v ...*DeviceDie) *ResourceSliceSpecDie {
 	return d.DieStamp(func(r *resourcev1.ResourceSliceSpec) {
 		r.Devices = make([]resourcev1.Device, len(v))
@@ -9355,9 +9357,11 @@ func (d *ResourceSliceSpecDie) DevicesDie(v ...*DeviceDie) *ResourceSliceSpecDie
 //
 // has a name and a list of counters available.
 //
-// The names of the SharedCounters must be unique in the ResourceSlice.
+// The names of the counter sets must be unique in the ResourcePool.
 //
-// The maximum number of counters in all sets is 32.
+// Only one of Devices and SharedCounters can be set in a ResourceSlice.
+//
+// The maximum number of counter sets is 8.
 func (d *ResourceSliceSpecDie) SharedCountersDie(v ...*CounterSetDie) *ResourceSliceSpecDie {
 	return d.DieStamp(func(r *resourcev1.ResourceSliceSpec) {
 		r.SharedCounters = make([]resourcev1.CounterSet, len(v))
@@ -9375,7 +9379,9 @@ func (d *ResourceSliceSpecDie) SharedCountersDie(v ...*CounterSetDie) *ResourceS
 //
 // # Must be a DNS subdomain and should end with a DNS domain owned by the
 //
-// vendor of the driver. This field is immutable.
+// vendor of the driver. It should use only lower case characters.
+//
+// This field is immutable.
 func (d *ResourceSliceSpecDie) Driver(v string) *ResourceSliceSpecDie {
 	return d.DieStamp(func(r *resourcev1.ResourceSliceSpec) {
 		r.Driver = v
@@ -9436,7 +9442,9 @@ func (d *ResourceSliceSpecDie) AllNodes(v *bool) *ResourceSliceSpecDie {
 
 // Devices lists some or all of the devices in this pool.
 //
-// Must not have more than 128 entries.
+// Must not have more than 128 entries. If any device uses taints or consumes counters the limit is 64.
+//
+// Only one of Devices and SharedCounters can be set in a ResourceSlice.
 func (d *ResourceSliceSpecDie) Devices(v ...resourcev1.Device) *ResourceSliceSpecDie {
 	return d.DieStamp(func(r *resourcev1.ResourceSliceSpec) {
 		r.Devices = v
@@ -9462,9 +9470,11 @@ func (d *ResourceSliceSpecDie) PerDeviceNodeSelection(v *bool) *ResourceSliceSpe
 //
 // has a name and a list of counters available.
 //
-// The names of the SharedCounters must be unique in the ResourceSlice.
+// The names of the counter sets must be unique in the ResourcePool.
 //
-// The maximum number of counters in all sets is 32.
+// Only one of Devices and SharedCounters can be set in a ResourceSlice.
+//
+// The maximum number of counter sets is 8.
 func (d *ResourceSliceSpecDie) SharedCounters(v ...resourcev1.CounterSet) *ResourceSliceSpecDie {
 	return d.DieStamp(func(r *resourcev1.ResourceSliceSpec) {
 		r.SharedCounters = v
@@ -10026,13 +10036,9 @@ func (d *DeviceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 //
 // There can only be a single entry per counterSet.
 //
-// # The total number of device counter consumption entries
+// # The maximum number of device counter consumptions per
 //
-// must be <= 32. In addition, the total number in the
-//
-// entire ResourceSlice must be <= 1024 (for example,
-//
-// 64 devices with 16 counters each).
+// device is 2.
 func (d *DeviceDie) ConsumesCountersDie(v ...*DeviceCounterConsumptionDie) *DeviceDie {
 	return d.DieStamp(func(r *resourcev1.Device) {
 		r.ConsumesCounters = make([]resourcev1.DeviceCounterConsumption, len(v))
@@ -10063,7 +10069,11 @@ func (d *DeviceDie) NodeSelectorDie(fn func(d *corev1.NodeSelectorDie)) *DeviceD
 //
 // If specified, these are the driver-defined taints.
 //
-// The maximum number of taints is 4.
+// The maximum number of taints is 16. If taints are set for
+//
+// any device in a ResourceSlice, then the maximum number of
+//
+// allowed devices per ResourceSlice is 64 instead of 128.
 //
 // # This is an alpha field and requires enabling the DRADeviceTaints
 //
@@ -10094,13 +10104,9 @@ func (d *DeviceDie) Name(v string) *DeviceDie {
 //
 // There can only be a single entry per counterSet.
 //
-// # The total number of device counter consumption entries
+// # The maximum number of device counter consumptions per
 //
-// must be <= 32. In addition, the total number in the
-//
-// entire ResourceSlice must be <= 1024 (for example,
-//
-// 64 devices with 16 counters each).
+// device is 2.
 func (d *DeviceDie) ConsumesCounters(v ...resourcev1.DeviceCounterConsumption) *DeviceDie {
 	return d.DieStamp(func(r *resourcev1.Device) {
 		r.ConsumesCounters = v
@@ -10144,7 +10150,11 @@ func (d *DeviceDie) AllNodes(v *bool) *DeviceDie {
 
 // If specified, these are the driver-defined taints.
 //
-// The maximum number of taints is 4.
+// The maximum number of taints is 16. If taints are set for
+//
+// any device in a ResourceSlice, then the maximum number of
+//
+// allowed devices per ResourceSlice is 64 instead of 128.
 //
 // # This is an alpha field and requires enabling the DRADeviceTaints
 //
@@ -12500,9 +12510,11 @@ func (d *DeviceTaintDie) Value(v string) *DeviceTaintDie {
 //
 // and through such claims on the pods using them.
 //
-// Valid effects are NoSchedule and NoExecute. PreferNoSchedule as used for
+// Valid effects are None, NoSchedule and NoExecute. PreferNoSchedule as used for
 //
-// nodes is not valid here.
+// nodes is not valid here. More effects may get added in the future.
+//
+// Consumers must treat unknown effects like None.
 func (d *DeviceTaintDie) Effect(v resourcev1.DeviceTaintEffect) *DeviceTaintDie {
 	return d.DieStamp(func(r *resourcev1.DeviceTaint) {
 		r.Effect = v

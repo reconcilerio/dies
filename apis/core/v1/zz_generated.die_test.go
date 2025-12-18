@@ -1124,6 +1124,15 @@ func TestPodOSDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestWorkloadReferenceDie_MissingMethods(t *testingx.T) {
+	die := WorkloadReferenceBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadReferenceDie: %s", diff.List())
+	}
+}
+
 func TestPodStatusDie_MissingMethods(t *testingx.T) {
 	die := PodStatusBlank
 	ignore := []string{}

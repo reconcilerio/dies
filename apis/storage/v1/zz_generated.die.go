@@ -932,6 +932,41 @@ func (d *CSIDriverSpecDie) NodeAllocatableUpdatePeriodSeconds(v *int64) *CSIDriv
 	})
 }
 
+// serviceAccountTokenInSecrets is an opt-in for CSI drivers to indicate that
+//
+// service account tokens should be passed via the Secrets field in NodePublishVolumeRequest
+//
+// instead of the VolumeContext field. The CSI specification provides a dedicated Secrets
+//
+// field for sensitive information like tokens, which is the appropriate mechanism for
+//
+// handling credentials. This addresses security concerns where sensitive tokens were being
+//
+// logged as part of volume context.
+//
+// When "true", kubelet will pass the tokens only in the Secrets field with the key
+//
+// "csi.storage.k8s.io/serviceAccount.tokens". The CSI driver must be updated to read
+//
+// tokens from the Secrets field instead of VolumeContext.
+//
+// When "false" or not set, kubelet will pass the tokens in VolumeContext with the key
+//
+// "csi.storage.k8s.io/serviceAccount.tokens" (existing behavior). This maintains backward
+//
+// compatibility with existing CSI drivers.
+//
+// This field can only be set when TokenRequests is configured. The API server will reject
+//
+// CSIDriver specs that set this field without TokenRequests.
+//
+// Default behavior if unset is to pass tokens in the VolumeContext field.
+func (d *CSIDriverSpecDie) ServiceAccountTokenInSecrets(v *bool) *CSIDriverSpecDie {
+	return d.DieStamp(func(r *storagev1.CSIDriverSpec) {
+		r.ServiceAccountTokenInSecrets = v
+	})
+}
+
 var TokenRequestBlank = (&TokenRequestDie{}).DieFeed(storagev1.TokenRequest{})
 
 type TokenRequestDie struct {
@@ -4856,5 +4891,384 @@ func (d *VolumeErrorDie) Message(v string) *VolumeErrorDie {
 func (d *VolumeErrorDie) ErrorCode(v *int32) *VolumeErrorDie {
 	return d.DieStamp(func(r *storagev1.VolumeError) {
 		r.ErrorCode = v
+	})
+}
+
+var VolumeAttributesClassBlank = (&VolumeAttributesClassDie{}).DieFeed(storagev1.VolumeAttributesClass{})
+
+type VolumeAttributesClassDie struct {
+	metav1.FrozenObjectMeta
+	mutable bool
+	r       storagev1.VolumeAttributesClass
+	seal    storagev1.VolumeAttributesClass
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *VolumeAttributesClassDie) DieImmutable(immutable bool) *VolumeAttributesClassDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *VolumeAttributesClassDie) DieFeed(r storagev1.VolumeAttributesClass) *VolumeAttributesClassDie {
+	if d.mutable {
+		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
+		d.r = r
+		return d
+	}
+	return &VolumeAttributesClassDie{
+		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
+		mutable:          d.mutable,
+		r:                r,
+		seal:             d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *VolumeAttributesClassDie) DieFeedPtr(r *storagev1.VolumeAttributesClass) *VolumeAttributesClassDie {
+	if r == nil {
+		r = &storagev1.VolumeAttributesClass{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *VolumeAttributesClassDie) DieFeedDuck(v any) *VolumeAttributesClassDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *VolumeAttributesClassDie) DieFeedJSON(j []byte) *VolumeAttributesClassDie {
+	r := storagev1.VolumeAttributesClass{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *VolumeAttributesClassDie) DieFeedYAML(y []byte) *VolumeAttributesClassDie {
+	r := storagev1.VolumeAttributesClass{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *VolumeAttributesClassDie) DieFeedYAMLFile(name string) *VolumeAttributesClassDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *VolumeAttributesClassDie) DieFeedRawExtension(raw runtime.RawExtension) *VolumeAttributesClassDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *VolumeAttributesClassDie) DieRelease() storagev1.VolumeAttributesClass {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *VolumeAttributesClassDie) DieReleasePtr() *storagev1.VolumeAttributesClass {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseUnstructured returns the resource managed by the die as an unstructured object. Panics on error.
+func (d *VolumeAttributesClassDie) DieReleaseUnstructured() *unstructured.Unstructured {
+	r := d.DieReleasePtr()
+	u, err := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	if err != nil {
+		panic(err)
+	}
+	return &unstructured.Unstructured{
+		Object: u,
+	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *VolumeAttributesClassDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *VolumeAttributesClassDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *VolumeAttributesClassDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *VolumeAttributesClassDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *VolumeAttributesClassDie) DieStamp(fn func(r *storagev1.VolumeAttributesClass)) *VolumeAttributesClassDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *VolumeAttributesClassDie) DieStampAt(jp string, fn interface{}) *VolumeAttributesClassDie {
+	return d.DieStamp(func(r *storagev1.VolumeAttributesClass) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *VolumeAttributesClassDie) DieWith(fns ...func(d *VolumeAttributesClassDie)) *VolumeAttributesClassDie {
+	nd := VolumeAttributesClassBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *VolumeAttributesClassDie) DeepCopy() *VolumeAttributesClassDie {
+	r := *d.r.DeepCopy()
+	return &VolumeAttributesClassDie{
+		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
+		mutable:          d.mutable,
+		r:                r,
+		seal:             d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *VolumeAttributesClassDie) DieSeal() *VolumeAttributesClassDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *VolumeAttributesClassDie) DieSealFeed(r storagev1.VolumeAttributesClass) *VolumeAttributesClassDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *VolumeAttributesClassDie) DieSealFeedPtr(r *storagev1.VolumeAttributesClass) *VolumeAttributesClassDie {
+	if r == nil {
+		r = &storagev1.VolumeAttributesClass{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *VolumeAttributesClassDie) DieSealRelease() storagev1.VolumeAttributesClass {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *VolumeAttributesClassDie) DieSealReleasePtr() *storagev1.VolumeAttributesClass {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *VolumeAttributesClassDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *VolumeAttributesClassDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+var _ runtime.Object = (*VolumeAttributesClassDie)(nil)
+
+func (d *VolumeAttributesClassDie) DeepCopyObject() runtime.Object {
+	return d.r.DeepCopy()
+}
+
+func (d *VolumeAttributesClassDie) GetObjectKind() schema.ObjectKind {
+	r := d.DieRelease()
+	return r.GetObjectKind()
+}
+
+func (d *VolumeAttributesClassDie) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.r)
+}
+
+func (d *VolumeAttributesClassDie) UnmarshalJSON(b []byte) error {
+	if !d.mutable {
+		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
+	}
+	resource := &storagev1.VolumeAttributesClass{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
+	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "storage.k8s.io/v1" and "VolumeAttributesClass" respectively.
+func (d *VolumeAttributesClassDie) DieDefaultTypeMetadata() *VolumeAttributesClassDie {
+	return d.DieStamp(func(r *storagev1.VolumeAttributesClass) {
+		r.APIVersion = "storage.k8s.io/v1"
+		r.Kind = "VolumeAttributesClass"
+	})
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *VolumeAttributesClassDie) APIVersion(v string) *VolumeAttributesClassDie {
+	return d.DieStamp(func(r *storagev1.VolumeAttributesClass) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *VolumeAttributesClassDie) Kind(v string) *VolumeAttributesClassDie {
+	return d.DieStamp(func(r *storagev1.VolumeAttributesClass) {
+		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *VolumeAttributesClassDie) TypeMetadata(v apismetav1.TypeMeta) *VolumeAttributesClassDie {
+	return d.DieStamp(func(r *storagev1.VolumeAttributesClass) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *VolumeAttributesClassDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *VolumeAttributesClassDie {
+	return d.DieStamp(func(r *storagev1.VolumeAttributesClass) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *VolumeAttributesClassDie) Metadata(v apismetav1.ObjectMeta) *VolumeAttributesClassDie {
+	return d.DieStamp(func(r *storagev1.VolumeAttributesClass) {
+		r.ObjectMeta = v
+	})
+}
+
+// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+func (d *VolumeAttributesClassDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *VolumeAttributesClassDie {
+	return d.DieStamp(func(r *storagev1.VolumeAttributesClass) {
+		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
+		fn(d)
+		r.ObjectMeta = d.DieRelease()
+	})
+}
+
+// Name of the CSI driver
+//
+// This field is immutable.
+func (d *VolumeAttributesClassDie) DriverName(v string) *VolumeAttributesClassDie {
+	return d.DieStamp(func(r *storagev1.VolumeAttributesClass) {
+		r.DriverName = v
+	})
+}
+
+// parameters hold volume attributes defined by the CSI driver. These values
+//
+// are opaque to the Kubernetes and are passed directly to the CSI driver.
+//
+// # The underlying storage provider supports changing these attributes on an
+//
+// existing volume, however the parameters field itself is immutable. To
+//
+// invoke a volume update, a new VolumeAttributesClass should be created with
+//
+// new parameters, and the PersistentVolumeClaim should be updated to reference
+//
+// the new VolumeAttributesClass.
+//
+// This field is required and must contain at least one key/value pair.
+//
+// # The keys cannot be empty, and the maximum number of parameters is 512, with
+//
+// a cumulative max size of 256K. If the CSI driver rejects invalid parameters,
+//
+// the target PersistentVolumeClaim will be set to an "Infeasible" state in the
+//
+// modifyVolumeStatus field.
+func (d *VolumeAttributesClassDie) Parameters(v map[string]string) *VolumeAttributesClassDie {
+	return d.DieStamp(func(r *storagev1.VolumeAttributesClass) {
+		r.Parameters = v
 	})
 }

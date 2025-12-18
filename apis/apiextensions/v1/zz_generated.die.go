@@ -4029,6 +4029,13 @@ func (d *CustomResourceDefinitionStatusDie) StoredVersions(v ...string) *CustomR
 	})
 }
 
+// The generation observed by the CRD controller.
+func (d *CustomResourceDefinitionStatusDie) ObservedGeneration(v int64) *CustomResourceDefinitionStatusDie {
+	return d.DieStamp(func(r *apiextensionsv1.CustomResourceDefinitionStatus) {
+		r.ObservedGeneration = v
+	})
+}
+
 var CustomResourceDefinitionNamesBlank = (&CustomResourceDefinitionNamesDie{}).DieFeed(apiextensionsv1.CustomResourceDefinitionNames{})
 
 type CustomResourceDefinitionNamesDie struct {

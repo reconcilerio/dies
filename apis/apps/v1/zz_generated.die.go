@@ -3942,7 +3942,7 @@ func (d *DeploymentStatusDie) UnavailableReplicas(v int32) *DeploymentStatusDie 
 //
 // .metadata.deletionTimestamp and have not yet reached the Failed or Succeeded .status.phase.
 //
-// This is an alpha field. Enable DeploymentReplicaSetTerminatingReplicas to be able to use this field.
+// This is a beta field and requires enabling DeploymentReplicaSetTerminatingReplicas feature (enabled by default).
 func (d *DeploymentStatusDie) TerminatingReplicas(v *int32) *DeploymentStatusDie {
 	return d.DieStamp(func(r *appsv1.DeploymentStatus) {
 		r.TerminatingReplicas = v
@@ -4956,7 +4956,7 @@ func (d *ReplicaSetStatusDie) AvailableReplicas(v int32) *ReplicaSetStatusDie {
 //
 // and have not yet reached the Failed or Succeeded .status.phase.
 //
-// This is an alpha field. Enable DeploymentReplicaSetTerminatingReplicas to be able to use this field.
+// This is a beta field and requires enabling DeploymentReplicaSetTerminatingReplicas feature (enabled by default).
 func (d *ReplicaSetStatusDie) TerminatingReplicas(v *int32) *ReplicaSetStatusDie {
 	return d.DieStamp(func(r *appsv1.ReplicaSetStatus) {
 		r.TerminatingReplicas = v
@@ -6401,13 +6401,13 @@ func (d *RollingUpdateStatefulSetStrategyDie) Partition(v *int32) *RollingUpdate
 //
 // Absolute number is calculated from percentage by rounding up. This can not be 0.
 //
-// Defaults to 1. This field is alpha-level and is only honored by servers that enable the
-//
-// MaxUnavailableStatefulSet feature. The field applies to all pods in the range 0 to
+// Defaults to 1. This field is beta-level and is enabled by default. The field applies to all pods in the range 0 to
 //
 // Replicas-1. That means if there is any unavailable pod in the range 0 to Replicas-1, it
 //
 // will be counted towards MaxUnavailable.
+//
+// This setting might not be effective for the OrderedReady podManagementPolicy. That policy ensures pods are created and become ready one at a time.
 func (d *RollingUpdateStatefulSetStrategyDie) MaxUnavailable(v *intstr.IntOrString) *RollingUpdateStatefulSetStrategyDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateStatefulSetStrategy) {
 		r.MaxUnavailable = v
@@ -6422,13 +6422,13 @@ func (d *RollingUpdateStatefulSetStrategyDie) MaxUnavailable(v *intstr.IntOrStri
 //
 // Absolute number is calculated from percentage by rounding up. This can not be 0.
 //
-// Defaults to 1. This field is alpha-level and is only honored by servers that enable the
-//
-// MaxUnavailableStatefulSet feature. The field applies to all pods in the range 0 to
+// Defaults to 1. This field is beta-level and is enabled by default. The field applies to all pods in the range 0 to
 //
 // Replicas-1. That means if there is any unavailable pod in the range 0 to Replicas-1, it
 //
 // will be counted towards MaxUnavailable.
+//
+// This setting might not be effective for the OrderedReady podManagementPolicy. That policy ensures pods are created and become ready one at a time.
 func (d *RollingUpdateStatefulSetStrategyDie) MaxUnavailableInt(i int) *RollingUpdateStatefulSetStrategyDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateStatefulSetStrategy) {
 		v := intstr.FromInt(i)
@@ -6444,13 +6444,13 @@ func (d *RollingUpdateStatefulSetStrategyDie) MaxUnavailableInt(i int) *RollingU
 //
 // Absolute number is calculated from percentage by rounding up. This can not be 0.
 //
-// Defaults to 1. This field is alpha-level and is only honored by servers that enable the
-//
-// MaxUnavailableStatefulSet feature. The field applies to all pods in the range 0 to
+// Defaults to 1. This field is beta-level and is enabled by default. The field applies to all pods in the range 0 to
 //
 // Replicas-1. That means if there is any unavailable pod in the range 0 to Replicas-1, it
 //
 // will be counted towards MaxUnavailable.
+//
+// This setting might not be effective for the OrderedReady podManagementPolicy. That policy ensures pods are created and become ready one at a time.
 func (d *RollingUpdateStatefulSetStrategyDie) MaxUnavailableString(s string) *RollingUpdateStatefulSetStrategyDie {
 	return d.DieStamp(func(r *appsv1.RollingUpdateStatefulSetStrategy) {
 		v := intstr.FromString(s)
