@@ -1,0 +1,48 @@
+name: Publish
+
+on:
+  push:
+    tags:
+    # semver tags
+    - 'v[0-9]+\.[0-9]+\.[0-9]+'
+
+jobs:
+
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to push a new tag
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version-file: go.mod
+    - name: Build
+      run: |
+        set -euo pipefail
+
+        GOOS=linux GOARCH=amd64 go build -o diegen-linux-amd64 ./diegen
+        GOOS=linux GOARCH=arm64 go build -o diegen-linux-arm64 ./diegen
+        GOOS=darwin GOARCH=arm64 go build -o diegen-darwin-arm64 ./diegen
+        GOOS=windows GOARCH=amd64 go build -o diegen-windows-amd64.exe ./diegen
+        GOOS=windows GOARCH=arm64 go build -o diegen-windows-arm64.exe ./diegen
+    - name: Draft GitHub Release
+      uses: softprops/action-gh-release@v3
+      with:
+        draft: true
+        files: |
+          diegen-*
+        fail_on_unmatched_files: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Child tags
+      run: |
+        set -euo pipefail
+
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        tag="${GITHUB_REF/refs\/tags\//}"
+
+        diegen_tag="diegen/${tag}"
+        git tag -f "${diegen_tag}"
+        git push -f origin "${diegen_tag}"
