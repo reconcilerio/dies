@@ -382,7 +382,7 @@ func (d *ClusterRoleDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *ClusterR
 
 // AggregationRuleDie mutates AggregationRule as a die.
 //
-// AggregationRule is an optional field that describes how to build the Rules for this ClusterRole.
+// aggregationRule is an optional field that describes how to build the Rules for this ClusterRole.
 //
 // # If AggregationRule is set, then the Rules are controller managed and direct changes to Rules will be
 //
@@ -397,7 +397,7 @@ func (d *ClusterRoleDie) AggregationRuleDie(fn func(d *AggregationRuleDie)) *Clu
 
 // RulesDie replaces Rules by collecting the released value from each die passed.
 //
-// Rules holds all the PolicyRules for this ClusterRole
+// rules holds all the PolicyRules for this ClusterRole
 func (d *ClusterRoleDie) RulesDie(v ...*PolicyRuleDie) *ClusterRoleDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRole) {
 		r.Rules = make([]rbacv1.PolicyRule, len(v))
@@ -407,14 +407,14 @@ func (d *ClusterRoleDie) RulesDie(v ...*PolicyRuleDie) *ClusterRoleDie {
 	})
 }
 
-// Rules holds all the PolicyRules for this ClusterRole
+// rules holds all the PolicyRules for this ClusterRole
 func (d *ClusterRoleDie) Rules(v ...rbacv1.PolicyRule) *ClusterRoleDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRole) {
 		r.Rules = v
 	})
 }
 
-// AggregationRule is an optional field that describes how to build the Rules for this ClusterRole.
+// aggregationRule is an optional field that describes how to build the Rules for this ClusterRole.
 //
 // # If AggregationRule is set, then the Rules are controller managed and direct changes to Rules will be
 //
@@ -673,7 +673,7 @@ func (d *AggregationRuleDie) DiePatch(patchType types.PatchType) ([]byte, error)
 
 // ClusterRoleSelectorsDie replaces ClusterRoleSelectors by collecting the released value from each die passed.
 //
-// ClusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules.
+// clusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules.
 //
 // If any of the selectors match, then the ClusterRole's permissions will be added
 func (d *AggregationRuleDie) ClusterRoleSelectorsDie(v ...*metav1.LabelSelectorDie) *AggregationRuleDie {
@@ -685,7 +685,7 @@ func (d *AggregationRuleDie) ClusterRoleSelectorsDie(v ...*metav1.LabelSelectorD
 	})
 }
 
-// ClusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules.
+// clusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules.
 //
 // If any of the selectors match, then the ClusterRole's permissions will be added
 func (d *AggregationRuleDie) ClusterRoleSelectors(v ...apismetav1.LabelSelector) *AggregationRuleDie {
@@ -1037,7 +1037,7 @@ func (d *ClusterRoleBindingDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *C
 
 // RoleRefDie mutates RoleRef as a die.
 //
-// RoleRef can only reference a ClusterRole in the global namespace.
+// roleRef can only reference a ClusterRole in the global namespace.
 //
 // If the RoleRef cannot be resolved, the Authorizer must return an error.
 //
@@ -1052,7 +1052,7 @@ func (d *ClusterRoleBindingDie) RoleRefDie(fn func(d *RoleRefDie)) *ClusterRoleB
 
 // SubjectsDie replaces Subjects by collecting the released value from each die passed.
 //
-// Subjects holds references to the objects the role applies to.
+// subjects holds references to the objects the role applies to.
 func (d *ClusterRoleBindingDie) SubjectsDie(v ...*SubjectDie) *ClusterRoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
 		r.Subjects = make([]rbacv1.Subject, len(v))
@@ -1062,14 +1062,14 @@ func (d *ClusterRoleBindingDie) SubjectsDie(v ...*SubjectDie) *ClusterRoleBindin
 	})
 }
 
-// Subjects holds references to the objects the role applies to.
+// subjects holds references to the objects the role applies to.
 func (d *ClusterRoleBindingDie) Subjects(v ...rbacv1.Subject) *ClusterRoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.ClusterRoleBinding) {
 		r.Subjects = v
 	})
 }
 
-// RoleRef can only reference a ClusterRole in the global namespace.
+// roleRef can only reference a ClusterRole in the global namespace.
 //
 // If the RoleRef cannot be resolved, the Authorizer must return an error.
 //
@@ -1423,7 +1423,7 @@ func (d *RoleDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *RoleDie {
 
 // RulesDie replaces Rules by collecting the released value from each die passed.
 //
-// Rules holds all the PolicyRules for this Role
+// rules holds all the PolicyRules for this Role
 func (d *RoleDie) RulesDie(v ...*PolicyRuleDie) *RoleDie {
 	return d.DieStamp(func(r *rbacv1.Role) {
 		r.Rules = make([]rbacv1.PolicyRule, len(v))
@@ -1433,7 +1433,7 @@ func (d *RoleDie) RulesDie(v ...*PolicyRuleDie) *RoleDie {
 	})
 }
 
-// Rules holds all the PolicyRules for this Role
+// rules holds all the PolicyRules for this Role
 func (d *RoleDie) Rules(v ...rbacv1.PolicyRule) *RoleDie {
 	return d.DieStamp(func(r *rbacv1.Role) {
 		r.Rules = v
@@ -1686,14 +1686,14 @@ func (d *PolicyRuleDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs.
+// verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs.
 func (d *PolicyRuleDie) Verbs(v ...string) *PolicyRuleDie {
 	return d.DieStamp(func(r *rbacv1.PolicyRule) {
 		r.Verbs = v
 	})
 }
 
-// APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
+// apiGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
 //
 // the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
 func (d *PolicyRuleDie) APIGroups(v ...string) *PolicyRuleDie {
@@ -1702,21 +1702,21 @@ func (d *PolicyRuleDie) APIGroups(v ...string) *PolicyRuleDie {
 	})
 }
 
-// Resources is a list of resources this rule applies to. '*' represents all resources.
+// resources is a list of resources this rule applies to. '*' represents all resources.
 func (d *PolicyRuleDie) Resources(v ...string) *PolicyRuleDie {
 	return d.DieStamp(func(r *rbacv1.PolicyRule) {
 		r.Resources = v
 	})
 }
 
-// ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.
+// resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.
 func (d *PolicyRuleDie) ResourceNames(v ...string) *PolicyRuleDie {
 	return d.DieStamp(func(r *rbacv1.PolicyRule) {
 		r.ResourceNames = v
 	})
 }
 
-// NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
+// nonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
 //
 // Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
 //
@@ -2070,7 +2070,7 @@ func (d *RoleBindingDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *RoleBind
 
 // RoleRefDie mutates RoleRef as a die.
 //
-// RoleRef can reference a Role in the current namespace or a ClusterRole in the global namespace.
+// roleRef can reference a Role in the current namespace or a ClusterRole in the global namespace.
 //
 // If the RoleRef cannot be resolved, the Authorizer must return an error.
 //
@@ -2085,7 +2085,7 @@ func (d *RoleBindingDie) RoleRefDie(fn func(d *RoleRefDie)) *RoleBindingDie {
 
 // SubjectsDie replaces Subjects by collecting the released value from each die passed.
 //
-// Subjects holds references to the objects the role applies to.
+// subjects holds references to the objects the role applies to.
 func (d *RoleBindingDie) SubjectsDie(v ...*SubjectDie) *RoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.RoleBinding) {
 		r.Subjects = make([]rbacv1.Subject, len(v))
@@ -2095,14 +2095,14 @@ func (d *RoleBindingDie) SubjectsDie(v ...*SubjectDie) *RoleBindingDie {
 	})
 }
 
-// Subjects holds references to the objects the role applies to.
+// subjects holds references to the objects the role applies to.
 func (d *RoleBindingDie) Subjects(v ...rbacv1.Subject) *RoleBindingDie {
 	return d.DieStamp(func(r *rbacv1.RoleBinding) {
 		r.Subjects = v
 	})
 }
 
-// RoleRef can reference a Role in the current namespace or a ClusterRole in the global namespace.
+// roleRef can reference a Role in the current namespace or a ClusterRole in the global namespace.
 //
 // If the RoleRef cannot be resolved, the Authorizer must return an error.
 //
@@ -2359,7 +2359,7 @@ func (d *SubjectDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
+// kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
 //
 // If the Authorizer does not recognized the kind value, the Authorizer should report an error.
 func (d *SubjectDie) Kind(v string) *SubjectDie {
@@ -2368,7 +2368,7 @@ func (d *SubjectDie) Kind(v string) *SubjectDie {
 	})
 }
 
-// APIGroup holds the API group of the referenced subject.
+// apiGroup holds the API group of the referenced subject.
 //
 // Defaults to "" for ServiceAccount subjects.
 //
@@ -2379,14 +2379,14 @@ func (d *SubjectDie) APIGroup(v string) *SubjectDie {
 	})
 }
 
-// Name of the object being referenced.
+// name of the object being referenced.
 func (d *SubjectDie) Name(v string) *SubjectDie {
 	return d.DieStamp(func(r *rbacv1.Subject) {
 		r.Name = v
 	})
 }
 
-// Namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty
+// namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty
 //
 // the Authorizer should report an error.
 func (d *SubjectDie) Namespace(v string) *SubjectDie {
@@ -2641,21 +2641,21 @@ func (d *RoleRefDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// APIGroup is the group for the resource being referenced
+// apiGroup is the group for the resource being referenced
 func (d *RoleRefDie) APIGroup(v string) *RoleRefDie {
 	return d.DieStamp(func(r *rbacv1.RoleRef) {
 		r.APIGroup = v
 	})
 }
 
-// Kind is the type of resource being referenced
+// kind is the type of resource being referenced
 func (d *RoleRefDie) Kind(v string) *RoleRefDie {
 	return d.DieStamp(func(r *rbacv1.RoleRef) {
 		r.Kind = v
 	})
 }
 
-// Name is the name of resource being referenced
+// name is the name of resource being referenced
 func (d *RoleRefDie) Name(v string) *RoleRefDie {
 	return d.DieStamp(func(r *rbacv1.RoleRef) {
 		r.Name = v

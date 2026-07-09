@@ -44,21 +44,12 @@ func TestPodGroupSpecDie_MissingMethods(t *testingx.T) {
 	}
 }
 
-func TestPodGroupTemplateReferenceDie_MissingMethods(t *testingx.T) {
-	die := PodGroupTemplateReferenceBlank
+func TestWorkloadReferenceDie_MissingMethods(t *testingx.T) {
+	die := WorkloadReferenceBlank
 	ignore := []string{}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
-		t.Errorf("found missing fields for PodGroupTemplateReferenceDie: %s", diff.List())
-	}
-}
-
-func TestWorkloadPodGroupTemplateReferenceDie_MissingMethods(t *testingx.T) {
-	die := WorkloadPodGroupTemplateReferenceBlank
-	ignore := []string{}
-	diff := testing.DieFieldDiff(die).Delete(ignore...)
-	if diff.Len() != 0 {
-		t.Errorf("found missing fields for WorkloadPodGroupTemplateReferenceDie: %s", diff.List())
+		t.Errorf("found missing fields for WorkloadReferenceDie: %s", diff.List())
 	}
 }
 

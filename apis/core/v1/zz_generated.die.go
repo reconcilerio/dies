@@ -37675,13 +37675,7 @@ func (d *PodSecurityContextDie) AppArmorProfile(v *corev1.AppArmorProfile) *PodS
 //
 // CSIDriver instance. Other volumes are always re-labelled recursively.
 //
-// "MountOption" value is allowed only when SELinuxMount feature gate is enabled.
-//
-// If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
-//
-// If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
-//
-// and "Recursive" for all other volumes.
+// If not specified, "MountOption" is used.
 //
 // This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
 //

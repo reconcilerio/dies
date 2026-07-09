@@ -24,7 +24,7 @@ import (
 type _ = schedulingv1alpha3.PodGroup
 
 // +die
-// +die:field:name=PodGroupTemplateRef,die=PodGroupTemplateReferenceDie,pointer=true
+// +die:field:name=WorkloadRef,die=WorkloadReferenceDie,pointer=true
 // +die:field:name=SchedulingPolicy,die=PodGroupSchedulingPolicyDie
 // +die:field:name=SchedulingConstraints,die=PodGroupSchedulingConstraintsDie,pointer=true
 // +die:field:name=ResourceClaims,die=PodGroupResourceClaimDie,listType=map
@@ -32,11 +32,7 @@ type _ = schedulingv1alpha3.PodGroup
 type _ = schedulingv1alpha3.PodGroupSpec
 
 // +die
-// +die:field:name=Workload,die=WorkloadPodGroupTemplateReferenceDie,pointer=true
-type _ = schedulingv1alpha3.PodGroupTemplateReference
-
-// +die
-type _ = schedulingv1alpha3.WorkloadPodGroupTemplateReference
+type _ = schedulingv1alpha3.WorkloadReference
 
 // +die
 // +die:field:name=Basic,die=BasicSchedulingPolicyDie,pointer=true
