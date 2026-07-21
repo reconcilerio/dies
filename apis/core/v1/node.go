@@ -27,10 +27,14 @@ type _ = corev1.Node
 // +die
 // +die:field:name=ConfigSource,die=NodeConfigSourceDie,pointer=true
 // +die:field:name=Taints,die=TaintDie,listType=map,listMapKey=Key
+// +die:field:name=PodPreemptionPolicy,die=NodePodPreemptionPolicyDie,pointer=true
 type _ = corev1.NodeSpec
 
 // +die
 type _ = corev1.Taint
+
+// +die
+type _ = corev1.NodePodPreemptionPolicy
 
 // +die
 // +die:field:name=ConfigMap,die=ConfigMapNodeConfigSourceDie,pointer=true

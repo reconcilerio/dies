@@ -26,6 +26,7 @@ type _ = schedulingv1alpha3.Workload
 // +die
 // +die:field:name=ControllerRef,die=TypedLocalObjectReferenceDie,pointer=true
 // +die:field:name=PodGroupTemplates,die=PodGroupTemplateDie,listType=map
+// +die:field:name=CompositePodGroupTemplates,die=CompositePodGroupTemplateDie,listType=map
 type _ = schedulingv1alpha3.WorkloadSpec
 
 // +die
@@ -37,3 +38,18 @@ type _ = schedulingv1alpha3.TypedLocalObjectReference
 // +die:field:name=ResourceClaims,die=PodGroupResourceClaimDie,listType=map
 // +die:field:name=DisruptionMode,die=DisruptionModeDie,pointer=true
 type _ = schedulingv1alpha3.PodGroupTemplate
+
+// +die
+// +die:field:name=SchedulingPolicy,die=CompositePodGroupSchedulingPolicyDie
+type _ = schedulingv1alpha3.CompositePodGroupTemplate
+
+// +die
+// +die:field:name=Basic,die=CompositeBasicSchedulingPolicyDie,pointer=true
+// +die:field:name=Gang,die=CompositeGangSchedulingPolicyDie,pointer=true
+type _ = schedulingv1alpha3.CompositePodGroupSchedulingPolicy
+
+// +die
+type _ = schedulingv1alpha3.CompositeBasicSchedulingPolicy
+
+// +die
+type _ = schedulingv1alpha3.CompositeGangSchedulingPolicy

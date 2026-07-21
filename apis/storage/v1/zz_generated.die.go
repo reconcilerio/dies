@@ -967,7 +967,7 @@ func (d *CSIDriverSpecDie) ServiceAccountTokenInSecrets(v *bool) *CSIDriverSpecD
 	})
 }
 
-// PreventPodSchedulingIfMissing indicates that the CSI driver wants to prevent pod
+// preventPodSchedulingIfMissing indicates that the CSI driver wants to prevent pod
 //
 // scheduling if the CSI driver on the node is missing.
 //
@@ -5268,7 +5268,7 @@ func (d *VolumeAttributesClassDie) MetadataDie(fn func(d *metav1.ObjectMetaDie))
 	})
 }
 
-// Name of the CSI driver
+// driverName is the name of the CSI driver
 //
 // This field is immutable.
 func (d *VolumeAttributesClassDie) DriverName(v string) *VolumeAttributesClassDie {

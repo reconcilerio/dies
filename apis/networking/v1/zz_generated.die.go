@@ -5424,7 +5424,7 @@ func (d *IPAddressSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 
 // ParentRefDie mutates ParentRef as a die.
 //
-// ParentRef references the resource that an IPAddress is attached to.
+// parentRef references the resource that an IPAddress is attached to.
 //
 // An IPAddress must reference a parent object.
 func (d *IPAddressSpecDie) ParentRefDie(fn func(d *ParentReferenceDie)) *IPAddressSpecDie {
@@ -5435,7 +5435,7 @@ func (d *IPAddressSpecDie) ParentRefDie(fn func(d *ParentReferenceDie)) *IPAddre
 	})
 }
 
-// ParentRef references the resource that an IPAddress is attached to.
+// parentRef references the resource that an IPAddress is attached to.
 //
 // An IPAddress must reference a parent object.
 func (d *IPAddressSpecDie) ParentRef(v *networkingv1.ParentReference) *IPAddressSpecDie {
@@ -5690,28 +5690,28 @@ func (d *ParentReferenceDie) DiePatch(patchType types.PatchType) ([]byte, error)
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Group is the group of the object being referenced.
+// group is the group of the object being referenced.
 func (d *ParentReferenceDie) Group(v string) *ParentReferenceDie {
 	return d.DieStamp(func(r *networkingv1.ParentReference) {
 		r.Group = v
 	})
 }
 
-// Resource is the resource of the object being referenced.
+// resource is the resource of the object being referenced.
 func (d *ParentReferenceDie) Resource(v string) *ParentReferenceDie {
 	return d.DieStamp(func(r *networkingv1.ParentReference) {
 		r.Resource = v
 	})
 }
 
-// Namespace is the namespace of the object being referenced.
+// namespace is the namespace of the object being referenced.
 func (d *ParentReferenceDie) Namespace(v string) *ParentReferenceDie {
 	return d.DieStamp(func(r *networkingv1.ParentReference) {
 		r.Namespace = v
 	})
 }
 
-// Name is the name of the object being referenced.
+// name is the name of the object being referenced.
 func (d *ParentReferenceDie) Name(v string) *ParentReferenceDie {
 	return d.DieStamp(func(r *networkingv1.ParentReference) {
 		r.Name = v
@@ -8640,7 +8640,7 @@ func (d *ServiceCIDRSpecDie) DiePatch(patchType types.PatchType) ([]byte, error)
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// CIDRs defines the IP blocks in CIDR notation (e.g. "192.168.0.0/24" or "2001:db8::/64")
+// cidrs defines the IP blocks in CIDR notation (e.g. "192.168.0.0/24" or "2001:db8::/64")
 //
 // from which to assign service cluster IPs. Max of two CIDRs is allowed, one of each IP family.
 //

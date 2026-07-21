@@ -683,6 +683,15 @@ func TestTaintDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestNodePodPreemptionPolicyDie_MissingMethods(t *testingx.T) {
+	die := NodePodPreemptionPolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodePodPreemptionPolicyDie: %s", diff.List())
+	}
+}
+
 func TestNodeConfigSourceDie_MissingMethods(t *testingx.T) {
 	die := NodeConfigSourceBlank
 	ignore := []string{}

@@ -4071,10 +4071,6 @@ func (d *HPAScalingRulesDie) Policies(v ...autoscalingv2.HPAScalingPolicy) *HPAS
 // and scale-down and scale-up tolerances of 5% and 1% respectively, scaling will be
 //
 // triggered when the actual consumption falls below 95Mi or exceeds 101Mi.
-//
-// # This is an beta field and requires the HPAConfigurableTolerance feature
-//
-// gate to be enabled.
 func (d *HPAScalingRulesDie) Tolerance(v *resource.Quantity) *HPAScalingRulesDie {
 	return d.DieStamp(func(r *autoscalingv2.HPAScalingRules) {
 		r.Tolerance = v
@@ -4096,10 +4092,6 @@ func (d *HPAScalingRulesDie) Tolerance(v *resource.Quantity) *HPAScalingRulesDie
 // and scale-down and scale-up tolerances of 5% and 1% respectively, scaling will be
 //
 // triggered when the actual consumption falls below 95Mi or exceeds 101Mi.
-//
-// # This is an beta field and requires the HPAConfigurableTolerance feature
-//
-// gate to be enabled.
 func (d *HPAScalingRulesDie) ToleranceString(s string) *HPAScalingRulesDie {
 	q := resource.MustParse(s)
 	return d.Tolerance(&q)

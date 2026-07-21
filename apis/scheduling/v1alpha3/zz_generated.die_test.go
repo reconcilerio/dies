@@ -187,3 +187,39 @@ func TestPodGroupTemplateDie_MissingMethods(t *testingx.T) {
 		t.Errorf("found missing fields for PodGroupTemplateDie: %s", diff.List())
 	}
 }
+
+func TestCompositePodGroupTemplateDie_MissingMethods(t *testingx.T) {
+	die := CompositePodGroupTemplateBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CompositePodGroupTemplateDie: %s", diff.List())
+	}
+}
+
+func TestCompositePodGroupSchedulingPolicyDie_MissingMethods(t *testingx.T) {
+	die := CompositePodGroupSchedulingPolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CompositePodGroupSchedulingPolicyDie: %s", diff.List())
+	}
+}
+
+func TestCompositeBasicSchedulingPolicyDie_MissingMethods(t *testingx.T) {
+	die := CompositeBasicSchedulingPolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CompositeBasicSchedulingPolicyDie: %s", diff.List())
+	}
+}
+
+func TestCompositeGangSchedulingPolicyDie_MissingMethods(t *testingx.T) {
+	die := CompositeGangSchedulingPolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CompositeGangSchedulingPolicyDie: %s", diff.List())
+	}
+}
