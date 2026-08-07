@@ -43,6 +43,7 @@ type _ = resourcev1.DeviceRequest
 // +die:field:name=Selectors,die=DeviceSelectorDie,listType=atomic
 // +die:field:name=Tolerations,die=DeviceTolerationDie,listType=atomic
 // +die:field:name=Capacity,die=CapacityRequirementsDie,pointer=true
+// +die:field:name=DerivedAttributes,die=DeviceDerivedAttributeDie,listType=atomic
 type _ = resourcev1.DeviceSubRequest
 
 // +die:ignore=Requests
@@ -143,6 +144,9 @@ func (d *CapacityRequirementsDie) AddRequestString(name resourcev1.QualifiedName
 	q := resource.MustParse(quantity)
 	return d.AddRequest(name, q)
 }
+
+// +die
+type _ = resourcev1.DeviceDerivedAttribute
 
 // +die
 // +die:field:name=Selectors,die=DeviceSelectorDie,listType=atomic

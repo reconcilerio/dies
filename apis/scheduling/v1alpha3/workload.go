@@ -41,6 +41,8 @@ type _ = schedulingv1alpha3.PodGroupTemplate
 
 // +die
 // +die:field:name=SchedulingPolicy,die=CompositePodGroupSchedulingPolicyDie
+// +die:field:name=SchedulingConstraints,die=CompositePodGroupSchedulingConstraintsDie,pointer=true
+// +die:field:name=DisruptionMode,die=CompositeDisruptionModeDie,pointer=true
 type _ = schedulingv1alpha3.CompositePodGroupTemplate
 
 // +die
@@ -53,3 +55,18 @@ type _ = schedulingv1alpha3.CompositeBasicSchedulingPolicy
 
 // +die
 type _ = schedulingv1alpha3.CompositeGangSchedulingPolicy
+
+// +die
+// +die:field:name=Topology,die=TopologyConstraintDie,listType=atomic
+type _ = schedulingv1alpha3.CompositePodGroupSchedulingConstraints
+
+// +die
+// +die:field:name=Single,die=SingleCompositeDisruptionModeDie,pointer=true
+// +die:field:name=All,die=AllCompositeDisruptionModeDie,pointer=true
+type _ = schedulingv1alpha3.CompositeDisruptionMode
+
+// +die
+type _ = schedulingv1alpha3.SingleCompositeDisruptionMode
+
+// +die
+type _ = schedulingv1alpha3.AllCompositeDisruptionMode

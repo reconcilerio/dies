@@ -78,6 +78,7 @@ github.com/google/cel-go v0.22.0/go.mod h1:BuznPXXfQDpXKWQ9sPW3TzlAJN5zzFe+i9tIs
 github.com/google/cel-go v0.23.2/go.mod h1:52Pb6QsDbC5kvgxvZhiL9QX1oZEkcUF/ZqaPx1J5Wwo=
 github.com/google/cel-go v0.26.0/go.mod h1:A9O8OU9rdvrK5MQyrqfIxo1a0u4g3sF8KB6PUIaryMM=
 github.com/google/cel-go v0.27.0/go.mod h1:tTJ11FWqnhw5KKpnWpvW9CJC3Y9GK4EIS0WXnBbebzw=
+github.com/google/cel-go v0.29.2/go.mod h1:X0bD6iVNR8pkROSOoHVdgTkzmRcosof7WQqCD6wcMc8=
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.9/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
@@ -154,6 +155,7 @@ github.com/prometheus/client_golang v1.16.0/go.mod h1:Zsulrv/L9oM40tJ7T815tM89lF
 github.com/prometheus/client_golang v1.19.1/go.mod h1:mP78NwGzrVks5S2H6ab8+ZZGJLZUq1hoULYBAYBw1Ho=
 github.com/prometheus/client_golang v1.22.0/go.mod h1:R7ljNsLXhuQXYZYtw6GAE9AZg8Y7vEW5scdCXrWRXC0=
 github.com/prometheus/client_golang v1.23.2/go.mod h1:Tb1a6LWHB3/SPIzCoaDXI4I8UHKeFTEQ1YCr+0Gyqmg=
+github.com/prometheus/client_golang v1.24.0/go.mod h1:QcsNdotprC2nS4BTM2ucbcqxd2CeXTEa9jW7zHO9iDE=
 github.com/prometheus/client_model v0.4.0/go.mod h1:oMQmHW1/JoDwqLtg57MGgP/Fb1CJEYF2imWWhWtMkYU=
 github.com/prometheus/client_model v0.6.1/go.mod h1:OrxVMOVHjw3lKMa8+x6HeMGkHMQyHDk9E3jmP2AmGiY=
 github.com/prometheus/client_model v0.6.2/go.mod h1:y3m2F6Gdpfy6Ut/GBsUqTWZqCUvMVzSfMLjcu6wAwpE=
@@ -162,10 +164,12 @@ github.com/prometheus/common v0.55.0/go.mod h1:2SECS4xJG1kd8XF9IcM1gMX6510RAEL65
 github.com/prometheus/common v0.62.0/go.mod h1:vyBcEuLSvWos9B1+CyL7JZ2up+uFzXhkqml0W5zIY1I=
 github.com/prometheus/common v0.66.1/go.mod h1:gcaUsgf3KfRSwHY4dIMXLPV0K/Wg1oZ8+SbZk/HH/dA=
 github.com/prometheus/common v0.67.5/go.mod h1:SjE/0MzDEEAyrdr5Gqc6G+sXI67maCxzaT3A2+HqjUw=
+github.com/prometheus/common v0.70.0/go.mod h1:S/SFasQmgGiYH6C81LKCtYa8QACgthGg5zxL2udV7SY=
 github.com/prometheus/procfs v0.10.1/go.mod h1:nwNm2aOCAYw8uTR/9bWRREkZFxAUcWzPHWJq+XBB/FM=
 github.com/prometheus/procfs v0.15.1/go.mod h1:fB45yRUv8NstnjriLhBQLuOUt+WW4BsoGhij/e3PBqk=
 github.com/prometheus/procfs v0.16.1/go.mod h1:teAbpZRB1iIAJYREa1LsoWUXykVXA1KlTmWl8x/U+Is=
 github.com/prometheus/procfs v0.19.2/go.mod h1:M0aotyiemPhBCM0z5w87kL22CxfcH05ZpYlu+b4J7mw=
+github.com/prometheus/procfs v0.21.1/go.mod h1:aB55Cww9pdSJVHk0hUf0inxWyyjPogFIjmHKYgMKmtY=
 github.com/rogpeppe/go-internal v1.9.0/go.mod h1:WtVeX8xhTBvf0smdhujwtBcq4Qrzq/fJaraNFVN+nFs=
 github.com/rogpeppe/go-internal v1.11.0/go.mod h1:ddIwULY96R17DhadqLgMfk9H9tvdUzkipdSkR5nkCZA=
 github.com/rogpeppe/go-internal v1.12.0/go.mod h1:E+RYuTGaKKdloAfM02xzb0FW3Paa99yedzYV+kq4uf4=
@@ -506,6 +510,7 @@ google.golang.org/grpc v1.72.2/go.mod h1:wH5Aktxcg25y1I3w7H69nHfXdOG3UiadoBtjh3i
 google.golang.org/grpc v1.78.0/go.mod h1:I47qjTo4OKbMkjA/aOOwxDIiPSBofUtQUI5EfpWvW7U=
 google.golang.org/grpc v1.79.3/go.mod h1:KmT0Kjez+0dde/v2j9vzwoAScgEPx/Bw1CYChhHLrHQ=
 google.golang.org/grpc v1.81.1/go.mod h1:xGH9GfzOyMTGIOXBJmXt+BX/V0kcdQbdcuwQ/zNw42I=
+google.golang.org/grpc v1.82.1/go.mod h1:yzTZ1TB1Z3SG+LIYaI+WiE8D5+PZ3ArnrSp8zF3+/ZA=
 google.golang.org/protobuf v1.26.0-rc.1/go.mod h1:jlhhOSvTdKEhbULTjvd4ARK9grFBp09yW+WbY/TyQbw=
 google.golang.org/protobuf v1.31.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
 google.golang.org/protobuf v1.33.0/go.mod h1:c6P6GXX6sHbq/GpV6MGZEdwhWPcYBgnhAHhKbcUYpos=
@@ -521,6 +526,7 @@ k8s.io/apimachinery v0.36.0-alpha.1/go.mod h1:hQkG060WLAG1TIkYsu5lj3tb6YdNpKe5Zr
 k8s.io/apimachinery v0.36.0-rc.1/go.mod h1:fx0hoLoUO0gmSXPkZA4iPtk/dTM2TGbu7OIv8TU6258=
 k8s.io/apimachinery v0.37.0-alpha.2/go.mod h1:S4uhVCP6dikhTM/sZqN4bWD53ZJZKAKN+kTZ522D/rA=
 k8s.io/apimachinery v0.37.0-alpha.3/go.mod h1:Uh/MjLZyS9W1TeoRsrsZMf91DZn8Kwox2FEyjwJoy5Q=
+k8s.io/apimachinery v0.37.0-beta.0/go.mod h1:RLRmd2kYSdlBaTwCmVbVETZqxaNoqGWOF0S0SG/gThg=
 k8s.io/apiserver v0.29.0/go.mod h1:31n78PsRKPmfpee7/l9NYEv67u6hOL6AfcE761HapDM=
 k8s.io/apiserver v0.30.0/go.mod h1:smOIBq8t0MbKZi7O7SyIpjPsiKJ8qa+llcFCluKyqiY=
 k8s.io/apiserver v0.31.0/go.mod h1:KI9ox5Yu902iBnnyMmy7ajonhKnkeZYJhTZ/YI+WEMk=
@@ -538,6 +544,7 @@ k8s.io/apiserver v0.36.0/go.mod h1:mHvwdHf+qKEm+1/hYm756SV+oREOKSPnsjagOpx6Vho=
 k8s.io/apiserver v0.37.0-alpha.1/go.mod h1:loFUWegJlav9WgEhxIzSh0McC7BDJdpeLeBj0LCTtNA=
 k8s.io/apiserver v0.37.0-alpha.3/go.mod h1:cAdtKXbCtWktatU8ugGNet8WPhlsEgc7xbDxULOUQY8=
 k8s.io/apiserver v0.37.0-beta.0/go.mod h1:a+2CICxJD6uJAmiAfOxzIEL0p4HLnfDlsuwmHJs6s+U=
+k8s.io/apiserver v0.37.0-rc.0/go.mod h1:i8FQUZlpCjeUKjxr0hwQmi+e35uoKY5f46V62kbOpsA=
 k8s.io/code-generator v0.29.0/go.mod h1:5bqIZoCxs2zTRKMWNYqyQWW/bajc+ah4rh0tMY8zdGA=
 k8s.io/code-generator v0.30.0/go.mod h1:mBMZhfRR4IunJUh2+7LVmdcWwpouCH5+LNPkZ3t/v7Q=
 k8s.io/code-generator v0.31.0/go.mod h1:84y4w3es8rOJOUUP1rLsIiGlO1JuEaPFXQPA9e/K6U0=
@@ -555,6 +562,7 @@ k8s.io/code-generator v0.36.0/go.mod h1:Tr2UhfBRdlyRoadfob9aPCmmGe8PUs5XPK9MEJ2n
 k8s.io/code-generator v0.37.0-alpha.1/go.mod h1:Wh2TXuuIk9vU6apdtFZR4Nx0C7jxvaxN4a/hDOwAkCk=
 k8s.io/code-generator v0.37.0-alpha.3/go.mod h1:b2UviMwETxQRk87w3y6jCs320p5AVz28ZqigE1nrfkQ=
 k8s.io/code-generator v0.37.0-beta.0/go.mod h1:vwWgbelqbUaRVJ8vD+0kyhwuxtwrt6jV5ZEoAtiAzB0=
+k8s.io/code-generator v0.37.0-rc.0/go.mod h1:gwljmdmKalNet8U3+3tu8dyV0+etqGStU2uXJy+NgD8=
 k8s.io/component-base v0.29.0/go.mod h1:sADonFTQ9Zc9yFLghpDpmNXEdHyQmFIGbiuZbqAXQ1M=
 k8s.io/component-base v0.30.0/go.mod h1:V9x/0ePFNaKeKYA3bOvIbrNoluTSG+fSJKjLdjOoeXQ=
 k8s.io/component-base v0.31.0/go.mod h1:TYVuzI1QmN4L5ItVdMSXKvH7/DtvIuas5/mm8YT3rTo=
@@ -572,6 +580,7 @@ k8s.io/component-base v0.36.0/go.mod h1:JZvIfcNHk+uck+8LhJzhSBtydWXaZNQwX2OdL+Mn
 k8s.io/component-base v0.37.0-alpha.1/go.mod h1:syzFTe+v8SyroLQ5JItALe3snAEmX9VTPCrCEk2K0gk=
 k8s.io/component-base v0.37.0-alpha.3/go.mod h1:Ocb0GmFTg75YY2YQI1lX9VHixDUGL6iRy+5IWwCJR6s=
 k8s.io/component-base v0.37.0-beta.0/go.mod h1:awX3ngV3cdjMNqdfP9HD1LjkmrV3j9hSLP0naoTm8C0=
+k8s.io/component-base v0.37.0-rc.0/go.mod h1:tQPSVM0ca9MGk8J+3+XlOwClT/8+yVpwtuwdhuYyLNU=
 k8s.io/gengo v0.0.0-20230829151522-9cce18d56c01/go.mod h1:FiNAH4ZV3gBg2Kwh89tzAEV2be7d5xI0vBa/VySYy3E=
 k8s.io/gengo/v2 v2.0.0-20240228010128-51d4e06bde70/go.mod h1:VH3AT8AaQOqiGjMF9p0/IM1Dj+82ZwjfxUP1IxaHE+8=
 k8s.io/gengo/v2 v2.0.0-20240826214909-a7b603a56eb7/go.mod h1:EJykeLsmFC60UQbYJezXkEsG2FLrt0GPNkU5iK5GWxU=
@@ -600,6 +609,7 @@ k8s.io/kms v0.36.0/go.mod h1:g91diTD9h0oJCCHkTb00krlF+Qm5HTnkWLi9Q/TpRoc=
 k8s.io/kms v0.37.0-alpha.1/go.mod h1:ErLCNmzrfZcVkr00luMid4eeJvrJzE7bvtD51ITQr+8=
 k8s.io/kms v0.37.0-alpha.3/go.mod h1:ErLCNmzrfZcVkr00luMid4eeJvrJzE7bvtD51ITQr+8=
 k8s.io/kms v0.37.0-beta.0/go.mod h1:2MhitFc/fjndg+6SxrfsrOtTomG2EZZ4liZcMqLpgPo=
+k8s.io/kms v0.37.0-rc.0/go.mod h1:0U6zfwLkfJr9O/jLgz2GARnKLh2uIhkq2EeaU66J5ow=
 k8s.io/kube-openapi v0.0.0-20231010175941-2dd684a91f00/go.mod h1:AsvuZPBlUDVuCdzJ87iajxtXuR9oktsTctW/R9wwouA=
 k8s.io/streaming v0.36.0-beta.0/go.mod h1:5Zm1U2Duu3uu1nG/ijKuwNWDkQk24aXVpScAhzRkzkk=
 k8s.io/streaming v0.36.0-rc.0/go.mod h1:5Zm1U2Duu3uu1nG/ijKuwNWDkQk24aXVpScAhzRkzkk=
@@ -610,6 +620,7 @@ k8s.io/streaming v0.37.0-alpha.1/go.mod h1:QN1+yCAfxcSvo0908Z3rFKkA5Xlr3KgUZAGwK
 k8s.io/streaming v0.37.0-alpha.2/go.mod h1:QN1+yCAfxcSvo0908Z3rFKkA5Xlr3KgUZAGwKuR6qQk=
 k8s.io/streaming v0.37.0-alpha.3/go.mod h1:jksMJuFO/NrJlKuDkIomVgAJnK+Yu9h8KTrkZ8ESiac=
 k8s.io/streaming v0.37.0-beta.0/go.mod h1:APlJR26ZWRcVy5bIEj0QRrKUXROtBHPcxl2NT7EAzPU=
+k8s.io/streaming v0.37.0-rc.0/go.mod h1:APlJR26ZWRcVy5bIEj0QRrKUXROtBHPcxl2NT7EAzPU=
 k8s.io/utils v0.0.0-20240711033017-18e509b52bc8/go.mod h1:OLgZIPagt7ERELqWJFomSt595RzquPNLL48iOWgYOg0=
 k8s.io/utils v0.0.0-20260108192941-914a6e750570/go.mod h1:xDxuJ0whA3d0I4mf/C4ppKHxXynQ+fxnkmQH0vTHnuk=
 sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.28.0/go.mod h1:VHVDI/KrK4fjnV61bE2g3sA7tiETLn8sooImelsCx3Y=

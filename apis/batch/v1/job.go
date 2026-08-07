@@ -30,6 +30,7 @@ type _ = batchv1.Job
 // +die:field:name=SuccessPolicy,die=SuccessPolicyDie,pointer=true
 // +die:field:name=Selector,package=_/meta/v1,die=LabelSelectorDie,pointer=true
 // +die:field:name=Template,package=_/core/v1,die=PodTemplateSpecDie
+// +die:field:name=Scheduling,die=JobSchedulingConfigurationDie,pointer=true
 type _ = batchv1.JobSpec
 
 // +die
@@ -53,6 +54,13 @@ type _ = batchv1.SuccessPolicy
 
 // +die
 type _ = batchv1.SuccessPolicyRule
+
+// +die
+// +die:field:name=SchedulingPolicy,package=_/scheduling/v1alpha3,die=WorkloadPodGroupSchedulingPolicyDie,pointer=true
+// +die:field:name=SchedulingConstraints,package=_/scheduling/v1alpha3,die=WorkloadPodGroupSchedulingConstraintsDie,pointer=true
+// +die:field:name=DisruptionMode,package=_/scheduling/v1alpha3,die=WorkloadPodGroupDisruptionModeDie,pointer=true
+// +die:field:name=ResourceClaims,package=_/scheduling/v1alpha3,die=WorkloadPodGroupResourceClaimDie,listType=map
+type _ = batchv1.JobSchedulingConfiguration
 
 // +die
 // +die:field:name=UncountedTerminatedPods,die=UncountedTerminatedPodsDie,pointer=true

@@ -715,7 +715,7 @@ func (d *PodGroupSpecDie) SchedulingConstraintsDie(fn func(d *PodGroupScheduling
 //
 // the same ResourceClaim or ResourceClaimTemplate.
 //
-// # This is an alpha-level field and requires that the
+// # This is a beta-level field and requires that the
 //
 // DRAWorkloadResourceClaims feature gate is enabled.
 //
@@ -812,7 +812,7 @@ func (d *PodGroupSpecDie) SchedulingConstraints(v *schedulingv1alpha3.PodGroupSc
 //
 // the same ResourceClaim or ResourceClaimTemplate.
 //
-// # This is an alpha-level field and requires that the
+// # This is a beta-level field and requires that the
 //
 // DRAWorkloadResourceClaims feature gate is enabled.
 //
@@ -5475,7 +5475,7 @@ func (d *PodGroupTemplateDie) SchedulingConstraintsDie(fn func(d *PodGroupSchedu
 //
 // the same ResourceClaim or ResourceClaimTemplate.
 //
-// # This is an alpha-level field and requires that the
+// # This is a beta-level field and requires that the
 //
 // DRAWorkloadResourceClaims feature gate is enabled.
 //
@@ -5549,7 +5549,7 @@ func (d *PodGroupTemplateDie) SchedulingConstraints(v *schedulingv1alpha3.PodGro
 //
 // the same ResourceClaim or ResourceClaimTemplate.
 //
-// # This is an alpha-level field and requires that the
+// # This is a beta-level field and requires that the
 //
 // DRAWorkloadResourceClaims feature gate is enabled.
 //
@@ -5865,6 +5865,34 @@ func (d *CompositePodGroupTemplateDie) SchedulingPolicyDie(fn func(d *CompositeP
 	})
 }
 
+// SchedulingConstraintsDie mutates SchedulingConstraints as a die.
+//
+// schedulingConstraints defines optional scheduling constraints (e.g. topology) for this CompositePodGroupTemplate.
+//
+// This field is immutable.
+func (d *CompositePodGroupTemplateDie) SchedulingConstraintsDie(fn func(d *CompositePodGroupSchedulingConstraintsDie)) *CompositePodGroupTemplateDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.CompositePodGroupTemplate) {
+		d := CompositePodGroupSchedulingConstraintsBlank.DieImmutable(false).DieFeedPtr(r.SchedulingConstraints)
+		fn(d)
+		r.SchedulingConstraints = d.DieReleasePtr()
+	})
+}
+
+// DisruptionModeDie mutates DisruptionMode as a die.
+//
+// disruptionMode defines the mode in which a given CompositePodGroup can be disrupted.
+//
+// One of Single, All.
+//
+// This field is immutable.
+func (d *CompositePodGroupTemplateDie) DisruptionModeDie(fn func(d *CompositeDisruptionModeDie)) *CompositePodGroupTemplateDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.CompositePodGroupTemplate) {
+		d := CompositeDisruptionModeBlank.DieImmutable(false).DieFeedPtr(r.DisruptionMode)
+		fn(d)
+		r.DisruptionMode = d.DieReleasePtr()
+	})
+}
+
 // name is a unique identifier for the CompositePodGroupTemplate within the Workload.
 //
 // It must be a DNS label. This field is required.
@@ -5878,6 +5906,26 @@ func (d *CompositePodGroupTemplateDie) Name(v string) *CompositePodGroupTemplate
 func (d *CompositePodGroupTemplateDie) SchedulingPolicy(v schedulingv1alpha3.CompositePodGroupSchedulingPolicy) *CompositePodGroupTemplateDie {
 	return d.DieStamp(func(r *schedulingv1alpha3.CompositePodGroupTemplate) {
 		r.SchedulingPolicy = v
+	})
+}
+
+// schedulingConstraints defines optional scheduling constraints (e.g. topology) for this CompositePodGroupTemplate.
+//
+// This field is immutable.
+func (d *CompositePodGroupTemplateDie) SchedulingConstraints(v *schedulingv1alpha3.CompositePodGroupSchedulingConstraints) *CompositePodGroupTemplateDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.CompositePodGroupTemplate) {
+		r.SchedulingConstraints = v
+	})
+}
+
+// disruptionMode defines the mode in which a given CompositePodGroup can be disrupted.
+//
+// One of Single, All.
+//
+// This field is immutable.
+func (d *CompositePodGroupTemplateDie) DisruptionMode(v *schedulingv1alpha3.CompositeDisruptionMode) *CompositePodGroupTemplateDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.CompositePodGroupTemplate) {
+		r.DisruptionMode = v
 	})
 }
 
@@ -5912,6 +5960,19 @@ func (d *CompositePodGroupTemplateDie) PriorityClassName(v string) *CompositePod
 func (d *CompositePodGroupTemplateDie) Priority(v *int32) *CompositePodGroupTemplateDie {
 	return d.DieStamp(func(r *schedulingv1alpha3.CompositePodGroupTemplate) {
 		r.Priority = v
+	})
+}
+
+// preemptionPolicy is the Policy for preempting pods/podgroups with lower priority.
+//
+// One of Never, PreemptLowerPriority.
+//
+// This field is immutable.
+//
+// This field is available only when the PodGroupPreemptionPolicy feature gate is enabled.
+func (d *CompositePodGroupTemplateDie) PreemptionPolicy(v *schedulingv1alpha3.PreemptionPolicy) *CompositePodGroupTemplateDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.CompositePodGroupTemplate) {
+		r.PreemptionPolicy = v
 	})
 }
 
@@ -6727,5 +6788,3171 @@ func (d *CompositeGangSchedulingPolicyDie) DiePatch(patchType types.PatchType) (
 func (d *CompositeGangSchedulingPolicyDie) MinGroupCount(v int32) *CompositeGangSchedulingPolicyDie {
 	return d.DieStamp(func(r *schedulingv1alpha3.CompositeGangSchedulingPolicy) {
 		r.MinGroupCount = v
+	})
+}
+
+var CompositePodGroupSchedulingConstraintsBlank = (&CompositePodGroupSchedulingConstraintsDie{}).DieFeed(schedulingv1alpha3.CompositePodGroupSchedulingConstraints{})
+
+type CompositePodGroupSchedulingConstraintsDie struct {
+	mutable bool
+	r       schedulingv1alpha3.CompositePodGroupSchedulingConstraints
+	seal    schedulingv1alpha3.CompositePodGroupSchedulingConstraints
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *CompositePodGroupSchedulingConstraintsDie) DieImmutable(immutable bool) *CompositePodGroupSchedulingConstraintsDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieFeed(r schedulingv1alpha3.CompositePodGroupSchedulingConstraints) *CompositePodGroupSchedulingConstraintsDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &CompositePodGroupSchedulingConstraintsDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieFeedPtr(r *schedulingv1alpha3.CompositePodGroupSchedulingConstraints) *CompositePodGroupSchedulingConstraintsDie {
+	if r == nil {
+		r = &schedulingv1alpha3.CompositePodGroupSchedulingConstraints{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieFeedDuck(v any) *CompositePodGroupSchedulingConstraintsDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieFeedJSON(j []byte) *CompositePodGroupSchedulingConstraintsDie {
+	r := schedulingv1alpha3.CompositePodGroupSchedulingConstraints{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieFeedYAML(y []byte) *CompositePodGroupSchedulingConstraintsDie {
+	r := schedulingv1alpha3.CompositePodGroupSchedulingConstraints{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieFeedYAMLFile(name string) *CompositePodGroupSchedulingConstraintsDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieFeedRawExtension(raw runtime.RawExtension) *CompositePodGroupSchedulingConstraintsDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieRelease() schedulingv1alpha3.CompositePodGroupSchedulingConstraints {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieReleasePtr() *schedulingv1alpha3.CompositePodGroupSchedulingConstraints {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieStamp(fn func(r *schedulingv1alpha3.CompositePodGroupSchedulingConstraints)) *CompositePodGroupSchedulingConstraintsDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieStampAt(jp string, fn interface{}) *CompositePodGroupSchedulingConstraintsDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.CompositePodGroupSchedulingConstraints) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieWith(fns ...func(d *CompositePodGroupSchedulingConstraintsDie)) *CompositePodGroupSchedulingConstraintsDie {
+	nd := CompositePodGroupSchedulingConstraintsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *CompositePodGroupSchedulingConstraintsDie) DeepCopy() *CompositePodGroupSchedulingConstraintsDie {
+	r := *d.r.DeepCopy()
+	return &CompositePodGroupSchedulingConstraintsDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieSeal() *CompositePodGroupSchedulingConstraintsDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieSealFeed(r schedulingv1alpha3.CompositePodGroupSchedulingConstraints) *CompositePodGroupSchedulingConstraintsDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieSealFeedPtr(r *schedulingv1alpha3.CompositePodGroupSchedulingConstraints) *CompositePodGroupSchedulingConstraintsDie {
+	if r == nil {
+		r = &schedulingv1alpha3.CompositePodGroupSchedulingConstraints{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieSealRelease() schedulingv1alpha3.CompositePodGroupSchedulingConstraints {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieSealReleasePtr() *schedulingv1alpha3.CompositePodGroupSchedulingConstraints {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *CompositePodGroupSchedulingConstraintsDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *CompositePodGroupSchedulingConstraintsDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// TopologyDie replaces Topology by collecting the released value from each die passed.
+//
+// topology defines the topology constraints for the composite pod group.
+//
+// Currently only a single topology constraint can be specified. This may change in the future.
+func (d *CompositePodGroupSchedulingConstraintsDie) TopologyDie(v ...*TopologyConstraintDie) *CompositePodGroupSchedulingConstraintsDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.CompositePodGroupSchedulingConstraints) {
+		r.Topology = make([]schedulingv1alpha3.TopologyConstraint, len(v))
+		for i := range v {
+			r.Topology[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// topology defines the topology constraints for the composite pod group.
+//
+// Currently only a single topology constraint can be specified. This may change in the future.
+func (d *CompositePodGroupSchedulingConstraintsDie) Topology(v ...schedulingv1alpha3.TopologyConstraint) *CompositePodGroupSchedulingConstraintsDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.CompositePodGroupSchedulingConstraints) {
+		r.Topology = v
+	})
+}
+
+var CompositeDisruptionModeBlank = (&CompositeDisruptionModeDie{}).DieFeed(schedulingv1alpha3.CompositeDisruptionMode{})
+
+type CompositeDisruptionModeDie struct {
+	mutable bool
+	r       schedulingv1alpha3.CompositeDisruptionMode
+	seal    schedulingv1alpha3.CompositeDisruptionMode
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *CompositeDisruptionModeDie) DieImmutable(immutable bool) *CompositeDisruptionModeDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *CompositeDisruptionModeDie) DieFeed(r schedulingv1alpha3.CompositeDisruptionMode) *CompositeDisruptionModeDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &CompositeDisruptionModeDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *CompositeDisruptionModeDie) DieFeedPtr(r *schedulingv1alpha3.CompositeDisruptionMode) *CompositeDisruptionModeDie {
+	if r == nil {
+		r = &schedulingv1alpha3.CompositeDisruptionMode{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CompositeDisruptionModeDie) DieFeedDuck(v any) *CompositeDisruptionModeDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *CompositeDisruptionModeDie) DieFeedJSON(j []byte) *CompositeDisruptionModeDie {
+	r := schedulingv1alpha3.CompositeDisruptionMode{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *CompositeDisruptionModeDie) DieFeedYAML(y []byte) *CompositeDisruptionModeDie {
+	r := schedulingv1alpha3.CompositeDisruptionMode{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *CompositeDisruptionModeDie) DieFeedYAMLFile(name string) *CompositeDisruptionModeDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *CompositeDisruptionModeDie) DieFeedRawExtension(raw runtime.RawExtension) *CompositeDisruptionModeDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *CompositeDisruptionModeDie) DieRelease() schedulingv1alpha3.CompositeDisruptionMode {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *CompositeDisruptionModeDie) DieReleasePtr() *schedulingv1alpha3.CompositeDisruptionMode {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CompositeDisruptionModeDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *CompositeDisruptionModeDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *CompositeDisruptionModeDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *CompositeDisruptionModeDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *CompositeDisruptionModeDie) DieStamp(fn func(r *schedulingv1alpha3.CompositeDisruptionMode)) *CompositeDisruptionModeDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *CompositeDisruptionModeDie) DieStampAt(jp string, fn interface{}) *CompositeDisruptionModeDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.CompositeDisruptionMode) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CompositeDisruptionModeDie) DieWith(fns ...func(d *CompositeDisruptionModeDie)) *CompositeDisruptionModeDie {
+	nd := CompositeDisruptionModeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *CompositeDisruptionModeDie) DeepCopy() *CompositeDisruptionModeDie {
+	r := *d.r.DeepCopy()
+	return &CompositeDisruptionModeDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *CompositeDisruptionModeDie) DieSeal() *CompositeDisruptionModeDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *CompositeDisruptionModeDie) DieSealFeed(r schedulingv1alpha3.CompositeDisruptionMode) *CompositeDisruptionModeDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *CompositeDisruptionModeDie) DieSealFeedPtr(r *schedulingv1alpha3.CompositeDisruptionMode) *CompositeDisruptionModeDie {
+	if r == nil {
+		r = &schedulingv1alpha3.CompositeDisruptionMode{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *CompositeDisruptionModeDie) DieSealRelease() schedulingv1alpha3.CompositeDisruptionMode {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *CompositeDisruptionModeDie) DieSealReleasePtr() *schedulingv1alpha3.CompositeDisruptionMode {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *CompositeDisruptionModeDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *CompositeDisruptionModeDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// SingleDie mutates Single as a die.
+//
+// single specifies that children groups can be disrupted independently from each other.
+func (d *CompositeDisruptionModeDie) SingleDie(fn func(d *SingleCompositeDisruptionModeDie)) *CompositeDisruptionModeDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.CompositeDisruptionMode) {
+		d := SingleCompositeDisruptionModeBlank.DieImmutable(false).DieFeedPtr(r.Single)
+		fn(d)
+		r.Single = d.DieReleasePtr()
+	})
+}
+
+// AllDie mutates All as a die.
+//
+// all specifies that all children groups can only be disrupted together.
+func (d *CompositeDisruptionModeDie) AllDie(fn func(d *AllCompositeDisruptionModeDie)) *CompositeDisruptionModeDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.CompositeDisruptionMode) {
+		d := AllCompositeDisruptionModeBlank.DieImmutable(false).DieFeedPtr(r.All)
+		fn(d)
+		r.All = d.DieReleasePtr()
+	})
+}
+
+// single specifies that children groups can be disrupted independently from each other.
+func (d *CompositeDisruptionModeDie) Single(v *schedulingv1alpha3.SingleCompositeDisruptionMode) *CompositeDisruptionModeDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.CompositeDisruptionMode) {
+		r.Single = v
+	})
+}
+
+// all specifies that all children groups can only be disrupted together.
+func (d *CompositeDisruptionModeDie) All(v *schedulingv1alpha3.AllCompositeDisruptionMode) *CompositeDisruptionModeDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.CompositeDisruptionMode) {
+		r.All = v
+	})
+}
+
+var SingleCompositeDisruptionModeBlank = (&SingleCompositeDisruptionModeDie{}).DieFeed(schedulingv1alpha3.SingleCompositeDisruptionMode{})
+
+type SingleCompositeDisruptionModeDie struct {
+	mutable bool
+	r       schedulingv1alpha3.SingleCompositeDisruptionMode
+	seal    schedulingv1alpha3.SingleCompositeDisruptionMode
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *SingleCompositeDisruptionModeDie) DieImmutable(immutable bool) *SingleCompositeDisruptionModeDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *SingleCompositeDisruptionModeDie) DieFeed(r schedulingv1alpha3.SingleCompositeDisruptionMode) *SingleCompositeDisruptionModeDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &SingleCompositeDisruptionModeDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *SingleCompositeDisruptionModeDie) DieFeedPtr(r *schedulingv1alpha3.SingleCompositeDisruptionMode) *SingleCompositeDisruptionModeDie {
+	if r == nil {
+		r = &schedulingv1alpha3.SingleCompositeDisruptionMode{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *SingleCompositeDisruptionModeDie) DieFeedDuck(v any) *SingleCompositeDisruptionModeDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *SingleCompositeDisruptionModeDie) DieFeedJSON(j []byte) *SingleCompositeDisruptionModeDie {
+	r := schedulingv1alpha3.SingleCompositeDisruptionMode{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *SingleCompositeDisruptionModeDie) DieFeedYAML(y []byte) *SingleCompositeDisruptionModeDie {
+	r := schedulingv1alpha3.SingleCompositeDisruptionMode{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *SingleCompositeDisruptionModeDie) DieFeedYAMLFile(name string) *SingleCompositeDisruptionModeDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SingleCompositeDisruptionModeDie) DieFeedRawExtension(raw runtime.RawExtension) *SingleCompositeDisruptionModeDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *SingleCompositeDisruptionModeDie) DieRelease() schedulingv1alpha3.SingleCompositeDisruptionMode {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *SingleCompositeDisruptionModeDie) DieReleasePtr() *schedulingv1alpha3.SingleCompositeDisruptionMode {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *SingleCompositeDisruptionModeDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *SingleCompositeDisruptionModeDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *SingleCompositeDisruptionModeDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *SingleCompositeDisruptionModeDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *SingleCompositeDisruptionModeDie) DieStamp(fn func(r *schedulingv1alpha3.SingleCompositeDisruptionMode)) *SingleCompositeDisruptionModeDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *SingleCompositeDisruptionModeDie) DieStampAt(jp string, fn interface{}) *SingleCompositeDisruptionModeDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.SingleCompositeDisruptionMode) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *SingleCompositeDisruptionModeDie) DieWith(fns ...func(d *SingleCompositeDisruptionModeDie)) *SingleCompositeDisruptionModeDie {
+	nd := SingleCompositeDisruptionModeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *SingleCompositeDisruptionModeDie) DeepCopy() *SingleCompositeDisruptionModeDie {
+	r := *d.r.DeepCopy()
+	return &SingleCompositeDisruptionModeDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *SingleCompositeDisruptionModeDie) DieSeal() *SingleCompositeDisruptionModeDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *SingleCompositeDisruptionModeDie) DieSealFeed(r schedulingv1alpha3.SingleCompositeDisruptionMode) *SingleCompositeDisruptionModeDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *SingleCompositeDisruptionModeDie) DieSealFeedPtr(r *schedulingv1alpha3.SingleCompositeDisruptionMode) *SingleCompositeDisruptionModeDie {
+	if r == nil {
+		r = &schedulingv1alpha3.SingleCompositeDisruptionMode{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *SingleCompositeDisruptionModeDie) DieSealRelease() schedulingv1alpha3.SingleCompositeDisruptionMode {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *SingleCompositeDisruptionModeDie) DieSealReleasePtr() *schedulingv1alpha3.SingleCompositeDisruptionMode {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *SingleCompositeDisruptionModeDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *SingleCompositeDisruptionModeDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+var AllCompositeDisruptionModeBlank = (&AllCompositeDisruptionModeDie{}).DieFeed(schedulingv1alpha3.AllCompositeDisruptionMode{})
+
+type AllCompositeDisruptionModeDie struct {
+	mutable bool
+	r       schedulingv1alpha3.AllCompositeDisruptionMode
+	seal    schedulingv1alpha3.AllCompositeDisruptionMode
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *AllCompositeDisruptionModeDie) DieImmutable(immutable bool) *AllCompositeDisruptionModeDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *AllCompositeDisruptionModeDie) DieFeed(r schedulingv1alpha3.AllCompositeDisruptionMode) *AllCompositeDisruptionModeDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &AllCompositeDisruptionModeDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *AllCompositeDisruptionModeDie) DieFeedPtr(r *schedulingv1alpha3.AllCompositeDisruptionMode) *AllCompositeDisruptionModeDie {
+	if r == nil {
+		r = &schedulingv1alpha3.AllCompositeDisruptionMode{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *AllCompositeDisruptionModeDie) DieFeedDuck(v any) *AllCompositeDisruptionModeDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *AllCompositeDisruptionModeDie) DieFeedJSON(j []byte) *AllCompositeDisruptionModeDie {
+	r := schedulingv1alpha3.AllCompositeDisruptionMode{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *AllCompositeDisruptionModeDie) DieFeedYAML(y []byte) *AllCompositeDisruptionModeDie {
+	r := schedulingv1alpha3.AllCompositeDisruptionMode{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *AllCompositeDisruptionModeDie) DieFeedYAMLFile(name string) *AllCompositeDisruptionModeDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *AllCompositeDisruptionModeDie) DieFeedRawExtension(raw runtime.RawExtension) *AllCompositeDisruptionModeDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *AllCompositeDisruptionModeDie) DieRelease() schedulingv1alpha3.AllCompositeDisruptionMode {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *AllCompositeDisruptionModeDie) DieReleasePtr() *schedulingv1alpha3.AllCompositeDisruptionMode {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *AllCompositeDisruptionModeDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *AllCompositeDisruptionModeDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *AllCompositeDisruptionModeDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *AllCompositeDisruptionModeDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *AllCompositeDisruptionModeDie) DieStamp(fn func(r *schedulingv1alpha3.AllCompositeDisruptionMode)) *AllCompositeDisruptionModeDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *AllCompositeDisruptionModeDie) DieStampAt(jp string, fn interface{}) *AllCompositeDisruptionModeDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.AllCompositeDisruptionMode) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *AllCompositeDisruptionModeDie) DieWith(fns ...func(d *AllCompositeDisruptionModeDie)) *AllCompositeDisruptionModeDie {
+	nd := AllCompositeDisruptionModeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *AllCompositeDisruptionModeDie) DeepCopy() *AllCompositeDisruptionModeDie {
+	r := *d.r.DeepCopy()
+	return &AllCompositeDisruptionModeDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *AllCompositeDisruptionModeDie) DieSeal() *AllCompositeDisruptionModeDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *AllCompositeDisruptionModeDie) DieSealFeed(r schedulingv1alpha3.AllCompositeDisruptionMode) *AllCompositeDisruptionModeDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *AllCompositeDisruptionModeDie) DieSealFeedPtr(r *schedulingv1alpha3.AllCompositeDisruptionMode) *AllCompositeDisruptionModeDie {
+	if r == nil {
+		r = &schedulingv1alpha3.AllCompositeDisruptionMode{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *AllCompositeDisruptionModeDie) DieSealRelease() schedulingv1alpha3.AllCompositeDisruptionMode {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *AllCompositeDisruptionModeDie) DieSealReleasePtr() *schedulingv1alpha3.AllCompositeDisruptionMode {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *AllCompositeDisruptionModeDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *AllCompositeDisruptionModeDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+var WorkloadPodGroupSchedulingPolicyBlank = (&WorkloadPodGroupSchedulingPolicyDie{}).DieFeed(schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy{})
+
+type WorkloadPodGroupSchedulingPolicyDie struct {
+	mutable bool
+	r       schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy
+	seal    schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieImmutable(immutable bool) *WorkloadPodGroupSchedulingPolicyDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieFeed(r schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy) *WorkloadPodGroupSchedulingPolicyDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &WorkloadPodGroupSchedulingPolicyDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieFeedPtr(r *schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy) *WorkloadPodGroupSchedulingPolicyDie {
+	if r == nil {
+		r = &schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieFeedDuck(v any) *WorkloadPodGroupSchedulingPolicyDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieFeedJSON(j []byte) *WorkloadPodGroupSchedulingPolicyDie {
+	r := schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieFeedYAML(y []byte) *WorkloadPodGroupSchedulingPolicyDie {
+	r := schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieFeedYAMLFile(name string) *WorkloadPodGroupSchedulingPolicyDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieFeedRawExtension(raw runtime.RawExtension) *WorkloadPodGroupSchedulingPolicyDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieRelease() schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieReleasePtr() *schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieStamp(fn func(r *schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy)) *WorkloadPodGroupSchedulingPolicyDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieStampAt(jp string, fn interface{}) *WorkloadPodGroupSchedulingPolicyDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieWith(fns ...func(d *WorkloadPodGroupSchedulingPolicyDie)) *WorkloadPodGroupSchedulingPolicyDie {
+	nd := WorkloadPodGroupSchedulingPolicyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DeepCopy() *WorkloadPodGroupSchedulingPolicyDie {
+	r := *d.r.DeepCopy()
+	return &WorkloadPodGroupSchedulingPolicyDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieSeal() *WorkloadPodGroupSchedulingPolicyDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieSealFeed(r schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy) *WorkloadPodGroupSchedulingPolicyDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieSealFeedPtr(r *schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy) *WorkloadPodGroupSchedulingPolicyDie {
+	if r == nil {
+		r = &schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieSealRelease() schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieSealReleasePtr() *schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *WorkloadPodGroupSchedulingPolicyDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// BasicDie mutates Basic as a die.
+//
+// basic specifies that standard, pod-by-pod Kubernetes scheduling
+//
+// behavior should be used.
+func (d *WorkloadPodGroupSchedulingPolicyDie) BasicDie(fn func(d *WorkloadPodGroupBasicSchedulingPolicyDie)) *WorkloadPodGroupSchedulingPolicyDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy) {
+		d := WorkloadPodGroupBasicSchedulingPolicyBlank.DieImmutable(false).DieFeedPtr(r.Basic)
+		fn(d)
+		r.Basic = d.DieReleasePtr()
+	})
+}
+
+// GangDie mutates Gang as a die.
+//
+// gang specifies all-or-nothing scheduling semantics.
+func (d *WorkloadPodGroupSchedulingPolicyDie) GangDie(fn func(d *WorkloadPodGroupGangSchedulingPolicyDie)) *WorkloadPodGroupSchedulingPolicyDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy) {
+		d := WorkloadPodGroupGangSchedulingPolicyBlank.DieImmutable(false).DieFeedPtr(r.Gang)
+		fn(d)
+		r.Gang = d.DieReleasePtr()
+	})
+}
+
+// basic specifies that standard, pod-by-pod Kubernetes scheduling
+//
+// behavior should be used.
+func (d *WorkloadPodGroupSchedulingPolicyDie) Basic(v *schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy) *WorkloadPodGroupSchedulingPolicyDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy) {
+		r.Basic = v
+	})
+}
+
+// gang specifies all-or-nothing scheduling semantics.
+func (d *WorkloadPodGroupSchedulingPolicyDie) Gang(v *schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy) *WorkloadPodGroupSchedulingPolicyDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy) {
+		r.Gang = v
+	})
+}
+
+var WorkloadPodGroupBasicSchedulingPolicyBlank = (&WorkloadPodGroupBasicSchedulingPolicyDie{}).DieFeed(schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy{})
+
+type WorkloadPodGroupBasicSchedulingPolicyDie struct {
+	mutable bool
+	r       schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy
+	seal    schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieImmutable(immutable bool) *WorkloadPodGroupBasicSchedulingPolicyDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieFeed(r schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy) *WorkloadPodGroupBasicSchedulingPolicyDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &WorkloadPodGroupBasicSchedulingPolicyDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieFeedPtr(r *schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy) *WorkloadPodGroupBasicSchedulingPolicyDie {
+	if r == nil {
+		r = &schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieFeedDuck(v any) *WorkloadPodGroupBasicSchedulingPolicyDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieFeedJSON(j []byte) *WorkloadPodGroupBasicSchedulingPolicyDie {
+	r := schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieFeedYAML(y []byte) *WorkloadPodGroupBasicSchedulingPolicyDie {
+	r := schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieFeedYAMLFile(name string) *WorkloadPodGroupBasicSchedulingPolicyDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieFeedRawExtension(raw runtime.RawExtension) *WorkloadPodGroupBasicSchedulingPolicyDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieRelease() schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieReleasePtr() *schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieStamp(fn func(r *schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy)) *WorkloadPodGroupBasicSchedulingPolicyDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieStampAt(jp string, fn interface{}) *WorkloadPodGroupBasicSchedulingPolicyDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieWith(fns ...func(d *WorkloadPodGroupBasicSchedulingPolicyDie)) *WorkloadPodGroupBasicSchedulingPolicyDie {
+	nd := WorkloadPodGroupBasicSchedulingPolicyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DeepCopy() *WorkloadPodGroupBasicSchedulingPolicyDie {
+	r := *d.r.DeepCopy()
+	return &WorkloadPodGroupBasicSchedulingPolicyDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieSeal() *WorkloadPodGroupBasicSchedulingPolicyDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieSealFeed(r schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy) *WorkloadPodGroupBasicSchedulingPolicyDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieSealFeedPtr(r *schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy) *WorkloadPodGroupBasicSchedulingPolicyDie {
+	if r == nil {
+		r = &schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieSealRelease() schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieSealReleasePtr() *schedulingv1alpha3.WorkloadPodGroupBasicSchedulingPolicy {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *WorkloadPodGroupBasicSchedulingPolicyDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+var WorkloadPodGroupGangSchedulingPolicyBlank = (&WorkloadPodGroupGangSchedulingPolicyDie{}).DieFeed(schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy{})
+
+type WorkloadPodGroupGangSchedulingPolicyDie struct {
+	mutable bool
+	r       schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy
+	seal    schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieImmutable(immutable bool) *WorkloadPodGroupGangSchedulingPolicyDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieFeed(r schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy) *WorkloadPodGroupGangSchedulingPolicyDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &WorkloadPodGroupGangSchedulingPolicyDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieFeedPtr(r *schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy) *WorkloadPodGroupGangSchedulingPolicyDie {
+	if r == nil {
+		r = &schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieFeedDuck(v any) *WorkloadPodGroupGangSchedulingPolicyDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieFeedJSON(j []byte) *WorkloadPodGroupGangSchedulingPolicyDie {
+	r := schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieFeedYAML(y []byte) *WorkloadPodGroupGangSchedulingPolicyDie {
+	r := schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieFeedYAMLFile(name string) *WorkloadPodGroupGangSchedulingPolicyDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieFeedRawExtension(raw runtime.RawExtension) *WorkloadPodGroupGangSchedulingPolicyDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieRelease() schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieReleasePtr() *schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieStamp(fn func(r *schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy)) *WorkloadPodGroupGangSchedulingPolicyDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieStampAt(jp string, fn interface{}) *WorkloadPodGroupGangSchedulingPolicyDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieWith(fns ...func(d *WorkloadPodGroupGangSchedulingPolicyDie)) *WorkloadPodGroupGangSchedulingPolicyDie {
+	nd := WorkloadPodGroupGangSchedulingPolicyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DeepCopy() *WorkloadPodGroupGangSchedulingPolicyDie {
+	r := *d.r.DeepCopy()
+	return &WorkloadPodGroupGangSchedulingPolicyDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieSeal() *WorkloadPodGroupGangSchedulingPolicyDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieSealFeed(r schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy) *WorkloadPodGroupGangSchedulingPolicyDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieSealFeedPtr(r *schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy) *WorkloadPodGroupGangSchedulingPolicyDie {
+	if r == nil {
+		r = &schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieSealRelease() schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieSealReleasePtr() *schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// minCount is the minimum number of pods that must be scheduled
+//
+// at the same time for the scheduler to admit the entire group.
+//
+// This field is optional. If it is not specified, the controller
+//
+// should inject a context-specific sane default (e.g.,
+//
+// parallelism for a Job).
+//
+// If set, it must be a positive integer.
+func (d *WorkloadPodGroupGangSchedulingPolicyDie) MinCount(v *int32) *WorkloadPodGroupGangSchedulingPolicyDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupGangSchedulingPolicy) {
+		r.MinCount = v
+	})
+}
+
+var WorkloadPodGroupSchedulingConstraintsBlank = (&WorkloadPodGroupSchedulingConstraintsDie{}).DieFeed(schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints{})
+
+type WorkloadPodGroupSchedulingConstraintsDie struct {
+	mutable bool
+	r       schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints
+	seal    schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieImmutable(immutable bool) *WorkloadPodGroupSchedulingConstraintsDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieFeed(r schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints) *WorkloadPodGroupSchedulingConstraintsDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &WorkloadPodGroupSchedulingConstraintsDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieFeedPtr(r *schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints) *WorkloadPodGroupSchedulingConstraintsDie {
+	if r == nil {
+		r = &schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieFeedDuck(v any) *WorkloadPodGroupSchedulingConstraintsDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieFeedJSON(j []byte) *WorkloadPodGroupSchedulingConstraintsDie {
+	r := schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieFeedYAML(y []byte) *WorkloadPodGroupSchedulingConstraintsDie {
+	r := schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieFeedYAMLFile(name string) *WorkloadPodGroupSchedulingConstraintsDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieFeedRawExtension(raw runtime.RawExtension) *WorkloadPodGroupSchedulingConstraintsDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieRelease() schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieReleasePtr() *schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieStamp(fn func(r *schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints)) *WorkloadPodGroupSchedulingConstraintsDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieStampAt(jp string, fn interface{}) *WorkloadPodGroupSchedulingConstraintsDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieWith(fns ...func(d *WorkloadPodGroupSchedulingConstraintsDie)) *WorkloadPodGroupSchedulingConstraintsDie {
+	nd := WorkloadPodGroupSchedulingConstraintsBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DeepCopy() *WorkloadPodGroupSchedulingConstraintsDie {
+	r := *d.r.DeepCopy()
+	return &WorkloadPodGroupSchedulingConstraintsDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieSeal() *WorkloadPodGroupSchedulingConstraintsDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieSealFeed(r schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints) *WorkloadPodGroupSchedulingConstraintsDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieSealFeedPtr(r *schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints) *WorkloadPodGroupSchedulingConstraintsDie {
+	if r == nil {
+		r = &schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieSealRelease() schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieSealReleasePtr() *schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// TopologyDie replaces Topology by collecting the released value from each die passed.
+//
+// topology specifies desired topological placements for all pods
+//
+// within the pod group.
+//
+// If unset, no topology placement is requested.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) TopologyDie(v ...*TopologyConstraintDie) *WorkloadPodGroupSchedulingConstraintsDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints) {
+		r.Topology = make([]schedulingv1alpha3.TopologyConstraint, len(v))
+		for i := range v {
+			r.Topology[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// topology specifies desired topological placements for all pods
+//
+// within the pod group.
+//
+// If unset, no topology placement is requested.
+func (d *WorkloadPodGroupSchedulingConstraintsDie) Topology(v ...schedulingv1alpha3.TopologyConstraint) *WorkloadPodGroupSchedulingConstraintsDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints) {
+		r.Topology = v
+	})
+}
+
+var WorkloadPodGroupDisruptionModeBlank = (&WorkloadPodGroupDisruptionModeDie{}).DieFeed(schedulingv1alpha3.WorkloadPodGroupDisruptionMode{})
+
+type WorkloadPodGroupDisruptionModeDie struct {
+	mutable bool
+	r       schedulingv1alpha3.WorkloadPodGroupDisruptionMode
+	seal    schedulingv1alpha3.WorkloadPodGroupDisruptionMode
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *WorkloadPodGroupDisruptionModeDie) DieImmutable(immutable bool) *WorkloadPodGroupDisruptionModeDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *WorkloadPodGroupDisruptionModeDie) DieFeed(r schedulingv1alpha3.WorkloadPodGroupDisruptionMode) *WorkloadPodGroupDisruptionModeDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &WorkloadPodGroupDisruptionModeDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *WorkloadPodGroupDisruptionModeDie) DieFeedPtr(r *schedulingv1alpha3.WorkloadPodGroupDisruptionMode) *WorkloadPodGroupDisruptionModeDie {
+	if r == nil {
+		r = &schedulingv1alpha3.WorkloadPodGroupDisruptionMode{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *WorkloadPodGroupDisruptionModeDie) DieFeedDuck(v any) *WorkloadPodGroupDisruptionModeDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *WorkloadPodGroupDisruptionModeDie) DieFeedJSON(j []byte) *WorkloadPodGroupDisruptionModeDie {
+	r := schedulingv1alpha3.WorkloadPodGroupDisruptionMode{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *WorkloadPodGroupDisruptionModeDie) DieFeedYAML(y []byte) *WorkloadPodGroupDisruptionModeDie {
+	r := schedulingv1alpha3.WorkloadPodGroupDisruptionMode{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *WorkloadPodGroupDisruptionModeDie) DieFeedYAMLFile(name string) *WorkloadPodGroupDisruptionModeDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadPodGroupDisruptionModeDie) DieFeedRawExtension(raw runtime.RawExtension) *WorkloadPodGroupDisruptionModeDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *WorkloadPodGroupDisruptionModeDie) DieRelease() schedulingv1alpha3.WorkloadPodGroupDisruptionMode {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *WorkloadPodGroupDisruptionModeDie) DieReleasePtr() *schedulingv1alpha3.WorkloadPodGroupDisruptionMode {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *WorkloadPodGroupDisruptionModeDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *WorkloadPodGroupDisruptionModeDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *WorkloadPodGroupDisruptionModeDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadPodGroupDisruptionModeDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *WorkloadPodGroupDisruptionModeDie) DieStamp(fn func(r *schedulingv1alpha3.WorkloadPodGroupDisruptionMode)) *WorkloadPodGroupDisruptionModeDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *WorkloadPodGroupDisruptionModeDie) DieStampAt(jp string, fn interface{}) *WorkloadPodGroupDisruptionModeDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupDisruptionMode) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *WorkloadPodGroupDisruptionModeDie) DieWith(fns ...func(d *WorkloadPodGroupDisruptionModeDie)) *WorkloadPodGroupDisruptionModeDie {
+	nd := WorkloadPodGroupDisruptionModeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *WorkloadPodGroupDisruptionModeDie) DeepCopy() *WorkloadPodGroupDisruptionModeDie {
+	r := *d.r.DeepCopy()
+	return &WorkloadPodGroupDisruptionModeDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *WorkloadPodGroupDisruptionModeDie) DieSeal() *WorkloadPodGroupDisruptionModeDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *WorkloadPodGroupDisruptionModeDie) DieSealFeed(r schedulingv1alpha3.WorkloadPodGroupDisruptionMode) *WorkloadPodGroupDisruptionModeDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *WorkloadPodGroupDisruptionModeDie) DieSealFeedPtr(r *schedulingv1alpha3.WorkloadPodGroupDisruptionMode) *WorkloadPodGroupDisruptionModeDie {
+	if r == nil {
+		r = &schedulingv1alpha3.WorkloadPodGroupDisruptionMode{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *WorkloadPodGroupDisruptionModeDie) DieSealRelease() schedulingv1alpha3.WorkloadPodGroupDisruptionMode {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *WorkloadPodGroupDisruptionModeDie) DieSealReleasePtr() *schedulingv1alpha3.WorkloadPodGroupDisruptionMode {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *WorkloadPodGroupDisruptionModeDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *WorkloadPodGroupDisruptionModeDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// SingleDie mutates Single as a die.
+//
+// single specifies that pods can be disrupted independently from each other.
+func (d *WorkloadPodGroupDisruptionModeDie) SingleDie(fn func(d *WorkloadPodGroupSingleDisruptionModeDie)) *WorkloadPodGroupDisruptionModeDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupDisruptionMode) {
+		d := WorkloadPodGroupSingleDisruptionModeBlank.DieImmutable(false).DieFeedPtr(r.Single)
+		fn(d)
+		r.Single = d.DieReleasePtr()
+	})
+}
+
+// AllDie mutates All as a die.
+//
+// all specifies that all pods in the group must be disrupted together.
+func (d *WorkloadPodGroupDisruptionModeDie) AllDie(fn func(d *WorkloadPodGroupAllDisruptionModeDie)) *WorkloadPodGroupDisruptionModeDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupDisruptionMode) {
+		d := WorkloadPodGroupAllDisruptionModeBlank.DieImmutable(false).DieFeedPtr(r.All)
+		fn(d)
+		r.All = d.DieReleasePtr()
+	})
+}
+
+// single specifies that pods can be disrupted independently from each other.
+func (d *WorkloadPodGroupDisruptionModeDie) Single(v *schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode) *WorkloadPodGroupDisruptionModeDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupDisruptionMode) {
+		r.Single = v
+	})
+}
+
+// all specifies that all pods in the group must be disrupted together.
+func (d *WorkloadPodGroupDisruptionModeDie) All(v *schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode) *WorkloadPodGroupDisruptionModeDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupDisruptionMode) {
+		r.All = v
+	})
+}
+
+var WorkloadPodGroupSingleDisruptionModeBlank = (&WorkloadPodGroupSingleDisruptionModeDie{}).DieFeed(schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode{})
+
+type WorkloadPodGroupSingleDisruptionModeDie struct {
+	mutable bool
+	r       schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode
+	seal    schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieImmutable(immutable bool) *WorkloadPodGroupSingleDisruptionModeDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieFeed(r schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode) *WorkloadPodGroupSingleDisruptionModeDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &WorkloadPodGroupSingleDisruptionModeDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieFeedPtr(r *schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode) *WorkloadPodGroupSingleDisruptionModeDie {
+	if r == nil {
+		r = &schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieFeedDuck(v any) *WorkloadPodGroupSingleDisruptionModeDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieFeedJSON(j []byte) *WorkloadPodGroupSingleDisruptionModeDie {
+	r := schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieFeedYAML(y []byte) *WorkloadPodGroupSingleDisruptionModeDie {
+	r := schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieFeedYAMLFile(name string) *WorkloadPodGroupSingleDisruptionModeDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieFeedRawExtension(raw runtime.RawExtension) *WorkloadPodGroupSingleDisruptionModeDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieRelease() schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieReleasePtr() *schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieStamp(fn func(r *schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode)) *WorkloadPodGroupSingleDisruptionModeDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieStampAt(jp string, fn interface{}) *WorkloadPodGroupSingleDisruptionModeDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieWith(fns ...func(d *WorkloadPodGroupSingleDisruptionModeDie)) *WorkloadPodGroupSingleDisruptionModeDie {
+	nd := WorkloadPodGroupSingleDisruptionModeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DeepCopy() *WorkloadPodGroupSingleDisruptionModeDie {
+	r := *d.r.DeepCopy()
+	return &WorkloadPodGroupSingleDisruptionModeDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieSeal() *WorkloadPodGroupSingleDisruptionModeDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieSealFeed(r schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode) *WorkloadPodGroupSingleDisruptionModeDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieSealFeedPtr(r *schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode) *WorkloadPodGroupSingleDisruptionModeDie {
+	if r == nil {
+		r = &schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieSealRelease() schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieSealReleasePtr() *schedulingv1alpha3.WorkloadPodGroupSingleDisruptionMode {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *WorkloadPodGroupSingleDisruptionModeDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+var WorkloadPodGroupAllDisruptionModeBlank = (&WorkloadPodGroupAllDisruptionModeDie{}).DieFeed(schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode{})
+
+type WorkloadPodGroupAllDisruptionModeDie struct {
+	mutable bool
+	r       schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode
+	seal    schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieImmutable(immutable bool) *WorkloadPodGroupAllDisruptionModeDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieFeed(r schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode) *WorkloadPodGroupAllDisruptionModeDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &WorkloadPodGroupAllDisruptionModeDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieFeedPtr(r *schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode) *WorkloadPodGroupAllDisruptionModeDie {
+	if r == nil {
+		r = &schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieFeedDuck(v any) *WorkloadPodGroupAllDisruptionModeDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieFeedJSON(j []byte) *WorkloadPodGroupAllDisruptionModeDie {
+	r := schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieFeedYAML(y []byte) *WorkloadPodGroupAllDisruptionModeDie {
+	r := schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieFeedYAMLFile(name string) *WorkloadPodGroupAllDisruptionModeDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieFeedRawExtension(raw runtime.RawExtension) *WorkloadPodGroupAllDisruptionModeDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieRelease() schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieReleasePtr() *schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieStamp(fn func(r *schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode)) *WorkloadPodGroupAllDisruptionModeDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieStampAt(jp string, fn interface{}) *WorkloadPodGroupAllDisruptionModeDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieWith(fns ...func(d *WorkloadPodGroupAllDisruptionModeDie)) *WorkloadPodGroupAllDisruptionModeDie {
+	nd := WorkloadPodGroupAllDisruptionModeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DeepCopy() *WorkloadPodGroupAllDisruptionModeDie {
+	r := *d.r.DeepCopy()
+	return &WorkloadPodGroupAllDisruptionModeDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieSeal() *WorkloadPodGroupAllDisruptionModeDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieSealFeed(r schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode) *WorkloadPodGroupAllDisruptionModeDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieSealFeedPtr(r *schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode) *WorkloadPodGroupAllDisruptionModeDie {
+	if r == nil {
+		r = &schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieSealRelease() schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieSealReleasePtr() *schedulingv1alpha3.WorkloadPodGroupAllDisruptionMode {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *WorkloadPodGroupAllDisruptionModeDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+var WorkloadPodGroupResourceClaimBlank = (&WorkloadPodGroupResourceClaimDie{}).DieFeed(schedulingv1alpha3.WorkloadPodGroupResourceClaim{})
+
+type WorkloadPodGroupResourceClaimDie struct {
+	mutable bool
+	r       schedulingv1alpha3.WorkloadPodGroupResourceClaim
+	seal    schedulingv1alpha3.WorkloadPodGroupResourceClaim
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *WorkloadPodGroupResourceClaimDie) DieImmutable(immutable bool) *WorkloadPodGroupResourceClaimDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *WorkloadPodGroupResourceClaimDie) DieFeed(r schedulingv1alpha3.WorkloadPodGroupResourceClaim) *WorkloadPodGroupResourceClaimDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &WorkloadPodGroupResourceClaimDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *WorkloadPodGroupResourceClaimDie) DieFeedPtr(r *schedulingv1alpha3.WorkloadPodGroupResourceClaim) *WorkloadPodGroupResourceClaimDie {
+	if r == nil {
+		r = &schedulingv1alpha3.WorkloadPodGroupResourceClaim{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *WorkloadPodGroupResourceClaimDie) DieFeedDuck(v any) *WorkloadPodGroupResourceClaimDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *WorkloadPodGroupResourceClaimDie) DieFeedJSON(j []byte) *WorkloadPodGroupResourceClaimDie {
+	r := schedulingv1alpha3.WorkloadPodGroupResourceClaim{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *WorkloadPodGroupResourceClaimDie) DieFeedYAML(y []byte) *WorkloadPodGroupResourceClaimDie {
+	r := schedulingv1alpha3.WorkloadPodGroupResourceClaim{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *WorkloadPodGroupResourceClaimDie) DieFeedYAMLFile(name string) *WorkloadPodGroupResourceClaimDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadPodGroupResourceClaimDie) DieFeedRawExtension(raw runtime.RawExtension) *WorkloadPodGroupResourceClaimDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *WorkloadPodGroupResourceClaimDie) DieRelease() schedulingv1alpha3.WorkloadPodGroupResourceClaim {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *WorkloadPodGroupResourceClaimDie) DieReleasePtr() *schedulingv1alpha3.WorkloadPodGroupResourceClaim {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *WorkloadPodGroupResourceClaimDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *WorkloadPodGroupResourceClaimDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *WorkloadPodGroupResourceClaimDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *WorkloadPodGroupResourceClaimDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *WorkloadPodGroupResourceClaimDie) DieStamp(fn func(r *schedulingv1alpha3.WorkloadPodGroupResourceClaim)) *WorkloadPodGroupResourceClaimDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *WorkloadPodGroupResourceClaimDie) DieStampAt(jp string, fn interface{}) *WorkloadPodGroupResourceClaimDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupResourceClaim) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *WorkloadPodGroupResourceClaimDie) DieWith(fns ...func(d *WorkloadPodGroupResourceClaimDie)) *WorkloadPodGroupResourceClaimDie {
+	nd := WorkloadPodGroupResourceClaimBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *WorkloadPodGroupResourceClaimDie) DeepCopy() *WorkloadPodGroupResourceClaimDie {
+	r := *d.r.DeepCopy()
+	return &WorkloadPodGroupResourceClaimDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *WorkloadPodGroupResourceClaimDie) DieSeal() *WorkloadPodGroupResourceClaimDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *WorkloadPodGroupResourceClaimDie) DieSealFeed(r schedulingv1alpha3.WorkloadPodGroupResourceClaim) *WorkloadPodGroupResourceClaimDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *WorkloadPodGroupResourceClaimDie) DieSealFeedPtr(r *schedulingv1alpha3.WorkloadPodGroupResourceClaim) *WorkloadPodGroupResourceClaimDie {
+	if r == nil {
+		r = &schedulingv1alpha3.WorkloadPodGroupResourceClaim{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *WorkloadPodGroupResourceClaimDie) DieSealRelease() schedulingv1alpha3.WorkloadPodGroupResourceClaim {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *WorkloadPodGroupResourceClaimDie) DieSealReleasePtr() *schedulingv1alpha3.WorkloadPodGroupResourceClaim {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *WorkloadPodGroupResourceClaimDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *WorkloadPodGroupResourceClaimDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// name uniquely identifies this resource claim inside the group.
+//
+// This field is required. It must be a DNS_LABEL.
+func (d *WorkloadPodGroupResourceClaimDie) Name(v string) *WorkloadPodGroupResourceClaimDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupResourceClaim) {
+		r.Name = v
+	})
+}
+
+// resourceClaimName is the name of a ResourceClaim object in the same
+//
+// namespace.
+//
+// This field is optional. If it is not specified, no resource claim
+//
+// is used. If set, it must be a DNS subdomain.
+func (d *WorkloadPodGroupResourceClaimDie) ResourceClaimName(v *string) *WorkloadPodGroupResourceClaimDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupResourceClaim) {
+		r.ResourceClaimName = v
+	})
+}
+
+// resourceClaimTemplateName is the name of a ResourceClaimTemplate
+//
+// object in the same namespace.
+//
+// This field is optional. If it is not specified, no resource claim
+//
+// template is used. If set, it must be a DNS subdomain.
+func (d *WorkloadPodGroupResourceClaimDie) ResourceClaimTemplateName(v *string) *WorkloadPodGroupResourceClaimDie {
+	return d.DieStamp(func(r *schedulingv1alpha3.WorkloadPodGroupResourceClaim) {
+		r.ResourceClaimTemplateName = v
 	})
 }

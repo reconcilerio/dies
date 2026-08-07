@@ -223,3 +223,111 @@ func TestCompositeGangSchedulingPolicyDie_MissingMethods(t *testingx.T) {
 		t.Errorf("found missing fields for CompositeGangSchedulingPolicyDie: %s", diff.List())
 	}
 }
+
+func TestCompositePodGroupSchedulingConstraintsDie_MissingMethods(t *testingx.T) {
+	die := CompositePodGroupSchedulingConstraintsBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CompositePodGroupSchedulingConstraintsDie: %s", diff.List())
+	}
+}
+
+func TestCompositeDisruptionModeDie_MissingMethods(t *testingx.T) {
+	die := CompositeDisruptionModeBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CompositeDisruptionModeDie: %s", diff.List())
+	}
+}
+
+func TestSingleCompositeDisruptionModeDie_MissingMethods(t *testingx.T) {
+	die := SingleCompositeDisruptionModeBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for SingleCompositeDisruptionModeDie: %s", diff.List())
+	}
+}
+
+func TestAllCompositeDisruptionModeDie_MissingMethods(t *testingx.T) {
+	die := AllCompositeDisruptionModeBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for AllCompositeDisruptionModeDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadPodGroupSchedulingPolicyDie_MissingMethods(t *testingx.T) {
+	die := WorkloadPodGroupSchedulingPolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadPodGroupSchedulingPolicyDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadPodGroupBasicSchedulingPolicyDie_MissingMethods(t *testingx.T) {
+	die := WorkloadPodGroupBasicSchedulingPolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadPodGroupBasicSchedulingPolicyDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadPodGroupGangSchedulingPolicyDie_MissingMethods(t *testingx.T) {
+	die := WorkloadPodGroupGangSchedulingPolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadPodGroupGangSchedulingPolicyDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadPodGroupSchedulingConstraintsDie_MissingMethods(t *testingx.T) {
+	die := WorkloadPodGroupSchedulingConstraintsBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadPodGroupSchedulingConstraintsDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadPodGroupDisruptionModeDie_MissingMethods(t *testingx.T) {
+	die := WorkloadPodGroupDisruptionModeBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadPodGroupDisruptionModeDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadPodGroupSingleDisruptionModeDie_MissingMethods(t *testingx.T) {
+	die := WorkloadPodGroupSingleDisruptionModeBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadPodGroupSingleDisruptionModeDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadPodGroupAllDisruptionModeDie_MissingMethods(t *testingx.T) {
+	die := WorkloadPodGroupAllDisruptionModeBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadPodGroupAllDisruptionModeDie: %s", diff.List())
+	}
+}
+
+func TestWorkloadPodGroupResourceClaimDie_MissingMethods(t *testingx.T) {
+	die := WorkloadPodGroupResourceClaimBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for WorkloadPodGroupResourceClaimDie: %s", diff.List())
+	}
+}
