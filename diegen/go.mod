@@ -3,7 +3,7 @@ module reconciler.io/dies/diegen
 go 1.26.0
 
 require (
-	k8s.io/apimachinery v0.37.0-rc.0
+	k8s.io/apimachinery v0.37.0-rc.1
 	k8s.io/utils v0.0.0-20260626114624-be93311217bd
 	sigs.k8s.io/controller-tools v0.14.0
 )
