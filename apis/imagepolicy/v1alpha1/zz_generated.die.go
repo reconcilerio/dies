@@ -398,14 +398,14 @@ func (d *ImageReviewDie) StatusDie(fn func(d *ImageReviewStatusDie)) *ImageRevie
 	})
 }
 
-// Spec holds information about the pod being evaluated
+// spec holds information about the pod being evaluated
 func (d *ImageReviewDie) Spec(v imagepolicyv1alpha1.ImageReviewSpec) *ImageReviewDie {
 	return d.DieStamp(func(r *imagepolicyv1alpha1.ImageReview) {
 		r.Spec = v
 	})
 }
 
-// Status is filled in by the backend and indicates whether the pod should be allowed.
+// status is filled in by the backend and indicates whether the pod should be allowed.
 func (d *ImageReviewDie) Status(v imagepolicyv1alpha1.ImageReviewStatus) *ImageReviewDie {
 	return d.DieStamp(func(r *imagepolicyv1alpha1.ImageReview) {
 		r.Status = v
@@ -660,7 +660,7 @@ func (d *ImageReviewSpecDie) DiePatch(patchType types.PatchType) ([]byte, error)
 
 // ContainersDie replaces Containers by collecting the released value from each die passed.
 //
-// Containers is a list of a subset of the information in each container of the Pod being created.
+// containers is a list of a subset of the information in each container of the Pod being created.
 func (d *ImageReviewSpecDie) ContainersDie(v ...*ImageReviewContainerSpecDie) *ImageReviewSpecDie {
 	return d.DieStamp(func(r *imagepolicyv1alpha1.ImageReviewSpec) {
 		r.Containers = make([]imagepolicyv1alpha1.ImageReviewContainerSpec, len(v))
@@ -670,14 +670,14 @@ func (d *ImageReviewSpecDie) ContainersDie(v ...*ImageReviewContainerSpecDie) *I
 	})
 }
 
-// Containers is a list of a subset of the information in each container of the Pod being created.
+// containers is a list of a subset of the information in each container of the Pod being created.
 func (d *ImageReviewSpecDie) Containers(v ...imagepolicyv1alpha1.ImageReviewContainerSpec) *ImageReviewSpecDie {
 	return d.DieStamp(func(r *imagepolicyv1alpha1.ImageReviewSpec) {
 		r.Containers = v
 	})
 }
 
-// Annotations is a list of key-value pairs extracted from the Pod's annotations.
+// annotations is a list of key-value pairs extracted from the Pod's annotations.
 //
 // It only includes keys which match the pattern `*.image-policy.k8s.io/*`.
 //
@@ -688,7 +688,7 @@ func (d *ImageReviewSpecDie) Annotations(v map[string]string) *ImageReviewSpecDi
 	})
 }
 
-// Namespace is the namespace the pod is being created in.
+// namespace is the namespace the pod is being created in.
 func (d *ImageReviewSpecDie) Namespace(v string) *ImageReviewSpecDie {
 	return d.DieStamp(func(r *imagepolicyv1alpha1.ImageReviewSpec) {
 		r.Namespace = v
@@ -941,7 +941,7 @@ func (d *ImageReviewContainerSpecDie) DiePatch(patchType types.PatchType) ([]byt
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// This can be in the form image:tag or image@SHA:012345679abcdef.
+// image can be in the form image:tag or image@SHA:012345679abcdef.
 func (d *ImageReviewContainerSpecDie) Image(v string) *ImageReviewContainerSpecDie {
 	return d.DieStamp(func(r *imagepolicyv1alpha1.ImageReviewContainerSpec) {
 		r.Image = v
@@ -1194,14 +1194,14 @@ func (d *ImageReviewStatusDie) DiePatch(patchType types.PatchType) ([]byte, erro
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Allowed indicates that all images were allowed to be run.
+// allowed indicates that all images were allowed to be run.
 func (d *ImageReviewStatusDie) Allowed(v bool) *ImageReviewStatusDie {
 	return d.DieStamp(func(r *imagepolicyv1alpha1.ImageReviewStatus) {
 		r.Allowed = v
 	})
 }
 
-// Reason should be empty unless Allowed is false in which case it
+// reason should be empty unless Allowed is false in which case it
 //
 // may contain a short description of what is wrong.  Kubernetes
 //
@@ -1212,7 +1212,7 @@ func (d *ImageReviewStatusDie) Reason(v string) *ImageReviewStatusDie {
 	})
 }
 
-// AuditAnnotations will be added to the attributes object of the
+// auditAnnotations will be added to the attributes object of the
 //
 // admission controller request using 'AddAnnotation'.  The keys should
 //

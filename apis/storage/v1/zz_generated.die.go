@@ -24,7 +24,7 @@ package v1
 import (
 	fmtx "fmt"
 	cmp "github.com/google/go-cmp/cmp"
-	apicorev1 "k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 	resource "k8s.io/apimachinery/pkg/api/resource"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -35,7 +35,7 @@ import (
 	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	osx "os"
-	corev1 "reconciler.io/dies/apis/core/v1"
+	apiscorev1 "reconciler.io/dies/apis/core/v1"
 	metav1 "reconciler.io/dies/apis/meta/v1"
 	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
@@ -967,7 +967,7 @@ func (d *CSIDriverSpecDie) ServiceAccountTokenInSecrets(v *bool) *CSIDriverSpecD
 	})
 }
 
-// PreventPodSchedulingIfMissing indicates that the CSI driver wants to prevent pod
+// preventPodSchedulingIfMissing indicates that the CSI driver wants to prevent pod
 //
 // scheduling if the CSI driver on the node is missing.
 //
@@ -991,7 +991,7 @@ func (d *CSIDriverSpecDie) ServiceAccountTokenInSecrets(v *bool) *CSIDriverSpecD
 //
 // information from the node.
 //
-// This is an alpha feature and requires the VolumeLimitScaling feature gate to be enabled.
+// This is a beta feature and requires the VolumeLimitScaling feature gate to be enabled.
 //
 // Default is "false".
 func (d *CSIDriverSpecDie) PreventPodSchedulingIfMissing(v *bool) *CSIDriverSpecDie {
@@ -1614,10 +1614,26 @@ func (d *CSINodeDie) SpecDie(fn func(d *CSINodeSpecDie)) *CSINodeDie {
 	})
 }
 
+// StatusDie stamps the resource's status field with a mutable die.
+func (d *CSINodeDie) StatusDie(fn func(d *CSINodeStatusDie)) *CSINodeDie {
+	return d.DieStamp(func(r *storagev1.CSINode) {
+		d := CSINodeStatusBlank.DieImmutable(false).DieFeed(r.Status)
+		fn(d)
+		r.Status = d.DieRelease()
+	})
+}
+
 // spec is the specification of CSINode
 func (d *CSINodeDie) Spec(v storagev1.CSINodeSpec) *CSINodeDie {
 	return d.DieStamp(func(r *storagev1.CSINode) {
 		r.Spec = v
+	})
+}
+
+// status contains health and status information for the node's storage.
+func (d *CSINodeDie) Status(v storagev1.CSINodeStatus) *CSINodeDie {
+	return d.DieStamp(func(r *storagev1.CSINode) {
+		r.Status = v
 	})
 }
 
@@ -2476,6 +2492,849 @@ func (d *VolumeNodeResourcesDie) Count(v *int32) *VolumeNodeResourcesDie {
 	})
 }
 
+var CSINodeStatusBlank = (&CSINodeStatusDie{}).DieFeed(storagev1.CSINodeStatus{})
+
+type CSINodeStatusDie struct {
+	mutable bool
+	r       storagev1.CSINodeStatus
+	seal    storagev1.CSINodeStatus
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *CSINodeStatusDie) DieImmutable(immutable bool) *CSINodeStatusDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *CSINodeStatusDie) DieFeed(r storagev1.CSINodeStatus) *CSINodeStatusDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &CSINodeStatusDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *CSINodeStatusDie) DieFeedPtr(r *storagev1.CSINodeStatus) *CSINodeStatusDie {
+	if r == nil {
+		r = &storagev1.CSINodeStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *CSINodeStatusDie) DieFeedDuck(v any) *CSINodeStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *CSINodeStatusDie) DieFeedJSON(j []byte) *CSINodeStatusDie {
+	r := storagev1.CSINodeStatus{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *CSINodeStatusDie) DieFeedYAML(y []byte) *CSINodeStatusDie {
+	r := storagev1.CSINodeStatus{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *CSINodeStatusDie) DieFeedYAMLFile(name string) *CSINodeStatusDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *CSINodeStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *CSINodeStatusDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *CSINodeStatusDie) DieRelease() storagev1.CSINodeStatus {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *CSINodeStatusDie) DieReleasePtr() *storagev1.CSINodeStatus {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *CSINodeStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *CSINodeStatusDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *CSINodeStatusDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *CSINodeStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *CSINodeStatusDie) DieStamp(fn func(r *storagev1.CSINodeStatus)) *CSINodeStatusDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *CSINodeStatusDie) DieStampAt(jp string, fn interface{}) *CSINodeStatusDie {
+	return d.DieStamp(func(r *storagev1.CSINodeStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *CSINodeStatusDie) DieWith(fns ...func(d *CSINodeStatusDie)) *CSINodeStatusDie {
+	nd := CSINodeStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *CSINodeStatusDie) DeepCopy() *CSINodeStatusDie {
+	r := *d.r.DeepCopy()
+	return &CSINodeStatusDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *CSINodeStatusDie) DieSeal() *CSINodeStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *CSINodeStatusDie) DieSealFeed(r storagev1.CSINodeStatus) *CSINodeStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *CSINodeStatusDie) DieSealFeedPtr(r *storagev1.CSINodeStatus) *CSINodeStatusDie {
+	if r == nil {
+		r = &storagev1.CSINodeStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *CSINodeStatusDie) DieSealRelease() storagev1.CSINodeStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *CSINodeStatusDie) DieSealReleasePtr() *storagev1.CSINodeStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *CSINodeStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *CSINodeStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// StorageHealthDie mutates a single item in StorageHealth matched by the nested field Name, appending a new item if no match is found.
+//
+// storageHealth contains backend health reports for CSI drivers registered on the node.
+func (d *CSINodeStatusDie) StorageHealthDie(v string, fn func(d *StorageHealthDie)) *CSINodeStatusDie {
+	return d.DieStamp(func(r *storagev1.CSINodeStatus) {
+		for i := range r.StorageHealth {
+			if v == r.StorageHealth[i].Name {
+				d := StorageHealthBlank.DieImmutable(false).DieFeed(r.StorageHealth[i])
+				fn(d)
+				r.StorageHealth[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := StorageHealthBlank.DieImmutable(false).DieFeed(storagev1.StorageHealth{Name: v})
+		fn(d)
+		r.StorageHealth = append(r.StorageHealth, d.DieRelease())
+	})
+}
+
+// storageHealth contains backend health reports for CSI drivers registered on the node.
+func (d *CSINodeStatusDie) StorageHealth(v ...storagev1.StorageHealth) *CSINodeStatusDie {
+	return d.DieStamp(func(r *storagev1.CSINodeStatus) {
+		r.StorageHealth = v
+	})
+}
+
+var StorageHealthBlank = (&StorageHealthDie{}).DieFeed(storagev1.StorageHealth{})
+
+type StorageHealthDie struct {
+	mutable bool
+	r       storagev1.StorageHealth
+	seal    storagev1.StorageHealth
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *StorageHealthDie) DieImmutable(immutable bool) *StorageHealthDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *StorageHealthDie) DieFeed(r storagev1.StorageHealth) *StorageHealthDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &StorageHealthDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *StorageHealthDie) DieFeedPtr(r *storagev1.StorageHealth) *StorageHealthDie {
+	if r == nil {
+		r = &storagev1.StorageHealth{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *StorageHealthDie) DieFeedDuck(v any) *StorageHealthDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *StorageHealthDie) DieFeedJSON(j []byte) *StorageHealthDie {
+	r := storagev1.StorageHealth{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *StorageHealthDie) DieFeedYAML(y []byte) *StorageHealthDie {
+	r := storagev1.StorageHealth{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *StorageHealthDie) DieFeedYAMLFile(name string) *StorageHealthDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *StorageHealthDie) DieFeedRawExtension(raw runtime.RawExtension) *StorageHealthDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *StorageHealthDie) DieRelease() storagev1.StorageHealth {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *StorageHealthDie) DieReleasePtr() *storagev1.StorageHealth {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *StorageHealthDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *StorageHealthDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *StorageHealthDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *StorageHealthDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *StorageHealthDie) DieStamp(fn func(r *storagev1.StorageHealth)) *StorageHealthDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *StorageHealthDie) DieStampAt(jp string, fn interface{}) *StorageHealthDie {
+	return d.DieStamp(func(r *storagev1.StorageHealth) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *StorageHealthDie) DieWith(fns ...func(d *StorageHealthDie)) *StorageHealthDie {
+	nd := StorageHealthBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *StorageHealthDie) DeepCopy() *StorageHealthDie {
+	r := *d.r.DeepCopy()
+	return &StorageHealthDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *StorageHealthDie) DieSeal() *StorageHealthDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *StorageHealthDie) DieSealFeed(r storagev1.StorageHealth) *StorageHealthDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *StorageHealthDie) DieSealFeedPtr(r *storagev1.StorageHealth) *StorageHealthDie {
+	if r == nil {
+		r = &storagev1.StorageHealth{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *StorageHealthDie) DieSealRelease() storagev1.StorageHealth {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *StorageHealthDie) DieSealReleasePtr() *storagev1.StorageHealth {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *StorageHealthDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *StorageHealthDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// HealthConditionsDie replaces HealthConditions by collecting the released value from each die passed.
+//
+// healthConditions are the adverse storage backend conditions reported by the CSI driver.
+//
+// At most 16 conditions may be reported.
+func (d *StorageHealthDie) HealthConditionsDie(v ...*StorageHealthConditionDie) *StorageHealthDie {
+	return d.DieStamp(func(r *storagev1.StorageHealth) {
+		r.HealthConditions = make([]storagev1.StorageHealthCondition, len(v))
+		for i := range v {
+			r.HealthConditions[i] = v[i].DieRelease()
+		}
+	})
+}
+
+// name is the CSI driver name, matching CSINodeDriver.name.
+func (d *StorageHealthDie) Name(v string) *StorageHealthDie {
+	return d.DieStamp(func(r *storagev1.StorageHealth) {
+		r.Name = v
+	})
+}
+
+// healthConditions are the adverse storage backend conditions reported by the CSI driver.
+//
+// At most 16 conditions may be reported.
+func (d *StorageHealthDie) HealthConditions(v ...storagev1.StorageHealthCondition) *StorageHealthDie {
+	return d.DieStamp(func(r *storagev1.StorageHealth) {
+		r.HealthConditions = v
+	})
+}
+
+var StorageHealthConditionBlank = (&StorageHealthConditionDie{}).DieFeed(storagev1.StorageHealthCondition{})
+
+type StorageHealthConditionDie struct {
+	mutable bool
+	r       storagev1.StorageHealthCondition
+	seal    storagev1.StorageHealthCondition
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *StorageHealthConditionDie) DieImmutable(immutable bool) *StorageHealthConditionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *StorageHealthConditionDie) DieFeed(r storagev1.StorageHealthCondition) *StorageHealthConditionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &StorageHealthConditionDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *StorageHealthConditionDie) DieFeedPtr(r *storagev1.StorageHealthCondition) *StorageHealthConditionDie {
+	if r == nil {
+		r = &storagev1.StorageHealthCondition{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *StorageHealthConditionDie) DieFeedDuck(v any) *StorageHealthConditionDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *StorageHealthConditionDie) DieFeedJSON(j []byte) *StorageHealthConditionDie {
+	r := storagev1.StorageHealthCondition{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *StorageHealthConditionDie) DieFeedYAML(y []byte) *StorageHealthConditionDie {
+	r := storagev1.StorageHealthCondition{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *StorageHealthConditionDie) DieFeedYAMLFile(name string) *StorageHealthConditionDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *StorageHealthConditionDie) DieFeedRawExtension(raw runtime.RawExtension) *StorageHealthConditionDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *StorageHealthConditionDie) DieRelease() storagev1.StorageHealthCondition {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *StorageHealthConditionDie) DieReleasePtr() *storagev1.StorageHealthCondition {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *StorageHealthConditionDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *StorageHealthConditionDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *StorageHealthConditionDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *StorageHealthConditionDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *StorageHealthConditionDie) DieStamp(fn func(r *storagev1.StorageHealthCondition)) *StorageHealthConditionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *StorageHealthConditionDie) DieStampAt(jp string, fn interface{}) *StorageHealthConditionDie {
+	return d.DieStamp(func(r *storagev1.StorageHealthCondition) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *StorageHealthConditionDie) DieWith(fns ...func(d *StorageHealthConditionDie)) *StorageHealthConditionDie {
+	nd := StorageHealthConditionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *StorageHealthConditionDie) DeepCopy() *StorageHealthConditionDie {
+	r := *d.r.DeepCopy()
+	return &StorageHealthConditionDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *StorageHealthConditionDie) DieSeal() *StorageHealthConditionDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *StorageHealthConditionDie) DieSealFeed(r storagev1.StorageHealthCondition) *StorageHealthConditionDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *StorageHealthConditionDie) DieSealFeedPtr(r *storagev1.StorageHealthCondition) *StorageHealthConditionDie {
+	if r == nil {
+		r = &storagev1.StorageHealthCondition{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *StorageHealthConditionDie) DieSealRelease() storagev1.StorageHealthCondition {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *StorageHealthConditionDie) DieSealReleasePtr() *storagev1.StorageHealthCondition {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *StorageHealthConditionDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *StorageHealthConditionDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// status is the health status category.
+//
+// One of "StorageUnreachable", "StorageDegraded".
+func (d *StorageHealthConditionDie) Status(v storagev1.StorageHealthStatusType) *StorageHealthConditionDie {
+	return d.DieStamp(func(r *storagev1.StorageHealthCondition) {
+		r.Status = v
+	})
+}
+
+// reason is a brief CamelCase machine-parseable reason.
+//
+// Maximum permitted length of a reason is 256 characters.
+func (d *StorageHealthConditionDie) Reason(v string) *StorageHealthConditionDie {
+	return d.DieStamp(func(r *storagev1.StorageHealthCondition) {
+		r.Reason = v
+	})
+}
+
+// message is a human-readable description.
+//
+// Maximum permitted length of a message is 1024 characters.
+func (d *StorageHealthConditionDie) Message(v string) *StorageHealthConditionDie {
+	return d.DieStamp(func(r *storagev1.StorageHealthCondition) {
+		r.Message = v
+	})
+}
+
+// accessMode is the access mode affected. Nil means all access modes are affected.
+func (d *StorageHealthConditionDie) AccessMode(v *corev1.PersistentVolumeAccessMode) *StorageHealthConditionDie {
+	return d.DieStamp(func(r *storagev1.StorageHealthCondition) {
+		r.AccessMode = v
+	})
+}
+
+// volumeMode is the volume mode affected. Nil means both are affected.
+func (d *StorageHealthConditionDie) VolumeMode(v *corev1.PersistentVolumeMode) *StorageHealthConditionDie {
+	return d.DieStamp(func(r *storagev1.StorageHealthCondition) {
+		r.VolumeMode = v
+	})
+}
+
+// lastTransitionTime is when this condition first appeared at its current state.
+func (d *StorageHealthConditionDie) LastTransitionTime(v apismetav1.Time) *StorageHealthConditionDie {
+	return d.DieStamp(func(r *storagev1.StorageHealthCondition) {
+		r.LastTransitionTime = v
+	})
+}
+
 var CSIStorageCapacityBlank = (&CSIStorageCapacityDie{}).DieFeed(storagev1.CSIStorageCapacity{})
 
 type CSIStorageCapacityDie struct {
@@ -3304,9 +4163,9 @@ func (d *StorageClassDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *Storage
 // An empty TopologySelectorTerm list means there is no topology restriction.
 //
 // This field is only honored by servers that enable the VolumeScheduling feature.
-func (d *StorageClassDie) AllowedTopologiesDie(v ...*corev1.TopologySelectorTermDie) *StorageClassDie {
+func (d *StorageClassDie) AllowedTopologiesDie(v ...*apiscorev1.TopologySelectorTermDie) *StorageClassDie {
 	return d.DieStamp(func(r *storagev1.StorageClass) {
-		r.AllowedTopologies = make([]apicorev1.TopologySelectorTerm, len(v))
+		r.AllowedTopologies = make([]corev1.TopologySelectorTerm, len(v))
 		for i := range v {
 			r.AllowedTopologies[i] = v[i].DieRelease()
 		}
@@ -3332,7 +4191,7 @@ func (d *StorageClassDie) Parameters(v map[string]string) *StorageClassDie {
 // reclaimPolicy controls the reclaimPolicy for dynamically provisioned PersistentVolumes of this storage class.
 //
 // Defaults to Delete.
-func (d *StorageClassDie) ReclaimPolicy(v *apicorev1.PersistentVolumeReclaimPolicy) *StorageClassDie {
+func (d *StorageClassDie) ReclaimPolicy(v *corev1.PersistentVolumeReclaimPolicy) *StorageClassDie {
 	return d.DieStamp(func(r *storagev1.StorageClass) {
 		r.ReclaimPolicy = v
 	})
@@ -3374,7 +4233,7 @@ func (d *StorageClassDie) VolumeBindingMode(v *storagev1.VolumeBindingMode) *Sto
 // An empty TopologySelectorTerm list means there is no topology restriction.
 //
 // This field is only honored by servers that enable the VolumeScheduling feature.
-func (d *StorageClassDie) AllowedTopologies(v ...apicorev1.TopologySelectorTerm) *StorageClassDie {
+func (d *StorageClassDie) AllowedTopologies(v ...corev1.TopologySelectorTerm) *StorageClassDie {
 	return d.DieStamp(func(r *storagev1.StorageClass) {
 		r.AllowedTopologies = v
 	})
@@ -4298,9 +5157,9 @@ func (d *VolumeAttachmentSourceDie) DiePatch(patchType types.PatchType) ([]byte,
 // PersistentVolumeSpec. This field is beta-level and is only
 //
 // honored by servers that enabled the CSIMigration feature.
-func (d *VolumeAttachmentSourceDie) InlineVolumeSpecDie(fn func(d *corev1.PersistentVolumeSpecDie)) *VolumeAttachmentSourceDie {
+func (d *VolumeAttachmentSourceDie) InlineVolumeSpecDie(fn func(d *apiscorev1.PersistentVolumeSpecDie)) *VolumeAttachmentSourceDie {
 	return d.DieStamp(func(r *storagev1.VolumeAttachmentSource) {
-		d := corev1.PersistentVolumeSpecBlank.DieImmutable(false).DieFeedPtr(r.InlineVolumeSpec)
+		d := apiscorev1.PersistentVolumeSpecBlank.DieImmutable(false).DieFeedPtr(r.InlineVolumeSpec)
 		fn(d)
 		r.InlineVolumeSpec = d.DieReleasePtr()
 	})
@@ -4324,7 +5183,7 @@ func (d *VolumeAttachmentSourceDie) PersistentVolumeName(v *string) *VolumeAttac
 // PersistentVolumeSpec. This field is beta-level and is only
 //
 // honored by servers that enabled the CSIMigration feature.
-func (d *VolumeAttachmentSourceDie) InlineVolumeSpec(v *apicorev1.PersistentVolumeSpec) *VolumeAttachmentSourceDie {
+func (d *VolumeAttachmentSourceDie) InlineVolumeSpec(v *corev1.PersistentVolumeSpec) *VolumeAttachmentSourceDie {
 	return d.DieStamp(func(r *storagev1.VolumeAttachmentSource) {
 		r.InlineVolumeSpec = v
 	})
@@ -5268,7 +6127,7 @@ func (d *VolumeAttributesClassDie) MetadataDie(fn func(d *metav1.ObjectMetaDie))
 	})
 }
 
-// Name of the CSI driver
+// driverName is the name of the CSI driver
 //
 // This field is immutable.
 func (d *VolumeAttributesClassDie) DriverName(v string) *VolumeAttributesClassDie {

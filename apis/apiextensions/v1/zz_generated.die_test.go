@@ -26,6 +26,33 @@ import (
 	testingx "testing"
 )
 
+func TestConversionReviewDie_MissingMethods(t *testingx.T) {
+	die := ConversionReviewBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ConversionReviewDie: %s", diff.List())
+	}
+}
+
+func TestConversionRequestDie_MissingMethods(t *testingx.T) {
+	die := ConversionRequestBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ConversionRequestDie: %s", diff.List())
+	}
+}
+
+func TestConversionResponseDie_MissingMethods(t *testingx.T) {
+	die := ConversionResponseBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ConversionResponseDie: %s", diff.List())
+	}
+}
+
 func TestCustomResourceDefinitionDie_MissingMethods(t *testingx.T) {
 	die := CustomResourceDefinitionBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}

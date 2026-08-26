@@ -645,7 +645,7 @@ func (d *LeaseCandidateSpecDie) DiePatch(patchType types.PatchType) ([]byte, err
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// LeaseName is the name of the lease for which this candidate is contending.
+// leaseName is the name of the lease for which this candidate is contending.
 //
 // The limits on this field are the same as on Lease.name. Multiple lease candidates
 //
@@ -658,7 +658,7 @@ func (d *LeaseCandidateSpecDie) LeaseName(v string) *LeaseCandidateSpecDie {
 	})
 }
 
-// PingTime is the last time that the server has requested the LeaseCandidate
+// pingTime is the last time that the server has requested the LeaseCandidate
 //
 // to renew. It is only done during leader election to check if any
 //
@@ -671,7 +671,7 @@ func (d *LeaseCandidateSpecDie) PingTime(v *metav1.MicroTime) *LeaseCandidateSpe
 	})
 }
 
-// RenewTime is the time that the LeaseCandidate was last updated.
+// renewTime is the time that the LeaseCandidate was last updated.
 //
 // # Any time a Lease needs to do leader election, the PingTime field
 //
@@ -690,7 +690,7 @@ func (d *LeaseCandidateSpecDie) RenewTime(v *metav1.MicroTime) *LeaseCandidateSp
 	})
 }
 
-// BinaryVersion is the binary version. It must be in a semver format without leading `v`.
+// binaryVersion is the binary version. It must be in a semver format without leading `v`.
 //
 // This field is required.
 func (d *LeaseCandidateSpecDie) BinaryVersion(v string) *LeaseCandidateSpecDie {
@@ -699,7 +699,7 @@ func (d *LeaseCandidateSpecDie) BinaryVersion(v string) *LeaseCandidateSpecDie {
 	})
 }
 
-// EmulationVersion is the emulation version. It must be in a semver format without leading `v`.
+// emulationVersion is the emulation version. It must be in a semver format without leading `v`.
 //
 // EmulationVersion must be less than or equal to BinaryVersion.
 //
@@ -710,7 +710,7 @@ func (d *LeaseCandidateSpecDie) EmulationVersion(v string) *LeaseCandidateSpecDi
 	})
 }
 
-// Strategy is the strategy that coordinated leader election will use for picking the leader.
+// strategy is the strategy that coordinated leader election will use for picking the leader.
 //
 // # If multiple candidates for the same Lease return different strategies, the strategy provided
 //

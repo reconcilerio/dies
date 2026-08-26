@@ -660,7 +660,7 @@ func (d *HorizontalPodAutoscalerSpecDie) DiePatch(patchType types.PatchType) ([]
 
 // ScaleTargetRefDie mutates ScaleTargetRef as a die.
 //
-// reference to scaled resource; horizontal pod autoscaler will learn the current resource consumption
+// scaleTargetRef is the reference to scaled resource; horizontal pod autoscaler will learn the current resource consumption
 //
 // and will set the desired number of pods by using its Scale subresource.
 func (d *HorizontalPodAutoscalerSpecDie) ScaleTargetRefDie(fn func(d *CrossVersionObjectReferenceDie)) *HorizontalPodAutoscalerSpecDie {
@@ -671,7 +671,7 @@ func (d *HorizontalPodAutoscalerSpecDie) ScaleTargetRefDie(fn func(d *CrossVersi
 	})
 }
 
-// reference to scaled resource; horizontal pod autoscaler will learn the current resource consumption
+// scaleTargetRef is the reference to scaled resource; horizontal pod autoscaler will learn the current resource consumption
 //
 // and will set the desired number of pods by using its Scale subresource.
 func (d *HorizontalPodAutoscalerSpecDie) ScaleTargetRef(v autoscalingv1.CrossVersionObjectReference) *HorizontalPodAutoscalerSpecDie {

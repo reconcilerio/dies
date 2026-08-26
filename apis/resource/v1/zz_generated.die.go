@@ -720,8 +720,6 @@ func (d *DeviceClassSpecDie) Config(v ...resourcev1.DeviceClassConfiguration) *D
 // # If two classes are created at the same time, then the name of the class
 //
 // lexicographically sorted first is picked.
-//
-// This is a beta field.
 func (d *DeviceClassSpecDie) ExtendedResourceName(v *string) *DeviceClassSpecDie {
 	return d.DieStamp(func(r *resourcev1.DeviceClassSpec) {
 		r.ExtendedResourceName = v
@@ -1256,7 +1254,7 @@ func (d *CELDeviceSelectorDie) DiePatch(patchType types.PatchType) ([]byte, erro
 //
 // (e.g. device.attributes["dra.example.com"] evaluates to an object with all
 //
-// of the attributes which were prefixed by "dra.example.com".
+// of the attributes which were prefixed by "dra.example.com").
 //
 // - capacity (map[string]object): the device's capacities, grouped by prefix.
 //
@@ -1307,6 +1305,20 @@ func (d *CELDeviceSelectorDie) DiePatch(patchType types.PatchType) ([]byte, erro
 // # A robust expression should check for the existence of attributes
 //
 // before referencing them.
+//
+// Common errors:
+//
+// - "no such key": Use optional chaining (.? followed by orValue())
+//
+// or guarding the check with has() for optional fields.
+//
+// See CEL Optional Types for details:
+//
+// https://pkg.go.dev/github.com/google/cel-go@v0.17.4/cel#OptionalTypes
+//
+// For more CEL expression syntax and examples, see:
+//
+// https://kubernetes.io/docs/reference/using-api/cel/
 //
 // # For ease of use, the cel.bind() function is enabled, and can be used
 //
@@ -3776,6 +3788,48 @@ func (d *DeviceSubRequestDie) CapacityDie(fn func(d *CapacityRequirementsDie)) *
 	})
 }
 
+// DerivedAttributesDie replaces DerivedAttributes by collecting the released value from each die passed.
+//
+// # DerivedAttributes defines a set of virtual attributes computed via CEL expressions
+//
+// for each candidate device. These virtual attributes can be referenced in
+//
+// `.devices.constraints` to align and match different devices (e.g., co-allocating
+//
+// a GPU and a NIC on the same NUMA node) even if their drivers publish different
+//
+// attributes. Derived attributes are not available via `device.attributes`
+//
+// in the CEL environment when evaluating selector expressions.
+//
+// # Derived attributes allow you to extract, transform, or normalize topology
+//
+// information (such as extracting a NUMA index from a complex topology string or
+//
+// renaming a vendor-specific attribute) into a common virtual attribute name at
+//
+// scheduling time. The scheduler then evaluates these virtual attributes exactly
+//
+// like static attributes when matching constraints.
+//
+// # Every derived attribute defined in this list must be referenced by at least one
+//
+// MatchAttribute or DistinctAttribute constraint in the `.devices.constraints` list.
+//
+// The maximum number of derived attributes is 32.
+//
+// # This is an alpha field and requires enabling the DRADerivedAttributes
+//
+// feature gate.
+func (d *DeviceSubRequestDie) DerivedAttributesDie(v ...*DeviceDerivedAttributeDie) *DeviceSubRequestDie {
+	return d.DieStamp(func(r *resourcev1.DeviceSubRequest) {
+		r.DerivedAttributes = make([]resourcev1.DeviceDerivedAttribute, len(v))
+		for i := range v {
+			r.DerivedAttributes[i] = v[i].DieRelease()
+		}
+	})
+}
+
 // Name can be used to reference this subrequest in the list of constraints
 //
 // or the list of configurations for the claim. References must use the
@@ -3918,6 +3972,43 @@ func (d *DeviceSubRequestDie) Tolerations(v ...resourcev1.DeviceToleration) *Dev
 func (d *DeviceSubRequestDie) Capacity(v *resourcev1.CapacityRequirements) *DeviceSubRequestDie {
 	return d.DieStamp(func(r *resourcev1.DeviceSubRequest) {
 		r.Capacity = v
+	})
+}
+
+// DerivedAttributes defines a set of virtual attributes computed via CEL expressions
+//
+// for each candidate device. These virtual attributes can be referenced in
+//
+// `.devices.constraints` to align and match different devices (e.g., co-allocating
+//
+// a GPU and a NIC on the same NUMA node) even if their drivers publish different
+//
+// attributes. Derived attributes are not available via `device.attributes`
+//
+// in the CEL environment when evaluating selector expressions.
+//
+// # Derived attributes allow you to extract, transform, or normalize topology
+//
+// information (such as extracting a NUMA index from a complex topology string or
+//
+// renaming a vendor-specific attribute) into a common virtual attribute name at
+//
+// scheduling time. The scheduler then evaluates these virtual attributes exactly
+//
+// like static attributes when matching constraints.
+//
+// # Every derived attribute defined in this list must be referenced by at least one
+//
+// MatchAttribute or DistinctAttribute constraint in the `.devices.constraints` list.
+//
+// The maximum number of derived attributes is 32.
+//
+// # This is an alpha field and requires enabling the DRADerivedAttributes
+//
+// feature gate.
+func (d *DeviceSubRequestDie) DerivedAttributes(v ...resourcev1.DeviceDerivedAttribute) *DeviceSubRequestDie {
+	return d.DieStamp(func(r *resourcev1.DeviceSubRequest) {
+		r.DerivedAttributes = v
 	})
 }
 
@@ -4165,6 +4256,330 @@ func (d *CapacityRequirementsDie) DieDiff(opts ...cmp.Option) string {
 // DiePatch generates a patch between the current value of the die and the sealed value.
 func (d *CapacityRequirementsDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
+}
+
+var DeviceDerivedAttributeBlank = (&DeviceDerivedAttributeDie{}).DieFeed(resourcev1.DeviceDerivedAttribute{})
+
+type DeviceDerivedAttributeDie struct {
+	mutable bool
+	r       resourcev1.DeviceDerivedAttribute
+	seal    resourcev1.DeviceDerivedAttribute
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *DeviceDerivedAttributeDie) DieImmutable(immutable bool) *DeviceDerivedAttributeDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *DeviceDerivedAttributeDie) DieFeed(r resourcev1.DeviceDerivedAttribute) *DeviceDerivedAttributeDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &DeviceDerivedAttributeDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *DeviceDerivedAttributeDie) DieFeedPtr(r *resourcev1.DeviceDerivedAttribute) *DeviceDerivedAttributeDie {
+	if r == nil {
+		r = &resourcev1.DeviceDerivedAttribute{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *DeviceDerivedAttributeDie) DieFeedDuck(v any) *DeviceDerivedAttributeDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *DeviceDerivedAttributeDie) DieFeedJSON(j []byte) *DeviceDerivedAttributeDie {
+	r := resourcev1.DeviceDerivedAttribute{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *DeviceDerivedAttributeDie) DieFeedYAML(y []byte) *DeviceDerivedAttributeDie {
+	r := resourcev1.DeviceDerivedAttribute{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *DeviceDerivedAttributeDie) DieFeedYAMLFile(name string) *DeviceDerivedAttributeDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *DeviceDerivedAttributeDie) DieFeedRawExtension(raw runtime.RawExtension) *DeviceDerivedAttributeDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *DeviceDerivedAttributeDie) DieRelease() resourcev1.DeviceDerivedAttribute {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *DeviceDerivedAttributeDie) DieReleasePtr() *resourcev1.DeviceDerivedAttribute {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *DeviceDerivedAttributeDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *DeviceDerivedAttributeDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *DeviceDerivedAttributeDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *DeviceDerivedAttributeDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *DeviceDerivedAttributeDie) DieStamp(fn func(r *resourcev1.DeviceDerivedAttribute)) *DeviceDerivedAttributeDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *DeviceDerivedAttributeDie) DieStampAt(jp string, fn interface{}) *DeviceDerivedAttributeDie {
+	return d.DieStamp(func(r *resourcev1.DeviceDerivedAttribute) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *DeviceDerivedAttributeDie) DieWith(fns ...func(d *DeviceDerivedAttributeDie)) *DeviceDerivedAttributeDie {
+	nd := DeviceDerivedAttributeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *DeviceDerivedAttributeDie) DeepCopy() *DeviceDerivedAttributeDie {
+	r := *d.r.DeepCopy()
+	return &DeviceDerivedAttributeDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *DeviceDerivedAttributeDie) DieSeal() *DeviceDerivedAttributeDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *DeviceDerivedAttributeDie) DieSealFeed(r resourcev1.DeviceDerivedAttribute) *DeviceDerivedAttributeDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *DeviceDerivedAttributeDie) DieSealFeedPtr(r *resourcev1.DeviceDerivedAttribute) *DeviceDerivedAttributeDie {
+	if r == nil {
+		r = &resourcev1.DeviceDerivedAttribute{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *DeviceDerivedAttributeDie) DieSealRelease() resourcev1.DeviceDerivedAttribute {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *DeviceDerivedAttributeDie) DieSealReleasePtr() *resourcev1.DeviceDerivedAttribute {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *DeviceDerivedAttributeDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *DeviceDerivedAttributeDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// Name is the identifier for this derived attribute, used in constraints.
+//
+// It must be a DNS subdomain followed by a slash ("/") followed by a C identifier
+//
+// (e.g. "example.com/numaNode" or "derived/numaNode").
+//
+// If the chosen name matches an existing physical attribute from a driver,
+//
+// the derived attribute's expression will shadow the physical attribute,
+//
+// and its evaluated value will be used in constraints instead. When the goal
+//
+// is to define a derived attribute that is only used within the ResourceClaim
+//
+// and not meant to shadow an existing attribute, use a domain prefix that
+//
+// no DRA driver should be using (e.g. "derived/myAttribute").
+//
+// It is not valid to define a derived attribute that isn't used in at least
+//
+// one constraint.
+func (d *DeviceDerivedAttributeDie) Name(v resourcev1.FullyQualifiedName) *DeviceDerivedAttributeDie {
+	return d.DieStamp(func(r *resourcev1.DeviceDerivedAttribute) {
+		r.Name = v
+	})
+}
+
+// Expression is a CEL expression evaluated against each candidate device.
+//
+// The expression must evaluate to a primitive scalar (string, integer,
+//
+// boolean, or semver) or a list of these scalars ([]string, []int64,
+//
+// []bool, []semver) to act as a virtual grouping key. Any other return type
+//
+// is an error and causes CEL evaluation for the device to fail.
+//
+// The expression's input is an object named "device", which carries the
+//
+// same properties as in a CELDeviceSelector.
+//
+// # When pod scheduling encounters CEL runtime errors (such as looking
+//
+// up an attribute that isn't defined) for some devices, it will abort
+//
+// allocation and fail scheduling for the Pod. Surfacing evaluation
+//
+// errors immediately prevents silent topology matching failures that are
+//
+// extremely hard to detect. A robust expression should, for example, check
+//
+// for the existence of attributes before referencing them to avoid
+//
+// runtime evaluation errors.
+//
+// # The expression gets evaluated after a device has passed the other
+//
+// selector expressions for the request in which this expression is used.
+//
+// # This allows writing expressions that are tailored towards the specific
+//
+// devices being requested (for example, by assuming the device is from a
+//
+// certain vendor and skipping those checks).
+//
+// The length of the expression must be smaller or equal to 10 Ki. The
+//
+// cost of evaluating it is also limited based on the estimated number
+//
+// of logical steps; the combined cost of all derived attributes in a
+//
+// claim is capped by a shared CEL cost budget.
+func (d *DeviceDerivedAttributeDie) Expression(v string) *DeviceDerivedAttributeDie {
+	return d.DieStamp(func(r *resourcev1.DeviceDerivedAttribute) {
+		r.Expression = v
+	})
 }
 
 var ExactDeviceRequestBlank = (&ExactDeviceRequestDie{}).DieFeed(resourcev1.ExactDeviceRequest{})
@@ -4617,6 +5032,43 @@ func (d *ExactDeviceRequestDie) Tolerations(v ...resourcev1.DeviceToleration) *E
 func (d *ExactDeviceRequestDie) Capacity(v *resourcev1.CapacityRequirements) *ExactDeviceRequestDie {
 	return d.DieStamp(func(r *resourcev1.ExactDeviceRequest) {
 		r.Capacity = v
+	})
+}
+
+// DerivedAttributes defines a set of virtual attributes computed via CEL expressions
+//
+// for each candidate device. These virtual attributes can be referenced in
+//
+// `.devices.constraints` to align and match different devices (e.g., co-allocating
+//
+// a GPU and a NIC on the same NUMA node) even if their drivers publish different
+//
+// attributes. Derived attributes are not available via `device.attributes`
+//
+// in the CEL environment when evaluating selector expressions.
+//
+// # Derived attributes allow you to extract, transform, or normalize topology
+//
+// information (such as extracting a NUMA index from a complex topology string or
+//
+// renaming a vendor-specific attribute) into a common virtual attribute name at
+//
+// scheduling time. The scheduler then evaluates these virtual attributes exactly
+//
+// like static attributes when matching constraints.
+//
+// # Every derived attribute defined in this list must be referenced by at least one
+//
+// MatchAttribute or DistinctAttribute constraint in the `.devices.constraints` list.
+//
+// The maximum number of derived attributes is 32.
+//
+// # This is an alpha field and requires enabling the DRADerivedAttributes
+//
+// feature gate.
+func (d *ExactDeviceRequestDie) DerivedAttributes(v ...resourcev1.DeviceDerivedAttribute) *ExactDeviceRequestDie {
+	return d.DieStamp(func(r *resourcev1.ExactDeviceRequest) {
+		r.DerivedAttributes = v
 	})
 }
 
@@ -7523,6 +7975,21 @@ func (d *DeviceRequestAllocationResultDie) ShareID(v *types.UID) *DeviceRequestA
 	})
 }
 
+// SkipNodeOperations lists node-local resource operations (gRPC calls)
+//
+// that will be skipped for this allocated device when determining whether
+//
+// operations are necessary on the node. If all allocated devices for a driver in
+//
+// a claim skip an operation, that gRPC call will be skipped. It is a copy of
+//
+// the ResourceSlice.spec.skipNodeOperations value at the time when the device was allocated.
+func (d *DeviceRequestAllocationResultDie) SkipNodeOperations(v ...resourcev1.SkipNodeOperation) *DeviceRequestAllocationResultDie {
+	return d.DieStamp(func(r *resourcev1.DeviceRequestAllocationResult) {
+		r.SkipNodeOperations = v
+	})
+}
+
 var DeviceAllocationConfigurationBlank = (&DeviceAllocationConfigurationDie{}).DieFeed(resourcev1.DeviceAllocationConfiguration{})
 
 type DeviceAllocationConfigurationDie struct {
@@ -9505,6 +9972,50 @@ func (d *ResourceSliceSpecDie) SharedCounters(v ...resourcev1.CounterSet) *Resou
 	})
 }
 
+// PartitionTypeAttribute names a string device attribute (by fully
+//
+// qualified name, e.g. "gpu.example.com/profile") whose value labels
+//
+// each device with its partition type, such as "Full" or "Half" for a
+//
+// MIG-style GPU.
+//
+// # When set, every partitionable device in the slice must carry the attribute
+//
+// and devices sharing a value must share the same ConsumesCounters cost.
+func (d *ResourceSliceSpecDie) PartitionTypeAttribute(v *resourcev1.FullyQualifiedName) *ResourceSliceSpecDie {
+	return d.DieStamp(func(r *resourcev1.ResourceSliceSpec) {
+		r.PartitionTypeAttribute = v
+	})
+}
+
+// SkipNodeOperations lists node-local resource operations (gRPC calls)
+//
+// that will be skipped for the devices in this slice when determining whether
+//
+// operations are necessary on the node. If all allocated devices for a driver in
+//
+// a claim skip an operation, that gRPC call will be skipped. Valid values are:
+//
+// - "NodePrepareResources": NodePrepareResources gRPC calls are skipped. This
+//
+// value cannot be specified unless "NodeUnprepareResources" is also listed
+//
+// (or "*" is specified).
+//
+// - "NodeUnprepareResources": NodeUnprepareResources gRPC calls are skipped.
+//
+// - "*": All node-local resource operations are skipped.
+//
+// Other values may be added in the future. The kubelet must ignore unknown
+//
+// values.
+func (d *ResourceSliceSpecDie) SkipNodeOperations(v ...resourcev1.SkipNodeOperation) *ResourceSliceSpecDie {
+	return d.DieStamp(func(r *resourcev1.ResourceSliceSpec) {
+		r.SkipNodeOperations = v
+	})
+}
+
 var ResourcePoolBlank = (&ResourcePoolDie{}).DieFeed(resourcev1.ResourcePool{})
 
 type ResourcePoolDie struct {
@@ -9754,6 +10265,10 @@ func (d *ResourcePoolDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 // Name is used to identify the pool. For node-local devices, this
 //
 // is often the node name, but this is not required.
+//
+// # A field selector can be used to list only ResourceSlice objects
+//
+// belonging to a certain pool.
 //
 // # It must not be longer than 253 characters and must consist of one or more DNS sub-domains
 //
@@ -10886,16 +11401,16 @@ func (d *DeviceCapacityDie) RequestPolicy(v *resourcev1.CapacityRequestPolicy) *
 	})
 }
 
-var NodeAllocatableResourceMappingBlank = (&NodeAllocatableResourceMappingDie{}).DieFeed(resourcev1.NodeAllocatableResourceMapping{})
+var NodeAllocatableResourceBlank = (&NodeAllocatableResourceDie{}).DieFeed(resourcev1.NodeAllocatableResource{})
 
-type NodeAllocatableResourceMappingDie struct {
+type NodeAllocatableResourceDie struct {
 	mutable bool
-	r       resourcev1.NodeAllocatableResourceMapping
-	seal    resourcev1.NodeAllocatableResourceMapping
+	r       resourcev1.NodeAllocatableResource
+	seal    resourcev1.NodeAllocatableResource
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-func (d *NodeAllocatableResourceMappingDie) DieImmutable(immutable bool) *NodeAllocatableResourceMappingDie {
+func (d *NodeAllocatableResourceDie) DieImmutable(immutable bool) *NodeAllocatableResourceDie {
 	if d.mutable == !immutable {
 		return d
 	}
@@ -10905,12 +11420,12 @@ func (d *NodeAllocatableResourceMappingDie) DieImmutable(immutable bool) *NodeAl
 }
 
 // DieFeed returns a new die with the provided resource.
-func (d *NodeAllocatableResourceMappingDie) DieFeed(r resourcev1.NodeAllocatableResourceMapping) *NodeAllocatableResourceMappingDie {
+func (d *NodeAllocatableResourceDie) DieFeed(r resourcev1.NodeAllocatableResource) *NodeAllocatableResourceDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &NodeAllocatableResourceMappingDie{
+	return &NodeAllocatableResourceDie{
 		mutable: d.mutable,
 		r:       r,
 		seal:    d.seal,
@@ -10918,15 +11433,15 @@ func (d *NodeAllocatableResourceMappingDie) DieFeed(r resourcev1.NodeAllocatable
 }
 
 // DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-func (d *NodeAllocatableResourceMappingDie) DieFeedPtr(r *resourcev1.NodeAllocatableResourceMapping) *NodeAllocatableResourceMappingDie {
+func (d *NodeAllocatableResourceDie) DieFeedPtr(r *resourcev1.NodeAllocatableResource) *NodeAllocatableResourceDie {
 	if r == nil {
-		r = &resourcev1.NodeAllocatableResourceMapping{}
+		r = &resourcev1.NodeAllocatableResource{}
 	}
 	return d.DieFeed(*r)
 }
 
 // DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
-func (d *NodeAllocatableResourceMappingDie) DieFeedDuck(v any) *NodeAllocatableResourceMappingDie {
+func (d *NodeAllocatableResourceDie) DieFeedDuck(v any) *NodeAllocatableResourceDie {
 	data, err := json.Marshal(v)
 	if err != nil {
 		panic(err)
@@ -10935,8 +11450,8 @@ func (d *NodeAllocatableResourceMappingDie) DieFeedDuck(v any) *NodeAllocatableR
 }
 
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
-func (d *NodeAllocatableResourceMappingDie) DieFeedJSON(j []byte) *NodeAllocatableResourceMappingDie {
-	r := resourcev1.NodeAllocatableResourceMapping{}
+func (d *NodeAllocatableResourceDie) DieFeedJSON(j []byte) *NodeAllocatableResourceDie {
+	r := resourcev1.NodeAllocatableResource{}
 	if err := json.Unmarshal(j, &r); err != nil {
 		panic(err)
 	}
@@ -10944,8 +11459,8 @@ func (d *NodeAllocatableResourceMappingDie) DieFeedJSON(j []byte) *NodeAllocatab
 }
 
 // DieFeedYAML returns a new die with the provided YAML. Panics on error.
-func (d *NodeAllocatableResourceMappingDie) DieFeedYAML(y []byte) *NodeAllocatableResourceMappingDie {
-	r := resourcev1.NodeAllocatableResourceMapping{}
+func (d *NodeAllocatableResourceDie) DieFeedYAML(y []byte) *NodeAllocatableResourceDie {
+	r := resourcev1.NodeAllocatableResource{}
 	if err := yaml.Unmarshal(y, &r); err != nil {
 		panic(err)
 	}
@@ -10953,7 +11468,7 @@ func (d *NodeAllocatableResourceMappingDie) DieFeedYAML(y []byte) *NodeAllocatab
 }
 
 // DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
-func (d *NodeAllocatableResourceMappingDie) DieFeedYAMLFile(name string) *NodeAllocatableResourceMappingDie {
+func (d *NodeAllocatableResourceDie) DieFeedYAMLFile(name string) *NodeAllocatableResourceDie {
 	y, err := osx.ReadFile(name)
 	if err != nil {
 		panic(err)
@@ -10962,7 +11477,7 @@ func (d *NodeAllocatableResourceMappingDie) DieFeedYAMLFile(name string) *NodeAl
 }
 
 // DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *NodeAllocatableResourceMappingDie) DieFeedRawExtension(raw runtime.RawExtension) *NodeAllocatableResourceMappingDie {
+func (d *NodeAllocatableResourceDie) DieFeedRawExtension(raw runtime.RawExtension) *NodeAllocatableResourceDie {
 	j, err := json.Marshal(raw)
 	if err != nil {
 		panic(err)
@@ -10971,7 +11486,7 @@ func (d *NodeAllocatableResourceMappingDie) DieFeedRawExtension(raw runtime.RawE
 }
 
 // DieRelease returns the resource managed by the die.
-func (d *NodeAllocatableResourceMappingDie) DieRelease() resourcev1.NodeAllocatableResourceMapping {
+func (d *NodeAllocatableResourceDie) DieRelease() resourcev1.NodeAllocatableResource {
 	if d.mutable {
 		return d.r
 	}
@@ -10979,13 +11494,13 @@ func (d *NodeAllocatableResourceMappingDie) DieRelease() resourcev1.NodeAllocata
 }
 
 // DieReleasePtr returns a pointer to the resource managed by the die.
-func (d *NodeAllocatableResourceMappingDie) DieReleasePtr() *resourcev1.NodeAllocatableResourceMapping {
+func (d *NodeAllocatableResourceDie) DieReleasePtr() *resourcev1.NodeAllocatableResource {
 	r := d.DieRelease()
 	return &r
 }
 
 // DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
-func (d *NodeAllocatableResourceMappingDie) DieReleaseDuck(v any) any {
+func (d *NodeAllocatableResourceDie) DieReleaseDuck(v any) any {
 	data := d.DieReleaseJSON()
 	if err := json.Unmarshal(data, v); err != nil {
 		panic(err)
@@ -10994,7 +11509,7 @@ func (d *NodeAllocatableResourceMappingDie) DieReleaseDuck(v any) any {
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
-func (d *NodeAllocatableResourceMappingDie) DieReleaseJSON() []byte {
+func (d *NodeAllocatableResourceDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
 	j, err := json.Marshal(r)
 	if err != nil {
@@ -11004,7 +11519,7 @@ func (d *NodeAllocatableResourceMappingDie) DieReleaseJSON() []byte {
 }
 
 // DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
-func (d *NodeAllocatableResourceMappingDie) DieReleaseYAML() []byte {
+func (d *NodeAllocatableResourceDie) DieReleaseYAML() []byte {
 	r := d.DieReleasePtr()
 	y, err := yaml.Marshal(r)
 	if err != nil {
@@ -11014,7 +11529,7 @@ func (d *NodeAllocatableResourceMappingDie) DieReleaseYAML() []byte {
 }
 
 // DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *NodeAllocatableResourceMappingDie) DieReleaseRawExtension() runtime.RawExtension {
+func (d *NodeAllocatableResourceDie) DieReleaseRawExtension() runtime.RawExtension {
 	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
 	if err := json.Unmarshal(j, &raw); err != nil {
@@ -11024,7 +11539,7 @@ func (d *NodeAllocatableResourceMappingDie) DieReleaseRawExtension() runtime.Raw
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-func (d *NodeAllocatableResourceMappingDie) DieStamp(fn func(r *resourcev1.NodeAllocatableResourceMapping)) *NodeAllocatableResourceMappingDie {
+func (d *NodeAllocatableResourceDie) DieStamp(fn func(r *resourcev1.NodeAllocatableResource)) *NodeAllocatableResourceDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
@@ -11033,8 +11548,8 @@ func (d *NodeAllocatableResourceMappingDie) DieStamp(fn func(r *resourcev1.NodeA
 // Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
-func (d *NodeAllocatableResourceMappingDie) DieStampAt(jp string, fn interface{}) *NodeAllocatableResourceMappingDie {
-	return d.DieStamp(func(r *resourcev1.NodeAllocatableResourceMapping) {
+func (d *NodeAllocatableResourceDie) DieStampAt(jp string, fn interface{}) *NodeAllocatableResourceDie {
+	return d.DieStamp(func(r *resourcev1.NodeAllocatableResource) {
 		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
 			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
 		}
@@ -11069,8 +11584,8 @@ func (d *NodeAllocatableResourceMappingDie) DieStampAt(jp string, fn interface{}
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *NodeAllocatableResourceMappingDie) DieWith(fns ...func(d *NodeAllocatableResourceMappingDie)) *NodeAllocatableResourceMappingDie {
-	nd := NodeAllocatableResourceMappingBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+func (d *NodeAllocatableResourceDie) DieWith(fns ...func(d *NodeAllocatableResourceDie)) *NodeAllocatableResourceDie {
+	nd := NodeAllocatableResourceBlank.DieFeed(d.DieRelease()).DieImmutable(false)
 	for _, fn := range fns {
 		if fn != nil {
 			fn(nd)
@@ -11080,9 +11595,9 @@ func (d *NodeAllocatableResourceMappingDie) DieWith(fns ...func(d *NodeAllocatab
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-func (d *NodeAllocatableResourceMappingDie) DeepCopy() *NodeAllocatableResourceMappingDie {
+func (d *NodeAllocatableResourceDie) DeepCopy() *NodeAllocatableResourceDie {
 	r := *d.r.DeepCopy()
-	return &NodeAllocatableResourceMappingDie{
+	return &NodeAllocatableResourceDie{
 		mutable: d.mutable,
 		r:       r,
 		seal:    d.seal,
@@ -11090,12 +11605,12 @@ func (d *NodeAllocatableResourceMappingDie) DeepCopy() *NodeAllocatableResourceM
 }
 
 // DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
-func (d *NodeAllocatableResourceMappingDie) DieSeal() *NodeAllocatableResourceMappingDie {
+func (d *NodeAllocatableResourceDie) DieSeal() *NodeAllocatableResourceDie {
 	return d.DieSealFeed(d.r)
 }
 
 // DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
-func (d *NodeAllocatableResourceMappingDie) DieSealFeed(r resourcev1.NodeAllocatableResourceMapping) *NodeAllocatableResourceMappingDie {
+func (d *NodeAllocatableResourceDie) DieSealFeed(r resourcev1.NodeAllocatableResource) *NodeAllocatableResourceDie {
 	if !d.mutable {
 		d = d.DeepCopy()
 	}
@@ -11104,31 +11619,357 @@ func (d *NodeAllocatableResourceMappingDie) DieSealFeed(r resourcev1.NodeAllocat
 }
 
 // DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
-func (d *NodeAllocatableResourceMappingDie) DieSealFeedPtr(r *resourcev1.NodeAllocatableResourceMapping) *NodeAllocatableResourceMappingDie {
+func (d *NodeAllocatableResourceDie) DieSealFeedPtr(r *resourcev1.NodeAllocatableResource) *NodeAllocatableResourceDie {
 	if r == nil {
-		r = &resourcev1.NodeAllocatableResourceMapping{}
+		r = &resourcev1.NodeAllocatableResource{}
 	}
 	return d.DieSealFeed(*r)
 }
 
 // DieSealRelease returns the sealed resource managed by the die.
-func (d *NodeAllocatableResourceMappingDie) DieSealRelease() resourcev1.NodeAllocatableResourceMapping {
+func (d *NodeAllocatableResourceDie) DieSealRelease() resourcev1.NodeAllocatableResource {
 	return *d.seal.DeepCopy()
 }
 
 // DieSealReleasePtr returns the sealed resource pointer managed by the die.
-func (d *NodeAllocatableResourceMappingDie) DieSealReleasePtr() *resourcev1.NodeAllocatableResourceMapping {
+func (d *NodeAllocatableResourceDie) DieSealReleasePtr() *resourcev1.NodeAllocatableResource {
 	r := d.DieSealRelease()
 	return &r
 }
 
 // DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
-func (d *NodeAllocatableResourceMappingDie) DieDiff(opts ...cmp.Option) string {
+func (d *NodeAllocatableResourceDie) DieDiff(opts ...cmp.Option) string {
 	return cmp.Diff(d.seal, d.r, opts...)
 }
 
 // DiePatch generates a patch between the current value of the die and the sealed value.
-func (d *NodeAllocatableResourceMappingDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+func (d *NodeAllocatableResourceDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// MappingDie mutates Mapping as a die.
+//
+// # Mapping is used when the device directly models a node allocatable resource like standard CPU or memory
+//
+// (e.g., with a CPU DRA driver). The calculated quantity is accounted for exactly once per claim instance
+//
+// on the node. To prevent node cgroup isolation friction, the scheduler explicitly
+//
+// blocks sharing mapped device claims across multiple pods.
+func (d *NodeAllocatableResourceDie) MappingDie(fn func(d *NodeAllocatableMappingDie)) *NodeAllocatableResourceDie {
+	return d.DieStamp(func(r *resourcev1.NodeAllocatableResource) {
+		d := NodeAllocatableMappingBlank.DieImmutable(false).DieFeedPtr(r.Mapping)
+		fn(d)
+		r.Mapping = d.DieReleasePtr()
+	})
+}
+
+// OverheadDie mutates Overhead as a die.
+//
+// # Overhead contains fields for modeling auxiliary overhead incurred on node allocatable resources
+//
+// when allocating devices that are not themselves modeling a node allocatable resource (e.g., host memory overhead for GPUs).
+//
+// Sharing overhead-mapped claims across multiple pods is allowed. The node allocatable overhead is accounted
+//
+// for individually for each pod referencing the claim.
+//
+// # Overhead is always subtracted from the node's allocatable capacity for the resource, even when mapping
+//
+// is specified for the same resource.
+//
+// Eg: If a device models memory capacity per socket as a consumable capacity pool via Mapping (with CapacityKey),
+//
+// any overhead specified for the same resource will be subtracted from the node's general allocatable capacity
+//
+// and not from the per-socket capacity pool in Mapping.
+func (d *NodeAllocatableResourceDie) OverheadDie(fn func(d *NodeAllocatableOverheadDie)) *NodeAllocatableResourceDie {
+	return d.DieStamp(func(r *resourcev1.NodeAllocatableResource) {
+		d := NodeAllocatableOverheadBlank.DieImmutable(false).DieFeedPtr(r.Overhead)
+		fn(d)
+		r.Overhead = d.DieReleasePtr()
+	})
+}
+
+// Mapping is used when the device directly models a node allocatable resource like standard CPU or memory
+//
+// (e.g., with a CPU DRA driver). The calculated quantity is accounted for exactly once per claim instance
+//
+// on the node. To prevent node cgroup isolation friction, the scheduler explicitly
+//
+// blocks sharing mapped device claims across multiple pods.
+func (d *NodeAllocatableResourceDie) Mapping(v *resourcev1.NodeAllocatableMapping) *NodeAllocatableResourceDie {
+	return d.DieStamp(func(r *resourcev1.NodeAllocatableResource) {
+		r.Mapping = v
+	})
+}
+
+// Overhead contains fields for modeling auxiliary overhead incurred on node allocatable resources
+//
+// when allocating devices that are not themselves modeling a node allocatable resource (e.g., host memory overhead for GPUs).
+//
+// Sharing overhead-mapped claims across multiple pods is allowed. The node allocatable overhead is accounted
+//
+// for individually for each pod referencing the claim.
+//
+// # Overhead is always subtracted from the node's allocatable capacity for the resource, even when mapping
+//
+// is specified for the same resource.
+//
+// Eg: If a device models memory capacity per socket as a consumable capacity pool via Mapping (with CapacityKey),
+//
+// any overhead specified for the same resource will be subtracted from the node's general allocatable capacity
+//
+// and not from the per-socket capacity pool in Mapping.
+func (d *NodeAllocatableResourceDie) Overhead(v *resourcev1.NodeAllocatableOverhead) *NodeAllocatableResourceDie {
+	return d.DieStamp(func(r *resourcev1.NodeAllocatableResource) {
+		r.Overhead = v
+	})
+}
+
+var NodeAllocatableMappingBlank = (&NodeAllocatableMappingDie{}).DieFeed(resourcev1.NodeAllocatableMapping{})
+
+type NodeAllocatableMappingDie struct {
+	mutable bool
+	r       resourcev1.NodeAllocatableMapping
+	seal    resourcev1.NodeAllocatableMapping
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *NodeAllocatableMappingDie) DieImmutable(immutable bool) *NodeAllocatableMappingDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *NodeAllocatableMappingDie) DieFeed(r resourcev1.NodeAllocatableMapping) *NodeAllocatableMappingDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &NodeAllocatableMappingDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *NodeAllocatableMappingDie) DieFeedPtr(r *resourcev1.NodeAllocatableMapping) *NodeAllocatableMappingDie {
+	if r == nil {
+		r = &resourcev1.NodeAllocatableMapping{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *NodeAllocatableMappingDie) DieFeedDuck(v any) *NodeAllocatableMappingDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *NodeAllocatableMappingDie) DieFeedJSON(j []byte) *NodeAllocatableMappingDie {
+	r := resourcev1.NodeAllocatableMapping{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *NodeAllocatableMappingDie) DieFeedYAML(y []byte) *NodeAllocatableMappingDie {
+	r := resourcev1.NodeAllocatableMapping{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *NodeAllocatableMappingDie) DieFeedYAMLFile(name string) *NodeAllocatableMappingDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NodeAllocatableMappingDie) DieFeedRawExtension(raw runtime.RawExtension) *NodeAllocatableMappingDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *NodeAllocatableMappingDie) DieRelease() resourcev1.NodeAllocatableMapping {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *NodeAllocatableMappingDie) DieReleasePtr() *resourcev1.NodeAllocatableMapping {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *NodeAllocatableMappingDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *NodeAllocatableMappingDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *NodeAllocatableMappingDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NodeAllocatableMappingDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *NodeAllocatableMappingDie) DieStamp(fn func(r *resourcev1.NodeAllocatableMapping)) *NodeAllocatableMappingDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *NodeAllocatableMappingDie) DieStampAt(jp string, fn interface{}) *NodeAllocatableMappingDie {
+	return d.DieStamp(func(r *resourcev1.NodeAllocatableMapping) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeAllocatableMappingDie) DieWith(fns ...func(d *NodeAllocatableMappingDie)) *NodeAllocatableMappingDie {
+	nd := NodeAllocatableMappingBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *NodeAllocatableMappingDie) DeepCopy() *NodeAllocatableMappingDie {
+	r := *d.r.DeepCopy()
+	return &NodeAllocatableMappingDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *NodeAllocatableMappingDie) DieSeal() *NodeAllocatableMappingDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *NodeAllocatableMappingDie) DieSealFeed(r resourcev1.NodeAllocatableMapping) *NodeAllocatableMappingDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *NodeAllocatableMappingDie) DieSealFeedPtr(r *resourcev1.NodeAllocatableMapping) *NodeAllocatableMappingDie {
+	if r == nil {
+		r = &resourcev1.NodeAllocatableMapping{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *NodeAllocatableMappingDie) DieSealRelease() resourcev1.NodeAllocatableMapping {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *NodeAllocatableMappingDie) DieSealReleasePtr() *resourcev1.NodeAllocatableMapping {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *NodeAllocatableMappingDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *NodeAllocatableMappingDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
@@ -11140,7 +11981,7 @@ func (d *NodeAllocatableResourceMappingDie) DiePatch(patchType types.PatchType) 
 //
 // (for a specific claim allocation) determines the base quantity for
 //
-// the node allocatable resource. If `allocationMultiplier` is also set, it is
+// the node allocatable resource. `capacityMultiplier` must also be set and is
 //
 // multiplied with the base quantity.
 //
@@ -11150,88 +11991,399 @@ func (d *NodeAllocatableResourceMappingDie) DiePatch(patchType types.PatchType) 
 //
 // that consumes { "dra.example.com/memory": "4Gi" } the base quantity for the
 //
-// node allocatable resource mapping will be "4Gi", and `allocationMultiplier` should
+// node allocatable resource mapping will be "4Gi".
 //
-// be omitted or set to "1".
-func (d *NodeAllocatableResourceMappingDie) CapacityKey(v *resourcev1.QualifiedName) *NodeAllocatableResourceMappingDie {
-	return d.DieStamp(func(r *resourcev1.NodeAllocatableResourceMapping) {
+// The final node allocatable resource amount is `consumedCapacity[capacityKey]` * `capacityMultiplier`.
+func (d *NodeAllocatableMappingDie) CapacityKey(v *resourcev1.QualifiedName) *NodeAllocatableMappingDie {
+	return d.DieStamp(func(r *resourcev1.NodeAllocatableMapping) {
 		r.CapacityKey = v
 	})
 }
 
-// AllocationMultiplier is used as a multiplier for the allocated device count or the allocated capacity in the claim.
+// CapacityMultiplier is used as a multiplier for the allocated capacity consumed.
 //
-// It defaults to 1 if not specified. How the field is used also depends on whether `capacityKey` is set.
+// It is only valid if `capacityKey` is set.
 //
-// 1.  If `capacityKey` is NOT set: `allocationMultiplier` multiplies the device count allocated to the claim.
-//
-// a. A DRA driver representing each CPU core as a device would have
-//
-// {ResourceName: "cpu", allocationMultiplier: "2"} in its
-//
-// `nodeAllocatableResourceMappings`. If 4 devices are allocated to the claim,
-//
-// 4 * 2 CPUs would be considered as allocated and subtracted from the node's capacity.
-//
-// b. A GPU device that needs additional node memory per GPU allocation would
-//
-// have {ResourceName: "memory", allocationMultiplier: "2Gi"}.  Each allocated
-//
-// GPU device instance of this type will account for 2Gi of memory.
-//
-// 2.  If `capacityKey` IS set: `allocationMultiplier` is multiplied by the amount of that capacity consumed.
-//
-// The final node allocatable resource amount is `consumedCapacity[capacityKey]` * `allocationMultiplier`.
+// The final node allocatable resource amount is `consumedCapacity[capacityKey]` * `capacityMultiplier`.
 //
 // For example, if a Device's capacity "dra.example.com/cores" is consumed,
 //
 // and each "core" provides 2 "cpu"s, the mapping would be:
 //
-// {ResourceName: "cpu", capacityKey: "dra.example.com/cores", allocationMultiplier: "2"}.
+// {ResourceName: "cpu", capacityKey: "dra.example.com/cores", capacityMultiplier: "2"}.
 //
 // If a claim consumes 8 "dra.example.com/cores", the CPU footprint is 8 * 2 = 16.
-func (d *NodeAllocatableResourceMappingDie) AllocationMultiplier(v *resource.Quantity) *NodeAllocatableResourceMappingDie {
-	return d.DieStamp(func(r *resourcev1.NodeAllocatableResourceMapping) {
-		r.AllocationMultiplier = v
+func (d *NodeAllocatableMappingDie) CapacityMultiplier(v *resource.Quantity) *NodeAllocatableMappingDie {
+	return d.DieStamp(func(r *resourcev1.NodeAllocatableMapping) {
+		r.CapacityMultiplier = v
 	})
 }
 
-// AllocationMultiplierString sets AllocationMultiplier by parsing the string as a Quantity. Panics if the string is not parsable.
+// CapacityMultiplierString sets CapacityMultiplier by parsing the string as a Quantity. Panics if the string is not parsable.
 //
-// AllocationMultiplier is used as a multiplier for the allocated device count or the allocated capacity in the claim.
+// CapacityMultiplier is used as a multiplier for the allocated capacity consumed.
 //
-// It defaults to 1 if not specified. How the field is used also depends on whether `capacityKey` is set.
+// It is only valid if `capacityKey` is set.
 //
-// 1.  If `capacityKey` is NOT set: `allocationMultiplier` multiplies the device count allocated to the claim.
-//
-// a. A DRA driver representing each CPU core as a device would have
-//
-// {ResourceName: "cpu", allocationMultiplier: "2"} in its
-//
-// `nodeAllocatableResourceMappings`. If 4 devices are allocated to the claim,
-//
-// 4 * 2 CPUs would be considered as allocated and subtracted from the node's capacity.
-//
-// b. A GPU device that needs additional node memory per GPU allocation would
-//
-// have {ResourceName: "memory", allocationMultiplier: "2Gi"}.  Each allocated
-//
-// GPU device instance of this type will account for 2Gi of memory.
-//
-// 2.  If `capacityKey` IS set: `allocationMultiplier` is multiplied by the amount of that capacity consumed.
-//
-// The final node allocatable resource amount is `consumedCapacity[capacityKey]` * `allocationMultiplier`.
+// The final node allocatable resource amount is `consumedCapacity[capacityKey]` * `capacityMultiplier`.
 //
 // For example, if a Device's capacity "dra.example.com/cores" is consumed,
 //
 // and each "core" provides 2 "cpu"s, the mapping would be:
 //
-// {ResourceName: "cpu", capacityKey: "dra.example.com/cores", allocationMultiplier: "2"}.
+// {ResourceName: "cpu", capacityKey: "dra.example.com/cores", capacityMultiplier: "2"}.
 //
 // If a claim consumes 8 "dra.example.com/cores", the CPU footprint is 8 * 2 = 16.
-func (d *NodeAllocatableResourceMappingDie) AllocationMultiplierString(s string) *NodeAllocatableResourceMappingDie {
+func (d *NodeAllocatableMappingDie) CapacityMultiplierString(s string) *NodeAllocatableMappingDie {
 	q := resource.MustParse(s)
-	return d.AllocationMultiplier(&q)
+	return d.CapacityMultiplier(&q)
+}
+
+// DeviceMultiplier is used as a multiplier for the allocated device count in the claim.
+//
+// The final node allocatable resource amount is `deviceCount` * `deviceMultiplier`.
+//
+// # For example, a DRA driver representing each cache complex (CCX) as a device would have
+//
+// {ResourceName: "cpu", deviceMultiplier: "8"} in its `nodeAllocatableResources`.
+//
+// If 2 devices (CCX) are allocated to the claim, 2 * 8 = 16 CPUs would be considered as allocated.
+//
+// It is only valid when `capacityKey` and `capacityMultiplier` are not set.
+func (d *NodeAllocatableMappingDie) DeviceMultiplier(v *resource.Quantity) *NodeAllocatableMappingDie {
+	return d.DieStamp(func(r *resourcev1.NodeAllocatableMapping) {
+		r.DeviceMultiplier = v
+	})
+}
+
+// DeviceMultiplierString sets DeviceMultiplier by parsing the string as a Quantity. Panics if the string is not parsable.
+//
+// DeviceMultiplier is used as a multiplier for the allocated device count in the claim.
+//
+// The final node allocatable resource amount is `deviceCount` * `deviceMultiplier`.
+//
+// # For example, a DRA driver representing each cache complex (CCX) as a device would have
+//
+// {ResourceName: "cpu", deviceMultiplier: "8"} in its `nodeAllocatableResources`.
+//
+// If 2 devices (CCX) are allocated to the claim, 2 * 8 = 16 CPUs would be considered as allocated.
+//
+// It is only valid when `capacityKey` and `capacityMultiplier` are not set.
+func (d *NodeAllocatableMappingDie) DeviceMultiplierString(s string) *NodeAllocatableMappingDie {
+	q := resource.MustParse(s)
+	return d.DeviceMultiplier(&q)
+}
+
+var NodeAllocatableOverheadBlank = (&NodeAllocatableOverheadDie{}).DieFeed(resourcev1.NodeAllocatableOverhead{})
+
+type NodeAllocatableOverheadDie struct {
+	mutable bool
+	r       resourcev1.NodeAllocatableOverhead
+	seal    resourcev1.NodeAllocatableOverhead
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *NodeAllocatableOverheadDie) DieImmutable(immutable bool) *NodeAllocatableOverheadDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *NodeAllocatableOverheadDie) DieFeed(r resourcev1.NodeAllocatableOverhead) *NodeAllocatableOverheadDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &NodeAllocatableOverheadDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *NodeAllocatableOverheadDie) DieFeedPtr(r *resourcev1.NodeAllocatableOverhead) *NodeAllocatableOverheadDie {
+	if r == nil {
+		r = &resourcev1.NodeAllocatableOverhead{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *NodeAllocatableOverheadDie) DieFeedDuck(v any) *NodeAllocatableOverheadDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *NodeAllocatableOverheadDie) DieFeedJSON(j []byte) *NodeAllocatableOverheadDie {
+	r := resourcev1.NodeAllocatableOverhead{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *NodeAllocatableOverheadDie) DieFeedYAML(y []byte) *NodeAllocatableOverheadDie {
+	r := resourcev1.NodeAllocatableOverhead{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *NodeAllocatableOverheadDie) DieFeedYAMLFile(name string) *NodeAllocatableOverheadDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NodeAllocatableOverheadDie) DieFeedRawExtension(raw runtime.RawExtension) *NodeAllocatableOverheadDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *NodeAllocatableOverheadDie) DieRelease() resourcev1.NodeAllocatableOverhead {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *NodeAllocatableOverheadDie) DieReleasePtr() *resourcev1.NodeAllocatableOverhead {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *NodeAllocatableOverheadDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *NodeAllocatableOverheadDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *NodeAllocatableOverheadDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NodeAllocatableOverheadDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *NodeAllocatableOverheadDie) DieStamp(fn func(r *resourcev1.NodeAllocatableOverhead)) *NodeAllocatableOverheadDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *NodeAllocatableOverheadDie) DieStampAt(jp string, fn interface{}) *NodeAllocatableOverheadDie {
+	return d.DieStamp(func(r *resourcev1.NodeAllocatableOverhead) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeAllocatableOverheadDie) DieWith(fns ...func(d *NodeAllocatableOverheadDie)) *NodeAllocatableOverheadDie {
+	nd := NodeAllocatableOverheadBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *NodeAllocatableOverheadDie) DeepCopy() *NodeAllocatableOverheadDie {
+	r := *d.r.DeepCopy()
+	return &NodeAllocatableOverheadDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *NodeAllocatableOverheadDie) DieSeal() *NodeAllocatableOverheadDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *NodeAllocatableOverheadDie) DieSealFeed(r resourcev1.NodeAllocatableOverhead) *NodeAllocatableOverheadDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *NodeAllocatableOverheadDie) DieSealFeedPtr(r *resourcev1.NodeAllocatableOverhead) *NodeAllocatableOverheadDie {
+	if r == nil {
+		r = &resourcev1.NodeAllocatableOverhead{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *NodeAllocatableOverheadDie) DieSealRelease() resourcev1.NodeAllocatableOverhead {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *NodeAllocatableOverheadDie) DieSealReleasePtr() *resourcev1.NodeAllocatableOverhead {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *NodeAllocatableOverheadDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *NodeAllocatableOverheadDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// PerPod is overhead applied once per pod referencing the claim on this node.
+//
+// This is a flat overhead incurred for every pod referencing the claim.
+func (d *NodeAllocatableOverheadDie) PerPod(v *resource.Quantity) *NodeAllocatableOverheadDie {
+	return d.DieStamp(func(r *resourcev1.NodeAllocatableOverhead) {
+		r.PerPod = v
+	})
+}
+
+// PerPodString sets PerPod by parsing the string as a Quantity. Panics if the string is not parsable.
+//
+// PerPod is overhead applied once per pod referencing the claim on this node.
+//
+// This is a flat overhead incurred for every pod referencing the claim.
+func (d *NodeAllocatableOverheadDie) PerPodString(s string) *NodeAllocatableOverheadDie {
+	q := resource.MustParse(s)
+	return d.PerPod(&q)
+}
+
+// PerContainer is applied per container reference to the claim.
+//
+// This models overhead scaling linearly with the number of containers actively using the device.
+//
+// # When both PerPod and PerContainer are specified, the total overhead allocated for each pod referencing
+//
+// the claim is computed as:
+//
+// Quantity = PerPod + (PerContainer * NumReferences)
+//
+// Kubelet accounts for this overhead in cgroups:
+//
+// - Pod-level cgroup (requests and limits): Kubelet adds PerPod + (PerContainer * NumReferences).
+//
+// - Container-level cgroup (limits only): Kubelet adds PerPod + PerContainer for each referencing container.
+//
+// This allows any single container to access the pod-level overhead, while the parent cgroup caps the total usage to account for PerPod exactly once.
+func (d *NodeAllocatableOverheadDie) PerContainer(v *resource.Quantity) *NodeAllocatableOverheadDie {
+	return d.DieStamp(func(r *resourcev1.NodeAllocatableOverhead) {
+		r.PerContainer = v
+	})
+}
+
+// PerContainerString sets PerContainer by parsing the string as a Quantity. Panics if the string is not parsable.
+//
+// PerContainer is applied per container reference to the claim.
+//
+// This models overhead scaling linearly with the number of containers actively using the device.
+//
+// # When both PerPod and PerContainer are specified, the total overhead allocated for each pod referencing
+//
+// the claim is computed as:
+//
+// Quantity = PerPod + (PerContainer * NumReferences)
+//
+// Kubelet accounts for this overhead in cgroups:
+//
+// - Pod-level cgroup (requests and limits): Kubelet adds PerPod + (PerContainer * NumReferences).
+//
+// - Container-level cgroup (limits only): Kubelet adds PerPod + PerContainer for each referencing container.
+//
+// This allows any single container to access the pod-level overhead, while the parent cgroup caps the total usage to account for PerPod exactly once.
+func (d *NodeAllocatableOverheadDie) PerContainerString(s string) *NodeAllocatableOverheadDie {
+	q := resource.MustParse(s)
+	return d.PerContainer(&q)
 }
 
 var CapacityRequestPolicyBlank = (&CapacityRequestPolicyDie{}).DieFeed(resourcev1.CapacityRequestPolicy{})
@@ -12133,6 +13285,41 @@ func (d *DeviceCounterConsumptionDie) DiePatch(patchType types.PatchType) ([]byt
 func (d *DeviceCounterConsumptionDie) CounterSet(v string) *DeviceCounterConsumptionDie {
 	return d.DieStamp(func(r *resourcev1.DeviceCounterConsumption) {
 		r.CounterSet = v
+	})
+}
+
+// CompatibilityGroups is a list of opaque group names for
+//
+// this counter set consumption.
+//
+// # Devices that consume counters from the same counter set may only be
+//
+// allocated at the same time ("co-allocated") if they all share at least
+//
+// one common group: the intersection of the CompatibilityGroups of all
+//
+// co-allocated devices on that counter set must be non-empty. Devices
+//
+// that consume from different counter sets are never compared via this
+//
+// field.
+//
+// # An unset field, an explicit nil, and an empty list are equivalent and
+//
+// mean "no groups": such a device is only co-allocatable with sibling
+//
+// devices on the same counter set that also have no groups, and is never
+//
+// co-allocatable with a device that declares one or more groups.
+//
+// # Group names are opaque and meaningful only within the
+//
+// publishing driver's pool.
+//
+// The maximum number of groups is 2, and the names must be unique.
+func (d *DeviceCounterConsumptionDie) CompatibilityGroups(v ...string) *DeviceCounterConsumptionDie {
+	return d.DieStamp(func(r *resourcev1.DeviceCounterConsumption) {
+		r.CompatibilityGroups = v
 	})
 }
 

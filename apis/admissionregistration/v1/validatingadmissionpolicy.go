@@ -32,68 +32,11 @@ type _ = admissionregistrationv1.ValidatingAdmissionPolicy
 // +die:field:name=Variables,die=VariableDie,listType=map
 type _ = admissionregistrationv1.ValidatingAdmissionPolicySpec
 
-// deprecated: use VariableDie instead
-func (d *ValidatingAdmissionPolicySpecDie) VariablesDie(name string, fn func(d *VariableDie)) *ValidatingAdmissionPolicySpecDie {
-	return d.VariableDie(name, fn)
-}
-
-// +die
-type _ = admissionregistrationv1.ParamKind
-
-// +die
-// +die:field:name=NamespaceSelector,package=_/meta/v1,die=LabelSelectorDie,pointer=true
-// +die:field:name=ObjectSelector,package=_/meta/v1,die=LabelSelectorDie,pointer=true
-// +die:field:name=ResourceRules,die=NamedRuleWithOperationsDie,listType=atomic
-// +die:field:name=ExcludeResourceRules,die=NamedRuleWithOperationsDie,listType=atomic
-type _ = admissionregistrationv1.MatchResources
-
-// +die
-type _ = admissionregistrationv1.NamedRuleWithOperations
-
-func (d *NamedRuleWithOperationsDie) Operations(v ...admissionregistrationv1.OperationType) *NamedRuleWithOperationsDie {
-	return d.DieStamp(func(r *admissionregistrationv1.NamedRuleWithOperations) {
-		r.Operations = v
-	})
-}
-
-func (d *NamedRuleWithOperationsDie) Rule(v admissionregistrationv1.Rule) *NamedRuleWithOperationsDie {
-	return d.DieStamp(func(r *admissionregistrationv1.NamedRuleWithOperations) {
-		r.Rule = v
-	})
-}
-
-func (d *NamedRuleWithOperationsDie) APIGroups(v ...string) *NamedRuleWithOperationsDie {
-	return d.DieStamp(func(r *admissionregistrationv1.NamedRuleWithOperations) {
-		r.APIGroups = v
-	})
-}
-
-func (d *NamedRuleWithOperationsDie) APIVersions(v ...string) *NamedRuleWithOperationsDie {
-	return d.DieStamp(func(r *admissionregistrationv1.NamedRuleWithOperations) {
-		r.APIVersions = v
-	})
-}
-
-func (d *NamedRuleWithOperationsDie) Resources(v ...string) *NamedRuleWithOperationsDie {
-	return d.DieStamp(func(r *admissionregistrationv1.NamedRuleWithOperations) {
-		r.Resources = v
-	})
-}
-
-func (d *NamedRuleWithOperationsDie) Scope(v *admissionregistrationv1.ScopeType) *NamedRuleWithOperationsDie {
-	return d.DieStamp(func(r *admissionregistrationv1.NamedRuleWithOperations) {
-		r.Scope = v
-	})
-}
-
 // +die
 type _ = admissionregistrationv1.Validation
 
 // +die
 type _ = admissionregistrationv1.AuditAnnotation
-
-// +die
-type _ = admissionregistrationv1.Variable
 
 // +die
 // +die:field:name=TypeChecking,die=TypeCheckingDie,pointer=true

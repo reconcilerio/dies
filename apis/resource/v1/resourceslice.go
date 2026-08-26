@@ -34,7 +34,7 @@ type _ = resourcev1.ResourceSliceSpec
 // +die
 type _ = resourcev1.ResourcePool
 
-// +die:ignore=Attributes;Capacity;NodeAllocatableResourceMappings
+// +die:ignore=Attributes;Capacity;NodeAllocatableResources
 // +die:field:name=ConsumesCounters,die=DeviceCounterConsumptionDie,listType=atomic
 // +die:field:name=NodeSelector,package=_/core/v1,die=NodeSelectorDie,pointer=true
 // +die:field:name=Taints,die=DeviceTaintDie,listType=atomic
@@ -92,7 +92,7 @@ func (d *DeviceDie) CapacityDie(v resourcev1.QualifiedName, fn func(d *DeviceCap
 	})
 }
 
-// NodeAllocatableResourceMappings defines the mapping of node resources
+// NodeAllocatableResources defines the mapping of node resources
 // that are managed by the DRA driver exposing this device. This includes resources currently
 // reported in v1.Node `status.allocatable` that are not extended resources
 // (see https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#extended-resources).
@@ -104,14 +104,15 @@ func (d *DeviceDie) CapacityDie(v resourcev1.QualifiedName, fn func(d *DeviceCap
 // The keys of this map are the node-allocatable resource names (e.g., "cpu", "memory").
 // Extended resource names are not permitted as keys.
 // +optional
+// +k8s:optional
 // +featureGate=DRANodeAllocatableResources
-func (d *DeviceDie) NodeAllocatableResourceMappings(v map[corev1.ResourceName]resourcev1.NodeAllocatableResourceMapping) *DeviceDie {
+func (d *DeviceDie) NodeAllocatableResources(v map[corev1.ResourceName]resourcev1.NodeAllocatableResource) *DeviceDie {
 	return d.DieStamp(func(r *resourcev1.Device) {
-		r.NodeAllocatableResourceMappings = v
+		r.NodeAllocatableResources = v
 	})
 }
 
-// NodeAllocatableResourceMappings defines the mapping of node resources
+// NodeAllocatableResources defines the mapping of node resources
 // that are managed by the DRA driver exposing this device. This includes resources currently
 // reported in v1.Node `status.allocatable` that are not extended resources
 // (see https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#extended-resources).
@@ -123,12 +124,13 @@ func (d *DeviceDie) NodeAllocatableResourceMappings(v map[corev1.ResourceName]re
 // The keys of this map are the node-allocatable resource names (e.g., "cpu", "memory").
 // Extended resource names are not permitted as keys.
 // +optional
+// +k8s:optional
 // +featureGate=DRANodeAllocatableResources
-func (d *DeviceDie) NodeAllocatableResourceMappingsDie(v corev1.ResourceName, fn func(d *NodeAllocatableResourceMappingDie)) *DeviceDie {
+func (d *DeviceDie) NodeAllocatableResourcesDie(v corev1.ResourceName, fn func(d *NodeAllocatableResourceDie)) *DeviceDie {
 	return d.DieStamp(func(r *resourcev1.Device) {
-		d := NodeAllocatableResourceMappingBlank.DieImmutable(false).DieFeed(r.NodeAllocatableResourceMappings[v])
+		d := NodeAllocatableResourceBlank.DieImmutable(false).DieFeed(r.NodeAllocatableResources[v])
 		fn(d)
-		r.NodeAllocatableResourceMappings[v] = d.DieRelease()
+		r.NodeAllocatableResources[v] = d.DieRelease()
 	})
 }
 
@@ -140,7 +142,15 @@ type _ = resourcev1.DeviceAttribute
 type _ = resourcev1.DeviceCapacity
 
 // +die
-type _ = resourcev1.NodeAllocatableResourceMapping
+// +die:field:name=Mapping,die=NodeAllocatableMappingDie,pointer=true
+// +die:field:name=Overhead,die=NodeAllocatableOverheadDie,pointer=true
+type _ = resourcev1.NodeAllocatableResource
+
+// +die
+type _ = resourcev1.NodeAllocatableMapping
+
+// +die
+type _ = resourcev1.NodeAllocatableOverhead
 
 // +die
 // +die:field:name=ValidRange,die=CapacityRequestPolicyRangeDie,pointer=true

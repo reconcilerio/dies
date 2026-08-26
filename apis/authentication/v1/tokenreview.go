@@ -23,9 +23,21 @@ import (
 // +die:object=true,apiVersion=authentication.k8s.io/v1,kind=TokenReview
 type _ = authenticationv1.TokenReview
 
-// +die
+// +die:ignore={Attestations}
 // +die:field:name=BoundObjectRef,die=BoundObjectReferenceDie,pointer=true
 type _ = authenticationv1.TokenRequestSpec
+
+// attestations is a map of well-known keys to string-slice values.
+// The values for each key have a specific semantic meaning, which is
+// documented on the key definition. Requesters of tokens may ask
+// the Kubernetes API Server to attest to certain claims. The API Server
+// may perform authorization checks depending on the key of this map.
+// +optional
+func (d *TokenRequestSpecDie) Attestations(v map[string]authenticationv1.AttestationValue) *TokenRequestSpecDie {
+	return d.DieStamp(func(r *authenticationv1.TokenRequestSpec) {
+		r.Attestations = v
+	})
+}
 
 // +die
 type _ = authenticationv1.BoundObjectReference

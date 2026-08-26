@@ -143,6 +143,15 @@ func TestCapacityRequirementsDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestDeviceDerivedAttributeDie_MissingMethods(t *testingx.T) {
+	die := DeviceDerivedAttributeBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for DeviceDerivedAttributeDie: %s", diff.List())
+	}
+}
+
 func TestExactDeviceRequestDie_MissingMethods(t *testingx.T) {
 	die := ExactDeviceRequestBlank
 	ignore := []string{}
@@ -298,7 +307,7 @@ func TestResourcePoolDie_MissingMethods(t *testingx.T) {
 
 func TestDeviceDie_MissingMethods(t *testingx.T) {
 	die := DeviceBlank
-	ignore := []string{"Attributes", "Capacity", "NodeAllocatableResourceMappings"}
+	ignore := []string{"Attributes", "Capacity", "NodeAllocatableResources"}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for DeviceDie: %s", diff.List())
@@ -323,12 +332,30 @@ func TestDeviceCapacityDie_MissingMethods(t *testingx.T) {
 	}
 }
 
-func TestNodeAllocatableResourceMappingDie_MissingMethods(t *testingx.T) {
-	die := NodeAllocatableResourceMappingBlank
+func TestNodeAllocatableResourceDie_MissingMethods(t *testingx.T) {
+	die := NodeAllocatableResourceBlank
 	ignore := []string{}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
-		t.Errorf("found missing fields for NodeAllocatableResourceMappingDie: %s", diff.List())
+		t.Errorf("found missing fields for NodeAllocatableResourceDie: %s", diff.List())
+	}
+}
+
+func TestNodeAllocatableMappingDie_MissingMethods(t *testingx.T) {
+	die := NodeAllocatableMappingBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodeAllocatableMappingDie: %s", diff.List())
+	}
+}
+
+func TestNodeAllocatableOverheadDie_MissingMethods(t *testingx.T) {
+	die := NodeAllocatableOverheadBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodeAllocatableOverheadDie: %s", diff.List())
 	}
 }
 

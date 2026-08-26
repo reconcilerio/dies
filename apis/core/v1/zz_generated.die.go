@@ -25,7 +25,7 @@ import (
 	fmtx "fmt"
 	cmp "github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
+	resource "k8s.io/apimachinery/pkg/api/resource"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -6459,7 +6459,9 @@ func (d *ConfigMapKeySelectorDie) LocalObjectReference(v corev1.LocalObjectRefer
 	})
 }
 
-// The key to select.
+// The key to select from the ConfigMap's Data field.
+//
+// Keys in the BinaryData field are not currently propagated to container env vars.
 func (d *ConfigMapKeySelectorDie) Key(v string) *ConfigMapKeySelectorDie {
 	return d.DieStamp(func(r *corev1.ConfigMapKeySelector) {
 		r.Key = v
@@ -8787,9 +8789,7 @@ func (d *VolumeMountDie) RecursiveReadOnly(v *corev1.RecursiveReadOnlyMode) *Vol
 	})
 }
 
-// Path within the container at which the volume should be mounted.  Must
-//
-// not contain ':'.
+// Path within the container at which the volume should be mounted.
 func (d *VolumeMountDie) MountPath(v string) *VolumeMountDie {
 	return d.DieStamp(func(r *corev1.VolumeMount) {
 		r.MountPath = v
@@ -8832,6 +8832,23 @@ func (d *VolumeMountDie) MountPropagation(v *corev1.MountPropagationMode) *Volum
 func (d *VolumeMountDie) SubPathExpr(v string) *VolumeMountDie {
 	return d.DieStamp(func(r *corev1.VolumeMount) {
 		r.SubPathExpr = v
+	})
+}
+
+// bindMountOptions is the list of additional bind mount options to apply when
+//
+// mounting this volume into the container. Allowed values are noexec,
+//
+// nodev, and nosuid. These are Linux mount options and have no effect on
+//
+// Windows nodes.
+//
+// This field is not supported with image volumes.
+//
+// This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
+func (d *VolumeMountDie) BindMountOptions(v ...string) *VolumeMountDie {
+	return d.DieStamp(func(r *corev1.VolumeMount) {
+		r.BindMountOptions = v
 	})
 }
 
@@ -11002,6 +11019,15 @@ func (d *HTTPGetActionDie) HTTPHeaders(v ...corev1.HTTPHeader) *HTTPGetActionDie
 	})
 }
 
+// Protocol selects the wire protocol for the probe connection.
+//
+// Nil defaults to HTTP/1.1.
+func (d *HTTPGetActionDie) Protocol(v *corev1.HTTPProtocol) *HTTPGetActionDie {
+	return d.DieStamp(func(r *corev1.HTTPGetAction) {
+		r.Protocol = v
+	})
+}
+
 var HTTPHeaderBlank = (&HTTPHeaderDie{}).DieFeed(corev1.HTTPHeader{})
 
 type HTTPHeaderDie struct {
@@ -11817,6 +11843,19 @@ func (d *GRPCActionDie) Port(v int32) *GRPCActionDie {
 func (d *GRPCActionDie) Service(v *string) *GRPCActionDie {
 	return d.DieStamp(func(r *corev1.GRPCAction) {
 		r.Service = v
+	})
+}
+
+// mode specifies the connection mode for the gRPC health probe.
+//
+// Set to "TLS" to use TLS without certificate verification.
+//
+// Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+//
+// If not specified, the probe uses a plaintext (insecure) connection.
+func (d *GRPCActionDie) Mode(v *corev1.GRPCProbeMode) *GRPCActionDie {
+	return d.DieStamp(func(r *corev1.GRPCAction) {
+		r.Mode = v
 	})
 }
 
@@ -15280,9 +15319,19 @@ func (d *ResourceStatusDie) ResourceDie(v corev1.ResourceID, fn func(d *Resource
 
 // Name of the resource. Must be unique within the pod and in case of non-DRA resource, match one of the resources from the pod spec.
 //
-// For DRA resources, the value must be "claim:<claim_name>/<request>".
+// For DRA resources, the value must be "claim:<claim_name>/<request>" when
 //
-// When this status is reported about a container, the "claim_name" and "request" must match one of the claims of this container.
+// container.resources.claims[*].request is set or "claim:<claim_name>" when
+//
+// container.resources.claims[*].request is empty.
+//
+// For DRA-backed extended resources, "claim:<claim_name>/<request>" is used
+//
+// when the claim name and request name are recorded in pod.status.extendedResourceClaimStatus.
+//
+// When this status is reported about a container, the "claim_name" and "request"
+//
+// must match one of the claims of this container.
 func (d *ResourceStatusDie) Name(v corev1.ResourceName) *ResourceStatusDie {
 	return d.DieStamp(func(r *corev1.ResourceStatus) {
 		r.Name = v
@@ -22383,6 +22432,19 @@ func (d *NodeSpecDie) TaintDie(v string, fn func(d *TaintDie)) *NodeSpecDie {
 	})
 }
 
+// PodPreemptionPolicyDie mutates PodPreemptionPolicy as a die.
+//
+// PodPreemptionPolicy controls the node-level preemption behaviors for pods on this node.
+//
+// This is an alpha field and requires enabling the InPlacePodVerticalScalingSchedulerPreemption feature gate.
+func (d *NodeSpecDie) PodPreemptionPolicyDie(fn func(d *NodePodPreemptionPolicyDie)) *NodeSpecDie {
+	return d.DieStamp(func(r *corev1.NodeSpec) {
+		d := NodePodPreemptionPolicyBlank.DieImmutable(false).DieFeedPtr(r.PodPreemptionPolicy)
+		fn(d)
+		r.PodPreemptionPolicy = d.DieReleasePtr()
+	})
+}
+
 // PodCIDR represents the pod IP range assigned to the node.
 func (d *NodeSpecDie) PodCIDR(v string) *NodeSpecDie {
 	return d.DieStamp(func(r *corev1.NodeSpec) {
@@ -22437,6 +22499,15 @@ func (d *NodeSpecDie) ConfigSource(v *corev1.NodeConfigSource) *NodeSpecDie {
 func (d *NodeSpecDie) DoNotUseExternalID(v string) *NodeSpecDie {
 	return d.DieStamp(func(r *corev1.NodeSpec) {
 		r.DoNotUseExternalID = v
+	})
+}
+
+// PodPreemptionPolicy controls the node-level preemption behaviors for pods on this node.
+//
+// This is an alpha field and requires enabling the InPlacePodVerticalScalingSchedulerPreemption feature gate.
+func (d *NodeSpecDie) PodPreemptionPolicy(v *corev1.NodePodPreemptionPolicy) *NodeSpecDie {
+	return d.DieStamp(func(r *corev1.NodeSpec) {
+		r.PodPreemptionPolicy = v
 	})
 }
 
@@ -22715,6 +22786,265 @@ func (d *TaintDie) Effect(v corev1.TaintEffect) *TaintDie {
 func (d *TaintDie) TimeAdded(v *apismetav1.Time) *TaintDie {
 	return d.DieStamp(func(r *corev1.Taint) {
 		r.TimeAdded = v
+	})
+}
+
+var NodePodPreemptionPolicyBlank = (&NodePodPreemptionPolicyDie{}).DieFeed(corev1.NodePodPreemptionPolicy{})
+
+type NodePodPreemptionPolicyDie struct {
+	mutable bool
+	r       corev1.NodePodPreemptionPolicy
+	seal    corev1.NodePodPreemptionPolicy
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *NodePodPreemptionPolicyDie) DieImmutable(immutable bool) *NodePodPreemptionPolicyDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *NodePodPreemptionPolicyDie) DieFeed(r corev1.NodePodPreemptionPolicy) *NodePodPreemptionPolicyDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &NodePodPreemptionPolicyDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *NodePodPreemptionPolicyDie) DieFeedPtr(r *corev1.NodePodPreemptionPolicy) *NodePodPreemptionPolicyDie {
+	if r == nil {
+		r = &corev1.NodePodPreemptionPolicy{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *NodePodPreemptionPolicyDie) DieFeedDuck(v any) *NodePodPreemptionPolicyDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *NodePodPreemptionPolicyDie) DieFeedJSON(j []byte) *NodePodPreemptionPolicyDie {
+	r := corev1.NodePodPreemptionPolicy{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *NodePodPreemptionPolicyDie) DieFeedYAML(y []byte) *NodePodPreemptionPolicyDie {
+	r := corev1.NodePodPreemptionPolicy{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *NodePodPreemptionPolicyDie) DieFeedYAMLFile(name string) *NodePodPreemptionPolicyDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NodePodPreemptionPolicyDie) DieFeedRawExtension(raw runtime.RawExtension) *NodePodPreemptionPolicyDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *NodePodPreemptionPolicyDie) DieRelease() corev1.NodePodPreemptionPolicy {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *NodePodPreemptionPolicyDie) DieReleasePtr() *corev1.NodePodPreemptionPolicy {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *NodePodPreemptionPolicyDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *NodePodPreemptionPolicyDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *NodePodPreemptionPolicyDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NodePodPreemptionPolicyDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *NodePodPreemptionPolicyDie) DieStamp(fn func(r *corev1.NodePodPreemptionPolicy)) *NodePodPreemptionPolicyDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *NodePodPreemptionPolicyDie) DieStampAt(jp string, fn interface{}) *NodePodPreemptionPolicyDie {
+	return d.DieStamp(func(r *corev1.NodePodPreemptionPolicy) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodePodPreemptionPolicyDie) DieWith(fns ...func(d *NodePodPreemptionPolicyDie)) *NodePodPreemptionPolicyDie {
+	nd := NodePodPreemptionPolicyBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *NodePodPreemptionPolicyDie) DeepCopy() *NodePodPreemptionPolicyDie {
+	r := *d.r.DeepCopy()
+	return &NodePodPreemptionPolicyDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *NodePodPreemptionPolicyDie) DieSeal() *NodePodPreemptionPolicyDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *NodePodPreemptionPolicyDie) DieSealFeed(r corev1.NodePodPreemptionPolicy) *NodePodPreemptionPolicyDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *NodePodPreemptionPolicyDie) DieSealFeedPtr(r *corev1.NodePodPreemptionPolicy) *NodePodPreemptionPolicyDie {
+	if r == nil {
+		r = &corev1.NodePodPreemptionPolicy{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *NodePodPreemptionPolicyDie) DieSealRelease() corev1.NodePodPreemptionPolicy {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *NodePodPreemptionPolicyDie) DieSealReleasePtr() *corev1.NodePodPreemptionPolicy {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *NodePodPreemptionPolicyDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *NodePodPreemptionPolicyDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// DisableResizePreemption lists the owners (e.g., autoscalers, operators, administrators)
+//
+// that have requested to disable scheduler and Kubelet preemption for in-place pod resize on this node.
+//
+// If this list is non-empty, resize-induced preemption is disabled on this node.
+//
+// This is an alpha field and requires enabling the InPlacePodVerticalScalingSchedulerPreemption feature gate.
+func (d *NodePodPreemptionPolicyDie) DisableResizePreemption(v ...string) *NodePodPreemptionPolicyDie {
+	return d.DieStamp(func(r *corev1.NodePodPreemptionPolicy) {
+		r.DisableResizePreemption = v
 	})
 }
 
@@ -24931,6 +25261,13 @@ func (d *NodeSystemInfoDie) Architecture(v string) *NodeSystemInfoDie {
 func (d *NodeSystemInfoDie) Swap(v *corev1.NodeSwapStatus) *NodeSystemInfoDie {
 	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
 		r.Swap = v
+	})
+}
+
+// Whether the node is running in a user namespace.
+func (d *NodeSystemInfoDie) RunningInUserNamespace(v *bool) *NodeSystemInfoDie {
+	return d.DieStamp(func(r *corev1.NodeSystemInfo) {
+		r.RunningInUserNamespace = v
 	})
 }
 
@@ -33320,9 +33657,9 @@ func (d *PersistentVolumeClaimSpecDie) ResourcesDie(fn func(d *VolumeResourceReq
 //
 // it will create a new volume based on the contents of the specified data source.
 //
-// When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
+// dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
 //
-// and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+// copied to dataSource when dataSourceRef.namespace is not specified.
 //
 // If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 func (d *PersistentVolumeClaimSpecDie) DataSourceDie(fn func(d *TypedLocalObjectReferenceDie)) *PersistentVolumeClaimSpecDie {
@@ -33376,8 +33713,6 @@ func (d *PersistentVolumeClaimSpecDie) DataSourceDie(fn func(d *TypedLocalObject
 // * While dataSource only allows local objects, dataSourceRef allows objects
 //
 // in any namespaces.
-//
-// (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 //
 // (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 func (d *PersistentVolumeClaimSpecDie) DataSourceRefDie(fn func(d *TypedObjectReferenceDie)) *PersistentVolumeClaimSpecDie {
@@ -33454,9 +33789,9 @@ func (d *PersistentVolumeClaimSpecDie) VolumeMode(v *corev1.PersistentVolumeMode
 //
 // it will create a new volume based on the contents of the specified data source.
 //
-// When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
+// dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
 //
-// and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+// copied to dataSource when dataSourceRef.namespace is not specified.
 //
 // If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 func (d *PersistentVolumeClaimSpecDie) DataSource(v *corev1.TypedLocalObjectReference) *PersistentVolumeClaimSpecDie {
@@ -33506,8 +33841,6 @@ func (d *PersistentVolumeClaimSpecDie) DataSource(v *corev1.TypedLocalObjectRefe
 // * While dataSource only allows local objects, dataSourceRef allows objects
 //
 // in any namespaces.
-//
-// (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 //
 // (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 func (d *PersistentVolumeClaimSpecDie) DataSourceRef(v *corev1.TypedObjectReference) *PersistentVolumeClaimSpecDie {
@@ -34124,6 +34457,19 @@ func (d *PersistentVolumeClaimStatusDie) ModifyVolumeStatusDie(fn func(d *Modify
 	})
 }
 
+// HealthStatusDie mutates HealthStatus as a die.
+//
+// healthStatus contains the latest controller-reported health information
+//
+// for the volume bound to this claim.
+func (d *PersistentVolumeClaimStatusDie) HealthStatusDie(fn func(d *VolumeHealthStatusDie)) *PersistentVolumeClaimStatusDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
+		d := VolumeHealthStatusBlank.DieImmutable(false).DieFeedPtr(r.HealthStatus)
+		fn(d)
+		r.HealthStatus = d.DieReleasePtr()
+	})
+}
+
 // phase represents the current phase of PersistentVolumeClaim.
 func (d *PersistentVolumeClaimStatusDie) Phase(v corev1.PersistentVolumeClaimPhase) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
@@ -34320,6 +34666,15 @@ func (d *PersistentVolumeClaimStatusDie) CurrentVolumeAttributesClassName(v *str
 func (d *PersistentVolumeClaimStatusDie) ModifyVolumeStatus(v *corev1.ModifyVolumeStatus) *PersistentVolumeClaimStatusDie {
 	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
 		r.ModifyVolumeStatus = v
+	})
+}
+
+// healthStatus contains the latest controller-reported health information
+//
+// for the volume bound to this claim.
+func (d *PersistentVolumeClaimStatusDie) HealthStatus(v *corev1.VolumeHealthStatus) *PersistentVolumeClaimStatusDie {
+	return d.DieStamp(func(r *corev1.PersistentVolumeClaimStatus) {
+		r.HealthStatus = v
 	})
 }
 
@@ -34598,6 +34953,575 @@ func (d *ModifyVolumeStatusDie) TargetVolumeAttributesClassName(v string) *Modif
 func (d *ModifyVolumeStatusDie) Status(v corev1.PersistentVolumeClaimModifyVolumeStatus) *ModifyVolumeStatusDie {
 	return d.DieStamp(func(r *corev1.ModifyVolumeStatus) {
 		r.Status = v
+	})
+}
+
+var VolumeHealthStatusBlank = (&VolumeHealthStatusDie{}).DieFeed(corev1.VolumeHealthStatus{})
+
+type VolumeHealthStatusDie struct {
+	mutable bool
+	r       corev1.VolumeHealthStatus
+	seal    corev1.VolumeHealthStatus
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *VolumeHealthStatusDie) DieImmutable(immutable bool) *VolumeHealthStatusDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *VolumeHealthStatusDie) DieFeed(r corev1.VolumeHealthStatus) *VolumeHealthStatusDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &VolumeHealthStatusDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *VolumeHealthStatusDie) DieFeedPtr(r *corev1.VolumeHealthStatus) *VolumeHealthStatusDie {
+	if r == nil {
+		r = &corev1.VolumeHealthStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *VolumeHealthStatusDie) DieFeedDuck(v any) *VolumeHealthStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *VolumeHealthStatusDie) DieFeedJSON(j []byte) *VolumeHealthStatusDie {
+	r := corev1.VolumeHealthStatus{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *VolumeHealthStatusDie) DieFeedYAML(y []byte) *VolumeHealthStatusDie {
+	r := corev1.VolumeHealthStatus{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *VolumeHealthStatusDie) DieFeedYAMLFile(name string) *VolumeHealthStatusDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *VolumeHealthStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *VolumeHealthStatusDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *VolumeHealthStatusDie) DieRelease() corev1.VolumeHealthStatus {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *VolumeHealthStatusDie) DieReleasePtr() *corev1.VolumeHealthStatus {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *VolumeHealthStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *VolumeHealthStatusDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *VolumeHealthStatusDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *VolumeHealthStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *VolumeHealthStatusDie) DieStamp(fn func(r *corev1.VolumeHealthStatus)) *VolumeHealthStatusDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *VolumeHealthStatusDie) DieStampAt(jp string, fn interface{}) *VolumeHealthStatusDie {
+	return d.DieStamp(func(r *corev1.VolumeHealthStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *VolumeHealthStatusDie) DieWith(fns ...func(d *VolumeHealthStatusDie)) *VolumeHealthStatusDie {
+	nd := VolumeHealthStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *VolumeHealthStatusDie) DeepCopy() *VolumeHealthStatusDie {
+	r := *d.r.DeepCopy()
+	return &VolumeHealthStatusDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *VolumeHealthStatusDie) DieSeal() *VolumeHealthStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *VolumeHealthStatusDie) DieSealFeed(r corev1.VolumeHealthStatus) *VolumeHealthStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *VolumeHealthStatusDie) DieSealFeedPtr(r *corev1.VolumeHealthStatus) *VolumeHealthStatusDie {
+	if r == nil {
+		r = &corev1.VolumeHealthStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *VolumeHealthStatusDie) DieSealRelease() corev1.VolumeHealthStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *VolumeHealthStatusDie) DieSealReleasePtr() *corev1.VolumeHealthStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *VolumeHealthStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *VolumeHealthStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// HealthConditionDie mutates a single item in HealthConditions matched by the nested field Reason, appending a new item if no match is found.
+//
+// conditions is the set of adverse conditions reported by
+//
+// the CSI controller plugin. An empty list means no adverse condition.
+//
+// At most 16 conditions may be reported.
+func (d *VolumeHealthStatusDie) HealthConditionDie(v string, fn func(d *VolumeHealthConditionDie)) *VolumeHealthStatusDie {
+	return d.DieStamp(func(r *corev1.VolumeHealthStatus) {
+		for i := range r.HealthConditions {
+			if v == r.HealthConditions[i].Reason {
+				d := VolumeHealthConditionBlank.DieImmutable(false).DieFeed(r.HealthConditions[i])
+				fn(d)
+				r.HealthConditions[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := VolumeHealthConditionBlank.DieImmutable(false).DieFeed(corev1.VolumeHealthCondition{Reason: v})
+		fn(d)
+		r.HealthConditions = append(r.HealthConditions, d.DieRelease())
+	})
+}
+
+// conditions is the set of adverse conditions reported by
+//
+// the CSI controller plugin. An empty list means no adverse condition.
+//
+// At most 16 conditions may be reported.
+func (d *VolumeHealthStatusDie) HealthConditions(v ...corev1.VolumeHealthCondition) *VolumeHealthStatusDie {
+	return d.DieStamp(func(r *corev1.VolumeHealthStatus) {
+		r.HealthConditions = v
+	})
+}
+
+// lastTransitionTime is when the current set of conditions first appeared.
+func (d *VolumeHealthStatusDie) LastTransitionTime(v apismetav1.Time) *VolumeHealthStatusDie {
+	return d.DieStamp(func(r *corev1.VolumeHealthStatus) {
+		r.LastTransitionTime = v
+	})
+}
+
+var VolumeHealthConditionBlank = (&VolumeHealthConditionDie{}).DieFeed(corev1.VolumeHealthCondition{})
+
+type VolumeHealthConditionDie struct {
+	mutable bool
+	r       corev1.VolumeHealthCondition
+	seal    corev1.VolumeHealthCondition
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *VolumeHealthConditionDie) DieImmutable(immutable bool) *VolumeHealthConditionDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *VolumeHealthConditionDie) DieFeed(r corev1.VolumeHealthCondition) *VolumeHealthConditionDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &VolumeHealthConditionDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *VolumeHealthConditionDie) DieFeedPtr(r *corev1.VolumeHealthCondition) *VolumeHealthConditionDie {
+	if r == nil {
+		r = &corev1.VolumeHealthCondition{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *VolumeHealthConditionDie) DieFeedDuck(v any) *VolumeHealthConditionDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *VolumeHealthConditionDie) DieFeedJSON(j []byte) *VolumeHealthConditionDie {
+	r := corev1.VolumeHealthCondition{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *VolumeHealthConditionDie) DieFeedYAML(y []byte) *VolumeHealthConditionDie {
+	r := corev1.VolumeHealthCondition{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *VolumeHealthConditionDie) DieFeedYAMLFile(name string) *VolumeHealthConditionDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *VolumeHealthConditionDie) DieFeedRawExtension(raw runtime.RawExtension) *VolumeHealthConditionDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *VolumeHealthConditionDie) DieRelease() corev1.VolumeHealthCondition {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *VolumeHealthConditionDie) DieReleasePtr() *corev1.VolumeHealthCondition {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *VolumeHealthConditionDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *VolumeHealthConditionDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *VolumeHealthConditionDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *VolumeHealthConditionDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *VolumeHealthConditionDie) DieStamp(fn func(r *corev1.VolumeHealthCondition)) *VolumeHealthConditionDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *VolumeHealthConditionDie) DieStampAt(jp string, fn interface{}) *VolumeHealthConditionDie {
+	return d.DieStamp(func(r *corev1.VolumeHealthCondition) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *VolumeHealthConditionDie) DieWith(fns ...func(d *VolumeHealthConditionDie)) *VolumeHealthConditionDie {
+	nd := VolumeHealthConditionBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *VolumeHealthConditionDie) DeepCopy() *VolumeHealthConditionDie {
+	r := *d.r.DeepCopy()
+	return &VolumeHealthConditionDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *VolumeHealthConditionDie) DieSeal() *VolumeHealthConditionDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *VolumeHealthConditionDie) DieSealFeed(r corev1.VolumeHealthCondition) *VolumeHealthConditionDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *VolumeHealthConditionDie) DieSealFeedPtr(r *corev1.VolumeHealthCondition) *VolumeHealthConditionDie {
+	if r == nil {
+		r = &corev1.VolumeHealthCondition{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *VolumeHealthConditionDie) DieSealRelease() corev1.VolumeHealthCondition {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *VolumeHealthConditionDie) DieSealReleasePtr() *corev1.VolumeHealthCondition {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *VolumeHealthConditionDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *VolumeHealthConditionDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// status is the machine-parseable health category.
+//
+// Possible values:
+//
+// - "Inaccessible": the volume cannot be accessed.
+//
+// - "DataLoss": data loss has been detected on the volume.
+//
+// - "Degraded": the volume is functioning with reduced capability.
+func (d *VolumeHealthConditionDie) Status(v corev1.VolumeHealthStatusType) *VolumeHealthConditionDie {
+	return d.DieStamp(func(r *corev1.VolumeHealthCondition) {
+		r.Status = v
+	})
+}
+
+// reason is a brief CamelCase machine-parseable reason.
+//
+// Together with status it forms the unique identity of a condition entry.
+//
+// Maximum permitted length of a reason is 256 bytes.
+func (d *VolumeHealthConditionDie) Reason(v string) *VolumeHealthConditionDie {
+	return d.DieStamp(func(r *corev1.VolumeHealthCondition) {
+		r.Reason = v
+	})
+}
+
+// message is a human-readable description.
+//
+// Maximum permitted length of a message is 1024 bytes.
+func (d *VolumeHealthConditionDie) Message(v string) *VolumeHealthConditionDie {
+	return d.DieStamp(func(r *corev1.VolumeHealthCondition) {
+		r.Message = v
 	})
 }
 
@@ -36280,6 +37204,10 @@ func (d *PodSpecDie) EnableServiceLinks(v *bool) *PodSpecDie {
 //
 // One of Never, PreemptLowerPriority.
 //
+// # When Priority Admission Controller is enabled, it prevents users from setting
+//
+// this field. The admission controller populates this field from PriorityClassName.
+//
 // Defaults to PreemptLowerPriority if unset.
 func (d *PodSpecDie) PreemptionPolicy(v *corev1.PreemptionPolicy) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
@@ -36530,8 +37458,6 @@ func (d *PodSpecDie) Resources(v *corev1.ResourceRequirements) *PodSpecDie {
 // - `hostNetwork` must be set to false.
 //
 // This field must be a valid DNS subdomain as defined in RFC 1123 and contain at most 64 characters.
-//
-// Requires the HostnameOverride feature gate to be enabled.
 func (d *PodSpecDie) HostnameOverride(v *string) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.HostnameOverride = v
@@ -36564,6 +37490,37 @@ func (d *PodSpecDie) HostnameOverride(v *string) *PodSpecDie {
 func (d *PodSpecDie) SchedulingGroup(v *corev1.PodSchedulingGroup) *PodSpecDie {
 	return d.DieStamp(func(r *corev1.PodSpec) {
 		r.SchedulingGroup = v
+	})
+}
+
+// evictionResponders reference responders that react to Evictions based on EvictionRequests.
+//
+// # Responders should observe and communicate through the Eviction Resource API to help with
+//
+// the graceful termination of a pod. The responders are selected sequentially, according to
+//
+// their specified priority.
+//
+// # Responders should periodically report on an eviction progress by updating the
+//
+// .status.responders[].heartbeatTime field of the Eviction object. If this field is not updated
+//
+// within the heartbeat deadline defined by the Eviction API (currently 20 minutes), the eviction
+//
+// is passed over to the next responder with a lower priority. If there is no other responder,
+//
+// the last default imperative-eviction.k8s.io/evictor responder with a priority of 100 will
+//
+// evict the pod using the imperative Eviction API (pods/<name>/eviction subresource).
+//
+// The maximum length of the responders list is 10.
+//
+// Responders are not supported when the pod is part of a PodGroup (.spec.schedulingGroup is set).
+//
+// This field can only be set on creation and is immutable afterwards.
+func (d *PodSpecDie) EvictionResponders(v ...corev1.EvictionResponder) *PodSpecDie {
+	return d.DieStamp(func(r *corev1.PodSpec) {
+		r.EvictionResponders = v
 	})
 }
 
@@ -37675,13 +38632,7 @@ func (d *PodSecurityContextDie) AppArmorProfile(v *corev1.AppArmorProfile) *PodS
 //
 // CSIDriver instance. Other volumes are always re-labelled recursively.
 //
-// "MountOption" value is allowed only when SELinuxMount feature gate is enabled.
-//
-// If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
-//
-// If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
-//
-// and "Recursive" for all other volumes.
+// If not specified, "MountOption" is used.
 //
 // This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
 //
@@ -41033,6 +41984,15 @@ func (d *PodStatusDie) NodeAllocatableResourceClaimStatuses(v ...corev1.NodeAllo
 	})
 }
 
+// volumeHealth contains node-reported health for each volume the pod is using.
+//
+// Populated by the kubelet on the pod's node.
+func (d *PodStatusDie) VolumeHealth(v ...corev1.PodVolumeHealth) *PodStatusDie {
+	return d.DieStamp(func(r *corev1.PodStatus) {
+		r.VolumeHealth = v
+	})
+}
+
 var PodExtendedResourceClaimStatusBlank = (&PodExtendedResourceClaimStatusDie{}).DieFeed(corev1.PodExtendedResourceClaimStatus{})
 
 type PodExtendedResourceClaimStatusDie struct {
@@ -41824,6 +42784,50 @@ func (d *NodeAllocatableResourceClaimStatusDie) DiePatch(patchType types.PatchTy
 	return patch.Create(d.seal, d.r, patchType)
 }
 
+// MappingDie mutates a single item in Mapping matched by the nested field Name, appending a new item if no match is found.
+//
+// Mapping contains allocations through devices mapped in the device spec's `nodeAllocatableResources[...].mapping` field.
+//
+// This is used by kubelet for pod level and container-level cgroup enforcement.
+func (d *NodeAllocatableResourceClaimStatusDie) MappingDie(v corev1.ResourceName, fn func(d *NodeAllocatableMappedResourcesDie)) *NodeAllocatableResourceClaimStatusDie {
+	return d.DieStamp(func(r *corev1.NodeAllocatableResourceClaimStatus) {
+		for i := range r.Mapping {
+			if v == r.Mapping[i].Name {
+				d := NodeAllocatableMappedResourcesBlank.DieImmutable(false).DieFeed(r.Mapping[i])
+				fn(d)
+				r.Mapping[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := NodeAllocatableMappedResourcesBlank.DieImmutable(false).DieFeed(corev1.NodeAllocatableMappedResources{Name: v})
+		fn(d)
+		r.Mapping = append(r.Mapping, d.DieRelease())
+	})
+}
+
+// OverheadDie mutates a single item in Overhead matched by the nested field Name, appending a new item if no match is found.
+//
+// Overhead contains allocations through devices mapped in the device spec's `nodeAllocatableResources[...].overhead` field.
+//
+// This is used by kubelet for pod level and container-level cgroup enforcement.
+func (d *NodeAllocatableResourceClaimStatusDie) OverheadDie(v corev1.ResourceName, fn func(d *NodeAllocatableOverheadResourcesDie)) *NodeAllocatableResourceClaimStatusDie {
+	return d.DieStamp(func(r *corev1.NodeAllocatableResourceClaimStatus) {
+		for i := range r.Overhead {
+			if v == r.Overhead[i].Name {
+				d := NodeAllocatableOverheadResourcesBlank.DieImmutable(false).DieFeed(r.Overhead[i])
+				fn(d)
+				r.Overhead[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := NodeAllocatableOverheadResourcesBlank.DieImmutable(false).DieFeed(corev1.NodeAllocatableOverheadResources{Name: v})
+		fn(d)
+		r.Overhead = append(r.Overhead, d.DieRelease())
+	})
+}
+
 // ResourceClaimName is the resource claim referenced by the pod that resulted in this node allocatable resource allocation.
 func (d *NodeAllocatableResourceClaimStatusDie) ResourceClaimName(v string) *NodeAllocatableResourceClaimStatusDie {
 	return d.DieStamp(func(r *corev1.NodeAllocatableResourceClaimStatus) {
@@ -41836,6 +42840,623 @@ func (d *NodeAllocatableResourceClaimStatusDie) Containers(v ...string) *NodeAll
 	return d.DieStamp(func(r *corev1.NodeAllocatableResourceClaimStatus) {
 		r.Containers = v
 	})
+}
+
+// Mapping contains allocations through devices mapped in the device spec's `nodeAllocatableResources[...].mapping` field.
+//
+// This is used by kubelet for pod level and container-level cgroup enforcement.
+func (d *NodeAllocatableResourceClaimStatusDie) Mapping(v ...corev1.NodeAllocatableMappedResources) *NodeAllocatableResourceClaimStatusDie {
+	return d.DieStamp(func(r *corev1.NodeAllocatableResourceClaimStatus) {
+		r.Mapping = v
+	})
+}
+
+// Overhead contains allocations through devices mapped in the device spec's `nodeAllocatableResources[...].overhead` field.
+//
+// This is used by kubelet for pod level and container-level cgroup enforcement.
+func (d *NodeAllocatableResourceClaimStatusDie) Overhead(v ...corev1.NodeAllocatableOverheadResources) *NodeAllocatableResourceClaimStatusDie {
+	return d.DieStamp(func(r *corev1.NodeAllocatableResourceClaimStatus) {
+		r.Overhead = v
+	})
+}
+
+var NodeAllocatableMappedResourcesBlank = (&NodeAllocatableMappedResourcesDie{}).DieFeed(corev1.NodeAllocatableMappedResources{})
+
+type NodeAllocatableMappedResourcesDie struct {
+	mutable bool
+	r       corev1.NodeAllocatableMappedResources
+	seal    corev1.NodeAllocatableMappedResources
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *NodeAllocatableMappedResourcesDie) DieImmutable(immutable bool) *NodeAllocatableMappedResourcesDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *NodeAllocatableMappedResourcesDie) DieFeed(r corev1.NodeAllocatableMappedResources) *NodeAllocatableMappedResourcesDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &NodeAllocatableMappedResourcesDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *NodeAllocatableMappedResourcesDie) DieFeedPtr(r *corev1.NodeAllocatableMappedResources) *NodeAllocatableMappedResourcesDie {
+	if r == nil {
+		r = &corev1.NodeAllocatableMappedResources{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *NodeAllocatableMappedResourcesDie) DieFeedDuck(v any) *NodeAllocatableMappedResourcesDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *NodeAllocatableMappedResourcesDie) DieFeedJSON(j []byte) *NodeAllocatableMappedResourcesDie {
+	r := corev1.NodeAllocatableMappedResources{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *NodeAllocatableMappedResourcesDie) DieFeedYAML(y []byte) *NodeAllocatableMappedResourcesDie {
+	r := corev1.NodeAllocatableMappedResources{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *NodeAllocatableMappedResourcesDie) DieFeedYAMLFile(name string) *NodeAllocatableMappedResourcesDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NodeAllocatableMappedResourcesDie) DieFeedRawExtension(raw runtime.RawExtension) *NodeAllocatableMappedResourcesDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *NodeAllocatableMappedResourcesDie) DieRelease() corev1.NodeAllocatableMappedResources {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *NodeAllocatableMappedResourcesDie) DieReleasePtr() *corev1.NodeAllocatableMappedResources {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *NodeAllocatableMappedResourcesDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *NodeAllocatableMappedResourcesDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *NodeAllocatableMappedResourcesDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NodeAllocatableMappedResourcesDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *NodeAllocatableMappedResourcesDie) DieStamp(fn func(r *corev1.NodeAllocatableMappedResources)) *NodeAllocatableMappedResourcesDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *NodeAllocatableMappedResourcesDie) DieStampAt(jp string, fn interface{}) *NodeAllocatableMappedResourcesDie {
+	return d.DieStamp(func(r *corev1.NodeAllocatableMappedResources) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeAllocatableMappedResourcesDie) DieWith(fns ...func(d *NodeAllocatableMappedResourcesDie)) *NodeAllocatableMappedResourcesDie {
+	nd := NodeAllocatableMappedResourcesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *NodeAllocatableMappedResourcesDie) DeepCopy() *NodeAllocatableMappedResourcesDie {
+	r := *d.r.DeepCopy()
+	return &NodeAllocatableMappedResourcesDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *NodeAllocatableMappedResourcesDie) DieSeal() *NodeAllocatableMappedResourcesDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *NodeAllocatableMappedResourcesDie) DieSealFeed(r corev1.NodeAllocatableMappedResources) *NodeAllocatableMappedResourcesDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *NodeAllocatableMappedResourcesDie) DieSealFeedPtr(r *corev1.NodeAllocatableMappedResources) *NodeAllocatableMappedResourcesDie {
+	if r == nil {
+		r = &corev1.NodeAllocatableMappedResources{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *NodeAllocatableMappedResourcesDie) DieSealRelease() corev1.NodeAllocatableMappedResources {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *NodeAllocatableMappedResourcesDie) DieSealReleasePtr() *corev1.NodeAllocatableMappedResources {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *NodeAllocatableMappedResourcesDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *NodeAllocatableMappedResourcesDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// Name is the name of the resource (e.g., cpu, memory).
+func (d *NodeAllocatableMappedResourcesDie) Name(v corev1.ResourceName) *NodeAllocatableMappedResourcesDie {
+	return d.DieStamp(func(r *corev1.NodeAllocatableMappedResources) {
+		r.Name = v
+	})
+}
+
+// Quantity is the total node allocatable resource capacity allocated for the claim.
+//
+// This claim's allocated devices is shared by all the containers referencing the claim.
+//
+// Kubelet adds this value to both requests and limits at the pod-level cgroup, and to limits at the container-level cgroup for each container referencing the claim.
+func (d *NodeAllocatableMappedResourcesDie) Quantity(v *resource.Quantity) *NodeAllocatableMappedResourcesDie {
+	return d.DieStamp(func(r *corev1.NodeAllocatableMappedResources) {
+		r.Quantity = v
+	})
+}
+
+// QuantityString sets Quantity by parsing the string as a Quantity. Panics if the string is not parsable.
+//
+// Quantity is the total node allocatable resource capacity allocated for the claim.
+//
+// This claim's allocated devices is shared by all the containers referencing the claim.
+//
+// Kubelet adds this value to both requests and limits at the pod-level cgroup, and to limits at the container-level cgroup for each container referencing the claim.
+func (d *NodeAllocatableMappedResourcesDie) QuantityString(s string) *NodeAllocatableMappedResourcesDie {
+	q := resource.MustParse(s)
+	return d.Quantity(&q)
+}
+
+var NodeAllocatableOverheadResourcesBlank = (&NodeAllocatableOverheadResourcesDie{}).DieFeed(corev1.NodeAllocatableOverheadResources{})
+
+type NodeAllocatableOverheadResourcesDie struct {
+	mutable bool
+	r       corev1.NodeAllocatableOverheadResources
+	seal    corev1.NodeAllocatableOverheadResources
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *NodeAllocatableOverheadResourcesDie) DieImmutable(immutable bool) *NodeAllocatableOverheadResourcesDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *NodeAllocatableOverheadResourcesDie) DieFeed(r corev1.NodeAllocatableOverheadResources) *NodeAllocatableOverheadResourcesDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &NodeAllocatableOverheadResourcesDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *NodeAllocatableOverheadResourcesDie) DieFeedPtr(r *corev1.NodeAllocatableOverheadResources) *NodeAllocatableOverheadResourcesDie {
+	if r == nil {
+		r = &corev1.NodeAllocatableOverheadResources{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *NodeAllocatableOverheadResourcesDie) DieFeedDuck(v any) *NodeAllocatableOverheadResourcesDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *NodeAllocatableOverheadResourcesDie) DieFeedJSON(j []byte) *NodeAllocatableOverheadResourcesDie {
+	r := corev1.NodeAllocatableOverheadResources{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *NodeAllocatableOverheadResourcesDie) DieFeedYAML(y []byte) *NodeAllocatableOverheadResourcesDie {
+	r := corev1.NodeAllocatableOverheadResources{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *NodeAllocatableOverheadResourcesDie) DieFeedYAMLFile(name string) *NodeAllocatableOverheadResourcesDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NodeAllocatableOverheadResourcesDie) DieFeedRawExtension(raw runtime.RawExtension) *NodeAllocatableOverheadResourcesDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *NodeAllocatableOverheadResourcesDie) DieRelease() corev1.NodeAllocatableOverheadResources {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *NodeAllocatableOverheadResourcesDie) DieReleasePtr() *corev1.NodeAllocatableOverheadResources {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *NodeAllocatableOverheadResourcesDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *NodeAllocatableOverheadResourcesDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *NodeAllocatableOverheadResourcesDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *NodeAllocatableOverheadResourcesDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *NodeAllocatableOverheadResourcesDie) DieStamp(fn func(r *corev1.NodeAllocatableOverheadResources)) *NodeAllocatableOverheadResourcesDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *NodeAllocatableOverheadResourcesDie) DieStampAt(jp string, fn interface{}) *NodeAllocatableOverheadResourcesDie {
+	return d.DieStamp(func(r *corev1.NodeAllocatableOverheadResources) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *NodeAllocatableOverheadResourcesDie) DieWith(fns ...func(d *NodeAllocatableOverheadResourcesDie)) *NodeAllocatableOverheadResourcesDie {
+	nd := NodeAllocatableOverheadResourcesBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *NodeAllocatableOverheadResourcesDie) DeepCopy() *NodeAllocatableOverheadResourcesDie {
+	r := *d.r.DeepCopy()
+	return &NodeAllocatableOverheadResourcesDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *NodeAllocatableOverheadResourcesDie) DieSeal() *NodeAllocatableOverheadResourcesDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *NodeAllocatableOverheadResourcesDie) DieSealFeed(r corev1.NodeAllocatableOverheadResources) *NodeAllocatableOverheadResourcesDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *NodeAllocatableOverheadResourcesDie) DieSealFeedPtr(r *corev1.NodeAllocatableOverheadResources) *NodeAllocatableOverheadResourcesDie {
+	if r == nil {
+		r = &corev1.NodeAllocatableOverheadResources{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *NodeAllocatableOverheadResourcesDie) DieSealRelease() corev1.NodeAllocatableOverheadResources {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *NodeAllocatableOverheadResourcesDie) DieSealReleasePtr() *corev1.NodeAllocatableOverheadResources {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *NodeAllocatableOverheadResourcesDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *NodeAllocatableOverheadResourcesDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// Name is the name of the resource (e.g., cpu, memory).
+func (d *NodeAllocatableOverheadResourcesDie) Name(v corev1.ResourceName) *NodeAllocatableOverheadResourcesDie {
+	return d.DieStamp(func(r *corev1.NodeAllocatableOverheadResources) {
+		r.Name = v
+	})
+}
+
+// PerPod is the flat overhead quantity allocated per pod.
+//
+// Adding to each container limit allows individual containers to utilize the overhead, while the parent pod-level cgroup limit caps the total usage at the pod boundary where the overhead is accounted for exactly once.
+//
+// At least one of PerPod or PerContainer must be specified. Specifying neither is an invalid configuration.
+func (d *NodeAllocatableOverheadResourcesDie) PerPod(v *resource.Quantity) *NodeAllocatableOverheadResourcesDie {
+	return d.DieStamp(func(r *corev1.NodeAllocatableOverheadResources) {
+		r.PerPod = v
+	})
+}
+
+// PerPodString sets PerPod by parsing the string as a Quantity. Panics if the string is not parsable.
+//
+// PerPod is the flat overhead quantity allocated per pod.
+//
+// Adding to each container limit allows individual containers to utilize the overhead, while the parent pod-level cgroup limit caps the total usage at the pod boundary where the overhead is accounted for exactly once.
+//
+// At least one of PerPod or PerContainer must be specified. Specifying neither is an invalid configuration.
+func (d *NodeAllocatableOverheadResourcesDie) PerPodString(s string) *NodeAllocatableOverheadResourcesDie {
+	q := resource.MustParse(s)
+	return d.PerPod(&q)
+}
+
+// PerContainer is the variable overhead quantity applied for each container referencing the claim.
+//
+// The container references are recorded in `nodeAllocatableResourceClaimStatuses.containers`.
+//
+// The total overhead quantity allocated for the claim is computed as:
+//
+// Quantity = PerPod + (PerContainer * NumReferences)
+//
+// Kubelet accounts for this overhead in cgroups:
+//
+// - Pod-level cgroup (requests and limits): Kubelet adds PerPod + (PerContainer * NumReferences).
+//
+// - Container-level cgroup (limits only): Kubelet adds PerPod + PerContainer for each referencing container.
+//
+// This allows any single container to access the pod-level overhead, while the parent cgroup caps the total usage to account for PerPod exactly once.
+//
+// At least one of PerPod or PerContainer must be specified. Specifying neither is an invalid configuration.
+func (d *NodeAllocatableOverheadResourcesDie) PerContainer(v *resource.Quantity) *NodeAllocatableOverheadResourcesDie {
+	return d.DieStamp(func(r *corev1.NodeAllocatableOverheadResources) {
+		r.PerContainer = v
+	})
+}
+
+// PerContainerString sets PerContainer by parsing the string as a Quantity. Panics if the string is not parsable.
+//
+// PerContainer is the variable overhead quantity applied for each container referencing the claim.
+//
+// The container references are recorded in `nodeAllocatableResourceClaimStatuses.containers`.
+//
+// The total overhead quantity allocated for the claim is computed as:
+//
+// Quantity = PerPod + (PerContainer * NumReferences)
+//
+// Kubelet accounts for this overhead in cgroups:
+//
+// - Pod-level cgroup (requests and limits): Kubelet adds PerPod + (PerContainer * NumReferences).
+//
+// - Container-level cgroup (limits only): Kubelet adds PerPod + PerContainer for each referencing container.
+//
+// This allows any single container to access the pod-level overhead, while the parent cgroup caps the total usage to account for PerPod exactly once.
+//
+// At least one of PerPod or PerContainer must be specified. Specifying neither is an invalid configuration.
+func (d *NodeAllocatableOverheadResourcesDie) PerContainerString(s string) *NodeAllocatableOverheadResourcesDie {
+	q := resource.MustParse(s)
+	return d.PerContainer(&q)
 }
 
 var PodTemplateBlank = (&PodTemplateDie{}).DieFeed(corev1.PodTemplate{})
@@ -49761,6 +51382,27 @@ func (d *EmptyDirVolumeSourceDie) SizeLimitString(s string) *EmptyDirVolumeSourc
 	return d.SizeLimit(&q)
 }
 
+// mode specifies the permission bits for the emptyDir directory, in numeric
+//
+// notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+//
+// If not specified, defaults to 0777.
+//
+// # This might be in conflict with other options that affect the file
+//
+// mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+//
+// will override the mode specified here.
+//
+// This field has no effect on Windows.
+//
+// This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+func (d *EmptyDirVolumeSourceDie) Mode(v *int32) *EmptyDirVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.EmptyDirVolumeSource) {
+		r.Mode = v
+	})
+}
+
 var GCEPersistentDiskVolumeSourceBlank = (&GCEPersistentDiskVolumeSourceDie{}).DieFeed(corev1.GCEPersistentDiskVolumeSource{})
 
 type GCEPersistentDiskVolumeSourceDie struct {
@@ -50951,6 +52593,17 @@ func (d *SecretVolumeSourceDie) DefaultMode(v *int32) *SecretVolumeSourceDie {
 func (d *SecretVolumeSourceDie) Optional(v *bool) *SecretVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.SecretVolumeSource) {
 		r.Optional = v
+	})
+}
+
+// defaultUser is Optional: The owner UID of the created files by default.
+//
+// The defaultUser field is only used as a fallback when the item-level user field is unset.
+//
+// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+func (d *SecretVolumeSourceDie) DefaultUser(v *int64) *SecretVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.SecretVolumeSource) {
+		r.DefaultUser = v
 	})
 }
 
@@ -53957,6 +55610,17 @@ func (d *DownwardAPIVolumeSourceDie) DefaultMode(v *int32) *DownwardAPIVolumeSou
 	})
 }
 
+// defaultUser is Optional: The owner UID of the created files by default.
+//
+// The defaultUser field is only used as a fallback when the item-level user field is unset.
+//
+// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+func (d *DownwardAPIVolumeSourceDie) DefaultUser(v *int64) *DownwardAPIVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.DownwardAPIVolumeSource) {
+		r.DefaultUser = v
+	})
+}
+
 var DownwardAPIVolumeFileBlank = (&DownwardAPIVolumeFileDie{}).DieFeed(corev1.DownwardAPIVolumeFile{})
 
 type DownwardAPIVolumeFileDie struct {
@@ -54264,6 +55928,17 @@ func (d *DownwardAPIVolumeFileDie) ResourceFieldRef(v *corev1.ResourceFieldSelec
 func (d *DownwardAPIVolumeFileDie) Mode(v *int32) *DownwardAPIVolumeFileDie {
 	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
 		r.Mode = v
+	})
+}
+
+// user is Optional: The owner UID of the created file.
+//
+// If specified, the item-level user field takes precedence over defaultUser.
+//
+// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+func (d *DownwardAPIVolumeFileDie) User(v *int64) *DownwardAPIVolumeFileDie {
+	return d.DieStamp(func(r *corev1.DownwardAPIVolumeFile) {
+		r.User = v
 	})
 }
 
@@ -55153,6 +56828,17 @@ func (d *ConfigMapVolumeSourceDie) DefaultMode(v *int32) *ConfigMapVolumeSourceD
 func (d *ConfigMapVolumeSourceDie) Optional(v *bool) *ConfigMapVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ConfigMapVolumeSource) {
 		r.Optional = v
+	})
+}
+
+// defaultUser is Optional: The owner UID of the created files by default.
+//
+// The defaultUser field is only used as a fallback when the item-level user field is unset.
+//
+// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+func (d *ConfigMapVolumeSourceDie) DefaultUser(v *int64) *ConfigMapVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.ConfigMapVolumeSource) {
+		r.DefaultUser = v
 	})
 }
 
@@ -56575,6 +58261,17 @@ func (d *ProjectedVolumeSourceDie) Sources(v ...corev1.VolumeProjection) *Projec
 func (d *ProjectedVolumeSourceDie) DefaultMode(v *int32) *ProjectedVolumeSourceDie {
 	return d.DieStamp(func(r *corev1.ProjectedVolumeSource) {
 		r.DefaultMode = v
+	})
+}
+
+// defaultUser is Optional: The owner UID of the created files by default.
+//
+// The defaultUser field is only used as a fallback when the item-level user field is unset.
+//
+// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+func (d *ProjectedVolumeSourceDie) DefaultUser(v *int64) *ProjectedVolumeSourceDie {
+	return d.DieStamp(func(r *corev1.ProjectedVolumeSource) {
+		r.DefaultUser = v
 	})
 }
 
@@ -58254,6 +59951,17 @@ func (d *ServiceAccountTokenProjectionDie) Path(v string) *ServiceAccountTokenPr
 	})
 }
 
+// user is Optional: The owner UID of the created file.
+//
+// If specified, the item-level user field takes precedence over defaultUser.
+//
+// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+func (d *ServiceAccountTokenProjectionDie) User(v *int64) *ServiceAccountTokenProjectionDie {
+	return d.DieStamp(func(r *corev1.ServiceAccountTokenProjection) {
+		r.User = v
+	})
+}
+
 var ClusterTrustBundleProjectionBlank = (&ClusterTrustBundleProjectionDie{}).DieFeed(corev1.ClusterTrustBundleProjection{})
 
 type ClusterTrustBundleProjectionDie struct {
@@ -58569,6 +60277,17 @@ func (d *ClusterTrustBundleProjectionDie) Optional(v *bool) *ClusterTrustBundleP
 func (d *ClusterTrustBundleProjectionDie) Path(v string) *ClusterTrustBundleProjectionDie {
 	return d.DieStamp(func(r *corev1.ClusterTrustBundleProjection) {
 		r.Path = v
+	})
+}
+
+// user is Optional: The owner UID of the created file.
+//
+// If specified, the item-level user field takes precedence over defaultUser.
+//
+// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+func (d *ClusterTrustBundleProjectionDie) User(v *int64) *ClusterTrustBundleProjectionDie {
+	return d.DieStamp(func(r *corev1.ClusterTrustBundleProjection) {
+		r.User = v
 	})
 }
 
@@ -58942,6 +60661,17 @@ func (d *PodCertificateProjectionDie) CertificateChainPath(v string) *PodCertifi
 func (d *PodCertificateProjectionDie) UserAnnotations(v map[string]string) *PodCertificateProjectionDie {
 	return d.DieStamp(func(r *corev1.PodCertificateProjection) {
 		r.UserAnnotations = v
+	})
+}
+
+// user is Optional: The owner UID of the created file.
+//
+// If specified, the item-level user field takes precedence over defaultUser.
+//
+// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+func (d *PodCertificateProjectionDie) User(v *int64) *PodCertificateProjectionDie {
+	return d.DieStamp(func(r *corev1.PodCertificateProjection) {
+		r.User = v
 	})
 }
 
@@ -61083,5 +62813,16 @@ func (d *KeyToPathDie) Path(v string) *KeyToPathDie {
 func (d *KeyToPathDie) Mode(v *int32) *KeyToPathDie {
 	return d.DieStamp(func(r *corev1.KeyToPath) {
 		r.Mode = v
+	})
+}
+
+// user is Optional: The owner UID of the created file.
+//
+// If specified, the item-level user field takes precedence over defaultUser.
+//
+// (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+func (d *KeyToPathDie) User(v *int64) *KeyToPathDie {
+	return d.DieStamp(func(r *corev1.KeyToPath) {
+		r.User = v
 	})
 }

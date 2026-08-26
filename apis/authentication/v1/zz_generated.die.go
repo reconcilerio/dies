@@ -1840,7 +1840,9 @@ func (d *BoundObjectReferenceDie) DiePatch(patchType types.PatchType) ([]byte, e
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// kind of the referent. Valid kinds are 'Pod' and 'Secret'.
+// kind of the referent. Valid kinds are 'Pod', 'Secret', 'Node',
+//
+// 'ValidatingWebhookConfiguration', and 'MutatingWebhookConfiguration'.
 func (d *BoundObjectReferenceDie) Kind(v string) *BoundObjectReferenceDie {
 	return d.DieStamp(func(r *authenticationv1.BoundObjectReference) {
 		r.Kind = v

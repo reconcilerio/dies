@@ -39,6 +39,878 @@ import (
 	yaml "sigs.k8s.io/yaml"
 )
 
+var ConversionReviewBlank = (&ConversionReviewDie{}).DieFeed(apiextensionsv1.ConversionReview{})
+
+type ConversionReviewDie struct {
+	mutable bool
+	r       apiextensionsv1.ConversionReview
+	seal    apiextensionsv1.ConversionReview
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ConversionReviewDie) DieImmutable(immutable bool) *ConversionReviewDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ConversionReviewDie) DieFeed(r apiextensionsv1.ConversionReview) *ConversionReviewDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ConversionReviewDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ConversionReviewDie) DieFeedPtr(r *apiextensionsv1.ConversionReview) *ConversionReviewDie {
+	if r == nil {
+		r = &apiextensionsv1.ConversionReview{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ConversionReviewDie) DieFeedDuck(v any) *ConversionReviewDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ConversionReviewDie) DieFeedJSON(j []byte) *ConversionReviewDie {
+	r := apiextensionsv1.ConversionReview{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ConversionReviewDie) DieFeedYAML(y []byte) *ConversionReviewDie {
+	r := apiextensionsv1.ConversionReview{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ConversionReviewDie) DieFeedYAMLFile(name string) *ConversionReviewDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ConversionReviewDie) DieFeedRawExtension(raw runtime.RawExtension) *ConversionReviewDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ConversionReviewDie) DieRelease() apiextensionsv1.ConversionReview {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ConversionReviewDie) DieReleasePtr() *apiextensionsv1.ConversionReview {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ConversionReviewDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ConversionReviewDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ConversionReviewDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ConversionReviewDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ConversionReviewDie) DieStamp(fn func(r *apiextensionsv1.ConversionReview)) *ConversionReviewDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ConversionReviewDie) DieStampAt(jp string, fn interface{}) *ConversionReviewDie {
+	return d.DieStamp(func(r *apiextensionsv1.ConversionReview) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ConversionReviewDie) DieWith(fns ...func(d *ConversionReviewDie)) *ConversionReviewDie {
+	nd := ConversionReviewBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ConversionReviewDie) DeepCopy() *ConversionReviewDie {
+	r := *d.r.DeepCopy()
+	return &ConversionReviewDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ConversionReviewDie) DieSeal() *ConversionReviewDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ConversionReviewDie) DieSealFeed(r apiextensionsv1.ConversionReview) *ConversionReviewDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ConversionReviewDie) DieSealFeedPtr(r *apiextensionsv1.ConversionReview) *ConversionReviewDie {
+	if r == nil {
+		r = &apiextensionsv1.ConversionReview{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ConversionReviewDie) DieSealRelease() apiextensionsv1.ConversionReview {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ConversionReviewDie) DieSealReleasePtr() *apiextensionsv1.ConversionReview {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ConversionReviewDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ConversionReviewDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// TypeMetaDie mutates TypeMeta as a die.
+func (d *ConversionReviewDie) TypeMetaDie(fn func(d *metav1.TypeMetaDie)) *ConversionReviewDie {
+	return d.DieStamp(func(r *apiextensionsv1.ConversionReview) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// RequestDie mutates Request as a die.
+//
+// request describes the attributes for the conversion request.
+func (d *ConversionReviewDie) RequestDie(fn func(d *ConversionRequestDie)) *ConversionReviewDie {
+	return d.DieStamp(func(r *apiextensionsv1.ConversionReview) {
+		d := ConversionRequestBlank.DieImmutable(false).DieFeedPtr(r.Request)
+		fn(d)
+		r.Request = d.DieReleasePtr()
+	})
+}
+
+// ResponseDie mutates Response as a die.
+//
+// response describes the attributes for the conversion response.
+func (d *ConversionReviewDie) ResponseDie(fn func(d *ConversionResponseDie)) *ConversionReviewDie {
+	return d.DieStamp(func(r *apiextensionsv1.ConversionReview) {
+		d := ConversionResponseBlank.DieImmutable(false).DieFeedPtr(r.Response)
+		fn(d)
+		r.Response = d.DieReleasePtr()
+	})
+}
+
+func (d *ConversionReviewDie) TypeMeta(v apismetav1.TypeMeta) *ConversionReviewDie {
+	return d.DieStamp(func(r *apiextensionsv1.ConversionReview) {
+		r.TypeMeta = v
+	})
+}
+
+// request describes the attributes for the conversion request.
+func (d *ConversionReviewDie) Request(v *apiextensionsv1.ConversionRequest) *ConversionReviewDie {
+	return d.DieStamp(func(r *apiextensionsv1.ConversionReview) {
+		r.Request = v
+	})
+}
+
+// response describes the attributes for the conversion response.
+func (d *ConversionReviewDie) Response(v *apiextensionsv1.ConversionResponse) *ConversionReviewDie {
+	return d.DieStamp(func(r *apiextensionsv1.ConversionReview) {
+		r.Response = v
+	})
+}
+
+var ConversionRequestBlank = (&ConversionRequestDie{}).DieFeed(apiextensionsv1.ConversionRequest{})
+
+type ConversionRequestDie struct {
+	mutable bool
+	r       apiextensionsv1.ConversionRequest
+	seal    apiextensionsv1.ConversionRequest
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ConversionRequestDie) DieImmutable(immutable bool) *ConversionRequestDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ConversionRequestDie) DieFeed(r apiextensionsv1.ConversionRequest) *ConversionRequestDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ConversionRequestDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ConversionRequestDie) DieFeedPtr(r *apiextensionsv1.ConversionRequest) *ConversionRequestDie {
+	if r == nil {
+		r = &apiextensionsv1.ConversionRequest{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ConversionRequestDie) DieFeedDuck(v any) *ConversionRequestDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ConversionRequestDie) DieFeedJSON(j []byte) *ConversionRequestDie {
+	r := apiextensionsv1.ConversionRequest{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ConversionRequestDie) DieFeedYAML(y []byte) *ConversionRequestDie {
+	r := apiextensionsv1.ConversionRequest{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ConversionRequestDie) DieFeedYAMLFile(name string) *ConversionRequestDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ConversionRequestDie) DieFeedRawExtension(raw runtime.RawExtension) *ConversionRequestDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ConversionRequestDie) DieRelease() apiextensionsv1.ConversionRequest {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ConversionRequestDie) DieReleasePtr() *apiextensionsv1.ConversionRequest {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ConversionRequestDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ConversionRequestDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ConversionRequestDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ConversionRequestDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ConversionRequestDie) DieStamp(fn func(r *apiextensionsv1.ConversionRequest)) *ConversionRequestDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ConversionRequestDie) DieStampAt(jp string, fn interface{}) *ConversionRequestDie {
+	return d.DieStamp(func(r *apiextensionsv1.ConversionRequest) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ConversionRequestDie) DieWith(fns ...func(d *ConversionRequestDie)) *ConversionRequestDie {
+	nd := ConversionRequestBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ConversionRequestDie) DeepCopy() *ConversionRequestDie {
+	r := *d.r.DeepCopy()
+	return &ConversionRequestDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ConversionRequestDie) DieSeal() *ConversionRequestDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ConversionRequestDie) DieSealFeed(r apiextensionsv1.ConversionRequest) *ConversionRequestDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ConversionRequestDie) DieSealFeedPtr(r *apiextensionsv1.ConversionRequest) *ConversionRequestDie {
+	if r == nil {
+		r = &apiextensionsv1.ConversionRequest{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ConversionRequestDie) DieSealRelease() apiextensionsv1.ConversionRequest {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ConversionRequestDie) DieSealReleasePtr() *apiextensionsv1.ConversionRequest {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ConversionRequestDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ConversionRequestDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// uid is an identifier for the individual request/response. It allows distinguishing instances of requests which are
+//
+// otherwise identical (parallel requests, etc).
+//
+// The UID is meant to track the round trip (request/response) between the Kubernetes API server and the webhook, not the user request.
+//
+// It is suitable for correlating log entries between the webhook and apiserver, for either auditing or debugging.
+func (d *ConversionRequestDie) UID(v types.UID) *ConversionRequestDie {
+	return d.DieStamp(func(r *apiextensionsv1.ConversionRequest) {
+		r.UID = v
+	})
+}
+
+// desiredAPIVersion is the version to convert given objects to. e.g. "myapi.example.com/v1"
+func (d *ConversionRequestDie) DesiredAPIVersion(v string) *ConversionRequestDie {
+	return d.DieStamp(func(r *apiextensionsv1.ConversionRequest) {
+		r.DesiredAPIVersion = v
+	})
+}
+
+// objects is the list of custom resource objects to be converted.
+func (d *ConversionRequestDie) Objects(v ...runtime.RawExtension) *ConversionRequestDie {
+	return d.DieStamp(func(r *apiextensionsv1.ConversionRequest) {
+		r.Objects = v
+	})
+}
+
+var ConversionResponseBlank = (&ConversionResponseDie{}).DieFeed(apiextensionsv1.ConversionResponse{})
+
+type ConversionResponseDie struct {
+	mutable bool
+	r       apiextensionsv1.ConversionResponse
+	seal    apiextensionsv1.ConversionResponse
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *ConversionResponseDie) DieImmutable(immutable bool) *ConversionResponseDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *ConversionResponseDie) DieFeed(r apiextensionsv1.ConversionResponse) *ConversionResponseDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &ConversionResponseDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *ConversionResponseDie) DieFeedPtr(r *apiextensionsv1.ConversionResponse) *ConversionResponseDie {
+	if r == nil {
+		r = &apiextensionsv1.ConversionResponse{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ConversionResponseDie) DieFeedDuck(v any) *ConversionResponseDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *ConversionResponseDie) DieFeedJSON(j []byte) *ConversionResponseDie {
+	r := apiextensionsv1.ConversionResponse{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *ConversionResponseDie) DieFeedYAML(y []byte) *ConversionResponseDie {
+	r := apiextensionsv1.ConversionResponse{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *ConversionResponseDie) DieFeedYAMLFile(name string) *ConversionResponseDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ConversionResponseDie) DieFeedRawExtension(raw runtime.RawExtension) *ConversionResponseDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *ConversionResponseDie) DieRelease() apiextensionsv1.ConversionResponse {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *ConversionResponseDie) DieReleasePtr() *apiextensionsv1.ConversionResponse {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ConversionResponseDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *ConversionResponseDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *ConversionResponseDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *ConversionResponseDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *ConversionResponseDie) DieStamp(fn func(r *apiextensionsv1.ConversionResponse)) *ConversionResponseDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *ConversionResponseDie) DieStampAt(jp string, fn interface{}) *ConversionResponseDie {
+	return d.DieStamp(func(r *apiextensionsv1.ConversionResponse) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *ConversionResponseDie) DieWith(fns ...func(d *ConversionResponseDie)) *ConversionResponseDie {
+	nd := ConversionResponseBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *ConversionResponseDie) DeepCopy() *ConversionResponseDie {
+	r := *d.r.DeepCopy()
+	return &ConversionResponseDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *ConversionResponseDie) DieSeal() *ConversionResponseDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *ConversionResponseDie) DieSealFeed(r apiextensionsv1.ConversionResponse) *ConversionResponseDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *ConversionResponseDie) DieSealFeedPtr(r *apiextensionsv1.ConversionResponse) *ConversionResponseDie {
+	if r == nil {
+		r = &apiextensionsv1.ConversionResponse{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *ConversionResponseDie) DieSealRelease() apiextensionsv1.ConversionResponse {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *ConversionResponseDie) DieSealReleasePtr() *apiextensionsv1.ConversionResponse {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *ConversionResponseDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *ConversionResponseDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// ResultDie mutates Result as a die.
+//
+// result contains the result of conversion with extra details if the conversion failed. `result.status` determines if
+//
+// the conversion failed or succeeded. The `result.status` field is required and represents the success or failure of the
+//
+// conversion. A successful conversion must set `result.status` to `Success`. A failed conversion must set
+//
+// `result.status` to `Failure` and provide more details in `result.message` and return http status 200. The `result.message`
+//
+// will be used to construct an error message for the end user.
+func (d *ConversionResponseDie) ResultDie(fn func(d *metav1.StatusDie)) *ConversionResponseDie {
+	return d.DieStamp(func(r *apiextensionsv1.ConversionResponse) {
+		d := metav1.StatusBlank.DieImmutable(false).DieFeed(r.Result)
+		fn(d)
+		r.Result = d.DieRelease()
+	})
+}
+
+// uid is an identifier for the individual request/response.
+//
+// This should be copied over from the corresponding `request.uid`.
+func (d *ConversionResponseDie) UID(v types.UID) *ConversionResponseDie {
+	return d.DieStamp(func(r *apiextensionsv1.ConversionResponse) {
+		r.UID = v
+	})
+}
+
+// convertedObjects is the list of converted version of `request.objects` if the `result` is successful, otherwise empty.
+//
+// The webhook is expected to set `apiVersion` of these objects to the `request.desiredAPIVersion`. The list
+//
+// must also have the same size as the input list with the same objects in the same order (equal kind, metadata.uid, metadata.name and metadata.namespace).
+//
+// The webhook is allowed to mutate labels and annotations. Any other change to the metadata is silently ignored.
+func (d *ConversionResponseDie) ConvertedObjects(v ...runtime.RawExtension) *ConversionResponseDie {
+	return d.DieStamp(func(r *apiextensionsv1.ConversionResponse) {
+		r.ConvertedObjects = v
+	})
+}
+
+// result contains the result of conversion with extra details if the conversion failed. `result.status` determines if
+//
+// the conversion failed or succeeded. The `result.status` field is required and represents the success or failure of the
+//
+// conversion. A successful conversion must set `result.status` to `Success`. A failed conversion must set
+//
+// `result.status` to `Failure` and provide more details in `result.message` and return http status 200. The `result.message`
+//
+// will be used to construct an error message for the end user.
+func (d *ConversionResponseDie) Result(v apismetav1.Status) *ConversionResponseDie {
+	return d.DieStamp(func(r *apiextensionsv1.ConversionResponse) {
+		r.Result = v
+	})
+}
+
 var CustomResourceDefinitionBlank = (&CustomResourceDefinitionDie{}).DieFeed(apiextensionsv1.CustomResourceDefinition{})
 
 type CustomResourceDefinitionDie struct {

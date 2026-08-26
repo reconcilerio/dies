@@ -125,6 +125,15 @@ func TestSuccessPolicyRuleDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestJobSchedulingConfigurationDie_MissingMethods(t *testingx.T) {
+	die := JobSchedulingConfigurationBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for JobSchedulingConfigurationDie: %s", diff.List())
+	}
+}
+
 func TestJobStatusDie_MissingMethods(t *testingx.T) {
 	die := JobStatusBlank
 	ignore := []string{}

@@ -71,6 +71,114 @@ func TestMatchConditionDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestParamKindDie_MissingMethods(t *testingx.T) {
+	die := ParamKindBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ParamKindDie: %s", diff.List())
+	}
+}
+
+func TestMatchResourcesDie_MissingMethods(t *testingx.T) {
+	die := MatchResourcesBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for MatchResourcesDie: %s", diff.List())
+	}
+}
+
+func TestNamedRuleWithOperationsDie_MissingMethods(t *testingx.T) {
+	die := NamedRuleWithOperationsBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NamedRuleWithOperationsDie: %s", diff.List())
+	}
+}
+
+func TestVariableDie_MissingMethods(t *testingx.T) {
+	die := VariableBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for VariableDie: %s", diff.List())
+	}
+}
+
+func TestParamRefDie_MissingMethods(t *testingx.T) {
+	die := ParamRefBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ParamRefDie: %s", diff.List())
+	}
+}
+
+func TestMutatingAdmissionPolicyDie_MissingMethods(t *testingx.T) {
+	die := MutatingAdmissionPolicyBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for MutatingAdmissionPolicyDie: %s", diff.List())
+	}
+}
+
+func TestMutatingAdmissionPolicySpecDie_MissingMethods(t *testingx.T) {
+	die := MutatingAdmissionPolicySpecBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for MutatingAdmissionPolicySpecDie: %s", diff.List())
+	}
+}
+
+func TestMutationDie_MissingMethods(t *testingx.T) {
+	die := MutationBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for MutationDie: %s", diff.List())
+	}
+}
+
+func TestApplyConfigurationDie_MissingMethods(t *testingx.T) {
+	die := ApplyConfigurationBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for ApplyConfigurationDie: %s", diff.List())
+	}
+}
+
+func TestJSONPatchDie_MissingMethods(t *testingx.T) {
+	die := JSONPatchBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for JSONPatchDie: %s", diff.List())
+	}
+}
+
+func TestMutatingAdmissionPolicyBindingDie_MissingMethods(t *testingx.T) {
+	die := MutatingAdmissionPolicyBindingBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for MutatingAdmissionPolicyBindingDie: %s", diff.List())
+	}
+}
+
+func TestMutatingAdmissionPolicyBindingSpecDie_MissingMethods(t *testingx.T) {
+	die := MutatingAdmissionPolicyBindingSpecBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for MutatingAdmissionPolicyBindingSpecDie: %s", diff.List())
+	}
+}
+
 func TestMutatingWebhookConfigurationDie_MissingMethods(t *testingx.T) {
 	die := MutatingWebhookConfigurationBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
@@ -107,33 +215,6 @@ func TestValidatingAdmissionPolicySpecDie_MissingMethods(t *testingx.T) {
 	}
 }
 
-func TestParamKindDie_MissingMethods(t *testingx.T) {
-	die := ParamKindBlank
-	ignore := []string{}
-	diff := testing.DieFieldDiff(die).Delete(ignore...)
-	if diff.Len() != 0 {
-		t.Errorf("found missing fields for ParamKindDie: %s", diff.List())
-	}
-}
-
-func TestMatchResourcesDie_MissingMethods(t *testingx.T) {
-	die := MatchResourcesBlank
-	ignore := []string{}
-	diff := testing.DieFieldDiff(die).Delete(ignore...)
-	if diff.Len() != 0 {
-		t.Errorf("found missing fields for MatchResourcesDie: %s", diff.List())
-	}
-}
-
-func TestNamedRuleWithOperationsDie_MissingMethods(t *testingx.T) {
-	die := NamedRuleWithOperationsBlank
-	ignore := []string{}
-	diff := testing.DieFieldDiff(die).Delete(ignore...)
-	if diff.Len() != 0 {
-		t.Errorf("found missing fields for NamedRuleWithOperationsDie: %s", diff.List())
-	}
-}
-
 func TestValidationDie_MissingMethods(t *testingx.T) {
 	die := ValidationBlank
 	ignore := []string{}
@@ -149,15 +230,6 @@ func TestAuditAnnotationDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for AuditAnnotationDie: %s", diff.List())
-	}
-}
-
-func TestVariableDie_MissingMethods(t *testingx.T) {
-	die := VariableBlank
-	ignore := []string{}
-	diff := testing.DieFieldDiff(die).Delete(ignore...)
-	if diff.Len() != 0 {
-		t.Errorf("found missing fields for VariableDie: %s", diff.List())
 	}
 }
 
@@ -203,15 +275,6 @@ func TestValidatingAdmissionPolicyBindingSpecDie_MissingMethods(t *testingx.T) {
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for ValidatingAdmissionPolicyBindingSpecDie: %s", diff.List())
-	}
-}
-
-func TestParamRefDie_MissingMethods(t *testingx.T) {
-	die := ParamRefBlank
-	ignore := []string{}
-	diff := testing.DieFieldDiff(die).Delete(ignore...)
-	if diff.Len() != 0 {
-		t.Errorf("found missing fields for ParamRefDie: %s", diff.List())
 	}
 }
 

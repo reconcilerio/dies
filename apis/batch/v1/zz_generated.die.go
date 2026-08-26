@@ -26,6 +26,7 @@ import (
 	cmp "github.com/google/go-cmp/cmp"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	schedulingv1alpha3 "k8s.io/api/scheduling/v1alpha3"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -36,6 +37,7 @@ import (
 	osx "os"
 	apiscorev1 "reconciler.io/dies/apis/core/v1"
 	metav1 "reconciler.io/dies/apis/meta/v1"
+	v1alpha3 "reconciler.io/dies/apis/scheduling/v1alpha3"
 	patch "reconciler.io/dies/patch"
 	reflectx "reflect"
 	yaml "sigs.k8s.io/yaml"
@@ -1714,6 +1716,31 @@ func (d *JobSpecDie) TemplateDie(fn func(d *apiscorev1.PodTemplateSpecDie)) *Job
 	})
 }
 
+// SchedulingDie mutates Scheduling as a die.
+//
+// scheduling defines the Workload-aware Scheduling configuration for this Job.
+//
+// # When set, it specifies the scheduling policy (basic or gang), topology
+//
+// constraints, disruption mode, and shared resource claims.
+//
+// # When omitted, the Job defaults to the basic scheduling policy, which behaves
+//
+// as standard pod-by-pod scheduling.
+//
+// This field is alpha-level and requires the WorkloadWithJob feature gate.
+//
+// # This field is immutable, including whether it is set at all, only
+//
+// policy.gang.minCount may be changed after creation.
+func (d *JobSpecDie) SchedulingDie(fn func(d *JobSchedulingConfigurationDie)) *JobSpecDie {
+	return d.DieStamp(func(r *batchv1.JobSpec) {
+		d := JobSchedulingConfigurationBlank.DieImmutable(false).DieFeedPtr(r.Scheduling)
+		fn(d)
+		r.Scheduling = d.DieReleasePtr()
+	})
+}
+
 // Specifies the maximum desired number of pods the job should
 //
 // run at any given time. The actual number of pods running in steady state will
@@ -2013,6 +2040,27 @@ func (d *JobSpecDie) PodReplacementPolicy(v *batchv1.PodReplacementPolicy) *JobS
 func (d *JobSpecDie) ManagedBy(v *string) *JobSpecDie {
 	return d.DieStamp(func(r *batchv1.JobSpec) {
 		r.ManagedBy = v
+	})
+}
+
+// scheduling defines the Workload-aware Scheduling configuration for this Job.
+//
+// # When set, it specifies the scheduling policy (basic or gang), topology
+//
+// constraints, disruption mode, and shared resource claims.
+//
+// # When omitted, the Job defaults to the basic scheduling policy, which behaves
+//
+// as standard pod-by-pod scheduling.
+//
+// This field is alpha-level and requires the WorkloadWithJob feature gate.
+//
+// # This field is immutable, including whether it is set at all, only
+//
+// policy.gang.minCount may be changed after creation.
+func (d *JobSpecDie) Scheduling(v *batchv1.JobSchedulingConfiguration) *JobSpecDie {
+	return d.DieStamp(func(r *batchv1.JobSpec) {
+		r.Scheduling = v
 	})
 }
 
@@ -3767,6 +3815,397 @@ func (d *SuccessPolicyRuleDie) SucceededCount(v *int32) *SuccessPolicyRuleDie {
 	})
 }
 
+var JobSchedulingConfigurationBlank = (&JobSchedulingConfigurationDie{}).DieFeed(batchv1.JobSchedulingConfiguration{})
+
+type JobSchedulingConfigurationDie struct {
+	mutable bool
+	r       batchv1.JobSchedulingConfiguration
+	seal    batchv1.JobSchedulingConfiguration
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *JobSchedulingConfigurationDie) DieImmutable(immutable bool) *JobSchedulingConfigurationDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *JobSchedulingConfigurationDie) DieFeed(r batchv1.JobSchedulingConfiguration) *JobSchedulingConfigurationDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &JobSchedulingConfigurationDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *JobSchedulingConfigurationDie) DieFeedPtr(r *batchv1.JobSchedulingConfiguration) *JobSchedulingConfigurationDie {
+	if r == nil {
+		r = &batchv1.JobSchedulingConfiguration{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *JobSchedulingConfigurationDie) DieFeedDuck(v any) *JobSchedulingConfigurationDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *JobSchedulingConfigurationDie) DieFeedJSON(j []byte) *JobSchedulingConfigurationDie {
+	r := batchv1.JobSchedulingConfiguration{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *JobSchedulingConfigurationDie) DieFeedYAML(y []byte) *JobSchedulingConfigurationDie {
+	r := batchv1.JobSchedulingConfiguration{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *JobSchedulingConfigurationDie) DieFeedYAMLFile(name string) *JobSchedulingConfigurationDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *JobSchedulingConfigurationDie) DieFeedRawExtension(raw runtime.RawExtension) *JobSchedulingConfigurationDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *JobSchedulingConfigurationDie) DieRelease() batchv1.JobSchedulingConfiguration {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *JobSchedulingConfigurationDie) DieReleasePtr() *batchv1.JobSchedulingConfiguration {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *JobSchedulingConfigurationDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *JobSchedulingConfigurationDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *JobSchedulingConfigurationDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *JobSchedulingConfigurationDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *JobSchedulingConfigurationDie) DieStamp(fn func(r *batchv1.JobSchedulingConfiguration)) *JobSchedulingConfigurationDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *JobSchedulingConfigurationDie) DieStampAt(jp string, fn interface{}) *JobSchedulingConfigurationDie {
+	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *JobSchedulingConfigurationDie) DieWith(fns ...func(d *JobSchedulingConfigurationDie)) *JobSchedulingConfigurationDie {
+	nd := JobSchedulingConfigurationBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *JobSchedulingConfigurationDie) DeepCopy() *JobSchedulingConfigurationDie {
+	r := *d.r.DeepCopy()
+	return &JobSchedulingConfigurationDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *JobSchedulingConfigurationDie) DieSeal() *JobSchedulingConfigurationDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *JobSchedulingConfigurationDie) DieSealFeed(r batchv1.JobSchedulingConfiguration) *JobSchedulingConfigurationDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *JobSchedulingConfigurationDie) DieSealFeedPtr(r *batchv1.JobSchedulingConfiguration) *JobSchedulingConfigurationDie {
+	if r == nil {
+		r = &batchv1.JobSchedulingConfiguration{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *JobSchedulingConfigurationDie) DieSealRelease() batchv1.JobSchedulingConfiguration {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *JobSchedulingConfigurationDie) DieSealReleasePtr() *batchv1.JobSchedulingConfiguration {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *JobSchedulingConfigurationDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *JobSchedulingConfigurationDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// SchedulingPolicyDie mutates SchedulingPolicy as a die.
+//
+// SchedulingPolicy defines the scheduling policy for this Job.
+//
+// Exactly one of Basic or Gang must be set.
+//
+// This field is immutable after creation: the policy may not be added or
+//
+// removed. The policy variant (basic/gang) is frozen by hand-written
+//
+// validation; only schedulingPolicy.gang.minCount may be changed.
+func (d *JobSchedulingConfigurationDie) SchedulingPolicyDie(fn func(d *v1alpha3.WorkloadPodGroupSchedulingPolicyDie)) *JobSchedulingConfigurationDie {
+	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
+		d := v1alpha3.WorkloadPodGroupSchedulingPolicyBlank.DieImmutable(false).DieFeedPtr(r.SchedulingPolicy)
+		fn(d)
+		r.SchedulingPolicy = d.DieReleasePtr()
+	})
+}
+
+// SchedulingConstraintsDie mutates SchedulingConstraints as a die.
+//
+// SchedulingConstraints defines scheduling constraints (e.g. topology)
+//
+// for the Job's pods.
+//
+// This field is immutable after creation.
+func (d *JobSchedulingConfigurationDie) SchedulingConstraintsDie(fn func(d *v1alpha3.WorkloadPodGroupSchedulingConstraintsDie)) *JobSchedulingConfigurationDie {
+	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
+		d := v1alpha3.WorkloadPodGroupSchedulingConstraintsBlank.DieImmutable(false).DieFeedPtr(r.SchedulingConstraints)
+		fn(d)
+		r.SchedulingConstraints = d.DieReleasePtr()
+	})
+}
+
+// DisruptionModeDie mutates DisruptionMode as a die.
+//
+// DisruptionMode defines the mode in which the Job's pods can be disrupted.
+//
+// One of Single, All.
+//
+// This field is immutable after creation: it may not be added or removed,
+//
+// and the selected mode may not be changed.
+func (d *JobSchedulingConfigurationDie) DisruptionModeDie(fn func(d *v1alpha3.WorkloadPodGroupDisruptionModeDie)) *JobSchedulingConfigurationDie {
+	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
+		d := v1alpha3.WorkloadPodGroupDisruptionModeBlank.DieImmutable(false).DieFeedPtr(r.DisruptionMode)
+		fn(d)
+		r.DisruptionMode = d.DieReleasePtr()
+	})
+}
+
+// ResourceClaimDie mutates a single item in ResourceClaims matched by the nested field Name, appending a new item if no match is found.
+//
+// # ResourceClaims defines which ResourceClaims may be shared among Pods in
+//
+// the Job. Pods consume the devices allocated to a PodGroup's claim by
+//
+// defining a claim in its own Spec.ResourceClaims that matches the
+//
+// PodGroup's claim exactly. The claim must have the same name and refer to
+//
+// the same ResourceClaim or ResourceClaimTemplate.
+//
+// At most 4 claims may be set, matching the limit on the resulting PodGroup.
+//
+// This list is immutable after creation: entries may neither be added,
+//
+// removed, nor modified.
+func (d *JobSchedulingConfigurationDie) ResourceClaimDie(v string, fn func(d *v1alpha3.WorkloadPodGroupResourceClaimDie)) *JobSchedulingConfigurationDie {
+	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
+		for i := range r.ResourceClaims {
+			if v == r.ResourceClaims[i].Name {
+				d := v1alpha3.WorkloadPodGroupResourceClaimBlank.DieImmutable(false).DieFeed(r.ResourceClaims[i])
+				fn(d)
+				r.ResourceClaims[i] = d.DieRelease()
+				return
+			}
+		}
+
+		d := v1alpha3.WorkloadPodGroupResourceClaimBlank.DieImmutable(false).DieFeed(schedulingv1alpha3.WorkloadPodGroupResourceClaim{Name: v})
+		fn(d)
+		r.ResourceClaims = append(r.ResourceClaims, d.DieRelease())
+	})
+}
+
+// SchedulingPolicy defines the scheduling policy for this Job.
+//
+// Exactly one of Basic or Gang must be set.
+//
+// This field is immutable after creation: the policy may not be added or
+//
+// removed. The policy variant (basic/gang) is frozen by hand-written
+//
+// validation; only schedulingPolicy.gang.minCount may be changed.
+func (d *JobSchedulingConfigurationDie) SchedulingPolicy(v *schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy) *JobSchedulingConfigurationDie {
+	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
+		r.SchedulingPolicy = v
+	})
+}
+
+// SchedulingConstraints defines scheduling constraints (e.g. topology)
+//
+// for the Job's pods.
+//
+// This field is immutable after creation.
+func (d *JobSchedulingConfigurationDie) SchedulingConstraints(v *schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints) *JobSchedulingConfigurationDie {
+	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
+		r.SchedulingConstraints = v
+	})
+}
+
+// DisruptionMode defines the mode in which the Job's pods can be disrupted.
+//
+// One of Single, All.
+//
+// This field is immutable after creation: it may not be added or removed,
+//
+// and the selected mode may not be changed.
+func (d *JobSchedulingConfigurationDie) DisruptionMode(v *schedulingv1alpha3.WorkloadPodGroupDisruptionMode) *JobSchedulingConfigurationDie {
+	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
+		r.DisruptionMode = v
+	})
+}
+
+// ResourceClaims defines which ResourceClaims may be shared among Pods in
+//
+// the Job. Pods consume the devices allocated to a PodGroup's claim by
+//
+// defining a claim in its own Spec.ResourceClaims that matches the
+//
+// PodGroup's claim exactly. The claim must have the same name and refer to
+//
+// the same ResourceClaim or ResourceClaimTemplate.
+//
+// At most 4 claims may be set, matching the limit on the resulting PodGroup.
+//
+// This list is immutable after creation: entries may neither be added,
+//
+// removed, nor modified.
+func (d *JobSchedulingConfigurationDie) ResourceClaims(v ...schedulingv1alpha3.WorkloadPodGroupResourceClaim) *JobSchedulingConfigurationDie {
+	return d.DieStamp(func(r *batchv1.JobSchedulingConfiguration) {
+		r.ResourceClaims = v
+	})
+}
+
 var JobStatusBlank = (&JobStatusDie{}).DieFeed(batchv1.JobStatus{})
 
 type JobStatusDie struct {
@@ -4141,10 +4580,6 @@ func (d *JobStatusDie) Failed(v int32) *JobStatusDie {
 // The number of pods which are terminating (in phase Pending or Running
 //
 // and have a deletionTimestamp).
-//
-// This field is beta-level. The job controller populates the field when
-//
-// the feature gate JobPodReplacementPolicy is enabled (enabled by default).
 func (d *JobStatusDie) Terminating(v *int32) *JobStatusDie {
 	return d.DieStamp(func(r *batchv1.JobStatus) {
 		r.Terminating = v

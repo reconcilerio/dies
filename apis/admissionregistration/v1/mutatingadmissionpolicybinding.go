@@ -1,5 +1,5 @@
 /*
-Copyright 2024 the original author or authors.
+Copyright 2026 the original author or authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ import (
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 )
 
-// +die:object=true,apiVersion=admissionregistration.k8s.io/v1,kind=ValidatingAdmissionPolicyBinding
-type _ = admissionregistrationv1.ValidatingAdmissionPolicyBinding
+// +die:object=true,apiVersion=admissionregistration.k8s.io/v1,kind=MutatingAdmissionPolicyBinding
+type _ = admissionregistrationv1.MutatingAdmissionPolicyBinding
 
 // +die
 // +die:field:name=ParamRef,die=ParamRefDie,pointer=true
 // +die:field:name=MatchResources,die=MatchResourcesDie,pointer=true
-type _ = admissionregistrationv1.ValidatingAdmissionPolicyBindingSpec
+type _ = admissionregistrationv1.MutatingAdmissionPolicyBindingSpec

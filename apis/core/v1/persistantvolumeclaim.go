@@ -36,6 +36,7 @@ type _ = corev1.VolumeResourceRequirements
 
 // +die:ignore={AllocatedResourceStatuses}
 // +die:field:name=ModifyVolumeStatus,die=ModifyVolumeStatusDie,pointer=true
+// +die:field:name=HealthStatus,die=VolumeHealthStatusDie,pointer=true
 type _ = corev1.PersistentVolumeClaimStatus
 
 func (d *PersistentVolumeClaimStatusDie) ConditionsDie(conditions ...*diemetav1.ConditionDie) *PersistentVolumeClaimStatusDie {
@@ -109,6 +110,13 @@ func (d *PersistentVolumeClaimStatusDie) AddAllocatedResourceStatus(name corev1.
 
 // +die
 type _ corev1.ModifyVolumeStatus
+
+// +die
+// +die:field:name=HealthConditions,die=VolumeHealthConditionDie,listType=map,listMapKey=Reason
+type _ corev1.VolumeHealthStatus
+
+// +die
+type _ corev1.VolumeHealthCondition
 
 // +die
 // +die:field:name=ObjectMeta,package=_/meta/v1,die=ObjectMetaDie

@@ -683,6 +683,15 @@ func TestTaintDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestNodePodPreemptionPolicyDie_MissingMethods(t *testingx.T) {
+	die := NodePodPreemptionPolicyBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodePodPreemptionPolicyDie: %s", diff.List())
+	}
+}
+
 func TestNodeConfigSourceDie_MissingMethods(t *testingx.T) {
 	die := NodeConfigSourceBlank
 	ignore := []string{}
@@ -1016,6 +1025,24 @@ func TestModifyVolumeStatusDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestVolumeHealthStatusDie_MissingMethods(t *testingx.T) {
+	die := VolumeHealthStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for VolumeHealthStatusDie: %s", diff.List())
+	}
+}
+
+func TestVolumeHealthConditionDie_MissingMethods(t *testingx.T) {
+	die := VolumeHealthConditionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for VolumeHealthConditionDie: %s", diff.List())
+	}
+}
+
 func TestPersistentVolumeClaimTemplateDie_MissingMethods(t *testingx.T) {
 	die := PersistentVolumeClaimTemplateBlank
 	ignore := []string{}
@@ -1180,10 +1207,28 @@ func TestContainerExtendedResourceRequestDie_MissingMethods(t *testingx.T) {
 
 func TestNodeAllocatableResourceClaimStatusDie_MissingMethods(t *testingx.T) {
 	die := NodeAllocatableResourceClaimStatusBlank
-	ignore := []string{"Resources"}
+	ignore := []string{}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for NodeAllocatableResourceClaimStatusDie: %s", diff.List())
+	}
+}
+
+func TestNodeAllocatableMappedResourcesDie_MissingMethods(t *testingx.T) {
+	die := NodeAllocatableMappedResourcesBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodeAllocatableMappedResourcesDie: %s", diff.List())
+	}
+}
+
+func TestNodeAllocatableOverheadResourcesDie_MissingMethods(t *testingx.T) {
+	die := NodeAllocatableOverheadResourcesBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for NodeAllocatableOverheadResourcesDie: %s", diff.List())
 	}
 }
 

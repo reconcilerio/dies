@@ -64,7 +64,7 @@ func TestTokenReviewDie_MissingMethods(t *testingx.T) {
 
 func TestTokenRequestSpecDie_MissingMethods(t *testingx.T) {
 	die := TokenRequestSpecBlank
-	ignore := []string{}
+	ignore := []string{"Attestations"}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
 		t.Errorf("found missing fields for TokenRequestSpecDie: %s", diff.List())

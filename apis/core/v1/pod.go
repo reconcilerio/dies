@@ -18,7 +18,6 @@ package v1
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 )
 
@@ -118,35 +117,13 @@ type _ = corev1.PodExtendedResourceClaimStatus
 // +die
 type _ = corev1.ContainerExtendedResourceRequest
 
-// +die:ignore=Resources
+// +die
+// +die:field:name=Mapping,die=NodeAllocatableMappedResourcesDie,listType=map,listMapKeyPackage=k8s.io/api/core/v1,listMapKeyType=ResourceName
+// +die:field:name=Overhead,die=NodeAllocatableOverheadResourcesDie,listType=map,listMapKeyPackage=k8s.io/api/core/v1,listMapKeyType=ResourceName
 type _ = corev1.NodeAllocatableResourceClaimStatus
 
-// Resources is a map of the node-allocatable resource name to the aggregate quantity allocated to the claim.
-// +required
-func (d *NodeAllocatableResourceClaimStatusDie) Resources(v map[corev1.ResourceName]resource.Quantity) *NodeAllocatableResourceClaimStatusDie {
-	return d.DieStamp(func(r *corev1.NodeAllocatableResourceClaimStatus) {
-		r.Resources = v
-	})
-}
+// +die
+type _ = corev1.NodeAllocatableMappedResources
 
-// AddResource sets a single quantity on the Resources map.
-//
-// Resources is a map of the node-allocatable resource name to the aggregate quantity allocated to the claim.
-// +required
-func (d *NodeAllocatableResourceClaimStatusDie) AddResource(name corev1.ResourceName, quantity resource.Quantity) *NodeAllocatableResourceClaimStatusDie {
-	return d.DieStamp(func(r *corev1.NodeAllocatableResourceClaimStatus) {
-		if r.Resources == nil {
-			r.Resources = map[corev1.ResourceName]resource.Quantity{}
-		}
-		r.Resources[name] = quantity
-	})
-}
-
-// AddResourceString parses the quantity setting a single value on the Resources map. Panics if the string is not parsable.
-//
-// Resources is a map of the node-allocatable resource name to the aggregate quantity allocated to the claim.
-// +required
-func (d *NodeAllocatableResourceClaimStatusDie) AddResourceString(name corev1.ResourceName, quantity string) *NodeAllocatableResourceClaimStatusDie {
-	q := resource.MustParse(quantity)
-	return d.AddResource(name, q)
-}
+// +die
+type _ = corev1.NodeAllocatableOverheadResources

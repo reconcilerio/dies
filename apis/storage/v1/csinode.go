@@ -33,3 +33,14 @@ type _ = storagev1.CSINodeDriver
 
 // +die
 type _ = storagev1.VolumeNodeResources
+
+// +die
+// +die:field:name=StorageHealth,die=StorageHealthDie,listType=map
+type _ = storagev1.CSINodeStatus
+
+// +die
+// +die:field:name=HealthConditions,die=StorageHealthConditionDie,listType=atomic
+type _ = storagev1.StorageHealth
+
+// +die
+type _ = storagev1.StorageHealthCondition

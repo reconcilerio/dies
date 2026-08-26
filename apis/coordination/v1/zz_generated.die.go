@@ -691,7 +691,7 @@ func (d *LeaseSpecDie) LeaseTransitions(v *int32) *LeaseSpecDie {
 	})
 }
 
-// Strategy indicates the strategy for picking the leader for coordinated leader election.
+// strategy indicates the strategy for picking the leader for coordinated leader election.
 //
 // If the field is not specified, there is no active coordination for this lease.
 //
@@ -702,7 +702,7 @@ func (d *LeaseSpecDie) Strategy(v *coordinationv1.CoordinatedLeaseStrategy) *Lea
 	})
 }
 
-// PreferredHolder signals to a lease holder that the lease has a
+// preferredHolder signals to a lease holder that the lease has a
 //
 // more optimal holder and should be given up.
 //

@@ -89,6 +89,33 @@ func TestVolumeNodeResourcesDie_MissingMethods(t *testingx.T) {
 	}
 }
 
+func TestCSINodeStatusDie_MissingMethods(t *testingx.T) {
+	die := CSINodeStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for CSINodeStatusDie: %s", diff.List())
+	}
+}
+
+func TestStorageHealthDie_MissingMethods(t *testingx.T) {
+	die := StorageHealthBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for StorageHealthDie: %s", diff.List())
+	}
+}
+
+func TestStorageHealthConditionDie_MissingMethods(t *testingx.T) {
+	die := StorageHealthConditionBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for StorageHealthConditionDie: %s", diff.List())
+	}
+}
+
 func TestCSIStorageCapacityDie_MissingMethods(t *testingx.T) {
 	die := CSIStorageCapacityBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
