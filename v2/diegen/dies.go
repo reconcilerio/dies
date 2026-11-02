@@ -101,18 +101,22 @@ func (g *generator) dieExists(from *packages.Package, path string) bool {
 // emitTest writes a test that each die still matches its type. It catches
 // an upstream dependency that moved forward without the dies being
 // regenerated, which would otherwise compile and silently miss new fields.
+//
+// The test is in the package's external test package, so that go test
+// compiles the package once, rather than again with the test in it.
 func (pg *pkgGen) emitTest(dir string) error {
-	f := newFile(pg.p.Name)
+	f := newFile(pg.p.Name + "_test")
 	f.use("reconciler.io/dies/v2/die")
 	f.use("testing")
+	self := f.use(pg.p.PkgPath)
 	f.p("func TestDiesMatchTypes(t *testing.T) {")
 	f.p("\tfor _, check := range []func() error{")
 	for _, tg := range pg.targets {
 		if _, ok := pg.listItem(tg); ok {
-			f.p("\t\tdie.CheckList[%s],", tg.name())
+			f.p("\t\tdie.CheckList[%s.%s],", self, tg.name())
 			continue
 		}
-		f.p("\t\tdie.CheckManaged[%s],", tg.name())
+		f.p("\t\tdie.CheckManaged[%s.%s],", self, tg.name())
 	}
 	f.p("\t} {")
 	f.p("\t\tif err := check(); err != nil {")
@@ -123,7 +127,7 @@ func (pg *pkgGen) emitTest(dir string) error {
 	if up, ok := pg.p.Imports[pg.upstream]; ok && pg.hasObjects() && up.Types.Scope().Lookup("AddToScheme") != nil {
 		f.p("")
 		f.p("func TestDiesRegisterUpstreamKinds(t *testing.T) {")
-		f.p("	if err := die.CheckRegistered(AddToScheme, %s.AddToScheme, SchemeGroupVersion); err != nil {", f.use(pg.upstream))
+		f.p("	if err := die.CheckRegistered(%s.AddToScheme, %s.AddToScheme, %s.SchemeGroupVersion); err != nil {", self, f.use(pg.upstream), self)
 		f.p("		t.Error(err)")
 		f.p("	}")
 		f.p("}")
