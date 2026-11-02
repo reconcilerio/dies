@@ -20,6 +20,7 @@ package v1alpha1_test
 
 import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	kappctrlv1alpha1 "reconciler.io/dies/v2/examples/kapp/kappctrl/v1alpha1"
 	testing "testing"
 )
@@ -78,3 +79,9 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[kappctrlv1alpha1.App, *kappctrlv1alpha1.AppDie, *kappctrlv1alpha1.AppDieMut]    = (*kappctrlv1alpha1.AppDie)(nil)
+	_ dieobjects.DieObjectMutOf[kappctrlv1alpha1.App, *kappctrlv1alpha1.AppDie, *kappctrlv1alpha1.AppDieMut] = (*kappctrlv1alpha1.AppDieMut)(nil)
+)

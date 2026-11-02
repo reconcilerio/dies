@@ -22,6 +22,7 @@ import (
 	schedulingv1alpha3 "k8s.io/api/scheduling/v1alpha3"
 	dieschedulingv1alpha3 "reconciler.io/dies/v2/apis/scheduling/v1alpha3"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -80,6 +81,16 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dieschedulingv1alpha3.CompositePodGroup, *dieschedulingv1alpha3.CompositePodGroupDie, *dieschedulingv1alpha3.CompositePodGroupDieMut]    = (*dieschedulingv1alpha3.CompositePodGroupDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieschedulingv1alpha3.CompositePodGroup, *dieschedulingv1alpha3.CompositePodGroupDie, *dieschedulingv1alpha3.CompositePodGroupDieMut] = (*dieschedulingv1alpha3.CompositePodGroupDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieschedulingv1alpha3.PodGroup, *dieschedulingv1alpha3.PodGroupDie, *dieschedulingv1alpha3.PodGroupDieMut]                               = (*dieschedulingv1alpha3.PodGroupDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieschedulingv1alpha3.PodGroup, *dieschedulingv1alpha3.PodGroupDie, *dieschedulingv1alpha3.PodGroupDieMut]                            = (*dieschedulingv1alpha3.PodGroupDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieschedulingv1alpha3.Workload, *dieschedulingv1alpha3.WorkloadDie, *dieschedulingv1alpha3.WorkloadDieMut]                               = (*dieschedulingv1alpha3.WorkloadDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieschedulingv1alpha3.Workload, *dieschedulingv1alpha3.WorkloadDie, *dieschedulingv1alpha3.WorkloadDieMut]                            = (*dieschedulingv1alpha3.WorkloadDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieschedulingv1alpha3.AddToScheme, schedulingv1alpha3.AddToScheme, dieschedulingv1alpha3.SchemeGroupVersion); err != nil {

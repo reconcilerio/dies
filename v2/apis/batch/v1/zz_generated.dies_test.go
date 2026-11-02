@@ -22,6 +22,7 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	diebatchv1 "reconciler.io/dies/v2/apis/batch/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -51,6 +52,14 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[diebatchv1.CronJob, *diebatchv1.CronJobDie, *diebatchv1.CronJobDieMut]    = (*diebatchv1.CronJobDie)(nil)
+	_ dieobjects.DieObjectMutOf[diebatchv1.CronJob, *diebatchv1.CronJobDie, *diebatchv1.CronJobDieMut] = (*diebatchv1.CronJobDieMut)(nil)
+	_ dieobjects.DieObjectOf[diebatchv1.Job, *diebatchv1.JobDie, *diebatchv1.JobDieMut]                = (*diebatchv1.JobDie)(nil)
+	_ dieobjects.DieObjectMutOf[diebatchv1.Job, *diebatchv1.JobDie, *diebatchv1.JobDieMut]             = (*diebatchv1.JobDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(diebatchv1.AddToScheme, batchv1.AddToScheme, diebatchv1.SchemeGroupVersion); err != nil {

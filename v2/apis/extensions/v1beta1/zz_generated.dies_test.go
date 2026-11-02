@@ -22,6 +22,8 @@ import (
 	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
 	dieextensionsv1beta1 "reconciler.io/dies/v2/apis/extensions/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -78,6 +80,24 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dieextensionsv1beta1.DaemonSet, *dieextensionsv1beta1.DaemonSetDie, *dieextensionsv1beta1.DaemonSetDieMut]                             = (*dieextensionsv1beta1.DaemonSetDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieextensionsv1beta1.DaemonSet, *dieextensionsv1beta1.DaemonSetDie, *dieextensionsv1beta1.DaemonSetDieMut]                          = (*dieextensionsv1beta1.DaemonSetDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieextensionsv1beta1.Deployment, *dieextensionsv1beta1.DeploymentDie, *dieextensionsv1beta1.DeploymentDieMut]                          = (*dieextensionsv1beta1.DeploymentDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieextensionsv1beta1.Deployment, *dieextensionsv1beta1.DeploymentDie, *dieextensionsv1beta1.DeploymentDieMut]                       = (*dieextensionsv1beta1.DeploymentDieMut)(nil)
+	_ diefields.DieTypedOf[dieextensionsv1beta1.DeploymentRollback, *dieextensionsv1beta1.DeploymentRollbackDie, *dieextensionsv1beta1.DeploymentRollbackDieMut]    = (*dieextensionsv1beta1.DeploymentRollbackDie)(nil)
+	_ diefields.DieTypedMutOf[dieextensionsv1beta1.DeploymentRollback, *dieextensionsv1beta1.DeploymentRollbackDie, *dieextensionsv1beta1.DeploymentRollbackDieMut] = (*dieextensionsv1beta1.DeploymentRollbackDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieextensionsv1beta1.Ingress, *dieextensionsv1beta1.IngressDie, *dieextensionsv1beta1.IngressDieMut]                                   = (*dieextensionsv1beta1.IngressDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieextensionsv1beta1.Ingress, *dieextensionsv1beta1.IngressDie, *dieextensionsv1beta1.IngressDieMut]                                = (*dieextensionsv1beta1.IngressDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieextensionsv1beta1.NetworkPolicy, *dieextensionsv1beta1.NetworkPolicyDie, *dieextensionsv1beta1.NetworkPolicyDieMut]                 = (*dieextensionsv1beta1.NetworkPolicyDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieextensionsv1beta1.NetworkPolicy, *dieextensionsv1beta1.NetworkPolicyDie, *dieextensionsv1beta1.NetworkPolicyDieMut]              = (*dieextensionsv1beta1.NetworkPolicyDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieextensionsv1beta1.ReplicaSet, *dieextensionsv1beta1.ReplicaSetDie, *dieextensionsv1beta1.ReplicaSetDieMut]                          = (*dieextensionsv1beta1.ReplicaSetDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieextensionsv1beta1.ReplicaSet, *dieextensionsv1beta1.ReplicaSetDie, *dieextensionsv1beta1.ReplicaSetDieMut]                       = (*dieextensionsv1beta1.ReplicaSetDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieextensionsv1beta1.Scale, *dieextensionsv1beta1.ScaleDie, *dieextensionsv1beta1.ScaleDieMut]                                         = (*dieextensionsv1beta1.ScaleDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieextensionsv1beta1.Scale, *dieextensionsv1beta1.ScaleDie, *dieextensionsv1beta1.ScaleDieMut]                                      = (*dieextensionsv1beta1.ScaleDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieextensionsv1beta1.AddToScheme, extensionsv1beta1.AddToScheme, dieextensionsv1beta1.SchemeGroupVersion); err != nil {

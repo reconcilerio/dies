@@ -28,7 +28,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // AllCompositeDisruptionMode means that children of a CompositePodGroup can only be
@@ -52,11 +51,6 @@ func (*AllCompositeDisruptionModeDie) DieFrom(b diebase.DieBase[AllCompositeDisr
 func (*AllCompositeDisruptionModeDieMut) DieFrom(b diebase.DieMutBase[AllCompositeDisruptionMode, *AllCompositeDisruptionModeDie, *AllCompositeDisruptionModeDieMut]) *AllCompositeDisruptionModeDieMut {
 	return &AllCompositeDisruptionModeDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AllCompositeDisruptionMode, *AllCompositeDisruptionModeDie, *AllCompositeDisruptionModeDieMut]    = (*AllCompositeDisruptionModeDie)(nil)
-	_ diebase.DieMutOf[AllCompositeDisruptionMode, *AllCompositeDisruptionModeDie, *AllCompositeDisruptionModeDieMut] = (*AllCompositeDisruptionModeDieMut)(nil)
-)
 
 var AllCompositeDisruptionModeBlank = diebase.Blank[AllCompositeDisruptionMode, *AllCompositeDisruptionModeDie, *AllCompositeDisruptionModeDieMut]()
 
@@ -88,11 +82,6 @@ func (*AllDisruptionModeDie) DieFrom(b diebase.DieBase[AllDisruptionMode, *AllDi
 func (*AllDisruptionModeDieMut) DieFrom(b diebase.DieMutBase[AllDisruptionMode, *AllDisruptionModeDie, *AllDisruptionModeDieMut]) *AllDisruptionModeDieMut {
 	return &AllDisruptionModeDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AllDisruptionMode, *AllDisruptionModeDie, *AllDisruptionModeDieMut]    = (*AllDisruptionModeDie)(nil)
-	_ diebase.DieMutOf[AllDisruptionMode, *AllDisruptionModeDie, *AllDisruptionModeDieMut] = (*AllDisruptionModeDieMut)(nil)
-)
 
 var AllDisruptionModeBlank = diebase.Blank[AllDisruptionMode, *AllDisruptionModeDie, *AllDisruptionModeDieMut]()
 
@@ -126,11 +115,6 @@ func (*BasicSchedulingPolicyDieMut) DieFrom(b diebase.DieMutBase[BasicScheduling
 	return &BasicSchedulingPolicyDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[BasicSchedulingPolicy, *BasicSchedulingPolicyDie, *BasicSchedulingPolicyDieMut]    = (*BasicSchedulingPolicyDie)(nil)
-	_ diebase.DieMutOf[BasicSchedulingPolicy, *BasicSchedulingPolicyDie, *BasicSchedulingPolicyDieMut] = (*BasicSchedulingPolicyDieMut)(nil)
-)
-
 var BasicSchedulingPolicyBlank = diebase.Blank[BasicSchedulingPolicy, *BasicSchedulingPolicyDie, *BasicSchedulingPolicyDieMut]()
 
 type basicSchedulingPolicyFieldsTable struct {
@@ -163,11 +147,6 @@ func (*CompositeBasicSchedulingPolicyDieMut) DieFrom(b diebase.DieMutBase[Compos
 	return &CompositeBasicSchedulingPolicyDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CompositeBasicSchedulingPolicy, *CompositeBasicSchedulingPolicyDie, *CompositeBasicSchedulingPolicyDieMut]    = (*CompositeBasicSchedulingPolicyDie)(nil)
-	_ diebase.DieMutOf[CompositeBasicSchedulingPolicy, *CompositeBasicSchedulingPolicyDie, *CompositeBasicSchedulingPolicyDieMut] = (*CompositeBasicSchedulingPolicyDieMut)(nil)
-)
-
 var CompositeBasicSchedulingPolicyBlank = diebase.Blank[CompositeBasicSchedulingPolicy, *CompositeBasicSchedulingPolicyDie, *CompositeBasicSchedulingPolicyDieMut]()
 
 type compositeBasicSchedulingPolicyFieldsTable struct {
@@ -199,11 +178,6 @@ func (*CompositeDisruptionModeDie) DieFrom(b diebase.DieBase[CompositeDisruption
 func (*CompositeDisruptionModeDieMut) DieFrom(b diebase.DieMutBase[CompositeDisruptionMode, *CompositeDisruptionModeDie, *CompositeDisruptionModeDieMut]) *CompositeDisruptionModeDieMut {
 	return &CompositeDisruptionModeDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[CompositeDisruptionMode, *CompositeDisruptionModeDie, *CompositeDisruptionModeDieMut]    = (*CompositeDisruptionModeDie)(nil)
-	_ diebase.DieMutOf[CompositeDisruptionMode, *CompositeDisruptionModeDie, *CompositeDisruptionModeDieMut] = (*CompositeDisruptionModeDieMut)(nil)
-)
 
 var CompositeDisruptionModeBlank = diebase.Blank[CompositeDisruptionMode, *CompositeDisruptionModeDie, *CompositeDisruptionModeDieMut]()
 
@@ -312,11 +286,6 @@ func (*CompositeGangSchedulingPolicyDieMut) DieFrom(b diebase.DieMutBase[Composi
 	return &CompositeGangSchedulingPolicyDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CompositeGangSchedulingPolicy, *CompositeGangSchedulingPolicyDie, *CompositeGangSchedulingPolicyDieMut]    = (*CompositeGangSchedulingPolicyDie)(nil)
-	_ diebase.DieMutOf[CompositeGangSchedulingPolicy, *CompositeGangSchedulingPolicyDie, *CompositeGangSchedulingPolicyDieMut] = (*CompositeGangSchedulingPolicyDieMut)(nil)
-)
-
 var CompositeGangSchedulingPolicyBlank = diebase.Blank[CompositeGangSchedulingPolicy, *CompositeGangSchedulingPolicyDie, *CompositeGangSchedulingPolicyDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -415,11 +384,6 @@ func (*CompositePodGroupSchedulingConstraintsDieMut) DieFrom(b diebase.DieMutBas
 	return &CompositePodGroupSchedulingConstraintsDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CompositePodGroupSchedulingConstraints, *CompositePodGroupSchedulingConstraintsDie, *CompositePodGroupSchedulingConstraintsDieMut]    = (*CompositePodGroupSchedulingConstraintsDie)(nil)
-	_ diebase.DieMutOf[CompositePodGroupSchedulingConstraints, *CompositePodGroupSchedulingConstraintsDie, *CompositePodGroupSchedulingConstraintsDieMut] = (*CompositePodGroupSchedulingConstraintsDieMut)(nil)
-)
-
 var CompositePodGroupSchedulingConstraintsBlank = diebase.Blank[CompositePodGroupSchedulingConstraints, *CompositePodGroupSchedulingConstraintsDie, *CompositePodGroupSchedulingConstraintsDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -516,11 +480,6 @@ func (*CompositePodGroupSchedulingPolicyDie) DieFrom(b diebase.DieBase[Composite
 func (*CompositePodGroupSchedulingPolicyDieMut) DieFrom(b diebase.DieMutBase[CompositePodGroupSchedulingPolicy, *CompositePodGroupSchedulingPolicyDie, *CompositePodGroupSchedulingPolicyDieMut]) *CompositePodGroupSchedulingPolicyDieMut {
 	return &CompositePodGroupSchedulingPolicyDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[CompositePodGroupSchedulingPolicy, *CompositePodGroupSchedulingPolicyDie, *CompositePodGroupSchedulingPolicyDieMut]    = (*CompositePodGroupSchedulingPolicyDie)(nil)
-	_ diebase.DieMutOf[CompositePodGroupSchedulingPolicy, *CompositePodGroupSchedulingPolicyDie, *CompositePodGroupSchedulingPolicyDieMut] = (*CompositePodGroupSchedulingPolicyDieMut)(nil)
-)
 
 var CompositePodGroupSchedulingPolicyBlank = diebase.Blank[CompositePodGroupSchedulingPolicy, *CompositePodGroupSchedulingPolicyDie, *CompositePodGroupSchedulingPolicyDieMut]()
 
@@ -631,11 +590,6 @@ func (*CompositePodGroupTemplateDie) DieFrom(b diebase.DieBase[CompositePodGroup
 func (*CompositePodGroupTemplateDieMut) DieFrom(b diebase.DieMutBase[CompositePodGroupTemplate, *CompositePodGroupTemplateDie, *CompositePodGroupTemplateDieMut]) *CompositePodGroupTemplateDieMut {
 	return &CompositePodGroupTemplateDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[CompositePodGroupTemplate, *CompositePodGroupTemplateDie, *CompositePodGroupTemplateDieMut]    = (*CompositePodGroupTemplateDie)(nil)
-	_ diebase.DieMutOf[CompositePodGroupTemplate, *CompositePodGroupTemplateDie, *CompositePodGroupTemplateDieMut] = (*CompositePodGroupTemplateDieMut)(nil)
-)
 
 var CompositePodGroupTemplateBlank = diebase.Blank[CompositePodGroupTemplate, *CompositePodGroupTemplateDie, *CompositePodGroupTemplateDieMut]()
 
@@ -870,11 +824,6 @@ func (*DisruptionModeDieMut) DieFrom(b diebase.DieMutBase[DisruptionMode, *Disru
 	return &DisruptionModeDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[DisruptionMode, *DisruptionModeDie, *DisruptionModeDieMut]    = (*DisruptionModeDie)(nil)
-	_ diebase.DieMutOf[DisruptionMode, *DisruptionModeDie, *DisruptionModeDieMut] = (*DisruptionModeDieMut)(nil)
-)
-
 var DisruptionModeBlank = diebase.Blank[DisruptionMode, *DisruptionModeDie, *DisruptionModeDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -980,11 +929,6 @@ func (*GangSchedulingPolicyDie) DieFrom(b diebase.DieBase[GangSchedulingPolicy, 
 func (*GangSchedulingPolicyDieMut) DieFrom(b diebase.DieMutBase[GangSchedulingPolicy, *GangSchedulingPolicyDie, *GangSchedulingPolicyDieMut]) *GangSchedulingPolicyDieMut {
 	return &GangSchedulingPolicyDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[GangSchedulingPolicy, *GangSchedulingPolicyDie, *GangSchedulingPolicyDieMut]    = (*GangSchedulingPolicyDie)(nil)
-	_ diebase.DieMutOf[GangSchedulingPolicy, *GangSchedulingPolicyDie, *GangSchedulingPolicyDieMut] = (*GangSchedulingPolicyDieMut)(nil)
-)
 
 var GangSchedulingPolicyBlank = diebase.Blank[GangSchedulingPolicy, *GangSchedulingPolicyDie, *GangSchedulingPolicyDieMut]()
 
@@ -1102,11 +1046,6 @@ func (*PodGroupDie) DieFrom(b diebase.DieBase[PodGroup, *PodGroupDie, *PodGroupD
 func (*PodGroupDieMut) DieFrom(b diebase.DieMutBase[PodGroup, *PodGroupDie, *PodGroupDieMut]) *PodGroupDieMut {
 	return &PodGroupDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[PodGroup, *PodGroupDie, *PodGroupDieMut]    = (*PodGroupDie)(nil)
-	_ dieobjects.DieObjectMutOf[PodGroup, *PodGroupDie, *PodGroupDieMut] = (*PodGroupDieMut)(nil)
-)
 
 var PodGroupBlank = diebase.BlankOf[PodGroup, *PodGroupDie, *PodGroupDieMut](PodGroup{TypeMeta: metav1.TypeMeta{APIVersion: "scheduling.k8s.io/v1beta1", Kind: "PodGroup"}})
 
@@ -1288,11 +1227,6 @@ func (*PodGroupResourceClaimDieMut) DieFrom(b diebase.DieMutBase[PodGroupResourc
 	return &PodGroupResourceClaimDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PodGroupResourceClaim, *PodGroupResourceClaimDie, *PodGroupResourceClaimDieMut]    = (*PodGroupResourceClaimDie)(nil)
-	_ diebase.DieMutOf[PodGroupResourceClaim, *PodGroupResourceClaimDie, *PodGroupResourceClaimDieMut] = (*PodGroupResourceClaimDieMut)(nil)
-)
-
 var PodGroupResourceClaimBlank = diebase.Blank[PodGroupResourceClaim, *PodGroupResourceClaimDie, *PodGroupResourceClaimDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1453,11 +1387,6 @@ func (*PodGroupResourceClaimStatusDieMut) DieFrom(b diebase.DieMutBase[PodGroupR
 	return &PodGroupResourceClaimStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PodGroupResourceClaimStatus, *PodGroupResourceClaimStatusDie, *PodGroupResourceClaimStatusDieMut]    = (*PodGroupResourceClaimStatusDie)(nil)
-	_ diebase.DieMutOf[PodGroupResourceClaimStatus, *PodGroupResourceClaimStatusDie, *PodGroupResourceClaimStatusDieMut] = (*PodGroupResourceClaimStatusDieMut)(nil)
-)
-
 var PodGroupResourceClaimStatusBlank = diebase.Blank[PodGroupResourceClaimStatus, *PodGroupResourceClaimStatusDie, *PodGroupResourceClaimStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1574,11 +1503,6 @@ func (*PodGroupSchedulingConstraintsDieMut) DieFrom(b diebase.DieMutBase[PodGrou
 	return &PodGroupSchedulingConstraintsDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PodGroupSchedulingConstraints, *PodGroupSchedulingConstraintsDie, *PodGroupSchedulingConstraintsDieMut]    = (*PodGroupSchedulingConstraintsDie)(nil)
-	_ diebase.DieMutOf[PodGroupSchedulingConstraints, *PodGroupSchedulingConstraintsDie, *PodGroupSchedulingConstraintsDieMut] = (*PodGroupSchedulingConstraintsDieMut)(nil)
-)
-
 var PodGroupSchedulingConstraintsBlank = diebase.Blank[PodGroupSchedulingConstraints, *PodGroupSchedulingConstraintsDie, *PodGroupSchedulingConstraintsDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1677,11 +1601,6 @@ func (*PodGroupSchedulingPolicyDie) DieFrom(b diebase.DieBase[PodGroupScheduling
 func (*PodGroupSchedulingPolicyDieMut) DieFrom(b diebase.DieMutBase[PodGroupSchedulingPolicy, *PodGroupSchedulingPolicyDie, *PodGroupSchedulingPolicyDieMut]) *PodGroupSchedulingPolicyDieMut {
 	return &PodGroupSchedulingPolicyDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PodGroupSchedulingPolicy, *PodGroupSchedulingPolicyDie, *PodGroupSchedulingPolicyDieMut]    = (*PodGroupSchedulingPolicyDie)(nil)
-	_ diebase.DieMutOf[PodGroupSchedulingPolicy, *PodGroupSchedulingPolicyDie, *PodGroupSchedulingPolicyDieMut] = (*PodGroupSchedulingPolicyDieMut)(nil)
-)
 
 var PodGroupSchedulingPolicyBlank = diebase.Blank[PodGroupSchedulingPolicy, *PodGroupSchedulingPolicyDie, *PodGroupSchedulingPolicyDieMut]()
 
@@ -1798,11 +1717,6 @@ func (*PodGroupSpecDie) DieFrom(b diebase.DieBase[PodGroupSpec, *PodGroupSpecDie
 func (*PodGroupSpecDieMut) DieFrom(b diebase.DieMutBase[PodGroupSpec, *PodGroupSpecDie, *PodGroupSpecDieMut]) *PodGroupSpecDieMut {
 	return &PodGroupSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PodGroupSpec, *PodGroupSpecDie, *PodGroupSpecDieMut]    = (*PodGroupSpecDie)(nil)
-	_ diebase.DieMutOf[PodGroupSpec, *PodGroupSpecDie, *PodGroupSpecDieMut] = (*PodGroupSpecDieMut)(nil)
-)
 
 var PodGroupSpecBlank = diebase.Blank[PodGroupSpec, *PodGroupSpecDie, *PodGroupSpecDieMut]()
 
@@ -2068,11 +1982,6 @@ func (*PodGroupStatusDieMut) DieFrom(b diebase.DieMutBase[PodGroupStatus, *PodGr
 	return &PodGroupStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PodGroupStatus, *PodGroupStatusDie, *PodGroupStatusDieMut]    = (*PodGroupStatusDie)(nil)
-	_ diebase.DieMutOf[PodGroupStatus, *PodGroupStatusDie, *PodGroupStatusDieMut] = (*PodGroupStatusDieMut)(nil)
-)
-
 var PodGroupStatusBlank = diebase.Blank[PodGroupStatus, *PodGroupStatusDie, *PodGroupStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2212,11 +2121,6 @@ func (*PodGroupTemplateDie) DieFrom(b diebase.DieBase[PodGroupTemplate, *PodGrou
 func (*PodGroupTemplateDieMut) DieFrom(b diebase.DieMutBase[PodGroupTemplate, *PodGroupTemplateDie, *PodGroupTemplateDieMut]) *PodGroupTemplateDieMut {
 	return &PodGroupTemplateDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PodGroupTemplate, *PodGroupTemplateDie, *PodGroupTemplateDieMut]    = (*PodGroupTemplateDie)(nil)
-	_ diebase.DieMutOf[PodGroupTemplate, *PodGroupTemplateDie, *PodGroupTemplateDieMut] = (*PodGroupTemplateDieMut)(nil)
-)
 
 var PodGroupTemplateBlank = diebase.Blank[PodGroupTemplate, *PodGroupTemplateDie, *PodGroupTemplateDieMut]()
 
@@ -2442,11 +2346,6 @@ func (*PriorityClassDieMut) DieFrom(b diebase.DieMutBase[PriorityClass, *Priorit
 	return &PriorityClassDieMut{diebase.AsObjectMut(b)}
 }
 
-var (
-	_ dieobjects.DieObjectOf[PriorityClass, *PriorityClassDie, *PriorityClassDieMut]    = (*PriorityClassDie)(nil)
-	_ dieobjects.DieObjectMutOf[PriorityClass, *PriorityClassDie, *PriorityClassDieMut] = (*PriorityClassDieMut)(nil)
-)
-
 var PriorityClassBlank = diebase.BlankOf[PriorityClass, *PriorityClassDie, *PriorityClassDieMut](PriorityClass{TypeMeta: metav1.TypeMeta{APIVersion: "scheduling.k8s.io/v1beta1", Kind: "PriorityClass"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2665,11 +2564,6 @@ func (*SingleCompositeDisruptionModeDieMut) DieFrom(b diebase.DieMutBase[SingleC
 	return &SingleCompositeDisruptionModeDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[SingleCompositeDisruptionMode, *SingleCompositeDisruptionModeDie, *SingleCompositeDisruptionModeDieMut]    = (*SingleCompositeDisruptionModeDie)(nil)
-	_ diebase.DieMutOf[SingleCompositeDisruptionMode, *SingleCompositeDisruptionModeDie, *SingleCompositeDisruptionModeDieMut] = (*SingleCompositeDisruptionModeDieMut)(nil)
-)
-
 var SingleCompositeDisruptionModeBlank = diebase.Blank[SingleCompositeDisruptionMode, *SingleCompositeDisruptionModeDie, *SingleCompositeDisruptionModeDieMut]()
 
 type singleCompositeDisruptionModeFieldsTable struct {
@@ -2701,11 +2595,6 @@ func (*SingleDisruptionModeDieMut) DieFrom(b diebase.DieMutBase[SingleDisruption
 	return &SingleDisruptionModeDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[SingleDisruptionMode, *SingleDisruptionModeDie, *SingleDisruptionModeDieMut]    = (*SingleDisruptionModeDie)(nil)
-	_ diebase.DieMutOf[SingleDisruptionMode, *SingleDisruptionModeDie, *SingleDisruptionModeDieMut] = (*SingleDisruptionModeDieMut)(nil)
-)
-
 var SingleDisruptionModeBlank = diebase.Blank[SingleDisruptionMode, *SingleDisruptionModeDie, *SingleDisruptionModeDieMut]()
 
 type singleDisruptionModeFieldsTable struct {
@@ -2736,11 +2625,6 @@ func (*TopologyConstraintDie) DieFrom(b diebase.DieBase[TopologyConstraint, *Top
 func (*TopologyConstraintDieMut) DieFrom(b diebase.DieMutBase[TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]) *TopologyConstraintDieMut {
 	return &TopologyConstraintDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]    = (*TopologyConstraintDie)(nil)
-	_ diebase.DieMutOf[TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut] = (*TopologyConstraintDieMut)(nil)
-)
 
 var TopologyConstraintBlank = diebase.Blank[TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]()
 
@@ -2841,11 +2725,6 @@ func (*TypedLocalObjectReferenceDie) DieFrom(b diebase.DieBase[TypedLocalObjectR
 func (*TypedLocalObjectReferenceDieMut) DieFrom(b diebase.DieMutBase[TypedLocalObjectReference, *TypedLocalObjectReferenceDie, *TypedLocalObjectReferenceDieMut]) *TypedLocalObjectReferenceDieMut {
 	return &TypedLocalObjectReferenceDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[TypedLocalObjectReference, *TypedLocalObjectReferenceDie, *TypedLocalObjectReferenceDieMut]    = (*TypedLocalObjectReferenceDie)(nil)
-	_ diebase.DieMutOf[TypedLocalObjectReference, *TypedLocalObjectReferenceDie, *TypedLocalObjectReferenceDieMut] = (*TypedLocalObjectReferenceDieMut)(nil)
-)
 
 var TypedLocalObjectReferenceBlank = diebase.Blank[TypedLocalObjectReference, *TypedLocalObjectReferenceDie, *TypedLocalObjectReferenceDieMut]()
 
@@ -2977,11 +2856,6 @@ func (*WorkloadDie) DieFrom(b diebase.DieBase[Workload, *WorkloadDie, *WorkloadD
 func (*WorkloadDieMut) DieFrom(b diebase.DieMutBase[Workload, *WorkloadDie, *WorkloadDieMut]) *WorkloadDieMut {
 	return &WorkloadDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[Workload, *WorkloadDie, *WorkloadDieMut]    = (*WorkloadDie)(nil)
-	_ dieobjects.DieObjectMutOf[Workload, *WorkloadDie, *WorkloadDieMut] = (*WorkloadDieMut)(nil)
-)
 
 var WorkloadBlank = diebase.BlankOf[Workload, *WorkloadDie, *WorkloadDieMut](Workload{TypeMeta: metav1.TypeMeta{APIVersion: "scheduling.k8s.io/v1beta1", Kind: "Workload"}})
 
@@ -3145,11 +3019,6 @@ func (*WorkloadReferenceDieMut) DieFrom(b diebase.DieMutBase[WorkloadReference, 
 	return &WorkloadReferenceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[WorkloadReference, *WorkloadReferenceDie, *WorkloadReferenceDieMut]    = (*WorkloadReferenceDie)(nil)
-	_ diebase.DieMutOf[WorkloadReference, *WorkloadReferenceDie, *WorkloadReferenceDieMut] = (*WorkloadReferenceDieMut)(nil)
-)
-
 var WorkloadReferenceBlank = diebase.Blank[WorkloadReference, *WorkloadReferenceDie, *WorkloadReferenceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -3265,11 +3134,6 @@ func (*WorkloadSpecDie) DieFrom(b diebase.DieBase[WorkloadSpec, *WorkloadSpecDie
 func (*WorkloadSpecDieMut) DieFrom(b diebase.DieMutBase[WorkloadSpec, *WorkloadSpecDie, *WorkloadSpecDieMut]) *WorkloadSpecDieMut {
 	return &WorkloadSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[WorkloadSpec, *WorkloadSpecDie, *WorkloadSpecDieMut]    = (*WorkloadSpecDie)(nil)
-	_ diebase.DieMutOf[WorkloadSpec, *WorkloadSpecDie, *WorkloadSpecDieMut] = (*WorkloadSpecDieMut)(nil)
-)
 
 var WorkloadSpecBlank = diebase.Blank[WorkloadSpec, *WorkloadSpecDie, *WorkloadSpecDieMut]()
 

@@ -43,7 +43,15 @@ type pkgGen struct {
 	specs map[*types.Named]*typeSpec
 	// dies is the other die packages the generated dies refer to
 	dies map[string]bool
-	err  error
+	// checks are the interfaces beyond DieOf and DieMutOf that typed and
+	// object dies are checked to satisfy, by the generated test
+	checks []dieCheck
+	err    error
+}
+
+// dieCheck is a die's pair of interfaces to satisfy.
+type dieCheck struct {
+	name, check, mutCheck string
 }
 
 func (g *generator) diesFor(p *packages.Package) error {
@@ -124,6 +132,17 @@ func (pg *pkgGen) emitTest(dir string) error {
 	f.p("\t\t}")
 	f.p("\t}")
 	f.p("}")
+	if len(pg.checks) > 0 {
+		f.p("")
+		f.p("// typed and object dies have the methods of their interfaces")
+		f.p("var (")
+		for _, c := range pg.checks {
+			params := fmt.Sprintf("%s.%s, *%s.%sDie, *%s.%sDieMut", self, c.name, self, c.name, self, c.name)
+			f.p("\t_ %s[%s] = (*%s.%sDie)(nil)", c.check, params, self, c.name)
+			f.p("\t_ %s[%s] = (*%s.%sDieMut)(nil)", c.mutCheck, params, self, c.name)
+		}
+		f.p(")")
+	}
 	if up, ok := pg.p.Imports[pg.upstream]; ok && pg.hasObjects() && up.Types.Scope().Lookup("AddToScheme") != nil {
 		f.p("")
 		f.p("func TestDiesRegisterUpstreamKinds(t *testing.T) {")
@@ -451,11 +470,12 @@ func (pg *pkgGen) emit() error {
 		f.p("")
 		f.p("func (*%s) DieFrom(b die.DieMutBase[%s]) *%s { return &%s{%s} }", mname, params, mname, mname, ob.mutWrap)
 		f.p("")
-		f.p("var (")
-		f.p("\t_ %s[%s] = (*%s)(nil)", ob.check, params, dname)
-		f.p("\t_ %s[%s] = (*%s)(nil)", ob.mutCheck, params, mname)
-		f.p(")")
-		f.p("")
+		// the blank's type arguments check the die is a DieOf and its
+		// mutable die a DieMutOf. Checks of more, which would compile method
+		// wrappers for each die here, are made by the generated test.
+		if ob.check != "die.DieOf" {
+			pg.checks = append(pg.checks, dieCheck{name: name, check: ob.check, mutCheck: ob.mutCheck})
+		}
 		blank := fmt.Sprintf("die.Blank[%s]()", params)
 		if m, ok := findDieMarker(tg.doc, "die:object"); ok {
 			if typeMeta(tg.st) {

@@ -22,6 +22,7 @@ import (
 	apidiscoveryv2beta1 "k8s.io/api/apidiscovery/v2beta1"
 	dieapidiscoveryv2beta1 "reconciler.io/dies/v2/apis/apidiscovery/v2beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -38,6 +39,12 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dieapidiscoveryv2beta1.APIGroupDiscovery, *dieapidiscoveryv2beta1.APIGroupDiscoveryDie, *dieapidiscoveryv2beta1.APIGroupDiscoveryDieMut]    = (*dieapidiscoveryv2beta1.APIGroupDiscoveryDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieapidiscoveryv2beta1.APIGroupDiscovery, *dieapidiscoveryv2beta1.APIGroupDiscoveryDie, *dieapidiscoveryv2beta1.APIGroupDiscoveryDieMut] = (*dieapidiscoveryv2beta1.APIGroupDiscoveryDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieapidiscoveryv2beta1.AddToScheme, apidiscoveryv2beta1.AddToScheme, dieapidiscoveryv2beta1.SchemeGroupVersion); err != nil {

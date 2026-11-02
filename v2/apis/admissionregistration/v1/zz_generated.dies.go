@@ -27,7 +27,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // ApplyConfiguration defines the desired configuration values of an object.
@@ -50,11 +49,6 @@ func (*ApplyConfigurationDie) DieFrom(b diebase.DieBase[ApplyConfiguration, *App
 func (*ApplyConfigurationDieMut) DieFrom(b diebase.DieMutBase[ApplyConfiguration, *ApplyConfigurationDie, *ApplyConfigurationDieMut]) *ApplyConfigurationDieMut {
 	return &ApplyConfigurationDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ApplyConfiguration, *ApplyConfigurationDie, *ApplyConfigurationDieMut]    = (*ApplyConfigurationDie)(nil)
-	_ diebase.DieMutOf[ApplyConfiguration, *ApplyConfigurationDie, *ApplyConfigurationDieMut] = (*ApplyConfigurationDieMut)(nil)
-)
 
 var ApplyConfigurationBlank = diebase.Blank[ApplyConfiguration, *ApplyConfigurationDie, *ApplyConfigurationDieMut]()
 
@@ -228,11 +222,6 @@ func (*AuditAnnotationDieMut) DieFrom(b diebase.DieMutBase[AuditAnnotation, *Aud
 	return &AuditAnnotationDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AuditAnnotation, *AuditAnnotationDie, *AuditAnnotationDieMut]    = (*AuditAnnotationDie)(nil)
-	_ diebase.DieMutOf[AuditAnnotation, *AuditAnnotationDie, *AuditAnnotationDieMut] = (*AuditAnnotationDieMut)(nil)
-)
-
 var AuditAnnotationBlank = diebase.Blank[AuditAnnotation, *AuditAnnotationDie, *AuditAnnotationDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -395,11 +384,6 @@ func (*ExpressionWarningDieMut) DieFrom(b diebase.DieMutBase[ExpressionWarning, 
 	return &ExpressionWarningDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ExpressionWarning, *ExpressionWarningDie, *ExpressionWarningDieMut]    = (*ExpressionWarningDie)(nil)
-	_ diebase.DieMutOf[ExpressionWarning, *ExpressionWarningDie, *ExpressionWarningDieMut] = (*ExpressionWarningDieMut)(nil)
-)
-
 var ExpressionWarningBlank = diebase.Blank[ExpressionWarning, *ExpressionWarningDie, *ExpressionWarningDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -513,11 +497,6 @@ func (*JSONPatchDie) DieFrom(b diebase.DieBase[JSONPatch, *JSONPatchDie, *JSONPa
 func (*JSONPatchDieMut) DieFrom(b diebase.DieMutBase[JSONPatch, *JSONPatchDie, *JSONPatchDieMut]) *JSONPatchDieMut {
 	return &JSONPatchDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[JSONPatch, *JSONPatchDie, *JSONPatchDieMut]    = (*JSONPatchDie)(nil)
-	_ diebase.DieMutOf[JSONPatch, *JSONPatchDie, *JSONPatchDieMut] = (*JSONPatchDieMut)(nil)
-)
 
 var JSONPatchBlank = diebase.Blank[JSONPatch, *JSONPatchDie, *JSONPatchDieMut]()
 
@@ -739,11 +718,6 @@ func (*MatchConditionDieMut) DieFrom(b diebase.DieMutBase[MatchCondition, *Match
 	return &MatchConditionDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[MatchCondition, *MatchConditionDie, *MatchConditionDieMut]    = (*MatchConditionDie)(nil)
-	_ diebase.DieMutOf[MatchCondition, *MatchConditionDie, *MatchConditionDieMut] = (*MatchConditionDieMut)(nil)
-)
-
 var MatchConditionBlank = diebase.Blank[MatchCondition, *MatchConditionDie, *MatchConditionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -899,11 +873,6 @@ func (*MatchResourcesDie) DieFrom(b diebase.DieBase[MatchResources, *MatchResour
 func (*MatchResourcesDieMut) DieFrom(b diebase.DieMutBase[MatchResources, *MatchResourcesDie, *MatchResourcesDieMut]) *MatchResourcesDieMut {
 	return &MatchResourcesDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[MatchResources, *MatchResourcesDie, *MatchResourcesDieMut]    = (*MatchResourcesDie)(nil)
-	_ diebase.DieMutOf[MatchResources, *MatchResourcesDie, *MatchResourcesDieMut] = (*MatchResourcesDieMut)(nil)
-)
 
 var MatchResourcesBlank = diebase.Blank[MatchResources, *MatchResourcesDie, *MatchResourcesDieMut]()
 
@@ -1185,11 +1154,6 @@ func (*MutatingAdmissionPolicyDieMut) DieFrom(b diebase.DieMutBase[MutatingAdmis
 	return &MutatingAdmissionPolicyDieMut{diebase.AsObjectMut(b)}
 }
 
-var (
-	_ dieobjects.DieObjectOf[MutatingAdmissionPolicy, *MutatingAdmissionPolicyDie, *MutatingAdmissionPolicyDieMut]    = (*MutatingAdmissionPolicyDie)(nil)
-	_ dieobjects.DieObjectMutOf[MutatingAdmissionPolicy, *MutatingAdmissionPolicyDie, *MutatingAdmissionPolicyDieMut] = (*MutatingAdmissionPolicyDieMut)(nil)
-)
-
 var MutatingAdmissionPolicyBlank = diebase.BlankOf[MutatingAdmissionPolicy, *MutatingAdmissionPolicyDie, *MutatingAdmissionPolicyDieMut](MutatingAdmissionPolicy{TypeMeta: metav1.TypeMeta{APIVersion: "admissionregistration.k8s.io/v1", Kind: "MutatingAdmissionPolicy"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1343,11 +1307,6 @@ func (*MutatingAdmissionPolicyBindingDie) DieFrom(b diebase.DieBase[MutatingAdmi
 func (*MutatingAdmissionPolicyBindingDieMut) DieFrom(b diebase.DieMutBase[MutatingAdmissionPolicyBinding, *MutatingAdmissionPolicyBindingDie, *MutatingAdmissionPolicyBindingDieMut]) *MutatingAdmissionPolicyBindingDieMut {
 	return &MutatingAdmissionPolicyBindingDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[MutatingAdmissionPolicyBinding, *MutatingAdmissionPolicyBindingDie, *MutatingAdmissionPolicyBindingDieMut]    = (*MutatingAdmissionPolicyBindingDie)(nil)
-	_ dieobjects.DieObjectMutOf[MutatingAdmissionPolicyBinding, *MutatingAdmissionPolicyBindingDie, *MutatingAdmissionPolicyBindingDieMut] = (*MutatingAdmissionPolicyBindingDieMut)(nil)
-)
 
 var MutatingAdmissionPolicyBindingBlank = diebase.BlankOf[MutatingAdmissionPolicyBinding, *MutatingAdmissionPolicyBindingDie, *MutatingAdmissionPolicyBindingDieMut](MutatingAdmissionPolicyBinding{TypeMeta: metav1.TypeMeta{APIVersion: "admissionregistration.k8s.io/v1", Kind: "MutatingAdmissionPolicyBinding"}})
 
@@ -1512,11 +1471,6 @@ func (*MutatingAdmissionPolicyBindingSpecDieMut) DieFrom(b diebase.DieMutBase[Mu
 	return &MutatingAdmissionPolicyBindingSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[MutatingAdmissionPolicyBindingSpec, *MutatingAdmissionPolicyBindingSpecDie, *MutatingAdmissionPolicyBindingSpecDieMut]    = (*MutatingAdmissionPolicyBindingSpecDie)(nil)
-	_ diebase.DieMutOf[MutatingAdmissionPolicyBindingSpec, *MutatingAdmissionPolicyBindingSpecDie, *MutatingAdmissionPolicyBindingSpecDieMut] = (*MutatingAdmissionPolicyBindingSpecDieMut)(nil)
-)
-
 var MutatingAdmissionPolicyBindingSpecBlank = diebase.Blank[MutatingAdmissionPolicyBindingSpec, *MutatingAdmissionPolicyBindingSpecDie, *MutatingAdmissionPolicyBindingSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1679,11 +1633,6 @@ func (*MutatingAdmissionPolicySpecDie) DieFrom(b diebase.DieBase[MutatingAdmissi
 func (*MutatingAdmissionPolicySpecDieMut) DieFrom(b diebase.DieMutBase[MutatingAdmissionPolicySpec, *MutatingAdmissionPolicySpecDie, *MutatingAdmissionPolicySpecDieMut]) *MutatingAdmissionPolicySpecDieMut {
 	return &MutatingAdmissionPolicySpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[MutatingAdmissionPolicySpec, *MutatingAdmissionPolicySpecDie, *MutatingAdmissionPolicySpecDieMut]    = (*MutatingAdmissionPolicySpecDie)(nil)
-	_ diebase.DieMutOf[MutatingAdmissionPolicySpec, *MutatingAdmissionPolicySpecDie, *MutatingAdmissionPolicySpecDieMut] = (*MutatingAdmissionPolicySpecDieMut)(nil)
-)
 
 var MutatingAdmissionPolicySpecBlank = diebase.Blank[MutatingAdmissionPolicySpec, *MutatingAdmissionPolicySpecDie, *MutatingAdmissionPolicySpecDieMut]()
 
@@ -1952,11 +1901,6 @@ func (*MutatingWebhookDie) DieFrom(b diebase.DieBase[MutatingWebhook, *MutatingW
 func (*MutatingWebhookDieMut) DieFrom(b diebase.DieMutBase[MutatingWebhook, *MutatingWebhookDie, *MutatingWebhookDieMut]) *MutatingWebhookDieMut {
 	return &MutatingWebhookDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[MutatingWebhook, *MutatingWebhookDie, *MutatingWebhookDieMut]    = (*MutatingWebhookDie)(nil)
-	_ diebase.DieMutOf[MutatingWebhook, *MutatingWebhookDie, *MutatingWebhookDieMut] = (*MutatingWebhookDieMut)(nil)
-)
 
 var MutatingWebhookBlank = diebase.Blank[MutatingWebhook, *MutatingWebhookDie, *MutatingWebhookDieMut]()
 
@@ -2418,11 +2362,6 @@ func (*MutatingWebhookConfigurationDieMut) DieFrom(b diebase.DieMutBase[Mutating
 	return &MutatingWebhookConfigurationDieMut{diebase.AsObjectMut(b)}
 }
 
-var (
-	_ dieobjects.DieObjectOf[MutatingWebhookConfiguration, *MutatingWebhookConfigurationDie, *MutatingWebhookConfigurationDieMut]    = (*MutatingWebhookConfigurationDie)(nil)
-	_ dieobjects.DieObjectMutOf[MutatingWebhookConfiguration, *MutatingWebhookConfigurationDie, *MutatingWebhookConfigurationDieMut] = (*MutatingWebhookConfigurationDieMut)(nil)
-)
-
 var MutatingWebhookConfigurationBlank = diebase.BlankOf[MutatingWebhookConfiguration, *MutatingWebhookConfigurationDie, *MutatingWebhookConfigurationDieMut](MutatingWebhookConfiguration{TypeMeta: metav1.TypeMeta{APIVersion: "admissionregistration.k8s.io/v1", Kind: "MutatingWebhookConfiguration"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2586,11 +2525,6 @@ func (*MutationDieMut) DieFrom(b diebase.DieMutBase[Mutation, *MutationDie, *Mut
 	return &MutationDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[Mutation, *MutationDie, *MutationDieMut]    = (*MutationDie)(nil)
-	_ diebase.DieMutOf[Mutation, *MutationDie, *MutationDieMut] = (*MutationDieMut)(nil)
-)
-
 var MutationBlank = diebase.Blank[Mutation, *MutationDie, *MutationDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2720,11 +2654,6 @@ func (*NamedRuleWithOperationsDie) DieFrom(b diebase.DieBase[NamedRuleWithOperat
 func (*NamedRuleWithOperationsDieMut) DieFrom(b diebase.DieMutBase[NamedRuleWithOperations, *NamedRuleWithOperationsDie, *NamedRuleWithOperationsDieMut]) *NamedRuleWithOperationsDieMut {
 	return &NamedRuleWithOperationsDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[NamedRuleWithOperations, *NamedRuleWithOperationsDie, *NamedRuleWithOperationsDieMut]    = (*NamedRuleWithOperationsDie)(nil)
-	_ diebase.DieMutOf[NamedRuleWithOperations, *NamedRuleWithOperationsDie, *NamedRuleWithOperationsDieMut] = (*NamedRuleWithOperationsDieMut)(nil)
-)
 
 var NamedRuleWithOperationsBlank = diebase.Blank[NamedRuleWithOperations, *NamedRuleWithOperationsDie, *NamedRuleWithOperationsDieMut]()
 
@@ -2936,11 +2865,6 @@ func (*ParamKindDieMut) DieFrom(b diebase.DieMutBase[ParamKind, *ParamKindDie, *
 	return &ParamKindDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ParamKind, *ParamKindDie, *ParamKindDieMut]    = (*ParamKindDie)(nil)
-	_ diebase.DieMutOf[ParamKind, *ParamKindDie, *ParamKindDieMut] = (*ParamKindDieMut)(nil)
-)
-
 var ParamKindBlank = diebase.Blank[ParamKind, *ParamKindDie, *ParamKindDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -3053,11 +2977,6 @@ func (*ParamRefDie) DieFrom(b diebase.DieBase[ParamRef, *ParamRefDie, *ParamRefD
 func (*ParamRefDieMut) DieFrom(b diebase.DieMutBase[ParamRef, *ParamRefDie, *ParamRefDieMut]) *ParamRefDieMut {
 	return &ParamRefDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ParamRef, *ParamRefDie, *ParamRefDieMut]    = (*ParamRefDie)(nil)
-	_ diebase.DieMutOf[ParamRef, *ParamRefDie, *ParamRefDieMut] = (*ParamRefDieMut)(nil)
-)
 
 var ParamRefBlank = diebase.Blank[ParamRef, *ParamRefDie, *ParamRefDieMut]()
 
@@ -3260,11 +3179,6 @@ func (*RuleDieMut) DieFrom(b diebase.DieMutBase[Rule, *RuleDie, *RuleDieMut]) *R
 	return &RuleDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[Rule, *RuleDie, *RuleDieMut]    = (*RuleDie)(nil)
-	_ diebase.DieMutOf[Rule, *RuleDie, *RuleDieMut] = (*RuleDieMut)(nil)
-)
-
 var RuleBlank = diebase.Blank[Rule, *RuleDie, *RuleDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -3445,11 +3359,6 @@ func (*RuleWithOperationsDie) DieFrom(b diebase.DieBase[RuleWithOperations, *Rul
 func (*RuleWithOperationsDieMut) DieFrom(b diebase.DieMutBase[RuleWithOperations, *RuleWithOperationsDie, *RuleWithOperationsDieMut]) *RuleWithOperationsDieMut {
 	return &RuleWithOperationsDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[RuleWithOperations, *RuleWithOperationsDie, *RuleWithOperationsDieMut]    = (*RuleWithOperationsDie)(nil)
-	_ diebase.DieMutOf[RuleWithOperations, *RuleWithOperationsDie, *RuleWithOperationsDieMut] = (*RuleWithOperationsDieMut)(nil)
-)
 
 var RuleWithOperationsBlank = diebase.Blank[RuleWithOperations, *RuleWithOperationsDie, *RuleWithOperationsDieMut]()
 
@@ -3649,11 +3558,6 @@ func (*ServiceReferenceDieMut) DieFrom(b diebase.DieMutBase[ServiceReference, *S
 	return &ServiceReferenceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]    = (*ServiceReferenceDie)(nil)
-	_ diebase.DieMutOf[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut] = (*ServiceReferenceDieMut)(nil)
-)
-
 var ServiceReferenceBlank = diebase.Blank[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -3795,11 +3699,6 @@ func (*TypeCheckingDieMut) DieFrom(b diebase.DieMutBase[TypeChecking, *TypeCheck
 	return &TypeCheckingDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[TypeChecking, *TypeCheckingDie, *TypeCheckingDieMut]    = (*TypeCheckingDie)(nil)
-	_ diebase.DieMutOf[TypeChecking, *TypeCheckingDie, *TypeCheckingDieMut] = (*TypeCheckingDieMut)(nil)
-)
-
 var TypeCheckingBlank = diebase.Blank[TypeChecking, *TypeCheckingDie, *TypeCheckingDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -3893,11 +3792,6 @@ func (*ValidatingAdmissionPolicyDie) DieFrom(b diebase.DieBase[ValidatingAdmissi
 func (*ValidatingAdmissionPolicyDieMut) DieFrom(b diebase.DieMutBase[ValidatingAdmissionPolicy, *ValidatingAdmissionPolicyDie, *ValidatingAdmissionPolicyDieMut]) *ValidatingAdmissionPolicyDieMut {
 	return &ValidatingAdmissionPolicyDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[ValidatingAdmissionPolicy, *ValidatingAdmissionPolicyDie, *ValidatingAdmissionPolicyDieMut]    = (*ValidatingAdmissionPolicyDie)(nil)
-	_ dieobjects.DieObjectMutOf[ValidatingAdmissionPolicy, *ValidatingAdmissionPolicyDie, *ValidatingAdmissionPolicyDieMut] = (*ValidatingAdmissionPolicyDieMut)(nil)
-)
 
 var ValidatingAdmissionPolicyBlank = diebase.BlankOf[ValidatingAdmissionPolicy, *ValidatingAdmissionPolicyDie, *ValidatingAdmissionPolicyDieMut](ValidatingAdmissionPolicy{TypeMeta: metav1.TypeMeta{APIVersion: "admissionregistration.k8s.io/v1", Kind: "ValidatingAdmissionPolicy"}})
 
@@ -4071,11 +3965,6 @@ func (*ValidatingAdmissionPolicyBindingDieMut) DieFrom(b diebase.DieMutBase[Vali
 	return &ValidatingAdmissionPolicyBindingDieMut{diebase.AsObjectMut(b)}
 }
 
-var (
-	_ dieobjects.DieObjectOf[ValidatingAdmissionPolicyBinding, *ValidatingAdmissionPolicyBindingDie, *ValidatingAdmissionPolicyBindingDieMut]    = (*ValidatingAdmissionPolicyBindingDie)(nil)
-	_ dieobjects.DieObjectMutOf[ValidatingAdmissionPolicyBinding, *ValidatingAdmissionPolicyBindingDie, *ValidatingAdmissionPolicyBindingDieMut] = (*ValidatingAdmissionPolicyBindingDieMut)(nil)
-)
-
 var ValidatingAdmissionPolicyBindingBlank = diebase.BlankOf[ValidatingAdmissionPolicyBinding, *ValidatingAdmissionPolicyBindingDie, *ValidatingAdmissionPolicyBindingDieMut](ValidatingAdmissionPolicyBinding{TypeMeta: metav1.TypeMeta{APIVersion: "admissionregistration.k8s.io/v1", Kind: "ValidatingAdmissionPolicyBinding"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -4240,11 +4129,6 @@ func (*ValidatingAdmissionPolicyBindingSpecDie) DieFrom(b diebase.DieBase[Valida
 func (*ValidatingAdmissionPolicyBindingSpecDieMut) DieFrom(b diebase.DieMutBase[ValidatingAdmissionPolicyBindingSpec, *ValidatingAdmissionPolicyBindingSpecDie, *ValidatingAdmissionPolicyBindingSpecDieMut]) *ValidatingAdmissionPolicyBindingSpecDieMut {
 	return &ValidatingAdmissionPolicyBindingSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ValidatingAdmissionPolicyBindingSpec, *ValidatingAdmissionPolicyBindingSpecDie, *ValidatingAdmissionPolicyBindingSpecDieMut]    = (*ValidatingAdmissionPolicyBindingSpecDie)(nil)
-	_ diebase.DieMutOf[ValidatingAdmissionPolicyBindingSpec, *ValidatingAdmissionPolicyBindingSpecDie, *ValidatingAdmissionPolicyBindingSpecDieMut] = (*ValidatingAdmissionPolicyBindingSpecDieMut)(nil)
-)
 
 var ValidatingAdmissionPolicyBindingSpecBlank = diebase.Blank[ValidatingAdmissionPolicyBindingSpec, *ValidatingAdmissionPolicyBindingSpecDie, *ValidatingAdmissionPolicyBindingSpecDieMut]()
 
@@ -4488,11 +4372,6 @@ func (*ValidatingAdmissionPolicySpecDie) DieFrom(b diebase.DieBase[ValidatingAdm
 func (*ValidatingAdmissionPolicySpecDieMut) DieFrom(b diebase.DieMutBase[ValidatingAdmissionPolicySpec, *ValidatingAdmissionPolicySpecDie, *ValidatingAdmissionPolicySpecDieMut]) *ValidatingAdmissionPolicySpecDieMut {
 	return &ValidatingAdmissionPolicySpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ValidatingAdmissionPolicySpec, *ValidatingAdmissionPolicySpecDie, *ValidatingAdmissionPolicySpecDieMut]    = (*ValidatingAdmissionPolicySpecDie)(nil)
-	_ diebase.DieMutOf[ValidatingAdmissionPolicySpec, *ValidatingAdmissionPolicySpecDie, *ValidatingAdmissionPolicySpecDieMut] = (*ValidatingAdmissionPolicySpecDieMut)(nil)
-)
 
 var ValidatingAdmissionPolicySpecBlank = diebase.Blank[ValidatingAdmissionPolicySpec, *ValidatingAdmissionPolicySpecDie, *ValidatingAdmissionPolicySpecDieMut]()
 
@@ -4746,11 +4625,6 @@ func (*ValidatingAdmissionPolicyStatusDieMut) DieFrom(b diebase.DieMutBase[Valid
 	return &ValidatingAdmissionPolicyStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ValidatingAdmissionPolicyStatus, *ValidatingAdmissionPolicyStatusDie, *ValidatingAdmissionPolicyStatusDieMut]    = (*ValidatingAdmissionPolicyStatusDie)(nil)
-	_ diebase.DieMutOf[ValidatingAdmissionPolicyStatus, *ValidatingAdmissionPolicyStatusDie, *ValidatingAdmissionPolicyStatusDieMut] = (*ValidatingAdmissionPolicyStatusDieMut)(nil)
-)
-
 var ValidatingAdmissionPolicyStatusBlank = diebase.Blank[ValidatingAdmissionPolicyStatus, *ValidatingAdmissionPolicyStatusDie, *ValidatingAdmissionPolicyStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -4870,11 +4744,6 @@ func (*ValidatingWebhookDie) DieFrom(b diebase.DieBase[ValidatingWebhook, *Valid
 func (*ValidatingWebhookDieMut) DieFrom(b diebase.DieMutBase[ValidatingWebhook, *ValidatingWebhookDie, *ValidatingWebhookDieMut]) *ValidatingWebhookDieMut {
 	return &ValidatingWebhookDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ValidatingWebhook, *ValidatingWebhookDie, *ValidatingWebhookDieMut]    = (*ValidatingWebhookDie)(nil)
-	_ diebase.DieMutOf[ValidatingWebhook, *ValidatingWebhookDie, *ValidatingWebhookDieMut] = (*ValidatingWebhookDieMut)(nil)
-)
 
 var ValidatingWebhookBlank = diebase.Blank[ValidatingWebhook, *ValidatingWebhookDie, *ValidatingWebhookDieMut]()
 
@@ -5296,11 +5165,6 @@ func (*ValidatingWebhookConfigurationDieMut) DieFrom(b diebase.DieMutBase[Valida
 	return &ValidatingWebhookConfigurationDieMut{diebase.AsObjectMut(b)}
 }
 
-var (
-	_ dieobjects.DieObjectOf[ValidatingWebhookConfiguration, *ValidatingWebhookConfigurationDie, *ValidatingWebhookConfigurationDieMut]    = (*ValidatingWebhookConfigurationDie)(nil)
-	_ dieobjects.DieObjectMutOf[ValidatingWebhookConfiguration, *ValidatingWebhookConfigurationDie, *ValidatingWebhookConfigurationDieMut] = (*ValidatingWebhookConfigurationDieMut)(nil)
-)
-
 var ValidatingWebhookConfigurationBlank = diebase.BlankOf[ValidatingWebhookConfiguration, *ValidatingWebhookConfigurationDie, *ValidatingWebhookConfigurationDieMut](ValidatingWebhookConfiguration{TypeMeta: metav1.TypeMeta{APIVersion: "admissionregistration.k8s.io/v1", Kind: "ValidatingWebhookConfiguration"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -5463,11 +5327,6 @@ func (*ValidationDie) DieFrom(b diebase.DieBase[Validation, *ValidationDie, *Val
 func (*ValidationDieMut) DieFrom(b diebase.DieMutBase[Validation, *ValidationDie, *ValidationDieMut]) *ValidationDieMut {
 	return &ValidationDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[Validation, *ValidationDie, *ValidationDieMut]    = (*ValidationDie)(nil)
-	_ diebase.DieMutOf[Validation, *ValidationDie, *ValidationDieMut] = (*ValidationDieMut)(nil)
-)
 
 var ValidationBlank = diebase.Blank[Validation, *ValidationDie, *ValidationDieMut]()
 
@@ -5723,11 +5582,6 @@ func (*VariableDieMut) DieFrom(b diebase.DieMutBase[Variable, *VariableDie, *Var
 	return &VariableDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[Variable, *VariableDie, *VariableDieMut]    = (*VariableDie)(nil)
-	_ diebase.DieMutOf[Variable, *VariableDie, *VariableDieMut] = (*VariableDieMut)(nil)
-)
-
 var VariableBlank = diebase.Blank[Variable, *VariableDie, *VariableDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -5840,11 +5694,6 @@ func (*WebhookClientConfigDie) DieFrom(b diebase.DieBase[WebhookClientConfig, *W
 func (*WebhookClientConfigDieMut) DieFrom(b diebase.DieMutBase[WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]) *WebhookClientConfigDieMut {
 	return &WebhookClientConfigDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]    = (*WebhookClientConfigDie)(nil)
-	_ diebase.DieMutOf[WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut] = (*WebhookClientConfigDieMut)(nil)
-)
 
 var WebhookClientConfigBlank = diebase.Blank[WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]()
 

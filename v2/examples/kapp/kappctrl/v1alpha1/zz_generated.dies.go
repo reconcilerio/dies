@@ -28,7 +28,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	vendirv1alpha1 "reconciler.io/dies/v2/examples/kapp/vendir/v1alpha1"
 )
 
@@ -56,11 +55,6 @@ func (*AppDie) DieFrom(b diebase.DieBase[App, *AppDie, *AppDieMut]) *AppDie {
 func (*AppDieMut) DieFrom(b diebase.DieMutBase[App, *AppDie, *AppDieMut]) *AppDieMut {
 	return &AppDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[App, *AppDie, *AppDieMut]    = (*AppDie)(nil)
-	_ dieobjects.DieObjectMutOf[App, *AppDie, *AppDieMut] = (*AppDieMut)(nil)
-)
 
 var AppBlank = diebase.BlankOf[App, *AppDie, *AppDieMut](App{TypeMeta: metav1.TypeMeta{APIVersion: "kappctrl.k14s.io/v1alpha1", Kind: "App"}})
 
@@ -151,11 +145,6 @@ func (*AppClusterDieMut) DieFrom(b diebase.DieMutBase[AppCluster, *AppClusterDie
 	return &AppClusterDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppCluster, *AppClusterDie, *AppClusterDieMut]    = (*AppClusterDie)(nil)
-	_ diebase.DieMutOf[AppCluster, *AppClusterDie, *AppClusterDieMut] = (*AppClusterDieMut)(nil)
-)
-
 var AppClusterBlank = diebase.Blank[AppCluster, *AppClusterDie, *AppClusterDieMut]()
 
 type appClusterFieldsTable struct {
@@ -208,11 +197,6 @@ func (*AppClusterKubeconfigSecretRefDie) DieFrom(b diebase.DieBase[AppClusterKub
 func (*AppClusterKubeconfigSecretRefDieMut) DieFrom(b diebase.DieMutBase[AppClusterKubeconfigSecretRef, *AppClusterKubeconfigSecretRefDie, *AppClusterKubeconfigSecretRefDieMut]) *AppClusterKubeconfigSecretRefDieMut {
 	return &AppClusterKubeconfigSecretRefDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AppClusterKubeconfigSecretRef, *AppClusterKubeconfigSecretRefDie, *AppClusterKubeconfigSecretRefDieMut]    = (*AppClusterKubeconfigSecretRefDie)(nil)
-	_ diebase.DieMutOf[AppClusterKubeconfigSecretRef, *AppClusterKubeconfigSecretRefDie, *AppClusterKubeconfigSecretRefDieMut] = (*AppClusterKubeconfigSecretRefDieMut)(nil)
-)
 
 var AppClusterKubeconfigSecretRefBlank = diebase.Blank[AppClusterKubeconfigSecretRef, *AppClusterKubeconfigSecretRefDie, *AppClusterKubeconfigSecretRefDieMut]()
 
@@ -267,11 +251,6 @@ func (*AppDeployDieMut) DieFrom(b diebase.DieMutBase[AppDeploy, *AppDeployDie, *
 	return &AppDeployDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppDeploy, *AppDeployDie, *AppDeployDieMut]    = (*AppDeployDie)(nil)
-	_ diebase.DieMutOf[AppDeploy, *AppDeployDie, *AppDeployDieMut] = (*AppDeployDieMut)(nil)
-)
-
 var AppDeployBlank = diebase.Blank[AppDeploy, *AppDeployDie, *AppDeployDieMut]()
 
 type appDeployFieldsTable struct {
@@ -312,11 +291,6 @@ func (*AppDeployKappDie) DieFrom(b diebase.DieBase[AppDeployKapp, *AppDeployKapp
 func (*AppDeployKappDieMut) DieFrom(b diebase.DieMutBase[AppDeployKapp, *AppDeployKappDie, *AppDeployKappDieMut]) *AppDeployKappDieMut {
 	return &AppDeployKappDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AppDeployKapp, *AppDeployKappDie, *AppDeployKappDieMut]    = (*AppDeployKappDie)(nil)
-	_ diebase.DieMutOf[AppDeployKapp, *AppDeployKappDie, *AppDeployKappDieMut] = (*AppDeployKappDieMut)(nil)
-)
 
 var AppDeployKappBlank = diebase.Blank[AppDeployKapp, *AppDeployKappDie, *AppDeployKappDieMut]()
 
@@ -411,11 +385,6 @@ func (*AppDeployKappDeleteDieMut) DieFrom(b diebase.DieMutBase[AppDeployKappDele
 	return &AppDeployKappDeleteDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppDeployKappDelete, *AppDeployKappDeleteDie, *AppDeployKappDeleteDieMut]    = (*AppDeployKappDeleteDie)(nil)
-	_ diebase.DieMutOf[AppDeployKappDelete, *AppDeployKappDeleteDie, *AppDeployKappDeleteDieMut] = (*AppDeployKappDeleteDieMut)(nil)
-)
-
 var AppDeployKappDeleteBlank = diebase.Blank[AppDeployKappDelete, *AppDeployKappDeleteDie, *AppDeployKappDeleteDieMut]()
 
 type appDeployKappDeleteFieldsTable struct {
@@ -457,11 +426,6 @@ func (*AppDeployKappInspectDieMut) DieFrom(b diebase.DieMutBase[AppDeployKappIns
 	return &AppDeployKappInspectDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppDeployKappInspect, *AppDeployKappInspectDie, *AppDeployKappInspectDieMut]    = (*AppDeployKappInspectDie)(nil)
-	_ diebase.DieMutOf[AppDeployKappInspect, *AppDeployKappInspectDie, *AppDeployKappInspectDieMut] = (*AppDeployKappInspectDieMut)(nil)
-)
-
 var AppDeployKappInspectBlank = diebase.Blank[AppDeployKappInspect, *AppDeployKappInspectDie, *AppDeployKappInspectDieMut]()
 
 type appDeployKappInspectFieldsTable struct {
@@ -502,11 +466,6 @@ func (*AppFetchDie) DieFrom(b diebase.DieBase[AppFetch, *AppFetchDie, *AppFetchD
 func (*AppFetchDieMut) DieFrom(b diebase.DieMutBase[AppFetch, *AppFetchDie, *AppFetchDieMut]) *AppFetchDieMut {
 	return &AppFetchDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AppFetch, *AppFetchDie, *AppFetchDieMut]    = (*AppFetchDie)(nil)
-	_ diebase.DieMutOf[AppFetch, *AppFetchDie, *AppFetchDieMut] = (*AppFetchDieMut)(nil)
-)
 
 var AppFetchBlank = diebase.Blank[AppFetch, *AppFetchDie, *AppFetchDieMut]()
 
@@ -616,11 +575,6 @@ func (*AppFetchGitDie) DieFrom(b diebase.DieBase[AppFetchGit, *AppFetchGitDie, *
 func (*AppFetchGitDieMut) DieFrom(b diebase.DieMutBase[AppFetchGit, *AppFetchGitDie, *AppFetchGitDieMut]) *AppFetchGitDieMut {
 	return &AppFetchGitDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AppFetchGit, *AppFetchGitDie, *AppFetchGitDieMut]    = (*AppFetchGitDie)(nil)
-	_ diebase.DieMutOf[AppFetchGit, *AppFetchGitDie, *AppFetchGitDieMut] = (*AppFetchGitDieMut)(nil)
-)
 
 var AppFetchGitBlank = diebase.Blank[AppFetchGit, *AppFetchGitDie, *AppFetchGitDieMut]()
 
@@ -749,11 +703,6 @@ func (*AppFetchHTTPDieMut) DieFrom(b diebase.DieMutBase[AppFetchHTTP, *AppFetchH
 	return &AppFetchHTTPDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppFetchHTTP, *AppFetchHTTPDie, *AppFetchHTTPDieMut]    = (*AppFetchHTTPDie)(nil)
-	_ diebase.DieMutOf[AppFetchHTTP, *AppFetchHTTPDie, *AppFetchHTTPDieMut] = (*AppFetchHTTPDieMut)(nil)
-)
-
 var AppFetchHTTPBlank = diebase.Blank[AppFetchHTTP, *AppFetchHTTPDie, *AppFetchHTTPDieMut]()
 
 type appFetchHTTPFieldsTable struct {
@@ -837,11 +786,6 @@ func (*AppFetchHelmChartDieMut) DieFrom(b diebase.DieMutBase[AppFetchHelmChart, 
 	return &AppFetchHelmChartDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppFetchHelmChart, *AppFetchHelmChartDie, *AppFetchHelmChartDieMut]    = (*AppFetchHelmChartDie)(nil)
-	_ diebase.DieMutOf[AppFetchHelmChart, *AppFetchHelmChartDie, *AppFetchHelmChartDieMut] = (*AppFetchHelmChartDieMut)(nil)
-)
-
 var AppFetchHelmChartBlank = diebase.Blank[AppFetchHelmChart, *AppFetchHelmChartDie, *AppFetchHelmChartDieMut]()
 
 type appFetchHelmChartFieldsTable struct {
@@ -903,11 +847,6 @@ func (*AppFetchHelmChartRepoDieMut) DieFrom(b diebase.DieMutBase[AppFetchHelmCha
 	return &AppFetchHelmChartRepoDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppFetchHelmChartRepo, *AppFetchHelmChartRepoDie, *AppFetchHelmChartRepoDieMut]    = (*AppFetchHelmChartRepoDie)(nil)
-	_ diebase.DieMutOf[AppFetchHelmChartRepo, *AppFetchHelmChartRepoDie, *AppFetchHelmChartRepoDieMut] = (*AppFetchHelmChartRepoDieMut)(nil)
-)
-
 var AppFetchHelmChartRepoBlank = diebase.Blank[AppFetchHelmChartRepo, *AppFetchHelmChartRepoDie, *AppFetchHelmChartRepoDieMut]()
 
 type appFetchHelmChartRepoFieldsTable struct {
@@ -962,11 +901,6 @@ func (*AppFetchImageDie) DieFrom(b diebase.DieBase[AppFetchImage, *AppFetchImage
 func (*AppFetchImageDieMut) DieFrom(b diebase.DieMutBase[AppFetchImage, *AppFetchImageDie, *AppFetchImageDieMut]) *AppFetchImageDieMut {
 	return &AppFetchImageDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AppFetchImage, *AppFetchImageDie, *AppFetchImageDieMut]    = (*AppFetchImageDie)(nil)
-	_ diebase.DieMutOf[AppFetchImage, *AppFetchImageDie, *AppFetchImageDieMut] = (*AppFetchImageDieMut)(nil)
-)
 
 var AppFetchImageBlank = diebase.Blank[AppFetchImage, *AppFetchImageDie, *AppFetchImageDieMut]()
 
@@ -1053,11 +987,6 @@ func (*AppFetchImgpkgBundleDieMut) DieFrom(b diebase.DieMutBase[AppFetchImgpkgBu
 	return &AppFetchImgpkgBundleDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppFetchImgpkgBundle, *AppFetchImgpkgBundleDie, *AppFetchImgpkgBundleDieMut]    = (*AppFetchImgpkgBundleDie)(nil)
-	_ diebase.DieMutOf[AppFetchImgpkgBundle, *AppFetchImgpkgBundleDie, *AppFetchImgpkgBundleDieMut] = (*AppFetchImgpkgBundleDieMut)(nil)
-)
-
 var AppFetchImgpkgBundleBlank = diebase.Blank[AppFetchImgpkgBundle, *AppFetchImgpkgBundleDie, *AppFetchImgpkgBundleDieMut]()
 
 type appFetchImgpkgBundleFieldsTable struct {
@@ -1129,11 +1058,6 @@ func (*AppFetchInlineDieMut) DieFrom(b diebase.DieMutBase[AppFetchInline, *AppFe
 	return &AppFetchInlineDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppFetchInline, *AppFetchInlineDie, *AppFetchInlineDieMut]    = (*AppFetchInlineDie)(nil)
-	_ diebase.DieMutOf[AppFetchInline, *AppFetchInlineDie, *AppFetchInlineDieMut] = (*AppFetchInlineDieMut)(nil)
-)
-
 var AppFetchInlineBlank = diebase.Blank[AppFetchInline, *AppFetchInlineDie, *AppFetchInlineDieMut]()
 
 type appFetchInlineFieldsTable struct {
@@ -1191,11 +1115,6 @@ func (*AppFetchInlineSourceDieMut) DieFrom(b diebase.DieMutBase[AppFetchInlineSo
 	return &AppFetchInlineSourceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppFetchInlineSource, *AppFetchInlineSourceDie, *AppFetchInlineSourceDieMut]    = (*AppFetchInlineSourceDie)(nil)
-	_ diebase.DieMutOf[AppFetchInlineSource, *AppFetchInlineSourceDie, *AppFetchInlineSourceDieMut] = (*AppFetchInlineSourceDieMut)(nil)
-)
-
 var AppFetchInlineSourceBlank = diebase.Blank[AppFetchInlineSource, *AppFetchInlineSourceDie, *AppFetchInlineSourceDieMut]()
 
 type appFetchInlineSourceFieldsTable struct {
@@ -1244,11 +1163,6 @@ func (*AppFetchInlineSourceRefDie) DieFrom(b diebase.DieBase[AppFetchInlineSourc
 func (*AppFetchInlineSourceRefDieMut) DieFrom(b diebase.DieMutBase[AppFetchInlineSourceRef, *AppFetchInlineSourceRefDie, *AppFetchInlineSourceRefDieMut]) *AppFetchInlineSourceRefDieMut {
 	return &AppFetchInlineSourceRefDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AppFetchInlineSourceRef, *AppFetchInlineSourceRefDie, *AppFetchInlineSourceRefDieMut]    = (*AppFetchInlineSourceRefDie)(nil)
-	_ diebase.DieMutOf[AppFetchInlineSourceRef, *AppFetchInlineSourceRefDie, *AppFetchInlineSourceRefDieMut] = (*AppFetchInlineSourceRefDieMut)(nil)
-)
 
 var AppFetchInlineSourceRefBlank = diebase.Blank[AppFetchInlineSourceRef, *AppFetchInlineSourceRefDie, *AppFetchInlineSourceRefDieMut]()
 
@@ -1300,11 +1214,6 @@ func (*AppFetchLocalRefDie) DieFrom(b diebase.DieBase[AppFetchLocalRef, *AppFetc
 func (*AppFetchLocalRefDieMut) DieFrom(b diebase.DieMutBase[AppFetchLocalRef, *AppFetchLocalRefDie, *AppFetchLocalRefDieMut]) *AppFetchLocalRefDieMut {
 	return &AppFetchLocalRefDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AppFetchLocalRef, *AppFetchLocalRefDie, *AppFetchLocalRefDieMut]    = (*AppFetchLocalRefDie)(nil)
-	_ diebase.DieMutOf[AppFetchLocalRef, *AppFetchLocalRefDie, *AppFetchLocalRefDieMut] = (*AppFetchLocalRefDieMut)(nil)
-)
 
 var AppFetchLocalRefBlank = diebase.Blank[AppFetchLocalRef, *AppFetchLocalRefDie, *AppFetchLocalRefDieMut]()
 
@@ -1362,11 +1271,6 @@ func (*AppSpecDie) DieFrom(b diebase.DieBase[AppSpec, *AppSpecDie, *AppSpecDieMu
 func (*AppSpecDieMut) DieFrom(b diebase.DieMutBase[AppSpec, *AppSpecDie, *AppSpecDieMut]) *AppSpecDieMut {
 	return &AppSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AppSpec, *AppSpecDie, *AppSpecDieMut]    = (*AppSpecDie)(nil)
-	_ diebase.DieMutOf[AppSpec, *AppSpecDie, *AppSpecDieMut] = (*AppSpecDieMut)(nil)
-)
 
 var AppSpecBlank = diebase.Blank[AppSpec, *AppSpecDie, *AppSpecDieMut]()
 
@@ -1525,11 +1429,6 @@ func (*AppStatusDieMut) DieFrom(b diebase.DieMutBase[AppStatus, *AppStatusDie, *
 	return &AppStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppStatus, *AppStatusDie, *AppStatusDieMut]    = (*AppStatusDie)(nil)
-	_ diebase.DieMutOf[AppStatus, *AppStatusDie, *AppStatusDieMut] = (*AppStatusDieMut)(nil)
-)
-
 var AppStatusBlank = diebase.Blank[AppStatus, *AppStatusDie, *AppStatusDieMut]()
 
 type appStatusFieldsTable struct {
@@ -1675,11 +1574,6 @@ func (*AppStatusDeployDieMut) DieFrom(b diebase.DieMutBase[AppStatusDeploy, *App
 	return &AppStatusDeployDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppStatusDeploy, *AppStatusDeployDie, *AppStatusDeployDieMut]    = (*AppStatusDeployDie)(nil)
-	_ diebase.DieMutOf[AppStatusDeploy, *AppStatusDeployDie, *AppStatusDeployDieMut] = (*AppStatusDeployDieMut)(nil)
-)
-
 var AppStatusDeployBlank = diebase.Blank[AppStatusDeploy, *AppStatusDeployDie, *AppStatusDeployDieMut]()
 
 type appStatusDeployFieldsTable struct {
@@ -1789,11 +1683,6 @@ func (*AppStatusFetchDieMut) DieFrom(b diebase.DieMutBase[AppStatusFetch, *AppSt
 	return &AppStatusFetchDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppStatusFetch, *AppStatusFetchDie, *AppStatusFetchDieMut]    = (*AppStatusFetchDie)(nil)
-	_ diebase.DieMutOf[AppStatusFetch, *AppStatusFetchDie, *AppStatusFetchDieMut] = (*AppStatusFetchDieMut)(nil)
-)
-
 var AppStatusFetchBlank = diebase.Blank[AppStatusFetch, *AppStatusFetchDie, *AppStatusFetchDieMut]()
 
 type appStatusFetchFieldsTable struct {
@@ -1883,11 +1772,6 @@ func (*AppStatusInspectDieMut) DieFrom(b diebase.DieMutBase[AppStatusInspect, *A
 	return &AppStatusInspectDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppStatusInspect, *AppStatusInspectDie, *AppStatusInspectDieMut]    = (*AppStatusInspectDie)(nil)
-	_ diebase.DieMutOf[AppStatusInspect, *AppStatusInspectDie, *AppStatusInspectDieMut] = (*AppStatusInspectDieMut)(nil)
-)
-
 var AppStatusInspectBlank = diebase.Blank[AppStatusInspect, *AppStatusInspectDie, *AppStatusInspectDieMut]()
 
 type appStatusInspectFieldsTable struct {
@@ -1967,11 +1851,6 @@ func (*AppStatusTemplateDieMut) DieFrom(b diebase.DieMutBase[AppStatusTemplate, 
 	return &AppStatusTemplateDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppStatusTemplate, *AppStatusTemplateDie, *AppStatusTemplateDieMut]    = (*AppStatusTemplateDie)(nil)
-	_ diebase.DieMutOf[AppStatusTemplate, *AppStatusTemplateDie, *AppStatusTemplateDieMut] = (*AppStatusTemplateDieMut)(nil)
-)
-
 var AppStatusTemplateBlank = diebase.Blank[AppStatusTemplate, *AppStatusTemplateDie, *AppStatusTemplateDieMut]()
 
 type appStatusTemplateFieldsTable struct {
@@ -2040,11 +1919,6 @@ func (*AppTemplateDie) DieFrom(b diebase.DieBase[AppTemplate, *AppTemplateDie, *
 func (*AppTemplateDieMut) DieFrom(b diebase.DieMutBase[AppTemplate, *AppTemplateDie, *AppTemplateDieMut]) *AppTemplateDieMut {
 	return &AppTemplateDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AppTemplate, *AppTemplateDie, *AppTemplateDieMut]    = (*AppTemplateDie)(nil)
-	_ diebase.DieMutOf[AppTemplate, *AppTemplateDie, *AppTemplateDieMut] = (*AppTemplateDieMut)(nil)
-)
 
 var AppTemplateBlank = diebase.Blank[AppTemplate, *AppTemplateDie, *AppTemplateDieMut]()
 
@@ -2153,11 +2027,6 @@ func (*AppTemplateCueDieMut) DieFrom(b diebase.DieMutBase[AppTemplateCue, *AppTe
 	return &AppTemplateCueDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppTemplateCue, *AppTemplateCueDie, *AppTemplateCueDieMut]    = (*AppTemplateCueDie)(nil)
-	_ diebase.DieMutOf[AppTemplateCue, *AppTemplateCueDie, *AppTemplateCueDieMut] = (*AppTemplateCueDieMut)(nil)
-)
-
 var AppTemplateCueBlank = diebase.Blank[AppTemplateCue, *AppTemplateCueDie, *AppTemplateCueDieMut]()
 
 type appTemplateCueFieldsTable struct {
@@ -2234,11 +2103,6 @@ func (*AppTemplateHelmTemplateDie) DieFrom(b diebase.DieBase[AppTemplateHelmTemp
 func (*AppTemplateHelmTemplateDieMut) DieFrom(b diebase.DieMutBase[AppTemplateHelmTemplate, *AppTemplateHelmTemplateDie, *AppTemplateHelmTemplateDieMut]) *AppTemplateHelmTemplateDieMut {
 	return &AppTemplateHelmTemplateDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AppTemplateHelmTemplate, *AppTemplateHelmTemplateDie, *AppTemplateHelmTemplateDieMut]    = (*AppTemplateHelmTemplateDie)(nil)
-	_ diebase.DieMutOf[AppTemplateHelmTemplate, *AppTemplateHelmTemplateDie, *AppTemplateHelmTemplateDieMut] = (*AppTemplateHelmTemplateDieMut)(nil)
-)
 
 var AppTemplateHelmTemplateBlank = diebase.Blank[AppTemplateHelmTemplate, *AppTemplateHelmTemplateDie, *AppTemplateHelmTemplateDieMut]()
 
@@ -2345,11 +2209,6 @@ func (*AppTemplateJsonnetDieMut) DieFrom(b diebase.DieMutBase[AppTemplateJsonnet
 	return &AppTemplateJsonnetDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppTemplateJsonnet, *AppTemplateJsonnetDie, *AppTemplateJsonnetDieMut]    = (*AppTemplateJsonnetDie)(nil)
-	_ diebase.DieMutOf[AppTemplateJsonnet, *AppTemplateJsonnetDie, *AppTemplateJsonnetDieMut] = (*AppTemplateJsonnetDieMut)(nil)
-)
-
 var AppTemplateJsonnetBlank = diebase.Blank[AppTemplateJsonnet, *AppTemplateJsonnetDie, *AppTemplateJsonnetDieMut]()
 
 type appTemplateJsonnetFieldsTable struct {
@@ -2378,11 +2237,6 @@ func (*AppTemplateKbldDie) DieFrom(b diebase.DieBase[AppTemplateKbld, *AppTempla
 func (*AppTemplateKbldDieMut) DieFrom(b diebase.DieMutBase[AppTemplateKbld, *AppTemplateKbldDie, *AppTemplateKbldDieMut]) *AppTemplateKbldDieMut {
 	return &AppTemplateKbldDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AppTemplateKbld, *AppTemplateKbldDie, *AppTemplateKbldDieMut]    = (*AppTemplateKbldDie)(nil)
-	_ diebase.DieMutOf[AppTemplateKbld, *AppTemplateKbldDie, *AppTemplateKbldDieMut] = (*AppTemplateKbldDieMut)(nil)
-)
 
 var AppTemplateKbldBlank = diebase.Blank[AppTemplateKbld, *AppTemplateKbldDie, *AppTemplateKbldDieMut]()
 
@@ -2437,11 +2291,6 @@ func (*AppTemplateKustomizeDieMut) DieFrom(b diebase.DieMutBase[AppTemplateKusto
 	return &AppTemplateKustomizeDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppTemplateKustomize, *AppTemplateKustomizeDie, *AppTemplateKustomizeDieMut]    = (*AppTemplateKustomizeDie)(nil)
-	_ diebase.DieMutOf[AppTemplateKustomize, *AppTemplateKustomizeDie, *AppTemplateKustomizeDieMut] = (*AppTemplateKustomizeDieMut)(nil)
-)
-
 var AppTemplateKustomizeBlank = diebase.Blank[AppTemplateKustomize, *AppTemplateKustomizeDie, *AppTemplateKustomizeDieMut]()
 
 type appTemplateKustomizeFieldsTable struct {
@@ -2470,11 +2319,6 @@ func (*AppTemplateSopsDie) DieFrom(b diebase.DieBase[AppTemplateSops, *AppTempla
 func (*AppTemplateSopsDieMut) DieFrom(b diebase.DieMutBase[AppTemplateSops, *AppTemplateSopsDie, *AppTemplateSopsDieMut]) *AppTemplateSopsDieMut {
 	return &AppTemplateSopsDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AppTemplateSops, *AppTemplateSopsDie, *AppTemplateSopsDieMut]    = (*AppTemplateSopsDie)(nil)
-	_ diebase.DieMutOf[AppTemplateSops, *AppTemplateSopsDie, *AppTemplateSopsDieMut] = (*AppTemplateSopsDieMut)(nil)
-)
 
 var AppTemplateSopsBlank = diebase.Blank[AppTemplateSops, *AppTemplateSopsDie, *AppTemplateSopsDieMut]()
 
@@ -2539,11 +2383,6 @@ func (*AppTemplateSopsAgeDieMut) DieFrom(b diebase.DieMutBase[AppTemplateSopsAge
 	return &AppTemplateSopsAgeDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppTemplateSopsAge, *AppTemplateSopsAgeDie, *AppTemplateSopsAgeDieMut]    = (*AppTemplateSopsAgeDie)(nil)
-	_ diebase.DieMutOf[AppTemplateSopsAge, *AppTemplateSopsAgeDie, *AppTemplateSopsAgeDieMut] = (*AppTemplateSopsAgeDieMut)(nil)
-)
-
 var AppTemplateSopsAgeBlank = diebase.Blank[AppTemplateSopsAge, *AppTemplateSopsAgeDie, *AppTemplateSopsAgeDieMut]()
 
 type appTemplateSopsAgeFieldsTable struct {
@@ -2584,11 +2423,6 @@ func (*AppTemplateSopsPGPDie) DieFrom(b diebase.DieBase[AppTemplateSopsPGP, *App
 func (*AppTemplateSopsPGPDieMut) DieFrom(b diebase.DieMutBase[AppTemplateSopsPGP, *AppTemplateSopsPGPDie, *AppTemplateSopsPGPDieMut]) *AppTemplateSopsPGPDieMut {
 	return &AppTemplateSopsPGPDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AppTemplateSopsPGP, *AppTemplateSopsPGPDie, *AppTemplateSopsPGPDieMut]    = (*AppTemplateSopsPGPDie)(nil)
-	_ diebase.DieMutOf[AppTemplateSopsPGP, *AppTemplateSopsPGPDie, *AppTemplateSopsPGPDieMut] = (*AppTemplateSopsPGPDieMut)(nil)
-)
 
 var AppTemplateSopsPGPBlank = diebase.Blank[AppTemplateSopsPGP, *AppTemplateSopsPGPDie, *AppTemplateSopsPGPDieMut]()
 
@@ -2631,11 +2465,6 @@ func (*AppTemplateSopsPrivateKeysSecretRefDieMut) DieFrom(b diebase.DieMutBase[A
 	return &AppTemplateSopsPrivateKeysSecretRefDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppTemplateSopsPrivateKeysSecretRef, *AppTemplateSopsPrivateKeysSecretRefDie, *AppTemplateSopsPrivateKeysSecretRefDieMut]    = (*AppTemplateSopsPrivateKeysSecretRefDie)(nil)
-	_ diebase.DieMutOf[AppTemplateSopsPrivateKeysSecretRef, *AppTemplateSopsPrivateKeysSecretRefDie, *AppTemplateSopsPrivateKeysSecretRefDieMut] = (*AppTemplateSopsPrivateKeysSecretRefDieMut)(nil)
-)
-
 var AppTemplateSopsPrivateKeysSecretRefBlank = diebase.Blank[AppTemplateSopsPrivateKeysSecretRef, *AppTemplateSopsPrivateKeysSecretRefDie, *AppTemplateSopsPrivateKeysSecretRefDieMut]()
 
 type appTemplateSopsPrivateKeysSecretRefFieldsTable struct {
@@ -2675,11 +2504,6 @@ func (*AppTemplateValuesDownwardAPIDieMut) DieFrom(b diebase.DieMutBase[AppTempl
 	return &AppTemplateValuesDownwardAPIDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppTemplateValuesDownwardAPI, *AppTemplateValuesDownwardAPIDie, *AppTemplateValuesDownwardAPIDieMut]    = (*AppTemplateValuesDownwardAPIDie)(nil)
-	_ diebase.DieMutOf[AppTemplateValuesDownwardAPI, *AppTemplateValuesDownwardAPIDie, *AppTemplateValuesDownwardAPIDieMut] = (*AppTemplateValuesDownwardAPIDieMut)(nil)
-)
-
 var AppTemplateValuesDownwardAPIBlank = diebase.Blank[AppTemplateValuesDownwardAPI, *AppTemplateValuesDownwardAPIDie, *AppTemplateValuesDownwardAPIDieMut]()
 
 type appTemplateValuesDownwardAPIFieldsTable struct {
@@ -2718,11 +2542,6 @@ func (*AppTemplateValuesDownwardAPIItemDie) DieFrom(b diebase.DieBase[AppTemplat
 func (*AppTemplateValuesDownwardAPIItemDieMut) DieFrom(b diebase.DieMutBase[AppTemplateValuesDownwardAPIItem, *AppTemplateValuesDownwardAPIItemDie, *AppTemplateValuesDownwardAPIItemDieMut]) *AppTemplateValuesDownwardAPIItemDieMut {
 	return &AppTemplateValuesDownwardAPIItemDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AppTemplateValuesDownwardAPIItem, *AppTemplateValuesDownwardAPIItemDie, *AppTemplateValuesDownwardAPIItemDieMut]    = (*AppTemplateValuesDownwardAPIItemDie)(nil)
-	_ diebase.DieMutOf[AppTemplateValuesDownwardAPIItem, *AppTemplateValuesDownwardAPIItemDie, *AppTemplateValuesDownwardAPIItemDieMut] = (*AppTemplateValuesDownwardAPIItemDieMut)(nil)
-)
 
 var AppTemplateValuesDownwardAPIItemBlank = diebase.Blank[AppTemplateValuesDownwardAPIItem, *AppTemplateValuesDownwardAPIItemDie, *AppTemplateValuesDownwardAPIItemDieMut]()
 
@@ -2817,11 +2636,6 @@ func (*AppTemplateValuesSourceDieMut) DieFrom(b diebase.DieMutBase[AppTemplateVa
 	return &AppTemplateValuesSourceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut]    = (*AppTemplateValuesSourceDie)(nil)
-	_ diebase.DieMutOf[AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut] = (*AppTemplateValuesSourceDieMut)(nil)
-)
-
 var AppTemplateValuesSourceBlank = diebase.Blank[AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut]()
 
 type appTemplateValuesSourceFieldsTable struct {
@@ -2891,11 +2705,6 @@ func (*AppTemplateValuesSourceRefDieMut) DieFrom(b diebase.DieMutBase[AppTemplat
 	return &AppTemplateValuesSourceRefDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AppTemplateValuesSourceRef, *AppTemplateValuesSourceRefDie, *AppTemplateValuesSourceRefDieMut]    = (*AppTemplateValuesSourceRefDie)(nil)
-	_ diebase.DieMutOf[AppTemplateValuesSourceRef, *AppTemplateValuesSourceRefDie, *AppTemplateValuesSourceRefDieMut] = (*AppTemplateValuesSourceRefDieMut)(nil)
-)
-
 var AppTemplateValuesSourceRefBlank = diebase.Blank[AppTemplateValuesSourceRef, *AppTemplateValuesSourceRefDie, *AppTemplateValuesSourceRefDieMut]()
 
 type appTemplateValuesSourceRefFieldsTable struct {
@@ -2934,11 +2743,6 @@ func (*AppTemplateYttDie) DieFrom(b diebase.DieBase[AppTemplateYtt, *AppTemplate
 func (*AppTemplateYttDieMut) DieFrom(b diebase.DieMutBase[AppTemplateYtt, *AppTemplateYttDie, *AppTemplateYttDieMut]) *AppTemplateYttDieMut {
 	return &AppTemplateYttDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AppTemplateYtt, *AppTemplateYttDie, *AppTemplateYttDieMut]    = (*AppTemplateYttDie)(nil)
-	_ diebase.DieMutOf[AppTemplateYtt, *AppTemplateYttDie, *AppTemplateYttDieMut] = (*AppTemplateYttDieMut)(nil)
-)
 
 var AppTemplateYttBlank = diebase.Blank[AppTemplateYtt, *AppTemplateYttDie, *AppTemplateYttDieMut]()
 
@@ -3049,11 +2853,6 @@ func (*AssociatedResourcesDieMut) DieFrom(b diebase.DieMutBase[AssociatedResourc
 	return &AssociatedResourcesDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AssociatedResources, *AssociatedResourcesDie, *AssociatedResourcesDieMut]    = (*AssociatedResourcesDie)(nil)
-	_ diebase.DieMutOf[AssociatedResources, *AssociatedResourcesDie, *AssociatedResourcesDieMut] = (*AssociatedResourcesDieMut)(nil)
-)
-
 var AssociatedResourcesBlank = diebase.Blank[AssociatedResources, *AssociatedResourcesDie, *AssociatedResourcesDieMut]()
 
 type associatedResourcesFieldsTable struct {
@@ -3112,11 +2911,6 @@ func (*ConditionDie) DieFrom(b diebase.DieBase[Condition, *ConditionDie, *Condit
 func (*ConditionDieMut) DieFrom(b diebase.DieMutBase[Condition, *ConditionDie, *ConditionDieMut]) *ConditionDieMut {
 	return &ConditionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[Condition, *ConditionDie, *ConditionDieMut]    = (*ConditionDie)(nil)
-	_ diebase.DieMutOf[Condition, *ConditionDie, *ConditionDieMut] = (*ConditionDieMut)(nil)
-)
 
 var ConditionBlank = diebase.Blank[Condition, *ConditionDie, *ConditionDieMut]()
 
@@ -3195,11 +2989,6 @@ func (*GenericStatusDieMut) DieFrom(b diebase.DieMutBase[GenericStatus, *Generic
 	return &GenericStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[GenericStatus, *GenericStatusDie, *GenericStatusDieMut]    = (*GenericStatusDie)(nil)
-	_ diebase.DieMutOf[GenericStatus, *GenericStatusDie, *GenericStatusDieMut] = (*GenericStatusDieMut)(nil)
-)
-
 var GenericStatusBlank = diebase.Blank[GenericStatus, *GenericStatusDie, *GenericStatusDieMut]()
 
 type genericStatusFieldsTable struct {
@@ -3277,11 +3066,6 @@ func (*KappDeployStatusDieMut) DieFrom(b diebase.DieMutBase[KappDeployStatus, *K
 	return &KappDeployStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[KappDeployStatus, *KappDeployStatusDie, *KappDeployStatusDieMut]    = (*KappDeployStatusDie)(nil)
-	_ diebase.DieMutOf[KappDeployStatus, *KappDeployStatusDie, *KappDeployStatusDieMut] = (*KappDeployStatusDieMut)(nil)
-)
-
 var KappDeployStatusBlank = diebase.Blank[KappDeployStatus, *KappDeployStatusDie, *KappDeployStatusDieMut]()
 
 type kappDeployStatusFieldsTable struct {
@@ -3321,11 +3105,6 @@ func (*KubernetesAPIsDieMut) DieFrom(b diebase.DieMutBase[KubernetesAPIs, *Kuber
 	return &KubernetesAPIsDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[KubernetesAPIs, *KubernetesAPIsDie, *KubernetesAPIsDieMut]    = (*KubernetesAPIsDie)(nil)
-	_ diebase.DieMutOf[KubernetesAPIs, *KubernetesAPIsDie, *KubernetesAPIsDieMut] = (*KubernetesAPIsDieMut)(nil)
-)
-
 var KubernetesAPIsBlank = diebase.Blank[KubernetesAPIs, *KubernetesAPIsDie, *KubernetesAPIsDieMut]()
 
 type kubernetesAPIsFieldsTable struct {
@@ -3364,11 +3143,6 @@ func (*VersionDie) DieFrom(b diebase.DieBase[Version, *VersionDie, *VersionDieMu
 func (*VersionDieMut) DieFrom(b diebase.DieMutBase[Version, *VersionDie, *VersionDieMut]) *VersionDieMut {
 	return &VersionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[Version, *VersionDie, *VersionDieMut]    = (*VersionDie)(nil)
-	_ diebase.DieMutOf[Version, *VersionDie, *VersionDieMut] = (*VersionDieMut)(nil)
-)
 
 var VersionBlank = diebase.Blank[Version, *VersionDie, *VersionDieMut]()
 

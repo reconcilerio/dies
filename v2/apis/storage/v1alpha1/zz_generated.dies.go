@@ -29,7 +29,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // CSIStorageCapacity stores the result of one CSI GetCapacity call.
@@ -75,11 +74,6 @@ func (*CSIStorageCapacityDie) DieFrom(b diebase.DieBase[CSIStorageCapacity, *CSI
 func (*CSIStorageCapacityDieMut) DieFrom(b diebase.DieMutBase[CSIStorageCapacity, *CSIStorageCapacityDie, *CSIStorageCapacityDieMut]) *CSIStorageCapacityDieMut {
 	return &CSIStorageCapacityDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[CSIStorageCapacity, *CSIStorageCapacityDie, *CSIStorageCapacityDieMut]    = (*CSIStorageCapacityDie)(nil)
-	_ dieobjects.DieObjectMutOf[CSIStorageCapacity, *CSIStorageCapacityDie, *CSIStorageCapacityDieMut] = (*CSIStorageCapacityDieMut)(nil)
-)
 
 var CSIStorageCapacityBlank = diebase.BlankOf[CSIStorageCapacity, *CSIStorageCapacityDie, *CSIStorageCapacityDieMut](CSIStorageCapacity{TypeMeta: metav1.TypeMeta{APIVersion: "storage.k8s.io/v1alpha1", Kind: "CSIStorageCapacity"}})
 
@@ -349,11 +343,6 @@ func (*VolumeAttachmentDieMut) DieFrom(b diebase.DieMutBase[VolumeAttachment, *V
 	return &VolumeAttachmentDieMut{diebase.AsObjectMut(b)}
 }
 
-var (
-	_ dieobjects.DieObjectOf[VolumeAttachment, *VolumeAttachmentDie, *VolumeAttachmentDieMut]    = (*VolumeAttachmentDie)(nil)
-	_ dieobjects.DieObjectMutOf[VolumeAttachment, *VolumeAttachmentDie, *VolumeAttachmentDieMut] = (*VolumeAttachmentDieMut)(nil)
-)
-
 var VolumeAttachmentBlank = diebase.BlankOf[VolumeAttachment, *VolumeAttachmentDie, *VolumeAttachmentDieMut](VolumeAttachment{TypeMeta: metav1.TypeMeta{APIVersion: "storage.k8s.io/v1alpha1", Kind: "VolumeAttachment"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -540,11 +529,6 @@ func (*VolumeAttachmentSourceDieMut) DieFrom(b diebase.DieMutBase[VolumeAttachme
 	return &VolumeAttachmentSourceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[VolumeAttachmentSource, *VolumeAttachmentSourceDie, *VolumeAttachmentSourceDieMut]    = (*VolumeAttachmentSourceDie)(nil)
-	_ diebase.DieMutOf[VolumeAttachmentSource, *VolumeAttachmentSourceDie, *VolumeAttachmentSourceDieMut] = (*VolumeAttachmentSourceDieMut)(nil)
-)
-
 var VolumeAttachmentSourceBlank = diebase.Blank[VolumeAttachmentSource, *VolumeAttachmentSourceDie, *VolumeAttachmentSourceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -660,11 +644,6 @@ func (*VolumeAttachmentSpecDie) DieFrom(b diebase.DieBase[VolumeAttachmentSpec, 
 func (*VolumeAttachmentSpecDieMut) DieFrom(b diebase.DieMutBase[VolumeAttachmentSpec, *VolumeAttachmentSpecDie, *VolumeAttachmentSpecDieMut]) *VolumeAttachmentSpecDieMut {
 	return &VolumeAttachmentSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[VolumeAttachmentSpec, *VolumeAttachmentSpecDie, *VolumeAttachmentSpecDieMut]    = (*VolumeAttachmentSpecDie)(nil)
-	_ diebase.DieMutOf[VolumeAttachmentSpec, *VolumeAttachmentSpecDie, *VolumeAttachmentSpecDieMut] = (*VolumeAttachmentSpecDieMut)(nil)
-)
 
 var VolumeAttachmentSpecBlank = diebase.Blank[VolumeAttachmentSpec, *VolumeAttachmentSpecDie, *VolumeAttachmentSpecDieMut]()
 
@@ -785,11 +764,6 @@ func (*VolumeAttachmentStatusDie) DieFrom(b diebase.DieBase[VolumeAttachmentStat
 func (*VolumeAttachmentStatusDieMut) DieFrom(b diebase.DieMutBase[VolumeAttachmentStatus, *VolumeAttachmentStatusDie, *VolumeAttachmentStatusDieMut]) *VolumeAttachmentStatusDieMut {
 	return &VolumeAttachmentStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[VolumeAttachmentStatus, *VolumeAttachmentStatusDie, *VolumeAttachmentStatusDieMut]    = (*VolumeAttachmentStatusDie)(nil)
-	_ diebase.DieMutOf[VolumeAttachmentStatus, *VolumeAttachmentStatusDie, *VolumeAttachmentStatusDieMut] = (*VolumeAttachmentStatusDieMut)(nil)
-)
 
 var VolumeAttachmentStatusBlank = diebase.Blank[VolumeAttachmentStatus, *VolumeAttachmentStatusDie, *VolumeAttachmentStatusDieMut]()
 
@@ -942,11 +916,6 @@ func (*VolumeAttributesClassDie) DieFrom(b diebase.DieBase[VolumeAttributesClass
 func (*VolumeAttributesClassDieMut) DieFrom(b diebase.DieMutBase[VolumeAttributesClass, *VolumeAttributesClassDie, *VolumeAttributesClassDieMut]) *VolumeAttributesClassDieMut {
 	return &VolumeAttributesClassDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[VolumeAttributesClass, *VolumeAttributesClassDie, *VolumeAttributesClassDieMut]    = (*VolumeAttributesClassDie)(nil)
-	_ dieobjects.DieObjectMutOf[VolumeAttributesClass, *VolumeAttributesClassDie, *VolumeAttributesClassDieMut] = (*VolumeAttributesClassDieMut)(nil)
-)
 
 var VolumeAttributesClassBlank = diebase.BlankOf[VolumeAttributesClass, *VolumeAttributesClassDie, *VolumeAttributesClassDieMut](VolumeAttributesClass{TypeMeta: metav1.TypeMeta{APIVersion: "storage.k8s.io/v1alpha1", Kind: "VolumeAttributesClass"}})
 
@@ -1150,11 +1119,6 @@ func (*VolumeErrorDie) DieFrom(b diebase.DieBase[VolumeError, *VolumeErrorDie, *
 func (*VolumeErrorDieMut) DieFrom(b diebase.DieMutBase[VolumeError, *VolumeErrorDie, *VolumeErrorDieMut]) *VolumeErrorDieMut {
 	return &VolumeErrorDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[VolumeError, *VolumeErrorDie, *VolumeErrorDieMut]    = (*VolumeErrorDie)(nil)
-	_ diebase.DieMutOf[VolumeError, *VolumeErrorDie, *VolumeErrorDieMut] = (*VolumeErrorDieMut)(nil)
-)
 
 var VolumeErrorBlank = diebase.Blank[VolumeError, *VolumeErrorDie, *VolumeErrorDieMut]()
 

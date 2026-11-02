@@ -26,7 +26,6 @@ import (
 	diebase "reconciler.io/dies/v2/die/base"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // ImageReview checks if the set of images in a pod are allowed.
@@ -49,11 +48,6 @@ func (*ImageReviewDie) DieFrom(b diebase.DieBase[ImageReview, *ImageReviewDie, *
 func (*ImageReviewDieMut) DieFrom(b diebase.DieMutBase[ImageReview, *ImageReviewDie, *ImageReviewDieMut]) *ImageReviewDieMut {
 	return &ImageReviewDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[ImageReview, *ImageReviewDie, *ImageReviewDieMut]    = (*ImageReviewDie)(nil)
-	_ dieobjects.DieObjectMutOf[ImageReview, *ImageReviewDie, *ImageReviewDieMut] = (*ImageReviewDieMut)(nil)
-)
 
 var ImageReviewBlank = diebase.BlankOf[ImageReview, *ImageReviewDie, *ImageReviewDieMut](ImageReview{TypeMeta: metav1.TypeMeta{APIVersion: "imagepolicy.k8s.io/v1alpha1", Kind: "ImageReview"}})
 
@@ -213,11 +207,6 @@ func (*ImageReviewContainerSpecDieMut) DieFrom(b diebase.DieMutBase[ImageReviewC
 	return &ImageReviewContainerSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ImageReviewContainerSpec, *ImageReviewContainerSpecDie, *ImageReviewContainerSpecDieMut]    = (*ImageReviewContainerSpecDie)(nil)
-	_ diebase.DieMutOf[ImageReviewContainerSpec, *ImageReviewContainerSpecDie, *ImageReviewContainerSpecDieMut] = (*ImageReviewContainerSpecDieMut)(nil)
-)
-
 var ImageReviewContainerSpecBlank = diebase.Blank[ImageReviewContainerSpec, *ImageReviewContainerSpecDie, *ImageReviewContainerSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -311,11 +300,6 @@ func (*ImageReviewSpecDie) DieFrom(b diebase.DieBase[ImageReviewSpec, *ImageRevi
 func (*ImageReviewSpecDieMut) DieFrom(b diebase.DieMutBase[ImageReviewSpec, *ImageReviewSpecDie, *ImageReviewSpecDieMut]) *ImageReviewSpecDieMut {
 	return &ImageReviewSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ImageReviewSpec, *ImageReviewSpecDie, *ImageReviewSpecDieMut]    = (*ImageReviewSpecDie)(nil)
-	_ diebase.DieMutOf[ImageReviewSpec, *ImageReviewSpecDie, *ImageReviewSpecDieMut] = (*ImageReviewSpecDieMut)(nil)
-)
 
 var ImageReviewSpecBlank = diebase.Blank[ImageReviewSpec, *ImageReviewSpecDie, *ImageReviewSpecDieMut]()
 
@@ -438,11 +422,6 @@ func (*ImageReviewStatusDie) DieFrom(b diebase.DieBase[ImageReviewStatus, *Image
 func (*ImageReviewStatusDieMut) DieFrom(b diebase.DieMutBase[ImageReviewStatus, *ImageReviewStatusDie, *ImageReviewStatusDieMut]) *ImageReviewStatusDieMut {
 	return &ImageReviewStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ImageReviewStatus, *ImageReviewStatusDie, *ImageReviewStatusDieMut]    = (*ImageReviewStatusDie)(nil)
-	_ diebase.DieMutOf[ImageReviewStatus, *ImageReviewStatusDie, *ImageReviewStatusDieMut] = (*ImageReviewStatusDieMut)(nil)
-)
 
 var ImageReviewStatusBlank = diebase.Blank[ImageReviewStatus, *ImageReviewStatusDie, *ImageReviewStatusDieMut]()
 

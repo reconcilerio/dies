@@ -27,7 +27,6 @@ import (
 	diebase "reconciler.io/dies/v2/die/base"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // BoundObjectReference is a reference to an object that a token is bound to.
@@ -50,11 +49,6 @@ func (*BoundObjectReferenceDie) DieFrom(b diebase.DieBase[BoundObjectReference, 
 func (*BoundObjectReferenceDieMut) DieFrom(b diebase.DieMutBase[BoundObjectReference, *BoundObjectReferenceDie, *BoundObjectReferenceDieMut]) *BoundObjectReferenceDieMut {
 	return &BoundObjectReferenceDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[BoundObjectReference, *BoundObjectReferenceDie, *BoundObjectReferenceDieMut]    = (*BoundObjectReferenceDie)(nil)
-	_ diebase.DieMutOf[BoundObjectReference, *BoundObjectReferenceDie, *BoundObjectReferenceDieMut] = (*BoundObjectReferenceDieMut)(nil)
-)
 
 var BoundObjectReferenceBlank = diebase.Blank[BoundObjectReference, *BoundObjectReferenceDie, *BoundObjectReferenceDieMut]()
 
@@ -138,11 +132,6 @@ func (*SelfSubjectReviewDie) DieFrom(b diebase.DieBase[SelfSubjectReview, *SelfS
 func (*SelfSubjectReviewDieMut) DieFrom(b diebase.DieMutBase[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut]) *SelfSubjectReviewDieMut {
 	return &SelfSubjectReviewDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut]    = (*SelfSubjectReviewDie)(nil)
-	_ dieobjects.DieObjectMutOf[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut] = (*SelfSubjectReviewDieMut)(nil)
-)
 
 var SelfSubjectReviewBlank = diebase.BlankOf[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut](SelfSubjectReview{TypeMeta: metav1.TypeMeta{APIVersion: "authentication.k8s.io/v1", Kind: "SelfSubjectReview"}})
 
@@ -239,11 +228,6 @@ func (*SelfSubjectReviewStatusDieMut) DieFrom(b diebase.DieMutBase[SelfSubjectRe
 	return &SelfSubjectReviewStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut]    = (*SelfSubjectReviewStatusDie)(nil)
-	_ diebase.DieMutOf[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut] = (*SelfSubjectReviewStatusDieMut)(nil)
-)
-
 var SelfSubjectReviewStatusBlank = diebase.Blank[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut]()
 
 type selfSubjectReviewStatusFieldsTable struct {
@@ -286,11 +270,6 @@ func (*TokenRequestDie) DieFrom(b diebase.DieBase[TokenRequest, *TokenRequestDie
 func (*TokenRequestDieMut) DieFrom(b diebase.DieMutBase[TokenRequest, *TokenRequestDie, *TokenRequestDieMut]) *TokenRequestDieMut {
 	return &TokenRequestDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[TokenRequest, *TokenRequestDie, *TokenRequestDieMut]    = (*TokenRequestDie)(nil)
-	_ dieobjects.DieObjectMutOf[TokenRequest, *TokenRequestDie, *TokenRequestDieMut] = (*TokenRequestDieMut)(nil)
-)
 
 var TokenRequestBlank = diebase.BlankOf[TokenRequest, *TokenRequestDie, *TokenRequestDieMut](TokenRequest{TypeMeta: metav1.TypeMeta{APIVersion: "authentication.k8s.io/v1", Kind: "TokenRequest"}})
 
@@ -398,11 +377,6 @@ func (*TokenRequestSpecDie) DieFrom(b diebase.DieBase[TokenRequestSpec, *TokenRe
 func (*TokenRequestSpecDieMut) DieFrom(b diebase.DieMutBase[TokenRequestSpec, *TokenRequestSpecDie, *TokenRequestSpecDieMut]) *TokenRequestSpecDieMut {
 	return &TokenRequestSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[TokenRequestSpec, *TokenRequestSpecDie, *TokenRequestSpecDieMut]    = (*TokenRequestSpecDie)(nil)
-	_ diebase.DieMutOf[TokenRequestSpec, *TokenRequestSpecDie, *TokenRequestSpecDieMut] = (*TokenRequestSpecDieMut)(nil)
-)
 
 var TokenRequestSpecBlank = diebase.Blank[TokenRequestSpec, *TokenRequestSpecDie, *TokenRequestSpecDieMut]()
 
@@ -513,11 +487,6 @@ func (*TokenRequestStatusDieMut) DieFrom(b diebase.DieMutBase[TokenRequestStatus
 	return &TokenRequestStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[TokenRequestStatus, *TokenRequestStatusDie, *TokenRequestStatusDieMut]    = (*TokenRequestStatusDie)(nil)
-	_ diebase.DieMutOf[TokenRequestStatus, *TokenRequestStatusDie, *TokenRequestStatusDieMut] = (*TokenRequestStatusDieMut)(nil)
-)
-
 var TokenRequestStatusBlank = diebase.Blank[TokenRequestStatus, *TokenRequestStatusDie, *TokenRequestStatusDieMut]()
 
 type tokenRequestStatusFieldsTable struct {
@@ -574,11 +543,6 @@ func (*TokenReviewDie) DieFrom(b diebase.DieBase[TokenReview, *TokenReviewDie, *
 func (*TokenReviewDieMut) DieFrom(b diebase.DieMutBase[TokenReview, *TokenReviewDie, *TokenReviewDieMut]) *TokenReviewDieMut {
 	return &TokenReviewDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[TokenReview, *TokenReviewDie, *TokenReviewDieMut]    = (*TokenReviewDie)(nil)
-	_ dieobjects.DieObjectMutOf[TokenReview, *TokenReviewDie, *TokenReviewDieMut] = (*TokenReviewDieMut)(nil)
-)
 
 var TokenReviewBlank = diebase.BlankOf[TokenReview, *TokenReviewDie, *TokenReviewDieMut](TokenReview{TypeMeta: metav1.TypeMeta{APIVersion: "authentication.k8s.io/v1", Kind: "TokenReview"}})
 
@@ -687,11 +651,6 @@ func (*TokenReviewSpecDieMut) DieFrom(b diebase.DieMutBase[TokenReviewSpec, *Tok
 	return &TokenReviewSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[TokenReviewSpec, *TokenReviewSpecDie, *TokenReviewSpecDieMut]    = (*TokenReviewSpecDie)(nil)
-	_ diebase.DieMutOf[TokenReviewSpec, *TokenReviewSpecDie, *TokenReviewSpecDieMut] = (*TokenReviewSpecDieMut)(nil)
-)
-
 var TokenReviewSpecBlank = diebase.Blank[TokenReviewSpec, *TokenReviewSpecDie, *TokenReviewSpecDieMut]()
 
 type tokenReviewSpecFieldsTable struct {
@@ -754,11 +713,6 @@ func (*TokenReviewStatusDie) DieFrom(b diebase.DieBase[TokenReviewStatus, *Token
 func (*TokenReviewStatusDieMut) DieFrom(b diebase.DieMutBase[TokenReviewStatus, *TokenReviewStatusDie, *TokenReviewStatusDieMut]) *TokenReviewStatusDieMut {
 	return &TokenReviewStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[TokenReviewStatus, *TokenReviewStatusDie, *TokenReviewStatusDieMut]    = (*TokenReviewStatusDie)(nil)
-	_ diebase.DieMutOf[TokenReviewStatus, *TokenReviewStatusDie, *TokenReviewStatusDieMut] = (*TokenReviewStatusDieMut)(nil)
-)
 
 var TokenReviewStatusBlank = diebase.Blank[TokenReviewStatus, *TokenReviewStatusDie, *TokenReviewStatusDieMut]()
 
@@ -855,11 +809,6 @@ func (*UserInfoDie) DieFrom(b diebase.DieBase[UserInfo, *UserInfoDie, *UserInfoD
 func (*UserInfoDieMut) DieFrom(b diebase.DieMutBase[UserInfo, *UserInfoDie, *UserInfoDieMut]) *UserInfoDieMut {
 	return &UserInfoDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[UserInfo, *UserInfoDie, *UserInfoDieMut]    = (*UserInfoDie)(nil)
-	_ diebase.DieMutOf[UserInfo, *UserInfoDie, *UserInfoDieMut] = (*UserInfoDieMut)(nil)
-)
 
 var UserInfoBlank = diebase.Blank[UserInfo, *UserInfoDie, *UserInfoDieMut]()
 

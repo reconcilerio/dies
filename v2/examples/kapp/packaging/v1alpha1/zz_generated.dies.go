@@ -27,7 +27,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	kappctrlv1alpha1 "reconciler.io/dies/v2/examples/kapp/kappctrl/v1alpha1"
 	vendirv1alpha1 "reconciler.io/dies/v2/examples/kapp/vendir/v1alpha1"
 )
@@ -54,11 +53,6 @@ func (*PackageInstallDie) DieFrom(b diebase.DieBase[PackageInstall, *PackageInst
 func (*PackageInstallDieMut) DieFrom(b diebase.DieMutBase[PackageInstall, *PackageInstallDie, *PackageInstallDieMut]) *PackageInstallDieMut {
 	return &PackageInstallDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[PackageInstall, *PackageInstallDie, *PackageInstallDieMut]    = (*PackageInstallDie)(nil)
-	_ dieobjects.DieObjectMutOf[PackageInstall, *PackageInstallDie, *PackageInstallDieMut] = (*PackageInstallDieMut)(nil)
-)
 
 var PackageInstallBlank = diebase.BlankOf[PackageInstall, *PackageInstallDie, *PackageInstallDieMut](PackageInstall{TypeMeta: metav1.TypeMeta{APIVersion: "packaging.carvel.dev/v1alpha1", Kind: "PackageInstall"}})
 
@@ -176,11 +170,6 @@ func (*PackageInstallSpecDie) DieFrom(b diebase.DieBase[PackageInstallSpec, *Pac
 func (*PackageInstallSpecDieMut) DieFrom(b diebase.DieMutBase[PackageInstallSpec, *PackageInstallSpecDie, *PackageInstallSpecDieMut]) *PackageInstallSpecDieMut {
 	return &PackageInstallSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PackageInstallSpec, *PackageInstallSpecDie, *PackageInstallSpecDieMut]    = (*PackageInstallSpecDie)(nil)
-	_ diebase.DieMutOf[PackageInstallSpec, *PackageInstallSpecDie, *PackageInstallSpecDieMut] = (*PackageInstallSpecDieMut)(nil)
-)
 
 var PackageInstallSpecBlank = diebase.Blank[PackageInstallSpec, *PackageInstallSpecDie, *PackageInstallSpecDieMut]()
 
@@ -335,11 +324,6 @@ func (*PackageInstallStatusDieMut) DieFrom(b diebase.DieMutBase[PackageInstallSt
 	return &PackageInstallStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PackageInstallStatus, *PackageInstallStatusDie, *PackageInstallStatusDieMut]    = (*PackageInstallStatusDie)(nil)
-	_ diebase.DieMutOf[PackageInstallStatus, *PackageInstallStatusDie, *PackageInstallStatusDieMut] = (*PackageInstallStatusDieMut)(nil)
-)
-
 var PackageInstallStatusBlank = diebase.Blank[PackageInstallStatus, *PackageInstallStatusDie, *PackageInstallStatusDieMut]()
 
 type packageInstallStatusFieldsTable struct {
@@ -441,11 +425,6 @@ func (*PackageInstallValuesDieMut) DieFrom(b diebase.DieMutBase[PackageInstallVa
 	return &PackageInstallValuesDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut]    = (*PackageInstallValuesDie)(nil)
-	_ diebase.DieMutOf[PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut] = (*PackageInstallValuesDieMut)(nil)
-)
-
 var PackageInstallValuesBlank = diebase.Blank[PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut]()
 
 type packageInstallValuesFieldsTable struct {
@@ -484,11 +463,6 @@ func (*PackageInstallValuesSecretRefDie) DieFrom(b diebase.DieBase[PackageInstal
 func (*PackageInstallValuesSecretRefDieMut) DieFrom(b diebase.DieMutBase[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie, *PackageInstallValuesSecretRefDieMut]) *PackageInstallValuesSecretRefDieMut {
 	return &PackageInstallValuesSecretRefDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie, *PackageInstallValuesSecretRefDieMut]    = (*PackageInstallValuesSecretRefDie)(nil)
-	_ diebase.DieMutOf[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie, *PackageInstallValuesSecretRefDieMut] = (*PackageInstallValuesSecretRefDieMut)(nil)
-)
 
 var PackageInstallValuesSecretRefBlank = diebase.Blank[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie, *PackageInstallValuesSecretRefDieMut]()
 
@@ -538,11 +512,6 @@ func (*PackageRefDie) DieFrom(b diebase.DieBase[PackageRef, *PackageRefDie, *Pac
 func (*PackageRefDieMut) DieFrom(b diebase.DieMutBase[PackageRef, *PackageRefDie, *PackageRefDieMut]) *PackageRefDieMut {
 	return &PackageRefDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PackageRef, *PackageRefDie, *PackageRefDieMut]    = (*PackageRefDie)(nil)
-	_ diebase.DieMutOf[PackageRef, *PackageRefDie, *PackageRefDieMut] = (*PackageRefDieMut)(nil)
-)
 
 var PackageRefBlank = diebase.Blank[PackageRef, *PackageRefDie, *PackageRefDieMut]()
 
@@ -595,11 +564,6 @@ func (*PackageRepositoryDie) DieFrom(b diebase.DieBase[PackageRepository, *Packa
 func (*PackageRepositoryDieMut) DieFrom(b diebase.DieMutBase[PackageRepository, *PackageRepositoryDie, *PackageRepositoryDieMut]) *PackageRepositoryDieMut {
 	return &PackageRepositoryDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[PackageRepository, *PackageRepositoryDie, *PackageRepositoryDieMut]    = (*PackageRepositoryDie)(nil)
-	_ dieobjects.DieObjectMutOf[PackageRepository, *PackageRepositoryDie, *PackageRepositoryDieMut] = (*PackageRepositoryDieMut)(nil)
-)
 
 var PackageRepositoryBlank = diebase.BlankOf[PackageRepository, *PackageRepositoryDie, *PackageRepositoryDieMut](PackageRepository{TypeMeta: metav1.TypeMeta{APIVersion: "packaging.carvel.dev/v1alpha1", Kind: "PackageRepository"}})
 
@@ -699,11 +663,6 @@ func (*PackageRepositoryFetchDie) DieFrom(b diebase.DieBase[PackageRepositoryFet
 func (*PackageRepositoryFetchDieMut) DieFrom(b diebase.DieMutBase[PackageRepositoryFetch, *PackageRepositoryFetchDie, *PackageRepositoryFetchDieMut]) *PackageRepositoryFetchDieMut {
 	return &PackageRepositoryFetchDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PackageRepositoryFetch, *PackageRepositoryFetchDie, *PackageRepositoryFetchDieMut]    = (*PackageRepositoryFetchDie)(nil)
-	_ diebase.DieMutOf[PackageRepositoryFetch, *PackageRepositoryFetchDie, *PackageRepositoryFetchDieMut] = (*PackageRepositoryFetchDieMut)(nil)
-)
 
 var PackageRepositoryFetchBlank = diebase.Blank[PackageRepositoryFetch, *PackageRepositoryFetchDie, *PackageRepositoryFetchDieMut]()
 
@@ -814,11 +773,6 @@ func (*PackageRepositorySpecDieMut) DieFrom(b diebase.DieMutBase[PackageReposito
 	return &PackageRepositorySpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PackageRepositorySpec, *PackageRepositorySpecDie, *PackageRepositorySpecDieMut]    = (*PackageRepositorySpecDie)(nil)
-	_ diebase.DieMutOf[PackageRepositorySpec, *PackageRepositorySpecDie, *PackageRepositorySpecDieMut] = (*PackageRepositorySpecDieMut)(nil)
-)
-
 var PackageRepositorySpecBlank = diebase.Blank[PackageRepositorySpec, *PackageRepositorySpecDie, *PackageRepositorySpecDieMut]()
 
 type packageRepositorySpecFieldsTable struct {
@@ -883,11 +837,6 @@ func (*PackageRepositoryStatusDie) DieFrom(b diebase.DieBase[PackageRepositorySt
 func (*PackageRepositoryStatusDieMut) DieFrom(b diebase.DieMutBase[PackageRepositoryStatus, *PackageRepositoryStatusDie, *PackageRepositoryStatusDieMut]) *PackageRepositoryStatusDieMut {
 	return &PackageRepositoryStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PackageRepositoryStatus, *PackageRepositoryStatusDie, *PackageRepositoryStatusDieMut]    = (*PackageRepositoryStatusDie)(nil)
-	_ diebase.DieMutOf[PackageRepositoryStatus, *PackageRepositoryStatusDie, *PackageRepositoryStatusDieMut] = (*PackageRepositoryStatusDieMut)(nil)
-)
 
 var PackageRepositoryStatusBlank = diebase.Blank[PackageRepositoryStatus, *PackageRepositoryStatusDie, *PackageRepositoryStatusDieMut]()
 

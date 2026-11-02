@@ -22,6 +22,8 @@ import (
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
 	dieappsv1beta1 "reconciler.io/dies/v2/apis/apps/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -56,6 +58,20 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dieappsv1beta1.ControllerRevision, *dieappsv1beta1.ControllerRevisionDie, *dieappsv1beta1.ControllerRevisionDieMut]    = (*dieappsv1beta1.ControllerRevisionDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieappsv1beta1.ControllerRevision, *dieappsv1beta1.ControllerRevisionDie, *dieappsv1beta1.ControllerRevisionDieMut] = (*dieappsv1beta1.ControllerRevisionDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieappsv1beta1.Deployment, *dieappsv1beta1.DeploymentDie, *dieappsv1beta1.DeploymentDieMut]                            = (*dieappsv1beta1.DeploymentDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieappsv1beta1.Deployment, *dieappsv1beta1.DeploymentDie, *dieappsv1beta1.DeploymentDieMut]                         = (*dieappsv1beta1.DeploymentDieMut)(nil)
+	_ diefields.DieTypedOf[dieappsv1beta1.DeploymentRollback, *dieappsv1beta1.DeploymentRollbackDie, *dieappsv1beta1.DeploymentRollbackDieMut]      = (*dieappsv1beta1.DeploymentRollbackDie)(nil)
+	_ diefields.DieTypedMutOf[dieappsv1beta1.DeploymentRollback, *dieappsv1beta1.DeploymentRollbackDie, *dieappsv1beta1.DeploymentRollbackDieMut]   = (*dieappsv1beta1.DeploymentRollbackDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieappsv1beta1.Scale, *dieappsv1beta1.ScaleDie, *dieappsv1beta1.ScaleDieMut]                                           = (*dieappsv1beta1.ScaleDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieappsv1beta1.Scale, *dieappsv1beta1.ScaleDie, *dieappsv1beta1.ScaleDieMut]                                        = (*dieappsv1beta1.ScaleDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieappsv1beta1.StatefulSet, *dieappsv1beta1.StatefulSetDie, *dieappsv1beta1.StatefulSetDieMut]                         = (*dieappsv1beta1.StatefulSetDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieappsv1beta1.StatefulSet, *dieappsv1beta1.StatefulSetDie, *dieappsv1beta1.StatefulSetDieMut]                      = (*dieappsv1beta1.StatefulSetDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieappsv1beta1.AddToScheme, appsv1beta1.AddToScheme, dieappsv1beta1.SchemeGroupVersion); err != nil {

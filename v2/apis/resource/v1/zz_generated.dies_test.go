@@ -22,6 +22,7 @@ import (
 	resourcev1 "k8s.io/api/resource/v1"
 	dieresourcev1 "reconciler.io/dies/v2/apis/resource/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -85,6 +86,20 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dieresourcev1.DeviceClass, *dieresourcev1.DeviceClassDie, *dieresourcev1.DeviceClassDieMut]                                  = (*dieresourcev1.DeviceClassDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieresourcev1.DeviceClass, *dieresourcev1.DeviceClassDie, *dieresourcev1.DeviceClassDieMut]                               = (*dieresourcev1.DeviceClassDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieresourcev1.DeviceTaintRule, *dieresourcev1.DeviceTaintRuleDie, *dieresourcev1.DeviceTaintRuleDieMut]                      = (*dieresourcev1.DeviceTaintRuleDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieresourcev1.DeviceTaintRule, *dieresourcev1.DeviceTaintRuleDie, *dieresourcev1.DeviceTaintRuleDieMut]                   = (*dieresourcev1.DeviceTaintRuleDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieresourcev1.ResourceClaim, *dieresourcev1.ResourceClaimDie, *dieresourcev1.ResourceClaimDieMut]                            = (*dieresourcev1.ResourceClaimDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieresourcev1.ResourceClaim, *dieresourcev1.ResourceClaimDie, *dieresourcev1.ResourceClaimDieMut]                         = (*dieresourcev1.ResourceClaimDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieresourcev1.ResourceClaimTemplate, *dieresourcev1.ResourceClaimTemplateDie, *dieresourcev1.ResourceClaimTemplateDieMut]    = (*dieresourcev1.ResourceClaimTemplateDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieresourcev1.ResourceClaimTemplate, *dieresourcev1.ResourceClaimTemplateDie, *dieresourcev1.ResourceClaimTemplateDieMut] = (*dieresourcev1.ResourceClaimTemplateDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieresourcev1.ResourceSlice, *dieresourcev1.ResourceSliceDie, *dieresourcev1.ResourceSliceDieMut]                            = (*dieresourcev1.ResourceSliceDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieresourcev1.ResourceSlice, *dieresourcev1.ResourceSliceDie, *dieresourcev1.ResourceSliceDieMut]                         = (*dieresourcev1.ResourceSliceDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieresourcev1.AddToScheme, resourcev1.AddToScheme, dieresourcev1.SchemeGroupVersion); err != nil {

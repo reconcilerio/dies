@@ -28,7 +28,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // Eviction evicts a pod from its node subject to certain policies and safety constraints.
@@ -53,11 +52,6 @@ func (*EvictionDie) DieFrom(b diebase.DieBase[Eviction, *EvictionDie, *EvictionD
 func (*EvictionDieMut) DieFrom(b diebase.DieMutBase[Eviction, *EvictionDie, *EvictionDieMut]) *EvictionDieMut {
 	return &EvictionDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[Eviction, *EvictionDie, *EvictionDieMut]    = (*EvictionDie)(nil)
-	_ dieobjects.DieObjectMutOf[Eviction, *EvictionDie, *EvictionDieMut] = (*EvictionDieMut)(nil)
-)
 
 var EvictionBlank = diebase.BlankOf[Eviction, *EvictionDie, *EvictionDieMut](Eviction{TypeMeta: metav1.TypeMeta{APIVersion: "policy/v1", Kind: "Eviction"}})
 
@@ -202,11 +196,6 @@ func (*PodDisruptionBudgetDie) DieFrom(b diebase.DieBase[PodDisruptionBudget, *P
 func (*PodDisruptionBudgetDieMut) DieFrom(b diebase.DieMutBase[PodDisruptionBudget, *PodDisruptionBudgetDie, *PodDisruptionBudgetDieMut]) *PodDisruptionBudgetDieMut {
 	return &PodDisruptionBudgetDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[PodDisruptionBudget, *PodDisruptionBudgetDie, *PodDisruptionBudgetDieMut]    = (*PodDisruptionBudgetDie)(nil)
-	_ dieobjects.DieObjectMutOf[PodDisruptionBudget, *PodDisruptionBudgetDie, *PodDisruptionBudgetDieMut] = (*PodDisruptionBudgetDieMut)(nil)
-)
 
 var PodDisruptionBudgetBlank = diebase.BlankOf[PodDisruptionBudget, *PodDisruptionBudgetDie, *PodDisruptionBudgetDieMut](PodDisruptionBudget{TypeMeta: metav1.TypeMeta{APIVersion: "policy/v1", Kind: "PodDisruptionBudget"}})
 
@@ -384,11 +373,6 @@ func (*PodDisruptionBudgetSpecDie) DieFrom(b diebase.DieBase[PodDisruptionBudget
 func (*PodDisruptionBudgetSpecDieMut) DieFrom(b diebase.DieMutBase[PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie, *PodDisruptionBudgetSpecDieMut]) *PodDisruptionBudgetSpecDieMut {
 	return &PodDisruptionBudgetSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie, *PodDisruptionBudgetSpecDieMut]    = (*PodDisruptionBudgetSpecDie)(nil)
-	_ diebase.DieMutOf[PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie, *PodDisruptionBudgetSpecDieMut] = (*PodDisruptionBudgetSpecDieMut)(nil)
-)
 
 var PodDisruptionBudgetSpecBlank = diebase.Blank[PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie, *PodDisruptionBudgetSpecDieMut]()
 
@@ -580,11 +564,6 @@ func (*PodDisruptionBudgetStatusDie) DieFrom(b diebase.DieBase[PodDisruptionBudg
 func (*PodDisruptionBudgetStatusDieMut) DieFrom(b diebase.DieMutBase[PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie, *PodDisruptionBudgetStatusDieMut]) *PodDisruptionBudgetStatusDieMut {
 	return &PodDisruptionBudgetStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie, *PodDisruptionBudgetStatusDieMut]    = (*PodDisruptionBudgetStatusDie)(nil)
-	_ diebase.DieMutOf[PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie, *PodDisruptionBudgetStatusDieMut] = (*PodDisruptionBudgetStatusDieMut)(nil)
-)
 
 var PodDisruptionBudgetStatusBlank = diebase.Blank[PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie, *PodDisruptionBudgetStatusDieMut]()
 

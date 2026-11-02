@@ -22,6 +22,7 @@ import (
 	appsv1beta2 "k8s.io/api/apps/v1beta2"
 	dieappsv1beta2 "reconciler.io/dies/v2/apis/apps/v1beta2"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -66,6 +67,22 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dieappsv1beta2.ControllerRevision, *dieappsv1beta2.ControllerRevisionDie, *dieappsv1beta2.ControllerRevisionDieMut]    = (*dieappsv1beta2.ControllerRevisionDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieappsv1beta2.ControllerRevision, *dieappsv1beta2.ControllerRevisionDie, *dieappsv1beta2.ControllerRevisionDieMut] = (*dieappsv1beta2.ControllerRevisionDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieappsv1beta2.DaemonSet, *dieappsv1beta2.DaemonSetDie, *dieappsv1beta2.DaemonSetDieMut]                               = (*dieappsv1beta2.DaemonSetDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieappsv1beta2.DaemonSet, *dieappsv1beta2.DaemonSetDie, *dieappsv1beta2.DaemonSetDieMut]                            = (*dieappsv1beta2.DaemonSetDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieappsv1beta2.Deployment, *dieappsv1beta2.DeploymentDie, *dieappsv1beta2.DeploymentDieMut]                            = (*dieappsv1beta2.DeploymentDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieappsv1beta2.Deployment, *dieappsv1beta2.DeploymentDie, *dieappsv1beta2.DeploymentDieMut]                         = (*dieappsv1beta2.DeploymentDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieappsv1beta2.ReplicaSet, *dieappsv1beta2.ReplicaSetDie, *dieappsv1beta2.ReplicaSetDieMut]                            = (*dieappsv1beta2.ReplicaSetDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieappsv1beta2.ReplicaSet, *dieappsv1beta2.ReplicaSetDie, *dieappsv1beta2.ReplicaSetDieMut]                         = (*dieappsv1beta2.ReplicaSetDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieappsv1beta2.Scale, *dieappsv1beta2.ScaleDie, *dieappsv1beta2.ScaleDieMut]                                           = (*dieappsv1beta2.ScaleDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieappsv1beta2.Scale, *dieappsv1beta2.ScaleDie, *dieappsv1beta2.ScaleDieMut]                                        = (*dieappsv1beta2.ScaleDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieappsv1beta2.StatefulSet, *dieappsv1beta2.StatefulSetDie, *dieappsv1beta2.StatefulSetDieMut]                         = (*dieappsv1beta2.StatefulSetDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieappsv1beta2.StatefulSet, *dieappsv1beta2.StatefulSetDie, *dieappsv1beta2.StatefulSetDieMut]                      = (*dieappsv1beta2.StatefulSetDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieappsv1beta2.AddToScheme, appsv1beta2.AddToScheme, dieappsv1beta2.SchemeGroupVersion); err != nil {

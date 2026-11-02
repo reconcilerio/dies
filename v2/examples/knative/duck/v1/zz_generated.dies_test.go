@@ -20,6 +20,7 @@ package v1_test
 
 import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	duckv1 "reconciler.io/dies/v2/examples/knative/duck/v1"
 	testing "testing"
 )
@@ -62,3 +63,23 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[duckv1.AddressableType, *duckv1.AddressableTypeDie, *duckv1.AddressableTypeDieMut]                = (*duckv1.AddressableTypeDie)(nil)
+	_ dieobjects.DieObjectMutOf[duckv1.AddressableType, *duckv1.AddressableTypeDie, *duckv1.AddressableTypeDieMut]             = (*duckv1.AddressableTypeDieMut)(nil)
+	_ dieobjects.DieObjectOf[duckv1.AuthenticatableType, *duckv1.AuthenticatableTypeDie, *duckv1.AuthenticatableTypeDieMut]    = (*duckv1.AuthenticatableTypeDie)(nil)
+	_ dieobjects.DieObjectMutOf[duckv1.AuthenticatableType, *duckv1.AuthenticatableTypeDie, *duckv1.AuthenticatableTypeDieMut] = (*duckv1.AuthenticatableTypeDieMut)(nil)
+	_ dieobjects.DieObjectOf[duckv1.Binding, *duckv1.BindingDie, *duckv1.BindingDieMut]                                        = (*duckv1.BindingDie)(nil)
+	_ dieobjects.DieObjectMutOf[duckv1.Binding, *duckv1.BindingDie, *duckv1.BindingDieMut]                                     = (*duckv1.BindingDieMut)(nil)
+	_ dieobjects.DieObjectOf[duckv1.CronJob, *duckv1.CronJobDie, *duckv1.CronJobDieMut]                                        = (*duckv1.CronJobDie)(nil)
+	_ dieobjects.DieObjectMutOf[duckv1.CronJob, *duckv1.CronJobDie, *duckv1.CronJobDieMut]                                     = (*duckv1.CronJobDieMut)(nil)
+	_ dieobjects.DieObjectOf[duckv1.KResource, *duckv1.KResourceDie, *duckv1.KResourceDieMut]                                  = (*duckv1.KResourceDie)(nil)
+	_ dieobjects.DieObjectMutOf[duckv1.KResource, *duckv1.KResourceDie, *duckv1.KResourceDieMut]                               = (*duckv1.KResourceDieMut)(nil)
+	_ dieobjects.DieObjectOf[duckv1.Pod, *duckv1.PodDie, *duckv1.PodDieMut]                                                    = (*duckv1.PodDie)(nil)
+	_ dieobjects.DieObjectMutOf[duckv1.Pod, *duckv1.PodDie, *duckv1.PodDieMut]                                                 = (*duckv1.PodDieMut)(nil)
+	_ dieobjects.DieObjectOf[duckv1.Source, *duckv1.SourceDie, *duckv1.SourceDieMut]                                           = (*duckv1.SourceDie)(nil)
+	_ dieobjects.DieObjectMutOf[duckv1.Source, *duckv1.SourceDie, *duckv1.SourceDieMut]                                        = (*duckv1.SourceDieMut)(nil)
+	_ dieobjects.DieObjectOf[duckv1.WithPod, *duckv1.WithPodDie, *duckv1.WithPodDieMut]                                        = (*duckv1.WithPodDie)(nil)
+	_ dieobjects.DieObjectMutOf[duckv1.WithPod, *duckv1.WithPodDie, *duckv1.WithPodDieMut]                                     = (*duckv1.WithPodDieMut)(nil)
+)

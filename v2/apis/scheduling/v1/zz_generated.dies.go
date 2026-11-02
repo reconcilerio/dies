@@ -28,7 +28,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // PriorityClass defines mapping from a priority class name to the priority
@@ -52,11 +51,6 @@ func (*PriorityClassDie) DieFrom(b diebase.DieBase[PriorityClass, *PriorityClass
 func (*PriorityClassDieMut) DieFrom(b diebase.DieMutBase[PriorityClass, *PriorityClassDie, *PriorityClassDieMut]) *PriorityClassDieMut {
 	return &PriorityClassDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[PriorityClass, *PriorityClassDie, *PriorityClassDieMut]    = (*PriorityClassDie)(nil)
-	_ dieobjects.DieObjectMutOf[PriorityClass, *PriorityClassDie, *PriorityClassDieMut] = (*PriorityClassDieMut)(nil)
-)
 
 var PriorityClassBlank = diebase.BlankOf[PriorityClass, *PriorityClassDie, *PriorityClassDieMut](PriorityClass{TypeMeta: metav1.TypeMeta{APIVersion: "scheduling.k8s.io/v1", Kind: "PriorityClass"}})
 

@@ -49,11 +49,6 @@ func (*ReferenceDieMut) DieFrom(b diebase.DieMutBase[Reference, *ReferenceDie, *
 	return &ReferenceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[Reference, *ReferenceDie, *ReferenceDieMut]    = (*ReferenceDie)(nil)
-	_ diebase.DieMutOf[Reference, *ReferenceDie, *ReferenceDieMut] = (*ReferenceDieMut)(nil)
-)
-
 var ReferenceBlank = diebase.Blank[Reference, *ReferenceDie, *ReferenceDieMut]()
 
 type referenceFieldsTable struct {

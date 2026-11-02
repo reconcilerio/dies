@@ -27,7 +27,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // An API server instance reports the version it can decode and the version it
@@ -51,11 +50,6 @@ func (*ServerStorageVersionDie) DieFrom(b diebase.DieBase[ServerStorageVersion, 
 func (*ServerStorageVersionDieMut) DieFrom(b diebase.DieMutBase[ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut]) *ServerStorageVersionDieMut {
 	return &ServerStorageVersionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut]    = (*ServerStorageVersionDie)(nil)
-	_ diebase.DieMutOf[ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut] = (*ServerStorageVersionDieMut)(nil)
-)
 
 var ServerStorageVersionBlank = diebase.Blank[ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut]()
 
@@ -194,11 +188,6 @@ func (*StorageVersionDie) DieFrom(b diebase.DieBase[StorageVersion, *StorageVers
 func (*StorageVersionDieMut) DieFrom(b diebase.DieMutBase[StorageVersion, *StorageVersionDie, *StorageVersionDieMut]) *StorageVersionDieMut {
 	return &StorageVersionDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[StorageVersion, *StorageVersionDie, *StorageVersionDieMut]    = (*StorageVersionDie)(nil)
-	_ dieobjects.DieObjectMutOf[StorageVersion, *StorageVersionDie, *StorageVersionDieMut] = (*StorageVersionDieMut)(nil)
-)
 
 var StorageVersionBlank = diebase.BlankOf[StorageVersion, *StorageVersionDie, *StorageVersionDieMut](StorageVersion{TypeMeta: metav1.TypeMeta{APIVersion: "internal.apiserver.k8s.io/v1alpha1", Kind: "StorageVersion"}})
 
@@ -359,11 +348,6 @@ func (*StorageVersionConditionDie) DieFrom(b diebase.DieBase[StorageVersionCondi
 func (*StorageVersionConditionDieMut) DieFrom(b diebase.DieMutBase[StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut]) *StorageVersionConditionDieMut {
 	return &StorageVersionConditionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut]    = (*StorageVersionConditionDie)(nil)
-	_ diebase.DieMutOf[StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut] = (*StorageVersionConditionDieMut)(nil)
-)
 
 var StorageVersionConditionBlank = diebase.Blank[StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut]()
 
@@ -538,11 +522,6 @@ func (*StorageVersionSpecDieMut) DieFrom(b diebase.DieMutBase[StorageVersionSpec
 	return &StorageVersionSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[StorageVersionSpec, *StorageVersionSpecDie, *StorageVersionSpecDieMut]    = (*StorageVersionSpecDie)(nil)
-	_ diebase.DieMutOf[StorageVersionSpec, *StorageVersionSpecDie, *StorageVersionSpecDieMut] = (*StorageVersionSpecDieMut)(nil)
-)
-
 var StorageVersionSpecBlank = diebase.Blank[StorageVersionSpec, *StorageVersionSpecDie, *StorageVersionSpecDieMut]()
 
 type storageVersionSpecFieldsTable struct {
@@ -574,11 +553,6 @@ func (*StorageVersionStatusDie) DieFrom(b diebase.DieBase[StorageVersionStatus, 
 func (*StorageVersionStatusDieMut) DieFrom(b diebase.DieMutBase[StorageVersionStatus, *StorageVersionStatusDie, *StorageVersionStatusDieMut]) *StorageVersionStatusDieMut {
 	return &StorageVersionStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[StorageVersionStatus, *StorageVersionStatusDie, *StorageVersionStatusDieMut]    = (*StorageVersionStatusDie)(nil)
-	_ diebase.DieMutOf[StorageVersionStatus, *StorageVersionStatusDie, *StorageVersionStatusDieMut] = (*StorageVersionStatusDieMut)(nil)
-)
 
 var StorageVersionStatusBlank = diebase.Blank[StorageVersionStatus, *StorageVersionStatusDie, *StorageVersionStatusDieMut]()
 

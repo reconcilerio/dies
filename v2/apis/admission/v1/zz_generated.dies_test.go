@@ -22,6 +22,7 @@ import (
 	admissionv1 "k8s.io/api/admission/v1"
 	dieadmissionv1 "reconciler.io/dies/v2/apis/admission/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
 	testing "testing"
 )
 
@@ -36,6 +37,12 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ diefields.DieTypedOf[dieadmissionv1.AdmissionReview, *dieadmissionv1.AdmissionReviewDie, *dieadmissionv1.AdmissionReviewDieMut]    = (*dieadmissionv1.AdmissionReviewDie)(nil)
+	_ diefields.DieTypedMutOf[dieadmissionv1.AdmissionReview, *dieadmissionv1.AdmissionReviewDie, *dieadmissionv1.AdmissionReviewDieMut] = (*dieadmissionv1.AdmissionReviewDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieadmissionv1.AddToScheme, admissionv1.AddToScheme, dieadmissionv1.SchemeGroupVersion); err != nil {

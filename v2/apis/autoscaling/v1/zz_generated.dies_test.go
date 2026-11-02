@@ -22,6 +22,7 @@ import (
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	dieautoscalingv1 "reconciler.io/dies/v2/apis/autoscaling/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -54,6 +55,14 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dieautoscalingv1.HorizontalPodAutoscaler, *dieautoscalingv1.HorizontalPodAutoscalerDie, *dieautoscalingv1.HorizontalPodAutoscalerDieMut]    = (*dieautoscalingv1.HorizontalPodAutoscalerDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieautoscalingv1.HorizontalPodAutoscaler, *dieautoscalingv1.HorizontalPodAutoscalerDie, *dieautoscalingv1.HorizontalPodAutoscalerDieMut] = (*dieautoscalingv1.HorizontalPodAutoscalerDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieautoscalingv1.Scale, *dieautoscalingv1.ScaleDie, *dieautoscalingv1.ScaleDieMut]                                                          = (*dieautoscalingv1.ScaleDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieautoscalingv1.Scale, *dieautoscalingv1.ScaleDie, *dieautoscalingv1.ScaleDieMut]                                                       = (*dieautoscalingv1.ScaleDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieautoscalingv1.AddToScheme, autoscalingv1.AddToScheme, dieautoscalingv1.SchemeGroupVersion); err != nil {

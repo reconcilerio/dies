@@ -27,7 +27,6 @@ import (
 	diebase "reconciler.io/dies/v2/die/base"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	gadgetv1 "reconciler.io/dies/v2/examples/gadget/v1"
 )
 
@@ -51,11 +50,6 @@ func (*WidgetDie) DieFrom(b diebase.DieBase[Widget, *WidgetDie, *WidgetDieMut]) 
 func (*WidgetDieMut) DieFrom(b diebase.DieMutBase[Widget, *WidgetDie, *WidgetDieMut]) *WidgetDieMut {
 	return &WidgetDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[Widget, *WidgetDie, *WidgetDieMut]    = (*WidgetDie)(nil)
-	_ dieobjects.DieObjectMutOf[Widget, *WidgetDie, *WidgetDieMut] = (*WidgetDieMut)(nil)
-)
 
 var WidgetBlank = diebase.BlankOf[Widget, *WidgetDie, *WidgetDieMut](Widget{TypeMeta: metav1.TypeMeta{APIVersion: "example.dev/v1", Kind: "Widget"}})
 
@@ -150,11 +144,6 @@ func (*WidgetGadgetDieMut) DieFrom(b diebase.DieMutBase[WidgetGadget, *WidgetGad
 	return &WidgetGadgetDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[WidgetGadget, *WidgetGadgetDie, *WidgetGadgetDieMut]    = (*WidgetGadgetDie)(nil)
-	_ diebase.DieMutOf[WidgetGadget, *WidgetGadgetDie, *WidgetGadgetDieMut] = (*WidgetGadgetDieMut)(nil)
-)
-
 var WidgetGadgetBlank = diebase.Blank[WidgetGadget, *WidgetGadgetDie, *WidgetGadgetDieMut]()
 
 type widgetGadgetFieldsTable struct {
@@ -206,11 +195,6 @@ func (*WidgetMatchDie) DieFrom(b diebase.DieBase[WidgetMatch, *WidgetMatchDie, *
 func (*WidgetMatchDieMut) DieFrom(b diebase.DieMutBase[WidgetMatch, *WidgetMatchDie, *WidgetMatchDieMut]) *WidgetMatchDieMut {
 	return &WidgetMatchDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[WidgetMatch, *WidgetMatchDie, *WidgetMatchDieMut]    = (*WidgetMatchDie)(nil)
-	_ diebase.DieMutOf[WidgetMatch, *WidgetMatchDie, *WidgetMatchDieMut] = (*WidgetMatchDieMut)(nil)
-)
 
 var WidgetMatchBlank = diebase.Blank[WidgetMatch, *WidgetMatchDie, *WidgetMatchDieMut]()
 
@@ -265,11 +249,6 @@ func (*WidgetPortDieMut) DieFrom(b diebase.DieMutBase[WidgetPort, *WidgetPortDie
 	return &WidgetPortDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[WidgetPort, *WidgetPortDie, *WidgetPortDieMut]    = (*WidgetPortDie)(nil)
-	_ diebase.DieMutOf[WidgetPort, *WidgetPortDie, *WidgetPortDieMut] = (*WidgetPortDieMut)(nil)
-)
-
 var WidgetPortBlank = diebase.Blank[WidgetPort, *WidgetPortDie, *WidgetPortDieMut]()
 
 type widgetPortFieldsTable struct {
@@ -318,11 +297,6 @@ func (*WidgetSpecDie) DieFrom(b diebase.DieBase[WidgetSpec, *WidgetSpecDie, *Wid
 func (*WidgetSpecDieMut) DieFrom(b diebase.DieMutBase[WidgetSpec, *WidgetSpecDie, *WidgetSpecDieMut]) *WidgetSpecDieMut {
 	return &WidgetSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[WidgetSpec, *WidgetSpecDie, *WidgetSpecDieMut]    = (*WidgetSpecDie)(nil)
-	_ diebase.DieMutOf[WidgetSpec, *WidgetSpecDie, *WidgetSpecDieMut] = (*WidgetSpecDieMut)(nil)
-)
 
 var WidgetSpecBlank = diebase.Blank[WidgetSpec, *WidgetSpecDie, *WidgetSpecDieMut]()
 
@@ -400,11 +374,6 @@ func (*WidgetStatusDie) DieFrom(b diebase.DieBase[WidgetStatus, *WidgetStatusDie
 func (*WidgetStatusDieMut) DieFrom(b diebase.DieMutBase[WidgetStatus, *WidgetStatusDie, *WidgetStatusDieMut]) *WidgetStatusDieMut {
 	return &WidgetStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[WidgetStatus, *WidgetStatusDie, *WidgetStatusDieMut]    = (*WidgetStatusDie)(nil)
-	_ diebase.DieMutOf[WidgetStatus, *WidgetStatusDie, *WidgetStatusDieMut] = (*WidgetStatusDieMut)(nil)
-)
 
 var WidgetStatusBlank = diebase.Blank[WidgetStatus, *WidgetStatusDie, *WidgetStatusDieMut]()
 

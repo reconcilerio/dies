@@ -27,7 +27,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // APIService represents a server for a particular GroupVersion.
@@ -51,11 +50,6 @@ func (*APIServiceDie) DieFrom(b diebase.DieBase[APIService, *APIServiceDie, *API
 func (*APIServiceDieMut) DieFrom(b diebase.DieMutBase[APIService, *APIServiceDie, *APIServiceDieMut]) *APIServiceDieMut {
 	return &APIServiceDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[APIService, *APIServiceDie, *APIServiceDieMut]    = (*APIServiceDie)(nil)
-	_ dieobjects.DieObjectMutOf[APIService, *APIServiceDie, *APIServiceDieMut] = (*APIServiceDieMut)(nil)
-)
 
 var APIServiceBlank = diebase.BlankOf[APIService, *APIServiceDie, *APIServiceDieMut](APIService{TypeMeta: metav1.TypeMeta{APIVersion: "apiregistration.k8s.io/v1", Kind: "APIService"}})
 
@@ -214,11 +208,6 @@ func (*APIServiceConditionDie) DieFrom(b diebase.DieBase[APIServiceCondition, *A
 func (*APIServiceConditionDieMut) DieFrom(b diebase.DieMutBase[APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut]) *APIServiceConditionDieMut {
 	return &APIServiceConditionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut]    = (*APIServiceConditionDie)(nil)
-	_ diebase.DieMutOf[APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut] = (*APIServiceConditionDieMut)(nil)
-)
 
 var APIServiceConditionBlank = diebase.Blank[APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut]()
 
@@ -381,11 +370,6 @@ func (*APIServiceSpecDie) DieFrom(b diebase.DieBase[APIServiceSpec, *APIServiceS
 func (*APIServiceSpecDieMut) DieFrom(b diebase.DieMutBase[APIServiceSpec, *APIServiceSpecDie, *APIServiceSpecDieMut]) *APIServiceSpecDieMut {
 	return &APIServiceSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[APIServiceSpec, *APIServiceSpecDie, *APIServiceSpecDieMut]    = (*APIServiceSpecDie)(nil)
-	_ diebase.DieMutOf[APIServiceSpec, *APIServiceSpecDie, *APIServiceSpecDieMut] = (*APIServiceSpecDieMut)(nil)
-)
 
 var APIServiceSpecBlank = diebase.Blank[APIServiceSpec, *APIServiceSpecDie, *APIServiceSpecDieMut]()
 
@@ -591,11 +575,6 @@ func (*APIServiceStatusDieMut) DieFrom(b diebase.DieMutBase[APIServiceStatus, *A
 	return &APIServiceStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[APIServiceStatus, *APIServiceStatusDie, *APIServiceStatusDieMut]    = (*APIServiceStatusDie)(nil)
-	_ diebase.DieMutOf[APIServiceStatus, *APIServiceStatusDie, *APIServiceStatusDieMut] = (*APIServiceStatusDieMut)(nil)
-)
-
 var APIServiceStatusBlank = diebase.Blank[APIServiceStatus, *APIServiceStatusDie, *APIServiceStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -689,11 +668,6 @@ func (*ServiceReferenceDie) DieFrom(b diebase.DieBase[ServiceReference, *Service
 func (*ServiceReferenceDieMut) DieFrom(b diebase.DieMutBase[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]) *ServiceReferenceDieMut {
 	return &ServiceReferenceDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]    = (*ServiceReferenceDie)(nil)
-	_ diebase.DieMutOf[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut] = (*ServiceReferenceDieMut)(nil)
-)
 
 var ServiceReferenceBlank = diebase.Blank[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]()
 

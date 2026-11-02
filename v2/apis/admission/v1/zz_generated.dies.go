@@ -51,11 +51,6 @@ func (*AdmissionRequestDieMut) DieFrom(b diebase.DieMutBase[AdmissionRequest, *A
 	return &AdmissionRequestDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AdmissionRequest, *AdmissionRequestDie, *AdmissionRequestDieMut]    = (*AdmissionRequestDie)(nil)
-	_ diebase.DieMutOf[AdmissionRequest, *AdmissionRequestDie, *AdmissionRequestDieMut] = (*AdmissionRequestDieMut)(nil)
-)
-
 var AdmissionRequestBlank = diebase.Blank[AdmissionRequest, *AdmissionRequestDie, *AdmissionRequestDieMut]()
 
 type admissionRequestFieldsTable struct {
@@ -327,11 +322,6 @@ func (*AdmissionResponseDieMut) DieFrom(b diebase.DieMutBase[AdmissionResponse, 
 	return &AdmissionResponseDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AdmissionResponse, *AdmissionResponseDie, *AdmissionResponseDieMut]    = (*AdmissionResponseDie)(nil)
-	_ diebase.DieMutOf[AdmissionResponse, *AdmissionResponseDie, *AdmissionResponseDieMut] = (*AdmissionResponseDieMut)(nil)
-)
-
 var AdmissionResponseBlank = diebase.Blank[AdmissionResponse, *AdmissionResponseDie, *AdmissionResponseDieMut]()
 
 type admissionResponseFieldsTable struct {
@@ -462,11 +452,6 @@ func (*AdmissionReviewDie) DieFrom(b diebase.DieBase[AdmissionReview, *Admission
 func (*AdmissionReviewDieMut) DieFrom(b diebase.DieMutBase[AdmissionReview, *AdmissionReviewDie, *AdmissionReviewDieMut]) *AdmissionReviewDieMut {
 	return &AdmissionReviewDieMut{diebase.AsTypedMut(b)}
 }
-
-var (
-	_ diefields.DieTypedOf[AdmissionReview, *AdmissionReviewDie, *AdmissionReviewDieMut]    = (*AdmissionReviewDie)(nil)
-	_ diefields.DieTypedMutOf[AdmissionReview, *AdmissionReviewDie, *AdmissionReviewDieMut] = (*AdmissionReviewDieMut)(nil)
-)
 
 var AdmissionReviewBlank = diebase.BlankOf[AdmissionReview, *AdmissionReviewDie, *AdmissionReviewDieMut](AdmissionReview{TypeMeta: metav1.TypeMeta{APIVersion: "admission.k8s.io/v1", Kind: "AdmissionReview"}})
 

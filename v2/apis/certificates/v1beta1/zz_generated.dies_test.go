@@ -22,6 +22,7 @@ import (
 	certificatesv1beta1 "k8s.io/api/certificates/v1beta1"
 	diecertificatesv1beta1 "reconciler.io/dies/v2/apis/certificates/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -45,6 +46,16 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[diecertificatesv1beta1.CertificateSigningRequest, *diecertificatesv1beta1.CertificateSigningRequestDie, *diecertificatesv1beta1.CertificateSigningRequestDieMut]    = (*diecertificatesv1beta1.CertificateSigningRequestDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecertificatesv1beta1.CertificateSigningRequest, *diecertificatesv1beta1.CertificateSigningRequestDie, *diecertificatesv1beta1.CertificateSigningRequestDieMut] = (*diecertificatesv1beta1.CertificateSigningRequestDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecertificatesv1beta1.ClusterTrustBundle, *diecertificatesv1beta1.ClusterTrustBundleDie, *diecertificatesv1beta1.ClusterTrustBundleDieMut]                         = (*diecertificatesv1beta1.ClusterTrustBundleDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecertificatesv1beta1.ClusterTrustBundle, *diecertificatesv1beta1.ClusterTrustBundleDie, *diecertificatesv1beta1.ClusterTrustBundleDieMut]                      = (*diecertificatesv1beta1.ClusterTrustBundleDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecertificatesv1beta1.PodCertificateRequest, *diecertificatesv1beta1.PodCertificateRequestDie, *diecertificatesv1beta1.PodCertificateRequestDieMut]                = (*diecertificatesv1beta1.PodCertificateRequestDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecertificatesv1beta1.PodCertificateRequest, *diecertificatesv1beta1.PodCertificateRequestDie, *diecertificatesv1beta1.PodCertificateRequestDieMut]             = (*diecertificatesv1beta1.PodCertificateRequestDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(diecertificatesv1beta1.AddToScheme, certificatesv1beta1.AddToScheme, diecertificatesv1beta1.SchemeGroupVersion); err != nil {

@@ -22,6 +22,7 @@ import (
 	authenticationv1alpha1 "k8s.io/api/authentication/v1alpha1"
 	dieauthenticationv1alpha1 "reconciler.io/dies/v2/apis/authentication/v1alpha1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -35,6 +36,12 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dieauthenticationv1alpha1.SelfSubjectReview, *dieauthenticationv1alpha1.SelfSubjectReviewDie, *dieauthenticationv1alpha1.SelfSubjectReviewDieMut]    = (*dieauthenticationv1alpha1.SelfSubjectReviewDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieauthenticationv1alpha1.SelfSubjectReview, *dieauthenticationv1alpha1.SelfSubjectReviewDie, *dieauthenticationv1alpha1.SelfSubjectReviewDieMut] = (*dieauthenticationv1alpha1.SelfSubjectReviewDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieauthenticationv1alpha1.AddToScheme, authenticationv1alpha1.AddToScheme, dieauthenticationv1alpha1.SchemeGroupVersion); err != nil {

@@ -22,6 +22,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	diecorev1 "reconciler.io/dies/v2/apis/core/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -280,6 +282,64 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[diecorev1.Binding, *diecorev1.BindingDie, *diecorev1.BindingDieMut]                                              = (*diecorev1.BindingDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.Binding, *diecorev1.BindingDie, *diecorev1.BindingDieMut]                                           = (*diecorev1.BindingDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecorev1.ComponentStatus, *diecorev1.ComponentStatusDie, *diecorev1.ComponentStatusDieMut]                      = (*diecorev1.ComponentStatusDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.ComponentStatus, *diecorev1.ComponentStatusDie, *diecorev1.ComponentStatusDieMut]                   = (*diecorev1.ComponentStatusDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecorev1.ConfigMap, *diecorev1.ConfigMapDie, *diecorev1.ConfigMapDieMut]                                        = (*diecorev1.ConfigMapDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.ConfigMap, *diecorev1.ConfigMapDie, *diecorev1.ConfigMapDieMut]                                     = (*diecorev1.ConfigMapDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecorev1.Endpoints, *diecorev1.EndpointsDie, *diecorev1.EndpointsDieMut]                                        = (*diecorev1.EndpointsDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.Endpoints, *diecorev1.EndpointsDie, *diecorev1.EndpointsDieMut]                                     = (*diecorev1.EndpointsDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecorev1.Event, *diecorev1.EventDie, *diecorev1.EventDieMut]                                                    = (*diecorev1.EventDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.Event, *diecorev1.EventDie, *diecorev1.EventDieMut]                                                 = (*diecorev1.EventDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecorev1.LimitRange, *diecorev1.LimitRangeDie, *diecorev1.LimitRangeDieMut]                                     = (*diecorev1.LimitRangeDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.LimitRange, *diecorev1.LimitRangeDie, *diecorev1.LimitRangeDieMut]                                  = (*diecorev1.LimitRangeDieMut)(nil)
+	_ diefields.DieTypedOf[diecorev1.List, *diecorev1.ListDie, *diecorev1.ListDieMut]                                                         = (*diecorev1.ListDie)(nil)
+	_ diefields.DieTypedMutOf[diecorev1.List, *diecorev1.ListDie, *diecorev1.ListDieMut]                                                      = (*diecorev1.ListDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecorev1.Namespace, *diecorev1.NamespaceDie, *diecorev1.NamespaceDieMut]                                        = (*diecorev1.NamespaceDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.Namespace, *diecorev1.NamespaceDie, *diecorev1.NamespaceDieMut]                                     = (*diecorev1.NamespaceDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecorev1.Node, *diecorev1.NodeDie, *diecorev1.NodeDieMut]                                                       = (*diecorev1.NodeDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.Node, *diecorev1.NodeDie, *diecorev1.NodeDieMut]                                                    = (*diecorev1.NodeDieMut)(nil)
+	_ diefields.DieTypedOf[diecorev1.NodeProxyOptions, *diecorev1.NodeProxyOptionsDie, *diecorev1.NodeProxyOptionsDieMut]                     = (*diecorev1.NodeProxyOptionsDie)(nil)
+	_ diefields.DieTypedMutOf[diecorev1.NodeProxyOptions, *diecorev1.NodeProxyOptionsDie, *diecorev1.NodeProxyOptionsDieMut]                  = (*diecorev1.NodeProxyOptionsDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecorev1.PersistentVolume, *diecorev1.PersistentVolumeDie, *diecorev1.PersistentVolumeDieMut]                   = (*diecorev1.PersistentVolumeDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.PersistentVolume, *diecorev1.PersistentVolumeDie, *diecorev1.PersistentVolumeDieMut]                = (*diecorev1.PersistentVolumeDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecorev1.PersistentVolumeClaim, *diecorev1.PersistentVolumeClaimDie, *diecorev1.PersistentVolumeClaimDieMut]    = (*diecorev1.PersistentVolumeClaimDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.PersistentVolumeClaim, *diecorev1.PersistentVolumeClaimDie, *diecorev1.PersistentVolumeClaimDieMut] = (*diecorev1.PersistentVolumeClaimDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecorev1.Pod, *diecorev1.PodDie, *diecorev1.PodDieMut]                                                          = (*diecorev1.PodDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.Pod, *diecorev1.PodDie, *diecorev1.PodDieMut]                                                       = (*diecorev1.PodDieMut)(nil)
+	_ diefields.DieTypedOf[diecorev1.PodAttachOptions, *diecorev1.PodAttachOptionsDie, *diecorev1.PodAttachOptionsDieMut]                     = (*diecorev1.PodAttachOptionsDie)(nil)
+	_ diefields.DieTypedMutOf[diecorev1.PodAttachOptions, *diecorev1.PodAttachOptionsDie, *diecorev1.PodAttachOptionsDieMut]                  = (*diecorev1.PodAttachOptionsDieMut)(nil)
+	_ diefields.DieTypedOf[diecorev1.PodExecOptions, *diecorev1.PodExecOptionsDie, *diecorev1.PodExecOptionsDieMut]                           = (*diecorev1.PodExecOptionsDie)(nil)
+	_ diefields.DieTypedMutOf[diecorev1.PodExecOptions, *diecorev1.PodExecOptionsDie, *diecorev1.PodExecOptionsDieMut]                        = (*diecorev1.PodExecOptionsDieMut)(nil)
+	_ diefields.DieTypedOf[diecorev1.PodLogOptions, *diecorev1.PodLogOptionsDie, *diecorev1.PodLogOptionsDieMut]                              = (*diecorev1.PodLogOptionsDie)(nil)
+	_ diefields.DieTypedMutOf[diecorev1.PodLogOptions, *diecorev1.PodLogOptionsDie, *diecorev1.PodLogOptionsDieMut]                           = (*diecorev1.PodLogOptionsDieMut)(nil)
+	_ diefields.DieTypedOf[diecorev1.PodPortForwardOptions, *diecorev1.PodPortForwardOptionsDie, *diecorev1.PodPortForwardOptionsDieMut]      = (*diecorev1.PodPortForwardOptionsDie)(nil)
+	_ diefields.DieTypedMutOf[diecorev1.PodPortForwardOptions, *diecorev1.PodPortForwardOptionsDie, *diecorev1.PodPortForwardOptionsDieMut]   = (*diecorev1.PodPortForwardOptionsDieMut)(nil)
+	_ diefields.DieTypedOf[diecorev1.PodProxyOptions, *diecorev1.PodProxyOptionsDie, *diecorev1.PodProxyOptionsDieMut]                        = (*diecorev1.PodProxyOptionsDie)(nil)
+	_ diefields.DieTypedMutOf[diecorev1.PodProxyOptions, *diecorev1.PodProxyOptionsDie, *diecorev1.PodProxyOptionsDieMut]                     = (*diecorev1.PodProxyOptionsDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecorev1.PodTemplate, *diecorev1.PodTemplateDie, *diecorev1.PodTemplateDieMut]                                  = (*diecorev1.PodTemplateDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.PodTemplate, *diecorev1.PodTemplateDie, *diecorev1.PodTemplateDieMut]                               = (*diecorev1.PodTemplateDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecorev1.RangeAllocation, *diecorev1.RangeAllocationDie, *diecorev1.RangeAllocationDieMut]                      = (*diecorev1.RangeAllocationDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.RangeAllocation, *diecorev1.RangeAllocationDie, *diecorev1.RangeAllocationDieMut]                   = (*diecorev1.RangeAllocationDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecorev1.ReplicationController, *diecorev1.ReplicationControllerDie, *diecorev1.ReplicationControllerDieMut]    = (*diecorev1.ReplicationControllerDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.ReplicationController, *diecorev1.ReplicationControllerDie, *diecorev1.ReplicationControllerDieMut] = (*diecorev1.ReplicationControllerDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecorev1.ResourceQuota, *diecorev1.ResourceQuotaDie, *diecorev1.ResourceQuotaDieMut]                            = (*diecorev1.ResourceQuotaDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.ResourceQuota, *diecorev1.ResourceQuotaDie, *diecorev1.ResourceQuotaDieMut]                         = (*diecorev1.ResourceQuotaDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecorev1.Secret, *diecorev1.SecretDie, *diecorev1.SecretDieMut]                                                 = (*diecorev1.SecretDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.Secret, *diecorev1.SecretDie, *diecorev1.SecretDieMut]                                              = (*diecorev1.SecretDieMut)(nil)
+	_ diefields.DieTypedOf[diecorev1.SerializedReference, *diecorev1.SerializedReferenceDie, *diecorev1.SerializedReferenceDieMut]            = (*diecorev1.SerializedReferenceDie)(nil)
+	_ diefields.DieTypedMutOf[diecorev1.SerializedReference, *diecorev1.SerializedReferenceDie, *diecorev1.SerializedReferenceDieMut]         = (*diecorev1.SerializedReferenceDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecorev1.Service, *diecorev1.ServiceDie, *diecorev1.ServiceDieMut]                                              = (*diecorev1.ServiceDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.Service, *diecorev1.ServiceDie, *diecorev1.ServiceDieMut]                                           = (*diecorev1.ServiceDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecorev1.ServiceAccount, *diecorev1.ServiceAccountDie, *diecorev1.ServiceAccountDieMut]                         = (*diecorev1.ServiceAccountDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecorev1.ServiceAccount, *diecorev1.ServiceAccountDie, *diecorev1.ServiceAccountDieMut]                      = (*diecorev1.ServiceAccountDieMut)(nil)
+	_ diefields.DieTypedOf[diecorev1.ServiceProxyOptions, *diecorev1.ServiceProxyOptionsDie, *diecorev1.ServiceProxyOptionsDieMut]            = (*diecorev1.ServiceProxyOptionsDie)(nil)
+	_ diefields.DieTypedMutOf[diecorev1.ServiceProxyOptions, *diecorev1.ServiceProxyOptionsDie, *diecorev1.ServiceProxyOptionsDieMut]         = (*diecorev1.ServiceProxyOptionsDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(diecorev1.AddToScheme, corev1.AddToScheme, diecorev1.SchemeGroupVersion); err != nil {

@@ -44,11 +44,6 @@ func (*GadgetPartDieMut) DieFrom(b diebase.DieMutBase[GadgetPart, *GadgetPartDie
 	return &GadgetPartDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[GadgetPart, *GadgetPartDie, *GadgetPartDieMut]    = (*GadgetPartDie)(nil)
-	_ diebase.DieMutOf[GadgetPart, *GadgetPartDie, *GadgetPartDieMut] = (*GadgetPartDieMut)(nil)
-)
-
 var GadgetPartBlank = diebase.Blank[GadgetPart, *GadgetPartDie, *GadgetPartDieMut]()
 
 type gadgetPartFieldsTable struct {
@@ -90,11 +85,6 @@ func (*GadgetSpecDie) DieFrom(b diebase.DieBase[GadgetSpec, *GadgetSpecDie, *Gad
 func (*GadgetSpecDieMut) DieFrom(b diebase.DieMutBase[GadgetSpec, *GadgetSpecDie, *GadgetSpecDieMut]) *GadgetSpecDieMut {
 	return &GadgetSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[GadgetSpec, *GadgetSpecDie, *GadgetSpecDieMut]    = (*GadgetSpecDie)(nil)
-	_ diebase.DieMutOf[GadgetSpec, *GadgetSpecDie, *GadgetSpecDieMut] = (*GadgetSpecDieMut)(nil)
-)
 
 var GadgetSpecBlank = diebase.Blank[GadgetSpec, *GadgetSpecDie, *GadgetSpecDieMut]()
 

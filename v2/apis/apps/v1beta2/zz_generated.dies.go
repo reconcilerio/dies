@@ -29,7 +29,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // DEPRECATED - This group version of ControllerRevision is deprecated by apps/v1/ControllerRevision. See the
@@ -62,11 +61,6 @@ func (*ControllerRevisionDie) DieFrom(b diebase.DieBase[ControllerRevision, *Con
 func (*ControllerRevisionDieMut) DieFrom(b diebase.DieMutBase[ControllerRevision, *ControllerRevisionDie, *ControllerRevisionDieMut]) *ControllerRevisionDieMut {
 	return &ControllerRevisionDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[ControllerRevision, *ControllerRevisionDie, *ControllerRevisionDieMut]    = (*ControllerRevisionDie)(nil)
-	_ dieobjects.DieObjectMutOf[ControllerRevision, *ControllerRevisionDie, *ControllerRevisionDieMut] = (*ControllerRevisionDieMut)(nil)
-)
 
 var ControllerRevisionBlank = diebase.BlankOf[ControllerRevision, *ControllerRevisionDie, *ControllerRevisionDieMut](ControllerRevision{TypeMeta: metav1.TypeMeta{APIVersion: "apps/v1beta2", Kind: "ControllerRevision"}})
 
@@ -247,11 +241,6 @@ func (*DaemonSetDieMut) DieFrom(b diebase.DieMutBase[DaemonSet, *DaemonSetDie, *
 	return &DaemonSetDieMut{diebase.AsObjectMut(b)}
 }
 
-var (
-	_ dieobjects.DieObjectOf[DaemonSet, *DaemonSetDie, *DaemonSetDieMut]    = (*DaemonSetDie)(nil)
-	_ dieobjects.DieObjectMutOf[DaemonSet, *DaemonSetDie, *DaemonSetDieMut] = (*DaemonSetDieMut)(nil)
-)
-
 var DaemonSetBlank = diebase.BlankOf[DaemonSet, *DaemonSetDie, *DaemonSetDieMut](DaemonSet{TypeMeta: metav1.TypeMeta{APIVersion: "apps/v1beta2", Kind: "DaemonSet"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -420,11 +409,6 @@ func (*DaemonSetConditionDieMut) DieFrom(b diebase.DieMutBase[DaemonSetCondition
 	return &DaemonSetConditionDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[DaemonSetCondition, *DaemonSetConditionDie, *DaemonSetConditionDieMut]    = (*DaemonSetConditionDie)(nil)
-	_ diebase.DieMutOf[DaemonSetCondition, *DaemonSetConditionDie, *DaemonSetConditionDieMut] = (*DaemonSetConditionDieMut)(nil)
-)
-
 var DaemonSetConditionBlank = diebase.Blank[DaemonSetCondition, *DaemonSetConditionDie, *DaemonSetConditionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -583,11 +567,6 @@ func (*DaemonSetSpecDie) DieFrom(b diebase.DieBase[DaemonSetSpec, *DaemonSetSpec
 func (*DaemonSetSpecDieMut) DieFrom(b diebase.DieMutBase[DaemonSetSpec, *DaemonSetSpecDie, *DaemonSetSpecDieMut]) *DaemonSetSpecDieMut {
 	return &DaemonSetSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[DaemonSetSpec, *DaemonSetSpecDie, *DaemonSetSpecDieMut]    = (*DaemonSetSpecDie)(nil)
-	_ diebase.DieMutOf[DaemonSetSpec, *DaemonSetSpecDie, *DaemonSetSpecDieMut] = (*DaemonSetSpecDieMut)(nil)
-)
 
 var DaemonSetSpecBlank = diebase.Blank[DaemonSetSpec, *DaemonSetSpecDie, *DaemonSetSpecDieMut]()
 
@@ -756,11 +735,6 @@ func (*DaemonSetStatusDie) DieFrom(b diebase.DieBase[DaemonSetStatus, *DaemonSet
 func (*DaemonSetStatusDieMut) DieFrom(b diebase.DieMutBase[DaemonSetStatus, *DaemonSetStatusDie, *DaemonSetStatusDieMut]) *DaemonSetStatusDieMut {
 	return &DaemonSetStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[DaemonSetStatus, *DaemonSetStatusDie, *DaemonSetStatusDieMut]    = (*DaemonSetStatusDie)(nil)
-	_ diebase.DieMutOf[DaemonSetStatus, *DaemonSetStatusDie, *DaemonSetStatusDieMut] = (*DaemonSetStatusDieMut)(nil)
-)
 
 var DaemonSetStatusBlank = diebase.Blank[DaemonSetStatus, *DaemonSetStatusDie, *DaemonSetStatusDieMut]()
 
@@ -990,11 +964,6 @@ func (*DaemonSetUpdateStrategyDieMut) DieFrom(b diebase.DieMutBase[DaemonSetUpda
 	return &DaemonSetUpdateStrategyDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[DaemonSetUpdateStrategy, *DaemonSetUpdateStrategyDie, *DaemonSetUpdateStrategyDieMut]    = (*DaemonSetUpdateStrategyDie)(nil)
-	_ diebase.DieMutOf[DaemonSetUpdateStrategy, *DaemonSetUpdateStrategyDie, *DaemonSetUpdateStrategyDieMut] = (*DaemonSetUpdateStrategyDieMut)(nil)
-)
-
 var DaemonSetUpdateStrategyBlank = diebase.Blank[DaemonSetUpdateStrategy, *DaemonSetUpdateStrategyDie, *DaemonSetUpdateStrategyDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1110,11 +1079,6 @@ func (*DeploymentDie) DieFrom(b diebase.DieBase[Deployment, *DeploymentDie, *Dep
 func (*DeploymentDieMut) DieFrom(b diebase.DieMutBase[Deployment, *DeploymentDie, *DeploymentDieMut]) *DeploymentDieMut {
 	return &DeploymentDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[Deployment, *DeploymentDie, *DeploymentDieMut]    = (*DeploymentDie)(nil)
-	_ dieobjects.DieObjectMutOf[Deployment, *DeploymentDie, *DeploymentDieMut] = (*DeploymentDieMut)(nil)
-)
 
 var DeploymentBlank = diebase.BlankOf[Deployment, *DeploymentDie, *DeploymentDieMut](Deployment{TypeMeta: metav1.TypeMeta{APIVersion: "apps/v1beta2", Kind: "Deployment"}})
 
@@ -1271,11 +1235,6 @@ func (*DeploymentConditionDie) DieFrom(b diebase.DieBase[DeploymentCondition, *D
 func (*DeploymentConditionDieMut) DieFrom(b diebase.DieMutBase[DeploymentCondition, *DeploymentConditionDie, *DeploymentConditionDieMut]) *DeploymentConditionDieMut {
 	return &DeploymentConditionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[DeploymentCondition, *DeploymentConditionDie, *DeploymentConditionDieMut]    = (*DeploymentConditionDie)(nil)
-	_ diebase.DieMutOf[DeploymentCondition, *DeploymentConditionDie, *DeploymentConditionDieMut] = (*DeploymentConditionDieMut)(nil)
-)
 
 var DeploymentConditionBlank = diebase.Blank[DeploymentCondition, *DeploymentConditionDie, *DeploymentConditionDieMut]()
 
@@ -1447,11 +1406,6 @@ func (*DeploymentSpecDie) DieFrom(b diebase.DieBase[DeploymentSpec, *DeploymentS
 func (*DeploymentSpecDieMut) DieFrom(b diebase.DieMutBase[DeploymentSpec, *DeploymentSpecDie, *DeploymentSpecDieMut]) *DeploymentSpecDieMut {
 	return &DeploymentSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[DeploymentSpec, *DeploymentSpecDie, *DeploymentSpecDieMut]    = (*DeploymentSpecDie)(nil)
-	_ diebase.DieMutOf[DeploymentSpec, *DeploymentSpecDie, *DeploymentSpecDieMut] = (*DeploymentSpecDieMut)(nil)
-)
 
 var DeploymentSpecBlank = diebase.Blank[DeploymentSpec, *DeploymentSpecDie, *DeploymentSpecDieMut]()
 
@@ -1654,11 +1608,6 @@ func (*DeploymentStatusDie) DieFrom(b diebase.DieBase[DeploymentStatus, *Deploym
 func (*DeploymentStatusDieMut) DieFrom(b diebase.DieMutBase[DeploymentStatus, *DeploymentStatusDie, *DeploymentStatusDieMut]) *DeploymentStatusDieMut {
 	return &DeploymentStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[DeploymentStatus, *DeploymentStatusDie, *DeploymentStatusDieMut]    = (*DeploymentStatusDie)(nil)
-	_ diebase.DieMutOf[DeploymentStatus, *DeploymentStatusDie, *DeploymentStatusDieMut] = (*DeploymentStatusDieMut)(nil)
-)
 
 var DeploymentStatusBlank = diebase.Blank[DeploymentStatus, *DeploymentStatusDie, *DeploymentStatusDieMut]()
 
@@ -1864,11 +1813,6 @@ func (*DeploymentStrategyDieMut) DieFrom(b diebase.DieMutBase[DeploymentStrategy
 	return &DeploymentStrategyDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[DeploymentStrategy, *DeploymentStrategyDie, *DeploymentStrategyDieMut]    = (*DeploymentStrategyDie)(nil)
-	_ diebase.DieMutOf[DeploymentStrategy, *DeploymentStrategyDie, *DeploymentStrategyDieMut] = (*DeploymentStrategyDieMut)(nil)
-)
-
 var DeploymentStrategyBlank = diebase.Blank[DeploymentStrategy, *DeploymentStrategyDie, *DeploymentStrategyDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1984,11 +1928,6 @@ func (*ReplicaSetDie) DieFrom(b diebase.DieBase[ReplicaSet, *ReplicaSetDie, *Rep
 func (*ReplicaSetDieMut) DieFrom(b diebase.DieMutBase[ReplicaSet, *ReplicaSetDie, *ReplicaSetDieMut]) *ReplicaSetDieMut {
 	return &ReplicaSetDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[ReplicaSet, *ReplicaSetDie, *ReplicaSetDieMut]    = (*ReplicaSetDie)(nil)
-	_ dieobjects.DieObjectMutOf[ReplicaSet, *ReplicaSetDie, *ReplicaSetDieMut] = (*ReplicaSetDieMut)(nil)
-)
 
 var ReplicaSetBlank = diebase.BlankOf[ReplicaSet, *ReplicaSetDie, *ReplicaSetDieMut](ReplicaSet{TypeMeta: metav1.TypeMeta{APIVersion: "apps/v1beta2", Kind: "ReplicaSet"}})
 
@@ -2160,11 +2099,6 @@ func (*ReplicaSetConditionDieMut) DieFrom(b diebase.DieMutBase[ReplicaSetConditi
 	return &ReplicaSetConditionDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ReplicaSetCondition, *ReplicaSetConditionDie, *ReplicaSetConditionDieMut]    = (*ReplicaSetConditionDie)(nil)
-	_ diebase.DieMutOf[ReplicaSetCondition, *ReplicaSetConditionDie, *ReplicaSetConditionDieMut] = (*ReplicaSetConditionDieMut)(nil)
-)
-
 var ReplicaSetConditionBlank = diebase.Blank[ReplicaSetCondition, *ReplicaSetConditionDie, *ReplicaSetConditionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2324,11 +2258,6 @@ func (*ReplicaSetSpecDieMut) DieFrom(b diebase.DieMutBase[ReplicaSetSpec, *Repli
 	return &ReplicaSetSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ReplicaSetSpec, *ReplicaSetSpecDie, *ReplicaSetSpecDieMut]    = (*ReplicaSetSpecDie)(nil)
-	_ diebase.DieMutOf[ReplicaSetSpec, *ReplicaSetSpecDie, *ReplicaSetSpecDieMut] = (*ReplicaSetSpecDieMut)(nil)
-)
-
 var ReplicaSetSpecBlank = diebase.Blank[ReplicaSetSpec, *ReplicaSetSpecDie, *ReplicaSetSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2478,11 +2407,6 @@ func (*ReplicaSetStatusDie) DieFrom(b diebase.DieBase[ReplicaSetStatus, *Replica
 func (*ReplicaSetStatusDieMut) DieFrom(b diebase.DieMutBase[ReplicaSetStatus, *ReplicaSetStatusDie, *ReplicaSetStatusDieMut]) *ReplicaSetStatusDieMut {
 	return &ReplicaSetStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ReplicaSetStatus, *ReplicaSetStatusDie, *ReplicaSetStatusDieMut]    = (*ReplicaSetStatusDie)(nil)
-	_ diebase.DieMutOf[ReplicaSetStatus, *ReplicaSetStatusDie, *ReplicaSetStatusDieMut] = (*ReplicaSetStatusDieMut)(nil)
-)
 
 var ReplicaSetStatusBlank = diebase.Blank[ReplicaSetStatus, *ReplicaSetStatusDie, *ReplicaSetStatusDieMut]()
 
@@ -2658,11 +2582,6 @@ func (*RollingUpdateDaemonSetDieMut) DieFrom(b diebase.DieMutBase[RollingUpdateD
 	return &RollingUpdateDaemonSetDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[RollingUpdateDaemonSet, *RollingUpdateDaemonSetDie, *RollingUpdateDaemonSetDieMut]    = (*RollingUpdateDaemonSetDie)(nil)
-	_ diebase.DieMutOf[RollingUpdateDaemonSet, *RollingUpdateDaemonSetDie, *RollingUpdateDaemonSetDieMut] = (*RollingUpdateDaemonSetDieMut)(nil)
-)
-
 var RollingUpdateDaemonSetBlank = diebase.Blank[RollingUpdateDaemonSet, *RollingUpdateDaemonSetDie, *RollingUpdateDaemonSetDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2829,11 +2748,6 @@ func (*RollingUpdateDeploymentDieMut) DieFrom(b diebase.DieMutBase[RollingUpdate
 	return &RollingUpdateDeploymentDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[RollingUpdateDeployment, *RollingUpdateDeploymentDie, *RollingUpdateDeploymentDieMut]    = (*RollingUpdateDeploymentDie)(nil)
-	_ diebase.DieMutOf[RollingUpdateDeployment, *RollingUpdateDeploymentDie, *RollingUpdateDeploymentDieMut] = (*RollingUpdateDeploymentDieMut)(nil)
-)
-
 var RollingUpdateDeploymentBlank = diebase.Blank[RollingUpdateDeployment, *RollingUpdateDeploymentDie, *RollingUpdateDeploymentDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2978,11 +2892,6 @@ func (*RollingUpdateStatefulSetStrategyDieMut) DieFrom(b diebase.DieMutBase[Roll
 	return &RollingUpdateStatefulSetStrategyDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[RollingUpdateStatefulSetStrategy, *RollingUpdateStatefulSetStrategyDie, *RollingUpdateStatefulSetStrategyDieMut]    = (*RollingUpdateStatefulSetStrategyDie)(nil)
-	_ diebase.DieMutOf[RollingUpdateStatefulSetStrategy, *RollingUpdateStatefulSetStrategyDie, *RollingUpdateStatefulSetStrategyDieMut] = (*RollingUpdateStatefulSetStrategyDieMut)(nil)
-)
-
 var RollingUpdateStatefulSetStrategyBlank = diebase.Blank[RollingUpdateStatefulSetStrategy, *RollingUpdateStatefulSetStrategyDie, *RollingUpdateStatefulSetStrategyDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -3106,11 +3015,6 @@ func (*ScaleDie) DieFrom(b diebase.DieBase[Scale, *ScaleDie, *ScaleDieMut]) *Sca
 func (*ScaleDieMut) DieFrom(b diebase.DieMutBase[Scale, *ScaleDie, *ScaleDieMut]) *ScaleDieMut {
 	return &ScaleDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[Scale, *ScaleDie, *ScaleDieMut]    = (*ScaleDie)(nil)
-	_ dieobjects.DieObjectMutOf[Scale, *ScaleDie, *ScaleDieMut] = (*ScaleDieMut)(nil)
-)
 
 var ScaleBlank = diebase.BlankOf[Scale, *ScaleDie, *ScaleDieMut](Scale{TypeMeta: metav1.TypeMeta{APIVersion: "apps/v1beta2", Kind: "Scale"}})
 
@@ -3262,11 +3166,6 @@ func (*ScaleSpecDieMut) DieFrom(b diebase.DieMutBase[ScaleSpec, *ScaleSpecDie, *
 	return &ScaleSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut]    = (*ScaleSpecDie)(nil)
-	_ diebase.DieMutOf[ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut] = (*ScaleSpecDieMut)(nil)
-)
-
 var ScaleSpecBlank = diebase.Blank[ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut]()
 
 type scaleSpecFieldsTable struct {
@@ -3309,11 +3208,6 @@ func (*ScaleStatusDie) DieFrom(b diebase.DieBase[ScaleStatus, *ScaleStatusDie, *
 func (*ScaleStatusDieMut) DieFrom(b diebase.DieMutBase[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut]) *ScaleStatusDieMut {
 	return &ScaleStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut]    = (*ScaleStatusDie)(nil)
-	_ diebase.DieMutOf[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut] = (*ScaleStatusDieMut)(nil)
-)
 
 var ScaleStatusBlank = diebase.Blank[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut]()
 
@@ -3399,11 +3293,6 @@ func (*StatefulSetDie) DieFrom(b diebase.DieBase[StatefulSet, *StatefulSetDie, *
 func (*StatefulSetDieMut) DieFrom(b diebase.DieMutBase[StatefulSet, *StatefulSetDie, *StatefulSetDieMut]) *StatefulSetDieMut {
 	return &StatefulSetDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[StatefulSet, *StatefulSetDie, *StatefulSetDieMut]    = (*StatefulSetDie)(nil)
-	_ dieobjects.DieObjectMutOf[StatefulSet, *StatefulSetDie, *StatefulSetDieMut] = (*StatefulSetDieMut)(nil)
-)
 
 var StatefulSetBlank = diebase.BlankOf[StatefulSet, *StatefulSetDie, *StatefulSetDieMut](StatefulSet{TypeMeta: metav1.TypeMeta{APIVersion: "apps/v1beta2", Kind: "StatefulSet"}})
 
@@ -3560,11 +3449,6 @@ func (*StatefulSetConditionDie) DieFrom(b diebase.DieBase[StatefulSetCondition, 
 func (*StatefulSetConditionDieMut) DieFrom(b diebase.DieMutBase[StatefulSetCondition, *StatefulSetConditionDie, *StatefulSetConditionDieMut]) *StatefulSetConditionDieMut {
 	return &StatefulSetConditionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[StatefulSetCondition, *StatefulSetConditionDie, *StatefulSetConditionDieMut]    = (*StatefulSetConditionDie)(nil)
-	_ diebase.DieMutOf[StatefulSetCondition, *StatefulSetConditionDie, *StatefulSetConditionDieMut] = (*StatefulSetConditionDieMut)(nil)
-)
 
 var StatefulSetConditionBlank = diebase.Blank[StatefulSetCondition, *StatefulSetConditionDie, *StatefulSetConditionDieMut]()
 
@@ -3726,11 +3610,6 @@ func (*StatefulSetOrdinalsDieMut) DieFrom(b diebase.DieMutBase[StatefulSetOrdina
 	return &StatefulSetOrdinalsDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[StatefulSetOrdinals, *StatefulSetOrdinalsDie, *StatefulSetOrdinalsDieMut]    = (*StatefulSetOrdinalsDie)(nil)
-	_ diebase.DieMutOf[StatefulSetOrdinals, *StatefulSetOrdinalsDie, *StatefulSetOrdinalsDieMut] = (*StatefulSetOrdinalsDieMut)(nil)
-)
-
 var StatefulSetOrdinalsBlank = diebase.Blank[StatefulSetOrdinals, *StatefulSetOrdinalsDie, *StatefulSetOrdinalsDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -3845,11 +3724,6 @@ func (*StatefulSetPersistentVolumeClaimRetentionPolicyDie) DieFrom(b diebase.Die
 func (*StatefulSetPersistentVolumeClaimRetentionPolicyDieMut) DieFrom(b diebase.DieMutBase[StatefulSetPersistentVolumeClaimRetentionPolicy, *StatefulSetPersistentVolumeClaimRetentionPolicyDie, *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut]) *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut {
 	return &StatefulSetPersistentVolumeClaimRetentionPolicyDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[StatefulSetPersistentVolumeClaimRetentionPolicy, *StatefulSetPersistentVolumeClaimRetentionPolicyDie, *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut]    = (*StatefulSetPersistentVolumeClaimRetentionPolicyDie)(nil)
-	_ diebase.DieMutOf[StatefulSetPersistentVolumeClaimRetentionPolicy, *StatefulSetPersistentVolumeClaimRetentionPolicyDie, *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut] = (*StatefulSetPersistentVolumeClaimRetentionPolicyDieMut)(nil)
-)
 
 var StatefulSetPersistentVolumeClaimRetentionPolicyBlank = diebase.Blank[StatefulSetPersistentVolumeClaimRetentionPolicy, *StatefulSetPersistentVolumeClaimRetentionPolicyDie, *StatefulSetPersistentVolumeClaimRetentionPolicyDieMut]()
 
@@ -3970,11 +3844,6 @@ func (*StatefulSetSpecDie) DieFrom(b diebase.DieBase[StatefulSetSpec, *StatefulS
 func (*StatefulSetSpecDieMut) DieFrom(b diebase.DieMutBase[StatefulSetSpec, *StatefulSetSpecDie, *StatefulSetSpecDieMut]) *StatefulSetSpecDieMut {
 	return &StatefulSetSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[StatefulSetSpec, *StatefulSetSpecDie, *StatefulSetSpecDieMut]    = (*StatefulSetSpecDie)(nil)
-	_ diebase.DieMutOf[StatefulSetSpec, *StatefulSetSpecDie, *StatefulSetSpecDieMut] = (*StatefulSetSpecDieMut)(nil)
-)
 
 var StatefulSetSpecBlank = diebase.Blank[StatefulSetSpec, *StatefulSetSpecDie, *StatefulSetSpecDieMut]()
 
@@ -4276,11 +4145,6 @@ func (*StatefulSetStatusDieMut) DieFrom(b diebase.DieMutBase[StatefulSetStatus, 
 	return &StatefulSetStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[StatefulSetStatus, *StatefulSetStatusDie, *StatefulSetStatusDieMut]    = (*StatefulSetStatusDie)(nil)
-	_ diebase.DieMutOf[StatefulSetStatus, *StatefulSetStatusDie, *StatefulSetStatusDieMut] = (*StatefulSetStatusDieMut)(nil)
-)
-
 var StatefulSetStatusBlank = diebase.Blank[StatefulSetStatus, *StatefulSetStatusDie, *StatefulSetStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -4498,11 +4362,6 @@ func (*StatefulSetUpdateStrategyDie) DieFrom(b diebase.DieBase[StatefulSetUpdate
 func (*StatefulSetUpdateStrategyDieMut) DieFrom(b diebase.DieMutBase[StatefulSetUpdateStrategy, *StatefulSetUpdateStrategyDie, *StatefulSetUpdateStrategyDieMut]) *StatefulSetUpdateStrategyDieMut {
 	return &StatefulSetUpdateStrategyDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[StatefulSetUpdateStrategy, *StatefulSetUpdateStrategyDie, *StatefulSetUpdateStrategyDieMut]    = (*StatefulSetUpdateStrategyDie)(nil)
-	_ diebase.DieMutOf[StatefulSetUpdateStrategy, *StatefulSetUpdateStrategyDie, *StatefulSetUpdateStrategyDieMut] = (*StatefulSetUpdateStrategyDieMut)(nil)
-)
 
 var StatefulSetUpdateStrategyBlank = diebase.Blank[StatefulSetUpdateStrategy, *StatefulSetUpdateStrategyDie, *StatefulSetUpdateStrategyDieMut]()
 

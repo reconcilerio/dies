@@ -28,7 +28,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // ConversionRequest describes the conversion request parameters.
@@ -51,11 +50,6 @@ func (*ConversionRequestDie) DieFrom(b diebase.DieBase[ConversionRequest, *Conve
 func (*ConversionRequestDieMut) DieFrom(b diebase.DieMutBase[ConversionRequest, *ConversionRequestDie, *ConversionRequestDieMut]) *ConversionRequestDieMut {
 	return &ConversionRequestDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ConversionRequest, *ConversionRequestDie, *ConversionRequestDieMut]    = (*ConversionRequestDie)(nil)
-	_ diebase.DieMutOf[ConversionRequest, *ConversionRequestDie, *ConversionRequestDieMut] = (*ConversionRequestDieMut)(nil)
-)
 
 var ConversionRequestBlank = diebase.Blank[ConversionRequest, *ConversionRequestDie, *ConversionRequestDieMut]()
 
@@ -129,11 +123,6 @@ func (*ConversionResponseDie) DieFrom(b diebase.DieBase[ConversionResponse, *Con
 func (*ConversionResponseDieMut) DieFrom(b diebase.DieMutBase[ConversionResponse, *ConversionResponseDie, *ConversionResponseDieMut]) *ConversionResponseDieMut {
 	return &ConversionResponseDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ConversionResponse, *ConversionResponseDie, *ConversionResponseDieMut]    = (*ConversionResponseDie)(nil)
-	_ diebase.DieMutOf[ConversionResponse, *ConversionResponseDie, *ConversionResponseDieMut] = (*ConversionResponseDieMut)(nil)
-)
 
 var ConversionResponseBlank = diebase.Blank[ConversionResponse, *ConversionResponseDie, *ConversionResponseDieMut]()
 
@@ -217,11 +206,6 @@ func (*ConversionReviewDie) DieFrom(b diebase.DieBase[ConversionReview, *Convers
 func (*ConversionReviewDieMut) DieFrom(b diebase.DieMutBase[ConversionReview, *ConversionReviewDie, *ConversionReviewDieMut]) *ConversionReviewDieMut {
 	return &ConversionReviewDieMut{diebase.AsTypedMut(b)}
 }
-
-var (
-	_ diefields.DieTypedOf[ConversionReview, *ConversionReviewDie, *ConversionReviewDieMut]    = (*ConversionReviewDie)(nil)
-	_ diefields.DieTypedMutOf[ConversionReview, *ConversionReviewDie, *ConversionReviewDieMut] = (*ConversionReviewDieMut)(nil)
-)
 
 var ConversionReviewBlank = diebase.BlankOf[ConversionReview, *ConversionReviewDie, *ConversionReviewDieMut](ConversionReview{TypeMeta: metav1.TypeMeta{APIVersion: "apiextensions.k8s.io/v1", Kind: "ConversionReview"}})
 
@@ -315,11 +299,6 @@ func (*CustomResourceColumnDefinitionDie) DieFrom(b diebase.DieBase[CustomResour
 func (*CustomResourceColumnDefinitionDieMut) DieFrom(b diebase.DieMutBase[CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie, *CustomResourceColumnDefinitionDieMut]) *CustomResourceColumnDefinitionDieMut {
 	return &CustomResourceColumnDefinitionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie, *CustomResourceColumnDefinitionDieMut]    = (*CustomResourceColumnDefinitionDie)(nil)
-	_ diebase.DieMutOf[CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie, *CustomResourceColumnDefinitionDieMut] = (*CustomResourceColumnDefinitionDieMut)(nil)
-)
 
 var CustomResourceColumnDefinitionBlank = diebase.Blank[CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie, *CustomResourceColumnDefinitionDieMut]()
 
@@ -487,11 +466,6 @@ func (*CustomResourceConversionDieMut) DieFrom(b diebase.DieMutBase[CustomResour
 	return &CustomResourceConversionDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CustomResourceConversion, *CustomResourceConversionDie, *CustomResourceConversionDieMut]    = (*CustomResourceConversionDie)(nil)
-	_ diebase.DieMutOf[CustomResourceConversion, *CustomResourceConversionDie, *CustomResourceConversionDieMut] = (*CustomResourceConversionDieMut)(nil)
-)
-
 var CustomResourceConversionBlank = diebase.Blank[CustomResourceConversion, *CustomResourceConversionDie, *CustomResourceConversionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -604,11 +578,6 @@ func (*CustomResourceDefinitionDie) DieFrom(b diebase.DieBase[CustomResourceDefi
 func (*CustomResourceDefinitionDieMut) DieFrom(b diebase.DieMutBase[CustomResourceDefinition, *CustomResourceDefinitionDie, *CustomResourceDefinitionDieMut]) *CustomResourceDefinitionDieMut {
 	return &CustomResourceDefinitionDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[CustomResourceDefinition, *CustomResourceDefinitionDie, *CustomResourceDefinitionDieMut]    = (*CustomResourceDefinitionDie)(nil)
-	_ dieobjects.DieObjectMutOf[CustomResourceDefinition, *CustomResourceDefinitionDie, *CustomResourceDefinitionDieMut] = (*CustomResourceDefinitionDieMut)(nil)
-)
 
 var CustomResourceDefinitionBlank = diebase.BlankOf[CustomResourceDefinition, *CustomResourceDefinitionDie, *CustomResourceDefinitionDieMut](CustomResourceDefinition{TypeMeta: metav1.TypeMeta{APIVersion: "apiextensions.k8s.io/v1", Kind: "CustomResourceDefinition"}})
 
@@ -767,11 +736,6 @@ func (*CustomResourceDefinitionConditionDie) DieFrom(b diebase.DieBase[CustomRes
 func (*CustomResourceDefinitionConditionDieMut) DieFrom(b diebase.DieMutBase[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut]) *CustomResourceDefinitionConditionDieMut {
 	return &CustomResourceDefinitionConditionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut]    = (*CustomResourceDefinitionConditionDie)(nil)
-	_ diebase.DieMutOf[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut] = (*CustomResourceDefinitionConditionDieMut)(nil)
-)
 
 var CustomResourceDefinitionConditionBlank = diebase.Blank[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut]()
 
@@ -952,11 +916,6 @@ func (*CustomResourceDefinitionNamesDieMut) DieFrom(b diebase.DieMutBase[CustomR
 	return &CustomResourceDefinitionNamesDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut]    = (*CustomResourceDefinitionNamesDie)(nil)
-	_ diebase.DieMutOf[CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut] = (*CustomResourceDefinitionNamesDieMut)(nil)
-)
-
 var CustomResourceDefinitionNamesBlank = diebase.Blank[CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1126,11 +1085,6 @@ func (*CustomResourceDefinitionSpecDie) DieFrom(b diebase.DieBase[CustomResource
 func (*CustomResourceDefinitionSpecDieMut) DieFrom(b diebase.DieMutBase[CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie, *CustomResourceDefinitionSpecDieMut]) *CustomResourceDefinitionSpecDieMut {
 	return &CustomResourceDefinitionSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie, *CustomResourceDefinitionSpecDieMut]    = (*CustomResourceDefinitionSpecDie)(nil)
-	_ diebase.DieMutOf[CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie, *CustomResourceDefinitionSpecDieMut] = (*CustomResourceDefinitionSpecDieMut)(nil)
-)
 
 var CustomResourceDefinitionSpecBlank = diebase.Blank[CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie, *CustomResourceDefinitionSpecDieMut]()
 
@@ -1314,11 +1268,6 @@ func (*CustomResourceDefinitionStatusDieMut) DieFrom(b diebase.DieMutBase[Custom
 	return &CustomResourceDefinitionStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie, *CustomResourceDefinitionStatusDieMut]    = (*CustomResourceDefinitionStatusDie)(nil)
-	_ diebase.DieMutOf[CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie, *CustomResourceDefinitionStatusDieMut] = (*CustomResourceDefinitionStatusDieMut)(nil)
-)
-
 var CustomResourceDefinitionStatusBlank = diebase.Blank[CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie, *CustomResourceDefinitionStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1460,11 +1409,6 @@ func (*CustomResourceDefinitionVersionDie) DieFrom(b diebase.DieBase[CustomResou
 func (*CustomResourceDefinitionVersionDieMut) DieFrom(b diebase.DieMutBase[CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie, *CustomResourceDefinitionVersionDieMut]) *CustomResourceDefinitionVersionDieMut {
 	return &CustomResourceDefinitionVersionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie, *CustomResourceDefinitionVersionDieMut]    = (*CustomResourceDefinitionVersionDie)(nil)
-	_ diebase.DieMutOf[CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie, *CustomResourceDefinitionVersionDieMut] = (*CustomResourceDefinitionVersionDieMut)(nil)
-)
 
 var CustomResourceDefinitionVersionBlank = diebase.Blank[CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie, *CustomResourceDefinitionVersionDieMut]()
 
@@ -1678,11 +1622,6 @@ func (*CustomResourceSubresourceScaleDieMut) DieFrom(b diebase.DieMutBase[Custom
 	return &CustomResourceSubresourceScaleDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie, *CustomResourceSubresourceScaleDieMut]    = (*CustomResourceSubresourceScaleDie)(nil)
-	_ diebase.DieMutOf[CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie, *CustomResourceSubresourceScaleDieMut] = (*CustomResourceSubresourceScaleDieMut)(nil)
-)
-
 var CustomResourceSubresourceScaleBlank = diebase.Blank[CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie, *CustomResourceSubresourceScaleDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1835,11 +1774,6 @@ func (*CustomResourceSubresourceStatusDieMut) DieFrom(b diebase.DieMutBase[Custo
 	return &CustomResourceSubresourceStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie, *CustomResourceSubresourceStatusDieMut]    = (*CustomResourceSubresourceStatusDie)(nil)
-	_ diebase.DieMutOf[CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie, *CustomResourceSubresourceStatusDieMut] = (*CustomResourceSubresourceStatusDieMut)(nil)
-)
-
 var CustomResourceSubresourceStatusBlank = diebase.Blank[CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie, *CustomResourceSubresourceStatusDieMut]()
 
 type customResourceSubresourceStatusFieldsTable struct {
@@ -1870,11 +1804,6 @@ func (*CustomResourceSubresourcesDie) DieFrom(b diebase.DieBase[CustomResourceSu
 func (*CustomResourceSubresourcesDieMut) DieFrom(b diebase.DieMutBase[CustomResourceSubresources, *CustomResourceSubresourcesDie, *CustomResourceSubresourcesDieMut]) *CustomResourceSubresourcesDieMut {
 	return &CustomResourceSubresourcesDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[CustomResourceSubresources, *CustomResourceSubresourcesDie, *CustomResourceSubresourcesDieMut]    = (*CustomResourceSubresourcesDie)(nil)
-	_ diebase.DieMutOf[CustomResourceSubresources, *CustomResourceSubresourcesDie, *CustomResourceSubresourcesDieMut] = (*CustomResourceSubresourcesDieMut)(nil)
-)
 
 var CustomResourceSubresourcesBlank = diebase.Blank[CustomResourceSubresources, *CustomResourceSubresourcesDie, *CustomResourceSubresourcesDieMut]()
 
@@ -1988,11 +1917,6 @@ func (*CustomResourceValidationDieMut) DieFrom(b diebase.DieMutBase[CustomResour
 	return &CustomResourceValidationDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CustomResourceValidation, *CustomResourceValidationDie, *CustomResourceValidationDieMut]    = (*CustomResourceValidationDie)(nil)
-	_ diebase.DieMutOf[CustomResourceValidation, *CustomResourceValidationDie, *CustomResourceValidationDieMut] = (*CustomResourceValidationDieMut)(nil)
-)
-
 var CustomResourceValidationBlank = diebase.Blank[CustomResourceValidation, *CustomResourceValidationDie, *CustomResourceValidationDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2086,11 +2010,6 @@ func (*ExternalDocumentationDie) DieFrom(b diebase.DieBase[ExternalDocumentation
 func (*ExternalDocumentationDieMut) DieFrom(b diebase.DieMutBase[ExternalDocumentation, *ExternalDocumentationDie, *ExternalDocumentationDieMut]) *ExternalDocumentationDieMut {
 	return &ExternalDocumentationDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ExternalDocumentation, *ExternalDocumentationDie, *ExternalDocumentationDieMut]    = (*ExternalDocumentationDie)(nil)
-	_ diebase.DieMutOf[ExternalDocumentation, *ExternalDocumentationDie, *ExternalDocumentationDieMut] = (*ExternalDocumentationDieMut)(nil)
-)
 
 var ExternalDocumentationBlank = diebase.Blank[ExternalDocumentation, *ExternalDocumentationDie, *ExternalDocumentationDieMut]()
 
@@ -2193,11 +2112,6 @@ func (*JSONSchemaPropsDie) DieFrom(b diebase.DieBase[JSONSchemaProps, *JSONSchem
 func (*JSONSchemaPropsDieMut) DieFrom(b diebase.DieMutBase[JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]) *JSONSchemaPropsDieMut {
 	return &JSONSchemaPropsDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]    = (*JSONSchemaPropsDie)(nil)
-	_ diebase.DieMutOf[JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut] = (*JSONSchemaPropsDieMut)(nil)
-)
 
 var JSONSchemaPropsBlank = diebase.Blank[JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]()
 
@@ -2903,11 +2817,6 @@ func (*SelectableFieldDieMut) DieFrom(b diebase.DieMutBase[SelectableField, *Sel
 	return &SelectableFieldDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[SelectableField, *SelectableFieldDie, *SelectableFieldDieMut]    = (*SelectableFieldDie)(nil)
-	_ diebase.DieMutOf[SelectableField, *SelectableFieldDie, *SelectableFieldDieMut] = (*SelectableFieldDieMut)(nil)
-)
-
 var SelectableFieldBlank = diebase.Blank[SelectableField, *SelectableFieldDie, *SelectableFieldDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -3015,11 +2924,6 @@ func (*ServiceReferenceDie) DieFrom(b diebase.DieBase[ServiceReference, *Service
 func (*ServiceReferenceDieMut) DieFrom(b diebase.DieMutBase[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]) *ServiceReferenceDieMut {
 	return &ServiceReferenceDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]    = (*ServiceReferenceDie)(nil)
-	_ diebase.DieMutOf[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut] = (*ServiceReferenceDieMut)(nil)
-)
 
 var ServiceReferenceBlank = diebase.Blank[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]()
 
@@ -3158,11 +3062,6 @@ func (*ValidationRuleDie) DieFrom(b diebase.DieBase[ValidationRule, *ValidationR
 func (*ValidationRuleDieMut) DieFrom(b diebase.DieMutBase[ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut]) *ValidationRuleDieMut {
 	return &ValidationRuleDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut]    = (*ValidationRuleDie)(nil)
-	_ diebase.DieMutOf[ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut] = (*ValidationRuleDieMut)(nil)
-)
 
 var ValidationRuleBlank = diebase.Blank[ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut]()
 
@@ -3524,11 +3423,6 @@ func (*WebhookClientConfigDieMut) DieFrom(b diebase.DieMutBase[WebhookClientConf
 	return &WebhookClientConfigDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]    = (*WebhookClientConfigDie)(nil)
-	_ diebase.DieMutOf[WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut] = (*WebhookClientConfigDieMut)(nil)
-)
-
 var WebhookClientConfigBlank = diebase.Blank[WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -3702,11 +3596,6 @@ func (*WebhookConversionDie) DieFrom(b diebase.DieBase[WebhookConversion, *Webho
 func (*WebhookConversionDieMut) DieFrom(b diebase.DieMutBase[WebhookConversion, *WebhookConversionDie, *WebhookConversionDieMut]) *WebhookConversionDieMut {
 	return &WebhookConversionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[WebhookConversion, *WebhookConversionDie, *WebhookConversionDieMut]    = (*WebhookConversionDie)(nil)
-	_ diebase.DieMutOf[WebhookConversion, *WebhookConversionDie, *WebhookConversionDieMut] = (*WebhookConversionDieMut)(nil)
-)
 
 var WebhookConversionBlank = diebase.Blank[WebhookConversion, *WebhookConversionDie, *WebhookConversionDieMut]()
 

@@ -22,6 +22,7 @@ import (
 	imagepolicyv1alpha1 "k8s.io/api/imagepolicy/v1alpha1"
 	dieimagepolicyv1alpha1 "reconciler.io/dies/v2/apis/imagepolicy/v1alpha1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -37,6 +38,12 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dieimagepolicyv1alpha1.ImageReview, *dieimagepolicyv1alpha1.ImageReviewDie, *dieimagepolicyv1alpha1.ImageReviewDieMut]    = (*dieimagepolicyv1alpha1.ImageReviewDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieimagepolicyv1alpha1.ImageReview, *dieimagepolicyv1alpha1.ImageReviewDie, *dieimagepolicyv1alpha1.ImageReviewDieMut] = (*dieimagepolicyv1alpha1.ImageReviewDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieimagepolicyv1alpha1.AddToScheme, imagepolicyv1alpha1.AddToScheme, dieimagepolicyv1alpha1.SchemeGroupVersion); err != nil {

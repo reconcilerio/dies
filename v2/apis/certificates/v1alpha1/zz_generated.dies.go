@@ -27,7 +27,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // ClusterTrustBundle is a cluster-scoped container for X.509 trust anchors
@@ -64,11 +63,6 @@ func (*ClusterTrustBundleDie) DieFrom(b diebase.DieBase[ClusterTrustBundle, *Clu
 func (*ClusterTrustBundleDieMut) DieFrom(b diebase.DieMutBase[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]) *ClusterTrustBundleDieMut {
 	return &ClusterTrustBundleDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]    = (*ClusterTrustBundleDie)(nil)
-	_ dieobjects.DieObjectMutOf[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut] = (*ClusterTrustBundleDieMut)(nil)
-)
 
 var ClusterTrustBundleBlank = diebase.BlankOf[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut](ClusterTrustBundle{TypeMeta: metav1.TypeMeta{APIVersion: "certificates.k8s.io/v1alpha1", Kind: "ClusterTrustBundle"}})
 
@@ -232,11 +226,6 @@ func (*ClusterTrustBundleSpecDie) DieFrom(b diebase.DieBase[ClusterTrustBundleSp
 func (*ClusterTrustBundleSpecDieMut) DieFrom(b diebase.DieMutBase[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]) *ClusterTrustBundleSpecDieMut {
 	return &ClusterTrustBundleSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]    = (*ClusterTrustBundleSpecDie)(nil)
-	_ diebase.DieMutOf[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut] = (*ClusterTrustBundleSpecDieMut)(nil)
-)
 
 var ClusterTrustBundleSpecBlank = diebase.Blank[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]()
 

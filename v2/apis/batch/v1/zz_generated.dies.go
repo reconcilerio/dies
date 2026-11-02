@@ -30,7 +30,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // CronJob represents the configuration of a single cron job.
@@ -53,11 +52,6 @@ func (*CronJobDie) DieFrom(b diebase.DieBase[CronJob, *CronJobDie, *CronJobDieMu
 func (*CronJobDieMut) DieFrom(b diebase.DieMutBase[CronJob, *CronJobDie, *CronJobDieMut]) *CronJobDieMut {
 	return &CronJobDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[CronJob, *CronJobDie, *CronJobDieMut]    = (*CronJobDie)(nil)
-	_ dieobjects.DieObjectMutOf[CronJob, *CronJobDie, *CronJobDieMut] = (*CronJobDieMut)(nil)
-)
 
 var CronJobBlank = diebase.BlankOf[CronJob, *CronJobDie, *CronJobDieMut](CronJob{TypeMeta: metav1.TypeMeta{APIVersion: "batch/v1", Kind: "CronJob"}})
 
@@ -235,11 +229,6 @@ func (*CronJobSpecDie) DieFrom(b diebase.DieBase[CronJobSpec, *CronJobSpecDie, *
 func (*CronJobSpecDieMut) DieFrom(b diebase.DieMutBase[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]) *CronJobSpecDieMut {
 	return &CronJobSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]    = (*CronJobSpecDie)(nil)
-	_ diebase.DieMutOf[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut] = (*CronJobSpecDieMut)(nil)
-)
 
 var CronJobSpecBlank = diebase.Blank[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]()
 
@@ -453,11 +442,6 @@ func (*CronJobStatusDieMut) DieFrom(b diebase.DieMutBase[CronJobStatus, *CronJob
 	return &CronJobStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]    = (*CronJobStatusDie)(nil)
-	_ diebase.DieMutOf[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut] = (*CronJobStatusDieMut)(nil)
-)
-
 var CronJobStatusBlank = diebase.Blank[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -575,11 +559,6 @@ func (*JobDie) DieFrom(b diebase.DieBase[Job, *JobDie, *JobDieMut]) *JobDie {
 func (*JobDieMut) DieFrom(b diebase.DieMutBase[Job, *JobDie, *JobDieMut]) *JobDieMut {
 	return &JobDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[Job, *JobDie, *JobDieMut]    = (*JobDie)(nil)
-	_ dieobjects.DieObjectMutOf[Job, *JobDie, *JobDieMut] = (*JobDieMut)(nil)
-)
 
 var JobBlank = diebase.BlankOf[Job, *JobDie, *JobDieMut](Job{TypeMeta: metav1.TypeMeta{APIVersion: "batch/v1", Kind: "Job"}})
 
@@ -732,11 +711,6 @@ func (*JobConditionDie) DieFrom(b diebase.DieBase[JobCondition, *JobConditionDie
 func (*JobConditionDieMut) DieFrom(b diebase.DieMutBase[JobCondition, *JobConditionDie, *JobConditionDieMut]) *JobConditionDieMut {
 	return &JobConditionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[JobCondition, *JobConditionDie, *JobConditionDieMut]    = (*JobConditionDie)(nil)
-	_ diebase.DieMutOf[JobCondition, *JobConditionDie, *JobConditionDieMut] = (*JobConditionDieMut)(nil)
-)
 
 var JobConditionBlank = diebase.Blank[JobCondition, *JobConditionDie, *JobConditionDieMut]()
 
@@ -910,11 +884,6 @@ func (*JobSchedulingConfigurationDieMut) DieFrom(b diebase.DieMutBase[JobSchedul
 	return &JobSchedulingConfigurationDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[JobSchedulingConfiguration, *JobSchedulingConfigurationDie, *JobSchedulingConfigurationDieMut]    = (*JobSchedulingConfigurationDie)(nil)
-	_ diebase.DieMutOf[JobSchedulingConfiguration, *JobSchedulingConfigurationDie, *JobSchedulingConfigurationDieMut] = (*JobSchedulingConfigurationDieMut)(nil)
-)
-
 var JobSchedulingConfigurationBlank = diebase.Blank[JobSchedulingConfiguration, *JobSchedulingConfigurationDie, *JobSchedulingConfigurationDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1076,11 +1045,6 @@ func (*JobSpecDie) DieFrom(b diebase.DieBase[JobSpec, *JobSpecDie, *JobSpecDieMu
 func (*JobSpecDieMut) DieFrom(b diebase.DieMutBase[JobSpec, *JobSpecDie, *JobSpecDieMut]) *JobSpecDieMut {
 	return &JobSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[JobSpec, *JobSpecDie, *JobSpecDieMut]    = (*JobSpecDie)(nil)
-	_ diebase.DieMutOf[JobSpec, *JobSpecDie, *JobSpecDieMut] = (*JobSpecDieMut)(nil)
-)
 
 var JobSpecBlank = diebase.Blank[JobSpec, *JobSpecDie, *JobSpecDieMut]()
 
@@ -1580,11 +1544,6 @@ func (*JobStatusDieMut) DieFrom(b diebase.DieMutBase[JobStatus, *JobStatusDie, *
 	return &JobStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[JobStatus, *JobStatusDie, *JobStatusDieMut]    = (*JobStatusDie)(nil)
-	_ diebase.DieMutOf[JobStatus, *JobStatusDie, *JobStatusDieMut] = (*JobStatusDieMut)(nil)
-)
-
 var JobStatusBlank = diebase.Blank[JobStatus, *JobStatusDie, *JobStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1915,11 +1874,6 @@ func (*JobTemplateSpecDieMut) DieFrom(b diebase.DieMutBase[JobTemplateSpec, *Job
 	return &JobTemplateSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]    = (*JobTemplateSpecDie)(nil)
-	_ diebase.DieMutOf[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut] = (*JobTemplateSpecDieMut)(nil)
-)
-
 var JobTemplateSpecBlank = diebase.Blank[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2030,11 +1984,6 @@ func (*PodFailurePolicyDieMut) DieFrom(b diebase.DieMutBase[PodFailurePolicy, *P
 	return &PodFailurePolicyDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PodFailurePolicy, *PodFailurePolicyDie, *PodFailurePolicyDieMut]    = (*PodFailurePolicyDie)(nil)
-	_ diebase.DieMutOf[PodFailurePolicy, *PodFailurePolicyDie, *PodFailurePolicyDieMut] = (*PodFailurePolicyDieMut)(nil)
-)
-
 var PodFailurePolicyBlank = diebase.Blank[PodFailurePolicy, *PodFailurePolicyDie, *PodFailurePolicyDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2141,11 +2090,6 @@ func (*PodFailurePolicyOnExitCodesRequirementDie) DieFrom(b diebase.DieBase[PodF
 func (*PodFailurePolicyOnExitCodesRequirementDieMut) DieFrom(b diebase.DieMutBase[PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut]) *PodFailurePolicyOnExitCodesRequirementDieMut {
 	return &PodFailurePolicyOnExitCodesRequirementDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut]    = (*PodFailurePolicyOnExitCodesRequirementDie)(nil)
-	_ diebase.DieMutOf[PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut] = (*PodFailurePolicyOnExitCodesRequirementDieMut)(nil)
-)
 
 var PodFailurePolicyOnExitCodesRequirementBlank = diebase.Blank[PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut]()
 
@@ -2304,11 +2248,6 @@ func (*PodFailurePolicyOnPodConditionsPatternDieMut) DieFrom(b diebase.DieMutBas
 	return &PodFailurePolicyOnPodConditionsPatternDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie, *PodFailurePolicyOnPodConditionsPatternDieMut]    = (*PodFailurePolicyOnPodConditionsPatternDie)(nil)
-	_ diebase.DieMutOf[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie, *PodFailurePolicyOnPodConditionsPatternDieMut] = (*PodFailurePolicyOnPodConditionsPatternDieMut)(nil)
-)
-
 var PodFailurePolicyOnPodConditionsPatternBlank = diebase.Blank[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie, *PodFailurePolicyOnPodConditionsPatternDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2421,11 +2360,6 @@ func (*PodFailurePolicyRuleDie) DieFrom(b diebase.DieBase[PodFailurePolicyRule, 
 func (*PodFailurePolicyRuleDieMut) DieFrom(b diebase.DieMutBase[PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut]) *PodFailurePolicyRuleDieMut {
 	return &PodFailurePolicyRuleDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut]    = (*PodFailurePolicyRuleDie)(nil)
-	_ diebase.DieMutOf[PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut] = (*PodFailurePolicyRuleDieMut)(nil)
-)
 
 var PodFailurePolicyRuleBlank = diebase.Blank[PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut]()
 
@@ -2575,11 +2509,6 @@ func (*SuccessPolicyDieMut) DieFrom(b diebase.DieMutBase[SuccessPolicy, *Success
 	return &SuccessPolicyDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[SuccessPolicy, *SuccessPolicyDie, *SuccessPolicyDieMut]    = (*SuccessPolicyDie)(nil)
-	_ diebase.DieMutOf[SuccessPolicy, *SuccessPolicyDie, *SuccessPolicyDieMut] = (*SuccessPolicyDieMut)(nil)
-)
-
 var SuccessPolicyBlank = diebase.Blank[SuccessPolicy, *SuccessPolicyDie, *SuccessPolicyDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2684,11 +2613,6 @@ func (*SuccessPolicyRuleDie) DieFrom(b diebase.DieBase[SuccessPolicyRule, *Succe
 func (*SuccessPolicyRuleDieMut) DieFrom(b diebase.DieMutBase[SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut]) *SuccessPolicyRuleDieMut {
 	return &SuccessPolicyRuleDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut]    = (*SuccessPolicyRuleDie)(nil)
-	_ diebase.DieMutOf[SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut] = (*SuccessPolicyRuleDieMut)(nil)
-)
 
 var SuccessPolicyRuleBlank = diebase.Blank[SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut]()
 
@@ -2834,11 +2758,6 @@ func (*UncountedTerminatedPodsDie) DieFrom(b diebase.DieBase[UncountedTerminated
 func (*UncountedTerminatedPodsDieMut) DieFrom(b diebase.DieMutBase[UncountedTerminatedPods, *UncountedTerminatedPodsDie, *UncountedTerminatedPodsDieMut]) *UncountedTerminatedPodsDieMut {
 	return &UncountedTerminatedPodsDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[UncountedTerminatedPods, *UncountedTerminatedPodsDie, *UncountedTerminatedPodsDieMut]    = (*UncountedTerminatedPodsDie)(nil)
-	_ diebase.DieMutOf[UncountedTerminatedPods, *UncountedTerminatedPodsDie, *UncountedTerminatedPodsDieMut] = (*UncountedTerminatedPodsDieMut)(nil)
-)
 
 var UncountedTerminatedPodsBlank = diebase.Blank[UncountedTerminatedPods, *UncountedTerminatedPodsDie, *UncountedTerminatedPodsDieMut]()
 

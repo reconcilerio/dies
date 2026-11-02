@@ -22,6 +22,7 @@ import (
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 	dieadmissionregistrationv1 "reconciler.io/dies/v2/apis/admissionregistration/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -69,6 +70,22 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dieadmissionregistrationv1.MutatingAdmissionPolicy, *dieadmissionregistrationv1.MutatingAdmissionPolicyDie, *dieadmissionregistrationv1.MutatingAdmissionPolicyDieMut]                               = (*dieadmissionregistrationv1.MutatingAdmissionPolicyDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieadmissionregistrationv1.MutatingAdmissionPolicy, *dieadmissionregistrationv1.MutatingAdmissionPolicyDie, *dieadmissionregistrationv1.MutatingAdmissionPolicyDieMut]                            = (*dieadmissionregistrationv1.MutatingAdmissionPolicyDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieadmissionregistrationv1.MutatingAdmissionPolicyBinding, *dieadmissionregistrationv1.MutatingAdmissionPolicyBindingDie, *dieadmissionregistrationv1.MutatingAdmissionPolicyBindingDieMut]          = (*dieadmissionregistrationv1.MutatingAdmissionPolicyBindingDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieadmissionregistrationv1.MutatingAdmissionPolicyBinding, *dieadmissionregistrationv1.MutatingAdmissionPolicyBindingDie, *dieadmissionregistrationv1.MutatingAdmissionPolicyBindingDieMut]       = (*dieadmissionregistrationv1.MutatingAdmissionPolicyBindingDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieadmissionregistrationv1.MutatingWebhookConfiguration, *dieadmissionregistrationv1.MutatingWebhookConfigurationDie, *dieadmissionregistrationv1.MutatingWebhookConfigurationDieMut]                = (*dieadmissionregistrationv1.MutatingWebhookConfigurationDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieadmissionregistrationv1.MutatingWebhookConfiguration, *dieadmissionregistrationv1.MutatingWebhookConfigurationDie, *dieadmissionregistrationv1.MutatingWebhookConfigurationDieMut]             = (*dieadmissionregistrationv1.MutatingWebhookConfigurationDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieadmissionregistrationv1.ValidatingAdmissionPolicy, *dieadmissionregistrationv1.ValidatingAdmissionPolicyDie, *dieadmissionregistrationv1.ValidatingAdmissionPolicyDieMut]                         = (*dieadmissionregistrationv1.ValidatingAdmissionPolicyDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieadmissionregistrationv1.ValidatingAdmissionPolicy, *dieadmissionregistrationv1.ValidatingAdmissionPolicyDie, *dieadmissionregistrationv1.ValidatingAdmissionPolicyDieMut]                      = (*dieadmissionregistrationv1.ValidatingAdmissionPolicyDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieadmissionregistrationv1.ValidatingAdmissionPolicyBinding, *dieadmissionregistrationv1.ValidatingAdmissionPolicyBindingDie, *dieadmissionregistrationv1.ValidatingAdmissionPolicyBindingDieMut]    = (*dieadmissionregistrationv1.ValidatingAdmissionPolicyBindingDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieadmissionregistrationv1.ValidatingAdmissionPolicyBinding, *dieadmissionregistrationv1.ValidatingAdmissionPolicyBindingDie, *dieadmissionregistrationv1.ValidatingAdmissionPolicyBindingDieMut] = (*dieadmissionregistrationv1.ValidatingAdmissionPolicyBindingDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieadmissionregistrationv1.ValidatingWebhookConfiguration, *dieadmissionregistrationv1.ValidatingWebhookConfigurationDie, *dieadmissionregistrationv1.ValidatingWebhookConfigurationDieMut]          = (*dieadmissionregistrationv1.ValidatingWebhookConfigurationDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieadmissionregistrationv1.ValidatingWebhookConfiguration, *dieadmissionregistrationv1.ValidatingWebhookConfigurationDie, *dieadmissionregistrationv1.ValidatingWebhookConfigurationDieMut]       = (*dieadmissionregistrationv1.ValidatingWebhookConfigurationDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieadmissionregistrationv1.AddToScheme, admissionregistrationv1.AddToScheme, dieadmissionregistrationv1.SchemeGroupVersion); err != nil {

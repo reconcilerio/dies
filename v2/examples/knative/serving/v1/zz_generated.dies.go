@@ -29,7 +29,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	apis "reconciler.io/dies/v2/examples/knative/apis"
 	duckv1 "reconciler.io/dies/v2/examples/knative/duck/v1"
 )
@@ -58,11 +57,6 @@ func (*ConfigurationDie) DieFrom(b diebase.DieBase[Configuration, *Configuration
 func (*ConfigurationDieMut) DieFrom(b diebase.DieMutBase[Configuration, *ConfigurationDie, *ConfigurationDieMut]) *ConfigurationDieMut {
 	return &ConfigurationDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[Configuration, *ConfigurationDie, *ConfigurationDieMut]    = (*ConfigurationDie)(nil)
-	_ dieobjects.DieObjectMutOf[Configuration, *ConfigurationDie, *ConfigurationDieMut] = (*ConfigurationDieMut)(nil)
-)
 
 var ConfigurationBlank = diebase.BlankOf[Configuration, *ConfigurationDie, *ConfigurationDieMut](Configuration{TypeMeta: metav1.TypeMeta{APIVersion: "serving.knative.dev/v1", Kind: "Configuration"}})
 
@@ -182,11 +176,6 @@ func (*ConfigurationSpecDieMut) DieFrom(b diebase.DieMutBase[ConfigurationSpec, 
 	return &ConfigurationSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ConfigurationSpec, *ConfigurationSpecDie, *ConfigurationSpecDieMut]    = (*ConfigurationSpecDie)(nil)
-	_ diebase.DieMutOf[ConfigurationSpec, *ConfigurationSpecDie, *ConfigurationSpecDieMut] = (*ConfigurationSpecDieMut)(nil)
-)
-
 var ConfigurationSpecBlank = diebase.Blank[ConfigurationSpec, *ConfigurationSpecDie, *ConfigurationSpecDieMut]()
 
 type configurationSpecFieldsTable struct {
@@ -229,11 +218,6 @@ func (*ConfigurationStatusDie) DieFrom(b diebase.DieBase[ConfigurationStatus, *C
 func (*ConfigurationStatusDieMut) DieFrom(b diebase.DieMutBase[ConfigurationStatus, *ConfigurationStatusDie, *ConfigurationStatusDieMut]) *ConfigurationStatusDieMut {
 	return &ConfigurationStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ConfigurationStatus, *ConfigurationStatusDie, *ConfigurationStatusDieMut]    = (*ConfigurationStatusDie)(nil)
-	_ diebase.DieMutOf[ConfigurationStatus, *ConfigurationStatusDie, *ConfigurationStatusDieMut] = (*ConfigurationStatusDieMut)(nil)
-)
 
 var ConfigurationStatusBlank = diebase.Blank[ConfigurationStatus, *ConfigurationStatusDie, *ConfigurationStatusDieMut]()
 
@@ -340,11 +324,6 @@ func (*ConfigurationStatusFieldsDieMut) DieFrom(b diebase.DieMutBase[Configurati
 	return &ConfigurationStatusFieldsDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ConfigurationStatusFields, *ConfigurationStatusFieldsDie, *ConfigurationStatusFieldsDieMut]    = (*ConfigurationStatusFieldsDie)(nil)
-	_ diebase.DieMutOf[ConfigurationStatusFields, *ConfigurationStatusFieldsDie, *ConfigurationStatusFieldsDieMut] = (*ConfigurationStatusFieldsDieMut)(nil)
-)
-
 var ConfigurationStatusFieldsBlank = diebase.Blank[ConfigurationStatusFields, *ConfigurationStatusFieldsDie, *ConfigurationStatusFieldsDieMut]()
 
 type configurationStatusFieldsFieldsTable struct {
@@ -404,11 +383,6 @@ func (*ContainerStatusDieMut) DieFrom(b diebase.DieMutBase[ContainerStatus, *Con
 	return &ContainerStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]    = (*ContainerStatusDie)(nil)
-	_ diebase.DieMutOf[ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut] = (*ContainerStatusDieMut)(nil)
-)
-
 var ContainerStatusBlank = diebase.Blank[ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]()
 
 type containerStatusFieldsTable struct {
@@ -463,11 +437,6 @@ func (*RevisionDie) DieFrom(b diebase.DieBase[Revision, *RevisionDie, *RevisionD
 func (*RevisionDieMut) DieFrom(b diebase.DieMutBase[Revision, *RevisionDie, *RevisionDieMut]) *RevisionDieMut {
 	return &RevisionDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[Revision, *RevisionDie, *RevisionDieMut]    = (*RevisionDie)(nil)
-	_ dieobjects.DieObjectMutOf[Revision, *RevisionDie, *RevisionDieMut] = (*RevisionDieMut)(nil)
-)
 
 var RevisionBlank = diebase.BlankOf[Revision, *RevisionDie, *RevisionDieMut](Revision{TypeMeta: metav1.TypeMeta{APIVersion: "serving.knative.dev/v1", Kind: "Revision"}})
 
@@ -582,11 +551,6 @@ func (*RevisionSpecDie) DieFrom(b diebase.DieBase[RevisionSpec, *RevisionSpecDie
 func (*RevisionSpecDieMut) DieFrom(b diebase.DieMutBase[RevisionSpec, *RevisionSpecDie, *RevisionSpecDieMut]) *RevisionSpecDieMut {
 	return &RevisionSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[RevisionSpec, *RevisionSpecDie, *RevisionSpecDieMut]    = (*RevisionSpecDie)(nil)
-	_ diebase.DieMutOf[RevisionSpec, *RevisionSpecDie, *RevisionSpecDieMut] = (*RevisionSpecDieMut)(nil)
-)
 
 var RevisionSpecBlank = diebase.Blank[RevisionSpec, *RevisionSpecDie, *RevisionSpecDieMut]()
 
@@ -1581,11 +1545,6 @@ func (*RevisionStatusDieMut) DieFrom(b diebase.DieMutBase[RevisionStatus, *Revis
 	return &RevisionStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[RevisionStatus, *RevisionStatusDie, *RevisionStatusDieMut]    = (*RevisionStatusDie)(nil)
-	_ diebase.DieMutOf[RevisionStatus, *RevisionStatusDie, *RevisionStatusDieMut] = (*RevisionStatusDieMut)(nil)
-)
-
 var RevisionStatusBlank = diebase.Blank[RevisionStatus, *RevisionStatusDie, *RevisionStatusDieMut]()
 
 type revisionStatusFieldsTable struct {
@@ -1744,11 +1703,6 @@ func (*RevisionTemplateSpecDieMut) DieFrom(b diebase.DieMutBase[RevisionTemplate
 	return &RevisionTemplateSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut]    = (*RevisionTemplateSpecDie)(nil)
-	_ diebase.DieMutOf[RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut] = (*RevisionTemplateSpecDieMut)(nil)
-)
-
 var RevisionTemplateSpecBlank = diebase.Blank[RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut]()
 
 type revisionTemplateSpecFieldsTable struct {
@@ -1804,11 +1758,6 @@ func (*RouteDie) DieFrom(b diebase.DieBase[Route, *RouteDie, *RouteDieMut]) *Rou
 func (*RouteDieMut) DieFrom(b diebase.DieMutBase[Route, *RouteDie, *RouteDieMut]) *RouteDieMut {
 	return &RouteDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[Route, *RouteDie, *RouteDieMut]    = (*RouteDie)(nil)
-	_ dieobjects.DieObjectMutOf[Route, *RouteDie, *RouteDieMut] = (*RouteDieMut)(nil)
-)
 
 var RouteBlank = diebase.BlankOf[Route, *RouteDie, *RouteDieMut](Route{TypeMeta: metav1.TypeMeta{APIVersion: "serving.knative.dev/v1", Kind: "Route"}})
 
@@ -1924,11 +1873,6 @@ func (*RouteSpecDieMut) DieFrom(b diebase.DieMutBase[RouteSpec, *RouteSpecDie, *
 	return &RouteSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[RouteSpec, *RouteSpecDie, *RouteSpecDieMut]    = (*RouteSpecDie)(nil)
-	_ diebase.DieMutOf[RouteSpec, *RouteSpecDie, *RouteSpecDieMut] = (*RouteSpecDieMut)(nil)
-)
-
 var RouteSpecBlank = diebase.Blank[RouteSpec, *RouteSpecDie, *RouteSpecDieMut]()
 
 type routeSpecFieldsTable struct {
@@ -1973,11 +1917,6 @@ func (*RouteStatusDie) DieFrom(b diebase.DieBase[RouteStatus, *RouteStatusDie, *
 func (*RouteStatusDieMut) DieFrom(b diebase.DieMutBase[RouteStatus, *RouteStatusDie, *RouteStatusDieMut]) *RouteStatusDieMut {
 	return &RouteStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[RouteStatus, *RouteStatusDie, *RouteStatusDieMut]    = (*RouteStatusDie)(nil)
-	_ diebase.DieMutOf[RouteStatus, *RouteStatusDie, *RouteStatusDieMut] = (*RouteStatusDieMut)(nil)
-)
 
 var RouteStatusBlank = diebase.Blank[RouteStatus, *RouteStatusDie, *RouteStatusDieMut]()
 
@@ -2100,11 +2039,6 @@ func (*RouteStatusFieldsDieMut) DieFrom(b diebase.DieMutBase[RouteStatusFields, 
 	return &RouteStatusFieldsDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[RouteStatusFields, *RouteStatusFieldsDie, *RouteStatusFieldsDieMut]    = (*RouteStatusFieldsDie)(nil)
-	_ diebase.DieMutOf[RouteStatusFields, *RouteStatusFieldsDie, *RouteStatusFieldsDieMut] = (*RouteStatusFieldsDieMut)(nil)
-)
-
 var RouteStatusFieldsBlank = diebase.Blank[RouteStatusFields, *RouteStatusFieldsDie, *RouteStatusFieldsDieMut]()
 
 type routeStatusFieldsFieldsTable struct {
@@ -2190,11 +2124,6 @@ func (*ServiceDie) DieFrom(b diebase.DieBase[Service, *ServiceDie, *ServiceDieMu
 func (*ServiceDieMut) DieFrom(b diebase.DieMutBase[Service, *ServiceDie, *ServiceDieMut]) *ServiceDieMut {
 	return &ServiceDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[Service, *ServiceDie, *ServiceDieMut]    = (*ServiceDie)(nil)
-	_ dieobjects.DieObjectMutOf[Service, *ServiceDie, *ServiceDieMut] = (*ServiceDieMut)(nil)
-)
 
 var ServiceBlank = diebase.BlankOf[Service, *ServiceDie, *ServiceDieMut](Service{TypeMeta: metav1.TypeMeta{APIVersion: "serving.knative.dev/v1", Kind: "Service"}})
 
@@ -2316,11 +2245,6 @@ func (*ServiceSpecDieMut) DieFrom(b diebase.DieMutBase[ServiceSpec, *ServiceSpec
 	return &ServiceSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ServiceSpec, *ServiceSpecDie, *ServiceSpecDieMut]    = (*ServiceSpecDie)(nil)
-	_ diebase.DieMutOf[ServiceSpec, *ServiceSpecDie, *ServiceSpecDieMut] = (*ServiceSpecDieMut)(nil)
-)
-
 var ServiceSpecBlank = diebase.Blank[ServiceSpec, *ServiceSpecDie, *ServiceSpecDieMut]()
 
 type serviceSpecFieldsTable struct {
@@ -2377,11 +2301,6 @@ func (*ServiceStatusDie) DieFrom(b diebase.DieBase[ServiceStatus, *ServiceStatus
 func (*ServiceStatusDieMut) DieFrom(b diebase.DieMutBase[ServiceStatus, *ServiceStatusDie, *ServiceStatusDieMut]) *ServiceStatusDieMut {
 	return &ServiceStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ServiceStatus, *ServiceStatusDie, *ServiceStatusDieMut]    = (*ServiceStatusDie)(nil)
-	_ diebase.DieMutOf[ServiceStatus, *ServiceStatusDie, *ServiceStatusDieMut] = (*ServiceStatusDieMut)(nil)
-)
 
 var ServiceStatusBlank = diebase.Blank[ServiceStatus, *ServiceStatusDie, *ServiceStatusDieMut]()
 
@@ -2529,11 +2448,6 @@ func (*TrafficTargetDie) DieFrom(b diebase.DieBase[TrafficTarget, *TrafficTarget
 func (*TrafficTargetDieMut) DieFrom(b diebase.DieMutBase[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]) *TrafficTargetDieMut {
 	return &TrafficTargetDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]    = (*TrafficTargetDie)(nil)
-	_ diebase.DieMutOf[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut] = (*TrafficTargetDieMut)(nil)
-)
 
 var TrafficTargetBlank = diebase.Blank[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]()
 

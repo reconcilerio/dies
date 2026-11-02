@@ -27,7 +27,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // AggregationRule describes how to locate ClusterRoles to aggregate into the ClusterRole
@@ -50,11 +49,6 @@ func (*AggregationRuleDie) DieFrom(b diebase.DieBase[AggregationRule, *Aggregati
 func (*AggregationRuleDieMut) DieFrom(b diebase.DieMutBase[AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut]) *AggregationRuleDieMut {
 	return &AggregationRuleDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut]    = (*AggregationRuleDie)(nil)
-	_ diebase.DieMutOf[AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut] = (*AggregationRuleDieMut)(nil)
-)
 
 var AggregationRuleBlank = diebase.Blank[AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut]()
 
@@ -152,11 +146,6 @@ func (*ClusterRoleDie) DieFrom(b diebase.DieBase[ClusterRole, *ClusterRoleDie, *
 func (*ClusterRoleDieMut) DieFrom(b diebase.DieMutBase[ClusterRole, *ClusterRoleDie, *ClusterRoleDieMut]) *ClusterRoleDieMut {
 	return &ClusterRoleDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[ClusterRole, *ClusterRoleDie, *ClusterRoleDieMut]    = (*ClusterRoleDie)(nil)
-	_ dieobjects.DieObjectMutOf[ClusterRole, *ClusterRoleDie, *ClusterRoleDieMut] = (*ClusterRoleDieMut)(nil)
-)
 
 var ClusterRoleBlank = diebase.BlankOf[ClusterRole, *ClusterRoleDie, *ClusterRoleDieMut](ClusterRole{TypeMeta: metav1.TypeMeta{APIVersion: "rbac.authorization.k8s.io/v1alpha1", Kind: "ClusterRole"}})
 
@@ -319,11 +308,6 @@ func (*ClusterRoleBindingDie) DieFrom(b diebase.DieBase[ClusterRoleBinding, *Clu
 func (*ClusterRoleBindingDieMut) DieFrom(b diebase.DieMutBase[ClusterRoleBinding, *ClusterRoleBindingDie, *ClusterRoleBindingDieMut]) *ClusterRoleBindingDieMut {
 	return &ClusterRoleBindingDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[ClusterRoleBinding, *ClusterRoleBindingDie, *ClusterRoleBindingDieMut]    = (*ClusterRoleBindingDie)(nil)
-	_ dieobjects.DieObjectMutOf[ClusterRoleBinding, *ClusterRoleBindingDie, *ClusterRoleBindingDieMut] = (*ClusterRoleBindingDieMut)(nil)
-)
 
 var ClusterRoleBindingBlank = diebase.BlankOf[ClusterRoleBinding, *ClusterRoleBindingDie, *ClusterRoleBindingDieMut](ClusterRoleBinding{TypeMeta: metav1.TypeMeta{APIVersion: "rbac.authorization.k8s.io/v1alpha1", Kind: "ClusterRoleBinding"}})
 
@@ -522,11 +506,6 @@ func (*PolicyRuleDieMut) DieFrom(b diebase.DieMutBase[PolicyRule, *PolicyRuleDie
 	return &PolicyRuleDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]    = (*PolicyRuleDie)(nil)
-	_ diebase.DieMutOf[PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut] = (*PolicyRuleDieMut)(nil)
-)
-
 var PolicyRuleBlank = diebase.Blank[PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -676,11 +655,6 @@ func (*RoleDieMut) DieFrom(b diebase.DieMutBase[Role, *RoleDie, *RoleDieMut]) *R
 	return &RoleDieMut{diebase.AsObjectMut(b)}
 }
 
-var (
-	_ dieobjects.DieObjectOf[Role, *RoleDie, *RoleDieMut]    = (*RoleDie)(nil)
-	_ dieobjects.DieObjectMutOf[Role, *RoleDie, *RoleDieMut] = (*RoleDieMut)(nil)
-)
-
 var RoleBlank = diebase.BlankOf[Role, *RoleDie, *RoleDieMut](Role{TypeMeta: metav1.TypeMeta{APIVersion: "rbac.authorization.k8s.io/v1alpha1", Kind: "Role"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -825,11 +799,6 @@ func (*RoleBindingDie) DieFrom(b diebase.DieBase[RoleBinding, *RoleBindingDie, *
 func (*RoleBindingDieMut) DieFrom(b diebase.DieMutBase[RoleBinding, *RoleBindingDie, *RoleBindingDieMut]) *RoleBindingDieMut {
 	return &RoleBindingDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[RoleBinding, *RoleBindingDie, *RoleBindingDieMut]    = (*RoleBindingDie)(nil)
-	_ dieobjects.DieObjectMutOf[RoleBinding, *RoleBindingDie, *RoleBindingDieMut] = (*RoleBindingDieMut)(nil)
-)
 
 var RoleBindingBlank = diebase.BlankOf[RoleBinding, *RoleBindingDie, *RoleBindingDieMut](RoleBinding{TypeMeta: metav1.TypeMeta{APIVersion: "rbac.authorization.k8s.io/v1alpha1", Kind: "RoleBinding"}})
 
@@ -1025,11 +994,6 @@ func (*RoleRefDieMut) DieFrom(b diebase.DieMutBase[RoleRef, *RoleRefDie, *RoleRe
 	return &RoleRefDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[RoleRef, *RoleRefDie, *RoleRefDieMut]    = (*RoleRefDie)(nil)
-	_ diebase.DieMutOf[RoleRef, *RoleRefDie, *RoleRefDieMut] = (*RoleRefDieMut)(nil)
-)
-
 var RoleRefBlank = diebase.Blank[RoleRef, *RoleRefDie, *RoleRefDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1148,11 +1112,6 @@ func (*SubjectDie) DieFrom(b diebase.DieBase[Subject, *SubjectDie, *SubjectDieMu
 func (*SubjectDieMut) DieFrom(b diebase.DieMutBase[Subject, *SubjectDie, *SubjectDieMut]) *SubjectDieMut {
 	return &SubjectDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[Subject, *SubjectDie, *SubjectDieMut]    = (*SubjectDie)(nil)
-	_ diebase.DieMutOf[Subject, *SubjectDie, *SubjectDieMut] = (*SubjectDieMut)(nil)
-)
 
 var SubjectBlank = diebase.Blank[Subject, *SubjectDie, *SubjectDieMut]()
 

@@ -27,7 +27,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // ExemptPriorityLevelConfiguration describes the configurable aspects
@@ -53,11 +52,6 @@ func (*ExemptPriorityLevelConfigurationDie) DieFrom(b diebase.DieBase[ExemptPrio
 func (*ExemptPriorityLevelConfigurationDieMut) DieFrom(b diebase.DieMutBase[ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie, *ExemptPriorityLevelConfigurationDieMut]) *ExemptPriorityLevelConfigurationDieMut {
 	return &ExemptPriorityLevelConfigurationDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie, *ExemptPriorityLevelConfigurationDieMut]    = (*ExemptPriorityLevelConfigurationDie)(nil)
-	_ diebase.DieMutOf[ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie, *ExemptPriorityLevelConfigurationDieMut] = (*ExemptPriorityLevelConfigurationDieMut)(nil)
-)
 
 var ExemptPriorityLevelConfigurationBlank = diebase.Blank[ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie, *ExemptPriorityLevelConfigurationDieMut]()
 
@@ -203,11 +197,6 @@ func (*FlowDistinguisherMethodDieMut) DieFrom(b diebase.DieMutBase[FlowDistingui
 	return &FlowDistinguisherMethodDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[FlowDistinguisherMethod, *FlowDistinguisherMethodDie, *FlowDistinguisherMethodDieMut]    = (*FlowDistinguisherMethodDie)(nil)
-	_ diebase.DieMutOf[FlowDistinguisherMethod, *FlowDistinguisherMethodDie, *FlowDistinguisherMethodDieMut] = (*FlowDistinguisherMethodDieMut)(nil)
-)
-
 var FlowDistinguisherMethodBlank = diebase.Blank[FlowDistinguisherMethod, *FlowDistinguisherMethodDie, *FlowDistinguisherMethodDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -306,11 +295,6 @@ func (*FlowSchemaDie) DieFrom(b diebase.DieBase[FlowSchema, *FlowSchemaDie, *Flo
 func (*FlowSchemaDieMut) DieFrom(b diebase.DieMutBase[FlowSchema, *FlowSchemaDie, *FlowSchemaDieMut]) *FlowSchemaDieMut {
 	return &FlowSchemaDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[FlowSchema, *FlowSchemaDie, *FlowSchemaDieMut]    = (*FlowSchemaDie)(nil)
-	_ dieobjects.DieObjectMutOf[FlowSchema, *FlowSchemaDie, *FlowSchemaDieMut] = (*FlowSchemaDieMut)(nil)
-)
 
 var FlowSchemaBlank = diebase.BlankOf[FlowSchema, *FlowSchemaDie, *FlowSchemaDieMut](FlowSchema{TypeMeta: metav1.TypeMeta{APIVersion: "flowcontrol.apiserver.k8s.io/v1beta1", Kind: "FlowSchema"}})
 
@@ -473,11 +457,6 @@ func (*FlowSchemaConditionDie) DieFrom(b diebase.DieBase[FlowSchemaCondition, *F
 func (*FlowSchemaConditionDieMut) DieFrom(b diebase.DieMutBase[FlowSchemaCondition, *FlowSchemaConditionDie, *FlowSchemaConditionDieMut]) *FlowSchemaConditionDieMut {
 	return &FlowSchemaConditionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[FlowSchemaCondition, *FlowSchemaConditionDie, *FlowSchemaConditionDieMut]    = (*FlowSchemaConditionDie)(nil)
-	_ diebase.DieMutOf[FlowSchemaCondition, *FlowSchemaConditionDie, *FlowSchemaConditionDieMut] = (*FlowSchemaConditionDieMut)(nil)
-)
 
 var FlowSchemaConditionBlank = diebase.Blank[FlowSchemaCondition, *FlowSchemaConditionDie, *FlowSchemaConditionDieMut]()
 
@@ -642,11 +621,6 @@ func (*FlowSchemaSpecDieMut) DieFrom(b diebase.DieMutBase[FlowSchemaSpec, *FlowS
 	return &FlowSchemaSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[FlowSchemaSpec, *FlowSchemaSpecDie, *FlowSchemaSpecDieMut]    = (*FlowSchemaSpecDie)(nil)
-	_ diebase.DieMutOf[FlowSchemaSpec, *FlowSchemaSpecDie, *FlowSchemaSpecDieMut] = (*FlowSchemaSpecDieMut)(nil)
-)
-
 var FlowSchemaSpecBlank = diebase.Blank[FlowSchemaSpec, *FlowSchemaSpecDie, *FlowSchemaSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -793,11 +767,6 @@ func (*FlowSchemaStatusDieMut) DieFrom(b diebase.DieMutBase[FlowSchemaStatus, *F
 	return &FlowSchemaStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[FlowSchemaStatus, *FlowSchemaStatusDie, *FlowSchemaStatusDieMut]    = (*FlowSchemaStatusDie)(nil)
-	_ diebase.DieMutOf[FlowSchemaStatus, *FlowSchemaStatusDie, *FlowSchemaStatusDieMut] = (*FlowSchemaStatusDieMut)(nil)
-)
-
 var FlowSchemaStatusBlank = diebase.Blank[FlowSchemaStatus, *FlowSchemaStatusDie, *FlowSchemaStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -891,11 +860,6 @@ func (*GroupSubjectDie) DieFrom(b diebase.DieBase[GroupSubject, *GroupSubjectDie
 func (*GroupSubjectDieMut) DieFrom(b diebase.DieMutBase[GroupSubject, *GroupSubjectDie, *GroupSubjectDieMut]) *GroupSubjectDieMut {
 	return &GroupSubjectDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[GroupSubject, *GroupSubjectDie, *GroupSubjectDieMut]    = (*GroupSubjectDie)(nil)
-	_ diebase.DieMutOf[GroupSubject, *GroupSubjectDie, *GroupSubjectDieMut] = (*GroupSubjectDieMut)(nil)
-)
 
 var GroupSubjectBlank = diebase.Blank[GroupSubject, *GroupSubjectDie, *GroupSubjectDieMut]()
 
@@ -996,11 +960,6 @@ func (*LimitResponseDie) DieFrom(b diebase.DieBase[LimitResponse, *LimitResponse
 func (*LimitResponseDieMut) DieFrom(b diebase.DieMutBase[LimitResponse, *LimitResponseDie, *LimitResponseDieMut]) *LimitResponseDieMut {
 	return &LimitResponseDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[LimitResponse, *LimitResponseDie, *LimitResponseDieMut]    = (*LimitResponseDie)(nil)
-	_ diebase.DieMutOf[LimitResponse, *LimitResponseDie, *LimitResponseDieMut] = (*LimitResponseDieMut)(nil)
-)
 
 var LimitResponseBlank = diebase.Blank[LimitResponse, *LimitResponseDie, *LimitResponseDieMut]()
 
@@ -1124,11 +1083,6 @@ func (*LimitedPriorityLevelConfigurationDie) DieFrom(b diebase.DieBase[LimitedPr
 func (*LimitedPriorityLevelConfigurationDieMut) DieFrom(b diebase.DieMutBase[LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie, *LimitedPriorityLevelConfigurationDieMut]) *LimitedPriorityLevelConfigurationDieMut {
 	return &LimitedPriorityLevelConfigurationDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie, *LimitedPriorityLevelConfigurationDieMut]    = (*LimitedPriorityLevelConfigurationDie)(nil)
-	_ diebase.DieMutOf[LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie, *LimitedPriorityLevelConfigurationDieMut] = (*LimitedPriorityLevelConfigurationDieMut)(nil)
-)
 
 var LimitedPriorityLevelConfigurationBlank = diebase.Blank[LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie, *LimitedPriorityLevelConfigurationDieMut]()
 
@@ -1330,11 +1284,6 @@ func (*NonResourcePolicyRuleDieMut) DieFrom(b diebase.DieMutBase[NonResourcePoli
 	return &NonResourcePolicyRuleDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[NonResourcePolicyRule, *NonResourcePolicyRuleDie, *NonResourcePolicyRuleDieMut]    = (*NonResourcePolicyRuleDie)(nil)
-	_ diebase.DieMutOf[NonResourcePolicyRule, *NonResourcePolicyRuleDie, *NonResourcePolicyRuleDieMut] = (*NonResourcePolicyRuleDieMut)(nil)
-)
-
 var NonResourcePolicyRuleBlank = diebase.Blank[NonResourcePolicyRule, *NonResourcePolicyRuleDie, *NonResourcePolicyRuleDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1466,11 +1415,6 @@ func (*PolicyRulesWithSubjectsDieMut) DieFrom(b diebase.DieMutBase[PolicyRulesWi
 	return &PolicyRulesWithSubjectsDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie, *PolicyRulesWithSubjectsDieMut]    = (*PolicyRulesWithSubjectsDie)(nil)
-	_ diebase.DieMutOf[PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie, *PolicyRulesWithSubjectsDieMut] = (*PolicyRulesWithSubjectsDieMut)(nil)
-)
-
 var PolicyRulesWithSubjectsBlank = diebase.Blank[PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie, *PolicyRulesWithSubjectsDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1600,11 +1544,6 @@ func (*PriorityLevelConfigurationDie) DieFrom(b diebase.DieBase[PriorityLevelCon
 func (*PriorityLevelConfigurationDieMut) DieFrom(b diebase.DieMutBase[PriorityLevelConfiguration, *PriorityLevelConfigurationDie, *PriorityLevelConfigurationDieMut]) *PriorityLevelConfigurationDieMut {
 	return &PriorityLevelConfigurationDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[PriorityLevelConfiguration, *PriorityLevelConfigurationDie, *PriorityLevelConfigurationDieMut]    = (*PriorityLevelConfigurationDie)(nil)
-	_ dieobjects.DieObjectMutOf[PriorityLevelConfiguration, *PriorityLevelConfigurationDie, *PriorityLevelConfigurationDieMut] = (*PriorityLevelConfigurationDieMut)(nil)
-)
 
 var PriorityLevelConfigurationBlank = diebase.BlankOf[PriorityLevelConfiguration, *PriorityLevelConfigurationDie, *PriorityLevelConfigurationDieMut](PriorityLevelConfiguration{TypeMeta: metav1.TypeMeta{APIVersion: "flowcontrol.apiserver.k8s.io/v1beta1", Kind: "PriorityLevelConfiguration"}})
 
@@ -1767,11 +1706,6 @@ func (*PriorityLevelConfigurationConditionDie) DieFrom(b diebase.DieBase[Priorit
 func (*PriorityLevelConfigurationConditionDieMut) DieFrom(b diebase.DieMutBase[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, *PriorityLevelConfigurationConditionDieMut]) *PriorityLevelConfigurationConditionDieMut {
 	return &PriorityLevelConfigurationConditionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, *PriorityLevelConfigurationConditionDieMut]    = (*PriorityLevelConfigurationConditionDie)(nil)
-	_ diebase.DieMutOf[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, *PriorityLevelConfigurationConditionDieMut] = (*PriorityLevelConfigurationConditionDieMut)(nil)
-)
 
 var PriorityLevelConfigurationConditionBlank = diebase.Blank[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, *PriorityLevelConfigurationConditionDieMut]()
 
@@ -1938,11 +1872,6 @@ func (*PriorityLevelConfigurationReferenceDieMut) DieFrom(b diebase.DieMutBase[P
 	return &PriorityLevelConfigurationReferenceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie, *PriorityLevelConfigurationReferenceDieMut]    = (*PriorityLevelConfigurationReferenceDie)(nil)
-	_ diebase.DieMutOf[PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie, *PriorityLevelConfigurationReferenceDieMut] = (*PriorityLevelConfigurationReferenceDieMut)(nil)
-)
-
 var PriorityLevelConfigurationReferenceBlank = diebase.Blank[PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie, *PriorityLevelConfigurationReferenceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2038,11 +1967,6 @@ func (*PriorityLevelConfigurationSpecDie) DieFrom(b diebase.DieBase[PriorityLeve
 func (*PriorityLevelConfigurationSpecDieMut) DieFrom(b diebase.DieMutBase[PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie, *PriorityLevelConfigurationSpecDieMut]) *PriorityLevelConfigurationSpecDieMut {
 	return &PriorityLevelConfigurationSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie, *PriorityLevelConfigurationSpecDieMut]    = (*PriorityLevelConfigurationSpecDie)(nil)
-	_ diebase.DieMutOf[PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie, *PriorityLevelConfigurationSpecDieMut] = (*PriorityLevelConfigurationSpecDieMut)(nil)
-)
 
 var PriorityLevelConfigurationSpecBlank = diebase.Blank[PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie, *PriorityLevelConfigurationSpecDieMut]()
 
@@ -2188,11 +2112,6 @@ func (*PriorityLevelConfigurationStatusDieMut) DieFrom(b diebase.DieMutBase[Prio
 	return &PriorityLevelConfigurationStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie, *PriorityLevelConfigurationStatusDieMut]    = (*PriorityLevelConfigurationStatusDie)(nil)
-	_ diebase.DieMutOf[PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie, *PriorityLevelConfigurationStatusDieMut] = (*PriorityLevelConfigurationStatusDieMut)(nil)
-)
-
 var PriorityLevelConfigurationStatusBlank = diebase.Blank[PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie, *PriorityLevelConfigurationStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2286,11 +2205,6 @@ func (*QueuingConfigurationDie) DieFrom(b diebase.DieBase[QueuingConfiguration, 
 func (*QueuingConfigurationDieMut) DieFrom(b diebase.DieMutBase[QueuingConfiguration, *QueuingConfigurationDie, *QueuingConfigurationDieMut]) *QueuingConfigurationDieMut {
 	return &QueuingConfigurationDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[QueuingConfiguration, *QueuingConfigurationDie, *QueuingConfigurationDieMut]    = (*QueuingConfigurationDie)(nil)
-	_ diebase.DieMutOf[QueuingConfiguration, *QueuingConfigurationDie, *QueuingConfigurationDieMut] = (*QueuingConfigurationDieMut)(nil)
-)
 
 var QueuingConfigurationBlank = diebase.Blank[QueuingConfiguration, *QueuingConfigurationDie, *QueuingConfigurationDieMut]()
 
@@ -2453,11 +2367,6 @@ func (*ResourcePolicyRuleDie) DieFrom(b diebase.DieBase[ResourcePolicyRule, *Res
 func (*ResourcePolicyRuleDieMut) DieFrom(b diebase.DieMutBase[ResourcePolicyRule, *ResourcePolicyRuleDie, *ResourcePolicyRuleDieMut]) *ResourcePolicyRuleDieMut {
 	return &ResourcePolicyRuleDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ResourcePolicyRule, *ResourcePolicyRuleDie, *ResourcePolicyRuleDieMut]    = (*ResourcePolicyRuleDie)(nil)
-	_ diebase.DieMutOf[ResourcePolicyRule, *ResourcePolicyRuleDie, *ResourcePolicyRuleDieMut] = (*ResourcePolicyRuleDieMut)(nil)
-)
 
 var ResourcePolicyRuleBlank = diebase.Blank[ResourcePolicyRule, *ResourcePolicyRuleDie, *ResourcePolicyRuleDieMut]()
 
@@ -2639,11 +2548,6 @@ func (*ServiceAccountSubjectDieMut) DieFrom(b diebase.DieMutBase[ServiceAccountS
 	return &ServiceAccountSubjectDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ServiceAccountSubject, *ServiceAccountSubjectDie, *ServiceAccountSubjectDieMut]    = (*ServiceAccountSubjectDie)(nil)
-	_ diebase.DieMutOf[ServiceAccountSubject, *ServiceAccountSubjectDie, *ServiceAccountSubjectDieMut] = (*ServiceAccountSubjectDieMut)(nil)
-)
-
 var ServiceAccountSubjectBlank = diebase.Blank[ServiceAccountSubject, *ServiceAccountSubjectDie, *ServiceAccountSubjectDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2754,11 +2658,6 @@ func (*SubjectDie) DieFrom(b diebase.DieBase[Subject, *SubjectDie, *SubjectDieMu
 func (*SubjectDieMut) DieFrom(b diebase.DieMutBase[Subject, *SubjectDie, *SubjectDieMut]) *SubjectDieMut {
 	return &SubjectDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[Subject, *SubjectDie, *SubjectDieMut]    = (*SubjectDie)(nil)
-	_ diebase.DieMutOf[Subject, *SubjectDie, *SubjectDieMut] = (*SubjectDieMut)(nil)
-)
 
 var SubjectBlank = diebase.Blank[Subject, *SubjectDie, *SubjectDieMut]()
 
@@ -2887,11 +2786,6 @@ func (*UserSubjectDie) DieFrom(b diebase.DieBase[UserSubject, *UserSubjectDie, *
 func (*UserSubjectDieMut) DieFrom(b diebase.DieMutBase[UserSubject, *UserSubjectDie, *UserSubjectDieMut]) *UserSubjectDieMut {
 	return &UserSubjectDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[UserSubject, *UserSubjectDie, *UserSubjectDieMut]    = (*UserSubjectDie)(nil)
-	_ diebase.DieMutOf[UserSubject, *UserSubjectDie, *UserSubjectDieMut] = (*UserSubjectDieMut)(nil)
-)
 
 var UserSubjectBlank = diebase.Blank[UserSubject, *UserSubjectDie, *UserSubjectDieMut]()
 

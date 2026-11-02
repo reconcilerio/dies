@@ -29,7 +29,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // Overhead structure represents the resource overhead associated with running a pod.
@@ -52,11 +51,6 @@ func (*OverheadDie) DieFrom(b diebase.DieBase[Overhead, *OverheadDie, *OverheadD
 func (*OverheadDieMut) DieFrom(b diebase.DieMutBase[Overhead, *OverheadDie, *OverheadDieMut]) *OverheadDieMut {
 	return &OverheadDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[Overhead, *OverheadDie, *OverheadDieMut]    = (*OverheadDie)(nil)
-	_ diebase.DieMutOf[Overhead, *OverheadDie, *OverheadDieMut] = (*OverheadDieMut)(nil)
-)
 
 var OverheadBlank = diebase.Blank[Overhead, *OverheadDie, *OverheadDieMut]()
 
@@ -157,11 +151,6 @@ func (*RuntimeClassDie) DieFrom(b diebase.DieBase[RuntimeClass, *RuntimeClassDie
 func (*RuntimeClassDieMut) DieFrom(b diebase.DieMutBase[RuntimeClass, *RuntimeClassDie, *RuntimeClassDieMut]) *RuntimeClassDieMut {
 	return &RuntimeClassDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[RuntimeClass, *RuntimeClassDie, *RuntimeClassDieMut]    = (*RuntimeClassDie)(nil)
-	_ dieobjects.DieObjectMutOf[RuntimeClass, *RuntimeClassDie, *RuntimeClassDieMut] = (*RuntimeClassDieMut)(nil)
-)
 
 var RuntimeClassBlank = diebase.BlankOf[RuntimeClass, *RuntimeClassDie, *RuntimeClassDieMut](RuntimeClass{TypeMeta: metav1.TypeMeta{APIVersion: "node.k8s.io/v1beta1", Kind: "RuntimeClass"}})
 
@@ -380,11 +369,6 @@ func (*SchedulingDie) DieFrom(b diebase.DieBase[Scheduling, *SchedulingDie, *Sch
 func (*SchedulingDieMut) DieFrom(b diebase.DieMutBase[Scheduling, *SchedulingDie, *SchedulingDieMut]) *SchedulingDieMut {
 	return &SchedulingDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[Scheduling, *SchedulingDie, *SchedulingDieMut]    = (*SchedulingDie)(nil)
-	_ diebase.DieMutOf[Scheduling, *SchedulingDie, *SchedulingDieMut] = (*SchedulingDieMut)(nil)
-)
 
 var SchedulingBlank = diebase.Blank[Scheduling, *SchedulingDie, *SchedulingDieMut]()
 

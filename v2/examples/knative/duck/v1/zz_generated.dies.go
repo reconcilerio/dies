@@ -29,7 +29,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 	apis "reconciler.io/dies/v2/examples/knative/apis"
 	tracker "reconciler.io/dies/v2/examples/knative/tracker"
 )
@@ -55,11 +54,6 @@ func (*AddressStatusDie) DieFrom(b diebase.DieBase[AddressStatus, *AddressStatus
 func (*AddressStatusDieMut) DieFrom(b diebase.DieMutBase[AddressStatus, *AddressStatusDie, *AddressStatusDieMut]) *AddressStatusDieMut {
 	return &AddressStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AddressStatus, *AddressStatusDie, *AddressStatusDieMut]    = (*AddressStatusDie)(nil)
-	_ diebase.DieMutOf[AddressStatus, *AddressStatusDie, *AddressStatusDieMut] = (*AddressStatusDieMut)(nil)
-)
 
 var AddressStatusBlank = diebase.Blank[AddressStatus, *AddressStatusDie, *AddressStatusDieMut]()
 
@@ -124,11 +118,6 @@ func (*AddressableDie) DieFrom(b diebase.DieBase[Addressable, *AddressableDie, *
 func (*AddressableDieMut) DieFrom(b diebase.DieMutBase[Addressable, *AddressableDie, *AddressableDieMut]) *AddressableDieMut {
 	return &AddressableDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[Addressable, *AddressableDie, *AddressableDieMut]    = (*AddressableDie)(nil)
-	_ diebase.DieMutOf[Addressable, *AddressableDie, *AddressableDieMut] = (*AddressableDieMut)(nil)
-)
 
 var AddressableBlank = diebase.Blank[Addressable, *AddressableDie, *AddressableDieMut]()
 
@@ -211,11 +200,6 @@ func (*AddressableTypeDie) DieFrom(b diebase.DieBase[AddressableType, *Addressab
 func (*AddressableTypeDieMut) DieFrom(b diebase.DieMutBase[AddressableType, *AddressableTypeDie, *AddressableTypeDieMut]) *AddressableTypeDieMut {
 	return &AddressableTypeDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[AddressableType, *AddressableTypeDie, *AddressableTypeDieMut]    = (*AddressableTypeDie)(nil)
-	_ dieobjects.DieObjectMutOf[AddressableType, *AddressableTypeDie, *AddressableTypeDieMut] = (*AddressableTypeDieMut)(nil)
-)
 
 var AddressableTypeBlank = diebase.BlankOf[AddressableType, *AddressableTypeDie, *AddressableTypeDieMut](AddressableType{TypeMeta: metav1.TypeMeta{APIVersion: "duck.knative.dev/v1", Kind: "AddressableType"}})
 
@@ -326,11 +310,6 @@ func (*AuthStatusDieMut) DieFrom(b diebase.DieMutBase[AuthStatus, *AuthStatusDie
 	return &AuthStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AuthStatus, *AuthStatusDie, *AuthStatusDieMut]    = (*AuthStatusDie)(nil)
-	_ diebase.DieMutOf[AuthStatus, *AuthStatusDie, *AuthStatusDieMut] = (*AuthStatusDieMut)(nil)
-)
-
 var AuthStatusBlank = diebase.Blank[AuthStatus, *AuthStatusDie, *AuthStatusDieMut]()
 
 type authStatusFieldsTable struct {
@@ -390,11 +369,6 @@ func (*AuthenticatableStatusDieMut) DieFrom(b diebase.DieMutBase[Authenticatable
 	return &AuthenticatableStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AuthenticatableStatus, *AuthenticatableStatusDie, *AuthenticatableStatusDieMut]    = (*AuthenticatableStatusDie)(nil)
-	_ diebase.DieMutOf[AuthenticatableStatus, *AuthenticatableStatusDie, *AuthenticatableStatusDieMut] = (*AuthenticatableStatusDieMut)(nil)
-)
-
 var AuthenticatableStatusBlank = diebase.Blank[AuthenticatableStatus, *AuthenticatableStatusDie, *AuthenticatableStatusDieMut]()
 
 type authenticatableStatusFieldsTable struct {
@@ -440,11 +414,6 @@ func (*AuthenticatableTypeDie) DieFrom(b diebase.DieBase[AuthenticatableType, *A
 func (*AuthenticatableTypeDieMut) DieFrom(b diebase.DieMutBase[AuthenticatableType, *AuthenticatableTypeDie, *AuthenticatableTypeDieMut]) *AuthenticatableTypeDieMut {
 	return &AuthenticatableTypeDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[AuthenticatableType, *AuthenticatableTypeDie, *AuthenticatableTypeDieMut]    = (*AuthenticatableTypeDie)(nil)
-	_ dieobjects.DieObjectMutOf[AuthenticatableType, *AuthenticatableTypeDie, *AuthenticatableTypeDieMut] = (*AuthenticatableTypeDieMut)(nil)
-)
 
 var AuthenticatableTypeBlank = diebase.BlankOf[AuthenticatableType, *AuthenticatableTypeDie, *AuthenticatableTypeDieMut](AuthenticatableType{TypeMeta: metav1.TypeMeta{APIVersion: "duck.knative.dev/v1", Kind: "AuthenticatableType"}})
 
@@ -555,11 +524,6 @@ func (*BindingDieMut) DieFrom(b diebase.DieMutBase[Binding, *BindingDie, *Bindin
 	return &BindingDieMut{diebase.AsObjectMut(b)}
 }
 
-var (
-	_ dieobjects.DieObjectOf[Binding, *BindingDie, *BindingDieMut]    = (*BindingDie)(nil)
-	_ dieobjects.DieObjectMutOf[Binding, *BindingDie, *BindingDieMut] = (*BindingDieMut)(nil)
-)
-
 var BindingBlank = diebase.BlankOf[Binding, *BindingDie, *BindingDieMut](Binding{TypeMeta: metav1.TypeMeta{APIVersion: "duck.knative.dev/v1", Kind: "Binding"}})
 
 type bindingFieldsTable struct {
@@ -664,11 +628,6 @@ func (*BindingSpecDieMut) DieFrom(b diebase.DieMutBase[BindingSpec, *BindingSpec
 	return &BindingSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[BindingSpec, *BindingSpecDie, *BindingSpecDieMut]    = (*BindingSpecDie)(nil)
-	_ diebase.DieMutOf[BindingSpec, *BindingSpecDie, *BindingSpecDieMut] = (*BindingSpecDieMut)(nil)
-)
-
 var BindingSpecBlank = diebase.Blank[BindingSpec, *BindingSpecDie, *BindingSpecDieMut]()
 
 type bindingSpecFieldsTable struct {
@@ -714,11 +673,6 @@ func (*CloudEventAttributesDie) DieFrom(b diebase.DieBase[CloudEventAttributes, 
 func (*CloudEventAttributesDieMut) DieFrom(b diebase.DieMutBase[CloudEventAttributes, *CloudEventAttributesDie, *CloudEventAttributesDieMut]) *CloudEventAttributesDieMut {
 	return &CloudEventAttributesDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[CloudEventAttributes, *CloudEventAttributesDie, *CloudEventAttributesDieMut]    = (*CloudEventAttributesDie)(nil)
-	_ diebase.DieMutOf[CloudEventAttributes, *CloudEventAttributesDie, *CloudEventAttributesDieMut] = (*CloudEventAttributesDieMut)(nil)
-)
 
 var CloudEventAttributesBlank = diebase.Blank[CloudEventAttributes, *CloudEventAttributesDie, *CloudEventAttributesDieMut]()
 
@@ -776,11 +730,6 @@ func (*CloudEventOverridesDieMut) DieFrom(b diebase.DieMutBase[CloudEventOverrid
 	return &CloudEventOverridesDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CloudEventOverrides, *CloudEventOverridesDie, *CloudEventOverridesDieMut]    = (*CloudEventOverridesDie)(nil)
-	_ diebase.DieMutOf[CloudEventOverrides, *CloudEventOverridesDie, *CloudEventOverridesDieMut] = (*CloudEventOverridesDieMut)(nil)
-)
-
 var CloudEventOverridesBlank = diebase.Blank[CloudEventOverrides, *CloudEventOverridesDie, *CloudEventOverridesDieMut]()
 
 type cloudEventOverridesFieldsTable struct {
@@ -828,11 +777,6 @@ func (*CronJobDie) DieFrom(b diebase.DieBase[CronJob, *CronJobDie, *CronJobDieMu
 func (*CronJobDieMut) DieFrom(b diebase.DieMutBase[CronJob, *CronJobDie, *CronJobDieMut]) *CronJobDieMut {
 	return &CronJobDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[CronJob, *CronJobDie, *CronJobDieMut]    = (*CronJobDie)(nil)
-	_ dieobjects.DieObjectMutOf[CronJob, *CronJobDie, *CronJobDieMut] = (*CronJobDieMut)(nil)
-)
 
 var CronJobBlank = diebase.BlankOf[CronJob, *CronJobDie, *CronJobDieMut](CronJob{TypeMeta: metav1.TypeMeta{APIVersion: "duck.knative.dev/v1", Kind: "CronJob"}})
 
@@ -940,11 +884,6 @@ func (*DestinationDieMut) DieFrom(b diebase.DieMutBase[Destination, *Destination
 	return &DestinationDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[Destination, *DestinationDie, *DestinationDieMut]    = (*DestinationDie)(nil)
-	_ diebase.DieMutOf[Destination, *DestinationDie, *DestinationDieMut] = (*DestinationDieMut)(nil)
-)
-
 var DestinationBlank = diebase.Blank[Destination, *DestinationDie, *DestinationDieMut]()
 
 type destinationFieldsTable struct {
@@ -1036,11 +975,6 @@ func (*KReferenceDie) DieFrom(b diebase.DieBase[KReference, *KReferenceDie, *KRe
 func (*KReferenceDieMut) DieFrom(b diebase.DieMutBase[KReference, *KReferenceDie, *KReferenceDieMut]) *KReferenceDieMut {
 	return &KReferenceDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[KReference, *KReferenceDie, *KReferenceDieMut]    = (*KReferenceDie)(nil)
-	_ diebase.DieMutOf[KReference, *KReferenceDie, *KReferenceDieMut] = (*KReferenceDieMut)(nil)
-)
 
 var KReferenceBlank = diebase.Blank[KReference, *KReferenceDie, *KReferenceDieMut]()
 
@@ -1158,11 +1092,6 @@ func (*KResourceDieMut) DieFrom(b diebase.DieMutBase[KResource, *KResourceDie, *
 	return &KResourceDieMut{diebase.AsObjectMut(b)}
 }
 
-var (
-	_ dieobjects.DieObjectOf[KResource, *KResourceDie, *KResourceDieMut]    = (*KResourceDie)(nil)
-	_ dieobjects.DieObjectMutOf[KResource, *KResourceDie, *KResourceDieMut] = (*KResourceDieMut)(nil)
-)
-
 var KResourceBlank = diebase.BlankOf[KResource, *KResourceDie, *KResourceDieMut](KResource{TypeMeta: metav1.TypeMeta{APIVersion: "duck.knative.dev/v1", Kind: "KResource"}})
 
 type kResourceFieldsTable struct {
@@ -1268,11 +1197,6 @@ func (*PodDieMut) DieFrom(b diebase.DieMutBase[Pod, *PodDie, *PodDieMut]) *PodDi
 	return &PodDieMut{diebase.AsObjectMut(b)}
 }
 
-var (
-	_ dieobjects.DieObjectOf[Pod, *PodDie, *PodDieMut]    = (*PodDie)(nil)
-	_ dieobjects.DieObjectMutOf[Pod, *PodDie, *PodDieMut] = (*PodDieMut)(nil)
-)
-
 var PodBlank = diebase.BlankOf[Pod, *PodDie, *PodDieMut](Pod{TypeMeta: metav1.TypeMeta{APIVersion: "duck.knative.dev/v1", Kind: "Pod"}})
 
 type podFieldsTable struct {
@@ -1376,11 +1300,6 @@ func (*PodSpecableDieMut) DieFrom(b diebase.DieMutBase[PodSpecable, *PodSpecable
 	return &PodSpecableDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PodSpecable, *PodSpecableDie, *PodSpecableDieMut]    = (*PodSpecableDie)(nil)
-	_ diebase.DieMutOf[PodSpecable, *PodSpecableDie, *PodSpecableDieMut] = (*PodSpecableDieMut)(nil)
-)
-
 var PodSpecableBlank = diebase.Blank[PodSpecable, *PodSpecableDie, *PodSpecableDieMut]()
 
 type podSpecableFieldsTable struct {
@@ -1444,11 +1363,6 @@ func (*SourceDie) DieFrom(b diebase.DieBase[Source, *SourceDie, *SourceDieMut]) 
 func (*SourceDieMut) DieFrom(b diebase.DieMutBase[Source, *SourceDie, *SourceDieMut]) *SourceDieMut {
 	return &SourceDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[Source, *SourceDie, *SourceDieMut]    = (*SourceDie)(nil)
-	_ dieobjects.DieObjectMutOf[Source, *SourceDie, *SourceDieMut] = (*SourceDieMut)(nil)
-)
 
 var SourceBlank = diebase.BlankOf[Source, *SourceDie, *SourceDieMut](Source{TypeMeta: metav1.TypeMeta{APIVersion: "duck.knative.dev/v1", Kind: "Source"}})
 
@@ -1560,11 +1474,6 @@ func (*SourceSpecDieMut) DieFrom(b diebase.DieMutBase[SourceSpec, *SourceSpecDie
 	return &SourceSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[SourceSpec, *SourceSpecDie, *SourceSpecDieMut]    = (*SourceSpecDie)(nil)
-	_ diebase.DieMutOf[SourceSpec, *SourceSpecDie, *SourceSpecDieMut] = (*SourceSpecDieMut)(nil)
-)
-
 var SourceSpecBlank = diebase.Blank[SourceSpec, *SourceSpecDie, *SourceSpecDieMut]()
 
 type sourceSpecFieldsTable struct {
@@ -1622,11 +1531,6 @@ func (*SourceStatusDie) DieFrom(b diebase.DieBase[SourceStatus, *SourceStatusDie
 func (*SourceStatusDieMut) DieFrom(b diebase.DieMutBase[SourceStatus, *SourceStatusDie, *SourceStatusDieMut]) *SourceStatusDieMut {
 	return &SourceStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[SourceStatus, *SourceStatusDie, *SourceStatusDieMut]    = (*SourceStatusDie)(nil)
-	_ diebase.DieMutOf[SourceStatus, *SourceStatusDie, *SourceStatusDieMut] = (*SourceStatusDieMut)(nil)
-)
 
 var SourceStatusBlank = diebase.Blank[SourceStatus, *SourceStatusDie, *SourceStatusDieMut]()
 
@@ -1773,11 +1677,6 @@ func (*StatusDieMut) DieFrom(b diebase.DieMutBase[Status, *StatusDie, *StatusDie
 	return &StatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[Status, *StatusDie, *StatusDieMut]    = (*StatusDie)(nil)
-	_ diebase.DieMutOf[Status, *StatusDie, *StatusDieMut] = (*StatusDieMut)(nil)
-)
-
 var StatusBlank = diebase.Blank[Status, *StatusDie, *StatusDieMut]()
 
 type statusFieldsTable struct {
@@ -1853,11 +1752,6 @@ func (*WithPodDie) DieFrom(b diebase.DieBase[WithPod, *WithPodDie, *WithPodDieMu
 func (*WithPodDieMut) DieFrom(b diebase.DieMutBase[WithPod, *WithPodDie, *WithPodDieMut]) *WithPodDieMut {
 	return &WithPodDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[WithPod, *WithPodDie, *WithPodDieMut]    = (*WithPodDie)(nil)
-	_ dieobjects.DieObjectMutOf[WithPod, *WithPodDie, *WithPodDieMut] = (*WithPodDieMut)(nil)
-)
 
 var WithPodBlank = diebase.BlankOf[WithPod, *WithPodDie, *WithPodDieMut](WithPod{TypeMeta: metav1.TypeMeta{APIVersion: "duck.knative.dev/v1", Kind: "WithPod"}})
 
@@ -1962,11 +1856,6 @@ func (*WithPodSpecDie) DieFrom(b diebase.DieBase[WithPodSpec, *WithPodSpecDie, *
 func (*WithPodSpecDieMut) DieFrom(b diebase.DieMutBase[WithPodSpec, *WithPodSpecDie, *WithPodSpecDieMut]) *WithPodSpecDieMut {
 	return &WithPodSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[WithPodSpec, *WithPodSpecDie, *WithPodSpecDieMut]    = (*WithPodSpecDie)(nil)
-	_ diebase.DieMutOf[WithPodSpec, *WithPodSpecDie, *WithPodSpecDieMut] = (*WithPodSpecDieMut)(nil)
-)
 
 var WithPodSpecBlank = diebase.Blank[WithPodSpec, *WithPodSpecDie, *WithPodSpecDieMut]()
 

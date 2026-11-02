@@ -27,7 +27,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // StorageVersionMigration represents a migration of stored data to the latest
@@ -51,11 +50,6 @@ func (*StorageVersionMigrationDie) DieFrom(b diebase.DieBase[StorageVersionMigra
 func (*StorageVersionMigrationDieMut) DieFrom(b diebase.DieMutBase[StorageVersionMigration, *StorageVersionMigrationDie, *StorageVersionMigrationDieMut]) *StorageVersionMigrationDieMut {
 	return &StorageVersionMigrationDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[StorageVersionMigration, *StorageVersionMigrationDie, *StorageVersionMigrationDieMut]    = (*StorageVersionMigrationDie)(nil)
-	_ dieobjects.DieObjectMutOf[StorageVersionMigration, *StorageVersionMigrationDie, *StorageVersionMigrationDieMut] = (*StorageVersionMigrationDieMut)(nil)
-)
 
 var StorageVersionMigrationBlank = diebase.BlankOf[StorageVersionMigration, *StorageVersionMigrationDie, *StorageVersionMigrationDieMut](StorageVersionMigration{TypeMeta: metav1.TypeMeta{APIVersion: "storagemigration.k8s.io/v1", Kind: "StorageVersionMigration"}})
 
@@ -234,11 +228,6 @@ func (*StorageVersionMigrationSpecDieMut) DieFrom(b diebase.DieMutBase[StorageVe
 	return &StorageVersionMigrationSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[StorageVersionMigrationSpec, *StorageVersionMigrationSpecDie, *StorageVersionMigrationSpecDieMut]    = (*StorageVersionMigrationSpecDie)(nil)
-	_ diebase.DieMutOf[StorageVersionMigrationSpec, *StorageVersionMigrationSpecDie, *StorageVersionMigrationSpecDieMut] = (*StorageVersionMigrationSpecDieMut)(nil)
-)
-
 var StorageVersionMigrationSpecBlank = diebase.Blank[StorageVersionMigrationSpec, *StorageVersionMigrationSpecDie, *StorageVersionMigrationSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -336,11 +325,6 @@ func (*StorageVersionMigrationStatusDie) DieFrom(b diebase.DieBase[StorageVersio
 func (*StorageVersionMigrationStatusDieMut) DieFrom(b diebase.DieMutBase[StorageVersionMigrationStatus, *StorageVersionMigrationStatusDie, *StorageVersionMigrationStatusDieMut]) *StorageVersionMigrationStatusDieMut {
 	return &StorageVersionMigrationStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[StorageVersionMigrationStatus, *StorageVersionMigrationStatusDie, *StorageVersionMigrationStatusDieMut]    = (*StorageVersionMigrationStatusDie)(nil)
-	_ diebase.DieMutOf[StorageVersionMigrationStatus, *StorageVersionMigrationStatusDie, *StorageVersionMigrationStatusDieMut] = (*StorageVersionMigrationStatusDieMut)(nil)
-)
 
 var StorageVersionMigrationStatusBlank = diebase.Blank[StorageVersionMigrationStatus, *StorageVersionMigrationStatusDie, *StorageVersionMigrationStatusDieMut]()
 

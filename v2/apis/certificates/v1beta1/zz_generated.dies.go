@@ -29,7 +29,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // Describes a certificate signing request
@@ -52,11 +51,6 @@ func (*CertificateSigningRequestDie) DieFrom(b diebase.DieBase[CertificateSignin
 func (*CertificateSigningRequestDieMut) DieFrom(b diebase.DieMutBase[CertificateSigningRequest, *CertificateSigningRequestDie, *CertificateSigningRequestDieMut]) *CertificateSigningRequestDieMut {
 	return &CertificateSigningRequestDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[CertificateSigningRequest, *CertificateSigningRequestDie, *CertificateSigningRequestDieMut]    = (*CertificateSigningRequestDie)(nil)
-	_ dieobjects.DieObjectMutOf[CertificateSigningRequest, *CertificateSigningRequestDie, *CertificateSigningRequestDieMut] = (*CertificateSigningRequestDieMut)(nil)
-)
 
 var CertificateSigningRequestBlank = diebase.BlankOf[CertificateSigningRequest, *CertificateSigningRequestDie, *CertificateSigningRequestDieMut](CertificateSigningRequest{TypeMeta: metav1.TypeMeta{APIVersion: "certificates.k8s.io/v1beta1", Kind: "CertificateSigningRequest"}})
 
@@ -213,11 +207,6 @@ func (*CertificateSigningRequestConditionDie) DieFrom(b diebase.DieBase[Certific
 func (*CertificateSigningRequestConditionDieMut) DieFrom(b diebase.DieMutBase[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut]) *CertificateSigningRequestConditionDieMut {
 	return &CertificateSigningRequestConditionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut]    = (*CertificateSigningRequestConditionDie)(nil)
-	_ diebase.DieMutOf[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut] = (*CertificateSigningRequestConditionDieMut)(nil)
-)
 
 var CertificateSigningRequestConditionBlank = diebase.Blank[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut]()
 
@@ -400,11 +389,6 @@ func (*CertificateSigningRequestSpecDie) DieFrom(b diebase.DieBase[CertificateSi
 func (*CertificateSigningRequestSpecDieMut) DieFrom(b diebase.DieMutBase[CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie, *CertificateSigningRequestSpecDieMut]) *CertificateSigningRequestSpecDieMut {
 	return &CertificateSigningRequestSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie, *CertificateSigningRequestSpecDieMut]    = (*CertificateSigningRequestSpecDie)(nil)
-	_ diebase.DieMutOf[CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie, *CertificateSigningRequestSpecDieMut] = (*CertificateSigningRequestSpecDieMut)(nil)
-)
 
 var CertificateSigningRequestSpecBlank = diebase.Blank[CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie, *CertificateSigningRequestSpecDieMut]()
 
@@ -706,11 +690,6 @@ func (*CertificateSigningRequestStatusDieMut) DieFrom(b diebase.DieMutBase[Certi
 	return &CertificateSigningRequestStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie, *CertificateSigningRequestStatusDieMut]    = (*CertificateSigningRequestStatusDie)(nil)
-	_ diebase.DieMutOf[CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie, *CertificateSigningRequestStatusDieMut] = (*CertificateSigningRequestStatusDieMut)(nil)
-)
-
 var CertificateSigningRequestStatusBlank = diebase.Blank[CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie, *CertificateSigningRequestStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -830,11 +809,6 @@ func (*ClusterTrustBundleDie) DieFrom(b diebase.DieBase[ClusterTrustBundle, *Clu
 func (*ClusterTrustBundleDieMut) DieFrom(b diebase.DieMutBase[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]) *ClusterTrustBundleDieMut {
 	return &ClusterTrustBundleDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]    = (*ClusterTrustBundleDie)(nil)
-	_ dieobjects.DieObjectMutOf[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut] = (*ClusterTrustBundleDieMut)(nil)
-)
 
 var ClusterTrustBundleBlank = diebase.BlankOf[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut](ClusterTrustBundle{TypeMeta: metav1.TypeMeta{APIVersion: "certificates.k8s.io/v1beta1", Kind: "ClusterTrustBundle"}})
 
@@ -999,11 +973,6 @@ func (*ClusterTrustBundleSpecDieMut) DieFrom(b diebase.DieMutBase[ClusterTrustBu
 	return &ClusterTrustBundleSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]    = (*ClusterTrustBundleSpecDie)(nil)
-	_ diebase.DieMutOf[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut] = (*ClusterTrustBundleSpecDieMut)(nil)
-)
-
 var ClusterTrustBundleSpecBlank = diebase.Blank[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1166,11 +1135,6 @@ func (*PodCertificateRequestDie) DieFrom(b diebase.DieBase[PodCertificateRequest
 func (*PodCertificateRequestDieMut) DieFrom(b diebase.DieMutBase[PodCertificateRequest, *PodCertificateRequestDie, *PodCertificateRequestDieMut]) *PodCertificateRequestDieMut {
 	return &PodCertificateRequestDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[PodCertificateRequest, *PodCertificateRequestDie, *PodCertificateRequestDieMut]    = (*PodCertificateRequestDie)(nil)
-	_ dieobjects.DieObjectMutOf[PodCertificateRequest, *PodCertificateRequestDie, *PodCertificateRequestDieMut] = (*PodCertificateRequestDieMut)(nil)
-)
 
 var PodCertificateRequestBlank = diebase.BlankOf[PodCertificateRequest, *PodCertificateRequestDie, *PodCertificateRequestDieMut](PodCertificateRequest{TypeMeta: metav1.TypeMeta{APIVersion: "certificates.k8s.io/v1beta1", Kind: "PodCertificateRequest"}})
 
@@ -1347,11 +1311,6 @@ func (*PodCertificateRequestSpecDie) DieFrom(b diebase.DieBase[PodCertificateReq
 func (*PodCertificateRequestSpecDieMut) DieFrom(b diebase.DieMutBase[PodCertificateRequestSpec, *PodCertificateRequestSpecDie, *PodCertificateRequestSpecDieMut]) *PodCertificateRequestSpecDieMut {
 	return &PodCertificateRequestSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PodCertificateRequestSpec, *PodCertificateRequestSpecDie, *PodCertificateRequestSpecDieMut]    = (*PodCertificateRequestSpecDie)(nil)
-	_ diebase.DieMutOf[PodCertificateRequestSpec, *PodCertificateRequestSpecDie, *PodCertificateRequestSpecDieMut] = (*PodCertificateRequestSpecDieMut)(nil)
-)
 
 var PodCertificateRequestSpecBlank = diebase.Blank[PodCertificateRequestSpec, *PodCertificateRequestSpecDie, *PodCertificateRequestSpecDieMut]()
 
@@ -1741,11 +1700,6 @@ func (*PodCertificateRequestStatusDie) DieFrom(b diebase.DieBase[PodCertificateR
 func (*PodCertificateRequestStatusDieMut) DieFrom(b diebase.DieMutBase[PodCertificateRequestStatus, *PodCertificateRequestStatusDie, *PodCertificateRequestStatusDieMut]) *PodCertificateRequestStatusDieMut {
 	return &PodCertificateRequestStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PodCertificateRequestStatus, *PodCertificateRequestStatusDie, *PodCertificateRequestStatusDieMut]    = (*PodCertificateRequestStatusDie)(nil)
-	_ diebase.DieMutOf[PodCertificateRequestStatus, *PodCertificateRequestStatusDie, *PodCertificateRequestStatusDieMut] = (*PodCertificateRequestStatusDieMut)(nil)
-)
 
 var PodCertificateRequestStatusBlank = diebase.Blank[PodCertificateRequestStatus, *PodCertificateRequestStatusDie, *PodCertificateRequestStatusDieMut]()
 

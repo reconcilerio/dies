@@ -22,6 +22,7 @@ import (
 	rbacv1alpha1 "k8s.io/api/rbac/v1alpha1"
 	dierbacv1alpha1 "reconciler.io/dies/v2/apis/rbac/v1alpha1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -45,6 +46,18 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dierbacv1alpha1.ClusterRole, *dierbacv1alpha1.ClusterRoleDie, *dierbacv1alpha1.ClusterRoleDieMut]                         = (*dierbacv1alpha1.ClusterRoleDie)(nil)
+	_ dieobjects.DieObjectMutOf[dierbacv1alpha1.ClusterRole, *dierbacv1alpha1.ClusterRoleDie, *dierbacv1alpha1.ClusterRoleDieMut]                      = (*dierbacv1alpha1.ClusterRoleDieMut)(nil)
+	_ dieobjects.DieObjectOf[dierbacv1alpha1.ClusterRoleBinding, *dierbacv1alpha1.ClusterRoleBindingDie, *dierbacv1alpha1.ClusterRoleBindingDieMut]    = (*dierbacv1alpha1.ClusterRoleBindingDie)(nil)
+	_ dieobjects.DieObjectMutOf[dierbacv1alpha1.ClusterRoleBinding, *dierbacv1alpha1.ClusterRoleBindingDie, *dierbacv1alpha1.ClusterRoleBindingDieMut] = (*dierbacv1alpha1.ClusterRoleBindingDieMut)(nil)
+	_ dieobjects.DieObjectOf[dierbacv1alpha1.Role, *dierbacv1alpha1.RoleDie, *dierbacv1alpha1.RoleDieMut]                                              = (*dierbacv1alpha1.RoleDie)(nil)
+	_ dieobjects.DieObjectMutOf[dierbacv1alpha1.Role, *dierbacv1alpha1.RoleDie, *dierbacv1alpha1.RoleDieMut]                                           = (*dierbacv1alpha1.RoleDieMut)(nil)
+	_ dieobjects.DieObjectOf[dierbacv1alpha1.RoleBinding, *dierbacv1alpha1.RoleBindingDie, *dierbacv1alpha1.RoleBindingDieMut]                         = (*dierbacv1alpha1.RoleBindingDie)(nil)
+	_ dieobjects.DieObjectMutOf[dierbacv1alpha1.RoleBinding, *dierbacv1alpha1.RoleBindingDie, *dierbacv1alpha1.RoleBindingDieMut]                      = (*dierbacv1alpha1.RoleBindingDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dierbacv1alpha1.AddToScheme, rbacv1alpha1.AddToScheme, dierbacv1alpha1.SchemeGroupVersion); err != nil {

@@ -29,7 +29,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // CronJob represents the configuration of a single cron job.
@@ -52,11 +51,6 @@ func (*CronJobDie) DieFrom(b diebase.DieBase[CronJob, *CronJobDie, *CronJobDieMu
 func (*CronJobDieMut) DieFrom(b diebase.DieMutBase[CronJob, *CronJobDie, *CronJobDieMut]) *CronJobDieMut {
 	return &CronJobDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[CronJob, *CronJobDie, *CronJobDieMut]    = (*CronJobDie)(nil)
-	_ dieobjects.DieObjectMutOf[CronJob, *CronJobDie, *CronJobDieMut] = (*CronJobDieMut)(nil)
-)
 
 var CronJobBlank = diebase.BlankOf[CronJob, *CronJobDie, *CronJobDieMut](CronJob{TypeMeta: metav1.TypeMeta{APIVersion: "batch/v1beta1", Kind: "CronJob"}})
 
@@ -234,11 +228,6 @@ func (*CronJobSpecDie) DieFrom(b diebase.DieBase[CronJobSpec, *CronJobSpecDie, *
 func (*CronJobSpecDieMut) DieFrom(b diebase.DieMutBase[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]) *CronJobSpecDieMut {
 	return &CronJobSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]    = (*CronJobSpecDie)(nil)
-	_ diebase.DieMutOf[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut] = (*CronJobSpecDieMut)(nil)
-)
 
 var CronJobSpecBlank = diebase.Blank[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]()
 
@@ -456,11 +445,6 @@ func (*CronJobStatusDieMut) DieFrom(b diebase.DieMutBase[CronJobStatus, *CronJob
 	return &CronJobStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]    = (*CronJobStatusDie)(nil)
-	_ diebase.DieMutOf[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut] = (*CronJobStatusDieMut)(nil)
-)
-
 var CronJobStatusBlank = diebase.Blank[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -578,11 +562,6 @@ func (*JobTemplateSpecDie) DieFrom(b diebase.DieBase[JobTemplateSpec, *JobTempla
 func (*JobTemplateSpecDieMut) DieFrom(b diebase.DieMutBase[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]) *JobTemplateSpecDieMut {
 	return &JobTemplateSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]    = (*JobTemplateSpecDie)(nil)
-	_ diebase.DieMutOf[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut] = (*JobTemplateSpecDieMut)(nil)
-)
 
 var JobTemplateSpecBlank = diebase.Blank[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]()
 

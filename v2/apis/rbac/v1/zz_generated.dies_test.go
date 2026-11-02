@@ -22,6 +22,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	dierbacv1 "reconciler.io/dies/v2/apis/rbac/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -45,6 +46,18 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dierbacv1.ClusterRole, *dierbacv1.ClusterRoleDie, *dierbacv1.ClusterRoleDieMut]                         = (*dierbacv1.ClusterRoleDie)(nil)
+	_ dieobjects.DieObjectMutOf[dierbacv1.ClusterRole, *dierbacv1.ClusterRoleDie, *dierbacv1.ClusterRoleDieMut]                      = (*dierbacv1.ClusterRoleDieMut)(nil)
+	_ dieobjects.DieObjectOf[dierbacv1.ClusterRoleBinding, *dierbacv1.ClusterRoleBindingDie, *dierbacv1.ClusterRoleBindingDieMut]    = (*dierbacv1.ClusterRoleBindingDie)(nil)
+	_ dieobjects.DieObjectMutOf[dierbacv1.ClusterRoleBinding, *dierbacv1.ClusterRoleBindingDie, *dierbacv1.ClusterRoleBindingDieMut] = (*dierbacv1.ClusterRoleBindingDieMut)(nil)
+	_ dieobjects.DieObjectOf[dierbacv1.Role, *dierbacv1.RoleDie, *dierbacv1.RoleDieMut]                                              = (*dierbacv1.RoleDie)(nil)
+	_ dieobjects.DieObjectMutOf[dierbacv1.Role, *dierbacv1.RoleDie, *dierbacv1.RoleDieMut]                                           = (*dierbacv1.RoleDieMut)(nil)
+	_ dieobjects.DieObjectOf[dierbacv1.RoleBinding, *dierbacv1.RoleBindingDie, *dierbacv1.RoleBindingDieMut]                         = (*dierbacv1.RoleBindingDie)(nil)
+	_ dieobjects.DieObjectMutOf[dierbacv1.RoleBinding, *dierbacv1.RoleBindingDie, *dierbacv1.RoleBindingDieMut]                      = (*dierbacv1.RoleBindingDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dierbacv1.AddToScheme, rbacv1.AddToScheme, dierbacv1.SchemeGroupVersion); err != nil {

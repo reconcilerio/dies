@@ -22,6 +22,7 @@ import (
 	schedulingv1 "k8s.io/api/scheduling/v1"
 	dieschedulingv1 "reconciler.io/dies/v2/apis/scheduling/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -35,6 +36,12 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dieschedulingv1.PriorityClass, *dieschedulingv1.PriorityClassDie, *dieschedulingv1.PriorityClassDieMut]    = (*dieschedulingv1.PriorityClassDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieschedulingv1.PriorityClass, *dieschedulingv1.PriorityClassDie, *dieschedulingv1.PriorityClassDieMut] = (*dieschedulingv1.PriorityClassDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieschedulingv1.AddToScheme, schedulingv1.AddToScheme, dieschedulingv1.SchemeGroupVersion); err != nil {

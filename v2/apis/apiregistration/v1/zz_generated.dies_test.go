@@ -22,6 +22,7 @@ import (
 	apiregistrationv1 "k8s.io/kube-aggregator/pkg/apis/apiregistration/v1"
 	dieapiregistrationv1 "reconciler.io/dies/v2/apis/apiregistration/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -39,6 +40,12 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dieapiregistrationv1.APIService, *dieapiregistrationv1.APIServiceDie, *dieapiregistrationv1.APIServiceDieMut]    = (*dieapiregistrationv1.APIServiceDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieapiregistrationv1.APIService, *dieapiregistrationv1.APIServiceDie, *dieapiregistrationv1.APIServiceDieMut] = (*dieapiregistrationv1.APIServiceDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieapiregistrationv1.AddToScheme, apiregistrationv1.AddToScheme, dieapiregistrationv1.SchemeGroupVersion); err != nil {

@@ -22,6 +22,7 @@ import (
 	networkingv1 "k8s.io/api/networking/v1"
 	dienetworkingv1 "reconciler.io/dies/v2/apis/networking/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -68,6 +69,20 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dienetworkingv1.IPAddress, *dienetworkingv1.IPAddressDie, *dienetworkingv1.IPAddressDieMut]                = (*dienetworkingv1.IPAddressDie)(nil)
+	_ dieobjects.DieObjectMutOf[dienetworkingv1.IPAddress, *dienetworkingv1.IPAddressDie, *dienetworkingv1.IPAddressDieMut]             = (*dienetworkingv1.IPAddressDieMut)(nil)
+	_ dieobjects.DieObjectOf[dienetworkingv1.Ingress, *dienetworkingv1.IngressDie, *dienetworkingv1.IngressDieMut]                      = (*dienetworkingv1.IngressDie)(nil)
+	_ dieobjects.DieObjectMutOf[dienetworkingv1.Ingress, *dienetworkingv1.IngressDie, *dienetworkingv1.IngressDieMut]                   = (*dienetworkingv1.IngressDieMut)(nil)
+	_ dieobjects.DieObjectOf[dienetworkingv1.IngressClass, *dienetworkingv1.IngressClassDie, *dienetworkingv1.IngressClassDieMut]       = (*dienetworkingv1.IngressClassDie)(nil)
+	_ dieobjects.DieObjectMutOf[dienetworkingv1.IngressClass, *dienetworkingv1.IngressClassDie, *dienetworkingv1.IngressClassDieMut]    = (*dienetworkingv1.IngressClassDieMut)(nil)
+	_ dieobjects.DieObjectOf[dienetworkingv1.NetworkPolicy, *dienetworkingv1.NetworkPolicyDie, *dienetworkingv1.NetworkPolicyDieMut]    = (*dienetworkingv1.NetworkPolicyDie)(nil)
+	_ dieobjects.DieObjectMutOf[dienetworkingv1.NetworkPolicy, *dienetworkingv1.NetworkPolicyDie, *dienetworkingv1.NetworkPolicyDieMut] = (*dienetworkingv1.NetworkPolicyDieMut)(nil)
+	_ dieobjects.DieObjectOf[dienetworkingv1.ServiceCIDR, *dienetworkingv1.ServiceCIDRDie, *dienetworkingv1.ServiceCIDRDieMut]          = (*dienetworkingv1.ServiceCIDRDie)(nil)
+	_ dieobjects.DieObjectMutOf[dienetworkingv1.ServiceCIDR, *dienetworkingv1.ServiceCIDRDie, *dienetworkingv1.ServiceCIDRDieMut]       = (*dienetworkingv1.ServiceCIDRDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dienetworkingv1.AddToScheme, networkingv1.AddToScheme, dienetworkingv1.SchemeGroupVersion); err != nil {

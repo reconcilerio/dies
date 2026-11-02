@@ -22,6 +22,7 @@ import (
 	resourcev1alpha3 "k8s.io/api/resource/v1alpha3"
 	dieresourcev1alpha3 "reconciler.io/dies/v2/apis/resource/v1alpha3"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -49,6 +50,14 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dieresourcev1alpha3.DeviceTaintRule, *dieresourcev1alpha3.DeviceTaintRuleDie, *dieresourcev1alpha3.DeviceTaintRuleDieMut]                                  = (*dieresourcev1alpha3.DeviceTaintRuleDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieresourcev1alpha3.DeviceTaintRule, *dieresourcev1alpha3.DeviceTaintRuleDie, *dieresourcev1alpha3.DeviceTaintRuleDieMut]                               = (*dieresourcev1alpha3.DeviceTaintRuleDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieresourcev1alpha3.ResourcePoolStatusRequest, *dieresourcev1alpha3.ResourcePoolStatusRequestDie, *dieresourcev1alpha3.ResourcePoolStatusRequestDieMut]    = (*dieresourcev1alpha3.ResourcePoolStatusRequestDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieresourcev1alpha3.ResourcePoolStatusRequest, *dieresourcev1alpha3.ResourcePoolStatusRequestDie, *dieresourcev1alpha3.ResourcePoolStatusRequestDieMut] = (*dieresourcev1alpha3.ResourcePoolStatusRequestDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieresourcev1alpha3.AddToScheme, resourcev1alpha3.AddToScheme, dieresourcev1alpha3.SchemeGroupVersion); err != nil {

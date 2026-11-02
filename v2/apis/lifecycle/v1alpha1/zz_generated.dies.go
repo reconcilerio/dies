@@ -28,7 +28,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // Eviction initiates an eviction process, which should ideally result in a graceful eviction of a
@@ -73,11 +72,6 @@ func (*EvictionDie) DieFrom(b diebase.DieBase[Eviction, *EvictionDie, *EvictionD
 func (*EvictionDieMut) DieFrom(b diebase.DieMutBase[Eviction, *EvictionDie, *EvictionDieMut]) *EvictionDieMut {
 	return &EvictionDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[Eviction, *EvictionDie, *EvictionDieMut]    = (*EvictionDie)(nil)
-	_ dieobjects.DieObjectMutOf[Eviction, *EvictionDie, *EvictionDieMut] = (*EvictionDieMut)(nil)
-)
 
 var EvictionBlank = diebase.BlankOf[Eviction, *EvictionDie, *EvictionDieMut](Eviction{TypeMeta: metav1.TypeMeta{APIVersion: "lifecycle.k8s.io/v1alpha1", Kind: "Eviction"}})
 
@@ -277,11 +271,6 @@ func (*EvictionPodReferenceDieMut) DieFrom(b diebase.DieMutBase[EvictionPodRefer
 	return &EvictionPodReferenceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[EvictionPodReference, *EvictionPodReferenceDie, *EvictionPodReferenceDieMut]    = (*EvictionPodReferenceDie)(nil)
-	_ diebase.DieMutOf[EvictionPodReference, *EvictionPodReferenceDie, *EvictionPodReferenceDieMut] = (*EvictionPodReferenceDieMut)(nil)
-)
-
 var EvictionPodReferenceBlank = diebase.Blank[EvictionPodReference, *EvictionPodReferenceDie, *EvictionPodReferenceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -409,11 +398,6 @@ func (*EvictionRequestDie) DieFrom(b diebase.DieBase[EvictionRequest, *EvictionR
 func (*EvictionRequestDieMut) DieFrom(b diebase.DieMutBase[EvictionRequest, *EvictionRequestDie, *EvictionRequestDieMut]) *EvictionRequestDieMut {
 	return &EvictionRequestDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[EvictionRequest, *EvictionRequestDie, *EvictionRequestDieMut]    = (*EvictionRequestDie)(nil)
-	_ dieobjects.DieObjectMutOf[EvictionRequest, *EvictionRequestDie, *EvictionRequestDieMut] = (*EvictionRequestDieMut)(nil)
-)
 
 var EvictionRequestBlank = diebase.BlankOf[EvictionRequest, *EvictionRequestDie, *EvictionRequestDieMut](EvictionRequest{TypeMeta: metav1.TypeMeta{APIVersion: "lifecycle.k8s.io/v1alpha1", Kind: "EvictionRequest"}})
 
@@ -595,11 +579,6 @@ func (*EvictionRequestPodReferenceDieMut) DieFrom(b diebase.DieMutBase[EvictionR
 	return &EvictionRequestPodReferenceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[EvictionRequestPodReference, *EvictionRequestPodReferenceDie, *EvictionRequestPodReferenceDieMut]    = (*EvictionRequestPodReferenceDie)(nil)
-	_ diebase.DieMutOf[EvictionRequestPodReference, *EvictionRequestPodReferenceDie, *EvictionRequestPodReferenceDieMut] = (*EvictionRequestPodReferenceDieMut)(nil)
-)
-
 var EvictionRequestPodReferenceBlank = diebase.Blank[EvictionRequestPodReference, *EvictionRequestPodReferenceDie, *EvictionRequestPodReferenceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -711,11 +690,6 @@ func (*EvictionRequestSpecDie) DieFrom(b diebase.DieBase[EvictionRequestSpec, *E
 func (*EvictionRequestSpecDieMut) DieFrom(b diebase.DieMutBase[EvictionRequestSpec, *EvictionRequestSpecDie, *EvictionRequestSpecDieMut]) *EvictionRequestSpecDieMut {
 	return &EvictionRequestSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[EvictionRequestSpec, *EvictionRequestSpecDie, *EvictionRequestSpecDieMut]    = (*EvictionRequestSpecDie)(nil)
-	_ diebase.DieMutOf[EvictionRequestSpec, *EvictionRequestSpecDie, *EvictionRequestSpecDieMut] = (*EvictionRequestSpecDieMut)(nil)
-)
 
 var EvictionRequestSpecBlank = diebase.Blank[EvictionRequestSpec, *EvictionRequestSpecDie, *EvictionRequestSpecDieMut]()
 
@@ -861,11 +835,6 @@ func (*EvictionRequestStatusDieMut) DieFrom(b diebase.DieMutBase[EvictionRequest
 	return &EvictionRequestStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[EvictionRequestStatus, *EvictionRequestStatusDie, *EvictionRequestStatusDieMut]    = (*EvictionRequestStatusDie)(nil)
-	_ diebase.DieMutOf[EvictionRequestStatus, *EvictionRequestStatusDie, *EvictionRequestStatusDieMut] = (*EvictionRequestStatusDieMut)(nil)
-)
-
 var EvictionRequestStatusBlank = diebase.Blank[EvictionRequestStatus, *EvictionRequestStatusDie, *EvictionRequestStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1000,11 +969,6 @@ func (*EvictionRequestTargetDieMut) DieFrom(b diebase.DieMutBase[EvictionRequest
 	return &EvictionRequestTargetDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[EvictionRequestTarget, *EvictionRequestTargetDie, *EvictionRequestTargetDieMut]    = (*EvictionRequestTargetDie)(nil)
-	_ diebase.DieMutOf[EvictionRequestTarget, *EvictionRequestTargetDie, *EvictionRequestTargetDieMut] = (*EvictionRequestTargetDieMut)(nil)
-)
-
 var EvictionRequestTargetBlank = diebase.Blank[EvictionRequestTarget, *EvictionRequestTargetDie, *EvictionRequestTargetDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1101,11 +1065,6 @@ func (*EvictionSpecDieMut) DieFrom(b diebase.DieMutBase[EvictionSpec, *EvictionS
 	return &EvictionSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[EvictionSpec, *EvictionSpecDie, *EvictionSpecDieMut]    = (*EvictionSpecDie)(nil)
-	_ diebase.DieMutOf[EvictionSpec, *EvictionSpecDie, *EvictionSpecDieMut] = (*EvictionSpecDieMut)(nil)
-)
-
 var EvictionSpecBlank = diebase.Blank[EvictionSpec, *EvictionSpecDie, *EvictionSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1201,11 +1160,6 @@ func (*EvictionStatusDie) DieFrom(b diebase.DieBase[EvictionStatus, *EvictionSta
 func (*EvictionStatusDieMut) DieFrom(b diebase.DieMutBase[EvictionStatus, *EvictionStatusDie, *EvictionStatusDieMut]) *EvictionStatusDieMut {
 	return &EvictionStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[EvictionStatus, *EvictionStatusDie, *EvictionStatusDieMut]    = (*EvictionStatusDie)(nil)
-	_ diebase.DieMutOf[EvictionStatus, *EvictionStatusDie, *EvictionStatusDieMut] = (*EvictionStatusDieMut)(nil)
-)
 
 var EvictionStatusBlank = diebase.Blank[EvictionStatus, *EvictionStatusDie, *EvictionStatusDieMut]()
 
@@ -1435,11 +1389,6 @@ func (*EvictionTargetDieMut) DieFrom(b diebase.DieMutBase[EvictionTarget, *Evict
 	return &EvictionTargetDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[EvictionTarget, *EvictionTargetDie, *EvictionTargetDieMut]    = (*EvictionTargetDie)(nil)
-	_ diebase.DieMutOf[EvictionTarget, *EvictionTargetDie, *EvictionTargetDieMut] = (*EvictionTargetDieMut)(nil)
-)
-
 var EvictionTargetBlank = diebase.Blank[EvictionTarget, *EvictionTargetDie, *EvictionTargetDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1535,11 +1484,6 @@ func (*RequesterDie) DieFrom(b diebase.DieBase[Requester, *RequesterDie, *Reques
 func (*RequesterDieMut) DieFrom(b diebase.DieMutBase[Requester, *RequesterDie, *RequesterDieMut]) *RequesterDieMut {
 	return &RequesterDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[Requester, *RequesterDie, *RequesterDieMut]    = (*RequesterDie)(nil)
-	_ diebase.DieMutOf[Requester, *RequesterDie, *RequesterDieMut] = (*RequesterDieMut)(nil)
-)
 
 var RequesterBlank = diebase.Blank[Requester, *RequesterDie, *RequesterDieMut]()
 
@@ -1671,11 +1615,6 @@ func (*ResponderStatusDie) DieFrom(b diebase.DieBase[ResponderStatus, *Responder
 func (*ResponderStatusDieMut) DieFrom(b diebase.DieMutBase[ResponderStatus, *ResponderStatusDie, *ResponderStatusDieMut]) *ResponderStatusDieMut {
 	return &ResponderStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ResponderStatus, *ResponderStatusDie, *ResponderStatusDieMut]    = (*ResponderStatusDie)(nil)
-	_ diebase.DieMutOf[ResponderStatus, *ResponderStatusDie, *ResponderStatusDieMut] = (*ResponderStatusDieMut)(nil)
-)
 
 var ResponderStatusBlank = diebase.Blank[ResponderStatus, *ResponderStatusDie, *ResponderStatusDieMut]()
 
@@ -1874,11 +1813,6 @@ func (*TargetResponderDie) DieFrom(b diebase.DieBase[TargetResponder, *TargetRes
 func (*TargetResponderDieMut) DieFrom(b diebase.DieMutBase[TargetResponder, *TargetResponderDie, *TargetResponderDieMut]) *TargetResponderDieMut {
 	return &TargetResponderDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[TargetResponder, *TargetResponderDie, *TargetResponderDieMut]    = (*TargetResponderDie)(nil)
-	_ diebase.DieMutOf[TargetResponder, *TargetResponderDie, *TargetResponderDieMut] = (*TargetResponderDieMut)(nil)
-)
 
 var TargetResponderBlank = diebase.Blank[TargetResponder, *TargetResponderDie, *TargetResponderDieMut]()
 

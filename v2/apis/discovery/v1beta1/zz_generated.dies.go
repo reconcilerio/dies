@@ -28,7 +28,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // Endpoint represents a single logical "backend" implementing a service.
@@ -51,11 +50,6 @@ func (*EndpointDie) DieFrom(b diebase.DieBase[Endpoint, *EndpointDie, *EndpointD
 func (*EndpointDieMut) DieFrom(b diebase.DieMutBase[Endpoint, *EndpointDie, *EndpointDieMut]) *EndpointDieMut {
 	return &EndpointDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[Endpoint, *EndpointDie, *EndpointDieMut]    = (*EndpointDie)(nil)
-	_ diebase.DieMutOf[Endpoint, *EndpointDie, *EndpointDieMut] = (*EndpointDieMut)(nil)
-)
 
 var EndpointBlank = diebase.Blank[Endpoint, *EndpointDie, *EndpointDieMut]()
 
@@ -273,11 +267,6 @@ func (*EndpointConditionsDieMut) DieFrom(b diebase.DieMutBase[EndpointConditions
 	return &EndpointConditionsDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[EndpointConditions, *EndpointConditionsDie, *EndpointConditionsDieMut]    = (*EndpointConditionsDie)(nil)
-	_ diebase.DieMutOf[EndpointConditions, *EndpointConditionsDie, *EndpointConditionsDieMut] = (*EndpointConditionsDieMut)(nil)
-)
-
 var EndpointConditionsBlank = diebase.Blank[EndpointConditions, *EndpointConditionsDie, *EndpointConditionsDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -414,11 +403,6 @@ func (*EndpointHintsDieMut) DieFrom(b diebase.DieMutBase[EndpointHints, *Endpoin
 	return &EndpointHintsDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[EndpointHints, *EndpointHintsDie, *EndpointHintsDieMut]    = (*EndpointHintsDie)(nil)
-	_ diebase.DieMutOf[EndpointHints, *EndpointHintsDie, *EndpointHintsDieMut] = (*EndpointHintsDieMut)(nil)
-)
-
 var EndpointHintsBlank = diebase.Blank[EndpointHints, *EndpointHintsDie, *EndpointHintsDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -528,11 +512,6 @@ func (*EndpointPortDie) DieFrom(b diebase.DieBase[EndpointPort, *EndpointPortDie
 func (*EndpointPortDieMut) DieFrom(b diebase.DieMutBase[EndpointPort, *EndpointPortDie, *EndpointPortDieMut]) *EndpointPortDieMut {
 	return &EndpointPortDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[EndpointPort, *EndpointPortDie, *EndpointPortDieMut]    = (*EndpointPortDie)(nil)
-	_ diebase.DieMutOf[EndpointPort, *EndpointPortDie, *EndpointPortDieMut] = (*EndpointPortDieMut)(nil)
-)
 
 var EndpointPortBlank = diebase.Blank[EndpointPort, *EndpointPortDie, *EndpointPortDieMut]()
 
@@ -695,11 +674,6 @@ func (*EndpointSliceDie) DieFrom(b diebase.DieBase[EndpointSlice, *EndpointSlice
 func (*EndpointSliceDieMut) DieFrom(b diebase.DieMutBase[EndpointSlice, *EndpointSliceDie, *EndpointSliceDieMut]) *EndpointSliceDieMut {
 	return &EndpointSliceDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[EndpointSlice, *EndpointSliceDie, *EndpointSliceDieMut]    = (*EndpointSliceDie)(nil)
-	_ dieobjects.DieObjectMutOf[EndpointSlice, *EndpointSliceDie, *EndpointSliceDieMut] = (*EndpointSliceDieMut)(nil)
-)
 
 var EndpointSliceBlank = diebase.BlankOf[EndpointSlice, *EndpointSliceDie, *EndpointSliceDieMut](EndpointSlice{TypeMeta: metav1.TypeMeta{APIVersion: "discovery.k8s.io/v1beta1", Kind: "EndpointSlice"}})
 
@@ -910,11 +884,6 @@ func (*ForNodeDieMut) DieFrom(b diebase.DieMutBase[ForNode, *ForNodeDie, *ForNod
 	return &ForNodeDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ForNode, *ForNodeDie, *ForNodeDieMut]    = (*ForNodeDie)(nil)
-	_ diebase.DieMutOf[ForNode, *ForNodeDie, *ForNodeDieMut] = (*ForNodeDieMut)(nil)
-)
-
 var ForNodeBlank = diebase.Blank[ForNode, *ForNodeDie, *ForNodeDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1008,11 +977,6 @@ func (*ForZoneDie) DieFrom(b diebase.DieBase[ForZone, *ForZoneDie, *ForZoneDieMu
 func (*ForZoneDieMut) DieFrom(b diebase.DieMutBase[ForZone, *ForZoneDie, *ForZoneDieMut]) *ForZoneDieMut {
 	return &ForZoneDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ForZone, *ForZoneDie, *ForZoneDieMut]    = (*ForZoneDie)(nil)
-	_ diebase.DieMutOf[ForZone, *ForZoneDie, *ForZoneDieMut] = (*ForZoneDieMut)(nil)
-)
 
 var ForZoneBlank = diebase.Blank[ForZone, *ForZoneDie, *ForZoneDieMut]()
 

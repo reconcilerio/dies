@@ -49,11 +49,6 @@ func (*APIGroupDieMut) DieFrom(b diebase.DieMutBase[APIGroup, *APIGroupDie, *API
 	return &APIGroupDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[APIGroup, *APIGroupDie, *APIGroupDieMut]    = (*APIGroupDie)(nil)
-	_ diebase.DieMutOf[APIGroup, *APIGroupDie, *APIGroupDieMut] = (*APIGroupDieMut)(nil)
-)
-
 var APIGroupBlank = diebase.Blank[APIGroup, *APIGroupDie, *APIGroupDieMut]()
 
 type aPIGroupFieldsTable struct {
@@ -186,11 +181,6 @@ func (*APIGroupListDieMut) DieFrom(b diebase.DieMutBase[APIGroupList, *APIGroupL
 	return &APIGroupListDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[APIGroupList, *APIGroupListDie, *APIGroupListDieMut]    = (*APIGroupListDie)(nil)
-	_ diebase.DieMutOf[APIGroupList, *APIGroupListDie, *APIGroupListDieMut] = (*APIGroupListDieMut)(nil)
-)
-
 var APIGroupListBlank = diebase.Blank[APIGroupList, *APIGroupListDie, *APIGroupListDieMut]()
 
 type aPIGroupListFieldsTable struct {
@@ -271,11 +261,6 @@ func (*APIResourceDie) DieFrom(b diebase.DieBase[APIResource, *APIResourceDie, *
 func (*APIResourceDieMut) DieFrom(b diebase.DieMutBase[APIResource, *APIResourceDie, *APIResourceDieMut]) *APIResourceDieMut {
 	return &APIResourceDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[APIResource, *APIResourceDie, *APIResourceDieMut]    = (*APIResourceDie)(nil)
-	_ diebase.DieMutOf[APIResource, *APIResourceDie, *APIResourceDieMut] = (*APIResourceDieMut)(nil)
-)
 
 var APIResourceBlank = diebase.Blank[APIResource, *APIResourceDie, *APIResourceDieMut]()
 
@@ -452,11 +437,6 @@ func (*APIResourceListDieMut) DieFrom(b diebase.DieMutBase[APIResourceList, *API
 	return &APIResourceListDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[APIResourceList, *APIResourceListDie, *APIResourceListDieMut]    = (*APIResourceListDie)(nil)
-	_ diebase.DieMutOf[APIResourceList, *APIResourceListDie, *APIResourceListDieMut] = (*APIResourceListDieMut)(nil)
-)
-
 var APIResourceListBlank = diebase.Blank[APIResourceList, *APIResourceListDie, *APIResourceListDieMut]()
 
 type aPIResourceListFieldsTable struct {
@@ -550,11 +530,6 @@ func (*APIVersionsDie) DieFrom(b diebase.DieBase[APIVersions, *APIVersionsDie, *
 func (*APIVersionsDieMut) DieFrom(b diebase.DieMutBase[APIVersions, *APIVersionsDie, *APIVersionsDieMut]) *APIVersionsDieMut {
 	return &APIVersionsDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[APIVersions, *APIVersionsDie, *APIVersionsDieMut]    = (*APIVersionsDie)(nil)
-	_ diebase.DieMutOf[APIVersions, *APIVersionsDie, *APIVersionsDieMut] = (*APIVersionsDieMut)(nil)
-)
 
 var APIVersionsBlank = diebase.Blank[APIVersions, *APIVersionsDie, *APIVersionsDieMut]()
 
@@ -663,11 +638,6 @@ func (*ApplyOptionsDie) DieFrom(b diebase.DieBase[ApplyOptions, *ApplyOptionsDie
 func (*ApplyOptionsDieMut) DieFrom(b diebase.DieMutBase[ApplyOptions, *ApplyOptionsDie, *ApplyOptionsDieMut]) *ApplyOptionsDieMut {
 	return &ApplyOptionsDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ApplyOptions, *ApplyOptionsDie, *ApplyOptionsDieMut]    = (*ApplyOptionsDie)(nil)
-	_ diebase.DieMutOf[ApplyOptions, *ApplyOptionsDie, *ApplyOptionsDieMut] = (*ApplyOptionsDieMut)(nil)
-)
 
 var ApplyOptionsBlank = diebase.Blank[ApplyOptions, *ApplyOptionsDie, *ApplyOptionsDieMut]()
 
@@ -808,11 +778,6 @@ func (*ConditionDie) DieFrom(b diebase.DieBase[Condition, *ConditionDie, *Condit
 func (*ConditionDieMut) DieFrom(b diebase.DieMutBase[Condition, *ConditionDie, *ConditionDieMut]) *ConditionDieMut {
 	return &ConditionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[Condition, *ConditionDie, *ConditionDieMut]    = (*ConditionDie)(nil)
-	_ diebase.DieMutOf[Condition, *ConditionDie, *ConditionDieMut] = (*ConditionDieMut)(nil)
-)
 
 var ConditionBlank = diebase.Blank[Condition, *ConditionDie, *ConditionDieMut]()
 
@@ -992,11 +957,6 @@ func (*CreateOptionsDieMut) DieFrom(b diebase.DieMutBase[CreateOptions, *CreateO
 	return &CreateOptionsDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CreateOptions, *CreateOptionsDie, *CreateOptionsDieMut]    = (*CreateOptionsDie)(nil)
-	_ diebase.DieMutOf[CreateOptions, *CreateOptionsDie, *CreateOptionsDieMut] = (*CreateOptionsDieMut)(nil)
-)
-
 var CreateOptionsBlank = diebase.Blank[CreateOptions, *CreateOptionsDie, *CreateOptionsDieMut]()
 
 type createOptionsFieldsTable struct {
@@ -1145,11 +1105,6 @@ func (*DeleteOptionsDie) DieFrom(b diebase.DieBase[DeleteOptions, *DeleteOptions
 func (*DeleteOptionsDieMut) DieFrom(b diebase.DieMutBase[DeleteOptions, *DeleteOptionsDie, *DeleteOptionsDieMut]) *DeleteOptionsDieMut {
 	return &DeleteOptionsDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[DeleteOptions, *DeleteOptionsDie, *DeleteOptionsDieMut]    = (*DeleteOptionsDie)(nil)
-	_ diebase.DieMutOf[DeleteOptions, *DeleteOptionsDie, *DeleteOptionsDieMut] = (*DeleteOptionsDieMut)(nil)
-)
 
 var DeleteOptionsBlank = diebase.Blank[DeleteOptions, *DeleteOptionsDie, *DeleteOptionsDieMut]()
 
@@ -1402,11 +1357,6 @@ func (*FieldSelectorRequirementDieMut) DieFrom(b diebase.DieMutBase[FieldSelecto
 	return &FieldSelectorRequirementDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[FieldSelectorRequirement, *FieldSelectorRequirementDie, *FieldSelectorRequirementDieMut]    = (*FieldSelectorRequirementDie)(nil)
-	_ diebase.DieMutOf[FieldSelectorRequirement, *FieldSelectorRequirementDie, *FieldSelectorRequirementDieMut] = (*FieldSelectorRequirementDieMut)(nil)
-)
-
 var FieldSelectorRequirementBlank = diebase.Blank[FieldSelectorRequirement, *FieldSelectorRequirementDie, *FieldSelectorRequirementDieMut]()
 
 type fieldSelectorRequirementFieldsTable struct {
@@ -1481,11 +1431,6 @@ func (*GetOptionsDie) DieFrom(b diebase.DieBase[GetOptions, *GetOptionsDie, *Get
 func (*GetOptionsDieMut) DieFrom(b diebase.DieMutBase[GetOptions, *GetOptionsDie, *GetOptionsDieMut]) *GetOptionsDieMut {
 	return &GetOptionsDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[GetOptions, *GetOptionsDie, *GetOptionsDieMut]    = (*GetOptionsDie)(nil)
-	_ diebase.DieMutOf[GetOptions, *GetOptionsDie, *GetOptionsDieMut] = (*GetOptionsDieMut)(nil)
-)
 
 var GetOptionsBlank = diebase.Blank[GetOptions, *GetOptionsDie, *GetOptionsDieMut]()
 
@@ -1577,11 +1522,6 @@ func (*GroupKindDieMut) DieFrom(b diebase.DieMutBase[GroupKind, *GroupKindDie, *
 	return &GroupKindDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[GroupKind, *GroupKindDie, *GroupKindDieMut]    = (*GroupKindDie)(nil)
-	_ diebase.DieMutOf[GroupKind, *GroupKindDie, *GroupKindDieMut] = (*GroupKindDieMut)(nil)
-)
-
 var GroupKindBlank = diebase.Blank[GroupKind, *GroupKindDie, *GroupKindDieMut]()
 
 type groupKindFieldsTable struct {
@@ -1633,11 +1573,6 @@ func (*GroupResourceDie) DieFrom(b diebase.DieBase[GroupResource, *GroupResource
 func (*GroupResourceDieMut) DieFrom(b diebase.DieMutBase[GroupResource, *GroupResourceDie, *GroupResourceDieMut]) *GroupResourceDieMut {
 	return &GroupResourceDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[GroupResource, *GroupResourceDie, *GroupResourceDieMut]    = (*GroupResourceDie)(nil)
-	_ diebase.DieMutOf[GroupResource, *GroupResourceDie, *GroupResourceDieMut] = (*GroupResourceDieMut)(nil)
-)
 
 var GroupResourceBlank = diebase.Blank[GroupResource, *GroupResourceDie, *GroupResourceDieMut]()
 
@@ -1742,11 +1677,6 @@ func (*GroupVersionForDiscoveryDieMut) DieFrom(b diebase.DieMutBase[GroupVersion
 	return &GroupVersionForDiscoveryDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]    = (*GroupVersionForDiscoveryDie)(nil)
-	_ diebase.DieMutOf[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut] = (*GroupVersionForDiscoveryDieMut)(nil)
-)
-
 var GroupVersionForDiscoveryBlank = diebase.Blank[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]()
 
 type groupVersionForDiscoveryFieldsTable struct {
@@ -1804,11 +1734,6 @@ func (*GroupVersionKindDie) DieFrom(b diebase.DieBase[GroupVersionKind, *GroupVe
 func (*GroupVersionKindDieMut) DieFrom(b diebase.DieMutBase[GroupVersionKind, *GroupVersionKindDie, *GroupVersionKindDieMut]) *GroupVersionKindDieMut {
 	return &GroupVersionKindDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[GroupVersionKind, *GroupVersionKindDie, *GroupVersionKindDieMut]    = (*GroupVersionKindDie)(nil)
-	_ diebase.DieMutOf[GroupVersionKind, *GroupVersionKindDie, *GroupVersionKindDieMut] = (*GroupVersionKindDieMut)(nil)
-)
 
 var GroupVersionKindBlank = diebase.Blank[GroupVersionKind, *GroupVersionKindDie, *GroupVersionKindDieMut]()
 
@@ -1872,11 +1797,6 @@ func (*GroupVersionResourceDieMut) DieFrom(b diebase.DieMutBase[GroupVersionReso
 	return &GroupVersionResourceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[GroupVersionResource, *GroupVersionResourceDie, *GroupVersionResourceDieMut]    = (*GroupVersionResourceDie)(nil)
-	_ diebase.DieMutOf[GroupVersionResource, *GroupVersionResourceDie, *GroupVersionResourceDieMut] = (*GroupVersionResourceDieMut)(nil)
-)
-
 var GroupVersionResourceBlank = diebase.Blank[GroupVersionResource, *GroupVersionResourceDie, *GroupVersionResourceDieMut]()
 
 type groupVersionResourceFieldsTable struct {
@@ -1937,11 +1857,6 @@ func (*InternalEventDie) DieFrom(b diebase.DieBase[InternalEvent, *InternalEvent
 func (*InternalEventDieMut) DieFrom(b diebase.DieMutBase[InternalEvent, *InternalEventDie, *InternalEventDieMut]) *InternalEventDieMut {
 	return &InternalEventDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[InternalEvent, *InternalEventDie, *InternalEventDieMut]    = (*InternalEventDie)(nil)
-	_ diebase.DieMutOf[InternalEvent, *InternalEventDie, *InternalEventDieMut] = (*InternalEventDieMut)(nil)
-)
 
 var InternalEventBlank = diebase.Blank[InternalEvent, *InternalEventDie, *InternalEventDieMut]()
 
@@ -2013,11 +1928,6 @@ func (*LabelSelectorDie) DieFrom(b diebase.DieBase[LabelSelector, *LabelSelector
 func (*LabelSelectorDieMut) DieFrom(b diebase.DieMutBase[LabelSelector, *LabelSelectorDie, *LabelSelectorDieMut]) *LabelSelectorDieMut {
 	return &LabelSelectorDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[LabelSelector, *LabelSelectorDie, *LabelSelectorDieMut]    = (*LabelSelectorDie)(nil)
-	_ diebase.DieMutOf[LabelSelector, *LabelSelectorDie, *LabelSelectorDieMut] = (*LabelSelectorDieMut)(nil)
-)
 
 var LabelSelectorBlank = diebase.Blank[LabelSelector, *LabelSelectorDie, *LabelSelectorDieMut]()
 
@@ -2129,11 +2039,6 @@ func (*LabelSelectorRequirementDie) DieFrom(b diebase.DieBase[LabelSelectorRequi
 func (*LabelSelectorRequirementDieMut) DieFrom(b diebase.DieMutBase[LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut]) *LabelSelectorRequirementDieMut {
 	return &LabelSelectorRequirementDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut]    = (*LabelSelectorRequirementDie)(nil)
-	_ diebase.DieMutOf[LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut] = (*LabelSelectorRequirementDieMut)(nil)
-)
 
 var LabelSelectorRequirementBlank = diebase.Blank[LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut]()
 
@@ -2259,11 +2164,6 @@ func (*ListDieMut) DieFrom(b diebase.DieMutBase[List, *ListDie, *ListDieMut]) *L
 	return &ListDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[List, *ListDie, *ListDieMut]    = (*ListDie)(nil)
-	_ diebase.DieMutOf[List, *ListDie, *ListDieMut] = (*ListDieMut)(nil)
-)
-
 var ListBlank = diebase.Blank[List, *ListDie, *ListDieMut]()
 
 type listFieldsTable struct {
@@ -2355,11 +2255,6 @@ func (*ListMetaDie) DieFrom(b diebase.DieBase[ListMeta, *ListMetaDie, *ListMetaD
 func (*ListMetaDieMut) DieFrom(b diebase.DieMutBase[ListMeta, *ListMetaDie, *ListMetaDieMut]) *ListMetaDieMut {
 	return &ListMetaDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ListMeta, *ListMetaDie, *ListMetaDieMut]    = (*ListMetaDie)(nil)
-	_ diebase.DieMutOf[ListMeta, *ListMetaDie, *ListMetaDieMut] = (*ListMetaDieMut)(nil)
-)
 
 var ListMetaBlank = diebase.Blank[ListMeta, *ListMetaDie, *ListMetaDieMut]()
 
@@ -2501,11 +2396,6 @@ func (*ListOptionsDie) DieFrom(b diebase.DieBase[ListOptions, *ListOptionsDie, *
 func (*ListOptionsDieMut) DieFrom(b diebase.DieMutBase[ListOptions, *ListOptionsDie, *ListOptionsDieMut]) *ListOptionsDieMut {
 	return &ListOptionsDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ListOptions, *ListOptionsDie, *ListOptionsDieMut]    = (*ListOptionsDie)(nil)
-	_ diebase.DieMutOf[ListOptions, *ListOptionsDie, *ListOptionsDieMut] = (*ListOptionsDieMut)(nil)
-)
 
 var ListOptionsBlank = diebase.Blank[ListOptions, *ListOptionsDie, *ListOptionsDieMut]()
 
@@ -2903,11 +2793,6 @@ func (*ManagedFieldsEntryDieMut) DieFrom(b diebase.DieMutBase[ManagedFieldsEntry
 	return &ManagedFieldsEntryDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ManagedFieldsEntry, *ManagedFieldsEntryDie, *ManagedFieldsEntryDieMut]    = (*ManagedFieldsEntryDie)(nil)
-	_ diebase.DieMutOf[ManagedFieldsEntry, *ManagedFieldsEntryDie, *ManagedFieldsEntryDieMut] = (*ManagedFieldsEntryDieMut)(nil)
-)
-
 var ManagedFieldsEntryBlank = diebase.Blank[ManagedFieldsEntry, *ManagedFieldsEntryDie, *ManagedFieldsEntryDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -3104,11 +2989,6 @@ func (*ObjectMetaDie) DieFrom(b diebase.DieBase[ObjectMeta, *ObjectMetaDie, *Obj
 func (*ObjectMetaDieMut) DieFrom(b diebase.DieMutBase[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]) *ObjectMetaDieMut {
 	return &ObjectMetaDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]    = (*ObjectMetaDie)(nil)
-	_ diebase.DieMutOf[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut] = (*ObjectMetaDieMut)(nil)
-)
 
 var ObjectMetaBlank = diebase.Blank[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]()
 
@@ -3560,11 +3440,6 @@ func (*OwnerReferenceDieMut) DieFrom(b diebase.DieMutBase[OwnerReference, *Owner
 	return &OwnerReferenceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut]    = (*OwnerReferenceDie)(nil)
-	_ diebase.DieMutOf[OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut] = (*OwnerReferenceDieMut)(nil)
-)
-
 var OwnerReferenceBlank = diebase.Blank[OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -3740,11 +3615,6 @@ func (*PartialObjectMetadataDieMut) DieFrom(b diebase.DieMutBase[PartialObjectMe
 	return &PartialObjectMetadataDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PartialObjectMetadata, *PartialObjectMetadataDie, *PartialObjectMetadataDieMut]    = (*PartialObjectMetadataDie)(nil)
-	_ diebase.DieMutOf[PartialObjectMetadata, *PartialObjectMetadataDie, *PartialObjectMetadataDieMut] = (*PartialObjectMetadataDieMut)(nil)
-)
-
 var PartialObjectMetadataBlank = diebase.Blank[PartialObjectMetadata, *PartialObjectMetadataDie, *PartialObjectMetadataDieMut]()
 
 type partialObjectMetadataFieldsTable struct {
@@ -3827,11 +3697,6 @@ func (*PartialObjectMetadataListDie) DieFrom(b diebase.DieBase[PartialObjectMeta
 func (*PartialObjectMetadataListDieMut) DieFrom(b diebase.DieMutBase[PartialObjectMetadataList, *PartialObjectMetadataListDie, *PartialObjectMetadataListDieMut]) *PartialObjectMetadataListDieMut {
 	return &PartialObjectMetadataListDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PartialObjectMetadataList, *PartialObjectMetadataListDie, *PartialObjectMetadataListDieMut]    = (*PartialObjectMetadataListDie)(nil)
-	_ diebase.DieMutOf[PartialObjectMetadataList, *PartialObjectMetadataListDie, *PartialObjectMetadataListDieMut] = (*PartialObjectMetadataListDieMut)(nil)
-)
 
 var PartialObjectMetadataListBlank = diebase.Blank[PartialObjectMetadataList, *PartialObjectMetadataListDie, *PartialObjectMetadataListDieMut]()
 
@@ -3928,11 +3793,6 @@ func (*PatchDieMut) DieFrom(b diebase.DieMutBase[Patch, *PatchDie, *PatchDieMut]
 	return &PatchDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[Patch, *PatchDie, *PatchDieMut]    = (*PatchDie)(nil)
-	_ diebase.DieMutOf[Patch, *PatchDie, *PatchDieMut] = (*PatchDieMut)(nil)
-)
-
 var PatchBlank = diebase.Blank[Patch, *PatchDie, *PatchDieMut]()
 
 type patchFieldsTable struct {
@@ -3964,11 +3824,6 @@ func (*PatchOptionsDie) DieFrom(b diebase.DieBase[PatchOptions, *PatchOptionsDie
 func (*PatchOptionsDieMut) DieFrom(b diebase.DieMutBase[PatchOptions, *PatchOptionsDie, *PatchOptionsDieMut]) *PatchOptionsDieMut {
 	return &PatchOptionsDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PatchOptions, *PatchOptionsDie, *PatchOptionsDieMut]    = (*PatchOptionsDie)(nil)
-	_ diebase.DieMutOf[PatchOptions, *PatchOptionsDie, *PatchOptionsDieMut] = (*PatchOptionsDieMut)(nil)
-)
 
 var PatchOptionsBlank = diebase.Blank[PatchOptions, *PatchOptionsDie, *PatchOptionsDieMut]()
 
@@ -4141,11 +3996,6 @@ func (*PreconditionsDieMut) DieFrom(b diebase.DieMutBase[Preconditions, *Precond
 	return &PreconditionsDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[Preconditions, *PreconditionsDie, *PreconditionsDieMut]    = (*PreconditionsDie)(nil)
-	_ diebase.DieMutOf[Preconditions, *PreconditionsDie, *PreconditionsDieMut] = (*PreconditionsDieMut)(nil)
-)
-
 var PreconditionsBlank = diebase.Blank[Preconditions, *PreconditionsDie, *PreconditionsDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -4253,11 +4103,6 @@ func (*RootPathsDieMut) DieFrom(b diebase.DieMutBase[RootPaths, *RootPathsDie, *
 	return &RootPathsDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[RootPaths, *RootPathsDie, *RootPathsDieMut]    = (*RootPathsDie)(nil)
-	_ diebase.DieMutOf[RootPaths, *RootPathsDie, *RootPathsDieMut] = (*RootPathsDieMut)(nil)
-)
-
 var RootPathsBlank = diebase.Blank[RootPaths, *RootPathsDie, *RootPathsDieMut]()
 
 type rootPathsFieldsTable struct {
@@ -4300,11 +4145,6 @@ func (*ServerAddressByClientCIDRDie) DieFrom(b diebase.DieBase[ServerAddressByCl
 func (*ServerAddressByClientCIDRDieMut) DieFrom(b diebase.DieMutBase[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]) *ServerAddressByClientCIDRDieMut {
 	return &ServerAddressByClientCIDRDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]    = (*ServerAddressByClientCIDRDie)(nil)
-	_ diebase.DieMutOf[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut] = (*ServerAddressByClientCIDRDieMut)(nil)
-)
 
 var ServerAddressByClientCIDRBlank = diebase.Blank[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]()
 
@@ -4364,11 +4204,6 @@ func (*ShardInfoDieMut) DieFrom(b diebase.DieMutBase[ShardInfo, *ShardInfoDie, *
 	return &ShardInfoDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ShardInfo, *ShardInfoDie, *ShardInfoDieMut]    = (*ShardInfoDie)(nil)
-	_ diebase.DieMutOf[ShardInfo, *ShardInfoDie, *ShardInfoDieMut] = (*ShardInfoDieMut)(nil)
-)
-
 var ShardInfoBlank = diebase.Blank[ShardInfo, *ShardInfoDie, *ShardInfoDieMut]()
 
 type shardInfoFieldsTable struct {
@@ -4413,11 +4248,6 @@ func (*StatusDie) DieFrom(b diebase.DieBase[Status, *StatusDie, *StatusDieMut]) 
 func (*StatusDieMut) DieFrom(b diebase.DieMutBase[Status, *StatusDie, *StatusDieMut]) *StatusDieMut {
 	return &StatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[Status, *StatusDie, *StatusDieMut]    = (*StatusDie)(nil)
-	_ diebase.DieMutOf[Status, *StatusDie, *StatusDieMut] = (*StatusDieMut)(nil)
-)
 
 var StatusBlank = diebase.Blank[Status, *StatusDie, *StatusDieMut]()
 
@@ -4577,11 +4407,6 @@ func (*StatusCauseDieMut) DieFrom(b diebase.DieMutBase[StatusCause, *StatusCause
 	return &StatusCauseDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[StatusCause, *StatusCauseDie, *StatusCauseDieMut]    = (*StatusCauseDie)(nil)
-	_ diebase.DieMutOf[StatusCause, *StatusCauseDie, *StatusCauseDieMut] = (*StatusCauseDieMut)(nil)
-)
-
 var StatusCauseBlank = diebase.Blank[StatusCause, *StatusCauseDie, *StatusCauseDieMut]()
 
 type statusCauseFieldsTable struct {
@@ -4675,11 +4500,6 @@ func (*StatusDetailsDie) DieFrom(b diebase.DieBase[StatusDetails, *StatusDetails
 func (*StatusDetailsDieMut) DieFrom(b diebase.DieMutBase[StatusDetails, *StatusDetailsDie, *StatusDetailsDieMut]) *StatusDetailsDieMut {
 	return &StatusDetailsDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[StatusDetails, *StatusDetailsDie, *StatusDetailsDieMut]    = (*StatusDetailsDie)(nil)
-	_ diebase.DieMutOf[StatusDetails, *StatusDetailsDie, *StatusDetailsDieMut] = (*StatusDetailsDieMut)(nil)
-)
 
 var StatusDetailsBlank = diebase.Blank[StatusDetails, *StatusDetailsDie, *StatusDetailsDieMut]()
 
@@ -4801,11 +4621,6 @@ func (*TableDieMut) DieFrom(b diebase.DieMutBase[Table, *TableDie, *TableDieMut]
 	return &TableDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[Table, *TableDie, *TableDieMut]    = (*TableDie)(nil)
-	_ diebase.DieMutOf[Table, *TableDie, *TableDieMut] = (*TableDieMut)(nil)
-)
-
 var TableBlank = diebase.Blank[Table, *TableDie, *TableDieMut]()
 
 type tableFieldsTable struct {
@@ -4912,11 +4727,6 @@ func (*TableColumnDefinitionDie) DieFrom(b diebase.DieBase[TableColumnDefinition
 func (*TableColumnDefinitionDieMut) DieFrom(b diebase.DieMutBase[TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut]) *TableColumnDefinitionDieMut {
 	return &TableColumnDefinitionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut]    = (*TableColumnDefinitionDie)(nil)
-	_ diebase.DieMutOf[TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut] = (*TableColumnDefinitionDieMut)(nil)
-)
 
 var TableColumnDefinitionBlank = diebase.Blank[TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut]()
 
@@ -5025,11 +4835,6 @@ func (*TableOptionsDieMut) DieFrom(b diebase.DieMutBase[TableOptions, *TableOpti
 	return &TableOptionsDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[TableOptions, *TableOptionsDie, *TableOptionsDieMut]    = (*TableOptionsDie)(nil)
-	_ diebase.DieMutOf[TableOptions, *TableOptionsDie, *TableOptionsDieMut] = (*TableOptionsDieMut)(nil)
-)
-
 var TableOptionsBlank = diebase.Blank[TableOptions, *TableOptionsDie, *TableOptionsDieMut]()
 
 type tableOptionsFieldsTable struct {
@@ -5116,11 +4921,6 @@ func (*TableRowDie) DieFrom(b diebase.DieBase[TableRow, *TableRowDie, *TableRowD
 func (*TableRowDieMut) DieFrom(b diebase.DieMutBase[TableRow, *TableRowDie, *TableRowDieMut]) *TableRowDieMut {
 	return &TableRowDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[TableRow, *TableRowDie, *TableRowDieMut]    = (*TableRowDie)(nil)
-	_ diebase.DieMutOf[TableRow, *TableRowDie, *TableRowDieMut] = (*TableRowDieMut)(nil)
-)
 
 var TableRowBlank = diebase.Blank[TableRow, *TableRowDie, *TableRowDieMut]()
 
@@ -5209,11 +5009,6 @@ func (*TableRowConditionDieMut) DieFrom(b diebase.DieMutBase[TableRowCondition, 
 	return &TableRowConditionDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[TableRowCondition, *TableRowConditionDie, *TableRowConditionDieMut]    = (*TableRowConditionDie)(nil)
-	_ diebase.DieMutOf[TableRowCondition, *TableRowConditionDie, *TableRowConditionDieMut] = (*TableRowConditionDieMut)(nil)
-)
-
 var TableRowConditionBlank = diebase.Blank[TableRowCondition, *TableRowConditionDie, *TableRowConditionDieMut]()
 
 type tableRowConditionFieldsTable struct {
@@ -5301,11 +5096,6 @@ func (*TimestampDieMut) DieFrom(b diebase.DieMutBase[Timestamp, *TimestampDie, *
 	return &TimestampDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[Timestamp, *TimestampDie, *TimestampDieMut]    = (*TimestampDie)(nil)
-	_ diebase.DieMutOf[Timestamp, *TimestampDie, *TimestampDieMut] = (*TimestampDieMut)(nil)
-)
-
 var TimestampBlank = diebase.Blank[Timestamp, *TimestampDie, *TimestampDieMut]()
 
 type timestampFieldsTable struct {
@@ -5372,11 +5162,6 @@ func (*TypeMetaDie) DieFrom(b diebase.DieBase[TypeMeta, *TypeMetaDie, *TypeMetaD
 func (*TypeMetaDieMut) DieFrom(b diebase.DieMutBase[TypeMeta, *TypeMetaDie, *TypeMetaDieMut]) *TypeMetaDieMut {
 	return &TypeMetaDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[TypeMeta, *TypeMetaDie, *TypeMetaDieMut]    = (*TypeMetaDie)(nil)
-	_ diebase.DieMutOf[TypeMeta, *TypeMetaDie, *TypeMetaDieMut] = (*TypeMetaDieMut)(nil)
-)
 
 var TypeMetaBlank = diebase.Blank[TypeMeta, *TypeMetaDie, *TypeMetaDieMut]()
 
@@ -5498,11 +5283,6 @@ func (*UpdateOptionsDie) DieFrom(b diebase.DieBase[UpdateOptions, *UpdateOptions
 func (*UpdateOptionsDieMut) DieFrom(b diebase.DieMutBase[UpdateOptions, *UpdateOptionsDie, *UpdateOptionsDieMut]) *UpdateOptionsDieMut {
 	return &UpdateOptionsDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[UpdateOptions, *UpdateOptionsDie, *UpdateOptionsDieMut]    = (*UpdateOptionsDie)(nil)
-	_ diebase.DieMutOf[UpdateOptions, *UpdateOptionsDie, *UpdateOptionsDieMut] = (*UpdateOptionsDieMut)(nil)
-)
 
 var UpdateOptionsBlank = diebase.Blank[UpdateOptions, *UpdateOptionsDie, *UpdateOptionsDieMut]()
 
@@ -5652,11 +5432,6 @@ func (*WatchEventDie) DieFrom(b diebase.DieBase[WatchEvent, *WatchEventDie, *Wat
 func (*WatchEventDieMut) DieFrom(b diebase.DieMutBase[WatchEvent, *WatchEventDie, *WatchEventDieMut]) *WatchEventDieMut {
 	return &WatchEventDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[WatchEvent, *WatchEventDie, *WatchEventDieMut]    = (*WatchEventDie)(nil)
-	_ diebase.DieMutOf[WatchEvent, *WatchEventDie, *WatchEventDieMut] = (*WatchEventDieMut)(nil)
-)
 
 var WatchEventBlank = diebase.Blank[WatchEvent, *WatchEventDie, *WatchEventDieMut]()
 

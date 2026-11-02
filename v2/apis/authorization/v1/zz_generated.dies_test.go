@@ -22,6 +22,7 @@ import (
 	authorizationv1 "k8s.io/api/authorization/v1"
 	dieauthorizationv1 "reconciler.io/dies/v2/apis/authorization/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -48,6 +49,18 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dieauthorizationv1.LocalSubjectAccessReview, *dieauthorizationv1.LocalSubjectAccessReviewDie, *dieauthorizationv1.LocalSubjectAccessReviewDieMut]    = (*dieauthorizationv1.LocalSubjectAccessReviewDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieauthorizationv1.LocalSubjectAccessReview, *dieauthorizationv1.LocalSubjectAccessReviewDie, *dieauthorizationv1.LocalSubjectAccessReviewDieMut] = (*dieauthorizationv1.LocalSubjectAccessReviewDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieauthorizationv1.SelfSubjectAccessReview, *dieauthorizationv1.SelfSubjectAccessReviewDie, *dieauthorizationv1.SelfSubjectAccessReviewDieMut]       = (*dieauthorizationv1.SelfSubjectAccessReviewDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieauthorizationv1.SelfSubjectAccessReview, *dieauthorizationv1.SelfSubjectAccessReviewDie, *dieauthorizationv1.SelfSubjectAccessReviewDieMut]    = (*dieauthorizationv1.SelfSubjectAccessReviewDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieauthorizationv1.SelfSubjectRulesReview, *dieauthorizationv1.SelfSubjectRulesReviewDie, *dieauthorizationv1.SelfSubjectRulesReviewDieMut]          = (*dieauthorizationv1.SelfSubjectRulesReviewDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieauthorizationv1.SelfSubjectRulesReview, *dieauthorizationv1.SelfSubjectRulesReviewDie, *dieauthorizationv1.SelfSubjectRulesReviewDieMut]       = (*dieauthorizationv1.SelfSubjectRulesReviewDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieauthorizationv1.SubjectAccessReview, *dieauthorizationv1.SubjectAccessReviewDie, *dieauthorizationv1.SubjectAccessReviewDieMut]                   = (*dieauthorizationv1.SubjectAccessReviewDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieauthorizationv1.SubjectAccessReview, *dieauthorizationv1.SubjectAccessReviewDie, *dieauthorizationv1.SubjectAccessReviewDieMut]                = (*dieauthorizationv1.SubjectAccessReviewDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieauthorizationv1.AddToScheme, authorizationv1.AddToScheme, dieauthorizationv1.SchemeGroupVersion); err != nil {

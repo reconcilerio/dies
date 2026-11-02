@@ -49,11 +49,6 @@ func (*ConditionDieMut) DieFrom(b diebase.DieMutBase[Condition, *ConditionDie, *
 	return &ConditionDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[Condition, *ConditionDie, *ConditionDieMut]    = (*ConditionDie)(nil)
-	_ diebase.DieMutOf[Condition, *ConditionDie, *ConditionDieMut] = (*ConditionDieMut)(nil)
-)
-
 var ConditionBlank = diebase.Blank[Condition, *ConditionDie, *ConditionDieMut]()
 
 type conditionFieldsTable struct {
@@ -165,11 +160,6 @@ func (*ConditionSetDieMut) DieFrom(b diebase.DieMutBase[ConditionSet, *Condition
 	return &ConditionSetDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ConditionSet, *ConditionSetDie, *ConditionSetDieMut]    = (*ConditionSetDie)(nil)
-	_ diebase.DieMutOf[ConditionSet, *ConditionSetDie, *ConditionSetDieMut] = (*ConditionSetDieMut)(nil)
-)
-
 var ConditionSetBlank = diebase.Blank[ConditionSet, *ConditionSetDie, *ConditionSetDieMut]()
 
 type conditionSetFieldsTable struct {
@@ -202,11 +192,6 @@ func (*FieldErrorDie) DieFrom(b diebase.DieBase[FieldError, *FieldErrorDie, *Fie
 func (*FieldErrorDieMut) DieFrom(b diebase.DieMutBase[FieldError, *FieldErrorDie, *FieldErrorDieMut]) *FieldErrorDieMut {
 	return &FieldErrorDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[FieldError, *FieldErrorDie, *FieldErrorDieMut]    = (*FieldErrorDie)(nil)
-	_ diebase.DieMutOf[FieldError, *FieldErrorDie, *FieldErrorDieMut] = (*FieldErrorDieMut)(nil)
-)
 
 var FieldErrorBlank = diebase.Blank[FieldError, *FieldErrorDie, *FieldErrorDieMut]()
 

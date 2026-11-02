@@ -22,6 +22,7 @@ import (
 	eventsv1beta1 "k8s.io/api/events/v1beta1"
 	dieeventsv1beta1 "reconciler.io/dies/v2/apis/events/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -36,6 +37,12 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dieeventsv1beta1.Event, *dieeventsv1beta1.EventDie, *dieeventsv1beta1.EventDieMut]    = (*dieeventsv1beta1.EventDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieeventsv1beta1.Event, *dieeventsv1beta1.EventDie, *dieeventsv1beta1.EventDieMut] = (*dieeventsv1beta1.EventDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieeventsv1beta1.AddToScheme, eventsv1beta1.AddToScheme, dieeventsv1beta1.SchemeGroupVersion); err != nil {

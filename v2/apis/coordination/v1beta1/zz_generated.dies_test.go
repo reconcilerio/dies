@@ -22,6 +22,7 @@ import (
 	coordinationv1beta1 "k8s.io/api/coordination/v1beta1"
 	diecoordinationv1beta1 "reconciler.io/dies/v2/apis/coordination/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -39,6 +40,14 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[diecoordinationv1beta1.Lease, *diecoordinationv1beta1.LeaseDie, *diecoordinationv1beta1.LeaseDieMut]                               = (*diecoordinationv1beta1.LeaseDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecoordinationv1beta1.Lease, *diecoordinationv1beta1.LeaseDie, *diecoordinationv1beta1.LeaseDieMut]                            = (*diecoordinationv1beta1.LeaseDieMut)(nil)
+	_ dieobjects.DieObjectOf[diecoordinationv1beta1.LeaseCandidate, *diecoordinationv1beta1.LeaseCandidateDie, *diecoordinationv1beta1.LeaseCandidateDieMut]    = (*diecoordinationv1beta1.LeaseCandidateDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecoordinationv1beta1.LeaseCandidate, *diecoordinationv1beta1.LeaseCandidateDie, *diecoordinationv1beta1.LeaseCandidateDieMut] = (*diecoordinationv1beta1.LeaseCandidateDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(diecoordinationv1beta1.AddToScheme, coordinationv1beta1.AddToScheme, diecoordinationv1beta1.SchemeGroupVersion); err != nil {

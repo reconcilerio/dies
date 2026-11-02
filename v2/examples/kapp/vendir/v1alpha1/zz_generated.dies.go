@@ -44,11 +44,6 @@ func (*VersionSelectionDieMut) DieFrom(b diebase.DieMutBase[VersionSelection, *V
 	return &VersionSelectionDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[VersionSelection, *VersionSelectionDie, *VersionSelectionDieMut]    = (*VersionSelectionDie)(nil)
-	_ diebase.DieMutOf[VersionSelection, *VersionSelectionDie, *VersionSelectionDieMut] = (*VersionSelectionDieMut)(nil)
-)
-
 var VersionSelectionBlank = diebase.Blank[VersionSelection, *VersionSelectionDie, *VersionSelectionDieMut]()
 
 type versionSelectionFieldsTable struct {
@@ -86,11 +81,6 @@ func (*VersionSelectionSemverDie) DieFrom(b diebase.DieBase[VersionSelectionSemv
 func (*VersionSelectionSemverDieMut) DieFrom(b diebase.DieMutBase[VersionSelectionSemver, *VersionSelectionSemverDie, *VersionSelectionSemverDieMut]) *VersionSelectionSemverDieMut {
 	return &VersionSelectionSemverDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[VersionSelectionSemver, *VersionSelectionSemverDie, *VersionSelectionSemverDieMut]    = (*VersionSelectionSemverDie)(nil)
-	_ diebase.DieMutOf[VersionSelectionSemver, *VersionSelectionSemverDie, *VersionSelectionSemverDieMut] = (*VersionSelectionSemverDieMut)(nil)
-)
 
 var VersionSelectionSemverBlank = diebase.Blank[VersionSelectionSemver, *VersionSelectionSemverDie, *VersionSelectionSemverDieMut]()
 
@@ -139,11 +129,6 @@ func (*VersionSelectionSemverPrereleasesDie) DieFrom(b diebase.DieBase[VersionSe
 func (*VersionSelectionSemverPrereleasesDieMut) DieFrom(b diebase.DieMutBase[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie, *VersionSelectionSemverPrereleasesDieMut]) *VersionSelectionSemverPrereleasesDieMut {
 	return &VersionSelectionSemverPrereleasesDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie, *VersionSelectionSemverPrereleasesDieMut]    = (*VersionSelectionSemverPrereleasesDie)(nil)
-	_ diebase.DieMutOf[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie, *VersionSelectionSemverPrereleasesDieMut] = (*VersionSelectionSemverPrereleasesDieMut)(nil)
-)
 
 var VersionSelectionSemverPrereleasesBlank = diebase.Blank[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie, *VersionSelectionSemverPrereleasesDieMut]()
 

@@ -22,6 +22,7 @@ import (
 	policyv1beta1 "k8s.io/api/policy/v1beta1"
 	diepolicyv1beta1 "reconciler.io/dies/v2/apis/policy/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -38,6 +39,14 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[diepolicyv1beta1.Eviction, *diepolicyv1beta1.EvictionDie, *diepolicyv1beta1.EvictionDieMut]                                     = (*diepolicyv1beta1.EvictionDie)(nil)
+	_ dieobjects.DieObjectMutOf[diepolicyv1beta1.Eviction, *diepolicyv1beta1.EvictionDie, *diepolicyv1beta1.EvictionDieMut]                                  = (*diepolicyv1beta1.EvictionDieMut)(nil)
+	_ dieobjects.DieObjectOf[diepolicyv1beta1.PodDisruptionBudget, *diepolicyv1beta1.PodDisruptionBudgetDie, *diepolicyv1beta1.PodDisruptionBudgetDieMut]    = (*diepolicyv1beta1.PodDisruptionBudgetDie)(nil)
+	_ dieobjects.DieObjectMutOf[diepolicyv1beta1.PodDisruptionBudget, *diepolicyv1beta1.PodDisruptionBudgetDie, *diepolicyv1beta1.PodDisruptionBudgetDieMut] = (*diepolicyv1beta1.PodDisruptionBudgetDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(diepolicyv1beta1.AddToScheme, policyv1beta1.AddToScheme, diepolicyv1beta1.SchemeGroupVersion); err != nil {

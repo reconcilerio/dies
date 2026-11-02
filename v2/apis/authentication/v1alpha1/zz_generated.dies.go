@@ -27,7 +27,6 @@ import (
 	diebase "reconciler.io/dies/v2/die/base"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // SelfSubjectReview contains the user information that the kube-apiserver has about the user making this request.
@@ -52,11 +51,6 @@ func (*SelfSubjectReviewDie) DieFrom(b diebase.DieBase[SelfSubjectReview, *SelfS
 func (*SelfSubjectReviewDieMut) DieFrom(b diebase.DieMutBase[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut]) *SelfSubjectReviewDieMut {
 	return &SelfSubjectReviewDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut]    = (*SelfSubjectReviewDie)(nil)
-	_ dieobjects.DieObjectMutOf[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut] = (*SelfSubjectReviewDieMut)(nil)
-)
 
 var SelfSubjectReviewBlank = diebase.BlankOf[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut](SelfSubjectReview{TypeMeta: metav1.TypeMeta{APIVersion: "authentication.k8s.io/v1alpha1", Kind: "SelfSubjectReview"}})
 
@@ -152,11 +146,6 @@ func (*SelfSubjectReviewStatusDie) DieFrom(b diebase.DieBase[SelfSubjectReviewSt
 func (*SelfSubjectReviewStatusDieMut) DieFrom(b diebase.DieMutBase[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut]) *SelfSubjectReviewStatusDieMut {
 	return &SelfSubjectReviewStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut]    = (*SelfSubjectReviewStatusDie)(nil)
-	_ diebase.DieMutOf[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut] = (*SelfSubjectReviewStatusDieMut)(nil)
-)
 
 var SelfSubjectReviewStatusBlank = diebase.Blank[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut]()
 

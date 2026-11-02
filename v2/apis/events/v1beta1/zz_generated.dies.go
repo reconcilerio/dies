@@ -28,7 +28,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // Event is a report of an event somewhere in the cluster. It generally denotes some state change in the system.
@@ -56,11 +55,6 @@ func (*EventDie) DieFrom(b diebase.DieBase[Event, *EventDie, *EventDieMut]) *Eve
 func (*EventDieMut) DieFrom(b diebase.DieMutBase[Event, *EventDie, *EventDieMut]) *EventDieMut {
 	return &EventDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[Event, *EventDie, *EventDieMut]    = (*EventDie)(nil)
-	_ dieobjects.DieObjectMutOf[Event, *EventDie, *EventDieMut] = (*EventDieMut)(nil)
-)
 
 var EventBlank = diebase.BlankOf[Event, *EventDie, *EventDieMut](Event{TypeMeta: metav1.TypeMeta{APIVersion: "events.k8s.io/v1beta1", Kind: "Event"}})
 
@@ -399,11 +393,6 @@ func (*EventSeriesDie) DieFrom(b diebase.DieBase[EventSeries, *EventSeriesDie, *
 func (*EventSeriesDieMut) DieFrom(b diebase.DieMutBase[EventSeries, *EventSeriesDie, *EventSeriesDieMut]) *EventSeriesDieMut {
 	return &EventSeriesDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[EventSeries, *EventSeriesDie, *EventSeriesDieMut]    = (*EventSeriesDie)(nil)
-	_ diebase.DieMutOf[EventSeries, *EventSeriesDie, *EventSeriesDieMut] = (*EventSeriesDieMut)(nil)
-)
 
 var EventSeriesBlank = diebase.Blank[EventSeries, *EventSeriesDie, *EventSeriesDieMut]()
 

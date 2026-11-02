@@ -22,6 +22,8 @@ import (
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	dieapiextensionsv1 "reconciler.io/dies/v2/apis/apiextensions/v1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	diefields "reconciler.io/dies/v2/die/fields"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -56,6 +58,14 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ diefields.DieTypedOf[dieapiextensionsv1.ConversionReview, *dieapiextensionsv1.ConversionReviewDie, *dieapiextensionsv1.ConversionReviewDieMut]                              = (*dieapiextensionsv1.ConversionReviewDie)(nil)
+	_ diefields.DieTypedMutOf[dieapiextensionsv1.ConversionReview, *dieapiextensionsv1.ConversionReviewDie, *dieapiextensionsv1.ConversionReviewDieMut]                           = (*dieapiextensionsv1.ConversionReviewDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieapiextensionsv1.CustomResourceDefinition, *dieapiextensionsv1.CustomResourceDefinitionDie, *dieapiextensionsv1.CustomResourceDefinitionDieMut]    = (*dieapiextensionsv1.CustomResourceDefinitionDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieapiextensionsv1.CustomResourceDefinition, *dieapiextensionsv1.CustomResourceDefinitionDie, *dieapiextensionsv1.CustomResourceDefinitionDieMut] = (*dieapiextensionsv1.CustomResourceDefinitionDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieapiextensionsv1.AddToScheme, apiextensionsv1.AddToScheme, dieapiextensionsv1.SchemeGroupVersion); err != nil {

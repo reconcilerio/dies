@@ -49,11 +49,6 @@ func (*BatchDieMut) DieFrom(b diebase.DieMutBase[Batch, *BatchDie, *BatchDieMut]
 	return &BatchDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[Batch, *BatchDie, *BatchDieMut]    = (*BatchDie)(nil)
-	_ diebase.DieMutOf[Batch, *BatchDie, *BatchDieMut] = (*BatchDieMut)(nil)
-)
-
 var BatchBlank = diebase.Blank[Batch, *BatchDie, *BatchDieMut]()
 
 type batchFieldsTable struct {
@@ -100,11 +95,6 @@ func (*BuilderDie) DieFrom(b diebase.DieBase[Builder, *BuilderDie, *BuilderDieMu
 func (*BuilderDieMut) DieFrom(b diebase.DieMutBase[Builder, *BuilderDie, *BuilderDieMut]) *BuilderDieMut {
 	return &BuilderDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[Builder, *BuilderDie, *BuilderDieMut]    = (*BuilderDie)(nil)
-	_ diebase.DieMutOf[Builder, *BuilderDie, *BuilderDieMut] = (*BuilderDieMut)(nil)
-)
 
 var BuilderBlank = diebase.Blank[Builder, *BuilderDie, *BuilderDieMut]()
 
@@ -167,11 +157,6 @@ func (*ConditionedDieMut) DieFrom(b diebase.DieMutBase[Conditioned, *Conditioned
 	return &ConditionedDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[Conditioned, *ConditionedDie, *ConditionedDieMut]    = (*ConditionedDie)(nil)
-	_ diebase.DieMutOf[Conditioned, *ConditionedDie, *ConditionedDieMut] = (*ConditionedDieMut)(nil)
-)
-
 var ConditionedBlank = diebase.Blank[Conditioned, *ConditionedDie, *ConditionedDieMut]()
 
 type conditionedFieldsTable struct {
@@ -212,11 +197,6 @@ func (*ContainerImageDie) DieFrom(b diebase.DieBase[ContainerImage, *ContainerIm
 func (*ContainerImageDieMut) DieFrom(b diebase.DieMutBase[ContainerImage, *ContainerImageDie, *ContainerImageDieMut]) *ContainerImageDieMut {
 	return &ContainerImageDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ContainerImage, *ContainerImageDie, *ContainerImageDieMut]    = (*ContainerImageDie)(nil)
-	_ diebase.DieMutOf[ContainerImage, *ContainerImageDie, *ContainerImageDieMut] = (*ContainerImageDieMut)(nil)
-)
 
 var ContainerImageBlank = diebase.Blank[ContainerImage, *ContainerImageDie, *ContainerImageDieMut]()
 
@@ -269,11 +249,6 @@ func (*ImageReferenceDie) DieFrom(b diebase.DieBase[ImageReference, *ImageRefere
 func (*ImageReferenceDieMut) DieFrom(b diebase.DieMutBase[ImageReference, *ImageReferenceDie, *ImageReferenceDieMut]) *ImageReferenceDieMut {
 	return &ImageReferenceDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ImageReference, *ImageReferenceDie, *ImageReferenceDieMut]    = (*ImageReferenceDie)(nil)
-	_ diebase.DieMutOf[ImageReference, *ImageReferenceDie, *ImageReferenceDieMut] = (*ImageReferenceDieMut)(nil)
-)
 
 var ImageReferenceBlank = diebase.Blank[ImageReference, *ImageReferenceDie, *ImageReferenceDieMut]()
 
@@ -337,11 +312,6 @@ func (*PipelineDieMut) DieFrom(b diebase.DieMutBase[Pipeline, *PipelineDie, *Pip
 	return &PipelineDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[Pipeline, *PipelineDie, *PipelineDieMut]    = (*PipelineDie)(nil)
-	_ diebase.DieMutOf[Pipeline, *PipelineDie, *PipelineDieMut] = (*PipelineDieMut)(nil)
-)
-
 var PipelineBlank = diebase.Blank[Pipeline, *PipelineDie, *PipelineDieMut]()
 
 type pipelineFieldsTable struct {
@@ -401,11 +371,6 @@ func (*PodSpecableDieMut) DieFrom(b diebase.DieMutBase[PodSpecable, *PodSpecable
 	return &PodSpecableDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PodSpecable, *PodSpecableDie, *PodSpecableDieMut]    = (*PodSpecableDie)(nil)
-	_ diebase.DieMutOf[PodSpecable, *PodSpecableDie, *PodSpecableDieMut] = (*PodSpecableDieMut)(nil)
-)
-
 var PodSpecableBlank = diebase.Blank[PodSpecable, *PodSpecableDie, *PodSpecableDieMut]()
 
 type podSpecableFieldsTable struct {
@@ -457,11 +422,6 @@ func (*WorkloadDie) DieFrom(b diebase.DieBase[Workload, *WorkloadDie, *WorkloadD
 func (*WorkloadDieMut) DieFrom(b diebase.DieMutBase[Workload, *WorkloadDie, *WorkloadDieMut]) *WorkloadDieMut {
 	return &WorkloadDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[Workload, *WorkloadDie, *WorkloadDieMut]    = (*WorkloadDie)(nil)
-	_ diebase.DieMutOf[Workload, *WorkloadDie, *WorkloadDieMut] = (*WorkloadDieMut)(nil)
-)
 
 var WorkloadBlank = diebase.Blank[Workload, *WorkloadDie, *WorkloadDieMut]()
 

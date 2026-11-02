@@ -22,6 +22,7 @@ import (
 	networkingv1beta1 "k8s.io/api/networking/v1beta1"
 	dienetworkingv1beta1 "reconciler.io/dies/v2/apis/networking/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -58,6 +59,18 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dienetworkingv1beta1.IPAddress, *dienetworkingv1beta1.IPAddressDie, *dienetworkingv1beta1.IPAddressDieMut]             = (*dienetworkingv1beta1.IPAddressDie)(nil)
+	_ dieobjects.DieObjectMutOf[dienetworkingv1beta1.IPAddress, *dienetworkingv1beta1.IPAddressDie, *dienetworkingv1beta1.IPAddressDieMut]          = (*dienetworkingv1beta1.IPAddressDieMut)(nil)
+	_ dieobjects.DieObjectOf[dienetworkingv1beta1.Ingress, *dienetworkingv1beta1.IngressDie, *dienetworkingv1beta1.IngressDieMut]                   = (*dienetworkingv1beta1.IngressDie)(nil)
+	_ dieobjects.DieObjectMutOf[dienetworkingv1beta1.Ingress, *dienetworkingv1beta1.IngressDie, *dienetworkingv1beta1.IngressDieMut]                = (*dienetworkingv1beta1.IngressDieMut)(nil)
+	_ dieobjects.DieObjectOf[dienetworkingv1beta1.IngressClass, *dienetworkingv1beta1.IngressClassDie, *dienetworkingv1beta1.IngressClassDieMut]    = (*dienetworkingv1beta1.IngressClassDie)(nil)
+	_ dieobjects.DieObjectMutOf[dienetworkingv1beta1.IngressClass, *dienetworkingv1beta1.IngressClassDie, *dienetworkingv1beta1.IngressClassDieMut] = (*dienetworkingv1beta1.IngressClassDieMut)(nil)
+	_ dieobjects.DieObjectOf[dienetworkingv1beta1.ServiceCIDR, *dienetworkingv1beta1.ServiceCIDRDie, *dienetworkingv1beta1.ServiceCIDRDieMut]       = (*dienetworkingv1beta1.ServiceCIDRDie)(nil)
+	_ dieobjects.DieObjectMutOf[dienetworkingv1beta1.ServiceCIDR, *dienetworkingv1beta1.ServiceCIDRDie, *dienetworkingv1beta1.ServiceCIDRDieMut]    = (*dienetworkingv1beta1.ServiceCIDRDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dienetworkingv1beta1.AddToScheme, networkingv1beta1.AddToScheme, dienetworkingv1beta1.SchemeGroupVersion); err != nil {

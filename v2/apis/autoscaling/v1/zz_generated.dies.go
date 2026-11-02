@@ -29,7 +29,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // ContainerResourceMetricSource indicates how to scale on a resource metric known to
@@ -58,11 +57,6 @@ func (*ContainerResourceMetricSourceDie) DieFrom(b diebase.DieBase[ContainerReso
 func (*ContainerResourceMetricSourceDieMut) DieFrom(b diebase.DieMutBase[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]) *ContainerResourceMetricSourceDieMut {
 	return &ContainerResourceMetricSourceDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]    = (*ContainerResourceMetricSourceDie)(nil)
-	_ diebase.DieMutOf[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut] = (*ContainerResourceMetricSourceDieMut)(nil)
-)
 
 var ContainerResourceMetricSourceBlank = diebase.Blank[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]()
 
@@ -154,11 +148,6 @@ func (*ContainerResourceMetricStatusDie) DieFrom(b diebase.DieBase[ContainerReso
 func (*ContainerResourceMetricStatusDieMut) DieFrom(b diebase.DieMutBase[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]) *ContainerResourceMetricStatusDieMut {
 	return &ContainerResourceMetricStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]    = (*ContainerResourceMetricStatusDie)(nil)
-	_ diebase.DieMutOf[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut] = (*ContainerResourceMetricStatusDieMut)(nil)
-)
 
 var ContainerResourceMetricStatusBlank = diebase.Blank[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]()
 
@@ -252,11 +241,6 @@ func (*CrossVersionObjectReferenceDie) DieFrom(b diebase.DieBase[CrossVersionObj
 func (*CrossVersionObjectReferenceDieMut) DieFrom(b diebase.DieMutBase[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]) *CrossVersionObjectReferenceDieMut {
 	return &CrossVersionObjectReferenceDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]    = (*CrossVersionObjectReferenceDie)(nil)
-	_ diebase.DieMutOf[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut] = (*CrossVersionObjectReferenceDieMut)(nil)
-)
 
 var CrossVersionObjectReferenceBlank = diebase.Blank[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]()
 
@@ -378,11 +362,6 @@ func (*ExternalMetricSourceDieMut) DieFrom(b diebase.DieMutBase[ExternalMetricSo
 	return &ExternalMetricSourceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]    = (*ExternalMetricSourceDie)(nil)
-	_ diebase.DieMutOf[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut] = (*ExternalMetricSourceDieMut)(nil)
-)
-
 var ExternalMetricSourceBlank = diebase.Blank[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]()
 
 type externalMetricSourceFieldsTable struct {
@@ -469,11 +448,6 @@ func (*ExternalMetricStatusDieMut) DieFrom(b diebase.DieMutBase[ExternalMetricSt
 	return &ExternalMetricStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]    = (*ExternalMetricStatusDie)(nil)
-	_ diebase.DieMutOf[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut] = (*ExternalMetricStatusDieMut)(nil)
-)
-
 var ExternalMetricStatusBlank = diebase.Blank[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]()
 
 type externalMetricStatusFieldsTable struct {
@@ -556,11 +530,6 @@ func (*HorizontalPodAutoscalerDie) DieFrom(b diebase.DieBase[HorizontalPodAutosc
 func (*HorizontalPodAutoscalerDieMut) DieFrom(b diebase.DieMutBase[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut]) *HorizontalPodAutoscalerDieMut {
 	return &HorizontalPodAutoscalerDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut]    = (*HorizontalPodAutoscalerDie)(nil)
-	_ dieobjects.DieObjectMutOf[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut] = (*HorizontalPodAutoscalerDieMut)(nil)
-)
 
 var HorizontalPodAutoscalerBlank = diebase.BlankOf[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut](HorizontalPodAutoscaler{TypeMeta: metav1.TypeMeta{APIVersion: "autoscaling/v1", Kind: "HorizontalPodAutoscaler"}})
 
@@ -719,11 +688,6 @@ func (*HorizontalPodAutoscalerConditionDieMut) DieFrom(b diebase.DieMutBase[Hori
 	return &HorizontalPodAutoscalerConditionDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]    = (*HorizontalPodAutoscalerConditionDie)(nil)
-	_ diebase.DieMutOf[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut] = (*HorizontalPodAutoscalerConditionDieMut)(nil)
-)
-
 var HorizontalPodAutoscalerConditionBlank = diebase.Blank[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]()
 
 type horizontalPodAutoscalerConditionFieldsTable struct {
@@ -853,11 +817,6 @@ func (*HorizontalPodAutoscalerSpecDie) DieFrom(b diebase.DieBase[HorizontalPodAu
 func (*HorizontalPodAutoscalerSpecDieMut) DieFrom(b diebase.DieMutBase[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]) *HorizontalPodAutoscalerSpecDieMut {
 	return &HorizontalPodAutoscalerSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]    = (*HorizontalPodAutoscalerSpecDie)(nil)
-	_ diebase.DieMutOf[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut] = (*HorizontalPodAutoscalerSpecDieMut)(nil)
-)
 
 var HorizontalPodAutoscalerSpecBlank = diebase.Blank[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]()
 
@@ -1000,11 +959,6 @@ func (*HorizontalPodAutoscalerStatusDie) DieFrom(b diebase.DieBase[HorizontalPod
 func (*HorizontalPodAutoscalerStatusDieMut) DieFrom(b diebase.DieMutBase[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]) *HorizontalPodAutoscalerStatusDieMut {
 	return &HorizontalPodAutoscalerStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]    = (*HorizontalPodAutoscalerStatusDie)(nil)
-	_ diebase.DieMutOf[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut] = (*HorizontalPodAutoscalerStatusDieMut)(nil)
-)
 
 var HorizontalPodAutoscalerStatusBlank = diebase.Blank[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]()
 
@@ -1153,11 +1107,6 @@ func (*MetricSpecDieMut) DieFrom(b diebase.DieMutBase[MetricSpec, *MetricSpecDie
 	return &MetricSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]    = (*MetricSpecDie)(nil)
-	_ diebase.DieMutOf[MetricSpec, *MetricSpecDie, *MetricSpecDieMut] = (*MetricSpecDieMut)(nil)
-)
-
 var MetricSpecBlank = diebase.Blank[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]()
 
 type metricSpecFieldsTable struct {
@@ -1292,11 +1241,6 @@ func (*MetricStatusDie) DieFrom(b diebase.DieBase[MetricStatus, *MetricStatusDie
 func (*MetricStatusDieMut) DieFrom(b diebase.DieMutBase[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]) *MetricStatusDieMut {
 	return &MetricStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]    = (*MetricStatusDie)(nil)
-	_ diebase.DieMutOf[MetricStatus, *MetricStatusDie, *MetricStatusDieMut] = (*MetricStatusDieMut)(nil)
-)
 
 var MetricStatusBlank = diebase.Blank[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]()
 
@@ -1434,11 +1378,6 @@ func (*ObjectMetricSourceDieMut) DieFrom(b diebase.DieMutBase[ObjectMetricSource
 	return &ObjectMetricSourceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]    = (*ObjectMetricSourceDie)(nil)
-	_ diebase.DieMutOf[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut] = (*ObjectMetricSourceDieMut)(nil)
-)
-
 var ObjectMetricSourceBlank = diebase.Blank[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]()
 
 type objectMetricSourceFieldsTable struct {
@@ -1536,11 +1475,6 @@ func (*ObjectMetricStatusDie) DieFrom(b diebase.DieBase[ObjectMetricStatus, *Obj
 func (*ObjectMetricStatusDieMut) DieFrom(b diebase.DieMutBase[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]) *ObjectMetricStatusDieMut {
 	return &ObjectMetricStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]    = (*ObjectMetricStatusDie)(nil)
-	_ diebase.DieMutOf[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut] = (*ObjectMetricStatusDieMut)(nil)
-)
 
 var ObjectMetricStatusBlank = diebase.Blank[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]()
 
@@ -1642,11 +1576,6 @@ func (*PodsMetricSourceDieMut) DieFrom(b diebase.DieMutBase[PodsMetricSource, *P
 	return &PodsMetricSourceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]    = (*PodsMetricSourceDie)(nil)
-	_ diebase.DieMutOf[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut] = (*PodsMetricSourceDieMut)(nil)
-)
-
 var PodsMetricSourceBlank = diebase.Blank[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]()
 
 type podsMetricSourceFieldsTable struct {
@@ -1720,11 +1649,6 @@ func (*PodsMetricStatusDie) DieFrom(b diebase.DieBase[PodsMetricStatus, *PodsMet
 func (*PodsMetricStatusDieMut) DieFrom(b diebase.DieMutBase[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]) *PodsMetricStatusDieMut {
 	return &PodsMetricStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]    = (*PodsMetricStatusDie)(nil)
-	_ diebase.DieMutOf[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut] = (*PodsMetricStatusDieMut)(nil)
-)
 
 var PodsMetricStatusBlank = diebase.Blank[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]()
 
@@ -1805,11 +1729,6 @@ func (*ResourceMetricSourceDieMut) DieFrom(b diebase.DieMutBase[ResourceMetricSo
 	return &ResourceMetricSourceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]    = (*ResourceMetricSourceDie)(nil)
-	_ diebase.DieMutOf[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut] = (*ResourceMetricSourceDieMut)(nil)
-)
-
 var ResourceMetricSourceBlank = diebase.Blank[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]()
 
 type resourceMetricSourceFieldsTable struct {
@@ -1888,11 +1807,6 @@ func (*ResourceMetricStatusDie) DieFrom(b diebase.DieBase[ResourceMetricStatus, 
 func (*ResourceMetricStatusDieMut) DieFrom(b diebase.DieMutBase[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]) *ResourceMetricStatusDieMut {
 	return &ResourceMetricStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]    = (*ResourceMetricStatusDie)(nil)
-	_ diebase.DieMutOf[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut] = (*ResourceMetricStatusDieMut)(nil)
-)
 
 var ResourceMetricStatusBlank = diebase.Blank[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]()
 
@@ -1974,11 +1888,6 @@ func (*ScaleDie) DieFrom(b diebase.DieBase[Scale, *ScaleDie, *ScaleDieMut]) *Sca
 func (*ScaleDieMut) DieFrom(b diebase.DieMutBase[Scale, *ScaleDie, *ScaleDieMut]) *ScaleDieMut {
 	return &ScaleDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[Scale, *ScaleDie, *ScaleDieMut]    = (*ScaleDie)(nil)
-	_ dieobjects.DieObjectMutOf[Scale, *ScaleDie, *ScaleDieMut] = (*ScaleDieMut)(nil)
-)
 
 var ScaleBlank = diebase.BlankOf[Scale, *ScaleDie, *ScaleDieMut](Scale{TypeMeta: metav1.TypeMeta{APIVersion: "autoscaling/v1", Kind: "Scale"}})
 
@@ -2130,11 +2039,6 @@ func (*ScaleSpecDieMut) DieFrom(b diebase.DieMutBase[ScaleSpec, *ScaleSpecDie, *
 	return &ScaleSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut]    = (*ScaleSpecDie)(nil)
-	_ diebase.DieMutOf[ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut] = (*ScaleSpecDieMut)(nil)
-)
-
 var ScaleSpecBlank = diebase.Blank[ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2228,11 +2132,6 @@ func (*ScaleStatusDie) DieFrom(b diebase.DieBase[ScaleStatus, *ScaleStatusDie, *
 func (*ScaleStatusDieMut) DieFrom(b diebase.DieMutBase[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut]) *ScaleStatusDieMut {
 	return &ScaleStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut]    = (*ScaleStatusDie)(nil)
-	_ diebase.DieMutOf[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut] = (*ScaleStatusDieMut)(nil)
-)
 
 var ScaleStatusBlank = diebase.Blank[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut]()
 

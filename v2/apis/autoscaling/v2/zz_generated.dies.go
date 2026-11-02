@@ -29,7 +29,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // ContainerResourceMetricSource indicates how to scale on a resource metric known to
@@ -58,11 +57,6 @@ func (*ContainerResourceMetricSourceDie) DieFrom(b diebase.DieBase[ContainerReso
 func (*ContainerResourceMetricSourceDieMut) DieFrom(b diebase.DieMutBase[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]) *ContainerResourceMetricSourceDieMut {
 	return &ContainerResourceMetricSourceDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]    = (*ContainerResourceMetricSourceDie)(nil)
-	_ diebase.DieMutOf[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut] = (*ContainerResourceMetricSourceDieMut)(nil)
-)
 
 var ContainerResourceMetricSourceBlank = diebase.Blank[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]()
 
@@ -186,11 +180,6 @@ func (*ContainerResourceMetricStatusDieMut) DieFrom(b diebase.DieMutBase[Contain
 	return &ContainerResourceMetricStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]    = (*ContainerResourceMetricStatusDie)(nil)
-	_ diebase.DieMutOf[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut] = (*ContainerResourceMetricStatusDieMut)(nil)
-)
-
 var ContainerResourceMetricStatusBlank = diebase.Blank[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -308,11 +297,6 @@ func (*CrossVersionObjectReferenceDie) DieFrom(b diebase.DieBase[CrossVersionObj
 func (*CrossVersionObjectReferenceDieMut) DieFrom(b diebase.DieMutBase[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]) *CrossVersionObjectReferenceDieMut {
 	return &CrossVersionObjectReferenceDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]    = (*CrossVersionObjectReferenceDie)(nil)
-	_ diebase.DieMutOf[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut] = (*CrossVersionObjectReferenceDieMut)(nil)
-)
 
 var CrossVersionObjectReferenceBlank = diebase.Blank[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]()
 
@@ -434,11 +418,6 @@ func (*ExternalMetricSourceDieMut) DieFrom(b diebase.DieMutBase[ExternalMetricSo
 	return &ExternalMetricSourceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]    = (*ExternalMetricSourceDie)(nil)
-	_ diebase.DieMutOf[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut] = (*ExternalMetricSourceDieMut)(nil)
-)
-
 var ExternalMetricSourceBlank = diebase.Blank[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -546,11 +525,6 @@ func (*ExternalMetricStatusDieMut) DieFrom(b diebase.DieMutBase[ExternalMetricSt
 	return &ExternalMetricStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]    = (*ExternalMetricStatusDie)(nil)
-	_ diebase.DieMutOf[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut] = (*ExternalMetricStatusDieMut)(nil)
-)
-
 var ExternalMetricStatusBlank = diebase.Blank[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -656,11 +630,6 @@ func (*HPAScalingPolicyDie) DieFrom(b diebase.DieBase[HPAScalingPolicy, *HPAScal
 func (*HPAScalingPolicyDieMut) DieFrom(b diebase.DieMutBase[HPAScalingPolicy, *HPAScalingPolicyDie, *HPAScalingPolicyDieMut]) *HPAScalingPolicyDieMut {
 	return &HPAScalingPolicyDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[HPAScalingPolicy, *HPAScalingPolicyDie, *HPAScalingPolicyDieMut]    = (*HPAScalingPolicyDie)(nil)
-	_ diebase.DieMutOf[HPAScalingPolicy, *HPAScalingPolicyDie, *HPAScalingPolicyDieMut] = (*HPAScalingPolicyDieMut)(nil)
-)
 
 var HPAScalingPolicyBlank = diebase.Blank[HPAScalingPolicy, *HPAScalingPolicyDie, *HPAScalingPolicyDieMut]()
 
@@ -793,11 +762,6 @@ func (*HPAScalingRulesDie) DieFrom(b diebase.DieBase[HPAScalingRules, *HPAScalin
 func (*HPAScalingRulesDieMut) DieFrom(b diebase.DieMutBase[HPAScalingRules, *HPAScalingRulesDie, *HPAScalingRulesDieMut]) *HPAScalingRulesDieMut {
 	return &HPAScalingRulesDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[HPAScalingRules, *HPAScalingRulesDie, *HPAScalingRulesDieMut]    = (*HPAScalingRulesDie)(nil)
-	_ diebase.DieMutOf[HPAScalingRules, *HPAScalingRulesDie, *HPAScalingRulesDieMut] = (*HPAScalingRulesDieMut)(nil)
-)
 
 var HPAScalingRulesBlank = diebase.Blank[HPAScalingRules, *HPAScalingRulesDie, *HPAScalingRulesDieMut]()
 
@@ -963,11 +927,6 @@ func (*HorizontalPodAutoscalerDieMut) DieFrom(b diebase.DieMutBase[HorizontalPod
 	return &HorizontalPodAutoscalerDieMut{diebase.AsObjectMut(b)}
 }
 
-var (
-	_ dieobjects.DieObjectOf[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut]    = (*HorizontalPodAutoscalerDie)(nil)
-	_ dieobjects.DieObjectMutOf[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut] = (*HorizontalPodAutoscalerDieMut)(nil)
-)
-
 var HorizontalPodAutoscalerBlank = diebase.BlankOf[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut](HorizontalPodAutoscaler{TypeMeta: metav1.TypeMeta{APIVersion: "autoscaling/v2", Kind: "HorizontalPodAutoscaler"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1129,11 +1088,6 @@ func (*HorizontalPodAutoscalerBehaviorDieMut) DieFrom(b diebase.DieMutBase[Horiz
 	return &HorizontalPodAutoscalerBehaviorDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie, *HorizontalPodAutoscalerBehaviorDieMut]    = (*HorizontalPodAutoscalerBehaviorDie)(nil)
-	_ diebase.DieMutOf[HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie, *HorizontalPodAutoscalerBehaviorDieMut] = (*HorizontalPodAutoscalerBehaviorDieMut)(nil)
-)
-
 var HorizontalPodAutoscalerBehaviorBlank = diebase.Blank[HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie, *HorizontalPodAutoscalerBehaviorDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1256,11 +1210,6 @@ func (*HorizontalPodAutoscalerConditionDie) DieFrom(b diebase.DieBase[Horizontal
 func (*HorizontalPodAutoscalerConditionDieMut) DieFrom(b diebase.DieMutBase[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]) *HorizontalPodAutoscalerConditionDieMut {
 	return &HorizontalPodAutoscalerConditionDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]    = (*HorizontalPodAutoscalerConditionDie)(nil)
-	_ diebase.DieMutOf[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut] = (*HorizontalPodAutoscalerConditionDieMut)(nil)
-)
 
 var HorizontalPodAutoscalerConditionBlank = diebase.Blank[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]()
 
@@ -1443,11 +1392,6 @@ func (*HorizontalPodAutoscalerSpecDieMut) DieFrom(b diebase.DieMutBase[Horizonta
 	return &HorizontalPodAutoscalerSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]    = (*HorizontalPodAutoscalerSpecDie)(nil)
-	_ diebase.DieMutOf[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut] = (*HorizontalPodAutoscalerSpecDieMut)(nil)
-)
-
 var HorizontalPodAutoscalerSpecBlank = diebase.Blank[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1620,11 +1564,6 @@ func (*HorizontalPodAutoscalerStatusDieMut) DieFrom(b diebase.DieMutBase[Horizon
 	return &HorizontalPodAutoscalerStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]    = (*HorizontalPodAutoscalerStatusDie)(nil)
-	_ diebase.DieMutOf[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut] = (*HorizontalPodAutoscalerStatusDieMut)(nil)
-)
-
 var HorizontalPodAutoscalerStatusBlank = diebase.Blank[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1787,11 +1726,6 @@ func (*MetricIdentifierDieMut) DieFrom(b diebase.DieMutBase[MetricIdentifier, *M
 	return &MetricIdentifierDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]    = (*MetricIdentifierDie)(nil)
-	_ diebase.DieMutOf[MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut] = (*MetricIdentifierDieMut)(nil)
-)
-
 var MetricIdentifierBlank = diebase.Blank[MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1902,11 +1836,6 @@ func (*MetricSpecDie) DieFrom(b diebase.DieBase[MetricSpec, *MetricSpecDie, *Met
 func (*MetricSpecDieMut) DieFrom(b diebase.DieMutBase[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]) *MetricSpecDieMut {
 	return &MetricSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]    = (*MetricSpecDie)(nil)
-	_ diebase.DieMutOf[MetricSpec, *MetricSpecDie, *MetricSpecDieMut] = (*MetricSpecDieMut)(nil)
-)
 
 var MetricSpecBlank = diebase.Blank[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]()
 
@@ -2094,11 +2023,6 @@ func (*MetricStatusDieMut) DieFrom(b diebase.DieMutBase[MetricStatus, *MetricSta
 	return &MetricStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]    = (*MetricStatusDie)(nil)
-	_ diebase.DieMutOf[MetricStatus, *MetricStatusDie, *MetricStatusDieMut] = (*MetricStatusDieMut)(nil)
-)
-
 var MetricStatusBlank = diebase.Blank[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2285,11 +2209,6 @@ func (*MetricTargetDieMut) DieFrom(b diebase.DieMutBase[MetricTarget, *MetricTar
 	return &MetricTargetDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[MetricTarget, *MetricTargetDie, *MetricTargetDieMut]    = (*MetricTargetDie)(nil)
-	_ diebase.DieMutOf[MetricTarget, *MetricTargetDie, *MetricTargetDieMut] = (*MetricTargetDieMut)(nil)
-)
-
 var MetricTargetBlank = diebase.Blank[MetricTarget, *MetricTargetDie, *MetricTargetDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2428,11 +2347,6 @@ func (*MetricValueStatusDieMut) DieFrom(b diebase.DieMutBase[MetricValueStatus, 
 	return &MetricValueStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]    = (*MetricValueStatusDie)(nil)
-	_ diebase.DieMutOf[MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut] = (*MetricValueStatusDieMut)(nil)
-)
-
 var MetricValueStatusBlank = diebase.Blank[MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2558,11 +2472,6 @@ func (*ObjectMetricSourceDieMut) DieFrom(b diebase.DieMutBase[ObjectMetricSource
 	return &ObjectMetricSourceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]    = (*ObjectMetricSourceDie)(nil)
-	_ diebase.DieMutOf[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut] = (*ObjectMetricSourceDieMut)(nil)
-)
-
 var ObjectMetricSourceBlank = diebase.Blank[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2681,11 +2590,6 @@ func (*ObjectMetricStatusDie) DieFrom(b diebase.DieBase[ObjectMetricStatus, *Obj
 func (*ObjectMetricStatusDieMut) DieFrom(b diebase.DieMutBase[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]) *ObjectMetricStatusDieMut {
 	return &ObjectMetricStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]    = (*ObjectMetricStatusDie)(nil)
-	_ diebase.DieMutOf[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut] = (*ObjectMetricStatusDieMut)(nil)
-)
 
 var ObjectMetricStatusBlank = diebase.Blank[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]()
 
@@ -2808,11 +2712,6 @@ func (*PodsMetricSourceDieMut) DieFrom(b diebase.DieMutBase[PodsMetricSource, *P
 	return &PodsMetricSourceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]    = (*PodsMetricSourceDie)(nil)
-	_ diebase.DieMutOf[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut] = (*PodsMetricSourceDieMut)(nil)
-)
-
 var PodsMetricSourceBlank = diebase.Blank[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2919,11 +2818,6 @@ func (*PodsMetricStatusDie) DieFrom(b diebase.DieBase[PodsMetricStatus, *PodsMet
 func (*PodsMetricStatusDieMut) DieFrom(b diebase.DieMutBase[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]) *PodsMetricStatusDieMut {
 	return &PodsMetricStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]    = (*PodsMetricStatusDie)(nil)
-	_ diebase.DieMutOf[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut] = (*PodsMetricStatusDieMut)(nil)
-)
 
 var PodsMetricStatusBlank = diebase.Blank[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]()
 
@@ -3037,11 +2931,6 @@ func (*ResourceMetricSourceDieMut) DieFrom(b diebase.DieMutBase[ResourceMetricSo
 	return &ResourceMetricSourceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]    = (*ResourceMetricSourceDie)(nil)
-	_ diebase.DieMutOf[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut] = (*ResourceMetricSourceDieMut)(nil)
-)
-
 var ResourceMetricSourceBlank = diebase.Blank[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -3151,11 +3040,6 @@ func (*ResourceMetricStatusDie) DieFrom(b diebase.DieBase[ResourceMetricStatus, 
 func (*ResourceMetricStatusDieMut) DieFrom(b diebase.DieMutBase[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]) *ResourceMetricStatusDieMut {
 	return &ResourceMetricStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]    = (*ResourceMetricStatusDie)(nil)
-	_ diebase.DieMutOf[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut] = (*ResourceMetricStatusDieMut)(nil)
-)
 
 var ResourceMetricStatusBlank = diebase.Blank[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]()
 

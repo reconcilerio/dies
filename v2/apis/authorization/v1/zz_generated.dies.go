@@ -26,7 +26,6 @@ import (
 	diebase "reconciler.io/dies/v2/die/base"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // FieldSelectorAttributes indicates a field limited access.
@@ -58,11 +57,6 @@ func (*FieldSelectorAttributesDie) DieFrom(b diebase.DieBase[FieldSelectorAttrib
 func (*FieldSelectorAttributesDieMut) DieFrom(b diebase.DieMutBase[FieldSelectorAttributes, *FieldSelectorAttributesDie, *FieldSelectorAttributesDieMut]) *FieldSelectorAttributesDieMut {
 	return &FieldSelectorAttributesDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[FieldSelectorAttributes, *FieldSelectorAttributesDie, *FieldSelectorAttributesDieMut]    = (*FieldSelectorAttributesDie)(nil)
-	_ diebase.DieMutOf[FieldSelectorAttributes, *FieldSelectorAttributesDie, *FieldSelectorAttributesDieMut] = (*FieldSelectorAttributesDieMut)(nil)
-)
 
 var FieldSelectorAttributesBlank = diebase.Blank[FieldSelectorAttributes, *FieldSelectorAttributesDie, *FieldSelectorAttributesDieMut]()
 
@@ -140,11 +134,6 @@ func (*LabelSelectorAttributesDieMut) DieFrom(b diebase.DieMutBase[LabelSelector
 	return &LabelSelectorAttributesDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[LabelSelectorAttributes, *LabelSelectorAttributesDie, *LabelSelectorAttributesDieMut]    = (*LabelSelectorAttributesDie)(nil)
-	_ diebase.DieMutOf[LabelSelectorAttributes, *LabelSelectorAttributesDie, *LabelSelectorAttributesDieMut] = (*LabelSelectorAttributesDieMut)(nil)
-)
-
 var LabelSelectorAttributesBlank = diebase.Blank[LabelSelectorAttributes, *LabelSelectorAttributesDie, *LabelSelectorAttributesDieMut]()
 
 type labelSelectorAttributesFieldsTable struct {
@@ -213,11 +202,6 @@ func (*LocalSubjectAccessReviewDie) DieFrom(b diebase.DieBase[LocalSubjectAccess
 func (*LocalSubjectAccessReviewDieMut) DieFrom(b diebase.DieMutBase[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie, *LocalSubjectAccessReviewDieMut]) *LocalSubjectAccessReviewDieMut {
 	return &LocalSubjectAccessReviewDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie, *LocalSubjectAccessReviewDieMut]    = (*LocalSubjectAccessReviewDie)(nil)
-	_ dieobjects.DieObjectMutOf[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie, *LocalSubjectAccessReviewDieMut] = (*LocalSubjectAccessReviewDieMut)(nil)
-)
 
 var LocalSubjectAccessReviewBlank = diebase.BlankOf[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie, *LocalSubjectAccessReviewDieMut](LocalSubjectAccessReview{TypeMeta: metav1.TypeMeta{APIVersion: "authorization.k8s.io/v1", Kind: "LocalSubjectAccessReview"}})
 
@@ -328,11 +312,6 @@ func (*NonResourceAttributesDieMut) DieFrom(b diebase.DieMutBase[NonResourceAttr
 	return &NonResourceAttributesDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut]    = (*NonResourceAttributesDie)(nil)
-	_ diebase.DieMutOf[NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut] = (*NonResourceAttributesDieMut)(nil)
-)
-
 var NonResourceAttributesBlank = diebase.Blank[NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut]()
 
 type nonResourceAttributesFieldsTable struct {
@@ -387,11 +366,6 @@ func (*NonResourceRuleDie) DieFrom(b diebase.DieBase[NonResourceRule, *NonResour
 func (*NonResourceRuleDieMut) DieFrom(b diebase.DieMutBase[NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut]) *NonResourceRuleDieMut {
 	return &NonResourceRuleDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut]    = (*NonResourceRuleDie)(nil)
-	_ diebase.DieMutOf[NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut] = (*NonResourceRuleDieMut)(nil)
-)
 
 var NonResourceRuleBlank = diebase.Blank[NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut]()
 
@@ -449,11 +423,6 @@ func (*ResourceAttributesDie) DieFrom(b diebase.DieBase[ResourceAttributes, *Res
 func (*ResourceAttributesDieMut) DieFrom(b diebase.DieMutBase[ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]) *ResourceAttributesDieMut {
 	return &ResourceAttributesDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]    = (*ResourceAttributesDie)(nil)
-	_ diebase.DieMutOf[ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut] = (*ResourceAttributesDieMut)(nil)
-)
 
 var ResourceAttributesBlank = diebase.Blank[ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]()
 
@@ -601,11 +570,6 @@ func (*ResourceRuleDieMut) DieFrom(b diebase.DieMutBase[ResourceRule, *ResourceR
 	return &ResourceRuleDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut]    = (*ResourceRuleDie)(nil)
-	_ diebase.DieMutOf[ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut] = (*ResourceRuleDieMut)(nil)
-)
-
 var ResourceRuleBlank = diebase.Blank[ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut]()
 
 type resourceRuleFieldsTable struct {
@@ -692,11 +656,6 @@ func (*SelfSubjectAccessReviewDie) DieFrom(b diebase.DieBase[SelfSubjectAccessRe
 func (*SelfSubjectAccessReviewDieMut) DieFrom(b diebase.DieMutBase[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie, *SelfSubjectAccessReviewDieMut]) *SelfSubjectAccessReviewDieMut {
 	return &SelfSubjectAccessReviewDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie, *SelfSubjectAccessReviewDieMut]    = (*SelfSubjectAccessReviewDie)(nil)
-	_ dieobjects.DieObjectMutOf[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie, *SelfSubjectAccessReviewDieMut] = (*SelfSubjectAccessReviewDieMut)(nil)
-)
 
 var SelfSubjectAccessReviewBlank = diebase.BlankOf[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie, *SelfSubjectAccessReviewDieMut](SelfSubjectAccessReview{TypeMeta: metav1.TypeMeta{APIVersion: "authorization.k8s.io/v1", Kind: "SelfSubjectAccessReview"}})
 
@@ -806,11 +765,6 @@ func (*SelfSubjectAccessReviewSpecDieMut) DieFrom(b diebase.DieMutBase[SelfSubje
 	return &SelfSubjectAccessReviewSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie, *SelfSubjectAccessReviewSpecDieMut]    = (*SelfSubjectAccessReviewSpecDie)(nil)
-	_ diebase.DieMutOf[SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie, *SelfSubjectAccessReviewSpecDieMut] = (*SelfSubjectAccessReviewSpecDieMut)(nil)
-)
-
 var SelfSubjectAccessReviewSpecBlank = diebase.Blank[SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie, *SelfSubjectAccessReviewSpecDieMut]()
 
 type selfSubjectAccessReviewSpecFieldsTable struct {
@@ -870,11 +824,6 @@ func (*SelfSubjectRulesReviewDie) DieFrom(b diebase.DieBase[SelfSubjectRulesRevi
 func (*SelfSubjectRulesReviewDieMut) DieFrom(b diebase.DieMutBase[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie, *SelfSubjectRulesReviewDieMut]) *SelfSubjectRulesReviewDieMut {
 	return &SelfSubjectRulesReviewDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie, *SelfSubjectRulesReviewDieMut]    = (*SelfSubjectRulesReviewDie)(nil)
-	_ dieobjects.DieObjectMutOf[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie, *SelfSubjectRulesReviewDieMut] = (*SelfSubjectRulesReviewDieMut)(nil)
-)
 
 var SelfSubjectRulesReviewBlank = diebase.BlankOf[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie, *SelfSubjectRulesReviewDieMut](SelfSubjectRulesReview{TypeMeta: metav1.TypeMeta{APIVersion: "authorization.k8s.io/v1", Kind: "SelfSubjectRulesReview"}})
 
@@ -983,11 +932,6 @@ func (*SelfSubjectRulesReviewSpecDieMut) DieFrom(b diebase.DieMutBase[SelfSubjec
 	return &SelfSubjectRulesReviewSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie, *SelfSubjectRulesReviewSpecDieMut]    = (*SelfSubjectRulesReviewSpecDie)(nil)
-	_ diebase.DieMutOf[SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie, *SelfSubjectRulesReviewSpecDieMut] = (*SelfSubjectRulesReviewSpecDieMut)(nil)
-)
-
 var SelfSubjectRulesReviewSpecBlank = diebase.Blank[SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie, *SelfSubjectRulesReviewSpecDieMut]()
 
 type selfSubjectRulesReviewSpecFieldsTable struct {
@@ -1030,11 +974,6 @@ func (*SubjectAccessReviewDie) DieFrom(b diebase.DieBase[SubjectAccessReview, *S
 func (*SubjectAccessReviewDieMut) DieFrom(b diebase.DieMutBase[SubjectAccessReview, *SubjectAccessReviewDie, *SubjectAccessReviewDieMut]) *SubjectAccessReviewDieMut {
 	return &SubjectAccessReviewDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[SubjectAccessReview, *SubjectAccessReviewDie, *SubjectAccessReviewDieMut]    = (*SubjectAccessReviewDie)(nil)
-	_ dieobjects.DieObjectMutOf[SubjectAccessReview, *SubjectAccessReviewDie, *SubjectAccessReviewDieMut] = (*SubjectAccessReviewDieMut)(nil)
-)
 
 var SubjectAccessReviewBlank = diebase.BlankOf[SubjectAccessReview, *SubjectAccessReviewDie, *SubjectAccessReviewDieMut](SubjectAccessReview{TypeMeta: metav1.TypeMeta{APIVersion: "authorization.k8s.io/v1", Kind: "SubjectAccessReview"}})
 
@@ -1144,11 +1083,6 @@ func (*SubjectAccessReviewSpecDieMut) DieFrom(b diebase.DieMutBase[SubjectAccess
 	return &SubjectAccessReviewSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie, *SubjectAccessReviewSpecDieMut]    = (*SubjectAccessReviewSpecDie)(nil)
-	_ diebase.DieMutOf[SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie, *SubjectAccessReviewSpecDieMut] = (*SubjectAccessReviewSpecDieMut)(nil)
-)
-
 var SubjectAccessReviewSpecBlank = diebase.Blank[SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie, *SubjectAccessReviewSpecDieMut]()
 
 type subjectAccessReviewSpecFieldsTable struct {
@@ -1256,11 +1190,6 @@ func (*SubjectAccessReviewStatusDieMut) DieFrom(b diebase.DieMutBase[SubjectAcce
 	return &SubjectAccessReviewStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut]    = (*SubjectAccessReviewStatusDie)(nil)
-	_ diebase.DieMutOf[SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut] = (*SubjectAccessReviewStatusDieMut)(nil)
-)
-
 var SubjectAccessReviewStatusBlank = diebase.Blank[SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut]()
 
 type subjectAccessReviewStatusFieldsTable struct {
@@ -1352,11 +1281,6 @@ func (*SubjectRulesReviewStatusDie) DieFrom(b diebase.DieBase[SubjectRulesReview
 func (*SubjectRulesReviewStatusDieMut) DieFrom(b diebase.DieMutBase[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie, *SubjectRulesReviewStatusDieMut]) *SubjectRulesReviewStatusDieMut {
 	return &SubjectRulesReviewStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie, *SubjectRulesReviewStatusDieMut]    = (*SubjectRulesReviewStatusDie)(nil)
-	_ diebase.DieMutOf[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie, *SubjectRulesReviewStatusDieMut] = (*SubjectRulesReviewStatusDieMut)(nil)
-)
 
 var SubjectRulesReviewStatusBlank = diebase.Blank[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie, *SubjectRulesReviewStatusDieMut]()
 

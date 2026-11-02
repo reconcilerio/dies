@@ -22,6 +22,7 @@ import (
 	certificatesv1alpha1 "k8s.io/api/certificates/v1alpha1"
 	diecertificatesv1alpha1 "reconciler.io/dies/v2/apis/certificates/v1alpha1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -36,6 +37,12 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[diecertificatesv1alpha1.ClusterTrustBundle, *diecertificatesv1alpha1.ClusterTrustBundleDie, *diecertificatesv1alpha1.ClusterTrustBundleDieMut]    = (*diecertificatesv1alpha1.ClusterTrustBundleDie)(nil)
+	_ dieobjects.DieObjectMutOf[diecertificatesv1alpha1.ClusterTrustBundle, *diecertificatesv1alpha1.ClusterTrustBundleDie, *diecertificatesv1alpha1.ClusterTrustBundleDieMut] = (*diecertificatesv1alpha1.ClusterTrustBundleDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(diecertificatesv1alpha1.AddToScheme, certificatesv1alpha1.AddToScheme, diecertificatesv1alpha1.SchemeGroupVersion); err != nil {

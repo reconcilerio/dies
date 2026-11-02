@@ -30,7 +30,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // AllocatedDeviceStatus contains the status of an allocated device, if the
@@ -57,11 +56,6 @@ func (*AllocatedDeviceStatusDie) DieFrom(b diebase.DieBase[AllocatedDeviceStatus
 func (*AllocatedDeviceStatusDieMut) DieFrom(b diebase.DieMutBase[AllocatedDeviceStatus, *AllocatedDeviceStatusDie, *AllocatedDeviceStatusDieMut]) *AllocatedDeviceStatusDieMut {
 	return &AllocatedDeviceStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[AllocatedDeviceStatus, *AllocatedDeviceStatusDie, *AllocatedDeviceStatusDieMut]    = (*AllocatedDeviceStatusDie)(nil)
-	_ diebase.DieMutOf[AllocatedDeviceStatus, *AllocatedDeviceStatusDie, *AllocatedDeviceStatusDieMut] = (*AllocatedDeviceStatusDieMut)(nil)
-)
 
 var AllocatedDeviceStatusBlank = diebase.Blank[AllocatedDeviceStatus, *AllocatedDeviceStatusDie, *AllocatedDeviceStatusDieMut]()
 
@@ -261,11 +255,6 @@ func (*AllocationResultDieMut) DieFrom(b diebase.DieMutBase[AllocationResult, *A
 	return &AllocationResultDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[AllocationResult, *AllocationResultDie, *AllocationResultDieMut]    = (*AllocationResultDie)(nil)
-	_ diebase.DieMutOf[AllocationResult, *AllocationResultDie, *AllocationResultDieMut] = (*AllocationResultDieMut)(nil)
-)
-
 var AllocationResultBlank = diebase.Blank[AllocationResult, *AllocationResultDie, *AllocationResultDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -393,11 +382,6 @@ func (*BasicDeviceDie) DieFrom(b diebase.DieBase[BasicDevice, *BasicDeviceDie, *
 func (*BasicDeviceDieMut) DieFrom(b diebase.DieMutBase[BasicDevice, *BasicDeviceDie, *BasicDeviceDieMut]) *BasicDeviceDieMut {
 	return &BasicDeviceDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[BasicDevice, *BasicDeviceDie, *BasicDeviceDieMut]    = (*BasicDeviceDie)(nil)
-	_ diebase.DieMutOf[BasicDevice, *BasicDeviceDie, *BasicDeviceDieMut] = (*BasicDeviceDieMut)(nil)
-)
 
 var BasicDeviceBlank = diebase.Blank[BasicDevice, *BasicDeviceDie, *BasicDeviceDieMut]()
 
@@ -763,11 +747,6 @@ func (*CELDeviceSelectorDieMut) DieFrom(b diebase.DieMutBase[CELDeviceSelector, 
 	return &CELDeviceSelectorDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CELDeviceSelector, *CELDeviceSelectorDie, *CELDeviceSelectorDieMut]    = (*CELDeviceSelectorDie)(nil)
-	_ diebase.DieMutOf[CELDeviceSelector, *CELDeviceSelectorDie, *CELDeviceSelectorDieMut] = (*CELDeviceSelectorDieMut)(nil)
-)
-
 var CELDeviceSelectorBlank = diebase.Blank[CELDeviceSelector, *CELDeviceSelectorDie, *CELDeviceSelectorDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1000,11 +979,6 @@ func (*CapacityRequestPolicyDieMut) DieFrom(b diebase.DieMutBase[CapacityRequest
 	return &CapacityRequestPolicyDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CapacityRequestPolicy, *CapacityRequestPolicyDie, *CapacityRequestPolicyDieMut]    = (*CapacityRequestPolicyDie)(nil)
-	_ diebase.DieMutOf[CapacityRequestPolicy, *CapacityRequestPolicyDie, *CapacityRequestPolicyDieMut] = (*CapacityRequestPolicyDieMut)(nil)
-)
-
 var CapacityRequestPolicyBlank = diebase.Blank[CapacityRequestPolicy, *CapacityRequestPolicyDie, *CapacityRequestPolicyDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1181,11 +1155,6 @@ func (*CapacityRequestPolicyRangeDieMut) DieFrom(b diebase.DieMutBase[CapacityRe
 	return &CapacityRequestPolicyRangeDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CapacityRequestPolicyRange, *CapacityRequestPolicyRangeDie, *CapacityRequestPolicyRangeDieMut]    = (*CapacityRequestPolicyRangeDie)(nil)
-	_ diebase.DieMutOf[CapacityRequestPolicyRange, *CapacityRequestPolicyRangeDie, *CapacityRequestPolicyRangeDieMut] = (*CapacityRequestPolicyRangeDieMut)(nil)
-)
-
 var CapacityRequestPolicyRangeBlank = diebase.Blank[CapacityRequestPolicyRange, *CapacityRequestPolicyRangeDie, *CapacityRequestPolicyRangeDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1324,11 +1293,6 @@ func (*CapacityRequirementsDieMut) DieFrom(b diebase.DieMutBase[CapacityRequirem
 	return &CapacityRequirementsDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[CapacityRequirements, *CapacityRequirementsDie, *CapacityRequirementsDieMut]    = (*CapacityRequirementsDie)(nil)
-	_ diebase.DieMutOf[CapacityRequirements, *CapacityRequirementsDie, *CapacityRequirementsDieMut] = (*CapacityRequirementsDieMut)(nil)
-)
-
 var CapacityRequirementsBlank = diebase.Blank[CapacityRequirements, *CapacityRequirementsDie, *CapacityRequirementsDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1465,11 +1429,6 @@ func (*CounterDieMut) DieFrom(b diebase.DieMutBase[Counter, *CounterDie, *Counte
 	return &CounterDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[Counter, *CounterDie, *CounterDieMut]    = (*CounterDie)(nil)
-	_ diebase.DieMutOf[Counter, *CounterDie, *CounterDieMut] = (*CounterDieMut)(nil)
-)
-
 var CounterBlank = diebase.Blank[Counter, *CounterDie, *CounterDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1570,11 +1529,6 @@ func (*CounterSetDie) DieFrom(b diebase.DieBase[CounterSet, *CounterSetDie, *Cou
 func (*CounterSetDieMut) DieFrom(b diebase.DieMutBase[CounterSet, *CounterSetDie, *CounterSetDieMut]) *CounterSetDieMut {
 	return &CounterSetDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[CounterSet, *CounterSetDie, *CounterSetDieMut]    = (*CounterSetDie)(nil)
-	_ diebase.DieMutOf[CounterSet, *CounterSetDie, *CounterSetDieMut] = (*CounterSetDieMut)(nil)
-)
 
 var CounterSetBlank = diebase.Blank[CounterSet, *CounterSetDie, *CounterSetDieMut]()
 
@@ -1691,11 +1645,6 @@ func (*DeviceDieMut) DieFrom(b diebase.DieMutBase[Device, *DeviceDie, *DeviceDie
 	return &DeviceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[Device, *DeviceDie, *DeviceDieMut]    = (*DeviceDie)(nil)
-	_ diebase.DieMutOf[Device, *DeviceDie, *DeviceDieMut] = (*DeviceDieMut)(nil)
-)
-
 var DeviceBlank = diebase.Blank[Device, *DeviceDie, *DeviceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1801,11 +1750,6 @@ func (*DeviceAllocationConfigurationDie) DieFrom(b diebase.DieBase[DeviceAllocat
 func (*DeviceAllocationConfigurationDieMut) DieFrom(b diebase.DieMutBase[DeviceAllocationConfiguration, *DeviceAllocationConfigurationDie, *DeviceAllocationConfigurationDieMut]) *DeviceAllocationConfigurationDieMut {
 	return &DeviceAllocationConfigurationDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[DeviceAllocationConfiguration, *DeviceAllocationConfigurationDie, *DeviceAllocationConfigurationDieMut]    = (*DeviceAllocationConfigurationDie)(nil)
-	_ diebase.DieMutOf[DeviceAllocationConfiguration, *DeviceAllocationConfigurationDie, *DeviceAllocationConfigurationDieMut] = (*DeviceAllocationConfigurationDieMut)(nil)
-)
 
 var DeviceAllocationConfigurationBlank = diebase.Blank[DeviceAllocationConfiguration, *DeviceAllocationConfigurationDie, *DeviceAllocationConfigurationDieMut]()
 
@@ -1939,11 +1883,6 @@ func (*DeviceAllocationResultDieMut) DieFrom(b diebase.DieMutBase[DeviceAllocati
 	return &DeviceAllocationResultDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[DeviceAllocationResult, *DeviceAllocationResultDie, *DeviceAllocationResultDieMut]    = (*DeviceAllocationResultDie)(nil)
-	_ diebase.DieMutOf[DeviceAllocationResult, *DeviceAllocationResultDie, *DeviceAllocationResultDieMut] = (*DeviceAllocationResultDieMut)(nil)
-)
-
 var DeviceAllocationResultBlank = diebase.Blank[DeviceAllocationResult, *DeviceAllocationResultDie, *DeviceAllocationResultDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2061,11 +2000,6 @@ func (*DeviceAttributeDie) DieFrom(b diebase.DieBase[DeviceAttribute, *DeviceAtt
 func (*DeviceAttributeDieMut) DieFrom(b diebase.DieMutBase[DeviceAttribute, *DeviceAttributeDie, *DeviceAttributeDieMut]) *DeviceAttributeDieMut {
 	return &DeviceAttributeDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[DeviceAttribute, *DeviceAttributeDie, *DeviceAttributeDieMut]    = (*DeviceAttributeDie)(nil)
-	_ diebase.DieMutOf[DeviceAttribute, *DeviceAttributeDie, *DeviceAttributeDieMut] = (*DeviceAttributeDieMut)(nil)
-)
 
 var DeviceAttributeBlank = diebase.Blank[DeviceAttribute, *DeviceAttributeDie, *DeviceAttributeDieMut]()
 
@@ -2263,11 +2197,6 @@ func (*DeviceCapacityDieMut) DieFrom(b diebase.DieMutBase[DeviceCapacity, *Devic
 	return &DeviceCapacityDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[DeviceCapacity, *DeviceCapacityDie, *DeviceCapacityDieMut]    = (*DeviceCapacityDie)(nil)
-	_ diebase.DieMutOf[DeviceCapacity, *DeviceCapacityDie, *DeviceCapacityDieMut] = (*DeviceCapacityDieMut)(nil)
-)
-
 var DeviceCapacityBlank = diebase.Blank[DeviceCapacity, *DeviceCapacityDie, *DeviceCapacityDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2398,11 +2327,6 @@ func (*DeviceClaimDieMut) DieFrom(b diebase.DieMutBase[DeviceClaim, *DeviceClaim
 	return &DeviceClaimDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[DeviceClaim, *DeviceClaimDie, *DeviceClaimDieMut]    = (*DeviceClaimDie)(nil)
-	_ diebase.DieMutOf[DeviceClaim, *DeviceClaimDie, *DeviceClaimDieMut] = (*DeviceClaimDieMut)(nil)
-)
-
 var DeviceClaimBlank = diebase.Blank[DeviceClaim, *DeviceClaimDie, *DeviceClaimDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2529,11 +2453,6 @@ func (*DeviceClaimConfigurationDieMut) DieFrom(b diebase.DieMutBase[DeviceClaimC
 	return &DeviceClaimConfigurationDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[DeviceClaimConfiguration, *DeviceClaimConfigurationDie, *DeviceClaimConfigurationDieMut]    = (*DeviceClaimConfigurationDie)(nil)
-	_ diebase.DieMutOf[DeviceClaimConfiguration, *DeviceClaimConfigurationDie, *DeviceClaimConfigurationDieMut] = (*DeviceClaimConfigurationDieMut)(nil)
-)
-
 var DeviceClaimConfigurationBlank = diebase.Blank[DeviceClaimConfiguration, *DeviceClaimConfigurationDie, *DeviceClaimConfigurationDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2655,11 +2574,6 @@ func (*DeviceClassDie) DieFrom(b diebase.DieBase[DeviceClass, *DeviceClassDie, *
 func (*DeviceClassDieMut) DieFrom(b diebase.DieMutBase[DeviceClass, *DeviceClassDie, *DeviceClassDieMut]) *DeviceClassDieMut {
 	return &DeviceClassDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[DeviceClass, *DeviceClassDie, *DeviceClassDieMut]    = (*DeviceClassDie)(nil)
-	_ dieobjects.DieObjectMutOf[DeviceClass, *DeviceClassDie, *DeviceClassDieMut] = (*DeviceClassDieMut)(nil)
-)
 
 var DeviceClassBlank = diebase.BlankOf[DeviceClass, *DeviceClassDie, *DeviceClassDieMut](DeviceClass{TypeMeta: metav1.TypeMeta{APIVersion: "resource.k8s.io/v1beta1", Kind: "DeviceClass"}})
 
@@ -2819,11 +2733,6 @@ func (*DeviceClassConfigurationDieMut) DieFrom(b diebase.DieMutBase[DeviceClassC
 	return &DeviceClassConfigurationDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[DeviceClassConfiguration, *DeviceClassConfigurationDie, *DeviceClassConfigurationDieMut]    = (*DeviceClassConfigurationDie)(nil)
-	_ diebase.DieMutOf[DeviceClassConfiguration, *DeviceClassConfigurationDie, *DeviceClassConfigurationDieMut] = (*DeviceClassConfigurationDieMut)(nil)
-)
-
 var DeviceClassConfigurationBlank = diebase.Blank[DeviceClassConfiguration, *DeviceClassConfigurationDie, *DeviceClassConfigurationDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2935,11 +2844,6 @@ func (*DeviceClassSpecDie) DieFrom(b diebase.DieBase[DeviceClassSpec, *DeviceCla
 func (*DeviceClassSpecDieMut) DieFrom(b diebase.DieMutBase[DeviceClassSpec, *DeviceClassSpecDie, *DeviceClassSpecDieMut]) *DeviceClassSpecDieMut {
 	return &DeviceClassSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[DeviceClassSpec, *DeviceClassSpecDie, *DeviceClassSpecDieMut]    = (*DeviceClassSpecDie)(nil)
-	_ diebase.DieMutOf[DeviceClassSpec, *DeviceClassSpecDie, *DeviceClassSpecDieMut] = (*DeviceClassSpecDieMut)(nil)
-)
 
 var DeviceClassSpecBlank = diebase.Blank[DeviceClassSpec, *DeviceClassSpecDie, *DeviceClassSpecDieMut]()
 
@@ -3083,11 +2987,6 @@ func (*DeviceConfigurationDieMut) DieFrom(b diebase.DieMutBase[DeviceConfigurati
 	return &DeviceConfigurationDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[DeviceConfiguration, *DeviceConfigurationDie, *DeviceConfigurationDieMut]    = (*DeviceConfigurationDie)(nil)
-	_ diebase.DieMutOf[DeviceConfiguration, *DeviceConfigurationDie, *DeviceConfigurationDieMut] = (*DeviceConfigurationDieMut)(nil)
-)
-
 var DeviceConfigurationBlank = diebase.Blank[DeviceConfiguration, *DeviceConfigurationDie, *DeviceConfigurationDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -3181,11 +3080,6 @@ func (*DeviceConstraintDie) DieFrom(b diebase.DieBase[DeviceConstraint, *DeviceC
 func (*DeviceConstraintDieMut) DieFrom(b diebase.DieMutBase[DeviceConstraint, *DeviceConstraintDie, *DeviceConstraintDieMut]) *DeviceConstraintDieMut {
 	return &DeviceConstraintDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[DeviceConstraint, *DeviceConstraintDie, *DeviceConstraintDieMut]    = (*DeviceConstraintDie)(nil)
-	_ diebase.DieMutOf[DeviceConstraint, *DeviceConstraintDie, *DeviceConstraintDieMut] = (*DeviceConstraintDieMut)(nil)
-)
 
 var DeviceConstraintBlank = diebase.Blank[DeviceConstraint, *DeviceConstraintDie, *DeviceConstraintDieMut]()
 
@@ -3382,11 +3276,6 @@ func (*DeviceCounterConsumptionDieMut) DieFrom(b diebase.DieMutBase[DeviceCounte
 	return &DeviceCounterConsumptionDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[DeviceCounterConsumption, *DeviceCounterConsumptionDie, *DeviceCounterConsumptionDieMut]    = (*DeviceCounterConsumptionDie)(nil)
-	_ diebase.DieMutOf[DeviceCounterConsumption, *DeviceCounterConsumptionDie, *DeviceCounterConsumptionDieMut] = (*DeviceCounterConsumptionDieMut)(nil)
-)
-
 var DeviceCounterConsumptionBlank = diebase.Blank[DeviceCounterConsumption, *DeviceCounterConsumptionDie, *DeviceCounterConsumptionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -3546,11 +3435,6 @@ func (*DeviceDerivedAttributeDie) DieFrom(b diebase.DieBase[DeviceDerivedAttribu
 func (*DeviceDerivedAttributeDieMut) DieFrom(b diebase.DieMutBase[DeviceDerivedAttribute, *DeviceDerivedAttributeDie, *DeviceDerivedAttributeDieMut]) *DeviceDerivedAttributeDieMut {
 	return &DeviceDerivedAttributeDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[DeviceDerivedAttribute, *DeviceDerivedAttributeDie, *DeviceDerivedAttributeDieMut]    = (*DeviceDerivedAttributeDie)(nil)
-	_ diebase.DieMutOf[DeviceDerivedAttribute, *DeviceDerivedAttributeDie, *DeviceDerivedAttributeDieMut] = (*DeviceDerivedAttributeDieMut)(nil)
-)
 
 var DeviceDerivedAttributeBlank = diebase.Blank[DeviceDerivedAttribute, *DeviceDerivedAttributeDie, *DeviceDerivedAttributeDieMut]()
 
@@ -3737,11 +3621,6 @@ func (*DeviceRequestDie) DieFrom(b diebase.DieBase[DeviceRequest, *DeviceRequest
 func (*DeviceRequestDieMut) DieFrom(b diebase.DieMutBase[DeviceRequest, *DeviceRequestDie, *DeviceRequestDieMut]) *DeviceRequestDieMut {
 	return &DeviceRequestDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[DeviceRequest, *DeviceRequestDie, *DeviceRequestDieMut]    = (*DeviceRequestDie)(nil)
-	_ diebase.DieMutOf[DeviceRequest, *DeviceRequestDie, *DeviceRequestDieMut] = (*DeviceRequestDieMut)(nil)
-)
 
 var DeviceRequestBlank = diebase.Blank[DeviceRequest, *DeviceRequestDie, *DeviceRequestDieMut]()
 
@@ -4187,11 +4066,6 @@ func (*DeviceRequestAllocationResultDieMut) DieFrom(b diebase.DieMutBase[DeviceR
 	return &DeviceRequestAllocationResultDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[DeviceRequestAllocationResult, *DeviceRequestAllocationResultDie, *DeviceRequestAllocationResultDieMut]    = (*DeviceRequestAllocationResultDie)(nil)
-	_ diebase.DieMutOf[DeviceRequestAllocationResult, *DeviceRequestAllocationResultDie, *DeviceRequestAllocationResultDieMut] = (*DeviceRequestAllocationResultDieMut)(nil)
-)
-
 var DeviceRequestAllocationResultBlank = diebase.Blank[DeviceRequestAllocationResult, *DeviceRequestAllocationResultDie, *DeviceRequestAllocationResultDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -4506,11 +4380,6 @@ func (*DeviceSelectorDieMut) DieFrom(b diebase.DieMutBase[DeviceSelector, *Devic
 	return &DeviceSelectorDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut]    = (*DeviceSelectorDie)(nil)
-	_ diebase.DieMutOf[DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut] = (*DeviceSelectorDieMut)(nil)
-)
-
 var DeviceSelectorBlank = diebase.Blank[DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -4612,11 +4481,6 @@ func (*DeviceSubRequestDie) DieFrom(b diebase.DieBase[DeviceSubRequest, *DeviceS
 func (*DeviceSubRequestDieMut) DieFrom(b diebase.DieMutBase[DeviceSubRequest, *DeviceSubRequestDie, *DeviceSubRequestDieMut]) *DeviceSubRequestDieMut {
 	return &DeviceSubRequestDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[DeviceSubRequest, *DeviceSubRequestDie, *DeviceSubRequestDieMut]    = (*DeviceSubRequestDie)(nil)
-	_ diebase.DieMutOf[DeviceSubRequest, *DeviceSubRequestDie, *DeviceSubRequestDieMut] = (*DeviceSubRequestDieMut)(nil)
-)
 
 var DeviceSubRequestBlank = diebase.Blank[DeviceSubRequest, *DeviceSubRequestDie, *DeviceSubRequestDieMut]()
 
@@ -4958,11 +4822,6 @@ func (*DeviceTaintDieMut) DieFrom(b diebase.DieMutBase[DeviceTaint, *DeviceTaint
 	return &DeviceTaintDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[DeviceTaint, *DeviceTaintDie, *DeviceTaintDieMut]    = (*DeviceTaintDie)(nil)
-	_ diebase.DieMutOf[DeviceTaint, *DeviceTaintDie, *DeviceTaintDieMut] = (*DeviceTaintDieMut)(nil)
-)
-
 var DeviceTaintBlank = diebase.Blank[DeviceTaint, *DeviceTaintDie, *DeviceTaintDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -5127,11 +4986,6 @@ func (*DeviceTolerationDie) DieFrom(b diebase.DieBase[DeviceToleration, *DeviceT
 func (*DeviceTolerationDieMut) DieFrom(b diebase.DieMutBase[DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut]) *DeviceTolerationDieMut {
 	return &DeviceTolerationDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut]    = (*DeviceTolerationDie)(nil)
-	_ diebase.DieMutOf[DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut] = (*DeviceTolerationDieMut)(nil)
-)
 
 var DeviceTolerationBlank = diebase.Blank[DeviceToleration, *DeviceTolerationDie, *DeviceTolerationDieMut]()
 
@@ -5303,11 +5157,6 @@ func (*NetworkDeviceDataDieMut) DieFrom(b diebase.DieMutBase[NetworkDeviceData, 
 	return &NetworkDeviceDataDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[NetworkDeviceData, *NetworkDeviceDataDie, *NetworkDeviceDataDieMut]    = (*NetworkDeviceDataDie)(nil)
-	_ diebase.DieMutOf[NetworkDeviceData, *NetworkDeviceDataDie, *NetworkDeviceDataDieMut] = (*NetworkDeviceDataDieMut)(nil)
-)
-
 var NetworkDeviceDataBlank = diebase.Blank[NetworkDeviceData, *NetworkDeviceDataDie, *NetworkDeviceDataDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -5451,11 +5300,6 @@ func (*NodeAllocatableMappingDie) DieFrom(b diebase.DieBase[NodeAllocatableMappi
 func (*NodeAllocatableMappingDieMut) DieFrom(b diebase.DieMutBase[NodeAllocatableMapping, *NodeAllocatableMappingDie, *NodeAllocatableMappingDieMut]) *NodeAllocatableMappingDieMut {
 	return &NodeAllocatableMappingDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[NodeAllocatableMapping, *NodeAllocatableMappingDie, *NodeAllocatableMappingDieMut]    = (*NodeAllocatableMappingDie)(nil)
-	_ diebase.DieMutOf[NodeAllocatableMapping, *NodeAllocatableMappingDie, *NodeAllocatableMappingDieMut] = (*NodeAllocatableMappingDieMut)(nil)
-)
 
 var NodeAllocatableMappingBlank = diebase.Blank[NodeAllocatableMapping, *NodeAllocatableMappingDie, *NodeAllocatableMappingDieMut]()
 
@@ -5619,11 +5463,6 @@ func (*NodeAllocatableOverheadDieMut) DieFrom(b diebase.DieMutBase[NodeAllocatab
 	return &NodeAllocatableOverheadDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[NodeAllocatableOverhead, *NodeAllocatableOverheadDie, *NodeAllocatableOverheadDieMut]    = (*NodeAllocatableOverheadDie)(nil)
-	_ diebase.DieMutOf[NodeAllocatableOverhead, *NodeAllocatableOverheadDie, *NodeAllocatableOverheadDieMut] = (*NodeAllocatableOverheadDieMut)(nil)
-)
-
 var NodeAllocatableOverheadBlank = diebase.Blank[NodeAllocatableOverhead, *NodeAllocatableOverheadDie, *NodeAllocatableOverheadDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -5749,11 +5588,6 @@ func (*NodeAllocatableResourceDie) DieFrom(b diebase.DieBase[NodeAllocatableReso
 func (*NodeAllocatableResourceDieMut) DieFrom(b diebase.DieMutBase[NodeAllocatableResource, *NodeAllocatableResourceDie, *NodeAllocatableResourceDieMut]) *NodeAllocatableResourceDieMut {
 	return &NodeAllocatableResourceDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[NodeAllocatableResource, *NodeAllocatableResourceDie, *NodeAllocatableResourceDieMut]    = (*NodeAllocatableResourceDie)(nil)
-	_ diebase.DieMutOf[NodeAllocatableResource, *NodeAllocatableResourceDie, *NodeAllocatableResourceDieMut] = (*NodeAllocatableResourceDieMut)(nil)
-)
 
 var NodeAllocatableResourceBlank = diebase.Blank[NodeAllocatableResource, *NodeAllocatableResourceDie, *NodeAllocatableResourceDieMut]()
 
@@ -5883,11 +5717,6 @@ func (*OpaqueDeviceConfigurationDie) DieFrom(b diebase.DieBase[OpaqueDeviceConfi
 func (*OpaqueDeviceConfigurationDieMut) DieFrom(b diebase.DieMutBase[OpaqueDeviceConfiguration, *OpaqueDeviceConfigurationDie, *OpaqueDeviceConfigurationDieMut]) *OpaqueDeviceConfigurationDieMut {
 	return &OpaqueDeviceConfigurationDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[OpaqueDeviceConfiguration, *OpaqueDeviceConfigurationDie, *OpaqueDeviceConfigurationDieMut]    = (*OpaqueDeviceConfigurationDie)(nil)
-	_ diebase.DieMutOf[OpaqueDeviceConfiguration, *OpaqueDeviceConfigurationDie, *OpaqueDeviceConfigurationDieMut] = (*OpaqueDeviceConfigurationDieMut)(nil)
-)
 
 var OpaqueDeviceConfigurationBlank = diebase.Blank[OpaqueDeviceConfiguration, *OpaqueDeviceConfigurationDie, *OpaqueDeviceConfigurationDieMut]()
 
@@ -6025,11 +5854,6 @@ func (*ResourceClaimDie) DieFrom(b diebase.DieBase[ResourceClaim, *ResourceClaim
 func (*ResourceClaimDieMut) DieFrom(b diebase.DieMutBase[ResourceClaim, *ResourceClaimDie, *ResourceClaimDieMut]) *ResourceClaimDieMut {
 	return &ResourceClaimDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[ResourceClaim, *ResourceClaimDie, *ResourceClaimDieMut]    = (*ResourceClaimDie)(nil)
-	_ dieobjects.DieObjectMutOf[ResourceClaim, *ResourceClaimDie, *ResourceClaimDieMut] = (*ResourceClaimDieMut)(nil)
-)
 
 var ResourceClaimBlank = diebase.BlankOf[ResourceClaim, *ResourceClaimDie, *ResourceClaimDieMut](ResourceClaim{TypeMeta: metav1.TypeMeta{APIVersion: "resource.k8s.io/v1beta1", Kind: "ResourceClaim"}})
 
@@ -6191,11 +6015,6 @@ func (*ResourceClaimConsumerReferenceDieMut) DieFrom(b diebase.DieMutBase[Resour
 	return &ResourceClaimConsumerReferenceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ResourceClaimConsumerReference, *ResourceClaimConsumerReferenceDie, *ResourceClaimConsumerReferenceDieMut]    = (*ResourceClaimConsumerReferenceDie)(nil)
-	_ diebase.DieMutOf[ResourceClaimConsumerReference, *ResourceClaimConsumerReferenceDie, *ResourceClaimConsumerReferenceDieMut] = (*ResourceClaimConsumerReferenceDieMut)(nil)
-)
-
 var ResourceClaimConsumerReferenceBlank = diebase.Blank[ResourceClaimConsumerReference, *ResourceClaimConsumerReferenceDie, *ResourceClaimConsumerReferenceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -6349,11 +6168,6 @@ func (*ResourceClaimSpecDieMut) DieFrom(b diebase.DieMutBase[ResourceClaimSpec, 
 	return &ResourceClaimSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ResourceClaimSpec, *ResourceClaimSpecDie, *ResourceClaimSpecDieMut]    = (*ResourceClaimSpecDie)(nil)
-	_ diebase.DieMutOf[ResourceClaimSpec, *ResourceClaimSpecDie, *ResourceClaimSpecDieMut] = (*ResourceClaimSpecDieMut)(nil)
-)
-
 var ResourceClaimSpecBlank = diebase.Blank[ResourceClaimSpec, *ResourceClaimSpecDie, *ResourceClaimSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -6448,11 +6262,6 @@ func (*ResourceClaimStatusDie) DieFrom(b diebase.DieBase[ResourceClaimStatus, *R
 func (*ResourceClaimStatusDieMut) DieFrom(b diebase.DieMutBase[ResourceClaimStatus, *ResourceClaimStatusDie, *ResourceClaimStatusDieMut]) *ResourceClaimStatusDieMut {
 	return &ResourceClaimStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ResourceClaimStatus, *ResourceClaimStatusDie, *ResourceClaimStatusDieMut]    = (*ResourceClaimStatusDie)(nil)
-	_ diebase.DieMutOf[ResourceClaimStatus, *ResourceClaimStatusDie, *ResourceClaimStatusDieMut] = (*ResourceClaimStatusDieMut)(nil)
-)
 
 var ResourceClaimStatusBlank = diebase.Blank[ResourceClaimStatus, *ResourceClaimStatusDie, *ResourceClaimStatusDieMut]()
 
@@ -6616,11 +6425,6 @@ func (*ResourceClaimTemplateDie) DieFrom(b diebase.DieBase[ResourceClaimTemplate
 func (*ResourceClaimTemplateDieMut) DieFrom(b diebase.DieMutBase[ResourceClaimTemplate, *ResourceClaimTemplateDie, *ResourceClaimTemplateDieMut]) *ResourceClaimTemplateDieMut {
 	return &ResourceClaimTemplateDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[ResourceClaimTemplate, *ResourceClaimTemplateDie, *ResourceClaimTemplateDieMut]    = (*ResourceClaimTemplateDie)(nil)
-	_ dieobjects.DieObjectMutOf[ResourceClaimTemplate, *ResourceClaimTemplateDie, *ResourceClaimTemplateDieMut] = (*ResourceClaimTemplateDieMut)(nil)
-)
 
 var ResourceClaimTemplateBlank = diebase.BlankOf[ResourceClaimTemplate, *ResourceClaimTemplateDie, *ResourceClaimTemplateDieMut](ResourceClaimTemplate{TypeMeta: metav1.TypeMeta{APIVersion: "resource.k8s.io/v1beta1", Kind: "ResourceClaimTemplate"}})
 
@@ -6793,11 +6597,6 @@ func (*ResourceClaimTemplateSpecDieMut) DieFrom(b diebase.DieMutBase[ResourceCla
 	return &ResourceClaimTemplateSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ResourceClaimTemplateSpec, *ResourceClaimTemplateSpecDie, *ResourceClaimTemplateSpecDieMut]    = (*ResourceClaimTemplateSpecDie)(nil)
-	_ diebase.DieMutOf[ResourceClaimTemplateSpec, *ResourceClaimTemplateSpecDie, *ResourceClaimTemplateSpecDieMut] = (*ResourceClaimTemplateSpecDieMut)(nil)
-)
-
 var ResourceClaimTemplateSpecBlank = diebase.Blank[ResourceClaimTemplateSpec, *ResourceClaimTemplateSpecDie, *ResourceClaimTemplateSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -6911,11 +6710,6 @@ func (*ResourcePoolDie) DieFrom(b diebase.DieBase[ResourcePool, *ResourcePoolDie
 func (*ResourcePoolDieMut) DieFrom(b diebase.DieMutBase[ResourcePool, *ResourcePoolDie, *ResourcePoolDieMut]) *ResourcePoolDieMut {
 	return &ResourcePoolDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ResourcePool, *ResourcePoolDie, *ResourcePoolDieMut]    = (*ResourcePoolDie)(nil)
-	_ diebase.DieMutOf[ResourcePool, *ResourcePoolDie, *ResourcePoolDieMut] = (*ResourcePoolDieMut)(nil)
-)
 
 var ResourcePoolBlank = diebase.Blank[ResourcePool, *ResourcePoolDie, *ResourcePoolDieMut]()
 
@@ -7100,11 +6894,6 @@ func (*ResourceSliceDieMut) DieFrom(b diebase.DieMutBase[ResourceSlice, *Resourc
 	return &ResourceSliceDieMut{diebase.AsObjectMut(b)}
 }
 
-var (
-	_ dieobjects.DieObjectOf[ResourceSlice, *ResourceSliceDie, *ResourceSliceDieMut]    = (*ResourceSliceDie)(nil)
-	_ dieobjects.DieObjectMutOf[ResourceSlice, *ResourceSliceDie, *ResourceSliceDieMut] = (*ResourceSliceDieMut)(nil)
-)
-
 var ResourceSliceBlank = diebase.BlankOf[ResourceSlice, *ResourceSliceDie, *ResourceSliceDieMut](ResourceSlice{TypeMeta: metav1.TypeMeta{APIVersion: "resource.k8s.io/v1beta1", Kind: "ResourceSlice"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -7271,11 +7060,6 @@ func (*ResourceSliceSpecDie) DieFrom(b diebase.DieBase[ResourceSliceSpec, *Resou
 func (*ResourceSliceSpecDieMut) DieFrom(b diebase.DieMutBase[ResourceSliceSpec, *ResourceSliceSpecDie, *ResourceSliceSpecDieMut]) *ResourceSliceSpecDieMut {
 	return &ResourceSliceSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ResourceSliceSpec, *ResourceSliceSpecDie, *ResourceSliceSpecDieMut]    = (*ResourceSliceSpecDie)(nil)
-	_ diebase.DieMutOf[ResourceSliceSpec, *ResourceSliceSpecDie, *ResourceSliceSpecDieMut] = (*ResourceSliceSpecDieMut)(nil)
-)
 
 var ResourceSliceSpecBlank = diebase.Blank[ResourceSliceSpec, *ResourceSliceSpecDie, *ResourceSliceSpecDieMut]()
 

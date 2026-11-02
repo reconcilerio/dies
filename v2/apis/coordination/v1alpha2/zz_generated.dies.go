@@ -28,7 +28,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // LeaseCandidate defines a candidate for a Lease object.
@@ -52,11 +51,6 @@ func (*LeaseCandidateDie) DieFrom(b diebase.DieBase[LeaseCandidate, *LeaseCandid
 func (*LeaseCandidateDieMut) DieFrom(b diebase.DieMutBase[LeaseCandidate, *LeaseCandidateDie, *LeaseCandidateDieMut]) *LeaseCandidateDieMut {
 	return &LeaseCandidateDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[LeaseCandidate, *LeaseCandidateDie, *LeaseCandidateDieMut]    = (*LeaseCandidateDie)(nil)
-	_ dieobjects.DieObjectMutOf[LeaseCandidate, *LeaseCandidateDie, *LeaseCandidateDieMut] = (*LeaseCandidateDieMut)(nil)
-)
 
 var LeaseCandidateBlank = diebase.BlankOf[LeaseCandidate, *LeaseCandidateDie, *LeaseCandidateDieMut](LeaseCandidate{TypeMeta: metav1.TypeMeta{APIVersion: "coordination.k8s.io/v1alpha2", Kind: "LeaseCandidate"}})
 
@@ -224,11 +218,6 @@ func (*LeaseCandidateSpecDie) DieFrom(b diebase.DieBase[LeaseCandidateSpec, *Lea
 func (*LeaseCandidateSpecDieMut) DieFrom(b diebase.DieMutBase[LeaseCandidateSpec, *LeaseCandidateSpecDie, *LeaseCandidateSpecDieMut]) *LeaseCandidateSpecDieMut {
 	return &LeaseCandidateSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[LeaseCandidateSpec, *LeaseCandidateSpecDie, *LeaseCandidateSpecDieMut]    = (*LeaseCandidateSpecDie)(nil)
-	_ diebase.DieMutOf[LeaseCandidateSpec, *LeaseCandidateSpecDie, *LeaseCandidateSpecDieMut] = (*LeaseCandidateSpecDieMut)(nil)
-)
 
 var LeaseCandidateSpecBlank = diebase.Blank[LeaseCandidateSpec, *LeaseCandidateSpecDie, *LeaseCandidateSpecDieMut]()
 

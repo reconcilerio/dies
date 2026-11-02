@@ -22,6 +22,7 @@ import (
 	flowcontrolv1beta1 "k8s.io/api/flowcontrol/v1beta1"
 	dieflowcontrolv1beta1 "reconciler.io/dies/v2/apis/flowcontrol/v1beta1"
 	diecodegen "reconciler.io/dies/v2/die/codegen"
+	dieobjects "reconciler.io/dies/v2/die/objects"
 	testing "testing"
 )
 
@@ -56,6 +57,14 @@ func TestDiesMatchTypes(t *testing.T) {
 		}
 	}
 }
+
+// typed and object dies have the methods of their interfaces
+var (
+	_ dieobjects.DieObjectOf[dieflowcontrolv1beta1.FlowSchema, *dieflowcontrolv1beta1.FlowSchemaDie, *dieflowcontrolv1beta1.FlowSchemaDieMut]                                                    = (*dieflowcontrolv1beta1.FlowSchemaDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieflowcontrolv1beta1.FlowSchema, *dieflowcontrolv1beta1.FlowSchemaDie, *dieflowcontrolv1beta1.FlowSchemaDieMut]                                                 = (*dieflowcontrolv1beta1.FlowSchemaDieMut)(nil)
+	_ dieobjects.DieObjectOf[dieflowcontrolv1beta1.PriorityLevelConfiguration, *dieflowcontrolv1beta1.PriorityLevelConfigurationDie, *dieflowcontrolv1beta1.PriorityLevelConfigurationDieMut]    = (*dieflowcontrolv1beta1.PriorityLevelConfigurationDie)(nil)
+	_ dieobjects.DieObjectMutOf[dieflowcontrolv1beta1.PriorityLevelConfiguration, *dieflowcontrolv1beta1.PriorityLevelConfigurationDie, *dieflowcontrolv1beta1.PriorityLevelConfigurationDieMut] = (*dieflowcontrolv1beta1.PriorityLevelConfigurationDieMut)(nil)
+)
 
 func TestDiesRegisterUpstreamKinds(t *testing.T) {
 	if err := diecodegen.CheckRegistered(dieflowcontrolv1beta1.AddToScheme, flowcontrolv1beta1.AddToScheme, dieflowcontrolv1beta1.SchemeGroupVersion); err != nil {

@@ -28,7 +28,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // Lease defines a lease concept.
@@ -51,11 +50,6 @@ func (*LeaseDie) DieFrom(b diebase.DieBase[Lease, *LeaseDie, *LeaseDieMut]) *Lea
 func (*LeaseDieMut) DieFrom(b diebase.DieMutBase[Lease, *LeaseDie, *LeaseDieMut]) *LeaseDieMut {
 	return &LeaseDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[Lease, *LeaseDie, *LeaseDieMut]    = (*LeaseDie)(nil)
-	_ dieobjects.DieObjectMutOf[Lease, *LeaseDie, *LeaseDieMut] = (*LeaseDieMut)(nil)
-)
 
 var LeaseBlank = diebase.BlankOf[Lease, *LeaseDie, *LeaseDieMut](Lease{TypeMeta: metav1.TypeMeta{APIVersion: "coordination.k8s.io/v1beta1", Kind: "Lease"}})
 
@@ -201,11 +195,6 @@ func (*LeaseCandidateDie) DieFrom(b diebase.DieBase[LeaseCandidate, *LeaseCandid
 func (*LeaseCandidateDieMut) DieFrom(b diebase.DieMutBase[LeaseCandidate, *LeaseCandidateDie, *LeaseCandidateDieMut]) *LeaseCandidateDieMut {
 	return &LeaseCandidateDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[LeaseCandidate, *LeaseCandidateDie, *LeaseCandidateDieMut]    = (*LeaseCandidateDie)(nil)
-	_ dieobjects.DieObjectMutOf[LeaseCandidate, *LeaseCandidateDie, *LeaseCandidateDieMut] = (*LeaseCandidateDieMut)(nil)
-)
 
 var LeaseCandidateBlank = diebase.BlankOf[LeaseCandidate, *LeaseCandidateDie, *LeaseCandidateDieMut](LeaseCandidate{TypeMeta: metav1.TypeMeta{APIVersion: "coordination.k8s.io/v1beta1", Kind: "LeaseCandidate"}})
 
@@ -373,11 +362,6 @@ func (*LeaseCandidateSpecDie) DieFrom(b diebase.DieBase[LeaseCandidateSpec, *Lea
 func (*LeaseCandidateSpecDieMut) DieFrom(b diebase.DieMutBase[LeaseCandidateSpec, *LeaseCandidateSpecDie, *LeaseCandidateSpecDieMut]) *LeaseCandidateSpecDieMut {
 	return &LeaseCandidateSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[LeaseCandidateSpec, *LeaseCandidateSpecDie, *LeaseCandidateSpecDieMut]    = (*LeaseCandidateSpecDie)(nil)
-	_ diebase.DieMutOf[LeaseCandidateSpec, *LeaseCandidateSpecDie, *LeaseCandidateSpecDieMut] = (*LeaseCandidateSpecDieMut)(nil)
-)
 
 var LeaseCandidateSpecBlank = diebase.Blank[LeaseCandidateSpec, *LeaseCandidateSpecDie, *LeaseCandidateSpecDieMut]()
 
@@ -585,11 +569,6 @@ func (*LeaseSpecDie) DieFrom(b diebase.DieBase[LeaseSpec, *LeaseSpecDie, *LeaseS
 func (*LeaseSpecDieMut) DieFrom(b diebase.DieMutBase[LeaseSpec, *LeaseSpecDie, *LeaseSpecDieMut]) *LeaseSpecDieMut {
 	return &LeaseSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[LeaseSpec, *LeaseSpecDie, *LeaseSpecDieMut]    = (*LeaseSpecDie)(nil)
-	_ diebase.DieMutOf[LeaseSpec, *LeaseSpecDie, *LeaseSpecDieMut] = (*LeaseSpecDieMut)(nil)
-)
 
 var LeaseSpecBlank = diebase.Blank[LeaseSpec, *LeaseSpecDie, *LeaseSpecDieMut]()
 

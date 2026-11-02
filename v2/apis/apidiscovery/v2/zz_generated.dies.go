@@ -27,7 +27,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // APIGroupDiscovery holds information about which resources are being served for all version of the API Group.
@@ -52,11 +51,6 @@ func (*APIGroupDiscoveryDie) DieFrom(b diebase.DieBase[APIGroupDiscovery, *APIGr
 func (*APIGroupDiscoveryDieMut) DieFrom(b diebase.DieMutBase[APIGroupDiscovery, *APIGroupDiscoveryDie, *APIGroupDiscoveryDieMut]) *APIGroupDiscoveryDieMut {
 	return &APIGroupDiscoveryDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[APIGroupDiscovery, *APIGroupDiscoveryDie, *APIGroupDiscoveryDieMut]    = (*APIGroupDiscoveryDie)(nil)
-	_ dieobjects.DieObjectMutOf[APIGroupDiscovery, *APIGroupDiscoveryDie, *APIGroupDiscoveryDieMut] = (*APIGroupDiscoveryDieMut)(nil)
-)
 
 var APIGroupDiscoveryBlank = diebase.BlankOf[APIGroupDiscovery, *APIGroupDiscoveryDie, *APIGroupDiscoveryDieMut](APIGroupDiscovery{TypeMeta: metav1.TypeMeta{APIVersion: "apidiscovery.k8s.io/v2", Kind: "APIGroupDiscovery"}})
 
@@ -182,11 +176,6 @@ func (*APIResourceDiscoveryDie) DieFrom(b diebase.DieBase[APIResourceDiscovery, 
 func (*APIResourceDiscoveryDieMut) DieFrom(b diebase.DieMutBase[APIResourceDiscovery, *APIResourceDiscoveryDie, *APIResourceDiscoveryDieMut]) *APIResourceDiscoveryDieMut {
 	return &APIResourceDiscoveryDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[APIResourceDiscovery, *APIResourceDiscoveryDie, *APIResourceDiscoveryDieMut]    = (*APIResourceDiscoveryDie)(nil)
-	_ diebase.DieMutOf[APIResourceDiscovery, *APIResourceDiscoveryDie, *APIResourceDiscoveryDieMut] = (*APIResourceDiscoveryDieMut)(nil)
-)
 
 var APIResourceDiscoveryBlank = diebase.Blank[APIResourceDiscovery, *APIResourceDiscoveryDie, *APIResourceDiscoveryDieMut]()
 
@@ -337,11 +326,6 @@ func (*APISubresourceDiscoveryDieMut) DieFrom(b diebase.DieMutBase[APISubresourc
 	return &APISubresourceDiscoveryDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[APISubresourceDiscovery, *APISubresourceDiscoveryDie, *APISubresourceDiscoveryDieMut]    = (*APISubresourceDiscoveryDie)(nil)
-	_ diebase.DieMutOf[APISubresourceDiscovery, *APISubresourceDiscoveryDie, *APISubresourceDiscoveryDieMut] = (*APISubresourceDiscoveryDieMut)(nil)
-)
-
 var APISubresourceDiscoveryBlank = diebase.Blank[APISubresourceDiscovery, *APISubresourceDiscoveryDie, *APISubresourceDiscoveryDieMut]()
 
 type aPISubresourceDiscoveryFieldsTable struct {
@@ -442,11 +426,6 @@ func (*APIVersionDiscoveryDie) DieFrom(b diebase.DieBase[APIVersionDiscovery, *A
 func (*APIVersionDiscoveryDieMut) DieFrom(b diebase.DieMutBase[APIVersionDiscovery, *APIVersionDiscoveryDie, *APIVersionDiscoveryDieMut]) *APIVersionDiscoveryDieMut {
 	return &APIVersionDiscoveryDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[APIVersionDiscovery, *APIVersionDiscoveryDie, *APIVersionDiscoveryDieMut]    = (*APIVersionDiscoveryDie)(nil)
-	_ diebase.DieMutOf[APIVersionDiscovery, *APIVersionDiscoveryDie, *APIVersionDiscoveryDieMut] = (*APIVersionDiscoveryDieMut)(nil)
-)
 
 var APIVersionDiscoveryBlank = diebase.Blank[APIVersionDiscovery, *APIVersionDiscoveryDie, *APIVersionDiscoveryDieMut]()
 

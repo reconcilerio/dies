@@ -29,7 +29,6 @@ import (
 	diecodegen "reconciler.io/dies/v2/die/codegen"
 	diefields "reconciler.io/dies/v2/die/fields"
 	dielists "reconciler.io/dies/v2/die/lists"
-	dieobjects "reconciler.io/dies/v2/die/objects"
 )
 
 // HTTPIngressPath associates a path with a backend. Incoming urls matching the
@@ -53,11 +52,6 @@ func (*HTTPIngressPathDie) DieFrom(b diebase.DieBase[HTTPIngressPath, *HTTPIngre
 func (*HTTPIngressPathDieMut) DieFrom(b diebase.DieMutBase[HTTPIngressPath, *HTTPIngressPathDie, *HTTPIngressPathDieMut]) *HTTPIngressPathDieMut {
 	return &HTTPIngressPathDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[HTTPIngressPath, *HTTPIngressPathDie, *HTTPIngressPathDieMut]    = (*HTTPIngressPathDie)(nil)
-	_ diebase.DieMutOf[HTTPIngressPath, *HTTPIngressPathDie, *HTTPIngressPathDieMut] = (*HTTPIngressPathDieMut)(nil)
-)
 
 var HTTPIngressPathBlank = diebase.Blank[HTTPIngressPath, *HTTPIngressPathDie, *HTTPIngressPathDieMut]()
 
@@ -219,11 +213,6 @@ func (*HTTPIngressRuleValueDieMut) DieFrom(b diebase.DieMutBase[HTTPIngressRuleV
 	return &HTTPIngressRuleValueDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[HTTPIngressRuleValue, *HTTPIngressRuleValueDie, *HTTPIngressRuleValueDieMut]    = (*HTTPIngressRuleValueDie)(nil)
-	_ diebase.DieMutOf[HTTPIngressRuleValue, *HTTPIngressRuleValueDie, *HTTPIngressRuleValueDieMut] = (*HTTPIngressRuleValueDieMut)(nil)
-)
-
 var HTTPIngressRuleValueBlank = diebase.Blank[HTTPIngressRuleValue, *HTTPIngressRuleValueDie, *HTTPIngressRuleValueDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -323,11 +312,6 @@ func (*IPAddressDie) DieFrom(b diebase.DieBase[IPAddress, *IPAddressDie, *IPAddr
 func (*IPAddressDieMut) DieFrom(b diebase.DieMutBase[IPAddress, *IPAddressDie, *IPAddressDieMut]) *IPAddressDieMut {
 	return &IPAddressDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[IPAddress, *IPAddressDie, *IPAddressDieMut]    = (*IPAddressDie)(nil)
-	_ dieobjects.DieObjectMutOf[IPAddress, *IPAddressDie, *IPAddressDieMut] = (*IPAddressDieMut)(nil)
-)
 
 var IPAddressBlank = diebase.BlankOf[IPAddress, *IPAddressDie, *IPAddressDieMut](IPAddress{TypeMeta: metav1.TypeMeta{APIVersion: "networking.k8s.io/v1beta1", Kind: "IPAddress"}})
 
@@ -494,11 +478,6 @@ func (*IPAddressSpecDieMut) DieFrom(b diebase.DieMutBase[IPAddressSpec, *IPAddre
 	return &IPAddressSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[IPAddressSpec, *IPAddressSpecDie, *IPAddressSpecDieMut]    = (*IPAddressSpecDie)(nil)
-	_ diebase.DieMutOf[IPAddressSpec, *IPAddressSpecDie, *IPAddressSpecDieMut] = (*IPAddressSpecDieMut)(nil)
-)
-
 var IPAddressSpecBlank = diebase.Blank[IPAddressSpec, *IPAddressSpecDie, *IPAddressSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -597,11 +576,6 @@ func (*IngressDie) DieFrom(b diebase.DieBase[Ingress, *IngressDie, *IngressDieMu
 func (*IngressDieMut) DieFrom(b diebase.DieMutBase[Ingress, *IngressDie, *IngressDieMut]) *IngressDieMut {
 	return &IngressDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[Ingress, *IngressDie, *IngressDieMut]    = (*IngressDie)(nil)
-	_ dieobjects.DieObjectMutOf[Ingress, *IngressDie, *IngressDieMut] = (*IngressDieMut)(nil)
-)
 
 var IngressBlank = diebase.BlankOf[Ingress, *IngressDie, *IngressDieMut](Ingress{TypeMeta: metav1.TypeMeta{APIVersion: "networking.k8s.io/v1beta1", Kind: "Ingress"}})
 
@@ -763,11 +737,6 @@ func (*IngressBackendDieMut) DieFrom(b diebase.DieMutBase[IngressBackend, *Ingre
 	return &IngressBackendDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[IngressBackend, *IngressBackendDie, *IngressBackendDieMut]    = (*IngressBackendDie)(nil)
-	_ diebase.DieMutOf[IngressBackend, *IngressBackendDie, *IngressBackendDieMut] = (*IngressBackendDieMut)(nil)
-)
-
 var IngressBackendBlank = diebase.Blank[IngressBackend, *IngressBackendDie, *IngressBackendDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -893,11 +862,6 @@ func (*IngressClassDie) DieFrom(b diebase.DieBase[IngressClass, *IngressClassDie
 func (*IngressClassDieMut) DieFrom(b diebase.DieMutBase[IngressClass, *IngressClassDie, *IngressClassDieMut]) *IngressClassDieMut {
 	return &IngressClassDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[IngressClass, *IngressClassDie, *IngressClassDieMut]    = (*IngressClassDie)(nil)
-	_ dieobjects.DieObjectMutOf[IngressClass, *IngressClassDie, *IngressClassDieMut] = (*IngressClassDieMut)(nil)
-)
 
 var IngressClassBlank = diebase.BlankOf[IngressClass, *IngressClassDie, *IngressClassDieMut](IngressClass{TypeMeta: metav1.TypeMeta{APIVersion: "networking.k8s.io/v1beta1", Kind: "IngressClass"}})
 
@@ -1067,11 +1031,6 @@ func (*IngressClassParametersReferenceDieMut) DieFrom(b diebase.DieMutBase[Ingre
 	return &IngressClassParametersReferenceDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[IngressClassParametersReference, *IngressClassParametersReferenceDie, *IngressClassParametersReferenceDieMut]    = (*IngressClassParametersReferenceDie)(nil)
-	_ diebase.DieMutOf[IngressClassParametersReference, *IngressClassParametersReferenceDie, *IngressClassParametersReferenceDieMut] = (*IngressClassParametersReferenceDieMut)(nil)
-)
-
 var IngressClassParametersReferenceBlank = diebase.Blank[IngressClassParametersReference, *IngressClassParametersReferenceDie, *IngressClassParametersReferenceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1224,11 +1183,6 @@ func (*IngressClassSpecDieMut) DieFrom(b diebase.DieMutBase[IngressClassSpec, *I
 	return &IngressClassSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[IngressClassSpec, *IngressClassSpecDie, *IngressClassSpecDieMut]    = (*IngressClassSpecDie)(nil)
-	_ diebase.DieMutOf[IngressClassSpec, *IngressClassSpecDie, *IngressClassSpecDieMut] = (*IngressClassSpecDieMut)(nil)
-)
-
 var IngressClassSpecBlank = diebase.Blank[IngressClassSpec, *IngressClassSpecDie, *IngressClassSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1366,11 +1320,6 @@ func (*IngressLoadBalancerIngressDieMut) DieFrom(b diebase.DieMutBase[IngressLoa
 	return &IngressLoadBalancerIngressDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[IngressLoadBalancerIngress, *IngressLoadBalancerIngressDie, *IngressLoadBalancerIngressDieMut]    = (*IngressLoadBalancerIngressDie)(nil)
-	_ diebase.DieMutOf[IngressLoadBalancerIngress, *IngressLoadBalancerIngressDie, *IngressLoadBalancerIngressDieMut] = (*IngressLoadBalancerIngressDieMut)(nil)
-)
-
 var IngressLoadBalancerIngressBlank = diebase.Blank[IngressLoadBalancerIngress, *IngressLoadBalancerIngressDie, *IngressLoadBalancerIngressDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1489,11 +1438,6 @@ func (*IngressLoadBalancerStatusDieMut) DieFrom(b diebase.DieMutBase[IngressLoad
 	return &IngressLoadBalancerStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[IngressLoadBalancerStatus, *IngressLoadBalancerStatusDie, *IngressLoadBalancerStatusDieMut]    = (*IngressLoadBalancerStatusDie)(nil)
-	_ diebase.DieMutOf[IngressLoadBalancerStatus, *IngressLoadBalancerStatusDie, *IngressLoadBalancerStatusDieMut] = (*IngressLoadBalancerStatusDieMut)(nil)
-)
-
 var IngressLoadBalancerStatusBlank = diebase.Blank[IngressLoadBalancerStatus, *IngressLoadBalancerStatusDie, *IngressLoadBalancerStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1587,11 +1531,6 @@ func (*IngressPortStatusDie) DieFrom(b diebase.DieBase[IngressPortStatus, *Ingre
 func (*IngressPortStatusDieMut) DieFrom(b diebase.DieMutBase[IngressPortStatus, *IngressPortStatusDie, *IngressPortStatusDieMut]) *IngressPortStatusDieMut {
 	return &IngressPortStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[IngressPortStatus, *IngressPortStatusDie, *IngressPortStatusDieMut]    = (*IngressPortStatusDie)(nil)
-	_ diebase.DieMutOf[IngressPortStatus, *IngressPortStatusDie, *IngressPortStatusDieMut] = (*IngressPortStatusDieMut)(nil)
-)
 
 var IngressPortStatusBlank = diebase.Blank[IngressPortStatus, *IngressPortStatusDie, *IngressPortStatusDieMut]()
 
@@ -1730,11 +1669,6 @@ func (*IngressRuleDie) DieFrom(b diebase.DieBase[IngressRule, *IngressRuleDie, *
 func (*IngressRuleDieMut) DieFrom(b diebase.DieMutBase[IngressRule, *IngressRuleDie, *IngressRuleDieMut]) *IngressRuleDieMut {
 	return &IngressRuleDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[IngressRule, *IngressRuleDie, *IngressRuleDieMut]    = (*IngressRuleDie)(nil)
-	_ diebase.DieMutOf[IngressRule, *IngressRuleDie, *IngressRuleDieMut] = (*IngressRuleDieMut)(nil)
-)
 
 var IngressRuleBlank = diebase.Blank[IngressRule, *IngressRuleDie, *IngressRuleDieMut]()
 
@@ -1889,11 +1823,6 @@ func (*IngressRuleValueDieMut) DieFrom(b diebase.DieMutBase[IngressRuleValue, *I
 	return &IngressRuleValueDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[IngressRuleValue, *IngressRuleValueDie, *IngressRuleValueDieMut]    = (*IngressRuleValueDie)(nil)
-	_ diebase.DieMutOf[IngressRuleValue, *IngressRuleValueDie, *IngressRuleValueDieMut] = (*IngressRuleValueDieMut)(nil)
-)
-
 var IngressRuleValueBlank = diebase.Blank[IngressRuleValue, *IngressRuleValueDie, *IngressRuleValueDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -1987,11 +1916,6 @@ func (*IngressSpecDie) DieFrom(b diebase.DieBase[IngressSpec, *IngressSpecDie, *
 func (*IngressSpecDieMut) DieFrom(b diebase.DieMutBase[IngressSpec, *IngressSpecDie, *IngressSpecDieMut]) *IngressSpecDieMut {
 	return &IngressSpecDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[IngressSpec, *IngressSpecDie, *IngressSpecDieMut]    = (*IngressSpecDie)(nil)
-	_ diebase.DieMutOf[IngressSpec, *IngressSpecDie, *IngressSpecDieMut] = (*IngressSpecDieMut)(nil)
-)
 
 var IngressSpecBlank = diebase.Blank[IngressSpec, *IngressSpecDie, *IngressSpecDieMut]()
 
@@ -2157,11 +2081,6 @@ func (*IngressStatusDieMut) DieFrom(b diebase.DieMutBase[IngressStatus, *Ingress
 	return &IngressStatusDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[IngressStatus, *IngressStatusDie, *IngressStatusDieMut]    = (*IngressStatusDie)(nil)
-	_ diebase.DieMutOf[IngressStatus, *IngressStatusDie, *IngressStatusDieMut] = (*IngressStatusDieMut)(nil)
-)
-
 var IngressStatusBlank = diebase.Blank[IngressStatus, *IngressStatusDie, *IngressStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2255,11 +2174,6 @@ func (*IngressTLSDie) DieFrom(b diebase.DieBase[IngressTLS, *IngressTLSDie, *Ing
 func (*IngressTLSDieMut) DieFrom(b diebase.DieMutBase[IngressTLS, *IngressTLSDie, *IngressTLSDieMut]) *IngressTLSDieMut {
 	return &IngressTLSDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[IngressTLS, *IngressTLSDie, *IngressTLSDieMut]    = (*IngressTLSDie)(nil)
-	_ diebase.DieMutOf[IngressTLS, *IngressTLSDie, *IngressTLSDieMut] = (*IngressTLSDieMut)(nil)
-)
 
 var IngressTLSBlank = diebase.Blank[IngressTLS, *IngressTLSDie, *IngressTLSDieMut]()
 
@@ -2380,11 +2294,6 @@ func (*ParentReferenceDie) DieFrom(b diebase.DieBase[ParentReference, *ParentRef
 func (*ParentReferenceDieMut) DieFrom(b diebase.DieMutBase[ParentReference, *ParentReferenceDie, *ParentReferenceDieMut]) *ParentReferenceDieMut {
 	return &ParentReferenceDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ParentReference, *ParentReferenceDie, *ParentReferenceDieMut]    = (*ParentReferenceDie)(nil)
-	_ diebase.DieMutOf[ParentReference, *ParentReferenceDie, *ParentReferenceDieMut] = (*ParentReferenceDieMut)(nil)
-)
 
 var ParentReferenceBlank = diebase.Blank[ParentReference, *ParentReferenceDie, *ParentReferenceDieMut]()
 
@@ -2516,11 +2425,6 @@ func (*ServiceCIDRDie) DieFrom(b diebase.DieBase[ServiceCIDR, *ServiceCIDRDie, *
 func (*ServiceCIDRDieMut) DieFrom(b diebase.DieMutBase[ServiceCIDR, *ServiceCIDRDie, *ServiceCIDRDieMut]) *ServiceCIDRDieMut {
 	return &ServiceCIDRDieMut{diebase.AsObjectMut(b)}
 }
-
-var (
-	_ dieobjects.DieObjectOf[ServiceCIDR, *ServiceCIDRDie, *ServiceCIDRDieMut]    = (*ServiceCIDRDie)(nil)
-	_ dieobjects.DieObjectMutOf[ServiceCIDR, *ServiceCIDRDie, *ServiceCIDRDieMut] = (*ServiceCIDRDieMut)(nil)
-)
 
 var ServiceCIDRBlank = diebase.BlankOf[ServiceCIDR, *ServiceCIDRDie, *ServiceCIDRDieMut](ServiceCIDR{TypeMeta: metav1.TypeMeta{APIVersion: "networking.k8s.io/v1beta1", Kind: "ServiceCIDR"}})
 
@@ -2701,11 +2605,6 @@ func (*ServiceCIDRSpecDieMut) DieFrom(b diebase.DieMutBase[ServiceCIDRSpec, *Ser
 	return &ServiceCIDRSpecDieMut{b}
 }
 
-var (
-	_ diebase.DieOf[ServiceCIDRSpec, *ServiceCIDRSpecDie, *ServiceCIDRSpecDieMut]    = (*ServiceCIDRSpecDie)(nil)
-	_ diebase.DieMutOf[ServiceCIDRSpec, *ServiceCIDRSpecDie, *ServiceCIDRSpecDieMut] = (*ServiceCIDRSpecDieMut)(nil)
-)
-
 var ServiceCIDRSpecBlank = diebase.Blank[ServiceCIDRSpec, *ServiceCIDRSpecDie, *ServiceCIDRSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
@@ -2803,11 +2702,6 @@ func (*ServiceCIDRStatusDie) DieFrom(b diebase.DieBase[ServiceCIDRStatus, *Servi
 func (*ServiceCIDRStatusDieMut) DieFrom(b diebase.DieMutBase[ServiceCIDRStatus, *ServiceCIDRStatusDie, *ServiceCIDRStatusDieMut]) *ServiceCIDRStatusDieMut {
 	return &ServiceCIDRStatusDieMut{b}
 }
-
-var (
-	_ diebase.DieOf[ServiceCIDRStatus, *ServiceCIDRStatusDie, *ServiceCIDRStatusDieMut]    = (*ServiceCIDRStatusDie)(nil)
-	_ diebase.DieMutOf[ServiceCIDRStatus, *ServiceCIDRStatusDie, *ServiceCIDRStatusDieMut] = (*ServiceCIDRStatusDieMut)(nil)
-)
 
 var ServiceCIDRStatusBlank = diebase.Blank[ServiceCIDRStatus, *ServiceCIDRStatusDie, *ServiceCIDRStatusDieMut]()
 
