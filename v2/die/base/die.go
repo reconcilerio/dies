@@ -641,10 +641,14 @@ func subresourcesWhere(t reflect.Type, match func(string) bool) []Located {
 	return paths
 }
 
-// DieIntent describes the recorded intent, one operation per line.
+// DieIntent describes the recorded intent, one operation per line. A jig
+// records none of its own, as its writes go to its sources: its intent is
+// theirs, through its bindings, operation for operation where a location is
+// bound as is, and as a set of the whole value where it is bound through a
+// transform or an aggregate.
 func (b *state[T]) DieIntent() string {
 	var lines []string
-	describeIntent(core.NodeAt(b.hold().Ov, b.at), b.at, &lines)
+	describeIntent(core.NodeAt(core.IntentOf(b.hold()), b.at), b.at, &lines)
 	return strings.Join(lines, "\n")
 }
 
@@ -654,7 +658,11 @@ func describeIntent(n *core.Onode, p Path, lines *[]string) {
 	}
 	switch n.Op {
 	case core.OpSet:
-		v, _ := json.Marshal(n.Val.Interface())
+		// an unstructured value set to nil has no value: null
+		v := []byte("null")
+		if n.Val.IsValid() {
+			v, _ = json.Marshal(n.Val.Interface())
+		}
 		*lines = append(*lines, fmt.Sprintf("set %s = %s", p, v))
 	case core.OpClear:
 		*lines = append(*lines, fmt.Sprintf("clear %s", p))
@@ -705,23 +713,14 @@ func (b *state[T]) DieReleaseMergePatchE() ([]byte, error) {
 	return patch, nil
 }
 
-// Equal compares current values. Intent is not compared.
+// Equal reports whether two dies have the same [Content]: the same current
+// value, as encoded, fields its type doesn't have included, and the same
+// intent. Values that encode alike, such as times that differ only within a
+// second, are equal.
 func (b *DieBase[T, D, M]) Equal(o D) bool { return core.Must(b.EqualE(o)) }
 
 // EqualE is [DieBase.Equal], returning an error rather than panicking.
-func (b *DieBase[T, D, M]) EqualE(o D) (bool, error) { return equal[T](b, o) }
-
-func equal[T any](a, b interface{ DieReleaseE() (T, error) }) (bool, error) {
-	mine, err := a.DieReleaseE()
-	if err != nil {
-		return false, err
-	}
-	theirs, err := b.DieReleaseE()
-	if err != nil {
-		return false, err
-	}
-	return reflect.DeepEqual(mine, theirs), nil
-}
+func (b *DieBase[T, D, M]) EqualE(o D) (bool, error) { return equal(&b.state, o) }
 
 // MarshalJSON encodes the current value as its presence says: values that
 // were decoded as they were on the wire, fields its type doesn't have
@@ -1051,11 +1050,12 @@ func (b *DieMutBase[T, D, M]) feedPatch(method string, kind core.PatchKind, patc
 	return b.write(core.FeedPatch(h, kind, raw))
 }
 
-// Equal compares current values. Intent is not compared.
+// Equal reports whether two dies have the same [Content], as
+// [DieBase.Equal] does.
 func (b *DieMutBase[T, D, M]) Equal(o M) bool { return core.Must(b.EqualE(o)) }
 
 // EqualE is [DieMutBase.Equal], returning an error rather than panicking.
-func (b *DieMutBase[T, D, M]) EqualE(o M) (bool, error) { return equal[T](b, o) }
+func (b *DieMutBase[T, D, M]) EqualE(o M) (bool, error) { return equal(&b.state, o) }
 
 // UnmarshalJSON replaces the base and keeps the intent, so the intent is
 // reapplied on top of the decoded value.

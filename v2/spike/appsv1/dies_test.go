@@ -424,7 +424,9 @@ func TestPresenceOfOptionalScalars(t *testing.T) {
 	}`)
 }
 
-func TestEqualIgnoresIntent(t *testing.T) {
+// Equal compares intent as well as values, so that dies that are equal have
+// no diff.
+func TestEqualComparesIntent(t *testing.T) {
 	fed := DeploymentBlank.DieWith(func(d *DeploymentDieMut) {
 		d.DieFeed(Deployment{
 			TypeMeta:   metav1.TypeMeta{APIVersion: "apps/v1", Kind: "Deployment"},
@@ -432,8 +434,11 @@ func TestEqualIgnoresIntent(t *testing.T) {
 		})
 	})
 	stamped := DeploymentBlank.DieWith(func(d *DeploymentDieMut) { d.Metadata().Name().Set("x") })
-	if !fed.Equal(stamped) {
-		t.Errorf("equal values with different intent should be equal")
+	if fed.Equal(stamped) {
+		t.Errorf("equal values with different intent should not be equal")
+	}
+	if !reflect.DeepEqual(fed.DieRelease(), stamped.DieRelease()) {
+		t.Errorf("expected equal values")
 	}
 	if fed.DieIntent() == stamped.DieIntent() {
 		t.Errorf("expected different intent")

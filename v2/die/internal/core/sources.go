@@ -41,6 +41,8 @@ type source interface {
 	// listKeys are the keys of the list at a path, nil for an atomic list. An
 	// untyped source has no keys of its own and uses the view's.
 	listKeys(p Path, view []string) []string
+	// intent is the source's recorded intent, at paths within it
+	intent() *Onode
 	String() string
 }
 
@@ -71,6 +73,8 @@ func (s HolderSource) typeAt(p Path) reflect.Type { return TypeAt(s.H.Base.Type(
 
 func (s HolderSource) listKeys(p Path, _ []string) []string { return fieldAt(s.H.Base.Type(), p).Keys }
 
+func (s HolderSource) intent() *Onode { return IntentOf(s.H) }
+
 func (s HolderSource) String() string { return s.H.Base.Type().String() }
 
 // unstructuredSource is an unstructured object. Reads convert the part a view
@@ -82,6 +86,8 @@ type UnstructuredSource struct{ Obj *unstructured.Unstructured }
 func (u UnstructuredSource) String() string { return u.Obj.GroupVersionKind().String() }
 
 func (u UnstructuredSource) Mutable() bool { return true }
+
+func (u UnstructuredSource) intent() *Onode { return nil }
 
 func (u UnstructuredSource) typeAt(Path) reflect.Type { return nil }
 
@@ -360,6 +366,8 @@ func (s DieSource) write(p Path, o Op, val reflect.Value, t reflect.Type) error 
 }
 
 func (s DieSource) Mutable() bool { return s.H.Mutable }
+
+func (s DieSource) intent() *Onode { return IntentOf(s.H) }
 
 func (s DieSource) typeAt(Path) reflect.Type { return nil }
 

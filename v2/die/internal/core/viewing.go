@@ -18,6 +18,7 @@ package core
 
 import (
 	"reflect"
+	"slices"
 )
 
 // Binding binds a location of a view to a location of a source.
@@ -356,4 +357,76 @@ func (p Path) hasPrefix(q Path) bool {
 		}
 	}
 	return true
+}
+
+// IntentOf returns a holder's intent. A view records none of its own, as its
+// writes go to its source: its intent is its source's, through its bindings.
+func IntentOf(h *Holder) *Onode {
+	if h.View != nil {
+		return h.View.intent()
+	}
+	return h.Ov
+}
+
+// intent is the view's intent, derived from its source's through its
+// bindings. Through a binding without a transform or an aggregate, the
+// source's intent at the bound location is the view's at its own, operation
+// for operation. A transform or an aggregate can't map operations, so where
+// the source has any intent below such a binding, the view's intent sets the
+// binding's whole value, as the view reads it. A binding nested in another
+// replaces the outer binding's intent below it, as its reads do.
+func (v *Viewing) intent() *Onode {
+	src := v.Src.intent()
+	if src == nil {
+		return nil
+	}
+	binds := slices.Clone(v.Binds)
+	slices.SortStableFunc(binds, func(a, b Binding) int { return len(a.view) - len(b.view) })
+	var out *Onode
+	for _, b := range binds {
+		var n *Onode
+		switch {
+		case b.agg != nil:
+			for _, m := range b.agg.Members {
+				if NodeAt(src, v.At.join(m.Src)) != nil {
+					n = v.setsBinding(b)
+					break
+				}
+			}
+		case b.tf != nil:
+			if NodeAt(src, v.source(b, nil)) != nil {
+				n = v.setsBinding(b)
+			}
+		default:
+			n = NodeAt(src, v.source(b, nil))
+		}
+		out = graft(out, b.view, n)
+	}
+	return out
+}
+
+// setsBinding is intent that sets a binding's whole value as the view reads
+// it, or that sets nothing if it can't be read.
+func (v *Viewing) setsBinding(b Binding) *Onode {
+	val, err := v.read(b, nil)
+	if err != nil {
+		return nil
+	}
+	return &Onode{Op: OpSet, Val: val}
+}
+
+// graft returns a copy of n with the node at p replaced by k, or removed if k
+// is nil.
+func graft(n *Onode, p Path, k *Onode) *Onode {
+	if len(p) == 0 {
+		return k
+	}
+	if k == nil && NodeAt(n, p) == nil {
+		return n
+	}
+	last := p[len(p)-1]
+	return with(n, p[:len(p)-1], func(c *Onode) *Onode {
+		c.setKid(last, k)
+		return c
+	})
 }

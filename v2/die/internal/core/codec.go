@@ -294,10 +294,15 @@ func (h *Holder) EncodeAt(p Path) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	if h.View != nil || !structured(t) {
+	if !structured(t) {
 		return toJSON(v)
 	}
-	n, w := h.Ov, h.Wire
+	// a view has no presence of its own: its values follow the Go rule,
+	// with its intent, which is its source's, as a written die's do
+	n, w := IntentOf(h), h.Wire
+	if h.View != nil {
+		w = nil
+	}
 	for _, s := range p {
 		if n != nil && (n.Op == OpSet || n.Op == OpEmpty) {
 			w = nil

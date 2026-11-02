@@ -5,6 +5,7 @@ go 1.27
 tool reconciler.io/dies/v2/diegen
 
 require (
+	github.com/google/go-cmp v0.7.0
 	golang.org/x/tools v0.47.0
 	k8s.io/api v0.37.0
 	k8s.io/apiextensions-apiserver v0.37.0
