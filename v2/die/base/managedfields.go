@@ -100,6 +100,6 @@ func ManagedFieldsOf(t reflect.Type) []FieldInfo {
 
 // DieFields returns the fields this die manages, in order, as locations
 // within it.
-func (b *DieBase[T, D]) DieFields() []FieldInfo {
+func (b *state[T]) DieFields() []FieldInfo {
 	return fieldInfos(reflect.TypeFor[T](), b.DieRootType(), b.at)
 }

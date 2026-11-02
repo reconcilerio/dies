@@ -42,17 +42,32 @@ import (
 // This API can be used to request client certificates to authenticate to kube-apiserver
 // (with the "kubernetes.io/kube-apiserver-client" signerName),
 // or to obtain certificates from custom non-Kubernetes signers.
+//
+// CertificateSigningRequestDie is immutable: it reads.
+// CertificateSigningRequestDieMut, its mutable die, also writes, as DieWith passes it.
 type CertificateSigningRequestDie struct {
-	diebase.DieObjectBase[CertificateSigningRequest, *CertificateSigningRequestDie]
+	diebase.DieObjectBase[CertificateSigningRequest, *CertificateSigningRequestDie, *CertificateSigningRequestDieMut]
 }
 
-func (*CertificateSigningRequestDie) DieFrom(b diebase.DieBase[CertificateSigningRequest, *CertificateSigningRequestDie]) *CertificateSigningRequestDie {
+// CertificateSigningRequestDieMut is the mutable die of CertificateSigningRequest: see CertificateSigningRequestDie.
+type CertificateSigningRequestDieMut struct {
+	diebase.DieObjectMutBase[CertificateSigningRequest, *CertificateSigningRequestDie, *CertificateSigningRequestDieMut]
+}
+
+func (*CertificateSigningRequestDie) DieFrom(b diebase.DieBase[CertificateSigningRequest, *CertificateSigningRequestDie, *CertificateSigningRequestDieMut]) *CertificateSigningRequestDie {
 	return &CertificateSigningRequestDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[CertificateSigningRequest, *CertificateSigningRequestDie] = (*CertificateSigningRequestDie)(nil)
+func (*CertificateSigningRequestDieMut) DieFrom(b diebase.DieMutBase[CertificateSigningRequest, *CertificateSigningRequestDie, *CertificateSigningRequestDieMut]) *CertificateSigningRequestDieMut {
+	return &CertificateSigningRequestDieMut{diebase.AsObjectMut(b)}
+}
 
-var CertificateSigningRequestBlank = diebase.BlankOf[CertificateSigningRequest, *CertificateSigningRequestDie](CertificateSigningRequest{TypeMeta: metav1.TypeMeta{APIVersion: "certificates.k8s.io/v1", Kind: "CertificateSigningRequest"}})
+var (
+	_ dieobjects.DieObjectOf[CertificateSigningRequest, *CertificateSigningRequestDie, *CertificateSigningRequestDieMut]    = (*CertificateSigningRequestDie)(nil)
+	_ dieobjects.DieObjectMutOf[CertificateSigningRequest, *CertificateSigningRequestDie, *CertificateSigningRequestDieMut] = (*CertificateSigningRequestDieMut)(nil)
+)
+
+var CertificateSigningRequestBlank = diebase.BlankOf[CertificateSigningRequest, *CertificateSigningRequestDie, *CertificateSigningRequestDieMut](CertificateSigningRequest{TypeMeta: metav1.TypeMeta{APIVersion: "certificates.k8s.io/v1", Kind: "CertificateSigningRequest"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -61,52 +76,65 @@ func (d *CertificateSigningRequestDie) DieReleaseApplyConfiguration() *Certifica
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CertificateSigningRequestDie) DieFeedApplyConfiguration(ac *CertificateSigningRequestApplyConfiguration) *CertificateSigningRequestDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CertificateSigningRequestDie) DieStampApplyConfiguration(fn func(ac *CertificateSigningRequestApplyConfiguration)) *CertificateSigningRequestDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CertificateSigningRequestDie) DieReleaseApplyConfigurationE() (*CertificateSigningRequestApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CertificateSigningRequestDieMut) DieReleaseApplyConfiguration() *CertificateSigningRequestApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CertificateSigningRequestDieMut) DieReleaseApplyConfigurationE() (*CertificateSigningRequestApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CertificateSigningRequestDieMut) DieFeedApplyConfiguration(ac *CertificateSigningRequestApplyConfiguration) *CertificateSigningRequestDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CertificateSigningRequestDieMut) DieStampApplyConfiguration(fn func(ac *CertificateSigningRequestApplyConfiguration)) *CertificateSigningRequestDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CertificateSigningRequestDie) DieFeedApplyConfigurationE(ac *CertificateSigningRequestApplyConfiguration) (*CertificateSigningRequestDie, error) {
+func (d *CertificateSigningRequestDieMut) DieFeedApplyConfigurationE(ac *CertificateSigningRequestApplyConfiguration) (*CertificateSigningRequestDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CertificateSigningRequestDie) DieStampApplyConfigurationE(fn func(ac *CertificateSigningRequestApplyConfiguration)) (*CertificateSigningRequestDie, error) {
+func (d *CertificateSigningRequestDieMut) DieStampApplyConfigurationE(fn func(ac *CertificateSigningRequestApplyConfiguration)) (*CertificateSigningRequestDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type certificateSigningRequestFieldsTable struct {
 	Kind       diefields.Field[CertificateSigningRequest, string]
 	APIVersion diefields.Field[CertificateSigningRequest, string]
-	Metadata   diefields.Struct[CertificateSigningRequest, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[CertificateSigningRequest, CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie]
-	Status     diefields.Struct[CertificateSigningRequest, CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie]
+	Metadata   diefields.Struct[CertificateSigningRequest, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[CertificateSigningRequest, CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie, *CertificateSigningRequestSpecDieMut]
+	Status     diefields.Struct[CertificateSigningRequest, CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie, *CertificateSigningRequestStatusDieMut]
 }
 
 var certificateSigningRequestFields = &diefields.Table[certificateSigningRequestFieldsTable]{Build: func() (f certificateSigningRequestFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[CertificateSigningRequest, string]("kind")
 	f.APIVersion = diefields.NewField[CertificateSigningRequest, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[CertificateSigningRequest, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[CertificateSigningRequest, CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie]("spec")
-	f.Status = diefields.NewStruct[CertificateSigningRequest, CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie]("status")
+	f.Metadata = diefields.NewStruct[CertificateSigningRequest, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[CertificateSigningRequest, CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie, *CertificateSigningRequestSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[CertificateSigningRequest, CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie, *CertificateSigningRequestStatusDieMut]("status")
 	return
 }}
 
@@ -115,7 +143,7 @@ var certificateSigningRequestFields = &diefields.Table[certificateSigningRequest
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *CertificateSigningRequestDie) Kind() diefields.Value[string, *CertificateSigningRequestDie] {
+func (d *CertificateSigningRequestDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, certificateSigningRequestFields.Get().Kind)
 }
 
@@ -123,7 +151,7 @@ func (d *CertificateSigningRequestDie) Kind() diefields.Value[string, *Certifica
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *CertificateSigningRequestDie) APIVersion() diefields.Value[string, *CertificateSigningRequestDie] {
+func (d *CertificateSigningRequestDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, certificateSigningRequestFields.Get().APIVersion)
 }
 
@@ -144,18 +172,67 @@ func (d *CertificateSigningRequestDie) Status() *CertificateSigningRequestStatus
 	return diefields.Child(d, certificateSigningRequestFields.Get().Status)
 }
 
-// CertificateSigningRequestCondition describes a condition of a CertificateSigningRequest object
-type CertificateSigningRequestConditionDie struct {
-	diebase.DieBase[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *CertificateSigningRequestDieMut) Kind() diefields.ValueMut[string, *CertificateSigningRequestDieMut] {
+	return diefields.ValueMutOf(d, certificateSigningRequestFields.Get().Kind)
 }
 
-func (*CertificateSigningRequestConditionDie) DieFrom(b diebase.DieBase[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie]) *CertificateSigningRequestConditionDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *CertificateSigningRequestDieMut) APIVersion() diefields.ValueMut[string, *CertificateSigningRequestDieMut] {
+	return diefields.ValueMutOf(d, certificateSigningRequestFields.Get().APIVersion)
+}
+
+func (d *CertificateSigningRequestDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, certificateSigningRequestFields.Get().Metadata)
+}
+
+// spec contains the certificate request, and is immutable after creation.
+// Only the request, signerName, expirationSeconds, and usages fields can be set on creation.
+// Other fields are derived by Kubernetes and cannot be modified by users.
+func (d *CertificateSigningRequestDieMut) Spec() *CertificateSigningRequestSpecDieMut {
+	return diefields.ChildMut(d, certificateSigningRequestFields.Get().Spec)
+}
+
+// status contains information about whether the request is approved or denied,
+// and the certificate issued by the signer, or the failure condition indicating signer failure.
+func (d *CertificateSigningRequestDieMut) Status() *CertificateSigningRequestStatusDieMut {
+	return diefields.ChildMut(d, certificateSigningRequestFields.Get().Status)
+}
+
+// CertificateSigningRequestCondition describes a condition of a CertificateSigningRequest object
+//
+// CertificateSigningRequestConditionDie is immutable: it reads.
+// CertificateSigningRequestConditionDieMut, its mutable die, also writes, as DieWith passes it.
+type CertificateSigningRequestConditionDie struct {
+	diebase.DieBase[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut]
+}
+
+// CertificateSigningRequestConditionDieMut is the mutable die of CertificateSigningRequestCondition: see CertificateSigningRequestConditionDie.
+type CertificateSigningRequestConditionDieMut struct {
+	diebase.DieMutBase[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut]
+}
+
+func (*CertificateSigningRequestConditionDie) DieFrom(b diebase.DieBase[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut]) *CertificateSigningRequestConditionDie {
 	return &CertificateSigningRequestConditionDie{b}
 }
 
-var _ diebase.DieOf[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie] = (*CertificateSigningRequestConditionDie)(nil)
+func (*CertificateSigningRequestConditionDieMut) DieFrom(b diebase.DieMutBase[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut]) *CertificateSigningRequestConditionDieMut {
+	return &CertificateSigningRequestConditionDieMut{b}
+}
 
-var CertificateSigningRequestConditionBlank = diebase.Blank[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie]()
+var (
+	_ diebase.DieOf[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut]    = (*CertificateSigningRequestConditionDie)(nil)
+	_ diebase.DieMutOf[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut] = (*CertificateSigningRequestConditionDieMut)(nil)
+)
+
+var CertificateSigningRequestConditionBlank = diebase.Blank[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -164,34 +241,47 @@ func (d *CertificateSigningRequestConditionDie) DieReleaseApplyConfiguration() *
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestConditionApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CertificateSigningRequestConditionDie) DieFeedApplyConfiguration(ac *CertificateSigningRequestConditionApplyConfiguration) *CertificateSigningRequestConditionDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CertificateSigningRequestConditionDie) DieStampApplyConfiguration(fn func(ac *CertificateSigningRequestConditionApplyConfiguration)) *CertificateSigningRequestConditionDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CertificateSigningRequestConditionDie) DieReleaseApplyConfigurationE() (*CertificateSigningRequestConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestConditionApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CertificateSigningRequestConditionDieMut) DieReleaseApplyConfiguration() *CertificateSigningRequestConditionApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestConditionApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CertificateSigningRequestConditionDieMut) DieReleaseApplyConfigurationE() (*CertificateSigningRequestConditionApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestConditionApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CertificateSigningRequestConditionDieMut) DieFeedApplyConfiguration(ac *CertificateSigningRequestConditionApplyConfiguration) *CertificateSigningRequestConditionDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CertificateSigningRequestConditionDieMut) DieStampApplyConfiguration(fn func(ac *CertificateSigningRequestConditionApplyConfiguration)) *CertificateSigningRequestConditionDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CertificateSigningRequestConditionDie) DieFeedApplyConfigurationE(ac *CertificateSigningRequestConditionApplyConfiguration) (*CertificateSigningRequestConditionDie, error) {
+func (d *CertificateSigningRequestConditionDieMut) DieFeedApplyConfigurationE(ac *CertificateSigningRequestConditionApplyConfiguration) (*CertificateSigningRequestConditionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CertificateSigningRequestConditionDie) DieStampApplyConfigurationE(fn func(ac *CertificateSigningRequestConditionApplyConfiguration)) (*CertificateSigningRequestConditionDie, error) {
+func (d *CertificateSigningRequestConditionDieMut) DieStampApplyConfigurationE(fn func(ac *CertificateSigningRequestConditionApplyConfiguration)) (*CertificateSigningRequestConditionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -230,47 +320,94 @@ var certificateSigningRequestConditionFields = &diefields.Table[certificateSigni
 // Approved, Denied, and Failed conditions cannot be removed once added.
 //
 // Only one condition of a given type is allowed.
-func (d *CertificateSigningRequestConditionDie) Type() diefields.Value[RequestConditionType, *CertificateSigningRequestConditionDie] {
+func (d *CertificateSigningRequestConditionDie) Type() diefields.Value[RequestConditionType] {
 	return diefields.ValueOf(d, certificateSigningRequestConditionFields.Get().Type)
 }
 
 // status of the condition, one of True, False, Unknown.
 // Approved, Denied, and Failed conditions may not be "False" or "Unknown".
-func (d *CertificateSigningRequestConditionDie) Status() diefields.Value[diecorev1.ConditionStatus, *CertificateSigningRequestConditionDie] {
+func (d *CertificateSigningRequestConditionDie) Status() diefields.Value[diecorev1.ConditionStatus] {
 	return diefields.ValueOf(d, certificateSigningRequestConditionFields.Get().Status)
 }
 
 // reason indicates a brief reason for the request state
-func (d *CertificateSigningRequestConditionDie) Reason() diefields.Value[string, *CertificateSigningRequestConditionDie] {
+func (d *CertificateSigningRequestConditionDie) Reason() diefields.Value[string] {
 	return diefields.ValueOf(d, certificateSigningRequestConditionFields.Get().Reason)
 }
 
 // message contains a human readable message with details about the request state
-func (d *CertificateSigningRequestConditionDie) Message() diefields.Value[string, *CertificateSigningRequestConditionDie] {
+func (d *CertificateSigningRequestConditionDie) Message() diefields.Value[string] {
 	return diefields.ValueOf(d, certificateSigningRequestConditionFields.Get().Message)
 }
 
 // lastUpdateTime is the time of the last update to this condition
-func (d *CertificateSigningRequestConditionDie) LastUpdateTime() diefields.Value[diemetav1.Time, *CertificateSigningRequestConditionDie] {
+func (d *CertificateSigningRequestConditionDie) LastUpdateTime() diefields.Value[diemetav1.Time] {
 	return diefields.ValueOf(d, certificateSigningRequestConditionFields.Get().LastUpdateTime)
 }
 
 // lastTransitionTime is the time the condition last transitioned from one status to another.
 // If unset, when a new condition type is added or an existing condition's status is changed,
 // the server defaults this to the current time.
-func (d *CertificateSigningRequestConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time, *CertificateSigningRequestConditionDie] {
+func (d *CertificateSigningRequestConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time] {
 	return diefields.ValueOf(d, certificateSigningRequestConditionFields.Get().LastTransitionTime)
+}
+
+// type of the condition. Known conditions are "Approved", "Denied", and "Failed".
+//
+// An "Approved" condition is added via the /approval subresource,
+// indicating the request was approved and should be issued by the signer.
+//
+// A "Denied" condition is added via the /approval subresource,
+// indicating the request was denied and should not be issued by the signer.
+//
+// A "Failed" condition is added via the /status subresource,
+// indicating the signer failed to issue the certificate.
+//
+// Approved and Denied conditions are mutually exclusive.
+// Approved, Denied, and Failed conditions cannot be removed once added.
+//
+// Only one condition of a given type is allowed.
+func (d *CertificateSigningRequestConditionDieMut) Type() diefields.ValueMut[RequestConditionType, *CertificateSigningRequestConditionDieMut] {
+	return diefields.ValueMutOf(d, certificateSigningRequestConditionFields.Get().Type)
+}
+
+// status of the condition, one of True, False, Unknown.
+// Approved, Denied, and Failed conditions may not be "False" or "Unknown".
+func (d *CertificateSigningRequestConditionDieMut) Status() diefields.ValueMut[diecorev1.ConditionStatus, *CertificateSigningRequestConditionDieMut] {
+	return diefields.ValueMutOf(d, certificateSigningRequestConditionFields.Get().Status)
+}
+
+// reason indicates a brief reason for the request state
+func (d *CertificateSigningRequestConditionDieMut) Reason() diefields.ValueMut[string, *CertificateSigningRequestConditionDieMut] {
+	return diefields.ValueMutOf(d, certificateSigningRequestConditionFields.Get().Reason)
+}
+
+// message contains a human readable message with details about the request state
+func (d *CertificateSigningRequestConditionDieMut) Message() diefields.ValueMut[string, *CertificateSigningRequestConditionDieMut] {
+	return diefields.ValueMutOf(d, certificateSigningRequestConditionFields.Get().Message)
+}
+
+// lastUpdateTime is the time of the last update to this condition
+func (d *CertificateSigningRequestConditionDieMut) LastUpdateTime() diefields.ValueMut[diemetav1.Time, *CertificateSigningRequestConditionDieMut] {
+	return diefields.ValueMutOf(d, certificateSigningRequestConditionFields.Get().LastUpdateTime)
+}
+
+// lastTransitionTime is the time the condition last transitioned from one status to another.
+// If unset, when a new condition type is added or an existing condition's status is changed,
+// the server defaults this to the current time.
+func (d *CertificateSigningRequestConditionDieMut) LastTransitionTime() diefields.ValueMut[diemetav1.Time, *CertificateSigningRequestConditionDieMut] {
+	return diefields.ValueMutOf(d, certificateSigningRequestConditionFields.Get().LastTransitionTime)
 }
 
 // CertificateSigningRequestList is a collection of CertificateSigningRequest objects
 type CertificateSigningRequestListDie struct {
-	dielists.List[*CertificateSigningRequestDie]
+	dielists.List[*CertificateSigningRequestDieMut]
 }
 
-var _ dielists.DieListOf[*CertificateSigningRequestDie] = (*CertificateSigningRequestListDie)(nil)
+var _ dielists.DieListOf[*CertificateSigningRequestDieMut] = (*CertificateSigningRequestListDie)(nil)
 
 // NewCertificateSigningRequestList returns a list with items.
-func NewCertificateSigningRequestList(items ...*CertificateSigningRequestDie) *CertificateSigningRequestListDie {
+func NewCertificateSigningRequestList(items ...*CertificateSigningRequestDieMut) *CertificateSigningRequestListDie {
 	return &CertificateSigningRequestListDie{dielists.NewList("certificates.k8s.io/v1", "CertificateSigningRequestList", items...)}
 }
 
@@ -282,17 +419,32 @@ func (l *CertificateSigningRequestListDie) DeepCopy() *CertificateSigningRequest
 func (l *CertificateSigningRequestListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // CertificateSigningRequestSpec contains the certificate request.
+//
+// CertificateSigningRequestSpecDie is immutable: it reads.
+// CertificateSigningRequestSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type CertificateSigningRequestSpecDie struct {
-	diebase.DieBase[CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie]
+	diebase.DieBase[CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie, *CertificateSigningRequestSpecDieMut]
 }
 
-func (*CertificateSigningRequestSpecDie) DieFrom(b diebase.DieBase[CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie]) *CertificateSigningRequestSpecDie {
+// CertificateSigningRequestSpecDieMut is the mutable die of CertificateSigningRequestSpec: see CertificateSigningRequestSpecDie.
+type CertificateSigningRequestSpecDieMut struct {
+	diebase.DieMutBase[CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie, *CertificateSigningRequestSpecDieMut]
+}
+
+func (*CertificateSigningRequestSpecDie) DieFrom(b diebase.DieBase[CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie, *CertificateSigningRequestSpecDieMut]) *CertificateSigningRequestSpecDie {
 	return &CertificateSigningRequestSpecDie{b}
 }
 
-var _ diebase.DieOf[CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie] = (*CertificateSigningRequestSpecDie)(nil)
+func (*CertificateSigningRequestSpecDieMut) DieFrom(b diebase.DieMutBase[CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie, *CertificateSigningRequestSpecDieMut]) *CertificateSigningRequestSpecDieMut {
+	return &CertificateSigningRequestSpecDieMut{b}
+}
 
-var CertificateSigningRequestSpecBlank = diebase.Blank[CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie]()
+var (
+	_ diebase.DieOf[CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie, *CertificateSigningRequestSpecDieMut]    = (*CertificateSigningRequestSpecDie)(nil)
+	_ diebase.DieMutOf[CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie, *CertificateSigningRequestSpecDieMut] = (*CertificateSigningRequestSpecDieMut)(nil)
+)
+
+var CertificateSigningRequestSpecBlank = diebase.Blank[CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie, *CertificateSigningRequestSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -301,34 +453,47 @@ func (d *CertificateSigningRequestSpecDie) DieReleaseApplyConfiguration() *Certi
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CertificateSigningRequestSpecDie) DieFeedApplyConfiguration(ac *CertificateSigningRequestSpecApplyConfiguration) *CertificateSigningRequestSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CertificateSigningRequestSpecDie) DieStampApplyConfiguration(fn func(ac *CertificateSigningRequestSpecApplyConfiguration)) *CertificateSigningRequestSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CertificateSigningRequestSpecDie) DieReleaseApplyConfigurationE() (*CertificateSigningRequestSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CertificateSigningRequestSpecDieMut) DieReleaseApplyConfiguration() *CertificateSigningRequestSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CertificateSigningRequestSpecDieMut) DieReleaseApplyConfigurationE() (*CertificateSigningRequestSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CertificateSigningRequestSpecDieMut) DieFeedApplyConfiguration(ac *CertificateSigningRequestSpecApplyConfiguration) *CertificateSigningRequestSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CertificateSigningRequestSpecDieMut) DieStampApplyConfiguration(fn func(ac *CertificateSigningRequestSpecApplyConfiguration)) *CertificateSigningRequestSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CertificateSigningRequestSpecDie) DieFeedApplyConfigurationE(ac *CertificateSigningRequestSpecApplyConfiguration) (*CertificateSigningRequestSpecDie, error) {
+func (d *CertificateSigningRequestSpecDieMut) DieFeedApplyConfigurationE(ac *CertificateSigningRequestSpecApplyConfiguration) (*CertificateSigningRequestSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CertificateSigningRequestSpecDie) DieStampApplyConfigurationE(fn func(ac *CertificateSigningRequestSpecApplyConfiguration)) (*CertificateSigningRequestSpecDie, error) {
+func (d *CertificateSigningRequestSpecDieMut) DieStampApplyConfigurationE(fn func(ac *CertificateSigningRequestSpecApplyConfiguration)) (*CertificateSigningRequestSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -358,7 +523,7 @@ var certificateSigningRequestSpecFields = &diefields.Table[certificateSigningReq
 
 // request contains an x509 certificate signing request encoded in a "CERTIFICATE REQUEST" PEM block.
 // When serialized as JSON or YAML, the data is additionally base64-encoded.
-func (d *CertificateSigningRequestSpecDie) Request() diefields.Value[[]byte, *CertificateSigningRequestSpecDie] {
+func (d *CertificateSigningRequestSpecDie) Request() diefields.Value[[]byte] {
 	return diefields.ValueOf(d, certificateSigningRequestSpecFields.Get().Request)
 }
 
@@ -383,7 +548,7 @@ func (d *CertificateSigningRequestSpecDie) Request() diefields.Value[[]byte, *Ce
 //  4. Required, permitted, or forbidden key usages / extended key usages.
 //  5. Expiration/certificate lifetime: whether it is fixed by the signer, configurable by the admin.
 //  6. Whether or not requests for CA certificates are allowed.
-func (d *CertificateSigningRequestSpecDie) SignerName() diefields.Value[string, *CertificateSigningRequestSpecDie] {
+func (d *CertificateSigningRequestSpecDie) SignerName() diefields.Value[string] {
 	return diefields.ValueOf(d, certificateSigningRequestSpecFields.Get().SignerName)
 }
 
@@ -405,7 +570,7 @@ func (d *CertificateSigningRequestSpecDie) SignerName() diefields.Value[string, 
 //  3. Signer whose configured minimum is longer than the requested duration
 //
 // The minimum valid value for expirationSeconds is 600, i.e. 10 minutes.
-func (d *CertificateSigningRequestSpecDie) ExpirationSeconds() diefields.Optional[int32, *CertificateSigningRequestSpecDie] {
+func (d *CertificateSigningRequestSpecDie) ExpirationSeconds() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, certificateSigningRequestSpecFields.Get().ExpirationSeconds)
 }
 
@@ -424,25 +589,25 @@ func (d *CertificateSigningRequestSpecDie) ExpirationSeconds() diefields.Optiona
 //	"code signing", "email protection", "s/mime",
 //	"ipsec end system", "ipsec tunnel", "ipsec user",
 //	"timestamping", "ocsp signing", "microsoft sgc", "netscape sgc"
-func (d *CertificateSigningRequestSpecDie) Usages() diefields.Value[[]KeyUsage, *CertificateSigningRequestSpecDie] {
+func (d *CertificateSigningRequestSpecDie) Usages() diefields.Value[[]KeyUsage] {
 	return diefields.ValueOf(d, certificateSigningRequestSpecFields.Get().Usages)
 }
 
 // username contains the name of the user that created the CertificateSigningRequest.
 // Populated by the API server on creation and immutable.
-func (d *CertificateSigningRequestSpecDie) Username() diefields.Value[string, *CertificateSigningRequestSpecDie] {
+func (d *CertificateSigningRequestSpecDie) Username() diefields.Value[string] {
 	return diefields.ValueOf(d, certificateSigningRequestSpecFields.Get().Username)
 }
 
 // uid contains the uid of the user that created the CertificateSigningRequest.
 // Populated by the API server on creation and immutable.
-func (d *CertificateSigningRequestSpecDie) UID() diefields.Value[string, *CertificateSigningRequestSpecDie] {
+func (d *CertificateSigningRequestSpecDie) UID() diefields.Value[string] {
 	return diefields.ValueOf(d, certificateSigningRequestSpecFields.Get().UID)
 }
 
 // groups contains group membership of the user that created the CertificateSigningRequest.
 // Populated by the API server on creation and immutable.
-func (d *CertificateSigningRequestSpecDie) Groups() diefields.Value[[]string, *CertificateSigningRequestSpecDie] {
+func (d *CertificateSigningRequestSpecDie) Groups() diefields.Value[[]string] {
 	return diefields.ValueOf(d, certificateSigningRequestSpecFields.Get().Groups)
 }
 
@@ -452,19 +617,130 @@ func (d *CertificateSigningRequestSpecDie) Extra() *diefields.Map[string, ExtraV
 	return diefields.MapOf(d, certificateSigningRequestSpecFields.Get().Extra)
 }
 
-// CertificateSigningRequestStatus contains conditions used to indicate
-// approved/denied/failed status of the request, and the issued certificate.
-type CertificateSigningRequestStatusDie struct {
-	diebase.DieBase[CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie]
+// request contains an x509 certificate signing request encoded in a "CERTIFICATE REQUEST" PEM block.
+// When serialized as JSON or YAML, the data is additionally base64-encoded.
+func (d *CertificateSigningRequestSpecDieMut) Request() diefields.ValueMut[[]byte, *CertificateSigningRequestSpecDieMut] {
+	return diefields.ValueMutOf(d, certificateSigningRequestSpecFields.Get().Request)
 }
 
-func (*CertificateSigningRequestStatusDie) DieFrom(b diebase.DieBase[CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie]) *CertificateSigningRequestStatusDie {
+// signerName indicates the requested signer, and is a qualified name.
+//
+// List/watch requests for CertificateSigningRequests can filter on this field using a "spec.signerName=NAME" fieldSelector.
+//
+// Well-known Kubernetes signers are:
+//  1. "kubernetes.io/kube-apiserver-client": issues client certificates that can be used to authenticate to kube-apiserver.
+//     Requests for this signer are never auto-approved by kube-controller-manager, can be issued by the "csrsigning" controller in kube-controller-manager.
+//  2. "kubernetes.io/kube-apiserver-client-kubelet": issues client certificates that kubelets use to authenticate to kube-apiserver.
+//     Requests for this signer can be auto-approved by the "csrapproving" controller in kube-controller-manager, and can be issued by the "csrsigning" controller in kube-controller-manager.
+//  3. "kubernetes.io/kubelet-serving" issues serving certificates that kubelets use to serve TLS endpoints, which kube-apiserver can connect to securely.
+//     Requests for this signer are never auto-approved by kube-controller-manager, and can be issued by the "csrsigning" controller in kube-controller-manager.
+//
+// More details are available at https://k8s.io/docs/reference/access-authn-authz/certificate-signing-requests/#kubernetes-signers
+//
+// Custom signerNames can also be specified. The signer defines:
+//  1. Trust distribution: how trust (CA bundles) are distributed.
+//  2. Permitted subjects: and behavior when a disallowed subject is requested.
+//  3. Required, permitted, or forbidden x509 extensions in the request (including whether subjectAltNames are allowed, which types, restrictions on allowed values) and behavior when a disallowed extension is requested.
+//  4. Required, permitted, or forbidden key usages / extended key usages.
+//  5. Expiration/certificate lifetime: whether it is fixed by the signer, configurable by the admin.
+//  6. Whether or not requests for CA certificates are allowed.
+func (d *CertificateSigningRequestSpecDieMut) SignerName() diefields.ValueMut[string, *CertificateSigningRequestSpecDieMut] {
+	return diefields.ValueMutOf(d, certificateSigningRequestSpecFields.Get().SignerName)
+}
+
+// expirationSeconds is the requested duration of validity of the issued
+// certificate. The certificate signer may issue a certificate with a different
+// validity duration so a client must check the delta between the notBefore and
+// and notAfter fields in the issued certificate to determine the actual duration.
+//
+// The v1.22+ in-tree implementations of the well-known Kubernetes signers will
+// honor this field as long as the requested duration is not greater than the
+// maximum duration they will honor per the --cluster-signing-duration CLI
+// flag to the Kubernetes controller manager.
+//
+// Certificate signers may not honor this field for various reasons:
+//
+//  1. Old signer that is unaware of the field (such as the in-tree
+//     implementations prior to v1.22)
+//  2. Signer whose configured maximum is shorter than the requested duration
+//  3. Signer whose configured minimum is longer than the requested duration
+//
+// The minimum valid value for expirationSeconds is 600, i.e. 10 minutes.
+func (d *CertificateSigningRequestSpecDieMut) ExpirationSeconds() diefields.OptionalMut[int32, *CertificateSigningRequestSpecDieMut] {
+	return diefields.OptionalMutOf(d, certificateSigningRequestSpecFields.Get().ExpirationSeconds)
+}
+
+// usages specifies a set of key usages requested in the issued certificate.
+//
+// Requests for TLS client certificates typically request: "digital signature", "key encipherment", "client auth".
+//
+// Requests for TLS serving certificates typically request: "key encipherment", "digital signature", "server auth".
+//
+// Valid values are:
+//
+//	"signing", "digital signature", "content commitment",
+//	"key encipherment", "key agreement", "data encipherment",
+//	"cert sign", "crl sign", "encipher only", "decipher only", "any",
+//	"server auth", "client auth",
+//	"code signing", "email protection", "s/mime",
+//	"ipsec end system", "ipsec tunnel", "ipsec user",
+//	"timestamping", "ocsp signing", "microsoft sgc", "netscape sgc"
+func (d *CertificateSigningRequestSpecDieMut) Usages() diefields.ValueMut[[]KeyUsage, *CertificateSigningRequestSpecDieMut] {
+	return diefields.ValueMutOf(d, certificateSigningRequestSpecFields.Get().Usages)
+}
+
+// username contains the name of the user that created the CertificateSigningRequest.
+// Populated by the API server on creation and immutable.
+func (d *CertificateSigningRequestSpecDieMut) Username() diefields.ValueMut[string, *CertificateSigningRequestSpecDieMut] {
+	return diefields.ValueMutOf(d, certificateSigningRequestSpecFields.Get().Username)
+}
+
+// uid contains the uid of the user that created the CertificateSigningRequest.
+// Populated by the API server on creation and immutable.
+func (d *CertificateSigningRequestSpecDieMut) UID() diefields.ValueMut[string, *CertificateSigningRequestSpecDieMut] {
+	return diefields.ValueMutOf(d, certificateSigningRequestSpecFields.Get().UID)
+}
+
+// groups contains group membership of the user that created the CertificateSigningRequest.
+// Populated by the API server on creation and immutable.
+func (d *CertificateSigningRequestSpecDieMut) Groups() diefields.ValueMut[[]string, *CertificateSigningRequestSpecDieMut] {
+	return diefields.ValueMutOf(d, certificateSigningRequestSpecFields.Get().Groups)
+}
+
+// extra contains extra attributes of the user that created the CertificateSigningRequest.
+// Populated by the API server on creation and immutable.
+func (d *CertificateSigningRequestSpecDieMut) Extra() *diefields.MapMut[string, ExtraValue] {
+	return diefields.MapMutOf(d, certificateSigningRequestSpecFields.Get().Extra)
+}
+
+// CertificateSigningRequestStatus contains conditions used to indicate
+// approved/denied/failed status of the request, and the issued certificate.
+//
+// CertificateSigningRequestStatusDie is immutable: it reads.
+// CertificateSigningRequestStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type CertificateSigningRequestStatusDie struct {
+	diebase.DieBase[CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie, *CertificateSigningRequestStatusDieMut]
+}
+
+// CertificateSigningRequestStatusDieMut is the mutable die of CertificateSigningRequestStatus: see CertificateSigningRequestStatusDie.
+type CertificateSigningRequestStatusDieMut struct {
+	diebase.DieMutBase[CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie, *CertificateSigningRequestStatusDieMut]
+}
+
+func (*CertificateSigningRequestStatusDie) DieFrom(b diebase.DieBase[CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie, *CertificateSigningRequestStatusDieMut]) *CertificateSigningRequestStatusDie {
 	return &CertificateSigningRequestStatusDie{b}
 }
 
-var _ diebase.DieOf[CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie] = (*CertificateSigningRequestStatusDie)(nil)
+func (*CertificateSigningRequestStatusDieMut) DieFrom(b diebase.DieMutBase[CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie, *CertificateSigningRequestStatusDieMut]) *CertificateSigningRequestStatusDieMut {
+	return &CertificateSigningRequestStatusDieMut{b}
+}
 
-var CertificateSigningRequestStatusBlank = diebase.Blank[CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie]()
+var (
+	_ diebase.DieOf[CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie, *CertificateSigningRequestStatusDieMut]    = (*CertificateSigningRequestStatusDie)(nil)
+	_ diebase.DieMutOf[CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie, *CertificateSigningRequestStatusDieMut] = (*CertificateSigningRequestStatusDieMut)(nil)
+)
+
+var CertificateSigningRequestStatusBlank = diebase.Blank[CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie, *CertificateSigningRequestStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -473,45 +749,58 @@ func (d *CertificateSigningRequestStatusDie) DieReleaseApplyConfiguration() *Cer
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CertificateSigningRequestStatusDie) DieFeedApplyConfiguration(ac *CertificateSigningRequestStatusApplyConfiguration) *CertificateSigningRequestStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CertificateSigningRequestStatusDie) DieStampApplyConfiguration(fn func(ac *CertificateSigningRequestStatusApplyConfiguration)) *CertificateSigningRequestStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CertificateSigningRequestStatusDie) DieReleaseApplyConfigurationE() (*CertificateSigningRequestStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CertificateSigningRequestStatusDieMut) DieReleaseApplyConfiguration() *CertificateSigningRequestStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CertificateSigningRequestStatusDieMut) DieReleaseApplyConfigurationE() (*CertificateSigningRequestStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CertificateSigningRequestStatusDieMut) DieFeedApplyConfiguration(ac *CertificateSigningRequestStatusApplyConfiguration) *CertificateSigningRequestStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CertificateSigningRequestStatusDieMut) DieStampApplyConfiguration(fn func(ac *CertificateSigningRequestStatusApplyConfiguration)) *CertificateSigningRequestStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CertificateSigningRequestStatusDie) DieFeedApplyConfigurationE(ac *CertificateSigningRequestStatusApplyConfiguration) (*CertificateSigningRequestStatusDie, error) {
+func (d *CertificateSigningRequestStatusDieMut) DieFeedApplyConfigurationE(ac *CertificateSigningRequestStatusApplyConfiguration) (*CertificateSigningRequestStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CertificateSigningRequestStatusDie) DieStampApplyConfigurationE(fn func(ac *CertificateSigningRequestStatusApplyConfiguration)) (*CertificateSigningRequestStatusDie, error) {
+func (d *CertificateSigningRequestStatusDieMut) DieStampApplyConfigurationE(fn func(ac *CertificateSigningRequestStatusApplyConfiguration)) (*CertificateSigningRequestStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type certificateSigningRequestStatusFieldsTable struct {
-	Conditions  diefields.ListMapField[CertificateSigningRequestStatus, CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, RequestConditionType]
+	Conditions  diefields.ListMapField[CertificateSigningRequestStatus, CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut, RequestConditionType]
 	Certificate diefields.Field[CertificateSigningRequestStatus, []byte]
 }
 
 var certificateSigningRequestStatusFields = &diefields.Table[certificateSigningRequestStatusFieldsTable]{Build: func() (f certificateSigningRequestStatusFieldsTable) {
 	_ = annotated
-	f.Conditions = diefields.NewListMap[CertificateSigningRequestStatus, CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie]("conditions", func(k RequestConditionType) []any { return []any{k} }, func(e CertificateSigningRequestCondition) RequestConditionType { return e.Type })
+	f.Conditions = diefields.NewListMap[CertificateSigningRequestStatus, CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut]("conditions", func(k RequestConditionType) []any { return []any{k} }, func(e CertificateSigningRequestCondition) RequestConditionType { return e.Type })
 	f.Certificate = diefields.NewField[CertificateSigningRequestStatus, []byte]("certificate")
 	return
 }}
@@ -547,8 +836,43 @@ func (d *CertificateSigningRequestStatusDie) Conditions() *diefields.ListMap[Cer
 //	...
 //	-----END CERTIFICATE-----
 //	)
-func (d *CertificateSigningRequestStatusDie) Certificate() diefields.Value[[]byte, *CertificateSigningRequestStatusDie] {
+func (d *CertificateSigningRequestStatusDie) Certificate() diefields.Value[[]byte] {
 	return diefields.ValueOf(d, certificateSigningRequestStatusFields.Get().Certificate)
+}
+
+// conditions applied to the request. Known conditions are "Approved", "Denied", and "Failed".
+func (d *CertificateSigningRequestStatusDieMut) Conditions() *diefields.ListMapMut[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDieMut, RequestConditionType] {
+	return diefields.ListMapMutOf(d, certificateSigningRequestStatusFields.Get().Conditions)
+}
+
+// certificate is populated with an issued certificate by the signer after an Approved condition is present.
+// This field is set via the /status subresource. Once populated, this field is immutable.
+//
+// If the certificate signing request is denied, a condition of type "Denied" is added and this field remains empty.
+// If the signer cannot issue the certificate, a condition of type "Failed" is added and this field remains empty.
+//
+// Validation requirements:
+//  1. certificate must contain one or more PEM blocks.
+//  2. All PEM blocks must have the "CERTIFICATE" label, contain no headers, and the encoded data
+//     must be a BER-encoded ASN.1 Certificate structure as described in section 4 of RFC5280.
+//  3. Non-PEM content may appear before or after the "CERTIFICATE" PEM blocks and is unvalidated,
+//     to allow for explanatory text as described in section 5.2 of RFC7468.
+//
+// If more than one PEM block is present, and the definition of the requested spec.signerName
+// does not indicate otherwise, the first block is the issued certificate,
+// and subsequent blocks should be treated as intermediate certificates and presented in TLS handshakes.
+//
+// The certificate is encoded in PEM format.
+//
+// When serialized as JSON or YAML, the data is additionally base64-encoded, so it consists of:
+//
+//	base64(
+//	-----BEGIN CERTIFICATE-----
+//	...
+//	-----END CERTIFICATE-----
+//	)
+func (d *CertificateSigningRequestStatusDieMut) Certificate() diefields.ValueMut[[]byte, *CertificateSigningRequestStatusDieMut] {
+	return diefields.ValueMutOf(d, certificateSigningRequestStatusFields.Get().Certificate)
 }
 
 // ClusterTrustBundle is a cluster-scoped container for X.509 trust anchors
@@ -566,17 +890,32 @@ func (d *CertificateSigningRequestStatusDie) Certificate() diefields.Value[[]byt
 // multiple associated ClusterTrustBundles; each is an independent set of trust
 // anchors for that signer. Admission control is used to enforce that only users
 // with permissions on the signer can create or modify the corresponding bundle.
+//
+// ClusterTrustBundleDie is immutable: it reads.
+// ClusterTrustBundleDieMut, its mutable die, also writes, as DieWith passes it.
 type ClusterTrustBundleDie struct {
-	diebase.DieObjectBase[ClusterTrustBundle, *ClusterTrustBundleDie]
+	diebase.DieObjectBase[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]
 }
 
-func (*ClusterTrustBundleDie) DieFrom(b diebase.DieBase[ClusterTrustBundle, *ClusterTrustBundleDie]) *ClusterTrustBundleDie {
+// ClusterTrustBundleDieMut is the mutable die of ClusterTrustBundle: see ClusterTrustBundleDie.
+type ClusterTrustBundleDieMut struct {
+	diebase.DieObjectMutBase[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]
+}
+
+func (*ClusterTrustBundleDie) DieFrom(b diebase.DieBase[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]) *ClusterTrustBundleDie {
 	return &ClusterTrustBundleDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[ClusterTrustBundle, *ClusterTrustBundleDie] = (*ClusterTrustBundleDie)(nil)
+func (*ClusterTrustBundleDieMut) DieFrom(b diebase.DieMutBase[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]) *ClusterTrustBundleDieMut {
+	return &ClusterTrustBundleDieMut{diebase.AsObjectMut(b)}
+}
 
-var ClusterTrustBundleBlank = diebase.BlankOf[ClusterTrustBundle, *ClusterTrustBundleDie](ClusterTrustBundle{TypeMeta: metav1.TypeMeta{APIVersion: "certificates.k8s.io/v1", Kind: "ClusterTrustBundle"}})
+var (
+	_ dieobjects.DieObjectOf[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]    = (*ClusterTrustBundleDie)(nil)
+	_ dieobjects.DieObjectMutOf[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut] = (*ClusterTrustBundleDieMut)(nil)
+)
+
+var ClusterTrustBundleBlank = diebase.BlankOf[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut](ClusterTrustBundle{TypeMeta: metav1.TypeMeta{APIVersion: "certificates.k8s.io/v1", Kind: "ClusterTrustBundle"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -585,50 +924,63 @@ func (d *ClusterTrustBundleDie) DieReleaseApplyConfiguration() *ClusterTrustBund
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ClusterTrustBundleDie) DieFeedApplyConfiguration(ac *ClusterTrustBundleApplyConfiguration) *ClusterTrustBundleDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ClusterTrustBundleDie) DieStampApplyConfiguration(fn func(ac *ClusterTrustBundleApplyConfiguration)) *ClusterTrustBundleDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ClusterTrustBundleDie) DieReleaseApplyConfigurationE() (*ClusterTrustBundleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ClusterTrustBundleDieMut) DieReleaseApplyConfiguration() *ClusterTrustBundleApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ClusterTrustBundleDieMut) DieReleaseApplyConfigurationE() (*ClusterTrustBundleApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ClusterTrustBundleDieMut) DieFeedApplyConfiguration(ac *ClusterTrustBundleApplyConfiguration) *ClusterTrustBundleDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ClusterTrustBundleDieMut) DieStampApplyConfiguration(fn func(ac *ClusterTrustBundleApplyConfiguration)) *ClusterTrustBundleDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ClusterTrustBundleDie) DieFeedApplyConfigurationE(ac *ClusterTrustBundleApplyConfiguration) (*ClusterTrustBundleDie, error) {
+func (d *ClusterTrustBundleDieMut) DieFeedApplyConfigurationE(ac *ClusterTrustBundleApplyConfiguration) (*ClusterTrustBundleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ClusterTrustBundleDie) DieStampApplyConfigurationE(fn func(ac *ClusterTrustBundleApplyConfiguration)) (*ClusterTrustBundleDie, error) {
+func (d *ClusterTrustBundleDieMut) DieStampApplyConfigurationE(fn func(ac *ClusterTrustBundleApplyConfiguration)) (*ClusterTrustBundleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type clusterTrustBundleFieldsTable struct {
 	Kind       diefields.Field[ClusterTrustBundle, string]
 	APIVersion diefields.Field[ClusterTrustBundle, string]
-	Metadata   diefields.Struct[ClusterTrustBundle, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[ClusterTrustBundle, ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie]
+	Metadata   diefields.Struct[ClusterTrustBundle, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[ClusterTrustBundle, ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]
 }
 
 var clusterTrustBundleFields = &diefields.Table[clusterTrustBundleFieldsTable]{Build: func() (f clusterTrustBundleFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[ClusterTrustBundle, string]("kind")
 	f.APIVersion = diefields.NewField[ClusterTrustBundle, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[ClusterTrustBundle, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[ClusterTrustBundle, ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie]("spec")
+	f.Metadata = diefields.NewStruct[ClusterTrustBundle, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[ClusterTrustBundle, ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]("spec")
 	return
 }}
 
@@ -637,7 +989,7 @@ var clusterTrustBundleFields = &diefields.Table[clusterTrustBundleFieldsTable]{B
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *ClusterTrustBundleDie) Kind() diefields.Value[string, *ClusterTrustBundleDie] {
+func (d *ClusterTrustBundleDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, clusterTrustBundleFields.Get().Kind)
 }
 
@@ -645,7 +997,7 @@ func (d *ClusterTrustBundleDie) Kind() diefields.Value[string, *ClusterTrustBund
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *ClusterTrustBundleDie) APIVersion() diefields.Value[string, *ClusterTrustBundleDie] {
+func (d *ClusterTrustBundleDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, clusterTrustBundleFields.Get().APIVersion)
 }
 
@@ -659,15 +1011,42 @@ func (d *ClusterTrustBundleDie) Spec() *ClusterTrustBundleSpecDie {
 	return diefields.Child(d, clusterTrustBundleFields.Get().Spec)
 }
 
-// ClusterTrustBundleList is a collection of ClusterTrustBundle objects
-type ClusterTrustBundleListDie struct {
-	dielists.List[*ClusterTrustBundleDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ClusterTrustBundleDieMut) Kind() diefields.ValueMut[string, *ClusterTrustBundleDieMut] {
+	return diefields.ValueMutOf(d, clusterTrustBundleFields.Get().Kind)
 }
 
-var _ dielists.DieListOf[*ClusterTrustBundleDie] = (*ClusterTrustBundleListDie)(nil)
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *ClusterTrustBundleDieMut) APIVersion() diefields.ValueMut[string, *ClusterTrustBundleDieMut] {
+	return diefields.ValueMutOf(d, clusterTrustBundleFields.Get().APIVersion)
+}
+
+// metadata contains the object metadata.
+func (d *ClusterTrustBundleDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, clusterTrustBundleFields.Get().Metadata)
+}
+
+// spec contains the signer (if any) and trust anchors.
+func (d *ClusterTrustBundleDieMut) Spec() *ClusterTrustBundleSpecDieMut {
+	return diefields.ChildMut(d, clusterTrustBundleFields.Get().Spec)
+}
+
+// ClusterTrustBundleList is a collection of ClusterTrustBundle objects
+type ClusterTrustBundleListDie struct {
+	dielists.List[*ClusterTrustBundleDieMut]
+}
+
+var _ dielists.DieListOf[*ClusterTrustBundleDieMut] = (*ClusterTrustBundleListDie)(nil)
 
 // NewClusterTrustBundleList returns a list with items.
-func NewClusterTrustBundleList(items ...*ClusterTrustBundleDie) *ClusterTrustBundleListDie {
+func NewClusterTrustBundleList(items ...*ClusterTrustBundleDieMut) *ClusterTrustBundleListDie {
 	return &ClusterTrustBundleListDie{dielists.NewList("certificates.k8s.io/v1", "ClusterTrustBundleList", items...)}
 }
 
@@ -679,17 +1058,32 @@ func (l *ClusterTrustBundleListDie) DeepCopy() *ClusterTrustBundleListDie {
 func (l *ClusterTrustBundleListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // ClusterTrustBundleSpec contains the signer and trust anchors.
+//
+// ClusterTrustBundleSpecDie is immutable: it reads.
+// ClusterTrustBundleSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type ClusterTrustBundleSpecDie struct {
-	diebase.DieBase[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie]
+	diebase.DieBase[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]
 }
 
-func (*ClusterTrustBundleSpecDie) DieFrom(b diebase.DieBase[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie]) *ClusterTrustBundleSpecDie {
+// ClusterTrustBundleSpecDieMut is the mutable die of ClusterTrustBundleSpec: see ClusterTrustBundleSpecDie.
+type ClusterTrustBundleSpecDieMut struct {
+	diebase.DieMutBase[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]
+}
+
+func (*ClusterTrustBundleSpecDie) DieFrom(b diebase.DieBase[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]) *ClusterTrustBundleSpecDie {
 	return &ClusterTrustBundleSpecDie{b}
 }
 
-var _ diebase.DieOf[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie] = (*ClusterTrustBundleSpecDie)(nil)
+func (*ClusterTrustBundleSpecDieMut) DieFrom(b diebase.DieMutBase[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]) *ClusterTrustBundleSpecDieMut {
+	return &ClusterTrustBundleSpecDieMut{b}
+}
 
-var ClusterTrustBundleSpecBlank = diebase.Blank[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie]()
+var (
+	_ diebase.DieOf[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]    = (*ClusterTrustBundleSpecDie)(nil)
+	_ diebase.DieMutOf[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut] = (*ClusterTrustBundleSpecDieMut)(nil)
+)
+
+var ClusterTrustBundleSpecBlank = diebase.Blank[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -698,34 +1092,47 @@ func (d *ClusterTrustBundleSpecDie) DieReleaseApplyConfiguration() *ClusterTrust
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ClusterTrustBundleSpecDie) DieFeedApplyConfiguration(ac *ClusterTrustBundleSpecApplyConfiguration) *ClusterTrustBundleSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ClusterTrustBundleSpecDie) DieStampApplyConfiguration(fn func(ac *ClusterTrustBundleSpecApplyConfiguration)) *ClusterTrustBundleSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ClusterTrustBundleSpecDie) DieReleaseApplyConfigurationE() (*ClusterTrustBundleSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ClusterTrustBundleSpecDieMut) DieReleaseApplyConfiguration() *ClusterTrustBundleSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ClusterTrustBundleSpecDieMut) DieReleaseApplyConfigurationE() (*ClusterTrustBundleSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ClusterTrustBundleSpecDieMut) DieFeedApplyConfiguration(ac *ClusterTrustBundleSpecApplyConfiguration) *ClusterTrustBundleSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ClusterTrustBundleSpecDieMut) DieStampApplyConfiguration(fn func(ac *ClusterTrustBundleSpecApplyConfiguration)) *ClusterTrustBundleSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ClusterTrustBundleSpecDie) DieFeedApplyConfigurationE(ac *ClusterTrustBundleSpecApplyConfiguration) (*ClusterTrustBundleSpecDie, error) {
+func (d *ClusterTrustBundleSpecDieMut) DieFeedApplyConfigurationE(ac *ClusterTrustBundleSpecApplyConfiguration) (*ClusterTrustBundleSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ClusterTrustBundleSpecDie) DieStampApplyConfigurationE(fn func(ac *ClusterTrustBundleSpecApplyConfiguration)) (*ClusterTrustBundleSpecDie, error) {
+func (d *ClusterTrustBundleSpecDieMut) DieStampApplyConfigurationE(fn func(ac *ClusterTrustBundleSpecApplyConfiguration)) (*ClusterTrustBundleSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -759,7 +1166,7 @@ var clusterTrustBundleSpecFields = &diefields.Table[clusterTrustBundleSpecFields
 //
 // List/watch requests for ClusterTrustBundles can filter on this field
 // using a `spec.signerName=NAME` field selector.
-func (d *ClusterTrustBundleSpecDie) SignerName() diefields.Value[string, *ClusterTrustBundleSpecDie] {
+func (d *ClusterTrustBundleSpecDie) SignerName() diefields.Value[string] {
 	return diefields.ValueOf(d, clusterTrustBundleSpecFields.Get().SignerName)
 }
 
@@ -774,25 +1181,77 @@ func (d *ClusterTrustBundleSpecDie) SignerName() diefields.Value[string, *Cluste
 // Users of ClusterTrustBundles, including Kubelet, are free to reorder and
 // deduplicate certificate blocks in this file according to their own logic,
 // as well as to drop PEM block headers and inter-block data.
-func (d *ClusterTrustBundleSpecDie) TrustBundle() diefields.Value[string, *ClusterTrustBundleSpecDie] {
+func (d *ClusterTrustBundleSpecDie) TrustBundle() diefields.Value[string] {
 	return diefields.ValueOf(d, clusterTrustBundleSpecFields.Get().TrustBundle)
+}
+
+// signerName indicates the associated signer, if any.
+//
+// In order to create or update a ClusterTrustBundle that sets signerName,
+// you must have the following cluster-scoped permission:
+// group=certificates.k8s.io resource=signers resourceName=<the signer name>
+// verb=attest.
+//
+// If signerName is not empty, then the ClusterTrustBundle object must be
+// named with the signer name as a prefix (translating slashes to colons).
+// For example, for the signer name `example.com/foo`, valid
+// ClusterTrustBundle object names include `example.com:foo:abc` and
+// `example.com:foo:v1`.
+//
+// If signerName is empty, then the ClusterTrustBundle object's name must
+// not have such a prefix.
+//
+// List/watch requests for ClusterTrustBundles can filter on this field
+// using a `spec.signerName=NAME` field selector.
+func (d *ClusterTrustBundleSpecDieMut) SignerName() diefields.ValueMut[string, *ClusterTrustBundleSpecDieMut] {
+	return diefields.ValueMutOf(d, clusterTrustBundleSpecFields.Get().SignerName)
+}
+
+// trustBundle contains the individual X.509 trust anchors for this
+// bundle, as PEM bundle of PEM-wrapped, DER-formatted X.509 certificates.
+//
+// The data must consist only of PEM certificate blocks that parse as valid
+// X.509 certificates.  Each certificate must include a basic constraints
+// extension with the CA bit set.  The API server will reject objects that
+// contain duplicate certificates, or that use PEM block headers.
+//
+// Users of ClusterTrustBundles, including Kubelet, are free to reorder and
+// deduplicate certificate blocks in this file according to their own logic,
+// as well as to drop PEM block headers and inter-block data.
+func (d *ClusterTrustBundleSpecDieMut) TrustBundle() diefields.ValueMut[string, *ClusterTrustBundleSpecDieMut] {
+	return diefields.ValueMutOf(d, clusterTrustBundleSpecFields.Get().TrustBundle)
 }
 
 // PodCertificateRequest encodes a pod requesting a certificate from a given
 // signer.
 //
-// Kubelets use this API to implement podCertificate projected volumes
+// # Kubelets use this API to implement podCertificate projected volumes
+//
+// PodCertificateRequestDie is immutable: it reads.
+// PodCertificateRequestDieMut, its mutable die, also writes, as DieWith passes it.
 type PodCertificateRequestDie struct {
-	diebase.DieObjectBase[PodCertificateRequest, *PodCertificateRequestDie]
+	diebase.DieObjectBase[PodCertificateRequest, *PodCertificateRequestDie, *PodCertificateRequestDieMut]
 }
 
-func (*PodCertificateRequestDie) DieFrom(b diebase.DieBase[PodCertificateRequest, *PodCertificateRequestDie]) *PodCertificateRequestDie {
+// PodCertificateRequestDieMut is the mutable die of PodCertificateRequest: see PodCertificateRequestDie.
+type PodCertificateRequestDieMut struct {
+	diebase.DieObjectMutBase[PodCertificateRequest, *PodCertificateRequestDie, *PodCertificateRequestDieMut]
+}
+
+func (*PodCertificateRequestDie) DieFrom(b diebase.DieBase[PodCertificateRequest, *PodCertificateRequestDie, *PodCertificateRequestDieMut]) *PodCertificateRequestDie {
 	return &PodCertificateRequestDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[PodCertificateRequest, *PodCertificateRequestDie] = (*PodCertificateRequestDie)(nil)
+func (*PodCertificateRequestDieMut) DieFrom(b diebase.DieMutBase[PodCertificateRequest, *PodCertificateRequestDie, *PodCertificateRequestDieMut]) *PodCertificateRequestDieMut {
+	return &PodCertificateRequestDieMut{diebase.AsObjectMut(b)}
+}
 
-var PodCertificateRequestBlank = diebase.BlankOf[PodCertificateRequest, *PodCertificateRequestDie](PodCertificateRequest{TypeMeta: metav1.TypeMeta{APIVersion: "certificates.k8s.io/v1", Kind: "PodCertificateRequest"}})
+var (
+	_ dieobjects.DieObjectOf[PodCertificateRequest, *PodCertificateRequestDie, *PodCertificateRequestDieMut]    = (*PodCertificateRequestDie)(nil)
+	_ dieobjects.DieObjectMutOf[PodCertificateRequest, *PodCertificateRequestDie, *PodCertificateRequestDieMut] = (*PodCertificateRequestDieMut)(nil)
+)
+
+var PodCertificateRequestBlank = diebase.BlankOf[PodCertificateRequest, *PodCertificateRequestDie, *PodCertificateRequestDieMut](PodCertificateRequest{TypeMeta: metav1.TypeMeta{APIVersion: "certificates.k8s.io/v1", Kind: "PodCertificateRequest"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -801,52 +1260,65 @@ func (d *PodCertificateRequestDie) DieReleaseApplyConfiguration() *PodCertificat
 	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PodCertificateRequestDie) DieFeedApplyConfiguration(ac *PodCertificateRequestApplyConfiguration) *PodCertificateRequestDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PodCertificateRequestDie) DieStampApplyConfiguration(fn func(ac *PodCertificateRequestApplyConfiguration)) *PodCertificateRequestDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PodCertificateRequestDie) DieReleaseApplyConfigurationE() (*PodCertificateRequestApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PodCertificateRequestDieMut) DieReleaseApplyConfiguration() *PodCertificateRequestApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PodCertificateRequestDieMut) DieReleaseApplyConfigurationE() (*PodCertificateRequestApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PodCertificateRequestDieMut) DieFeedApplyConfiguration(ac *PodCertificateRequestApplyConfiguration) *PodCertificateRequestDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PodCertificateRequestDieMut) DieStampApplyConfiguration(fn func(ac *PodCertificateRequestApplyConfiguration)) *PodCertificateRequestDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodCertificateRequestDie) DieFeedApplyConfigurationE(ac *PodCertificateRequestApplyConfiguration) (*PodCertificateRequestDie, error) {
+func (d *PodCertificateRequestDieMut) DieFeedApplyConfigurationE(ac *PodCertificateRequestApplyConfiguration) (*PodCertificateRequestDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodCertificateRequestDie) DieStampApplyConfigurationE(fn func(ac *PodCertificateRequestApplyConfiguration)) (*PodCertificateRequestDie, error) {
+func (d *PodCertificateRequestDieMut) DieStampApplyConfigurationE(fn func(ac *PodCertificateRequestApplyConfiguration)) (*PodCertificateRequestDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type podCertificateRequestFieldsTable struct {
 	Kind       diefields.Field[PodCertificateRequest, string]
 	APIVersion diefields.Field[PodCertificateRequest, string]
-	Metadata   diefields.Struct[PodCertificateRequest, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[PodCertificateRequest, PodCertificateRequestSpec, *PodCertificateRequestSpecDie]
-	Status     diefields.Struct[PodCertificateRequest, PodCertificateRequestStatus, *PodCertificateRequestStatusDie]
+	Metadata   diefields.Struct[PodCertificateRequest, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[PodCertificateRequest, PodCertificateRequestSpec, *PodCertificateRequestSpecDie, *PodCertificateRequestSpecDieMut]
+	Status     diefields.Struct[PodCertificateRequest, PodCertificateRequestStatus, *PodCertificateRequestStatusDie, *PodCertificateRequestStatusDieMut]
 }
 
 var podCertificateRequestFields = &diefields.Table[podCertificateRequestFieldsTable]{Build: func() (f podCertificateRequestFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[PodCertificateRequest, string]("kind")
 	f.APIVersion = diefields.NewField[PodCertificateRequest, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[PodCertificateRequest, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[PodCertificateRequest, PodCertificateRequestSpec, *PodCertificateRequestSpecDie]("spec")
-	f.Status = diefields.NewStruct[PodCertificateRequest, PodCertificateRequestStatus, *PodCertificateRequestStatusDie]("status")
+	f.Metadata = diefields.NewStruct[PodCertificateRequest, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[PodCertificateRequest, PodCertificateRequestSpec, *PodCertificateRequestSpecDie, *PodCertificateRequestSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[PodCertificateRequest, PodCertificateRequestStatus, *PodCertificateRequestStatusDie, *PodCertificateRequestStatusDieMut]("status")
 	return
 }}
 
@@ -855,7 +1327,7 @@ var podCertificateRequestFields = &diefields.Table[podCertificateRequestFieldsTa
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *PodCertificateRequestDie) Kind() diefields.Value[string, *PodCertificateRequestDie] {
+func (d *PodCertificateRequestDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, podCertificateRequestFields.Get().Kind)
 }
 
@@ -863,7 +1335,7 @@ func (d *PodCertificateRequestDie) Kind() diefields.Value[string, *PodCertificat
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *PodCertificateRequestDie) APIVersion() diefields.Value[string, *PodCertificateRequestDie] {
+func (d *PodCertificateRequestDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, podCertificateRequestFields.Get().APIVersion)
 }
 
@@ -882,15 +1354,47 @@ func (d *PodCertificateRequestDie) Status() *PodCertificateRequestStatusDie {
 	return diefields.Child(d, podCertificateRequestFields.Get().Status)
 }
 
-// PodCertificateRequestList is a collection of PodCertificateRequest objects
-type PodCertificateRequestListDie struct {
-	dielists.List[*PodCertificateRequestDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *PodCertificateRequestDieMut) Kind() diefields.ValueMut[string, *PodCertificateRequestDieMut] {
+	return diefields.ValueMutOf(d, podCertificateRequestFields.Get().Kind)
 }
 
-var _ dielists.DieListOf[*PodCertificateRequestDie] = (*PodCertificateRequestListDie)(nil)
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *PodCertificateRequestDieMut) APIVersion() diefields.ValueMut[string, *PodCertificateRequestDieMut] {
+	return diefields.ValueMutOf(d, podCertificateRequestFields.Get().APIVersion)
+}
+
+// metadata contains the object metadata.
+func (d *PodCertificateRequestDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, podCertificateRequestFields.Get().Metadata)
+}
+
+// spec contains the details about the certificate being requested.
+func (d *PodCertificateRequestDieMut) Spec() *PodCertificateRequestSpecDieMut {
+	return diefields.ChildMut(d, podCertificateRequestFields.Get().Spec)
+}
+
+// status contains the issued certificate, and a standard set of conditions.
+func (d *PodCertificateRequestDieMut) Status() *PodCertificateRequestStatusDieMut {
+	return diefields.ChildMut(d, podCertificateRequestFields.Get().Status)
+}
+
+// PodCertificateRequestList is a collection of PodCertificateRequest objects
+type PodCertificateRequestListDie struct {
+	dielists.List[*PodCertificateRequestDieMut]
+}
+
+var _ dielists.DieListOf[*PodCertificateRequestDieMut] = (*PodCertificateRequestListDie)(nil)
 
 // NewPodCertificateRequestList returns a list with items.
-func NewPodCertificateRequestList(items ...*PodCertificateRequestDie) *PodCertificateRequestListDie {
+func NewPodCertificateRequestList(items ...*PodCertificateRequestDieMut) *PodCertificateRequestListDie {
 	return &PodCertificateRequestListDie{dielists.NewList("certificates.k8s.io/v1", "PodCertificateRequestList", items...)}
 }
 
@@ -903,17 +1407,32 @@ func (l *PodCertificateRequestListDie) DeepCopyObject() runtime.Object { return 
 
 // PodCertificateRequestSpec describes the certificate request.  All fields are
 // immutable after creation.
+//
+// PodCertificateRequestSpecDie is immutable: it reads.
+// PodCertificateRequestSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type PodCertificateRequestSpecDie struct {
-	diebase.DieBase[PodCertificateRequestSpec, *PodCertificateRequestSpecDie]
+	diebase.DieBase[PodCertificateRequestSpec, *PodCertificateRequestSpecDie, *PodCertificateRequestSpecDieMut]
 }
 
-func (*PodCertificateRequestSpecDie) DieFrom(b diebase.DieBase[PodCertificateRequestSpec, *PodCertificateRequestSpecDie]) *PodCertificateRequestSpecDie {
+// PodCertificateRequestSpecDieMut is the mutable die of PodCertificateRequestSpec: see PodCertificateRequestSpecDie.
+type PodCertificateRequestSpecDieMut struct {
+	diebase.DieMutBase[PodCertificateRequestSpec, *PodCertificateRequestSpecDie, *PodCertificateRequestSpecDieMut]
+}
+
+func (*PodCertificateRequestSpecDie) DieFrom(b diebase.DieBase[PodCertificateRequestSpec, *PodCertificateRequestSpecDie, *PodCertificateRequestSpecDieMut]) *PodCertificateRequestSpecDie {
 	return &PodCertificateRequestSpecDie{b}
 }
 
-var _ diebase.DieOf[PodCertificateRequestSpec, *PodCertificateRequestSpecDie] = (*PodCertificateRequestSpecDie)(nil)
+func (*PodCertificateRequestSpecDieMut) DieFrom(b diebase.DieMutBase[PodCertificateRequestSpec, *PodCertificateRequestSpecDie, *PodCertificateRequestSpecDieMut]) *PodCertificateRequestSpecDieMut {
+	return &PodCertificateRequestSpecDieMut{b}
+}
 
-var PodCertificateRequestSpecBlank = diebase.Blank[PodCertificateRequestSpec, *PodCertificateRequestSpecDie]()
+var (
+	_ diebase.DieOf[PodCertificateRequestSpec, *PodCertificateRequestSpecDie, *PodCertificateRequestSpecDieMut]    = (*PodCertificateRequestSpecDie)(nil)
+	_ diebase.DieMutOf[PodCertificateRequestSpec, *PodCertificateRequestSpecDie, *PodCertificateRequestSpecDieMut] = (*PodCertificateRequestSpecDieMut)(nil)
+)
+
+var PodCertificateRequestSpecBlank = diebase.Blank[PodCertificateRequestSpec, *PodCertificateRequestSpecDie, *PodCertificateRequestSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -922,34 +1441,47 @@ func (d *PodCertificateRequestSpecDie) DieReleaseApplyConfiguration() *PodCertif
 	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PodCertificateRequestSpecDie) DieFeedApplyConfiguration(ac *PodCertificateRequestSpecApplyConfiguration) *PodCertificateRequestSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PodCertificateRequestSpecDie) DieStampApplyConfiguration(fn func(ac *PodCertificateRequestSpecApplyConfiguration)) *PodCertificateRequestSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PodCertificateRequestSpecDie) DieReleaseApplyConfigurationE() (*PodCertificateRequestSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PodCertificateRequestSpecDieMut) DieReleaseApplyConfiguration() *PodCertificateRequestSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PodCertificateRequestSpecDieMut) DieReleaseApplyConfigurationE() (*PodCertificateRequestSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PodCertificateRequestSpecDieMut) DieFeedApplyConfiguration(ac *PodCertificateRequestSpecApplyConfiguration) *PodCertificateRequestSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PodCertificateRequestSpecDieMut) DieStampApplyConfiguration(fn func(ac *PodCertificateRequestSpecApplyConfiguration)) *PodCertificateRequestSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodCertificateRequestSpecDie) DieFeedApplyConfigurationE(ac *PodCertificateRequestSpecApplyConfiguration) (*PodCertificateRequestSpecDie, error) {
+func (d *PodCertificateRequestSpecDieMut) DieFeedApplyConfigurationE(ac *PodCertificateRequestSpecApplyConfiguration) (*PodCertificateRequestSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodCertificateRequestSpecDie) DieStampApplyConfigurationE(fn func(ac *PodCertificateRequestSpecApplyConfiguration)) (*PodCertificateRequestSpecDie, error) {
+func (d *PodCertificateRequestSpecDieMut) DieStampApplyConfigurationE(fn func(ac *PodCertificateRequestSpecApplyConfiguration)) (*PodCertificateRequestSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -989,37 +1521,37 @@ var podCertificateRequestSpecFields = &diefields.Table[podCertificateRequestSpec
 // `kubernetes.io/kube-apiserver-client-pod`, which will issue client
 // certificates understood by kube-apiserver.  It is currently
 // unimplemented.
-func (d *PodCertificateRequestSpecDie) SignerName() diefields.Value[string, *PodCertificateRequestSpecDie] {
+func (d *PodCertificateRequestSpecDie) SignerName() diefields.Value[string] {
 	return diefields.ValueOf(d, podCertificateRequestSpecFields.Get().SignerName)
 }
 
 // podName is the name of the pod into which the certificate will be mounted.
-func (d *PodCertificateRequestSpecDie) PodName() diefields.Value[string, *PodCertificateRequestSpecDie] {
+func (d *PodCertificateRequestSpecDie) PodName() diefields.Value[string] {
 	return diefields.ValueOf(d, podCertificateRequestSpecFields.Get().PodName)
 }
 
 // podUID is the UID of the pod into which the certificate will be mounted.
-func (d *PodCertificateRequestSpecDie) PodUID() diefields.Value[types.UID, *PodCertificateRequestSpecDie] {
+func (d *PodCertificateRequestSpecDie) PodUID() diefields.Value[types.UID] {
 	return diefields.ValueOf(d, podCertificateRequestSpecFields.Get().PodUID)
 }
 
 // serviceAccountName is the name of the service account the pod is running as.
-func (d *PodCertificateRequestSpecDie) ServiceAccountName() diefields.Value[string, *PodCertificateRequestSpecDie] {
+func (d *PodCertificateRequestSpecDie) ServiceAccountName() diefields.Value[string] {
 	return diefields.ValueOf(d, podCertificateRequestSpecFields.Get().ServiceAccountName)
 }
 
 // serviceAccountUID is the UID of the service account the pod is running as.
-func (d *PodCertificateRequestSpecDie) ServiceAccountUID() diefields.Value[types.UID, *PodCertificateRequestSpecDie] {
+func (d *PodCertificateRequestSpecDie) ServiceAccountUID() diefields.Value[types.UID] {
 	return diefields.ValueOf(d, podCertificateRequestSpecFields.Get().ServiceAccountUID)
 }
 
 // nodeName is the name of the node the pod is assigned to.
-func (d *PodCertificateRequestSpecDie) NodeName() diefields.Value[types.NodeName, *PodCertificateRequestSpecDie] {
+func (d *PodCertificateRequestSpecDie) NodeName() diefields.Value[types.NodeName] {
 	return diefields.ValueOf(d, podCertificateRequestSpecFields.Get().NodeName)
 }
 
 // nodeUID is the UID of the node the pod is assigned to.
-func (d *PodCertificateRequestSpecDie) NodeUID() diefields.Value[types.UID, *PodCertificateRequestSpecDie] {
+func (d *PodCertificateRequestSpecDie) NodeUID() diefields.Value[types.UID] {
 	return diefields.ValueOf(d, podCertificateRequestSpecFields.Get().NodeUID)
 }
 
@@ -1035,7 +1567,7 @@ func (d *PodCertificateRequestSpecDie) NodeUID() diefields.Value[types.UID, *Pod
 // seconds (1 hour).  This constraint is enforced by kube-apiserver.
 // `kubernetes.io` signers will never issue certificates with a lifetime
 // longer than 24 hours.
-func (d *PodCertificateRequestSpecDie) MaxExpirationSeconds() diefields.Optional[int32, *PodCertificateRequestSpecDie] {
+func (d *PodCertificateRequestSpecDie) MaxExpirationSeconds() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, podCertificateRequestSpecFields.Get().MaxExpirationSeconds)
 }
 
@@ -1057,7 +1589,7 @@ func (d *PodCertificateRequestSpecDie) MaxExpirationSeconds() diefields.Optional
 // setting a status.conditions entry with a type of "Denied" and a reason of
 // "UnsupportedKeyType". It may also suggest a key type that it does support
 // in the message field.
-func (d *PodCertificateRequestSpecDie) StubPKCS10Request() diefields.Value[[]byte, *PodCertificateRequestSpecDie] {
+func (d *PodCertificateRequestSpecDie) StubPKCS10Request() diefields.Value[[]byte] {
 	return diefields.ValueOf(d, podCertificateRequestSpecFields.Get().StubPKCS10Request)
 }
 
@@ -1075,19 +1607,128 @@ func (d *PodCertificateRequestSpecDie) UnverifiedUserAnnotations() *diefields.Ma
 	return diefields.MapOf(d, podCertificateRequestSpecFields.Get().UnverifiedUserAnnotations)
 }
 
-// PodCertificateRequestStatus describes the status of the request, and holds
-// the certificate data if the request is issued.
-type PodCertificateRequestStatusDie struct {
-	diebase.DieBase[PodCertificateRequestStatus, *PodCertificateRequestStatusDie]
+// signerName indicates the requested signer.
+//
+// All signer names beginning with `kubernetes.io` are reserved for use by
+// the Kubernetes project.  There is currently one well-known signer
+// documented by the Kubernetes project,
+// `kubernetes.io/kube-apiserver-client-pod`, which will issue client
+// certificates understood by kube-apiserver.  It is currently
+// unimplemented.
+func (d *PodCertificateRequestSpecDieMut) SignerName() diefields.ValueMut[string, *PodCertificateRequestSpecDieMut] {
+	return diefields.ValueMutOf(d, podCertificateRequestSpecFields.Get().SignerName)
 }
 
-func (*PodCertificateRequestStatusDie) DieFrom(b diebase.DieBase[PodCertificateRequestStatus, *PodCertificateRequestStatusDie]) *PodCertificateRequestStatusDie {
+// podName is the name of the pod into which the certificate will be mounted.
+func (d *PodCertificateRequestSpecDieMut) PodName() diefields.ValueMut[string, *PodCertificateRequestSpecDieMut] {
+	return diefields.ValueMutOf(d, podCertificateRequestSpecFields.Get().PodName)
+}
+
+// podUID is the UID of the pod into which the certificate will be mounted.
+func (d *PodCertificateRequestSpecDieMut) PodUID() diefields.ValueMut[types.UID, *PodCertificateRequestSpecDieMut] {
+	return diefields.ValueMutOf(d, podCertificateRequestSpecFields.Get().PodUID)
+}
+
+// serviceAccountName is the name of the service account the pod is running as.
+func (d *PodCertificateRequestSpecDieMut) ServiceAccountName() diefields.ValueMut[string, *PodCertificateRequestSpecDieMut] {
+	return diefields.ValueMutOf(d, podCertificateRequestSpecFields.Get().ServiceAccountName)
+}
+
+// serviceAccountUID is the UID of the service account the pod is running as.
+func (d *PodCertificateRequestSpecDieMut) ServiceAccountUID() diefields.ValueMut[types.UID, *PodCertificateRequestSpecDieMut] {
+	return diefields.ValueMutOf(d, podCertificateRequestSpecFields.Get().ServiceAccountUID)
+}
+
+// nodeName is the name of the node the pod is assigned to.
+func (d *PodCertificateRequestSpecDieMut) NodeName() diefields.ValueMut[types.NodeName, *PodCertificateRequestSpecDieMut] {
+	return diefields.ValueMutOf(d, podCertificateRequestSpecFields.Get().NodeName)
+}
+
+// nodeUID is the UID of the node the pod is assigned to.
+func (d *PodCertificateRequestSpecDieMut) NodeUID() diefields.ValueMut[types.UID, *PodCertificateRequestSpecDieMut] {
+	return diefields.ValueMutOf(d, podCertificateRequestSpecFields.Get().NodeUID)
+}
+
+// maxExpirationSeconds is the maximum lifetime permitted for the
+// certificate.
+//
+// If omitted, kube-apiserver will set it to 86400(24 hours). kube-apiserver
+// will reject values shorter than 3600 (1 hour).  The maximum allowable
+// value is 7862400 (91 days).
+//
+// The signer implementation is then free to issue a certificate with any
+// lifetime *shorter* than MaxExpirationSeconds, but no shorter than 3600
+// seconds (1 hour).  This constraint is enforced by kube-apiserver.
+// `kubernetes.io` signers will never issue certificates with a lifetime
+// longer than 24 hours.
+func (d *PodCertificateRequestSpecDieMut) MaxExpirationSeconds() diefields.OptionalMut[int32, *PodCertificateRequestSpecDieMut] {
+	return diefields.OptionalMutOf(d, podCertificateRequestSpecFields.Get().MaxExpirationSeconds)
+}
+
+// A PKCS#10 certificate signing request (DER-serialized) generated by
+// Kubelet using the subject private key.
+//
+// Most signer implementations will ignore the contents of the CSR except to
+// extract the subject public key. The API server automatically verifies the
+// CSR signature during admission, so the signer does not need to repeat the
+// verification.  CSRs generated by kubelet are completely empty.
+//
+// The subject public key must be one of RSA3072, RSA4096, ECDSAP256,
+// ECDSAP384, ECDSAP521, or ED25519. Note that this list may be expanded in
+// the future.
+//
+// Signer implementations do not need to support all key types supported by
+// kube-apiserver and kubelet.  If a signer does not support the key type
+// used for a given PodCertificateRequest, it must deny the request by
+// setting a status.conditions entry with a type of "Denied" and a reason of
+// "UnsupportedKeyType". It may also suggest a key type that it does support
+// in the message field.
+func (d *PodCertificateRequestSpecDieMut) StubPKCS10Request() diefields.ValueMut[[]byte, *PodCertificateRequestSpecDieMut] {
+	return diefields.ValueMutOf(d, podCertificateRequestSpecFields.Get().StubPKCS10Request)
+}
+
+// unverifiedUserAnnotations allow pod authors to pass additional information to
+// the signer implementation.  Kubernetes does not restrict or validate this
+// metadata in any way.
+//
+// Entries are subject to the same validation as object metadata annotations,
+// with the addition that all keys must be domain-prefixed. No restrictions
+// are placed on values, except an overall size limitation on the entire field.
+//
+// Signers should document the keys and values they support.  Signers should
+// deny requests that contain keys they do not recognize.
+func (d *PodCertificateRequestSpecDieMut) UnverifiedUserAnnotations() *diefields.MapMut[string, string] {
+	return diefields.MapMutOf(d, podCertificateRequestSpecFields.Get().UnverifiedUserAnnotations)
+}
+
+// PodCertificateRequestStatus describes the status of the request, and holds
+// the certificate data if the request is issued.
+//
+// PodCertificateRequestStatusDie is immutable: it reads.
+// PodCertificateRequestStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type PodCertificateRequestStatusDie struct {
+	diebase.DieBase[PodCertificateRequestStatus, *PodCertificateRequestStatusDie, *PodCertificateRequestStatusDieMut]
+}
+
+// PodCertificateRequestStatusDieMut is the mutable die of PodCertificateRequestStatus: see PodCertificateRequestStatusDie.
+type PodCertificateRequestStatusDieMut struct {
+	diebase.DieMutBase[PodCertificateRequestStatus, *PodCertificateRequestStatusDie, *PodCertificateRequestStatusDieMut]
+}
+
+func (*PodCertificateRequestStatusDie) DieFrom(b diebase.DieBase[PodCertificateRequestStatus, *PodCertificateRequestStatusDie, *PodCertificateRequestStatusDieMut]) *PodCertificateRequestStatusDie {
 	return &PodCertificateRequestStatusDie{b}
 }
 
-var _ diebase.DieOf[PodCertificateRequestStatus, *PodCertificateRequestStatusDie] = (*PodCertificateRequestStatusDie)(nil)
+func (*PodCertificateRequestStatusDieMut) DieFrom(b diebase.DieMutBase[PodCertificateRequestStatus, *PodCertificateRequestStatusDie, *PodCertificateRequestStatusDieMut]) *PodCertificateRequestStatusDieMut {
+	return &PodCertificateRequestStatusDieMut{b}
+}
 
-var PodCertificateRequestStatusBlank = diebase.Blank[PodCertificateRequestStatus, *PodCertificateRequestStatusDie]()
+var (
+	_ diebase.DieOf[PodCertificateRequestStatus, *PodCertificateRequestStatusDie, *PodCertificateRequestStatusDieMut]    = (*PodCertificateRequestStatusDie)(nil)
+	_ diebase.DieMutOf[PodCertificateRequestStatus, *PodCertificateRequestStatusDie, *PodCertificateRequestStatusDieMut] = (*PodCertificateRequestStatusDieMut)(nil)
+)
+
+var PodCertificateRequestStatusBlank = diebase.Blank[PodCertificateRequestStatus, *PodCertificateRequestStatusDie, *PodCertificateRequestStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1096,39 +1737,52 @@ func (d *PodCertificateRequestStatusDie) DieReleaseApplyConfiguration() *PodCert
 	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PodCertificateRequestStatusDie) DieFeedApplyConfiguration(ac *PodCertificateRequestStatusApplyConfiguration) *PodCertificateRequestStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PodCertificateRequestStatusDie) DieStampApplyConfiguration(fn func(ac *PodCertificateRequestStatusApplyConfiguration)) *PodCertificateRequestStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PodCertificateRequestStatusDie) DieReleaseApplyConfigurationE() (*PodCertificateRequestStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PodCertificateRequestStatusDieMut) DieReleaseApplyConfiguration() *PodCertificateRequestStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PodCertificateRequestStatusDieMut) DieReleaseApplyConfigurationE() (*PodCertificateRequestStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PodCertificateRequestStatusDieMut) DieFeedApplyConfiguration(ac *PodCertificateRequestStatusApplyConfiguration) *PodCertificateRequestStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PodCertificateRequestStatusDieMut) DieStampApplyConfiguration(fn func(ac *PodCertificateRequestStatusApplyConfiguration)) *PodCertificateRequestStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodCertificateRequestStatusDie) DieFeedApplyConfigurationE(ac *PodCertificateRequestStatusApplyConfiguration) (*PodCertificateRequestStatusDie, error) {
+func (d *PodCertificateRequestStatusDieMut) DieFeedApplyConfigurationE(ac *PodCertificateRequestStatusApplyConfiguration) (*PodCertificateRequestStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodCertificateRequestStatusDie) DieStampApplyConfigurationE(fn func(ac *PodCertificateRequestStatusApplyConfiguration)) (*PodCertificateRequestStatusDie, error) {
+func (d *PodCertificateRequestStatusDieMut) DieStampApplyConfigurationE(fn func(ac *PodCertificateRequestStatusApplyConfiguration)) (*PodCertificateRequestStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type podCertificateRequestStatusFieldsTable struct {
-	Conditions       diefields.ListMapField[PodCertificateRequestStatus, diemetav1.Condition, *diemetav1.ConditionDie, string]
+	Conditions       diefields.ListMapField[PodCertificateRequestStatus, diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string]
 	CertificateChain diefields.Field[PodCertificateRequestStatus, string]
 	NotBefore        diefields.Field[PodCertificateRequestStatus, *diemetav1.Time]
 	BeginRefreshAt   diefields.Field[PodCertificateRequestStatus, *diemetav1.Time]
@@ -1137,7 +1791,7 @@ type podCertificateRequestStatusFieldsTable struct {
 
 var podCertificateRequestStatusFields = &diefields.Table[podCertificateRequestStatusFieldsTable]{Build: func() (f podCertificateRequestStatusFieldsTable) {
 	_ = annotated
-	f.Conditions = diefields.NewListMap[PodCertificateRequestStatus, diemetav1.Condition, *diemetav1.ConditionDie]("conditions", func(k string) []any { return []any{k} }, func(e diemetav1.Condition) string { return e.Type })
+	f.Conditions = diefields.NewListMap[PodCertificateRequestStatus, diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut]("conditions", func(k string) []any { return []any{k} }, func(e diemetav1.Condition) string { return e.Type })
 	f.CertificateChain = diefields.NewField[PodCertificateRequestStatus, string]("certificateChain")
 	f.NotBefore = diefields.NewField[PodCertificateRequestStatus, *diemetav1.Time]("notBefore")
 	f.BeginRefreshAt = diefields.NewField[PodCertificateRequestStatus, *diemetav1.Time]("beginRefreshAt")
@@ -1177,7 +1831,7 @@ func (d *PodCertificateRequestStatusDie) Conditions() *diefields.ListMap[diemeta
 // intermediate certificates and presented in TLS handshakes.  When
 // projecting the chain into a pod volume, kubelet will drop any data
 // in-between the PEM blocks, as well as any PEM block headers.
-func (d *PodCertificateRequestStatusDie) CertificateChain() diefields.Value[string, *PodCertificateRequestStatusDie] {
+func (d *PodCertificateRequestStatusDie) CertificateChain() diefields.Value[string] {
 	return diefields.ValueOf(d, podCertificateRequestStatusFields.Get().CertificateChain)
 }
 
@@ -1186,7 +1840,7 @@ func (d *PodCertificateRequestStatusDie) CertificateChain() diefields.Value[stri
 // certificateChain.  This field is set via the /status subresource.  Once
 // populated, it is immutable. The signer must set this field at the same
 // time it sets certificateChain.
-func (d *PodCertificateRequestStatusDie) NotBefore() diefields.Optional[diemetav1.Time, *PodCertificateRequestStatusDie] {
+func (d *PodCertificateRequestStatusDie) NotBefore() diefields.Optional[diemetav1.Time] {
 	return diefields.OptionalOf(d, podCertificateRequestStatusFields.Get().NotBefore)
 }
 
@@ -1197,7 +1851,7 @@ func (d *PodCertificateRequestStatusDie) NotBefore() diefields.Optional[diemetav
 //
 // This field is only a hint.  Kubelet may start refreshing before or after
 // this time if necessary.
-func (d *PodCertificateRequestStatusDie) BeginRefreshAt() diefields.Optional[diemetav1.Time, *PodCertificateRequestStatusDie] {
+func (d *PodCertificateRequestStatusDie) BeginRefreshAt() diefields.Optional[diemetav1.Time] {
 	return diefields.OptionalOf(d, podCertificateRequestStatusFields.Get().BeginRefreshAt)
 }
 
@@ -1206,26 +1860,91 @@ func (d *PodCertificateRequestStatusDie) BeginRefreshAt() diefields.Optional[die
 // certificateChain.  This field is set via the /status subresource.  Once
 // populated, it is immutable.  The signer must set this field at the same
 // time it sets certificateChain.
-func (d *PodCertificateRequestStatusDie) NotAfter() diefields.Optional[diemetav1.Time, *PodCertificateRequestStatusDie] {
+func (d *PodCertificateRequestStatusDie) NotAfter() diefields.Optional[diemetav1.Time] {
 	return diefields.OptionalOf(d, podCertificateRequestStatusFields.Get().NotAfter)
+}
+
+// conditions applied to the request.
+//
+// The types "Issued", "Denied", and "Failed" have special handling.  At
+// most one of these conditions may be present, and they must have status
+// "True".
+//
+// If the request is denied with `Reason=UnsupportedKeyType`, the signer may
+// suggest a key type that will work in the message field.
+func (d *PodCertificateRequestStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+	return diefields.ListMapMutOf(d, podCertificateRequestStatusFields.Get().Conditions)
+}
+
+// certificateChain is populated with an issued certificate by the signer.
+// This field is set via the /status subresource. Once populated, this field
+// is immutable.
+//
+// If the certificate signing request is denied, a condition of type
+// "Denied" is added and this field remains empty. If the signer cannot
+// issue the certificate, a condition of type "Failed" is added and this
+// field remains empty.
+//
+// Validation requirements:
+//  1. certificateChain must consist of one or more PEM-formatted certificates.
+//  2. Each entry must be a valid PEM-wrapped, DER-encoded ASN.1 Certificate as
+//     described in section 4 of RFC5280.
+//
+// If more than one block is present, and the definition of the requested
+// spec.signerName does not indicate otherwise, the first block is the
+// issued certificate, and subsequent blocks should be treated as
+// intermediate certificates and presented in TLS handshakes.  When
+// projecting the chain into a pod volume, kubelet will drop any data
+// in-between the PEM blocks, as well as any PEM block headers.
+func (d *PodCertificateRequestStatusDieMut) CertificateChain() diefields.ValueMut[string, *PodCertificateRequestStatusDieMut] {
+	return diefields.ValueMutOf(d, podCertificateRequestStatusFields.Get().CertificateChain)
+}
+
+// notBefore is the time at which the certificate becomes valid.  The value
+// must be the same as the notBefore value in the leaf certificate in
+// certificateChain.  This field is set via the /status subresource.  Once
+// populated, it is immutable. The signer must set this field at the same
+// time it sets certificateChain.
+func (d *PodCertificateRequestStatusDieMut) NotBefore() diefields.OptionalMut[diemetav1.Time, *PodCertificateRequestStatusDieMut] {
+	return diefields.OptionalMutOf(d, podCertificateRequestStatusFields.Get().NotBefore)
+}
+
+// beginRefreshAt is the time at which the kubelet should begin trying to
+// refresh the certificate.  This field is set via the /status subresource,
+// and must be set at the same time as certificateChain.  Once populated,
+// this field is immutable.
+//
+// This field is only a hint.  Kubelet may start refreshing before or after
+// this time if necessary.
+func (d *PodCertificateRequestStatusDieMut) BeginRefreshAt() diefields.OptionalMut[diemetav1.Time, *PodCertificateRequestStatusDieMut] {
+	return diefields.OptionalMutOf(d, podCertificateRequestStatusFields.Get().BeginRefreshAt)
+}
+
+// notAfter is the time at which the certificate expires.  The value must be
+// the same as the notAfter value in the leaf certificate in
+// certificateChain.  This field is set via the /status subresource.  Once
+// populated, it is immutable.  The signer must set this field at the same
+// time it sets certificateChain.
+func (d *PodCertificateRequestStatusDieMut) NotAfter() diefields.OptionalMut[diemetav1.Time, *PodCertificateRequestStatusDieMut] {
+	return diefields.OptionalMutOf(d, podCertificateRequestStatusFields.Get().NotAfter)
 }
 
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "certificates.k8s.io", Version: "v1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CertificateSigningRequest"), &CertificateSigningRequestDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CertificateSigningRequest"), &CertificateSigningRequestDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CertificateSigningRequestList"), &CertificateSigningRequestListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ClusterTrustBundle"), &ClusterTrustBundleDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ClusterTrustBundle"), &ClusterTrustBundleDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ClusterTrustBundleList"), &ClusterTrustBundleListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PodCertificateRequest"), &PodCertificateRequestDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PodCertificateRequest"), &PodCertificateRequestDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PodCertificateRequestList"), &PodCertificateRequestListDie{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

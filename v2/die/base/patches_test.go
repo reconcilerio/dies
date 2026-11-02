@@ -42,7 +42,7 @@ func sameJSON(t *testing.T, got, want []byte) {
 
 // an apply with each kind of intent
 func applied() *dieappsv1.DeploymentDie {
-	return dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+	return dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Namespace().Set("default")
 		d.Metadata().Name().Set("web")
 		d.Metadata().Labels().Set("tier", "web")
@@ -51,7 +51,7 @@ func applied() *dieappsv1.DeploymentDie {
 		d.Spec().MinReadySeconds().Clear()
 		d.Spec().Selector().MatchLabels().Set("app", "web")
 		d.Spec().Template().Spec().Tolerations().Empty()
-		d.Spec().Template().Spec().Containers().At("app").DieWith(func(c *diecorev1.ContainerDie) {
+		d.Spec().Template().Spec().Containers().At("app").DieWith(func(c *diecorev1.ContainerDieMut) {
 			c.Image().Set("app:1")
 			c.Args().Set([]string{"--verbose"})
 			c.Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http")
@@ -65,7 +65,7 @@ func TestDieFeedApplyPatchRoundTrips(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fed := dieappsv1.DeploymentBlank.DieFeedApplyPatch(want)
+	fed := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) { d.DieFeedApplyPatch(want) })
 	got, err := fed.DieReleaseApplyPatchE()
 	if err != nil {
 		t.Fatal(err)
@@ -79,10 +79,10 @@ func TestDieFeedApplyPatchRoundTrips(t *testing.T) {
 // An apply patch is intent over the value, which is kept, and replaces the
 // die's intent.
 func TestDieFeedApplyPatchOverAValue(t *testing.T) {
-	server := dieappsv1.DeploymentBlank.DieFeedUnstructured(unstructuredDeployment()).DieWith(func(d *dieappsv1.DeploymentDie) {
+	server := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) { d.DieFeedUnstructured(unstructuredDeployment()) }).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().Paused().Set(true)
 	})
-	fed := server.DieFeedApplyPatch([]byte(`{
+	fed := server.DieMutable().DieFeedApplyPatch([]byte(`{
 		"apiVersion": "apps/v1", "kind": "Deployment",
 		"metadata": {"name": "web", "namespace": "default"},
 		"spec": {"replicas": 5, "minReadySeconds": null, "futureField": "ignored"}
@@ -103,11 +103,11 @@ func TestDieFeedApplyPatchOverAValue(t *testing.T) {
 // A merge patch fed to the state it was made against makes the same change,
 // and releases as the same patch.
 func TestDieFeedMergePatchRoundTrips(t *testing.T) {
-	current := dieappsv1.DeploymentBlank.DieFeedUnstructured(unstructuredDeployment()).DieWith(func(d *dieappsv1.DeploymentDie) {
+	current := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) { d.DieFeedUnstructured(unstructuredDeployment()) }).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Labels().Set("canary", "true")
 		d.Spec().MinReadySeconds().Set(5)
 	}).DieCommit()
-	update := current.DieWith(func(d *dieappsv1.DeploymentDie) {
+	update := current.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().Replicas().Set(0)
 		d.Spec().MinReadySeconds().Clear()
 		d.Metadata().Labels().Remove("canary")
@@ -119,7 +119,7 @@ func TestDieFeedMergePatchRoundTrips(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fed := current.DieFeedMergePatch(want)
+	fed := current.DieMutable().DieFeedMergePatch(want)
 	got, err := fed.DieReleaseMergePatchE()
 	if err != nil {
 		t.Fatal(err)
@@ -136,5 +136,5 @@ func TestDieFeedPatchOnAChildPanics(t *testing.T) {
 			t.Errorf("recovered %v", r)
 		}
 	}()
-	dieappsv1.DeploymentBlank.Spec().DieFeedMergePatch([]byte(`{}`))
+	dieappsv1.DeploymentBlank.DieMutable().Spec().DieFeedMergePatch([]byte(`{}`))
 }

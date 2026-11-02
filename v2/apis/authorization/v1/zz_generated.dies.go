@@ -39,17 +39,32 @@ import (
 // * If rawSelector is present and requirements are empty, the rawSelector will be parsed and limited if the parsing succeeds.
 // * If rawSelector is empty and requirements are present, the requirements should be honored
 // * If rawSelector is present and requirements are present, the request is invalid.
+//
+// FieldSelectorAttributesDie is immutable: it reads.
+// FieldSelectorAttributesDieMut, its mutable die, also writes, as DieWith passes it.
 type FieldSelectorAttributesDie struct {
-	diebase.DieBase[FieldSelectorAttributes, *FieldSelectorAttributesDie]
+	diebase.DieBase[FieldSelectorAttributes, *FieldSelectorAttributesDie, *FieldSelectorAttributesDieMut]
 }
 
-func (*FieldSelectorAttributesDie) DieFrom(b diebase.DieBase[FieldSelectorAttributes, *FieldSelectorAttributesDie]) *FieldSelectorAttributesDie {
+// FieldSelectorAttributesDieMut is the mutable die of FieldSelectorAttributes: see FieldSelectorAttributesDie.
+type FieldSelectorAttributesDieMut struct {
+	diebase.DieMutBase[FieldSelectorAttributes, *FieldSelectorAttributesDie, *FieldSelectorAttributesDieMut]
+}
+
+func (*FieldSelectorAttributesDie) DieFrom(b diebase.DieBase[FieldSelectorAttributes, *FieldSelectorAttributesDie, *FieldSelectorAttributesDieMut]) *FieldSelectorAttributesDie {
 	return &FieldSelectorAttributesDie{b}
 }
 
-var _ diebase.DieOf[FieldSelectorAttributes, *FieldSelectorAttributesDie] = (*FieldSelectorAttributesDie)(nil)
+func (*FieldSelectorAttributesDieMut) DieFrom(b diebase.DieMutBase[FieldSelectorAttributes, *FieldSelectorAttributesDie, *FieldSelectorAttributesDieMut]) *FieldSelectorAttributesDieMut {
+	return &FieldSelectorAttributesDieMut{b}
+}
 
-var FieldSelectorAttributesBlank = diebase.Blank[FieldSelectorAttributes, *FieldSelectorAttributesDie]()
+var (
+	_ diebase.DieOf[FieldSelectorAttributes, *FieldSelectorAttributesDie, *FieldSelectorAttributesDieMut]    = (*FieldSelectorAttributesDie)(nil)
+	_ diebase.DieMutOf[FieldSelectorAttributes, *FieldSelectorAttributesDie, *FieldSelectorAttributesDieMut] = (*FieldSelectorAttributesDieMut)(nil)
+)
+
+var FieldSelectorAttributesBlank = diebase.Blank[FieldSelectorAttributes, *FieldSelectorAttributesDie, *FieldSelectorAttributesDieMut]()
 
 type fieldSelectorAttributesFieldsTable struct {
 	RawSelector  diefields.Field[FieldSelectorAttributes, string]
@@ -66,7 +81,7 @@ var fieldSelectorAttributesFields = &diefields.Table[fieldSelectorAttributesFiel
 // rawSelector is the serialization of a field selector that would be included in a query parameter.
 // Webhook implementations are encouraged to ignore rawSelector.
 // The kube-apiserver's *SubjectAccessReview will parse the rawSelector as long as the requirements are not present.
-func (d *FieldSelectorAttributesDie) RawSelector() diefields.Value[string, *FieldSelectorAttributesDie] {
+func (d *FieldSelectorAttributesDie) RawSelector() diefields.Value[string] {
 	return diefields.ValueOf(d, fieldSelectorAttributesFields.Get().RawSelector)
 }
 
@@ -75,8 +90,24 @@ func (d *FieldSelectorAttributesDie) RawSelector() diefields.Value[string, *Fiel
 // Webhook implementations should handle requirements, but how to handle them is up to the webhook.
 // Since requirements can only limit the request, it is safe to authorize as unlimited request if the requirements
 // are not understood.
-func (d *FieldSelectorAttributesDie) Requirements() diefields.Value[[]diemetav1.FieldSelectorRequirement, *FieldSelectorAttributesDie] {
+func (d *FieldSelectorAttributesDie) Requirements() diefields.Value[[]diemetav1.FieldSelectorRequirement] {
 	return diefields.ValueOf(d, fieldSelectorAttributesFields.Get().Requirements)
+}
+
+// rawSelector is the serialization of a field selector that would be included in a query parameter.
+// Webhook implementations are encouraged to ignore rawSelector.
+// The kube-apiserver's *SubjectAccessReview will parse the rawSelector as long as the requirements are not present.
+func (d *FieldSelectorAttributesDieMut) RawSelector() diefields.ValueMut[string, *FieldSelectorAttributesDieMut] {
+	return diefields.ValueMutOf(d, fieldSelectorAttributesFields.Get().RawSelector)
+}
+
+// requirements is the parsed interpretation of a field selector.
+// All requirements must be met for a resource instance to match the selector.
+// Webhook implementations should handle requirements, but how to handle them is up to the webhook.
+// Since requirements can only limit the request, it is safe to authorize as unlimited request if the requirements
+// are not understood.
+func (d *FieldSelectorAttributesDieMut) Requirements() diefields.ValueMut[[]diemetav1.FieldSelectorRequirement, *FieldSelectorAttributesDieMut] {
+	return diefields.ValueMutOf(d, fieldSelectorAttributesFields.Get().Requirements)
 }
 
 // LabelSelectorAttributes indicates a label limited access.
@@ -89,17 +120,32 @@ func (d *FieldSelectorAttributesDie) Requirements() diefields.Value[[]diemetav1.
 // * If rawSelector is present and requirements are empty, the rawSelector will be parsed and limited if the parsing succeeds.
 // * If rawSelector is empty and requirements are present, the requirements should be honored
 // * If rawSelector is present and requirements are present, the request is invalid.
+//
+// LabelSelectorAttributesDie is immutable: it reads.
+// LabelSelectorAttributesDieMut, its mutable die, also writes, as DieWith passes it.
 type LabelSelectorAttributesDie struct {
-	diebase.DieBase[LabelSelectorAttributes, *LabelSelectorAttributesDie]
+	diebase.DieBase[LabelSelectorAttributes, *LabelSelectorAttributesDie, *LabelSelectorAttributesDieMut]
 }
 
-func (*LabelSelectorAttributesDie) DieFrom(b diebase.DieBase[LabelSelectorAttributes, *LabelSelectorAttributesDie]) *LabelSelectorAttributesDie {
+// LabelSelectorAttributesDieMut is the mutable die of LabelSelectorAttributes: see LabelSelectorAttributesDie.
+type LabelSelectorAttributesDieMut struct {
+	diebase.DieMutBase[LabelSelectorAttributes, *LabelSelectorAttributesDie, *LabelSelectorAttributesDieMut]
+}
+
+func (*LabelSelectorAttributesDie) DieFrom(b diebase.DieBase[LabelSelectorAttributes, *LabelSelectorAttributesDie, *LabelSelectorAttributesDieMut]) *LabelSelectorAttributesDie {
 	return &LabelSelectorAttributesDie{b}
 }
 
-var _ diebase.DieOf[LabelSelectorAttributes, *LabelSelectorAttributesDie] = (*LabelSelectorAttributesDie)(nil)
+func (*LabelSelectorAttributesDieMut) DieFrom(b diebase.DieMutBase[LabelSelectorAttributes, *LabelSelectorAttributesDie, *LabelSelectorAttributesDieMut]) *LabelSelectorAttributesDieMut {
+	return &LabelSelectorAttributesDieMut{b}
+}
 
-var LabelSelectorAttributesBlank = diebase.Blank[LabelSelectorAttributes, *LabelSelectorAttributesDie]()
+var (
+	_ diebase.DieOf[LabelSelectorAttributes, *LabelSelectorAttributesDie, *LabelSelectorAttributesDieMut]    = (*LabelSelectorAttributesDie)(nil)
+	_ diebase.DieMutOf[LabelSelectorAttributes, *LabelSelectorAttributesDie, *LabelSelectorAttributesDieMut] = (*LabelSelectorAttributesDieMut)(nil)
+)
+
+var LabelSelectorAttributesBlank = diebase.Blank[LabelSelectorAttributes, *LabelSelectorAttributesDie, *LabelSelectorAttributesDieMut]()
 
 type labelSelectorAttributesFieldsTable struct {
 	RawSelector  diefields.Field[LabelSelectorAttributes, string]
@@ -116,7 +162,7 @@ var labelSelectorAttributesFields = &diefields.Table[labelSelectorAttributesFiel
 // rawSelector is the serialization of a field selector that would be included in a query parameter.
 // Webhook implementations are encouraged to ignore rawSelector.
 // The kube-apiserver's *SubjectAccessReview will parse the rawSelector as long as the requirements are not present.
-func (d *LabelSelectorAttributesDie) RawSelector() diefields.Value[string, *LabelSelectorAttributesDie] {
+func (d *LabelSelectorAttributesDie) RawSelector() diefields.Value[string] {
 	return diefields.ValueOf(d, labelSelectorAttributesFields.Get().RawSelector)
 }
 
@@ -125,40 +171,71 @@ func (d *LabelSelectorAttributesDie) RawSelector() diefields.Value[string, *Labe
 // Webhook implementations should handle requirements, but how to handle them is up to the webhook.
 // Since requirements can only limit the request, it is safe to authorize as unlimited request if the requirements
 // are not understood.
-func (d *LabelSelectorAttributesDie) Requirements() diefields.Value[[]diemetav1.LabelSelectorRequirement, *LabelSelectorAttributesDie] {
+func (d *LabelSelectorAttributesDie) Requirements() diefields.Value[[]diemetav1.LabelSelectorRequirement] {
 	return diefields.ValueOf(d, labelSelectorAttributesFields.Get().Requirements)
+}
+
+// rawSelector is the serialization of a field selector that would be included in a query parameter.
+// Webhook implementations are encouraged to ignore rawSelector.
+// The kube-apiserver's *SubjectAccessReview will parse the rawSelector as long as the requirements are not present.
+func (d *LabelSelectorAttributesDieMut) RawSelector() diefields.ValueMut[string, *LabelSelectorAttributesDieMut] {
+	return diefields.ValueMutOf(d, labelSelectorAttributesFields.Get().RawSelector)
+}
+
+// requirements is the parsed interpretation of a label selector.
+// All requirements must be met for a resource instance to match the selector.
+// Webhook implementations should handle requirements, but how to handle them is up to the webhook.
+// Since requirements can only limit the request, it is safe to authorize as unlimited request if the requirements
+// are not understood.
+func (d *LabelSelectorAttributesDieMut) Requirements() diefields.ValueMut[[]diemetav1.LabelSelectorRequirement, *LabelSelectorAttributesDieMut] {
+	return diefields.ValueMutOf(d, labelSelectorAttributesFields.Get().Requirements)
 }
 
 // LocalSubjectAccessReview checks whether or not a user or group can perform an action in a given namespace.
 // Having a namespace scoped resource makes it much easier to grant namespace scoped policy that includes permissions
 // checking.
+//
+// LocalSubjectAccessReviewDie is immutable: it reads.
+// LocalSubjectAccessReviewDieMut, its mutable die, also writes, as DieWith passes it.
 type LocalSubjectAccessReviewDie struct {
-	diebase.DieObjectBase[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie]
+	diebase.DieObjectBase[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie, *LocalSubjectAccessReviewDieMut]
 }
 
-func (*LocalSubjectAccessReviewDie) DieFrom(b diebase.DieBase[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie]) *LocalSubjectAccessReviewDie {
+// LocalSubjectAccessReviewDieMut is the mutable die of LocalSubjectAccessReview: see LocalSubjectAccessReviewDie.
+type LocalSubjectAccessReviewDieMut struct {
+	diebase.DieObjectMutBase[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie, *LocalSubjectAccessReviewDieMut]
+}
+
+func (*LocalSubjectAccessReviewDie) DieFrom(b diebase.DieBase[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie, *LocalSubjectAccessReviewDieMut]) *LocalSubjectAccessReviewDie {
 	return &LocalSubjectAccessReviewDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie] = (*LocalSubjectAccessReviewDie)(nil)
+func (*LocalSubjectAccessReviewDieMut) DieFrom(b diebase.DieMutBase[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie, *LocalSubjectAccessReviewDieMut]) *LocalSubjectAccessReviewDieMut {
+	return &LocalSubjectAccessReviewDieMut{diebase.AsObjectMut(b)}
+}
 
-var LocalSubjectAccessReviewBlank = diebase.BlankOf[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie](LocalSubjectAccessReview{TypeMeta: metav1.TypeMeta{APIVersion: "authorization.k8s.io/v1", Kind: "LocalSubjectAccessReview"}})
+var (
+	_ dieobjects.DieObjectOf[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie, *LocalSubjectAccessReviewDieMut]    = (*LocalSubjectAccessReviewDie)(nil)
+	_ dieobjects.DieObjectMutOf[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie, *LocalSubjectAccessReviewDieMut] = (*LocalSubjectAccessReviewDieMut)(nil)
+)
+
+var LocalSubjectAccessReviewBlank = diebase.BlankOf[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie, *LocalSubjectAccessReviewDieMut](LocalSubjectAccessReview{TypeMeta: metav1.TypeMeta{APIVersion: "authorization.k8s.io/v1", Kind: "LocalSubjectAccessReview"}})
 
 type localSubjectAccessReviewFieldsTable struct {
 	Kind       diefields.Field[LocalSubjectAccessReview, string]
 	APIVersion diefields.Field[LocalSubjectAccessReview, string]
-	Metadata   diefields.Struct[LocalSubjectAccessReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[LocalSubjectAccessReview, SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie]
-	Status     diefields.Struct[LocalSubjectAccessReview, SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie]
+	Metadata   diefields.Struct[LocalSubjectAccessReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[LocalSubjectAccessReview, SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie, *SubjectAccessReviewSpecDieMut]
+	Status     diefields.Struct[LocalSubjectAccessReview, SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut]
 }
 
 var localSubjectAccessReviewFields = &diefields.Table[localSubjectAccessReviewFieldsTable]{Build: func() (f localSubjectAccessReviewFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[LocalSubjectAccessReview, string]("kind")
 	f.APIVersion = diefields.NewField[LocalSubjectAccessReview, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[LocalSubjectAccessReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[LocalSubjectAccessReview, SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie]("spec")
-	f.Status = diefields.NewStruct[LocalSubjectAccessReview, SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie]("status")
+	f.Metadata = diefields.NewStruct[LocalSubjectAccessReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[LocalSubjectAccessReview, SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie, *SubjectAccessReviewSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[LocalSubjectAccessReview, SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut]("status")
 	return
 }}
 
@@ -167,7 +244,7 @@ var localSubjectAccessReviewFields = &diefields.Table[localSubjectAccessReviewFi
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *LocalSubjectAccessReviewDie) Kind() diefields.Value[string, *LocalSubjectAccessReviewDie] {
+func (d *LocalSubjectAccessReviewDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, localSubjectAccessReviewFields.Get().Kind)
 }
 
@@ -175,7 +252,7 @@ func (d *LocalSubjectAccessReviewDie) Kind() diefields.Value[string, *LocalSubje
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *LocalSubjectAccessReviewDie) APIVersion() diefields.Value[string, *LocalSubjectAccessReviewDie] {
+func (d *LocalSubjectAccessReviewDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, localSubjectAccessReviewFields.Get().APIVersion)
 }
 
@@ -196,18 +273,67 @@ func (d *LocalSubjectAccessReviewDie) Status() *SubjectAccessReviewStatusDie {
 	return diefields.Child(d, localSubjectAccessReviewFields.Get().Status)
 }
 
-// NonResourceAttributes includes the authorization attributes available for non-resource requests to the Authorizer interface
-type NonResourceAttributesDie struct {
-	diebase.DieBase[NonResourceAttributes, *NonResourceAttributesDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *LocalSubjectAccessReviewDieMut) Kind() diefields.ValueMut[string, *LocalSubjectAccessReviewDieMut] {
+	return diefields.ValueMutOf(d, localSubjectAccessReviewFields.Get().Kind)
 }
 
-func (*NonResourceAttributesDie) DieFrom(b diebase.DieBase[NonResourceAttributes, *NonResourceAttributesDie]) *NonResourceAttributesDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *LocalSubjectAccessReviewDieMut) APIVersion() diefields.ValueMut[string, *LocalSubjectAccessReviewDieMut] {
+	return diefields.ValueMutOf(d, localSubjectAccessReviewFields.Get().APIVersion)
+}
+
+// metadata is the standard list metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *LocalSubjectAccessReviewDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, localSubjectAccessReviewFields.Get().Metadata)
+}
+
+// spec holds information about the request being evaluated.  spec.namespace must be equal to the namespace
+// you made the request against.  If empty, it is defaulted.
+func (d *LocalSubjectAccessReviewDieMut) Spec() *SubjectAccessReviewSpecDieMut {
+	return diefields.ChildMut(d, localSubjectAccessReviewFields.Get().Spec)
+}
+
+// status is filled in by the server and indicates whether the request is allowed or not
+func (d *LocalSubjectAccessReviewDieMut) Status() *SubjectAccessReviewStatusDieMut {
+	return diefields.ChildMut(d, localSubjectAccessReviewFields.Get().Status)
+}
+
+// NonResourceAttributes includes the authorization attributes available for non-resource requests to the Authorizer interface
+//
+// NonResourceAttributesDie is immutable: it reads.
+// NonResourceAttributesDieMut, its mutable die, also writes, as DieWith passes it.
+type NonResourceAttributesDie struct {
+	diebase.DieBase[NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut]
+}
+
+// NonResourceAttributesDieMut is the mutable die of NonResourceAttributes: see NonResourceAttributesDie.
+type NonResourceAttributesDieMut struct {
+	diebase.DieMutBase[NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut]
+}
+
+func (*NonResourceAttributesDie) DieFrom(b diebase.DieBase[NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut]) *NonResourceAttributesDie {
 	return &NonResourceAttributesDie{b}
 }
 
-var _ diebase.DieOf[NonResourceAttributes, *NonResourceAttributesDie] = (*NonResourceAttributesDie)(nil)
+func (*NonResourceAttributesDieMut) DieFrom(b diebase.DieMutBase[NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut]) *NonResourceAttributesDieMut {
+	return &NonResourceAttributesDieMut{b}
+}
 
-var NonResourceAttributesBlank = diebase.Blank[NonResourceAttributes, *NonResourceAttributesDie]()
+var (
+	_ diebase.DieOf[NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut]    = (*NonResourceAttributesDie)(nil)
+	_ diebase.DieMutOf[NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut] = (*NonResourceAttributesDieMut)(nil)
+)
+
+var NonResourceAttributesBlank = diebase.Blank[NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut]()
 
 type nonResourceAttributesFieldsTable struct {
 	Path diefields.Field[NonResourceAttributes, string]
@@ -222,27 +348,52 @@ var nonResourceAttributesFields = &diefields.Table[nonResourceAttributesFieldsTa
 }}
 
 // path is the URL path of the request
-func (d *NonResourceAttributesDie) Path() diefields.Value[string, *NonResourceAttributesDie] {
+func (d *NonResourceAttributesDie) Path() diefields.Value[string] {
 	return diefields.ValueOf(d, nonResourceAttributesFields.Get().Path)
 }
 
 // verb is the standard HTTP verb
-func (d *NonResourceAttributesDie) Verb() diefields.Value[string, *NonResourceAttributesDie] {
+func (d *NonResourceAttributesDie) Verb() diefields.Value[string] {
 	return diefields.ValueOf(d, nonResourceAttributesFields.Get().Verb)
 }
 
-// NonResourceRule holds information that describes a rule for the non-resource
-type NonResourceRuleDie struct {
-	diebase.DieBase[NonResourceRule, *NonResourceRuleDie]
+// path is the URL path of the request
+func (d *NonResourceAttributesDieMut) Path() diefields.ValueMut[string, *NonResourceAttributesDieMut] {
+	return diefields.ValueMutOf(d, nonResourceAttributesFields.Get().Path)
 }
 
-func (*NonResourceRuleDie) DieFrom(b diebase.DieBase[NonResourceRule, *NonResourceRuleDie]) *NonResourceRuleDie {
+// verb is the standard HTTP verb
+func (d *NonResourceAttributesDieMut) Verb() diefields.ValueMut[string, *NonResourceAttributesDieMut] {
+	return diefields.ValueMutOf(d, nonResourceAttributesFields.Get().Verb)
+}
+
+// NonResourceRule holds information that describes a rule for the non-resource
+//
+// NonResourceRuleDie is immutable: it reads.
+// NonResourceRuleDieMut, its mutable die, also writes, as DieWith passes it.
+type NonResourceRuleDie struct {
+	diebase.DieBase[NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut]
+}
+
+// NonResourceRuleDieMut is the mutable die of NonResourceRule: see NonResourceRuleDie.
+type NonResourceRuleDieMut struct {
+	diebase.DieMutBase[NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut]
+}
+
+func (*NonResourceRuleDie) DieFrom(b diebase.DieBase[NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut]) *NonResourceRuleDie {
 	return &NonResourceRuleDie{b}
 }
 
-var _ diebase.DieOf[NonResourceRule, *NonResourceRuleDie] = (*NonResourceRuleDie)(nil)
+func (*NonResourceRuleDieMut) DieFrom(b diebase.DieMutBase[NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut]) *NonResourceRuleDieMut {
+	return &NonResourceRuleDieMut{b}
+}
 
-var NonResourceRuleBlank = diebase.Blank[NonResourceRule, *NonResourceRuleDie]()
+var (
+	_ diebase.DieOf[NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut]    = (*NonResourceRuleDie)(nil)
+	_ diebase.DieMutOf[NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut] = (*NonResourceRuleDieMut)(nil)
+)
+
+var NonResourceRuleBlank = diebase.Blank[NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut]()
 
 type nonResourceRuleFieldsTable struct {
 	Verbs           diefields.Field[NonResourceRule, []string]
@@ -257,28 +408,54 @@ var nonResourceRuleFields = &diefields.Table[nonResourceRuleFieldsTable]{Build: 
 }}
 
 // verbs is a list of kubernetes non-resource API verbs, like: get, post, put, delete, patch, head, options.  "*" means all.
-func (d *NonResourceRuleDie) Verbs() diefields.Value[[]string, *NonResourceRuleDie] {
+func (d *NonResourceRuleDie) Verbs() diefields.Value[[]string] {
 	return diefields.ValueOf(d, nonResourceRuleFields.Get().Verbs)
 }
 
 // nonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full,
 // final step in the path.  "*" means all.
-func (d *NonResourceRuleDie) NonResourceURLs() diefields.Value[[]string, *NonResourceRuleDie] {
+func (d *NonResourceRuleDie) NonResourceURLs() diefields.Value[[]string] {
 	return diefields.ValueOf(d, nonResourceRuleFields.Get().NonResourceURLs)
 }
 
-// ResourceAttributes includes the authorization attributes available for resource requests to the Authorizer interface
-type ResourceAttributesDie struct {
-	diebase.DieBase[ResourceAttributes, *ResourceAttributesDie]
+// verbs is a list of kubernetes non-resource API verbs, like: get, post, put, delete, patch, head, options.  "*" means all.
+func (d *NonResourceRuleDieMut) Verbs() diefields.ValueMut[[]string, *NonResourceRuleDieMut] {
+	return diefields.ValueMutOf(d, nonResourceRuleFields.Get().Verbs)
 }
 
-func (*ResourceAttributesDie) DieFrom(b diebase.DieBase[ResourceAttributes, *ResourceAttributesDie]) *ResourceAttributesDie {
+// nonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full,
+// final step in the path.  "*" means all.
+func (d *NonResourceRuleDieMut) NonResourceURLs() diefields.ValueMut[[]string, *NonResourceRuleDieMut] {
+	return diefields.ValueMutOf(d, nonResourceRuleFields.Get().NonResourceURLs)
+}
+
+// ResourceAttributes includes the authorization attributes available for resource requests to the Authorizer interface
+//
+// ResourceAttributesDie is immutable: it reads.
+// ResourceAttributesDieMut, its mutable die, also writes, as DieWith passes it.
+type ResourceAttributesDie struct {
+	diebase.DieBase[ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]
+}
+
+// ResourceAttributesDieMut is the mutable die of ResourceAttributes: see ResourceAttributesDie.
+type ResourceAttributesDieMut struct {
+	diebase.DieMutBase[ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]
+}
+
+func (*ResourceAttributesDie) DieFrom(b diebase.DieBase[ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]) *ResourceAttributesDie {
 	return &ResourceAttributesDie{b}
 }
 
-var _ diebase.DieOf[ResourceAttributes, *ResourceAttributesDie] = (*ResourceAttributesDie)(nil)
+func (*ResourceAttributesDieMut) DieFrom(b diebase.DieMutBase[ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]) *ResourceAttributesDieMut {
+	return &ResourceAttributesDieMut{b}
+}
 
-var ResourceAttributesBlank = diebase.Blank[ResourceAttributes, *ResourceAttributesDie]()
+var (
+	_ diebase.DieOf[ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]    = (*ResourceAttributesDie)(nil)
+	_ diebase.DieMutOf[ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut] = (*ResourceAttributesDieMut)(nil)
+)
+
+var ResourceAttributesBlank = diebase.Blank[ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]()
 
 type resourceAttributesFieldsTable struct {
 	Namespace     diefields.Field[ResourceAttributes, string]
@@ -288,8 +465,8 @@ type resourceAttributesFieldsTable struct {
 	Resource      diefields.Field[ResourceAttributes, string]
 	Subresource   diefields.Field[ResourceAttributes, string]
 	Name          diefields.Field[ResourceAttributes, string]
-	FieldSelector diefields.Struct[ResourceAttributes, FieldSelectorAttributes, *FieldSelectorAttributesDie]
-	LabelSelector diefields.Struct[ResourceAttributes, LabelSelectorAttributes, *LabelSelectorAttributesDie]
+	FieldSelector diefields.Struct[ResourceAttributes, FieldSelectorAttributes, *FieldSelectorAttributesDie, *FieldSelectorAttributesDieMut]
+	LabelSelector diefields.Struct[ResourceAttributes, LabelSelectorAttributes, *LabelSelectorAttributesDie, *LabelSelectorAttributesDieMut]
 }
 
 var resourceAttributesFields = &diefields.Table[resourceAttributesFieldsTable]{Build: func() (f resourceAttributesFieldsTable) {
@@ -301,8 +478,8 @@ var resourceAttributesFields = &diefields.Table[resourceAttributesFieldsTable]{B
 	f.Resource = diefields.NewField[ResourceAttributes, string]("resource")
 	f.Subresource = diefields.NewField[ResourceAttributes, string]("subresource")
 	f.Name = diefields.NewField[ResourceAttributes, string]("name")
-	f.FieldSelector = diefields.NewStruct[ResourceAttributes, FieldSelectorAttributes, *FieldSelectorAttributesDie]("fieldSelector")
-	f.LabelSelector = diefields.NewStruct[ResourceAttributes, LabelSelectorAttributes, *LabelSelectorAttributesDie]("labelSelector")
+	f.FieldSelector = diefields.NewStruct[ResourceAttributes, FieldSelectorAttributes, *FieldSelectorAttributesDie, *FieldSelectorAttributesDieMut]("fieldSelector")
+	f.LabelSelector = diefields.NewStruct[ResourceAttributes, LabelSelectorAttributes, *LabelSelectorAttributesDie, *LabelSelectorAttributesDieMut]("labelSelector")
 	return
 }}
 
@@ -310,37 +487,37 @@ var resourceAttributesFields = &diefields.Table[resourceAttributesFieldsTable]{B
 // "" (empty) is defaulted for LocalSubjectAccessReviews
 // "" (empty) is empty for cluster-scoped resources
 // "" (empty) means "all" for namespace scoped resources from a SubjectAccessReview or SelfSubjectAccessReview
-func (d *ResourceAttributesDie) Namespace() diefields.Value[string, *ResourceAttributesDie] {
+func (d *ResourceAttributesDie) Namespace() diefields.Value[string] {
 	return diefields.ValueOf(d, resourceAttributesFields.Get().Namespace)
 }
 
 // verb is a kubernetes resource API verb, like: get, list, watch, create, update, delete, proxy.  "*" means all.
-func (d *ResourceAttributesDie) Verb() diefields.Value[string, *ResourceAttributesDie] {
+func (d *ResourceAttributesDie) Verb() diefields.Value[string] {
 	return diefields.ValueOf(d, resourceAttributesFields.Get().Verb)
 }
 
 // group is the API Group of the Resource.  "*" means all.
-func (d *ResourceAttributesDie) Group() diefields.Value[string, *ResourceAttributesDie] {
+func (d *ResourceAttributesDie) Group() diefields.Value[string] {
 	return diefields.ValueOf(d, resourceAttributesFields.Get().Group)
 }
 
 // version is the API Version of the Resource.  "*" means all.
-func (d *ResourceAttributesDie) Version() diefields.Value[string, *ResourceAttributesDie] {
+func (d *ResourceAttributesDie) Version() diefields.Value[string] {
 	return diefields.ValueOf(d, resourceAttributesFields.Get().Version)
 }
 
 // resource is one of the existing resource types.  "*" means all.
-func (d *ResourceAttributesDie) Resource() diefields.Value[string, *ResourceAttributesDie] {
+func (d *ResourceAttributesDie) Resource() diefields.Value[string] {
 	return diefields.ValueOf(d, resourceAttributesFields.Get().Resource)
 }
 
 // subresource is one of the existing resource types.  "" means none.
-func (d *ResourceAttributesDie) Subresource() diefields.Value[string, *ResourceAttributesDie] {
+func (d *ResourceAttributesDie) Subresource() diefields.Value[string] {
 	return diefields.ValueOf(d, resourceAttributesFields.Get().Subresource)
 }
 
 // name is the name of the resource being requested for a "get" or deleted for a "delete". "" (empty) means all.
-func (d *ResourceAttributesDie) Name() diefields.Value[string, *ResourceAttributesDie] {
+func (d *ResourceAttributesDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, resourceAttributesFields.Get().Name)
 }
 
@@ -354,19 +531,82 @@ func (d *ResourceAttributesDie) LabelSelector() *LabelSelectorAttributesDie {
 	return diefields.Child(d, resourceAttributesFields.Get().LabelSelector)
 }
 
-// ResourceRule is the list of actions the subject is allowed to perform on resources. The list ordering isn't significant,
-// may contain duplicates, and possibly be incomplete.
-type ResourceRuleDie struct {
-	diebase.DieBase[ResourceRule, *ResourceRuleDie]
+// namespace is the namespace of the action being requested.  Currently, there is no distinction between no namespace and all namespaces
+// "" (empty) is defaulted for LocalSubjectAccessReviews
+// "" (empty) is empty for cluster-scoped resources
+// "" (empty) means "all" for namespace scoped resources from a SubjectAccessReview or SelfSubjectAccessReview
+func (d *ResourceAttributesDieMut) Namespace() diefields.ValueMut[string, *ResourceAttributesDieMut] {
+	return diefields.ValueMutOf(d, resourceAttributesFields.Get().Namespace)
 }
 
-func (*ResourceRuleDie) DieFrom(b diebase.DieBase[ResourceRule, *ResourceRuleDie]) *ResourceRuleDie {
+// verb is a kubernetes resource API verb, like: get, list, watch, create, update, delete, proxy.  "*" means all.
+func (d *ResourceAttributesDieMut) Verb() diefields.ValueMut[string, *ResourceAttributesDieMut] {
+	return diefields.ValueMutOf(d, resourceAttributesFields.Get().Verb)
+}
+
+// group is the API Group of the Resource.  "*" means all.
+func (d *ResourceAttributesDieMut) Group() diefields.ValueMut[string, *ResourceAttributesDieMut] {
+	return diefields.ValueMutOf(d, resourceAttributesFields.Get().Group)
+}
+
+// version is the API Version of the Resource.  "*" means all.
+func (d *ResourceAttributesDieMut) Version() diefields.ValueMut[string, *ResourceAttributesDieMut] {
+	return diefields.ValueMutOf(d, resourceAttributesFields.Get().Version)
+}
+
+// resource is one of the existing resource types.  "*" means all.
+func (d *ResourceAttributesDieMut) Resource() diefields.ValueMut[string, *ResourceAttributesDieMut] {
+	return diefields.ValueMutOf(d, resourceAttributesFields.Get().Resource)
+}
+
+// subresource is one of the existing resource types.  "" means none.
+func (d *ResourceAttributesDieMut) Subresource() diefields.ValueMut[string, *ResourceAttributesDieMut] {
+	return diefields.ValueMutOf(d, resourceAttributesFields.Get().Subresource)
+}
+
+// name is the name of the resource being requested for a "get" or deleted for a "delete". "" (empty) means all.
+func (d *ResourceAttributesDieMut) Name() diefields.ValueMut[string, *ResourceAttributesDieMut] {
+	return diefields.ValueMutOf(d, resourceAttributesFields.Get().Name)
+}
+
+// fieldSelector describes the limitation on access based on field.  It can only limit access, not broaden it.
+func (d *ResourceAttributesDieMut) FieldSelector() *FieldSelectorAttributesDieMut {
+	return diefields.ChildMut(d, resourceAttributesFields.Get().FieldSelector)
+}
+
+// labelSelector describes the limitation on access based on labels.  It can only limit access, not broaden it.
+func (d *ResourceAttributesDieMut) LabelSelector() *LabelSelectorAttributesDieMut {
+	return diefields.ChildMut(d, resourceAttributesFields.Get().LabelSelector)
+}
+
+// ResourceRule is the list of actions the subject is allowed to perform on resources. The list ordering isn't significant,
+// may contain duplicates, and possibly be incomplete.
+//
+// ResourceRuleDie is immutable: it reads.
+// ResourceRuleDieMut, its mutable die, also writes, as DieWith passes it.
+type ResourceRuleDie struct {
+	diebase.DieBase[ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut]
+}
+
+// ResourceRuleDieMut is the mutable die of ResourceRule: see ResourceRuleDie.
+type ResourceRuleDieMut struct {
+	diebase.DieMutBase[ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut]
+}
+
+func (*ResourceRuleDie) DieFrom(b diebase.DieBase[ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut]) *ResourceRuleDie {
 	return &ResourceRuleDie{b}
 }
 
-var _ diebase.DieOf[ResourceRule, *ResourceRuleDie] = (*ResourceRuleDie)(nil)
+func (*ResourceRuleDieMut) DieFrom(b diebase.DieMutBase[ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut]) *ResourceRuleDieMut {
+	return &ResourceRuleDieMut{b}
+}
 
-var ResourceRuleBlank = diebase.Blank[ResourceRule, *ResourceRuleDie]()
+var (
+	_ diebase.DieOf[ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut]    = (*ResourceRuleDie)(nil)
+	_ diebase.DieMutOf[ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut] = (*ResourceRuleDieMut)(nil)
+)
+
+var ResourceRuleBlank = diebase.Blank[ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut]()
 
 type resourceRuleFieldsTable struct {
 	Verbs         diefields.Field[ResourceRule, []string]
@@ -385,58 +625,96 @@ var resourceRuleFields = &diefields.Table[resourceRuleFieldsTable]{Build: func()
 }}
 
 // verbs is a list of kubernetes resource API verbs, like: get, list, watch, create, update, delete, proxy.  "*" means all.
-func (d *ResourceRuleDie) Verbs() diefields.Value[[]string, *ResourceRuleDie] {
+func (d *ResourceRuleDie) Verbs() diefields.Value[[]string] {
 	return diefields.ValueOf(d, resourceRuleFields.Get().Verbs)
 }
 
 // apiGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
 // the enumerated resources in any API group will be allowed.  "*" means all.
-func (d *ResourceRuleDie) APIGroups() diefields.Value[[]string, *ResourceRuleDie] {
+func (d *ResourceRuleDie) APIGroups() diefields.Value[[]string] {
 	return diefields.ValueOf(d, resourceRuleFields.Get().APIGroups)
 }
 
 // resources is a list of resources this rule applies to.  "*" means all in the specified apiGroups.
 //
 //	"*/foo" represents the subresource 'foo' for all resources in the specified apiGroups.
-func (d *ResourceRuleDie) Resources() diefields.Value[[]string, *ResourceRuleDie] {
+func (d *ResourceRuleDie) Resources() diefields.Value[[]string] {
 	return diefields.ValueOf(d, resourceRuleFields.Get().Resources)
 }
 
 // resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.  "*" means all.
-func (d *ResourceRuleDie) ResourceNames() diefields.Value[[]string, *ResourceRuleDie] {
+func (d *ResourceRuleDie) ResourceNames() diefields.Value[[]string] {
 	return diefields.ValueOf(d, resourceRuleFields.Get().ResourceNames)
+}
+
+// verbs is a list of kubernetes resource API verbs, like: get, list, watch, create, update, delete, proxy.  "*" means all.
+func (d *ResourceRuleDieMut) Verbs() diefields.ValueMut[[]string, *ResourceRuleDieMut] {
+	return diefields.ValueMutOf(d, resourceRuleFields.Get().Verbs)
+}
+
+// apiGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
+// the enumerated resources in any API group will be allowed.  "*" means all.
+func (d *ResourceRuleDieMut) APIGroups() diefields.ValueMut[[]string, *ResourceRuleDieMut] {
+	return diefields.ValueMutOf(d, resourceRuleFields.Get().APIGroups)
+}
+
+// resources is a list of resources this rule applies to.  "*" means all in the specified apiGroups.
+//
+//	"*/foo" represents the subresource 'foo' for all resources in the specified apiGroups.
+func (d *ResourceRuleDieMut) Resources() diefields.ValueMut[[]string, *ResourceRuleDieMut] {
+	return diefields.ValueMutOf(d, resourceRuleFields.Get().Resources)
+}
+
+// resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.  "*" means all.
+func (d *ResourceRuleDieMut) ResourceNames() diefields.ValueMut[[]string, *ResourceRuleDieMut] {
+	return diefields.ValueMutOf(d, resourceRuleFields.Get().ResourceNames)
 }
 
 // SelfSubjectAccessReview checks whether or the current user can perform an action.  Not filling in a
 // spec.namespace means "in all namespaces".  Self is a special case, because users should always be able
 // to check whether they can perform an action
+//
+// SelfSubjectAccessReviewDie is immutable: it reads.
+// SelfSubjectAccessReviewDieMut, its mutable die, also writes, as DieWith passes it.
 type SelfSubjectAccessReviewDie struct {
-	diebase.DieObjectBase[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie]
+	diebase.DieObjectBase[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie, *SelfSubjectAccessReviewDieMut]
 }
 
-func (*SelfSubjectAccessReviewDie) DieFrom(b diebase.DieBase[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie]) *SelfSubjectAccessReviewDie {
+// SelfSubjectAccessReviewDieMut is the mutable die of SelfSubjectAccessReview: see SelfSubjectAccessReviewDie.
+type SelfSubjectAccessReviewDieMut struct {
+	diebase.DieObjectMutBase[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie, *SelfSubjectAccessReviewDieMut]
+}
+
+func (*SelfSubjectAccessReviewDie) DieFrom(b diebase.DieBase[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie, *SelfSubjectAccessReviewDieMut]) *SelfSubjectAccessReviewDie {
 	return &SelfSubjectAccessReviewDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie] = (*SelfSubjectAccessReviewDie)(nil)
+func (*SelfSubjectAccessReviewDieMut) DieFrom(b diebase.DieMutBase[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie, *SelfSubjectAccessReviewDieMut]) *SelfSubjectAccessReviewDieMut {
+	return &SelfSubjectAccessReviewDieMut{diebase.AsObjectMut(b)}
+}
 
-var SelfSubjectAccessReviewBlank = diebase.BlankOf[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie](SelfSubjectAccessReview{TypeMeta: metav1.TypeMeta{APIVersion: "authorization.k8s.io/v1", Kind: "SelfSubjectAccessReview"}})
+var (
+	_ dieobjects.DieObjectOf[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie, *SelfSubjectAccessReviewDieMut]    = (*SelfSubjectAccessReviewDie)(nil)
+	_ dieobjects.DieObjectMutOf[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie, *SelfSubjectAccessReviewDieMut] = (*SelfSubjectAccessReviewDieMut)(nil)
+)
+
+var SelfSubjectAccessReviewBlank = diebase.BlankOf[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie, *SelfSubjectAccessReviewDieMut](SelfSubjectAccessReview{TypeMeta: metav1.TypeMeta{APIVersion: "authorization.k8s.io/v1", Kind: "SelfSubjectAccessReview"}})
 
 type selfSubjectAccessReviewFieldsTable struct {
 	Kind       diefields.Field[SelfSubjectAccessReview, string]
 	APIVersion diefields.Field[SelfSubjectAccessReview, string]
-	Metadata   diefields.Struct[SelfSubjectAccessReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[SelfSubjectAccessReview, SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie]
-	Status     diefields.Struct[SelfSubjectAccessReview, SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie]
+	Metadata   diefields.Struct[SelfSubjectAccessReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[SelfSubjectAccessReview, SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie, *SelfSubjectAccessReviewSpecDieMut]
+	Status     diefields.Struct[SelfSubjectAccessReview, SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut]
 }
 
 var selfSubjectAccessReviewFields = &diefields.Table[selfSubjectAccessReviewFieldsTable]{Build: func() (f selfSubjectAccessReviewFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[SelfSubjectAccessReview, string]("kind")
 	f.APIVersion = diefields.NewField[SelfSubjectAccessReview, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[SelfSubjectAccessReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[SelfSubjectAccessReview, SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie]("spec")
-	f.Status = diefields.NewStruct[SelfSubjectAccessReview, SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie]("status")
+	f.Metadata = diefields.NewStruct[SelfSubjectAccessReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[SelfSubjectAccessReview, SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie, *SelfSubjectAccessReviewSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[SelfSubjectAccessReview, SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut]("status")
 	return
 }}
 
@@ -445,7 +723,7 @@ var selfSubjectAccessReviewFields = &diefields.Table[selfSubjectAccessReviewFiel
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *SelfSubjectAccessReviewDie) Kind() diefields.Value[string, *SelfSubjectAccessReviewDie] {
+func (d *SelfSubjectAccessReviewDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, selfSubjectAccessReviewFields.Get().Kind)
 }
 
@@ -453,7 +731,7 @@ func (d *SelfSubjectAccessReviewDie) Kind() diefields.Value[string, *SelfSubject
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *SelfSubjectAccessReviewDie) APIVersion() diefields.Value[string, *SelfSubjectAccessReviewDie] {
+func (d *SelfSubjectAccessReviewDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, selfSubjectAccessReviewFields.Get().APIVersion)
 }
 
@@ -473,29 +751,77 @@ func (d *SelfSubjectAccessReviewDie) Status() *SubjectAccessReviewStatusDie {
 	return diefields.Child(d, selfSubjectAccessReviewFields.Get().Status)
 }
 
-// SelfSubjectAccessReviewSpec is a description of the access request.  Exactly one of resourceAttributes
-// and nonResourceAttributes must be set
-type SelfSubjectAccessReviewSpecDie struct {
-	diebase.DieBase[SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *SelfSubjectAccessReviewDieMut) Kind() diefields.ValueMut[string, *SelfSubjectAccessReviewDieMut] {
+	return diefields.ValueMutOf(d, selfSubjectAccessReviewFields.Get().Kind)
 }
 
-func (*SelfSubjectAccessReviewSpecDie) DieFrom(b diebase.DieBase[SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie]) *SelfSubjectAccessReviewSpecDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *SelfSubjectAccessReviewDieMut) APIVersion() diefields.ValueMut[string, *SelfSubjectAccessReviewDieMut] {
+	return diefields.ValueMutOf(d, selfSubjectAccessReviewFields.Get().APIVersion)
+}
+
+// metadata is the standard list metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *SelfSubjectAccessReviewDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, selfSubjectAccessReviewFields.Get().Metadata)
+}
+
+// spec holds information about the request being evaluated.  user and groups must be empty
+func (d *SelfSubjectAccessReviewDieMut) Spec() *SelfSubjectAccessReviewSpecDieMut {
+	return diefields.ChildMut(d, selfSubjectAccessReviewFields.Get().Spec)
+}
+
+// status is filled in by the server and indicates whether the request is allowed or not
+func (d *SelfSubjectAccessReviewDieMut) Status() *SubjectAccessReviewStatusDieMut {
+	return diefields.ChildMut(d, selfSubjectAccessReviewFields.Get().Status)
+}
+
+// SelfSubjectAccessReviewSpec is a description of the access request.  Exactly one of resourceAttributes
+// and nonResourceAttributes must be set
+//
+// SelfSubjectAccessReviewSpecDie is immutable: it reads.
+// SelfSubjectAccessReviewSpecDieMut, its mutable die, also writes, as DieWith passes it.
+type SelfSubjectAccessReviewSpecDie struct {
+	diebase.DieBase[SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie, *SelfSubjectAccessReviewSpecDieMut]
+}
+
+// SelfSubjectAccessReviewSpecDieMut is the mutable die of SelfSubjectAccessReviewSpec: see SelfSubjectAccessReviewSpecDie.
+type SelfSubjectAccessReviewSpecDieMut struct {
+	diebase.DieMutBase[SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie, *SelfSubjectAccessReviewSpecDieMut]
+}
+
+func (*SelfSubjectAccessReviewSpecDie) DieFrom(b diebase.DieBase[SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie, *SelfSubjectAccessReviewSpecDieMut]) *SelfSubjectAccessReviewSpecDie {
 	return &SelfSubjectAccessReviewSpecDie{b}
 }
 
-var _ diebase.DieOf[SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie] = (*SelfSubjectAccessReviewSpecDie)(nil)
+func (*SelfSubjectAccessReviewSpecDieMut) DieFrom(b diebase.DieMutBase[SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie, *SelfSubjectAccessReviewSpecDieMut]) *SelfSubjectAccessReviewSpecDieMut {
+	return &SelfSubjectAccessReviewSpecDieMut{b}
+}
 
-var SelfSubjectAccessReviewSpecBlank = diebase.Blank[SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie]()
+var (
+	_ diebase.DieOf[SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie, *SelfSubjectAccessReviewSpecDieMut]    = (*SelfSubjectAccessReviewSpecDie)(nil)
+	_ diebase.DieMutOf[SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie, *SelfSubjectAccessReviewSpecDieMut] = (*SelfSubjectAccessReviewSpecDieMut)(nil)
+)
+
+var SelfSubjectAccessReviewSpecBlank = diebase.Blank[SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie, *SelfSubjectAccessReviewSpecDieMut]()
 
 type selfSubjectAccessReviewSpecFieldsTable struct {
-	ResourceAttributes    diefields.Struct[SelfSubjectAccessReviewSpec, ResourceAttributes, *ResourceAttributesDie]
-	NonResourceAttributes diefields.Struct[SelfSubjectAccessReviewSpec, NonResourceAttributes, *NonResourceAttributesDie]
+	ResourceAttributes    diefields.Struct[SelfSubjectAccessReviewSpec, ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]
+	NonResourceAttributes diefields.Struct[SelfSubjectAccessReviewSpec, NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut]
 }
 
 var selfSubjectAccessReviewSpecFields = &diefields.Table[selfSubjectAccessReviewSpecFieldsTable]{Build: func() (f selfSubjectAccessReviewSpecFieldsTable) {
 	_ = annotated
-	f.ResourceAttributes = diefields.NewStruct[SelfSubjectAccessReviewSpec, ResourceAttributes, *ResourceAttributesDie]("resourceAttributes")
-	f.NonResourceAttributes = diefields.NewStruct[SelfSubjectAccessReviewSpec, NonResourceAttributes, *NonResourceAttributesDie]("nonResourceAttributes")
+	f.ResourceAttributes = diefields.NewStruct[SelfSubjectAccessReviewSpec, ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]("resourceAttributes")
+	f.NonResourceAttributes = diefields.NewStruct[SelfSubjectAccessReviewSpec, NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut]("nonResourceAttributes")
 	return
 }}
 
@@ -509,39 +835,64 @@ func (d *SelfSubjectAccessReviewSpecDie) NonResourceAttributes() *NonResourceAtt
 	return diefields.Child(d, selfSubjectAccessReviewSpecFields.Get().NonResourceAttributes)
 }
 
+// resourceAttributes describes information for a resource access request
+func (d *SelfSubjectAccessReviewSpecDieMut) ResourceAttributes() *ResourceAttributesDieMut {
+	return diefields.ChildMut(d, selfSubjectAccessReviewSpecFields.Get().ResourceAttributes)
+}
+
+// nonResourceAttributes describes information for a non-resource access request
+func (d *SelfSubjectAccessReviewSpecDieMut) NonResourceAttributes() *NonResourceAttributesDieMut {
+	return diefields.ChildMut(d, selfSubjectAccessReviewSpecFields.Get().NonResourceAttributes)
+}
+
 // SelfSubjectRulesReview enumerates the set of actions the current user can perform within a namespace.
 // The returned list of actions may be incomplete depending on the server's authorization mode,
 // and any errors experienced during the evaluation. SelfSubjectRulesReview should be used by UIs to show/hide actions,
 // or to quickly let an end user reason about their permissions. It should NOT Be used by external systems to
 // drive authorization decisions as this raises confused deputy, cache lifetime/revocation, and correctness concerns.
 // SubjectAccessReview, and LocalAccessReview are the correct way to defer authorization decisions to the API server.
+//
+// SelfSubjectRulesReviewDie is immutable: it reads.
+// SelfSubjectRulesReviewDieMut, its mutable die, also writes, as DieWith passes it.
 type SelfSubjectRulesReviewDie struct {
-	diebase.DieObjectBase[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie]
+	diebase.DieObjectBase[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie, *SelfSubjectRulesReviewDieMut]
 }
 
-func (*SelfSubjectRulesReviewDie) DieFrom(b diebase.DieBase[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie]) *SelfSubjectRulesReviewDie {
+// SelfSubjectRulesReviewDieMut is the mutable die of SelfSubjectRulesReview: see SelfSubjectRulesReviewDie.
+type SelfSubjectRulesReviewDieMut struct {
+	diebase.DieObjectMutBase[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie, *SelfSubjectRulesReviewDieMut]
+}
+
+func (*SelfSubjectRulesReviewDie) DieFrom(b diebase.DieBase[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie, *SelfSubjectRulesReviewDieMut]) *SelfSubjectRulesReviewDie {
 	return &SelfSubjectRulesReviewDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie] = (*SelfSubjectRulesReviewDie)(nil)
+func (*SelfSubjectRulesReviewDieMut) DieFrom(b diebase.DieMutBase[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie, *SelfSubjectRulesReviewDieMut]) *SelfSubjectRulesReviewDieMut {
+	return &SelfSubjectRulesReviewDieMut{diebase.AsObjectMut(b)}
+}
 
-var SelfSubjectRulesReviewBlank = diebase.BlankOf[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie](SelfSubjectRulesReview{TypeMeta: metav1.TypeMeta{APIVersion: "authorization.k8s.io/v1", Kind: "SelfSubjectRulesReview"}})
+var (
+	_ dieobjects.DieObjectOf[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie, *SelfSubjectRulesReviewDieMut]    = (*SelfSubjectRulesReviewDie)(nil)
+	_ dieobjects.DieObjectMutOf[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie, *SelfSubjectRulesReviewDieMut] = (*SelfSubjectRulesReviewDieMut)(nil)
+)
+
+var SelfSubjectRulesReviewBlank = diebase.BlankOf[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie, *SelfSubjectRulesReviewDieMut](SelfSubjectRulesReview{TypeMeta: metav1.TypeMeta{APIVersion: "authorization.k8s.io/v1", Kind: "SelfSubjectRulesReview"}})
 
 type selfSubjectRulesReviewFieldsTable struct {
 	Kind       diefields.Field[SelfSubjectRulesReview, string]
 	APIVersion diefields.Field[SelfSubjectRulesReview, string]
-	Metadata   diefields.Struct[SelfSubjectRulesReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[SelfSubjectRulesReview, SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie]
-	Status     diefields.Struct[SelfSubjectRulesReview, SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie]
+	Metadata   diefields.Struct[SelfSubjectRulesReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[SelfSubjectRulesReview, SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie, *SelfSubjectRulesReviewSpecDieMut]
+	Status     diefields.Struct[SelfSubjectRulesReview, SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie, *SubjectRulesReviewStatusDieMut]
 }
 
 var selfSubjectRulesReviewFields = &diefields.Table[selfSubjectRulesReviewFieldsTable]{Build: func() (f selfSubjectRulesReviewFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[SelfSubjectRulesReview, string]("kind")
 	f.APIVersion = diefields.NewField[SelfSubjectRulesReview, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[SelfSubjectRulesReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[SelfSubjectRulesReview, SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie]("spec")
-	f.Status = diefields.NewStruct[SelfSubjectRulesReview, SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie]("status")
+	f.Metadata = diefields.NewStruct[SelfSubjectRulesReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[SelfSubjectRulesReview, SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie, *SelfSubjectRulesReviewSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[SelfSubjectRulesReview, SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie, *SubjectRulesReviewStatusDieMut]("status")
 	return
 }}
 
@@ -550,7 +901,7 @@ var selfSubjectRulesReviewFields = &diefields.Table[selfSubjectRulesReviewFields
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *SelfSubjectRulesReviewDie) Kind() diefields.Value[string, *SelfSubjectRulesReviewDie] {
+func (d *SelfSubjectRulesReviewDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, selfSubjectRulesReviewFields.Get().Kind)
 }
 
@@ -558,7 +909,7 @@ func (d *SelfSubjectRulesReviewDie) Kind() diefields.Value[string, *SelfSubjectR
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *SelfSubjectRulesReviewDie) APIVersion() diefields.Value[string, *SelfSubjectRulesReviewDie] {
+func (d *SelfSubjectRulesReviewDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, selfSubjectRulesReviewFields.Get().APIVersion)
 }
 
@@ -578,18 +929,66 @@ func (d *SelfSubjectRulesReviewDie) Status() *SubjectRulesReviewStatusDie {
 	return diefields.Child(d, selfSubjectRulesReviewFields.Get().Status)
 }
 
-// SelfSubjectRulesReviewSpec defines the specification for SelfSubjectRulesReview.
-type SelfSubjectRulesReviewSpecDie struct {
-	diebase.DieBase[SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *SelfSubjectRulesReviewDieMut) Kind() diefields.ValueMut[string, *SelfSubjectRulesReviewDieMut] {
+	return diefields.ValueMutOf(d, selfSubjectRulesReviewFields.Get().Kind)
 }
 
-func (*SelfSubjectRulesReviewSpecDie) DieFrom(b diebase.DieBase[SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie]) *SelfSubjectRulesReviewSpecDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *SelfSubjectRulesReviewDieMut) APIVersion() diefields.ValueMut[string, *SelfSubjectRulesReviewDieMut] {
+	return diefields.ValueMutOf(d, selfSubjectRulesReviewFields.Get().APIVersion)
+}
+
+// metadata is the standard list metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *SelfSubjectRulesReviewDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, selfSubjectRulesReviewFields.Get().Metadata)
+}
+
+// spec holds information about the request being evaluated.
+func (d *SelfSubjectRulesReviewDieMut) Spec() *SelfSubjectRulesReviewSpecDieMut {
+	return diefields.ChildMut(d, selfSubjectRulesReviewFields.Get().Spec)
+}
+
+// status is filled in by the server and indicates the set of actions a user can perform.
+func (d *SelfSubjectRulesReviewDieMut) Status() *SubjectRulesReviewStatusDieMut {
+	return diefields.ChildMut(d, selfSubjectRulesReviewFields.Get().Status)
+}
+
+// SelfSubjectRulesReviewSpec defines the specification for SelfSubjectRulesReview.
+//
+// SelfSubjectRulesReviewSpecDie is immutable: it reads.
+// SelfSubjectRulesReviewSpecDieMut, its mutable die, also writes, as DieWith passes it.
+type SelfSubjectRulesReviewSpecDie struct {
+	diebase.DieBase[SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie, *SelfSubjectRulesReviewSpecDieMut]
+}
+
+// SelfSubjectRulesReviewSpecDieMut is the mutable die of SelfSubjectRulesReviewSpec: see SelfSubjectRulesReviewSpecDie.
+type SelfSubjectRulesReviewSpecDieMut struct {
+	diebase.DieMutBase[SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie, *SelfSubjectRulesReviewSpecDieMut]
+}
+
+func (*SelfSubjectRulesReviewSpecDie) DieFrom(b diebase.DieBase[SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie, *SelfSubjectRulesReviewSpecDieMut]) *SelfSubjectRulesReviewSpecDie {
 	return &SelfSubjectRulesReviewSpecDie{b}
 }
 
-var _ diebase.DieOf[SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie] = (*SelfSubjectRulesReviewSpecDie)(nil)
+func (*SelfSubjectRulesReviewSpecDieMut) DieFrom(b diebase.DieMutBase[SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie, *SelfSubjectRulesReviewSpecDieMut]) *SelfSubjectRulesReviewSpecDieMut {
+	return &SelfSubjectRulesReviewSpecDieMut{b}
+}
 
-var SelfSubjectRulesReviewSpecBlank = diebase.Blank[SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie]()
+var (
+	_ diebase.DieOf[SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie, *SelfSubjectRulesReviewSpecDieMut]    = (*SelfSubjectRulesReviewSpecDie)(nil)
+	_ diebase.DieMutOf[SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie, *SelfSubjectRulesReviewSpecDieMut] = (*SelfSubjectRulesReviewSpecDieMut)(nil)
+)
+
+var SelfSubjectRulesReviewSpecBlank = diebase.Blank[SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie, *SelfSubjectRulesReviewSpecDieMut]()
 
 type selfSubjectRulesReviewSpecFieldsTable struct {
 	Namespace diefields.Field[SelfSubjectRulesReviewSpec, string]
@@ -602,38 +1001,58 @@ var selfSubjectRulesReviewSpecFields = &diefields.Table[selfSubjectRulesReviewSp
 }}
 
 // namespace to evaluate rules for. Required.
-func (d *SelfSubjectRulesReviewSpecDie) Namespace() diefields.Value[string, *SelfSubjectRulesReviewSpecDie] {
+func (d *SelfSubjectRulesReviewSpecDie) Namespace() diefields.Value[string] {
 	return diefields.ValueOf(d, selfSubjectRulesReviewSpecFields.Get().Namespace)
 }
 
-// SubjectAccessReview checks whether or not a user or group can perform an action.
-type SubjectAccessReviewDie struct {
-	diebase.DieObjectBase[SubjectAccessReview, *SubjectAccessReviewDie]
+// namespace to evaluate rules for. Required.
+func (d *SelfSubjectRulesReviewSpecDieMut) Namespace() diefields.ValueMut[string, *SelfSubjectRulesReviewSpecDieMut] {
+	return diefields.ValueMutOf(d, selfSubjectRulesReviewSpecFields.Get().Namespace)
 }
 
-func (*SubjectAccessReviewDie) DieFrom(b diebase.DieBase[SubjectAccessReview, *SubjectAccessReviewDie]) *SubjectAccessReviewDie {
+// SubjectAccessReview checks whether or not a user or group can perform an action.
+//
+// SubjectAccessReviewDie is immutable: it reads.
+// SubjectAccessReviewDieMut, its mutable die, also writes, as DieWith passes it.
+type SubjectAccessReviewDie struct {
+	diebase.DieObjectBase[SubjectAccessReview, *SubjectAccessReviewDie, *SubjectAccessReviewDieMut]
+}
+
+// SubjectAccessReviewDieMut is the mutable die of SubjectAccessReview: see SubjectAccessReviewDie.
+type SubjectAccessReviewDieMut struct {
+	diebase.DieObjectMutBase[SubjectAccessReview, *SubjectAccessReviewDie, *SubjectAccessReviewDieMut]
+}
+
+func (*SubjectAccessReviewDie) DieFrom(b diebase.DieBase[SubjectAccessReview, *SubjectAccessReviewDie, *SubjectAccessReviewDieMut]) *SubjectAccessReviewDie {
 	return &SubjectAccessReviewDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[SubjectAccessReview, *SubjectAccessReviewDie] = (*SubjectAccessReviewDie)(nil)
+func (*SubjectAccessReviewDieMut) DieFrom(b diebase.DieMutBase[SubjectAccessReview, *SubjectAccessReviewDie, *SubjectAccessReviewDieMut]) *SubjectAccessReviewDieMut {
+	return &SubjectAccessReviewDieMut{diebase.AsObjectMut(b)}
+}
 
-var SubjectAccessReviewBlank = diebase.BlankOf[SubjectAccessReview, *SubjectAccessReviewDie](SubjectAccessReview{TypeMeta: metav1.TypeMeta{APIVersion: "authorization.k8s.io/v1", Kind: "SubjectAccessReview"}})
+var (
+	_ dieobjects.DieObjectOf[SubjectAccessReview, *SubjectAccessReviewDie, *SubjectAccessReviewDieMut]    = (*SubjectAccessReviewDie)(nil)
+	_ dieobjects.DieObjectMutOf[SubjectAccessReview, *SubjectAccessReviewDie, *SubjectAccessReviewDieMut] = (*SubjectAccessReviewDieMut)(nil)
+)
+
+var SubjectAccessReviewBlank = diebase.BlankOf[SubjectAccessReview, *SubjectAccessReviewDie, *SubjectAccessReviewDieMut](SubjectAccessReview{TypeMeta: metav1.TypeMeta{APIVersion: "authorization.k8s.io/v1", Kind: "SubjectAccessReview"}})
 
 type subjectAccessReviewFieldsTable struct {
 	Kind       diefields.Field[SubjectAccessReview, string]
 	APIVersion diefields.Field[SubjectAccessReview, string]
-	Metadata   diefields.Struct[SubjectAccessReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[SubjectAccessReview, SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie]
-	Status     diefields.Struct[SubjectAccessReview, SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie]
+	Metadata   diefields.Struct[SubjectAccessReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[SubjectAccessReview, SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie, *SubjectAccessReviewSpecDieMut]
+	Status     diefields.Struct[SubjectAccessReview, SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut]
 }
 
 var subjectAccessReviewFields = &diefields.Table[subjectAccessReviewFieldsTable]{Build: func() (f subjectAccessReviewFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[SubjectAccessReview, string]("kind")
 	f.APIVersion = diefields.NewField[SubjectAccessReview, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[SubjectAccessReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[SubjectAccessReview, SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie]("spec")
-	f.Status = diefields.NewStruct[SubjectAccessReview, SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie]("status")
+	f.Metadata = diefields.NewStruct[SubjectAccessReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[SubjectAccessReview, SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie, *SubjectAccessReviewSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[SubjectAccessReview, SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut]("status")
 	return
 }}
 
@@ -642,7 +1061,7 @@ var subjectAccessReviewFields = &diefields.Table[subjectAccessReviewFieldsTable]
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *SubjectAccessReviewDie) Kind() diefields.Value[string, *SubjectAccessReviewDie] {
+func (d *SubjectAccessReviewDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, subjectAccessReviewFields.Get().Kind)
 }
 
@@ -650,7 +1069,7 @@ func (d *SubjectAccessReviewDie) Kind() diefields.Value[string, *SubjectAccessRe
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *SubjectAccessReviewDie) APIVersion() diefields.Value[string, *SubjectAccessReviewDie] {
+func (d *SubjectAccessReviewDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, subjectAccessReviewFields.Get().APIVersion)
 }
 
@@ -670,23 +1089,71 @@ func (d *SubjectAccessReviewDie) Status() *SubjectAccessReviewStatusDie {
 	return diefields.Child(d, subjectAccessReviewFields.Get().Status)
 }
 
-// SubjectAccessReviewSpec is a description of the access request.  Exactly one of resourceAttributes
-// and nonResourceAttributes must be set
-type SubjectAccessReviewSpecDie struct {
-	diebase.DieBase[SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *SubjectAccessReviewDieMut) Kind() diefields.ValueMut[string, *SubjectAccessReviewDieMut] {
+	return diefields.ValueMutOf(d, subjectAccessReviewFields.Get().Kind)
 }
 
-func (*SubjectAccessReviewSpecDie) DieFrom(b diebase.DieBase[SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie]) *SubjectAccessReviewSpecDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *SubjectAccessReviewDieMut) APIVersion() diefields.ValueMut[string, *SubjectAccessReviewDieMut] {
+	return diefields.ValueMutOf(d, subjectAccessReviewFields.Get().APIVersion)
+}
+
+// metadata is the standard list metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *SubjectAccessReviewDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, subjectAccessReviewFields.Get().Metadata)
+}
+
+// spec holds information about the request being evaluated
+func (d *SubjectAccessReviewDieMut) Spec() *SubjectAccessReviewSpecDieMut {
+	return diefields.ChildMut(d, subjectAccessReviewFields.Get().Spec)
+}
+
+// status is filled in by the server and indicates whether the request is allowed or not
+func (d *SubjectAccessReviewDieMut) Status() *SubjectAccessReviewStatusDieMut {
+	return diefields.ChildMut(d, subjectAccessReviewFields.Get().Status)
+}
+
+// SubjectAccessReviewSpec is a description of the access request.  Exactly one of resourceAttributes
+// and nonResourceAttributes must be set
+//
+// SubjectAccessReviewSpecDie is immutable: it reads.
+// SubjectAccessReviewSpecDieMut, its mutable die, also writes, as DieWith passes it.
+type SubjectAccessReviewSpecDie struct {
+	diebase.DieBase[SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie, *SubjectAccessReviewSpecDieMut]
+}
+
+// SubjectAccessReviewSpecDieMut is the mutable die of SubjectAccessReviewSpec: see SubjectAccessReviewSpecDie.
+type SubjectAccessReviewSpecDieMut struct {
+	diebase.DieMutBase[SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie, *SubjectAccessReviewSpecDieMut]
+}
+
+func (*SubjectAccessReviewSpecDie) DieFrom(b diebase.DieBase[SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie, *SubjectAccessReviewSpecDieMut]) *SubjectAccessReviewSpecDie {
 	return &SubjectAccessReviewSpecDie{b}
 }
 
-var _ diebase.DieOf[SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie] = (*SubjectAccessReviewSpecDie)(nil)
+func (*SubjectAccessReviewSpecDieMut) DieFrom(b diebase.DieMutBase[SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie, *SubjectAccessReviewSpecDieMut]) *SubjectAccessReviewSpecDieMut {
+	return &SubjectAccessReviewSpecDieMut{b}
+}
 
-var SubjectAccessReviewSpecBlank = diebase.Blank[SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie]()
+var (
+	_ diebase.DieOf[SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie, *SubjectAccessReviewSpecDieMut]    = (*SubjectAccessReviewSpecDie)(nil)
+	_ diebase.DieMutOf[SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie, *SubjectAccessReviewSpecDieMut] = (*SubjectAccessReviewSpecDieMut)(nil)
+)
+
+var SubjectAccessReviewSpecBlank = diebase.Blank[SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie, *SubjectAccessReviewSpecDieMut]()
 
 type subjectAccessReviewSpecFieldsTable struct {
-	ResourceAttributes    diefields.Struct[SubjectAccessReviewSpec, ResourceAttributes, *ResourceAttributesDie]
-	NonResourceAttributes diefields.Struct[SubjectAccessReviewSpec, NonResourceAttributes, *NonResourceAttributesDie]
+	ResourceAttributes    diefields.Struct[SubjectAccessReviewSpec, ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]
+	NonResourceAttributes diefields.Struct[SubjectAccessReviewSpec, NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut]
 	User                  diefields.Field[SubjectAccessReviewSpec, string]
 	Groups                diefields.Field[SubjectAccessReviewSpec, []string]
 	Extra                 diefields.MapField[SubjectAccessReviewSpec, string, ExtraValue]
@@ -695,8 +1162,8 @@ type subjectAccessReviewSpecFieldsTable struct {
 
 var subjectAccessReviewSpecFields = &diefields.Table[subjectAccessReviewSpecFieldsTable]{Build: func() (f subjectAccessReviewSpecFieldsTable) {
 	_ = annotated
-	f.ResourceAttributes = diefields.NewStruct[SubjectAccessReviewSpec, ResourceAttributes, *ResourceAttributesDie]("resourceAttributes")
-	f.NonResourceAttributes = diefields.NewStruct[SubjectAccessReviewSpec, NonResourceAttributes, *NonResourceAttributesDie]("nonResourceAttributes")
+	f.ResourceAttributes = diefields.NewStruct[SubjectAccessReviewSpec, ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]("resourceAttributes")
+	f.NonResourceAttributes = diefields.NewStruct[SubjectAccessReviewSpec, NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut]("nonResourceAttributes")
 	f.User = diefields.NewField[SubjectAccessReviewSpec, string]("user")
 	f.Groups = diefields.NewField[SubjectAccessReviewSpec, []string]("groups")
 	f.Extra = diefields.NewMap[SubjectAccessReviewSpec, string, ExtraValue]("extra")
@@ -716,12 +1183,12 @@ func (d *SubjectAccessReviewSpecDie) NonResourceAttributes() *NonResourceAttribu
 
 // user is the user you're testing for.
 // If you specify "User" but not "Groups", then is it interpreted as "What if User were not a member of any groups
-func (d *SubjectAccessReviewSpecDie) User() diefields.Value[string, *SubjectAccessReviewSpecDie] {
+func (d *SubjectAccessReviewSpecDie) User() diefields.Value[string] {
 	return diefields.ValueOf(d, subjectAccessReviewSpecFields.Get().User)
 }
 
 // groups is the groups you're testing for.
-func (d *SubjectAccessReviewSpecDie) Groups() diefields.Value[[]string, *SubjectAccessReviewSpecDie] {
+func (d *SubjectAccessReviewSpecDie) Groups() diefields.Value[[]string] {
 	return diefields.ValueOf(d, subjectAccessReviewSpecFields.Get().Groups)
 }
 
@@ -732,22 +1199,69 @@ func (d *SubjectAccessReviewSpecDie) Extra() *diefields.Map[string, ExtraValue] 
 }
 
 // uid information about the requesting user.
-func (d *SubjectAccessReviewSpecDie) UID() diefields.Value[string, *SubjectAccessReviewSpecDie] {
+func (d *SubjectAccessReviewSpecDie) UID() diefields.Value[string] {
 	return diefields.ValueOf(d, subjectAccessReviewSpecFields.Get().UID)
 }
 
-// SubjectAccessReviewStatus
-type SubjectAccessReviewStatusDie struct {
-	diebase.DieBase[SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie]
+// resourceAttributes describes information for a resource access request
+func (d *SubjectAccessReviewSpecDieMut) ResourceAttributes() *ResourceAttributesDieMut {
+	return diefields.ChildMut(d, subjectAccessReviewSpecFields.Get().ResourceAttributes)
 }
 
-func (*SubjectAccessReviewStatusDie) DieFrom(b diebase.DieBase[SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie]) *SubjectAccessReviewStatusDie {
+// nonResourceAttributes describes information for a non-resource access request
+func (d *SubjectAccessReviewSpecDieMut) NonResourceAttributes() *NonResourceAttributesDieMut {
+	return diefields.ChildMut(d, subjectAccessReviewSpecFields.Get().NonResourceAttributes)
+}
+
+// user is the user you're testing for.
+// If you specify "User" but not "Groups", then is it interpreted as "What if User were not a member of any groups
+func (d *SubjectAccessReviewSpecDieMut) User() diefields.ValueMut[string, *SubjectAccessReviewSpecDieMut] {
+	return diefields.ValueMutOf(d, subjectAccessReviewSpecFields.Get().User)
+}
+
+// groups is the groups you're testing for.
+func (d *SubjectAccessReviewSpecDieMut) Groups() diefields.ValueMut[[]string, *SubjectAccessReviewSpecDieMut] {
+	return diefields.ValueMutOf(d, subjectAccessReviewSpecFields.Get().Groups)
+}
+
+// extra corresponds to the user.Info.GetExtra() method from the authenticator.  Since that is input to the authorizer
+// it needs a reflection here.
+func (d *SubjectAccessReviewSpecDieMut) Extra() *diefields.MapMut[string, ExtraValue] {
+	return diefields.MapMutOf(d, subjectAccessReviewSpecFields.Get().Extra)
+}
+
+// uid information about the requesting user.
+func (d *SubjectAccessReviewSpecDieMut) UID() diefields.ValueMut[string, *SubjectAccessReviewSpecDieMut] {
+	return diefields.ValueMutOf(d, subjectAccessReviewSpecFields.Get().UID)
+}
+
+// SubjectAccessReviewStatus
+//
+// SubjectAccessReviewStatusDie is immutable: it reads.
+// SubjectAccessReviewStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type SubjectAccessReviewStatusDie struct {
+	diebase.DieBase[SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut]
+}
+
+// SubjectAccessReviewStatusDieMut is the mutable die of SubjectAccessReviewStatus: see SubjectAccessReviewStatusDie.
+type SubjectAccessReviewStatusDieMut struct {
+	diebase.DieMutBase[SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut]
+}
+
+func (*SubjectAccessReviewStatusDie) DieFrom(b diebase.DieBase[SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut]) *SubjectAccessReviewStatusDie {
 	return &SubjectAccessReviewStatusDie{b}
 }
 
-var _ diebase.DieOf[SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie] = (*SubjectAccessReviewStatusDie)(nil)
+func (*SubjectAccessReviewStatusDieMut) DieFrom(b diebase.DieMutBase[SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut]) *SubjectAccessReviewStatusDieMut {
+	return &SubjectAccessReviewStatusDieMut{b}
+}
 
-var SubjectAccessReviewStatusBlank = diebase.Blank[SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie]()
+var (
+	_ diebase.DieOf[SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut]    = (*SubjectAccessReviewStatusDie)(nil)
+	_ diebase.DieMutOf[SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut] = (*SubjectAccessReviewStatusDieMut)(nil)
+)
+
+var SubjectAccessReviewStatusBlank = diebase.Blank[SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut]()
 
 type subjectAccessReviewStatusFieldsTable struct {
 	Allowed         diefields.Field[SubjectAccessReviewStatus, bool]
@@ -766,7 +1280,7 @@ var subjectAccessReviewStatusFields = &diefields.Table[subjectAccessReviewStatus
 }}
 
 // allowed is required. True if the action would be allowed, false otherwise.
-func (d *SubjectAccessReviewStatusDie) Allowed() diefields.Value[bool, *SubjectAccessReviewStatusDie] {
+func (d *SubjectAccessReviewStatusDie) Allowed() diefields.Value[bool] {
 	return diefields.ValueOf(d, subjectAccessReviewStatusFields.Get().Allowed)
 }
 
@@ -774,37 +1288,77 @@ func (d *SubjectAccessReviewStatusDie) Allowed() diefields.Value[bool, *SubjectA
 // false. If both allowed is false and denied is false, then the
 // authorizer has no opinion on whether to authorize the action. Denied
 // may not be true if Allowed is true.
-func (d *SubjectAccessReviewStatusDie) Denied() diefields.Value[bool, *SubjectAccessReviewStatusDie] {
+func (d *SubjectAccessReviewStatusDie) Denied() diefields.Value[bool] {
 	return diefields.ValueOf(d, subjectAccessReviewStatusFields.Get().Denied)
 }
 
 // reason is optional.  It indicates why a request was allowed or denied.
-func (d *SubjectAccessReviewStatusDie) Reason() diefields.Value[string, *SubjectAccessReviewStatusDie] {
+func (d *SubjectAccessReviewStatusDie) Reason() diefields.Value[string] {
 	return diefields.ValueOf(d, subjectAccessReviewStatusFields.Get().Reason)
 }
 
 // evaluationError is an indication that some error occurred during the authorization check.
 // It is entirely possible to get an error and be able to continue determine authorization status in spite of it.
 // For instance, RBAC can be missing a role, but enough roles are still present and bound to reason about the request.
-func (d *SubjectAccessReviewStatusDie) EvaluationError() diefields.Value[string, *SubjectAccessReviewStatusDie] {
+func (d *SubjectAccessReviewStatusDie) EvaluationError() diefields.Value[string] {
 	return diefields.ValueOf(d, subjectAccessReviewStatusFields.Get().EvaluationError)
+}
+
+// allowed is required. True if the action would be allowed, false otherwise.
+func (d *SubjectAccessReviewStatusDieMut) Allowed() diefields.ValueMut[bool, *SubjectAccessReviewStatusDieMut] {
+	return diefields.ValueMutOf(d, subjectAccessReviewStatusFields.Get().Allowed)
+}
+
+// denied is optional. True if the action would be denied, otherwise
+// false. If both allowed is false and denied is false, then the
+// authorizer has no opinion on whether to authorize the action. Denied
+// may not be true if Allowed is true.
+func (d *SubjectAccessReviewStatusDieMut) Denied() diefields.ValueMut[bool, *SubjectAccessReviewStatusDieMut] {
+	return diefields.ValueMutOf(d, subjectAccessReviewStatusFields.Get().Denied)
+}
+
+// reason is optional.  It indicates why a request was allowed or denied.
+func (d *SubjectAccessReviewStatusDieMut) Reason() diefields.ValueMut[string, *SubjectAccessReviewStatusDieMut] {
+	return diefields.ValueMutOf(d, subjectAccessReviewStatusFields.Get().Reason)
+}
+
+// evaluationError is an indication that some error occurred during the authorization check.
+// It is entirely possible to get an error and be able to continue determine authorization status in spite of it.
+// For instance, RBAC can be missing a role, but enough roles are still present and bound to reason about the request.
+func (d *SubjectAccessReviewStatusDieMut) EvaluationError() diefields.ValueMut[string, *SubjectAccessReviewStatusDieMut] {
+	return diefields.ValueMutOf(d, subjectAccessReviewStatusFields.Get().EvaluationError)
 }
 
 // SubjectRulesReviewStatus contains the result of a rules check. This check can be incomplete depending on
 // the set of authorizers the server is configured with and any errors experienced during evaluation.
 // Because authorization rules are additive, if a rule appears in a list it's safe to assume the subject has that permission,
 // even if that list is incomplete.
+//
+// SubjectRulesReviewStatusDie is immutable: it reads.
+// SubjectRulesReviewStatusDieMut, its mutable die, also writes, as DieWith passes it.
 type SubjectRulesReviewStatusDie struct {
-	diebase.DieBase[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie]
+	diebase.DieBase[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie, *SubjectRulesReviewStatusDieMut]
 }
 
-func (*SubjectRulesReviewStatusDie) DieFrom(b diebase.DieBase[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie]) *SubjectRulesReviewStatusDie {
+// SubjectRulesReviewStatusDieMut is the mutable die of SubjectRulesReviewStatus: see SubjectRulesReviewStatusDie.
+type SubjectRulesReviewStatusDieMut struct {
+	diebase.DieMutBase[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie, *SubjectRulesReviewStatusDieMut]
+}
+
+func (*SubjectRulesReviewStatusDie) DieFrom(b diebase.DieBase[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie, *SubjectRulesReviewStatusDieMut]) *SubjectRulesReviewStatusDie {
 	return &SubjectRulesReviewStatusDie{b}
 }
 
-var _ diebase.DieOf[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie] = (*SubjectRulesReviewStatusDie)(nil)
+func (*SubjectRulesReviewStatusDieMut) DieFrom(b diebase.DieMutBase[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie, *SubjectRulesReviewStatusDieMut]) *SubjectRulesReviewStatusDieMut {
+	return &SubjectRulesReviewStatusDieMut{b}
+}
 
-var SubjectRulesReviewStatusBlank = diebase.Blank[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie]()
+var (
+	_ diebase.DieOf[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie, *SubjectRulesReviewStatusDieMut]    = (*SubjectRulesReviewStatusDie)(nil)
+	_ diebase.DieMutOf[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie, *SubjectRulesReviewStatusDieMut] = (*SubjectRulesReviewStatusDieMut)(nil)
+)
+
+var SubjectRulesReviewStatusBlank = diebase.Blank[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie, *SubjectRulesReviewStatusDieMut]()
 
 type subjectRulesReviewStatusFieldsTable struct {
 	ResourceRules    diefields.Field[SubjectRulesReviewStatus, []ResourceRule]
@@ -824,44 +1378,69 @@ var subjectRulesReviewStatusFields = &diefields.Table[subjectRulesReviewStatusFi
 
 // resourceRules is the list of actions the subject is allowed to perform on resources.
 // The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
-func (d *SubjectRulesReviewStatusDie) ResourceRules() diefields.Value[[]ResourceRule, *SubjectRulesReviewStatusDie] {
+func (d *SubjectRulesReviewStatusDie) ResourceRules() diefields.Value[[]ResourceRule] {
 	return diefields.ValueOf(d, subjectRulesReviewStatusFields.Get().ResourceRules)
 }
 
 // nonResourceRules is the list of actions the subject is allowed to perform on non-resources.
 // The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
-func (d *SubjectRulesReviewStatusDie) NonResourceRules() diefields.Value[[]NonResourceRule, *SubjectRulesReviewStatusDie] {
+func (d *SubjectRulesReviewStatusDie) NonResourceRules() diefields.Value[[]NonResourceRule] {
 	return diefields.ValueOf(d, subjectRulesReviewStatusFields.Get().NonResourceRules)
 }
 
 // incomplete is true when the rules returned by this call are incomplete. This is most commonly
 // encountered when an authorizer, such as an external authorizer, doesn't support rules evaluation.
-func (d *SubjectRulesReviewStatusDie) Incomplete() diefields.Value[bool, *SubjectRulesReviewStatusDie] {
+func (d *SubjectRulesReviewStatusDie) Incomplete() diefields.Value[bool] {
 	return diefields.ValueOf(d, subjectRulesReviewStatusFields.Get().Incomplete)
 }
 
 // evaluationError can appear in combination with Rules. It indicates an error occurred during
 // rule evaluation, such as an authorizer that doesn't support rule evaluation, and that
 // ResourceRules and/or NonResourceRules may be incomplete.
-func (d *SubjectRulesReviewStatusDie) EvaluationError() diefields.Value[string, *SubjectRulesReviewStatusDie] {
+func (d *SubjectRulesReviewStatusDie) EvaluationError() diefields.Value[string] {
 	return diefields.ValueOf(d, subjectRulesReviewStatusFields.Get().EvaluationError)
+}
+
+// resourceRules is the list of actions the subject is allowed to perform on resources.
+// The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
+func (d *SubjectRulesReviewStatusDieMut) ResourceRules() diefields.ValueMut[[]ResourceRule, *SubjectRulesReviewStatusDieMut] {
+	return diefields.ValueMutOf(d, subjectRulesReviewStatusFields.Get().ResourceRules)
+}
+
+// nonResourceRules is the list of actions the subject is allowed to perform on non-resources.
+// The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
+func (d *SubjectRulesReviewStatusDieMut) NonResourceRules() diefields.ValueMut[[]NonResourceRule, *SubjectRulesReviewStatusDieMut] {
+	return diefields.ValueMutOf(d, subjectRulesReviewStatusFields.Get().NonResourceRules)
+}
+
+// incomplete is true when the rules returned by this call are incomplete. This is most commonly
+// encountered when an authorizer, such as an external authorizer, doesn't support rules evaluation.
+func (d *SubjectRulesReviewStatusDieMut) Incomplete() diefields.ValueMut[bool, *SubjectRulesReviewStatusDieMut] {
+	return diefields.ValueMutOf(d, subjectRulesReviewStatusFields.Get().Incomplete)
+}
+
+// evaluationError can appear in combination with Rules. It indicates an error occurred during
+// rule evaluation, such as an authorizer that doesn't support rule evaluation, and that
+// ResourceRules and/or NonResourceRules may be incomplete.
+func (d *SubjectRulesReviewStatusDieMut) EvaluationError() diefields.ValueMut[string, *SubjectRulesReviewStatusDieMut] {
+	return diefields.ValueMutOf(d, subjectRulesReviewStatusFields.Get().EvaluationError)
 }
 
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "authorization.k8s.io", Version: "v1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("LocalSubjectAccessReview"), &LocalSubjectAccessReviewDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("SelfSubjectAccessReview"), &SelfSubjectAccessReviewDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("SelfSubjectRulesReview"), &SelfSubjectRulesReviewDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("SubjectAccessReview"), &SubjectAccessReviewDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("LocalSubjectAccessReview"), &LocalSubjectAccessReviewDieMut{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("SelfSubjectAccessReview"), &SelfSubjectAccessReviewDieMut{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("SelfSubjectRulesReview"), &SelfSubjectRulesReviewDieMut{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("SubjectAccessReview"), &SubjectAccessReviewDieMut{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }

@@ -27,16 +27,23 @@ import (
 	"reconciler.io/dies/v2/die/fields"
 )
 
-// DieObjectOf carries an object die's types for generic code, as
+// DieObjectOf carries an immutable object die's types for generic code, as
 // fields.DieTypedOf does a typed die's, with its metadata's accessor.
 // Generated object dies check they satisfy it; die.DieObjectOf is the same
-// interface. An unstructured
-// die is a base.DieObject, but not a DieObjectOf: its fields are reached
-// through its nodes, not accessors.
-type DieObjectOf[T any, D base.DieOf[T, D]] interface {
-	fields.DieTypedOf[T, D]
+// interface. An unstructured die is a base.DieObject, but not a DieObjectOf:
+// its fields are reached through its nodes, not accessors.
+type DieObjectOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] interface {
+	fields.DieTypedOf[T, D, M]
 	base.DieObject
 	Metadata() *diemetav1.ObjectMetaDie
-	DieFeedUnstructured(u *unstructured.Unstructured) D
-	DieFeedUnstructuredE(u *unstructured.Unstructured) (D, error)
+}
+
+// DieObjectMutOf carries a mutable object die's types for generic code, as
+// DieObjectOf does an immutable one's.
+type DieObjectMutOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] interface {
+	fields.DieTypedMutOf[T, D, M]
+	base.DieObject
+	Metadata() *diemetav1.ObjectMetaDieMut
+	DieFeedUnstructured(u *unstructured.Unstructured) M
+	DieFeedUnstructuredE(u *unstructured.Unstructured) (M, error)
 }

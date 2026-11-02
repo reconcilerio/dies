@@ -50,7 +50,7 @@ func desired() *appsv1ac.DeploymentApplyConfiguration {
 
 // A die's intent is an apply configuration, and back.
 func TestApplyConfigurations(t *testing.T) {
-	live := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+	live := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Namespace().Set("default")
 		d.Metadata().Name().Set("web")
 		d.Spec().Replicas().Set(3)
@@ -60,8 +60,8 @@ func TestApplyConfigurations(t *testing.T) {
 
 	// fed over a value, an apply configuration is the intent, exactly, and
 	// the value is the base with it applied
-	d := live.DieWith(func(d *dieappsv1.DeploymentDie) { d.Spec().Paused().Set(true) }).
-		DieFeedApplyConfiguration(desired())
+	d := live.DieWith(func(d *dieappsv1.DeploymentDieMut) { d.Spec().Paused().Set(true) }).
+		DieMutable().DieFeedApplyConfiguration(desired())
 	assertSameJSON(t, d.DieReleaseApplyConfiguration(), desired())
 	got, err := d.DieReleaseApplyPatchE()
 	if err != nil {
@@ -71,7 +71,7 @@ func TestApplyConfigurations(t *testing.T) {
 	if d.Spec().Replicas().Get() != 2 || d.Spec().Paused().Get() || d.Spec().Template().Spec().ServiceAccountName().Get() != "sa" || d.Spec().Template().Spec().Containers().At("app").Image().Get() != "app:2" {
 		t.Errorf("value %+v", d.DieRelease().Spec)
 	}
-	// feeding an immutable die returns a new one
+	// feeding a mutable copy leaves the die
 	if live.Spec().Replicas().Get() != 3 {
 		t.Error("the fed die changed")
 	}
@@ -79,7 +79,7 @@ func TestApplyConfigurations(t *testing.T) {
 	// a die within another releases and feeds its own intent
 	app := d.Spec().Template().Spec().Containers().At("app")
 	assertSameJSON(t, app.DieReleaseApplyConfiguration(), corev1ac.Container().WithName("app").WithImage("app:2"))
-	d = d.DieWith(func(d *dieappsv1.DeploymentDie) {
+	d = d.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().Template().Spec().Containers().At("app").DieFeedApplyConfiguration(corev1ac.Container().WithName("app").WithArgs("--verbose"))
 	})
 	assertSameJSON(t, d.Spec().Template().Spec().DieReleaseApplyConfiguration(), corev1ac.PodSpec().
@@ -95,9 +95,11 @@ func TestApplyConfigurations(t *testing.T) {
 	}
 
 	// an element of a list map with no other fields is still there
-	keys := dieappsv1.DeploymentBlank.DieFeedApplyConfiguration(appsv1ac.Deployment("web", "default").
-		WithSpec(appsv1ac.DeploymentSpec().WithTemplate(corev1ac.PodTemplateSpec().
-			WithSpec(corev1ac.PodSpec().WithContainers(corev1ac.Container().WithName("sidecar"))))))
+	keys := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
+		d.DieFeedApplyConfiguration(appsv1ac.Deployment("web", "default").
+			WithSpec(appsv1ac.DeploymentSpec().WithTemplate(corev1ac.PodTemplateSpec().
+				WithSpec(corev1ac.PodSpec().WithContainers(corev1ac.Container().WithName("sidecar"))))))
+	})
 	if !keys.Spec().Template().Spec().Containers().Has("sidecar") {
 		t.Error("the sidecar isn't there")
 	}

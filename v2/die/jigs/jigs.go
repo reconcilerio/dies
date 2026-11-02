@@ -43,12 +43,13 @@ import (
 //
 // A jig holds no state of its own. Reads and writes go to the source, so a
 // write through a jig is recorded as intent on the source, and the source's
-// patches carry it. A jig of an immutable die is read-only.
+// patches carry it. The jig of an immutable die is an immutable die, which
+// reads; of a mutable die, a mutable die, which also writes.
 
 // Jig holds sources as dies of type V. Typed sources are bound by their
 // type; unstructured objects by their kind, with a fallback for kinds without
 // bindings of their own.
-type Jig[V any, VD base.DieOf[V, VD]] struct {
+type Jig[V any, VD base.DieOf[V, VD, VDM], VDM base.DieMutOf[V, VD, VDM]] struct {
 	sources map[reflect.Type][]Binding
 	kinds   map[schema.GroupVersionKind][]Binding
 	unknown []Binding
@@ -59,8 +60,8 @@ type Jig[V any, VD base.DieOf[V, VD]] struct {
 type Binding = core.Binding
 
 // NewJig returns a jig with no sources.
-func NewJig[V any, VD base.DieOf[V, VD]]() *Jig[V, VD] {
-	return &Jig[V, VD]{sources: map[reflect.Type][]Binding{}, kinds: map[schema.GroupVersionKind][]Binding{}}
+func NewJig[V any, VD base.DieOf[V, VD, VDM], VDM base.DieMutOf[V, VD, VDM]]() *Jig[V, VD, VDM] {
+	return &Jig[V, VD, VDM]{sources: map[reflect.Type][]Binding{}, kinds: map[schema.GroupVersionKind][]Binding{}}
 }
 
 // Bind binds a location of a jig to a location of a source. Both are
@@ -148,12 +149,12 @@ func newTransform[S, V any](t Transform[S, V]) *core.Transform {
 
 // For binds the jig to a source type, given as its blank. It panics if a
 // binding is from another type, or couldn't be made.
-func (v *Jig[V, VD]) For(source base.Located, bindings ...Binding) *Jig[V, VD] {
+func (v *Jig[V, VD, VDM]) For(source base.Located, bindings ...Binding) *Jig[V, VD, VDM] {
 	return core.Must(v.ForE(source, bindings...))
 }
 
 // ForE is For, returning an error rather than panicking.
-func (v *Jig[V, VD]) ForE(source base.Located, bindings ...Binding) (*Jig[V, VD], error) {
+func (v *Jig[V, VD, VDM]) ForE(source base.Located, bindings ...Binding) (*Jig[V, VD, VDM], error) {
 	st, err := core.RootOf(source)
 	if err != nil {
 		return nil, err
@@ -172,12 +173,12 @@ func (v *Jig[V, VD]) ForE(source base.Located, bindings ...Binding) (*Jig[V, VD]
 }
 
 // ForKind binds the jig to unstructured objects of a kind, by path.
-func (v *Jig[V, VD]) ForKind(gvk schema.GroupVersionKind, bindings ...Binding) *Jig[V, VD] {
+func (v *Jig[V, VD, VDM]) ForKind(gvk schema.GroupVersionKind, bindings ...Binding) *Jig[V, VD, VDM] {
 	return core.Must(v.ForKindE(gvk, bindings...))
 }
 
 // ForKindE is ForKind, returning an error rather than panicking.
-func (v *Jig[V, VD]) ForKindE(gvk schema.GroupVersionKind, bindings ...Binding) (*Jig[V, VD], error) {
+func (v *Jig[V, VD, VDM]) ForKindE(gvk schema.GroupVersionKind, bindings ...Binding) (*Jig[V, VD, VDM], error) {
 	if err := v.untyped(gvk.String(), bindings); err != nil {
 		return nil, err
 	}
@@ -187,13 +188,13 @@ func (v *Jig[V, VD]) ForKindE(gvk schema.GroupVersionKind, bindings ...Binding) 
 
 // ForUnknownKinds binds the jig to unstructured objects of any kind without
 // bindings of its own, by path.
-func (v *Jig[V, VD]) ForUnknownKinds(bindings ...Binding) *Jig[V, VD] {
+func (v *Jig[V, VD, VDM]) ForUnknownKinds(bindings ...Binding) *Jig[V, VD, VDM] {
 	return core.Must(v.ForUnknownKindsE(bindings...))
 }
 
 // ForUnknownKindsE is ForUnknownKinds, returning an error rather than
 // panicking.
-func (v *Jig[V, VD]) ForUnknownKindsE(bindings ...Binding) (*Jig[V, VD], error) {
+func (v *Jig[V, VD, VDM]) ForUnknownKindsE(bindings ...Binding) (*Jig[V, VD, VDM], error) {
 	if err := v.untyped("unknown kinds", bindings); err != nil {
 		return nil, err
 	}
@@ -201,7 +202,7 @@ func (v *Jig[V, VD]) ForUnknownKindsE(bindings ...Binding) (*Jig[V, VD], error) 
 	return v, nil
 }
 
-func (v *Jig[V, VD]) untyped(what string, bindings []Binding) error {
+func (v *Jig[V, VD, VDM]) untyped(what string, bindings []Binding) error {
 	vt := reflect.TypeFor[V]()
 	for _, b := range bindings {
 		if err := core.BindingErr(b); err != nil {
@@ -214,9 +215,10 @@ func (v *Jig[V, VD]) untyped(what string, bindings []Binding) error {
 	return nil
 }
 
-// Of returns the jig of a die, if the jig has bindings for its type, or for
-// an unstructured die, its kind.
-func (v *Jig[V, VD]) Of(source base.Die) (VD, bool) {
+// Of returns the jig of an immutable die, an immutable die of the jig's
+// type, if the jig has bindings for the source's type, or for an
+// unstructured die, its kind. A mutable die has OfMut.
+func (v *Jig[V, VD, VDM]) Of(source base.ImmutableDie) (VD, bool) {
 	d, ok, err := v.OfE(source)
 	core.Check(err)
 	return d, ok
@@ -224,55 +226,76 @@ func (v *Jig[V, VD]) Of(source base.Die) (VD, bool) {
 
 // OfE is Of, returning an error rather than panicking, such as when an
 // unstructured die's kind can't be read.
-func (v *Jig[V, VD]) OfE(source base.Die) (VD, bool, error) {
+func (v *Jig[V, VD, VDM]) OfE(source base.ImmutableDie) (VD, bool, error) {
 	var zero VD
+	src, ok, err := v.sourceOf(source)
+	if !ok || err != nil {
+		return zero, ok, err
+	}
+	return dies.WrapDie[V, VD](v.holder(src), nil), true, nil
+}
+
+// OfMut returns the jig of a mutable die, a mutable die of the jig's type
+// whose writes are writes to the source, if the jig has bindings for the
+// source's type, or for an unstructured die, its kind. An immutable die has
+// Of.
+func (v *Jig[V, VD, VDM]) OfMut(source base.MutableDie) (VDM, bool) {
+	d, ok, err := v.OfMutE(source)
+	core.Check(err)
+	return d, ok
+}
+
+// OfMutE is OfMut, returning an error rather than panicking.
+func (v *Jig[V, VD, VDM]) OfMutE(source base.MutableDie) (VDM, bool, error) {
+	var zero VDM
+	src, ok, err := v.sourceOf(source)
+	if !ok || err != nil {
+		return zero, ok, err
+	}
+	return dies.WrapDieMut[V, VD](v.holder(src), nil), true, nil
+}
+
+func (v *Jig[V, VD, VDM]) sourceOf(source base.Die) (core.SourceAt, bool, error) {
 	h, at, ok := core.StateOf(source)
 	if !ok {
-		return zero, false, nil
+		return core.SourceAt{}, false, nil
 	}
 	if len(at) == 0 && core.UnstructuredValue(h.Base.Type()) {
 		ds := core.DieSource{H: h}
 		gvk, err := ds.GVK()
 		if err != nil {
-			return zero, false, err
+			return core.SourceAt{}, false, err
 		}
 		binds, ok := v.forKind(gvk)
-		if !ok {
-			return zero, false, nil
-		}
-		return v.of(core.SourceAt{Src: ds, Binds: binds}), true, nil
+		return core.SourceAt{Src: ds, Binds: binds}, ok, nil
 	}
 	binds, ok := v.sources[core.Deref(core.TypeAt(h.Base.Type(), at))]
-	if !ok {
-		return zero, false, nil
-	}
-	return v.of(core.SourceAt{Src: core.HolderSource{H: h}, At: at, Binds: binds}), true, nil
+	return core.SourceAt{Src: core.HolderSource{H: h}, At: at, Binds: binds}, ok, nil
 }
 
 // OfUnstructured returns the jig of an unstructured object, if the jig has
-// bindings for its kind. The jig changes the object in place: an unstructured
-// object has no intent to record, unlike an unstructured die.
-func (v *Jig[V, VD]) OfUnstructured(u *unstructured.Unstructured) (VD, bool) {
+// bindings for its kind: a mutable die, which changes the object in place, as
+// an unstructured object has no intent to record, unlike an unstructured die.
+func (v *Jig[V, VD, VDM]) OfUnstructured(u *unstructured.Unstructured) (VDM, bool) {
 	binds, ok := v.forKind(u.GroupVersionKind())
 	if !ok {
-		var zero VD
+		var zero VDM
 		return zero, false
 	}
-	return v.of(core.SourceAt{Src: core.UnstructuredSource{Obj: u}, Binds: binds}), true
+	return dies.WrapDieMut[V, VD](v.holder(core.SourceAt{Src: core.UnstructuredSource{Obj: u}, Binds: binds}), nil), true
 }
 
-// of returns the jig of a source.
-func (v *Jig[V, VD]) of(src core.SourceAt) VD {
+// holder returns the holder of the jig of a source.
+func (v *Jig[V, VD, VDM]) holder(src core.SourceAt) *core.Holder {
 	var base V
-	vh := &core.Holder{
+	return &core.Holder{
 		Base:    reflect.ValueOf(base),
 		Mutable: src.Src.Mutable(),
 		View:    &core.Viewing{Src: src.Src, At: src.At, Binds: src.Binds, Vtype: reflect.TypeFor[V]()},
 	}
-	return dies.WrapDie[V, VD](vh, nil)
 }
 
-func (v *Jig[V, VD]) forKind(gvk schema.GroupVersionKind) ([]Binding, bool) {
+func (v *Jig[V, VD, VDM]) forKind(gvk schema.GroupVersionKind) ([]Binding, bool) {
 	if binds, ok := v.kinds[gvk]; ok {
 		return binds, true
 	}

@@ -27,112 +27,180 @@ import (
 // Deployment
 
 type DeploymentDie struct {
-	base.DieBase[Deployment, *DeploymentDie]
+	base.DieBase[Deployment, *DeploymentDie, *DeploymentDieMut]
 }
 
-func (*DeploymentDie) DieFrom(b base.DieBase[Deployment, *DeploymentDie]) *DeploymentDie {
+type DeploymentDieMut struct {
+	base.DieMutBase[Deployment, *DeploymentDie, *DeploymentDieMut]
+}
+
+func (*DeploymentDie) DieFrom(b base.DieBase[Deployment, *DeploymentDie, *DeploymentDieMut]) *DeploymentDie {
 	return &DeploymentDie{b}
 }
 
-var DeploymentBlank = base.Blank[Deployment, *DeploymentDie]().
+func (*DeploymentDieMut) DieFrom(b base.DieMutBase[Deployment, *DeploymentDie, *DeploymentDieMut]) *DeploymentDieMut {
+	return &DeploymentDieMut{b}
+}
+
+var DeploymentBlank = base.Blank[Deployment, *DeploymentDie, *DeploymentDieMut]().DieMutable().
 	APIVersion().Set("apps/v1").
 	Kind().Set("Deployment").
-	DieCommit()
+	DieCommit().
+	DieImmutable()
 
 var deploymentFields = struct {
 	APIVersion fields.Field[Deployment, string]
 	Kind       fields.Field[Deployment, string]
-	Metadata   fields.Struct[Deployment, metav1.ObjectMeta, *metav1.ObjectMetaDie]
-	Spec       fields.Struct[Deployment, DeploymentSpec, *DeploymentSpecDie]
-	Status     fields.Struct[Deployment, DeploymentStatus, *DeploymentStatusDie]
+	Metadata   fields.Struct[Deployment, metav1.ObjectMeta, *metav1.ObjectMetaDie, *metav1.ObjectMetaDieMut]
+	Spec       fields.Struct[Deployment, DeploymentSpec, *DeploymentSpecDie, *DeploymentSpecDieMut]
+	Status     fields.Struct[Deployment, DeploymentStatus, *DeploymentStatusDie, *DeploymentStatusDieMut]
 }{
 	APIVersion: fields.NewField[Deployment, string]("apiVersion"),
 	Kind:       fields.NewField[Deployment, string]("kind"),
-	Metadata:   fields.NewStruct[Deployment, metav1.ObjectMeta, *metav1.ObjectMetaDie]("metadata"),
-	Spec:       fields.NewStruct[Deployment, DeploymentSpec, *DeploymentSpecDie]("spec"),
-	Status:     fields.NewStruct[Deployment, DeploymentStatus, *DeploymentStatusDie]("status"),
+	Metadata:   fields.NewStruct[Deployment, metav1.ObjectMeta, *metav1.ObjectMetaDie, *metav1.ObjectMetaDieMut]("metadata"),
+	Spec:       fields.NewStruct[Deployment, DeploymentSpec, *DeploymentSpecDie, *DeploymentSpecDieMut]("spec"),
+	Status:     fields.NewStruct[Deployment, DeploymentStatus, *DeploymentStatusDie, *DeploymentStatusDieMut]("status"),
 }
 
-func (d *DeploymentDie) APIVersion() die.Value[string, *DeploymentDie] {
+func (d *DeploymentDie) APIVersion() die.Value[string] {
 	return fields.ValueOf(d, deploymentFields.APIVersion)
 }
 
-func (d *DeploymentDie) Kind() die.Value[string, *DeploymentDie] {
+func (d *DeploymentDieMut) APIVersion() die.ValueMut[string, *DeploymentDieMut] {
+	return fields.ValueMutOf(d, deploymentFields.APIVersion)
+}
+
+func (d *DeploymentDie) Kind() die.Value[string] {
 	return fields.ValueOf(d, deploymentFields.Kind)
+}
+
+func (d *DeploymentDieMut) Kind() die.ValueMut[string, *DeploymentDieMut] {
+	return fields.ValueMutOf(d, deploymentFields.Kind)
 }
 
 func (d *DeploymentDie) Metadata() *metav1.ObjectMetaDie {
 	return fields.Child(d, deploymentFields.Metadata)
 }
 
+func (d *DeploymentDieMut) Metadata() *metav1.ObjectMetaDieMut {
+	return fields.ChildMut(d, deploymentFields.Metadata)
+}
+
 func (d *DeploymentDie) Spec() *DeploymentSpecDie { return fields.Child(d, deploymentFields.Spec) }
+
+func (d *DeploymentDieMut) Spec() *DeploymentSpecDieMut {
+	return fields.ChildMut(d, deploymentFields.Spec)
+}
 
 func (d *DeploymentDie) Status() *DeploymentStatusDie {
 	return fields.Child(d, deploymentFields.Status)
 }
 
+func (d *DeploymentDieMut) Status() *DeploymentStatusDieMut {
+	return fields.ChildMut(d, deploymentFields.Status)
+}
+
 // DeploymentSpec
 
 type DeploymentSpecDie struct {
-	base.DieBase[DeploymentSpec, *DeploymentSpecDie]
+	base.DieBase[DeploymentSpec, *DeploymentSpecDie, *DeploymentSpecDieMut]
 }
 
-func (*DeploymentSpecDie) DieFrom(b base.DieBase[DeploymentSpec, *DeploymentSpecDie]) *DeploymentSpecDie {
+type DeploymentSpecDieMut struct {
+	base.DieMutBase[DeploymentSpec, *DeploymentSpecDie, *DeploymentSpecDieMut]
+}
+
+func (*DeploymentSpecDie) DieFrom(b base.DieBase[DeploymentSpec, *DeploymentSpecDie, *DeploymentSpecDieMut]) *DeploymentSpecDie {
 	return &DeploymentSpecDie{b}
+}
+
+func (*DeploymentSpecDieMut) DieFrom(b base.DieMutBase[DeploymentSpec, *DeploymentSpecDie, *DeploymentSpecDieMut]) *DeploymentSpecDieMut {
+	return &DeploymentSpecDieMut{b}
 }
 
 var deploymentSpecFields = struct {
 	Replicas fields.Field[DeploymentSpec, *int32]
 	Paused   fields.Field[DeploymentSpec, bool]
-	Template fields.Struct[DeploymentSpec, corev1.PodTemplateSpec, *corev1.PodTemplateSpecDie]
+	Template fields.Struct[DeploymentSpec, corev1.PodTemplateSpec, *corev1.PodTemplateSpecDie, *corev1.PodTemplateSpecDieMut]
 }{
 	Replicas: fields.NewField[DeploymentSpec, *int32]("replicas"),
 	Paused:   fields.NewField[DeploymentSpec, bool]("paused"),
-	Template: fields.NewStruct[DeploymentSpec, corev1.PodTemplateSpec, *corev1.PodTemplateSpecDie]("template"),
+	Template: fields.NewStruct[DeploymentSpec, corev1.PodTemplateSpec, *corev1.PodTemplateSpecDie, *corev1.PodTemplateSpecDieMut]("template"),
 }
 
-func (d *DeploymentSpecDie) Replicas() die.Optional[int32, *DeploymentSpecDie] {
+func (d *DeploymentSpecDie) Replicas() die.Optional[int32] {
 	return fields.OptionalOf(d, deploymentSpecFields.Replicas)
 }
 
-func (d *DeploymentSpecDie) Paused() die.Value[bool, *DeploymentSpecDie] {
+func (d *DeploymentSpecDieMut) Replicas() die.OptionalMut[int32, *DeploymentSpecDieMut] {
+	return fields.OptionalMutOf(d, deploymentSpecFields.Replicas)
+}
+
+func (d *DeploymentSpecDie) Paused() die.Value[bool] {
 	return fields.ValueOf(d, deploymentSpecFields.Paused)
+}
+
+func (d *DeploymentSpecDieMut) Paused() die.ValueMut[bool, *DeploymentSpecDieMut] {
+	return fields.ValueMutOf(d, deploymentSpecFields.Paused)
 }
 
 func (d *DeploymentSpecDie) Template() *corev1.PodTemplateSpecDie {
 	return fields.Child(d, deploymentSpecFields.Template)
 }
 
+func (d *DeploymentSpecDieMut) Template() *corev1.PodTemplateSpecDieMut {
+	return fields.ChildMut(d, deploymentSpecFields.Template)
+}
+
 // DeploymentStatus
 
 type DeploymentStatusDie struct {
-	base.DieBase[DeploymentStatus, *DeploymentStatusDie]
+	base.DieBase[DeploymentStatus, *DeploymentStatusDie, *DeploymentStatusDieMut]
 }
 
-func (*DeploymentStatusDie) DieFrom(b base.DieBase[DeploymentStatus, *DeploymentStatusDie]) *DeploymentStatusDie {
+type DeploymentStatusDieMut struct {
+	base.DieMutBase[DeploymentStatus, *DeploymentStatusDie, *DeploymentStatusDieMut]
+}
+
+func (*DeploymentStatusDie) DieFrom(b base.DieBase[DeploymentStatus, *DeploymentStatusDie, *DeploymentStatusDieMut]) *DeploymentStatusDie {
 	return &DeploymentStatusDie{b}
+}
+
+func (*DeploymentStatusDieMut) DieFrom(b base.DieMutBase[DeploymentStatus, *DeploymentStatusDie, *DeploymentStatusDieMut]) *DeploymentStatusDieMut {
+	return &DeploymentStatusDieMut{b}
 }
 
 var deploymentStatusFields = struct {
 	ObservedGeneration fields.Field[DeploymentStatus, int64]
 	Replicas           fields.Field[DeploymentStatus, int32]
-	Conditions         fields.ListMapField[DeploymentStatus, metav1.Condition, *metav1.ConditionDie, string]
+	Conditions         fields.ListMapField[DeploymentStatus, metav1.Condition, *metav1.ConditionDie, *metav1.ConditionDieMut, string]
 }{
 	ObservedGeneration: fields.NewField[DeploymentStatus, int64]("observedGeneration"),
 	Replicas:           fields.NewField[DeploymentStatus, int32]("replicas"),
-	Conditions: fields.NewListMap[DeploymentStatus, metav1.Condition, *metav1.ConditionDie]("conditions",
+	Conditions: fields.NewListMap[DeploymentStatus, metav1.Condition, *metav1.ConditionDie, *metav1.ConditionDieMut]("conditions",
 		func(t string) []any { return []any{t} },
 		func(c metav1.Condition) string { return c.Type }),
 }
 
-func (d *DeploymentStatusDie) ObservedGeneration() die.Value[int64, *DeploymentStatusDie] {
+func (d *DeploymentStatusDie) ObservedGeneration() die.Value[int64] {
 	return fields.ValueOf(d, deploymentStatusFields.ObservedGeneration)
 }
 
-func (d *DeploymentStatusDie) Replicas() die.Value[int32, *DeploymentStatusDie] {
+func (d *DeploymentStatusDieMut) ObservedGeneration() die.ValueMut[int64, *DeploymentStatusDieMut] {
+	return fields.ValueMutOf(d, deploymentStatusFields.ObservedGeneration)
+}
+
+func (d *DeploymentStatusDie) Replicas() die.Value[int32] {
 	return fields.ValueOf(d, deploymentStatusFields.Replicas)
+}
+
+func (d *DeploymentStatusDieMut) Replicas() die.ValueMut[int32, *DeploymentStatusDieMut] {
+	return fields.ValueMutOf(d, deploymentStatusFields.Replicas)
 }
 
 func (d *DeploymentStatusDie) Conditions() *die.ListMap[metav1.Condition, *metav1.ConditionDie, string] {
 	return fields.ListMapOf(d, deploymentStatusFields.Conditions)
+}
+func (d *DeploymentStatusDieMut) Conditions() *die.ListMapMut[metav1.Condition, *metav1.ConditionDieMut, string] {
+	return fields.ListMapMutOf(d, deploymentStatusFields.Conditions)
 }

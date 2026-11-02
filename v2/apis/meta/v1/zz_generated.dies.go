@@ -29,24 +29,39 @@ import (
 
 // APIGroup contains the name, the supported versions, and the preferred version
 // of a group.
+//
+// APIGroupDie is immutable: it reads.
+// APIGroupDieMut, its mutable die, also writes, as DieWith passes it.
 type APIGroupDie struct {
-	diebase.DieBase[APIGroup, *APIGroupDie]
+	diebase.DieBase[APIGroup, *APIGroupDie, *APIGroupDieMut]
 }
 
-func (*APIGroupDie) DieFrom(b diebase.DieBase[APIGroup, *APIGroupDie]) *APIGroupDie {
+// APIGroupDieMut is the mutable die of APIGroup: see APIGroupDie.
+type APIGroupDieMut struct {
+	diebase.DieMutBase[APIGroup, *APIGroupDie, *APIGroupDieMut]
+}
+
+func (*APIGroupDie) DieFrom(b diebase.DieBase[APIGroup, *APIGroupDie, *APIGroupDieMut]) *APIGroupDie {
 	return &APIGroupDie{b}
 }
 
-var _ diebase.DieOf[APIGroup, *APIGroupDie] = (*APIGroupDie)(nil)
+func (*APIGroupDieMut) DieFrom(b diebase.DieMutBase[APIGroup, *APIGroupDie, *APIGroupDieMut]) *APIGroupDieMut {
+	return &APIGroupDieMut{b}
+}
 
-var APIGroupBlank = diebase.Blank[APIGroup, *APIGroupDie]()
+var (
+	_ diebase.DieOf[APIGroup, *APIGroupDie, *APIGroupDieMut]    = (*APIGroupDie)(nil)
+	_ diebase.DieMutOf[APIGroup, *APIGroupDie, *APIGroupDieMut] = (*APIGroupDieMut)(nil)
+)
+
+var APIGroupBlank = diebase.Blank[APIGroup, *APIGroupDie, *APIGroupDieMut]()
 
 type aPIGroupFieldsTable struct {
 	Kind                       diefields.Field[APIGroup, string]
 	APIVersion                 diefields.Field[APIGroup, string]
 	Name                       diefields.Field[APIGroup, string]
 	Versions                   diefields.Field[APIGroup, []GroupVersionForDiscovery]
-	PreferredVersion           diefields.Struct[APIGroup, GroupVersionForDiscovery, *GroupVersionForDiscoveryDie]
+	PreferredVersion           diefields.Struct[APIGroup, GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]
 	ServerAddressByClientCIDRs diefields.Field[APIGroup, []ServerAddressByClientCIDR]
 }
 
@@ -56,7 +71,7 @@ var aPIGroupFields = &diefields.Table[aPIGroupFieldsTable]{Build: func() (f aPIG
 	f.APIVersion = diefields.NewField[APIGroup, string]("apiVersion")
 	f.Name = diefields.NewField[APIGroup, string]("name")
 	f.Versions = diefields.NewField[APIGroup, []GroupVersionForDiscovery]("versions")
-	f.PreferredVersion = diefields.NewStruct[APIGroup, GroupVersionForDiscovery, *GroupVersionForDiscoveryDie]("preferredVersion")
+	f.PreferredVersion = diefields.NewStruct[APIGroup, GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]("preferredVersion")
 	f.ServerAddressByClientCIDRs = diefields.NewField[APIGroup, []ServerAddressByClientCIDR]("serverAddressByClientCIDRs")
 	return
 }}
@@ -66,7 +81,7 @@ var aPIGroupFields = &diefields.Table[aPIGroupFieldsTable]{Build: func() (f aPIG
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *APIGroupDie) Kind() diefields.Value[string, *APIGroupDie] {
+func (d *APIGroupDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIGroupFields.Get().Kind)
 }
 
@@ -74,17 +89,17 @@ func (d *APIGroupDie) Kind() diefields.Value[string, *APIGroupDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *APIGroupDie) APIVersion() diefields.Value[string, *APIGroupDie] {
+func (d *APIGroupDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIGroupFields.Get().APIVersion)
 }
 
 // name is the name of the group.
-func (d *APIGroupDie) Name() diefields.Value[string, *APIGroupDie] {
+func (d *APIGroupDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIGroupFields.Get().Name)
 }
 
 // versions are the versions supported in this group.
-func (d *APIGroupDie) Versions() diefields.Value[[]GroupVersionForDiscovery, *APIGroupDie] {
+func (d *APIGroupDie) Versions() diefields.Value[[]GroupVersionForDiscovery] {
 	return diefields.ValueOf(d, aPIGroupFields.Get().Versions)
 }
 
@@ -101,23 +116,82 @@ func (d *APIGroupDie) PreferredVersion() *GroupVersionForDiscoveryDie {
 // The server returns only those CIDRs that it thinks that the client can match.
 // For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP.
 // Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
-func (d *APIGroupDie) ServerAddressByClientCIDRs() diefields.Value[[]ServerAddressByClientCIDR, *APIGroupDie] {
+func (d *APIGroupDie) ServerAddressByClientCIDRs() diefields.Value[[]ServerAddressByClientCIDR] {
 	return diefields.ValueOf(d, aPIGroupFields.Get().ServerAddressByClientCIDRs)
+}
+
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *APIGroupDieMut) Kind() diefields.ValueMut[string, *APIGroupDieMut] {
+	return diefields.ValueMutOf(d, aPIGroupFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *APIGroupDieMut) APIVersion() diefields.ValueMut[string, *APIGroupDieMut] {
+	return diefields.ValueMutOf(d, aPIGroupFields.Get().APIVersion)
+}
+
+// name is the name of the group.
+func (d *APIGroupDieMut) Name() diefields.ValueMut[string, *APIGroupDieMut] {
+	return diefields.ValueMutOf(d, aPIGroupFields.Get().Name)
+}
+
+// versions are the versions supported in this group.
+func (d *APIGroupDieMut) Versions() diefields.ValueMut[[]GroupVersionForDiscovery, *APIGroupDieMut] {
+	return diefields.ValueMutOf(d, aPIGroupFields.Get().Versions)
+}
+
+// preferredVersion is the version preferred by the API server, which
+// probably is the storage version.
+func (d *APIGroupDieMut) PreferredVersion() *GroupVersionForDiscoveryDieMut {
+	return diefields.ChildMut(d, aPIGroupFields.Get().PreferredVersion)
+}
+
+// a map of client CIDR to server address that is serving this group.
+// This is to help clients reach servers in the most network-efficient way possible.
+// Clients can use the appropriate server address as per the CIDR that they match.
+// In case of multiple matches, clients should use the longest matching CIDR.
+// The server returns only those CIDRs that it thinks that the client can match.
+// For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP.
+// Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
+func (d *APIGroupDieMut) ServerAddressByClientCIDRs() diefields.ValueMut[[]ServerAddressByClientCIDR, *APIGroupDieMut] {
+	return diefields.ValueMutOf(d, aPIGroupFields.Get().ServerAddressByClientCIDRs)
 }
 
 // APIGroupList is a list of APIGroup, to allow clients to discover the API at
 // /apis.
+//
+// APIGroupListDie is immutable: it reads.
+// APIGroupListDieMut, its mutable die, also writes, as DieWith passes it.
 type APIGroupListDie struct {
-	diebase.DieBase[APIGroupList, *APIGroupListDie]
+	diebase.DieBase[APIGroupList, *APIGroupListDie, *APIGroupListDieMut]
 }
 
-func (*APIGroupListDie) DieFrom(b diebase.DieBase[APIGroupList, *APIGroupListDie]) *APIGroupListDie {
+// APIGroupListDieMut is the mutable die of APIGroupList: see APIGroupListDie.
+type APIGroupListDieMut struct {
+	diebase.DieMutBase[APIGroupList, *APIGroupListDie, *APIGroupListDieMut]
+}
+
+func (*APIGroupListDie) DieFrom(b diebase.DieBase[APIGroupList, *APIGroupListDie, *APIGroupListDieMut]) *APIGroupListDie {
 	return &APIGroupListDie{b}
 }
 
-var _ diebase.DieOf[APIGroupList, *APIGroupListDie] = (*APIGroupListDie)(nil)
+func (*APIGroupListDieMut) DieFrom(b diebase.DieMutBase[APIGroupList, *APIGroupListDie, *APIGroupListDieMut]) *APIGroupListDieMut {
+	return &APIGroupListDieMut{b}
+}
 
-var APIGroupListBlank = diebase.Blank[APIGroupList, *APIGroupListDie]()
+var (
+	_ diebase.DieOf[APIGroupList, *APIGroupListDie, *APIGroupListDieMut]    = (*APIGroupListDie)(nil)
+	_ diebase.DieMutOf[APIGroupList, *APIGroupListDie, *APIGroupListDieMut] = (*APIGroupListDieMut)(nil)
+)
+
+var APIGroupListBlank = diebase.Blank[APIGroupList, *APIGroupListDie, *APIGroupListDieMut]()
 
 type aPIGroupListFieldsTable struct {
 	Kind       diefields.Field[APIGroupList, string]
@@ -138,7 +212,7 @@ var aPIGroupListFields = &diefields.Table[aPIGroupListFieldsTable]{Build: func()
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *APIGroupListDie) Kind() diefields.Value[string, *APIGroupListDie] {
+func (d *APIGroupListDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIGroupListFields.Get().Kind)
 }
 
@@ -146,27 +220,64 @@ func (d *APIGroupListDie) Kind() diefields.Value[string, *APIGroupListDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *APIGroupListDie) APIVersion() diefields.Value[string, *APIGroupListDie] {
+func (d *APIGroupListDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIGroupListFields.Get().APIVersion)
 }
 
 // groups is a list of APIGroup.
-func (d *APIGroupListDie) Groups() diefields.Value[[]APIGroup, *APIGroupListDie] {
+func (d *APIGroupListDie) Groups() diefields.Value[[]APIGroup] {
 	return diefields.ValueOf(d, aPIGroupListFields.Get().Groups)
 }
 
-// APIResource specifies the name of a resource and whether it is namespaced.
-type APIResourceDie struct {
-	diebase.DieBase[APIResource, *APIResourceDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *APIGroupListDieMut) Kind() diefields.ValueMut[string, *APIGroupListDieMut] {
+	return diefields.ValueMutOf(d, aPIGroupListFields.Get().Kind)
 }
 
-func (*APIResourceDie) DieFrom(b diebase.DieBase[APIResource, *APIResourceDie]) *APIResourceDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *APIGroupListDieMut) APIVersion() diefields.ValueMut[string, *APIGroupListDieMut] {
+	return diefields.ValueMutOf(d, aPIGroupListFields.Get().APIVersion)
+}
+
+// groups is a list of APIGroup.
+func (d *APIGroupListDieMut) Groups() diefields.ValueMut[[]APIGroup, *APIGroupListDieMut] {
+	return diefields.ValueMutOf(d, aPIGroupListFields.Get().Groups)
+}
+
+// APIResource specifies the name of a resource and whether it is namespaced.
+//
+// APIResourceDie is immutable: it reads.
+// APIResourceDieMut, its mutable die, also writes, as DieWith passes it.
+type APIResourceDie struct {
+	diebase.DieBase[APIResource, *APIResourceDie, *APIResourceDieMut]
+}
+
+// APIResourceDieMut is the mutable die of APIResource: see APIResourceDie.
+type APIResourceDieMut struct {
+	diebase.DieMutBase[APIResource, *APIResourceDie, *APIResourceDieMut]
+}
+
+func (*APIResourceDie) DieFrom(b diebase.DieBase[APIResource, *APIResourceDie, *APIResourceDieMut]) *APIResourceDie {
 	return &APIResourceDie{b}
 }
 
-var _ diebase.DieOf[APIResource, *APIResourceDie] = (*APIResourceDie)(nil)
+func (*APIResourceDieMut) DieFrom(b diebase.DieMutBase[APIResource, *APIResourceDie, *APIResourceDieMut]) *APIResourceDieMut {
+	return &APIResourceDieMut{b}
+}
 
-var APIResourceBlank = diebase.Blank[APIResource, *APIResourceDie]()
+var (
+	_ diebase.DieOf[APIResource, *APIResourceDie, *APIResourceDieMut]    = (*APIResourceDie)(nil)
+	_ diebase.DieMutOf[APIResource, *APIResourceDie, *APIResourceDieMut] = (*APIResourceDieMut)(nil)
+)
+
+var APIResourceBlank = diebase.Blank[APIResource, *APIResourceDie, *APIResourceDieMut]()
 
 type aPIResourceFieldsTable struct {
 	Name               diefields.Field[APIResource, string]
@@ -197,52 +308,52 @@ var aPIResourceFields = &diefields.Table[aPIResourceFieldsTable]{Build: func() (
 }}
 
 // name is the plural name of the resource.
-func (d *APIResourceDie) Name() diefields.Value[string, *APIResourceDie] {
+func (d *APIResourceDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIResourceFields.Get().Name)
 }
 
 // singularName is the singular name of the resource.  This allows clients to handle plural and singular opaquely.
 // The singularName is more correct for reporting status on a single item and both singular and plural are allowed
 // from the kubectl CLI interface.
-func (d *APIResourceDie) SingularName() diefields.Value[string, *APIResourceDie] {
+func (d *APIResourceDie) SingularName() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIResourceFields.Get().SingularName)
 }
 
 // namespaced indicates if a resource is namespaced or not.
-func (d *APIResourceDie) Namespaced() diefields.Value[bool, *APIResourceDie] {
+func (d *APIResourceDie) Namespaced() diefields.Value[bool] {
 	return diefields.ValueOf(d, aPIResourceFields.Get().Namespaced)
 }
 
 // group is the preferred group of the resource.  Empty implies the group of the containing resource list.
 // For subresources, this may have a different value, for example: Scale".
-func (d *APIResourceDie) Group() diefields.Value[string, *APIResourceDie] {
+func (d *APIResourceDie) Group() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIResourceFields.Get().Group)
 }
 
 // version is the preferred version of the resource.  Empty implies the version of the containing resource list
 // For subresources, this may have a different value, for example: v1 (while inside a v1beta1 version of the core resource's group)".
-func (d *APIResourceDie) Version() diefields.Value[string, *APIResourceDie] {
+func (d *APIResourceDie) Version() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIResourceFields.Get().Version)
 }
 
 // kind is the kind for the resource (e.g. 'Foo' is the kind for a resource 'foo')
-func (d *APIResourceDie) Kind() diefields.Value[string, *APIResourceDie] {
+func (d *APIResourceDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIResourceFields.Get().Kind)
 }
 
 // verbs is a list of supported kube verbs (this includes get, list, watch, create,
 // update, patch, delete, deletecollection, and proxy)
-func (d *APIResourceDie) Verbs() diefields.Value[Verbs, *APIResourceDie] {
+func (d *APIResourceDie) Verbs() diefields.Value[Verbs] {
 	return diefields.ValueOf(d, aPIResourceFields.Get().Verbs)
 }
 
 // shortNames is a list of suggested short names of the resource.
-func (d *APIResourceDie) ShortNames() diefields.Value[[]string, *APIResourceDie] {
+func (d *APIResourceDie) ShortNames() diefields.Value[[]string] {
 	return diefields.ValueOf(d, aPIResourceFields.Get().ShortNames)
 }
 
 // categories is a list of the grouped resources this resource belongs to (e.g. 'all')
-func (d *APIResourceDie) Categories() diefields.Value[[]string, *APIResourceDie] {
+func (d *APIResourceDie) Categories() diefields.Value[[]string] {
 	return diefields.ValueOf(d, aPIResourceFields.Get().Categories)
 }
 
@@ -253,24 +364,100 @@ func (d *APIResourceDie) Categories() diefields.Value[[]string, *APIResourceDie]
 // The field is populated by the apiserver only if the
 // StorageVersionHash feature gate is enabled.
 // This field will remain optional even if it graduates.
-func (d *APIResourceDie) StorageVersionHash() diefields.Value[string, *APIResourceDie] {
+func (d *APIResourceDie) StorageVersionHash() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIResourceFields.Get().StorageVersionHash)
+}
+
+// name is the plural name of the resource.
+func (d *APIResourceDieMut) Name() diefields.ValueMut[string, *APIResourceDieMut] {
+	return diefields.ValueMutOf(d, aPIResourceFields.Get().Name)
+}
+
+// singularName is the singular name of the resource.  This allows clients to handle plural and singular opaquely.
+// The singularName is more correct for reporting status on a single item and both singular and plural are allowed
+// from the kubectl CLI interface.
+func (d *APIResourceDieMut) SingularName() diefields.ValueMut[string, *APIResourceDieMut] {
+	return diefields.ValueMutOf(d, aPIResourceFields.Get().SingularName)
+}
+
+// namespaced indicates if a resource is namespaced or not.
+func (d *APIResourceDieMut) Namespaced() diefields.ValueMut[bool, *APIResourceDieMut] {
+	return diefields.ValueMutOf(d, aPIResourceFields.Get().Namespaced)
+}
+
+// group is the preferred group of the resource.  Empty implies the group of the containing resource list.
+// For subresources, this may have a different value, for example: Scale".
+func (d *APIResourceDieMut) Group() diefields.ValueMut[string, *APIResourceDieMut] {
+	return diefields.ValueMutOf(d, aPIResourceFields.Get().Group)
+}
+
+// version is the preferred version of the resource.  Empty implies the version of the containing resource list
+// For subresources, this may have a different value, for example: v1 (while inside a v1beta1 version of the core resource's group)".
+func (d *APIResourceDieMut) Version() diefields.ValueMut[string, *APIResourceDieMut] {
+	return diefields.ValueMutOf(d, aPIResourceFields.Get().Version)
+}
+
+// kind is the kind for the resource (e.g. 'Foo' is the kind for a resource 'foo')
+func (d *APIResourceDieMut) Kind() diefields.ValueMut[string, *APIResourceDieMut] {
+	return diefields.ValueMutOf(d, aPIResourceFields.Get().Kind)
+}
+
+// verbs is a list of supported kube verbs (this includes get, list, watch, create,
+// update, patch, delete, deletecollection, and proxy)
+func (d *APIResourceDieMut) Verbs() diefields.ValueMut[Verbs, *APIResourceDieMut] {
+	return diefields.ValueMutOf(d, aPIResourceFields.Get().Verbs)
+}
+
+// shortNames is a list of suggested short names of the resource.
+func (d *APIResourceDieMut) ShortNames() diefields.ValueMut[[]string, *APIResourceDieMut] {
+	return diefields.ValueMutOf(d, aPIResourceFields.Get().ShortNames)
+}
+
+// categories is a list of the grouped resources this resource belongs to (e.g. 'all')
+func (d *APIResourceDieMut) Categories() diefields.ValueMut[[]string, *APIResourceDieMut] {
+	return diefields.ValueMutOf(d, aPIResourceFields.Get().Categories)
+}
+
+// The hash value of the storage version, the version this resource is
+// converted to when written to the data store. Value must be treated
+// as opaque by clients. Only equality comparison on the value is valid.
+// This is an alpha feature and may change or be removed in the future.
+// The field is populated by the apiserver only if the
+// StorageVersionHash feature gate is enabled.
+// This field will remain optional even if it graduates.
+func (d *APIResourceDieMut) StorageVersionHash() diefields.ValueMut[string, *APIResourceDieMut] {
+	return diefields.ValueMutOf(d, aPIResourceFields.Get().StorageVersionHash)
 }
 
 // APIResourceList is a list of APIResource, it is used to expose the name of the
 // resources supported in a specific group and version, and if the resource
 // is namespaced.
+//
+// APIResourceListDie is immutable: it reads.
+// APIResourceListDieMut, its mutable die, also writes, as DieWith passes it.
 type APIResourceListDie struct {
-	diebase.DieBase[APIResourceList, *APIResourceListDie]
+	diebase.DieBase[APIResourceList, *APIResourceListDie, *APIResourceListDieMut]
 }
 
-func (*APIResourceListDie) DieFrom(b diebase.DieBase[APIResourceList, *APIResourceListDie]) *APIResourceListDie {
+// APIResourceListDieMut is the mutable die of APIResourceList: see APIResourceListDie.
+type APIResourceListDieMut struct {
+	diebase.DieMutBase[APIResourceList, *APIResourceListDie, *APIResourceListDieMut]
+}
+
+func (*APIResourceListDie) DieFrom(b diebase.DieBase[APIResourceList, *APIResourceListDie, *APIResourceListDieMut]) *APIResourceListDie {
 	return &APIResourceListDie{b}
 }
 
-var _ diebase.DieOf[APIResourceList, *APIResourceListDie] = (*APIResourceListDie)(nil)
+func (*APIResourceListDieMut) DieFrom(b diebase.DieMutBase[APIResourceList, *APIResourceListDie, *APIResourceListDieMut]) *APIResourceListDieMut {
+	return &APIResourceListDieMut{b}
+}
 
-var APIResourceListBlank = diebase.Blank[APIResourceList, *APIResourceListDie]()
+var (
+	_ diebase.DieOf[APIResourceList, *APIResourceListDie, *APIResourceListDieMut]    = (*APIResourceListDie)(nil)
+	_ diebase.DieMutOf[APIResourceList, *APIResourceListDie, *APIResourceListDieMut] = (*APIResourceListDieMut)(nil)
+)
+
+var APIResourceListBlank = diebase.Blank[APIResourceList, *APIResourceListDie, *APIResourceListDieMut]()
 
 type aPIResourceListFieldsTable struct {
 	Kind         diefields.Field[APIResourceList, string]
@@ -293,7 +480,7 @@ var aPIResourceListFields = &diefields.Table[aPIResourceListFieldsTable]{Build: 
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *APIResourceListDie) Kind() diefields.Value[string, *APIResourceListDie] {
+func (d *APIResourceListDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIResourceListFields.Get().Kind)
 }
 
@@ -301,33 +488,75 @@ func (d *APIResourceListDie) Kind() diefields.Value[string, *APIResourceListDie]
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *APIResourceListDie) APIVersion() diefields.Value[string, *APIResourceListDie] {
+func (d *APIResourceListDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIResourceListFields.Get().APIVersion)
 }
 
 // groupVersion is the group and version this APIResourceList is for.
-func (d *APIResourceListDie) GroupVersion() diefields.Value[string, *APIResourceListDie] {
+func (d *APIResourceListDie) GroupVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIResourceListFields.Get().GroupVersion)
 }
 
 // resources contains the name of the resources and if they are namespaced.
-func (d *APIResourceListDie) APIResources() diefields.Value[[]APIResource, *APIResourceListDie] {
+func (d *APIResourceListDie) APIResources() diefields.Value[[]APIResource] {
 	return diefields.ValueOf(d, aPIResourceListFields.Get().APIResources)
+}
+
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *APIResourceListDieMut) Kind() diefields.ValueMut[string, *APIResourceListDieMut] {
+	return diefields.ValueMutOf(d, aPIResourceListFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *APIResourceListDieMut) APIVersion() diefields.ValueMut[string, *APIResourceListDieMut] {
+	return diefields.ValueMutOf(d, aPIResourceListFields.Get().APIVersion)
+}
+
+// groupVersion is the group and version this APIResourceList is for.
+func (d *APIResourceListDieMut) GroupVersion() diefields.ValueMut[string, *APIResourceListDieMut] {
+	return diefields.ValueMutOf(d, aPIResourceListFields.Get().GroupVersion)
+}
+
+// resources contains the name of the resources and if they are namespaced.
+func (d *APIResourceListDieMut) APIResources() diefields.ValueMut[[]APIResource, *APIResourceListDieMut] {
+	return diefields.ValueMutOf(d, aPIResourceListFields.Get().APIResources)
 }
 
 // APIVersions lists the versions that are available, to allow clients to
 // discover the API at /api, which is the root path of the legacy v1 API.
+//
+// APIVersionsDie is immutable: it reads.
+// APIVersionsDieMut, its mutable die, also writes, as DieWith passes it.
 type APIVersionsDie struct {
-	diebase.DieBase[APIVersions, *APIVersionsDie]
+	diebase.DieBase[APIVersions, *APIVersionsDie, *APIVersionsDieMut]
 }
 
-func (*APIVersionsDie) DieFrom(b diebase.DieBase[APIVersions, *APIVersionsDie]) *APIVersionsDie {
+// APIVersionsDieMut is the mutable die of APIVersions: see APIVersionsDie.
+type APIVersionsDieMut struct {
+	diebase.DieMutBase[APIVersions, *APIVersionsDie, *APIVersionsDieMut]
+}
+
+func (*APIVersionsDie) DieFrom(b diebase.DieBase[APIVersions, *APIVersionsDie, *APIVersionsDieMut]) *APIVersionsDie {
 	return &APIVersionsDie{b}
 }
 
-var _ diebase.DieOf[APIVersions, *APIVersionsDie] = (*APIVersionsDie)(nil)
+func (*APIVersionsDieMut) DieFrom(b diebase.DieMutBase[APIVersions, *APIVersionsDie, *APIVersionsDieMut]) *APIVersionsDieMut {
+	return &APIVersionsDieMut{b}
+}
 
-var APIVersionsBlank = diebase.Blank[APIVersions, *APIVersionsDie]()
+var (
+	_ diebase.DieOf[APIVersions, *APIVersionsDie, *APIVersionsDieMut]    = (*APIVersionsDie)(nil)
+	_ diebase.DieMutOf[APIVersions, *APIVersionsDie, *APIVersionsDieMut] = (*APIVersionsDieMut)(nil)
+)
+
+var APIVersionsBlank = diebase.Blank[APIVersions, *APIVersionsDie, *APIVersionsDieMut]()
 
 type aPIVersionsFieldsTable struct {
 	Kind                       diefields.Field[APIVersions, string]
@@ -350,7 +579,7 @@ var aPIVersionsFields = &diefields.Table[aPIVersionsFieldsTable]{Build: func() (
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *APIVersionsDie) Kind() diefields.Value[string, *APIVersionsDie] {
+func (d *APIVersionsDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIVersionsFields.Get().Kind)
 }
 
@@ -358,12 +587,12 @@ func (d *APIVersionsDie) Kind() diefields.Value[string, *APIVersionsDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *APIVersionsDie) APIVersion() diefields.Value[string, *APIVersionsDie] {
+func (d *APIVersionsDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIVersionsFields.Get().APIVersion)
 }
 
 // versions are the api versions that are available.
-func (d *APIVersionsDie) Versions() diefields.Value[[]string, *APIVersionsDie] {
+func (d *APIVersionsDie) Versions() diefields.Value[[]string] {
 	return diefields.ValueOf(d, aPIVersionsFields.Get().Versions)
 }
 
@@ -374,25 +603,73 @@ func (d *APIVersionsDie) Versions() diefields.Value[[]string, *APIVersionsDie] {
 // The server returns only those CIDRs that it thinks that the client can match.
 // For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP.
 // Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
-func (d *APIVersionsDie) ServerAddressByClientCIDRs() diefields.Value[[]ServerAddressByClientCIDR, *APIVersionsDie] {
+func (d *APIVersionsDie) ServerAddressByClientCIDRs() diefields.Value[[]ServerAddressByClientCIDR] {
 	return diefields.ValueOf(d, aPIVersionsFields.Get().ServerAddressByClientCIDRs)
+}
+
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *APIVersionsDieMut) Kind() diefields.ValueMut[string, *APIVersionsDieMut] {
+	return diefields.ValueMutOf(d, aPIVersionsFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *APIVersionsDieMut) APIVersion() diefields.ValueMut[string, *APIVersionsDieMut] {
+	return diefields.ValueMutOf(d, aPIVersionsFields.Get().APIVersion)
+}
+
+// versions are the api versions that are available.
+func (d *APIVersionsDieMut) Versions() diefields.ValueMut[[]string, *APIVersionsDieMut] {
+	return diefields.ValueMutOf(d, aPIVersionsFields.Get().Versions)
+}
+
+// a map of client CIDR to server address that is serving this group.
+// This is to help clients reach servers in the most network-efficient way possible.
+// Clients can use the appropriate server address as per the CIDR that they match.
+// In case of multiple matches, clients should use the longest matching CIDR.
+// The server returns only those CIDRs that it thinks that the client can match.
+// For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP.
+// Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
+func (d *APIVersionsDieMut) ServerAddressByClientCIDRs() diefields.ValueMut[[]ServerAddressByClientCIDR, *APIVersionsDieMut] {
+	return diefields.ValueMutOf(d, aPIVersionsFields.Get().ServerAddressByClientCIDRs)
 }
 
 // ApplyOptions may be provided when applying an API object.
 // FieldManager is required for apply requests.
 // ApplyOptions is equivalent to PatchOptions. It is provided as a convenience with documentation
 // that speaks specifically to how the options fields relate to apply.
+//
+// ApplyOptionsDie is immutable: it reads.
+// ApplyOptionsDieMut, its mutable die, also writes, as DieWith passes it.
 type ApplyOptionsDie struct {
-	diebase.DieBase[ApplyOptions, *ApplyOptionsDie]
+	diebase.DieBase[ApplyOptions, *ApplyOptionsDie, *ApplyOptionsDieMut]
 }
 
-func (*ApplyOptionsDie) DieFrom(b diebase.DieBase[ApplyOptions, *ApplyOptionsDie]) *ApplyOptionsDie {
+// ApplyOptionsDieMut is the mutable die of ApplyOptions: see ApplyOptionsDie.
+type ApplyOptionsDieMut struct {
+	diebase.DieMutBase[ApplyOptions, *ApplyOptionsDie, *ApplyOptionsDieMut]
+}
+
+func (*ApplyOptionsDie) DieFrom(b diebase.DieBase[ApplyOptions, *ApplyOptionsDie, *ApplyOptionsDieMut]) *ApplyOptionsDie {
 	return &ApplyOptionsDie{b}
 }
 
-var _ diebase.DieOf[ApplyOptions, *ApplyOptionsDie] = (*ApplyOptionsDie)(nil)
+func (*ApplyOptionsDieMut) DieFrom(b diebase.DieMutBase[ApplyOptions, *ApplyOptionsDie, *ApplyOptionsDieMut]) *ApplyOptionsDieMut {
+	return &ApplyOptionsDieMut{b}
+}
 
-var ApplyOptionsBlank = diebase.Blank[ApplyOptions, *ApplyOptionsDie]()
+var (
+	_ diebase.DieOf[ApplyOptions, *ApplyOptionsDie, *ApplyOptionsDieMut]    = (*ApplyOptionsDie)(nil)
+	_ diebase.DieMutOf[ApplyOptions, *ApplyOptionsDie, *ApplyOptionsDieMut] = (*ApplyOptionsDieMut)(nil)
+)
+
+var ApplyOptionsBlank = diebase.Blank[ApplyOptions, *ApplyOptionsDie, *ApplyOptionsDieMut]()
 
 type applyOptionsFieldsTable struct {
 	Kind         diefields.Field[ApplyOptions, string]
@@ -417,7 +694,7 @@ var applyOptionsFields = &diefields.Table[applyOptionsFieldsTable]{Build: func()
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *ApplyOptionsDie) Kind() diefields.Value[string, *ApplyOptionsDie] {
+func (d *ApplyOptionsDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, applyOptionsFields.Get().Kind)
 }
 
@@ -425,7 +702,7 @@ func (d *ApplyOptionsDie) Kind() diefields.Value[string, *ApplyOptionsDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *ApplyOptionsDie) APIVersion() diefields.Value[string, *ApplyOptionsDie] {
+func (d *ApplyOptionsDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, applyOptionsFields.Get().APIVersion)
 }
 
@@ -434,13 +711,13 @@ func (d *ApplyOptionsDie) APIVersion() diefields.Value[string, *ApplyOptionsDie]
 // result in an error response and no further processing of the
 // request. Valid values are:
 // - All: all dry run stages will be processed
-func (d *ApplyOptionsDie) DryRun() diefields.Value[[]string, *ApplyOptionsDie] {
+func (d *ApplyOptionsDie) DryRun() diefields.Value[[]string] {
 	return diefields.ValueOf(d, applyOptionsFields.Get().DryRun)
 }
 
 // Force is going to "force" Apply requests. It means user will
 // re-acquire conflicting fields owned by other people.
-func (d *ApplyOptionsDie) Force() diefields.Value[bool, *ApplyOptionsDie] {
+func (d *ApplyOptionsDie) Force() diefields.Value[bool] {
 	return diefields.ValueOf(d, applyOptionsFields.Get().Force)
 }
 
@@ -449,8 +726,49 @@ func (d *ApplyOptionsDie) Force() diefields.Value[bool, *ApplyOptionsDie] {
 // 128 characters long, and only contain printable characters,
 // as defined by https://golang.org/pkg/unicode/#IsPrint. This
 // field is required.
-func (d *ApplyOptionsDie) FieldManager() diefields.Value[string, *ApplyOptionsDie] {
+func (d *ApplyOptionsDie) FieldManager() diefields.Value[string] {
 	return diefields.ValueOf(d, applyOptionsFields.Get().FieldManager)
+}
+
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ApplyOptionsDieMut) Kind() diefields.ValueMut[string, *ApplyOptionsDieMut] {
+	return diefields.ValueMutOf(d, applyOptionsFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *ApplyOptionsDieMut) APIVersion() diefields.ValueMut[string, *ApplyOptionsDieMut] {
+	return diefields.ValueMutOf(d, applyOptionsFields.Get().APIVersion)
+}
+
+// When present, indicates that modifications should not be
+// persisted. An invalid or unrecognized dryRun directive will
+// result in an error response and no further processing of the
+// request. Valid values are:
+// - All: all dry run stages will be processed
+func (d *ApplyOptionsDieMut) DryRun() diefields.ValueMut[[]string, *ApplyOptionsDieMut] {
+	return diefields.ValueMutOf(d, applyOptionsFields.Get().DryRun)
+}
+
+// Force is going to "force" Apply requests. It means user will
+// re-acquire conflicting fields owned by other people.
+func (d *ApplyOptionsDieMut) Force() diefields.ValueMut[bool, *ApplyOptionsDieMut] {
+	return diefields.ValueMutOf(d, applyOptionsFields.Get().Force)
+}
+
+// fieldManager is a name associated with the actor or entity
+// that is making these changes. The value must be less than or
+// 128 characters long, and only contain printable characters,
+// as defined by https://golang.org/pkg/unicode/#IsPrint. This
+// field is required.
+func (d *ApplyOptionsDieMut) FieldManager() diefields.ValueMut[string, *ApplyOptionsDieMut] {
+	return diefields.ValueMutOf(d, applyOptionsFields.Get().FieldManager)
 }
 
 // Condition contains details for one aspect of the current state of this API Resource.
@@ -471,17 +789,32 @@ func (d *ApplyOptionsDie) FieldManager() diefields.Value[string, *ApplyOptionsDi
 //
 //	    // other fields
 //	}
+//
+// ConditionDie is immutable: it reads.
+// ConditionDieMut, its mutable die, also writes, as DieWith passes it.
 type ConditionDie struct {
-	diebase.DieBase[Condition, *ConditionDie]
+	diebase.DieBase[Condition, *ConditionDie, *ConditionDieMut]
 }
 
-func (*ConditionDie) DieFrom(b diebase.DieBase[Condition, *ConditionDie]) *ConditionDie {
+// ConditionDieMut is the mutable die of Condition: see ConditionDie.
+type ConditionDieMut struct {
+	diebase.DieMutBase[Condition, *ConditionDie, *ConditionDieMut]
+}
+
+func (*ConditionDie) DieFrom(b diebase.DieBase[Condition, *ConditionDie, *ConditionDieMut]) *ConditionDie {
 	return &ConditionDie{b}
 }
 
-var _ diebase.DieOf[Condition, *ConditionDie] = (*ConditionDie)(nil)
+func (*ConditionDieMut) DieFrom(b diebase.DieMutBase[Condition, *ConditionDie, *ConditionDieMut]) *ConditionDieMut {
+	return &ConditionDieMut{b}
+}
 
-var ConditionBlank = diebase.Blank[Condition, *ConditionDie]()
+var (
+	_ diebase.DieOf[Condition, *ConditionDie, *ConditionDieMut]    = (*ConditionDie)(nil)
+	_ diebase.DieMutOf[Condition, *ConditionDie, *ConditionDieMut] = (*ConditionDieMut)(nil)
+)
+
+var ConditionBlank = diebase.Blank[Condition, *ConditionDie, *ConditionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -490,34 +823,47 @@ func (d *ConditionDie) DieReleaseApplyConfiguration() *ConditionApplyConfigurati
 	return diecodegen.ReleaseApplyConfiguration[ConditionApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ConditionDie) DieFeedApplyConfiguration(ac *ConditionApplyConfiguration) *ConditionDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ConditionDie) DieStampApplyConfiguration(fn func(ac *ConditionApplyConfiguration)) *ConditionDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ConditionDie) DieReleaseApplyConfigurationE() (*ConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ConditionApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ConditionDieMut) DieReleaseApplyConfiguration() *ConditionApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ConditionApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ConditionDieMut) DieReleaseApplyConfigurationE() (*ConditionApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ConditionApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ConditionDieMut) DieFeedApplyConfiguration(ac *ConditionApplyConfiguration) *ConditionDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ConditionDieMut) DieStampApplyConfiguration(fn func(ac *ConditionApplyConfiguration)) *ConditionDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ConditionDie) DieFeedApplyConfigurationE(ac *ConditionApplyConfiguration) (*ConditionDie, error) {
+func (d *ConditionDieMut) DieFeedApplyConfigurationE(ac *ConditionApplyConfiguration) (*ConditionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ConditionDie) DieStampApplyConfigurationE(fn func(ac *ConditionApplyConfiguration)) (*ConditionDie, error) {
+func (d *ConditionDieMut) DieStampApplyConfigurationE(fn func(ac *ConditionApplyConfiguration)) (*ConditionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -546,25 +892,25 @@ var conditionFields = &diefields.Table[conditionFieldsTable]{Build: func() (f co
 // Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be
 // useful (see .node.status.conditions), the ability to deconflict is important.
 // The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
-func (d *ConditionDie) Type() diefields.Value[string, *ConditionDie] {
+func (d *ConditionDie) Type() diefields.Value[string] {
 	return diefields.ValueOf(d, conditionFields.Get().Type)
 }
 
 // status of the condition, one of True, False, Unknown.
-func (d *ConditionDie) Status() diefields.Value[ConditionStatus, *ConditionDie] {
+func (d *ConditionDie) Status() diefields.Value[ConditionStatus] {
 	return diefields.ValueOf(d, conditionFields.Get().Status)
 }
 
 // observedGeneration represents the .metadata.generation that the condition was set based upon.
 // For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
 // with respect to the current state of the instance.
-func (d *ConditionDie) ObservedGeneration() diefields.Value[int64, *ConditionDie] {
+func (d *ConditionDie) ObservedGeneration() diefields.Value[int64] {
 	return diefields.ValueOf(d, conditionFields.Get().ObservedGeneration)
 }
 
 // lastTransitionTime is the last time the condition transitioned from one status to another.
 // This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
-func (d *ConditionDie) LastTransitionTime() diefields.Value[Time, *ConditionDie] {
+func (d *ConditionDie) LastTransitionTime() diefields.Value[Time] {
 	return diefields.ValueOf(d, conditionFields.Get().LastTransitionTime)
 }
 
@@ -573,28 +919,85 @@ func (d *ConditionDie) LastTransitionTime() diefields.Value[Time, *ConditionDie]
 // and whether the values are considered a guaranteed API.
 // The value should be a CamelCase string.
 // This field may not be empty.
-func (d *ConditionDie) Reason() diefields.Value[string, *ConditionDie] {
+func (d *ConditionDie) Reason() diefields.Value[string] {
 	return diefields.ValueOf(d, conditionFields.Get().Reason)
 }
 
 // message is a human readable message indicating details about the transition.
 // This may be an empty string.
-func (d *ConditionDie) Message() diefields.Value[string, *ConditionDie] {
+func (d *ConditionDie) Message() diefields.Value[string] {
 	return diefields.ValueOf(d, conditionFields.Get().Message)
 }
 
-// CreateOptions may be provided when creating an API object.
-type CreateOptionsDie struct {
-	diebase.DieBase[CreateOptions, *CreateOptionsDie]
+// type of condition in CamelCase or in foo.example.com/CamelCase.
+// ---
+// Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be
+// useful (see .node.status.conditions), the ability to deconflict is important.
+// The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+func (d *ConditionDieMut) Type() diefields.ValueMut[string, *ConditionDieMut] {
+	return diefields.ValueMutOf(d, conditionFields.Get().Type)
 }
 
-func (*CreateOptionsDie) DieFrom(b diebase.DieBase[CreateOptions, *CreateOptionsDie]) *CreateOptionsDie {
+// status of the condition, one of True, False, Unknown.
+func (d *ConditionDieMut) Status() diefields.ValueMut[ConditionStatus, *ConditionDieMut] {
+	return diefields.ValueMutOf(d, conditionFields.Get().Status)
+}
+
+// observedGeneration represents the .metadata.generation that the condition was set based upon.
+// For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+// with respect to the current state of the instance.
+func (d *ConditionDieMut) ObservedGeneration() diefields.ValueMut[int64, *ConditionDieMut] {
+	return diefields.ValueMutOf(d, conditionFields.Get().ObservedGeneration)
+}
+
+// lastTransitionTime is the last time the condition transitioned from one status to another.
+// This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+func (d *ConditionDieMut) LastTransitionTime() diefields.ValueMut[Time, *ConditionDieMut] {
+	return diefields.ValueMutOf(d, conditionFields.Get().LastTransitionTime)
+}
+
+// reason contains a programmatic identifier indicating the reason for the condition's last transition.
+// Producers of specific condition types may define expected values and meanings for this field,
+// and whether the values are considered a guaranteed API.
+// The value should be a CamelCase string.
+// This field may not be empty.
+func (d *ConditionDieMut) Reason() diefields.ValueMut[string, *ConditionDieMut] {
+	return diefields.ValueMutOf(d, conditionFields.Get().Reason)
+}
+
+// message is a human readable message indicating details about the transition.
+// This may be an empty string.
+func (d *ConditionDieMut) Message() diefields.ValueMut[string, *ConditionDieMut] {
+	return diefields.ValueMutOf(d, conditionFields.Get().Message)
+}
+
+// CreateOptions may be provided when creating an API object.
+//
+// CreateOptionsDie is immutable: it reads.
+// CreateOptionsDieMut, its mutable die, also writes, as DieWith passes it.
+type CreateOptionsDie struct {
+	diebase.DieBase[CreateOptions, *CreateOptionsDie, *CreateOptionsDieMut]
+}
+
+// CreateOptionsDieMut is the mutable die of CreateOptions: see CreateOptionsDie.
+type CreateOptionsDieMut struct {
+	diebase.DieMutBase[CreateOptions, *CreateOptionsDie, *CreateOptionsDieMut]
+}
+
+func (*CreateOptionsDie) DieFrom(b diebase.DieBase[CreateOptions, *CreateOptionsDie, *CreateOptionsDieMut]) *CreateOptionsDie {
 	return &CreateOptionsDie{b}
 }
 
-var _ diebase.DieOf[CreateOptions, *CreateOptionsDie] = (*CreateOptionsDie)(nil)
+func (*CreateOptionsDieMut) DieFrom(b diebase.DieMutBase[CreateOptions, *CreateOptionsDie, *CreateOptionsDieMut]) *CreateOptionsDieMut {
+	return &CreateOptionsDieMut{b}
+}
 
-var CreateOptionsBlank = diebase.Blank[CreateOptions, *CreateOptionsDie]()
+var (
+	_ diebase.DieOf[CreateOptions, *CreateOptionsDie, *CreateOptionsDieMut]    = (*CreateOptionsDie)(nil)
+	_ diebase.DieMutOf[CreateOptions, *CreateOptionsDie, *CreateOptionsDieMut] = (*CreateOptionsDieMut)(nil)
+)
+
+var CreateOptionsBlank = diebase.Blank[CreateOptions, *CreateOptionsDie, *CreateOptionsDieMut]()
 
 type createOptionsFieldsTable struct {
 	Kind            diefields.Field[CreateOptions, string]
@@ -619,7 +1022,7 @@ var createOptionsFields = &diefields.Table[createOptionsFieldsTable]{Build: func
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *CreateOptionsDie) Kind() diefields.Value[string, *CreateOptionsDie] {
+func (d *CreateOptionsDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, createOptionsFields.Get().Kind)
 }
 
@@ -627,7 +1030,7 @@ func (d *CreateOptionsDie) Kind() diefields.Value[string, *CreateOptionsDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *CreateOptionsDie) APIVersion() diefields.Value[string, *CreateOptionsDie] {
+func (d *CreateOptionsDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, createOptionsFields.Get().APIVersion)
 }
 
@@ -636,7 +1039,7 @@ func (d *CreateOptionsDie) APIVersion() diefields.Value[string, *CreateOptionsDi
 // result in an error response and no further processing of the
 // request. Valid values are:
 // - All: all dry run stages will be processed
-func (d *CreateOptionsDie) DryRun() diefields.Value[[]string, *CreateOptionsDie] {
+func (d *CreateOptionsDie) DryRun() diefields.Value[[]string] {
 	return diefields.ValueOf(d, createOptionsFields.Get().DryRun)
 }
 
@@ -644,7 +1047,7 @@ func (d *CreateOptionsDie) DryRun() diefields.Value[[]string, *CreateOptionsDie]
 // that is making these changes. The value must be less than or
 // 128 characters long, and only contain printable characters,
 // as defined by https://golang.org/pkg/unicode/#IsPrint.
-func (d *CreateOptionsDie) FieldManager() diefields.Value[string, *CreateOptionsDie] {
+func (d *CreateOptionsDie) FieldManager() diefields.Value[string] {
 	return diefields.ValueOf(d, createOptionsFields.Get().FieldManager)
 }
 
@@ -664,22 +1067,91 @@ func (d *CreateOptionsDie) FieldManager() diefields.Value[string, *CreateOptions
 // any unknown fields would be dropped from the object, or if any
 // duplicate fields are present. The error returned from the server
 // will contain all unknown and duplicate fields encountered.
-func (d *CreateOptionsDie) FieldValidation() diefields.Value[string, *CreateOptionsDie] {
+func (d *CreateOptionsDie) FieldValidation() diefields.Value[string] {
 	return diefields.ValueOf(d, createOptionsFields.Get().FieldValidation)
 }
 
-// DeleteOptions may be provided when deleting an API object.
-type DeleteOptionsDie struct {
-	diebase.DieBase[DeleteOptions, *DeleteOptionsDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *CreateOptionsDieMut) Kind() diefields.ValueMut[string, *CreateOptionsDieMut] {
+	return diefields.ValueMutOf(d, createOptionsFields.Get().Kind)
 }
 
-func (*DeleteOptionsDie) DieFrom(b diebase.DieBase[DeleteOptions, *DeleteOptionsDie]) *DeleteOptionsDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *CreateOptionsDieMut) APIVersion() diefields.ValueMut[string, *CreateOptionsDieMut] {
+	return diefields.ValueMutOf(d, createOptionsFields.Get().APIVersion)
+}
+
+// When present, indicates that modifications should not be
+// persisted. An invalid or unrecognized dryRun directive will
+// result in an error response and no further processing of the
+// request. Valid values are:
+// - All: all dry run stages will be processed
+func (d *CreateOptionsDieMut) DryRun() diefields.ValueMut[[]string, *CreateOptionsDieMut] {
+	return diefields.ValueMutOf(d, createOptionsFields.Get().DryRun)
+}
+
+// fieldManager is a name associated with the actor or entity
+// that is making these changes. The value must be less than or
+// 128 characters long, and only contain printable characters,
+// as defined by https://golang.org/pkg/unicode/#IsPrint.
+func (d *CreateOptionsDieMut) FieldManager() diefields.ValueMut[string, *CreateOptionsDieMut] {
+	return diefields.ValueMutOf(d, createOptionsFields.Get().FieldManager)
+}
+
+// fieldValidation instructs the server on how to handle
+// objects in the request (POST/PUT/PATCH) containing unknown
+// or duplicate fields. Valid values are:
+// - Ignore: This will ignore any unknown fields that are silently
+// dropped from the object, and will ignore all but the last duplicate
+// field that the decoder encounters. This is the default behavior
+// prior to v1.23.
+// - Warn: This will send a warning via the standard warning response
+// header for each unknown field that is dropped from the object, and
+// for each duplicate field that is encountered. The request will
+// still succeed if there are no other errors, and will only persist
+// the last of any duplicate fields. This is the default in v1.23+
+// - Strict: This will fail the request with a BadRequest error if
+// any unknown fields would be dropped from the object, or if any
+// duplicate fields are present. The error returned from the server
+// will contain all unknown and duplicate fields encountered.
+func (d *CreateOptionsDieMut) FieldValidation() diefields.ValueMut[string, *CreateOptionsDieMut] {
+	return diefields.ValueMutOf(d, createOptionsFields.Get().FieldValidation)
+}
+
+// DeleteOptions may be provided when deleting an API object.
+//
+// DeleteOptionsDie is immutable: it reads.
+// DeleteOptionsDieMut, its mutable die, also writes, as DieWith passes it.
+type DeleteOptionsDie struct {
+	diebase.DieBase[DeleteOptions, *DeleteOptionsDie, *DeleteOptionsDieMut]
+}
+
+// DeleteOptionsDieMut is the mutable die of DeleteOptions: see DeleteOptionsDie.
+type DeleteOptionsDieMut struct {
+	diebase.DieMutBase[DeleteOptions, *DeleteOptionsDie, *DeleteOptionsDieMut]
+}
+
+func (*DeleteOptionsDie) DieFrom(b diebase.DieBase[DeleteOptions, *DeleteOptionsDie, *DeleteOptionsDieMut]) *DeleteOptionsDie {
 	return &DeleteOptionsDie{b}
 }
 
-var _ diebase.DieOf[DeleteOptions, *DeleteOptionsDie] = (*DeleteOptionsDie)(nil)
+func (*DeleteOptionsDieMut) DieFrom(b diebase.DieMutBase[DeleteOptions, *DeleteOptionsDie, *DeleteOptionsDieMut]) *DeleteOptionsDieMut {
+	return &DeleteOptionsDieMut{b}
+}
 
-var DeleteOptionsBlank = diebase.Blank[DeleteOptions, *DeleteOptionsDie]()
+var (
+	_ diebase.DieOf[DeleteOptions, *DeleteOptionsDie, *DeleteOptionsDieMut]    = (*DeleteOptionsDie)(nil)
+	_ diebase.DieMutOf[DeleteOptions, *DeleteOptionsDie, *DeleteOptionsDieMut] = (*DeleteOptionsDieMut)(nil)
+)
+
+var DeleteOptionsBlank = diebase.Blank[DeleteOptions, *DeleteOptionsDie, *DeleteOptionsDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -688,34 +1160,47 @@ func (d *DeleteOptionsDie) DieReleaseApplyConfiguration() *DeleteOptionsApplyCon
 	return diecodegen.ReleaseApplyConfiguration[DeleteOptionsApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *DeleteOptionsDie) DieFeedApplyConfiguration(ac *DeleteOptionsApplyConfiguration) *DeleteOptionsDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *DeleteOptionsDie) DieStampApplyConfiguration(fn func(ac *DeleteOptionsApplyConfiguration)) *DeleteOptionsDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *DeleteOptionsDie) DieReleaseApplyConfigurationE() (*DeleteOptionsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[DeleteOptionsApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *DeleteOptionsDieMut) DieReleaseApplyConfiguration() *DeleteOptionsApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[DeleteOptionsApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *DeleteOptionsDieMut) DieReleaseApplyConfigurationE() (*DeleteOptionsApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[DeleteOptionsApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *DeleteOptionsDieMut) DieFeedApplyConfiguration(ac *DeleteOptionsApplyConfiguration) *DeleteOptionsDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *DeleteOptionsDieMut) DieStampApplyConfiguration(fn func(ac *DeleteOptionsApplyConfiguration)) *DeleteOptionsDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *DeleteOptionsDie) DieFeedApplyConfigurationE(ac *DeleteOptionsApplyConfiguration) (*DeleteOptionsDie, error) {
+func (d *DeleteOptionsDieMut) DieFeedApplyConfigurationE(ac *DeleteOptionsApplyConfiguration) (*DeleteOptionsDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *DeleteOptionsDie) DieStampApplyConfigurationE(fn func(ac *DeleteOptionsApplyConfiguration)) (*DeleteOptionsDie, error) {
+func (d *DeleteOptionsDieMut) DieStampApplyConfigurationE(fn func(ac *DeleteOptionsApplyConfiguration)) (*DeleteOptionsDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -723,7 +1208,7 @@ type deleteOptionsFieldsTable struct {
 	Kind                                             diefields.Field[DeleteOptions, string]
 	APIVersion                                       diefields.Field[DeleteOptions, string]
 	GracePeriodSeconds                               diefields.Field[DeleteOptions, *int64]
-	Preconditions                                    diefields.Struct[DeleteOptions, Preconditions, *PreconditionsDie]
+	Preconditions                                    diefields.Struct[DeleteOptions, Preconditions, *PreconditionsDie, *PreconditionsDieMut]
 	OrphanDependents                                 diefields.Field[DeleteOptions, *bool]
 	PropagationPolicy                                diefields.Field[DeleteOptions, *DeletionPropagation]
 	DryRun                                           diefields.Field[DeleteOptions, []string]
@@ -735,7 +1220,7 @@ var deleteOptionsFields = &diefields.Table[deleteOptionsFieldsTable]{Build: func
 	f.Kind = diefields.NewField[DeleteOptions, string]("kind")
 	f.APIVersion = diefields.NewField[DeleteOptions, string]("apiVersion")
 	f.GracePeriodSeconds = diefields.NewField[DeleteOptions, *int64]("gracePeriodSeconds")
-	f.Preconditions = diefields.NewStruct[DeleteOptions, Preconditions, *PreconditionsDie]("preconditions")
+	f.Preconditions = diefields.NewStruct[DeleteOptions, Preconditions, *PreconditionsDie, *PreconditionsDieMut]("preconditions")
 	f.OrphanDependents = diefields.NewField[DeleteOptions, *bool]("orphanDependents")
 	f.PropagationPolicy = diefields.NewField[DeleteOptions, *DeletionPropagation]("propagationPolicy")
 	f.DryRun = diefields.NewField[DeleteOptions, []string]("dryRun")
@@ -748,7 +1233,7 @@ var deleteOptionsFields = &diefields.Table[deleteOptionsFieldsTable]{Build: func
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *DeleteOptionsDie) Kind() diefields.Value[string, *DeleteOptionsDie] {
+func (d *DeleteOptionsDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, deleteOptionsFields.Get().Kind)
 }
 
@@ -756,7 +1241,7 @@ func (d *DeleteOptionsDie) Kind() diefields.Value[string, *DeleteOptionsDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *DeleteOptionsDie) APIVersion() diefields.Value[string, *DeleteOptionsDie] {
+func (d *DeleteOptionsDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, deleteOptionsFields.Get().APIVersion)
 }
 
@@ -764,7 +1249,7 @@ func (d *DeleteOptionsDie) APIVersion() diefields.Value[string, *DeleteOptionsDi
 // The value zero indicates delete immediately. If this value is nil, the default grace period for the
 // specified type will be used.
 // Defaults to a per object value if not specified. zero means delete immediately.
-func (d *DeleteOptionsDie) GracePeriodSeconds() diefields.Optional[int64, *DeleteOptionsDie] {
+func (d *DeleteOptionsDie) GracePeriodSeconds() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, deleteOptionsFields.Get().GracePeriodSeconds)
 }
 
@@ -778,7 +1263,7 @@ func (d *DeleteOptionsDie) Preconditions() *PreconditionsDie {
 // Should the dependent objects be orphaned. If true/false, the "orphan"
 // finalizer will be added to/removed from the object's finalizers list.
 // Either this field or PropagationPolicy may be set, but not both.
-func (d *DeleteOptionsDie) OrphanDependents() diefields.Optional[bool, *DeleteOptionsDie] {
+func (d *DeleteOptionsDie) OrphanDependents() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, deleteOptionsFields.Get().OrphanDependents)
 }
 
@@ -790,7 +1275,7 @@ func (d *DeleteOptionsDie) OrphanDependents() diefields.Optional[bool, *DeleteOp
 // allow the garbage collector to delete the dependents in the background;
 // 'Foreground' - a cascading policy that deletes all dependents in the
 // foreground.
-func (d *DeleteOptionsDie) PropagationPolicy() diefields.Optional[DeletionPropagation, *DeleteOptionsDie] {
+func (d *DeleteOptionsDie) PropagationPolicy() diefields.Optional[DeletionPropagation] {
 	return diefields.OptionalOf(d, deleteOptionsFields.Get().PropagationPolicy)
 }
 
@@ -799,7 +1284,7 @@ func (d *DeleteOptionsDie) PropagationPolicy() diefields.Optional[DeletionPropag
 // result in an error response and no further processing of the
 // request. Valid values are:
 // - All: all dry run stages will be processed
-func (d *DeleteOptionsDie) DryRun() diefields.Value[[]string, *DeleteOptionsDie] {
+func (d *DeleteOptionsDie) DryRun() diefields.Value[[]string] {
 	return diefields.ValueOf(d, deleteOptionsFields.Get().DryRun)
 }
 
@@ -815,23 +1300,114 @@ func (d *DeleteOptionsDie) DryRun() diefields.Value[[]string, *DeleteOptionsDie]
 // associated with the resource being unsafe-deleted relies on normal
 // deletion flow. Use only if you REALLY know what you are doing.
 // The default value is false, and the user must opt in to enable it
-func (d *DeleteOptionsDie) IgnoreStoreReadErrorWithClusterBreakingPotential() diefields.Optional[bool, *DeleteOptionsDie] {
+func (d *DeleteOptionsDie) IgnoreStoreReadErrorWithClusterBreakingPotential() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, deleteOptionsFields.Get().IgnoreStoreReadErrorWithClusterBreakingPotential)
+}
+
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *DeleteOptionsDieMut) Kind() diefields.ValueMut[string, *DeleteOptionsDieMut] {
+	return diefields.ValueMutOf(d, deleteOptionsFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *DeleteOptionsDieMut) APIVersion() diefields.ValueMut[string, *DeleteOptionsDieMut] {
+	return diefields.ValueMutOf(d, deleteOptionsFields.Get().APIVersion)
+}
+
+// The duration in seconds before the object should be deleted. Value must be non-negative integer.
+// The value zero indicates delete immediately. If this value is nil, the default grace period for the
+// specified type will be used.
+// Defaults to a per object value if not specified. zero means delete immediately.
+func (d *DeleteOptionsDieMut) GracePeriodSeconds() diefields.OptionalMut[int64, *DeleteOptionsDieMut] {
+	return diefields.OptionalMutOf(d, deleteOptionsFields.Get().GracePeriodSeconds)
+}
+
+// Must be fulfilled before a deletion is carried out. If not possible, a 409 Conflict status will be
+// returned.
+func (d *DeleteOptionsDieMut) Preconditions() *PreconditionsDieMut {
+	return diefields.ChildMut(d, deleteOptionsFields.Get().Preconditions)
+}
+
+// Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7.
+// Should the dependent objects be orphaned. If true/false, the "orphan"
+// finalizer will be added to/removed from the object's finalizers list.
+// Either this field or PropagationPolicy may be set, but not both.
+func (d *DeleteOptionsDieMut) OrphanDependents() diefields.OptionalMut[bool, *DeleteOptionsDieMut] {
+	return diefields.OptionalMutOf(d, deleteOptionsFields.Get().OrphanDependents)
+}
+
+// Whether and how garbage collection will be performed.
+// Either this field or OrphanDependents may be set, but not both.
+// The default policy is decided by the existing finalizer set in the
+// metadata.finalizers and the resource-specific default policy.
+// Acceptable values are: 'Orphan' - orphan the dependents; 'Background' -
+// allow the garbage collector to delete the dependents in the background;
+// 'Foreground' - a cascading policy that deletes all dependents in the
+// foreground.
+func (d *DeleteOptionsDieMut) PropagationPolicy() diefields.OptionalMut[DeletionPropagation, *DeleteOptionsDieMut] {
+	return diefields.OptionalMutOf(d, deleteOptionsFields.Get().PropagationPolicy)
+}
+
+// When present, indicates that modifications should not be
+// persisted. An invalid or unrecognized dryRun directive will
+// result in an error response and no further processing of the
+// request. Valid values are:
+// - All: all dry run stages will be processed
+func (d *DeleteOptionsDieMut) DryRun() diefields.ValueMut[[]string, *DeleteOptionsDieMut] {
+	return diefields.ValueMutOf(d, deleteOptionsFields.Get().DryRun)
+}
+
+// if set to true, it will trigger an unsafe deletion of the resource in
+// case the normal deletion flow fails with a corrupt object error.
+// A resource is considered corrupt if it can not be retrieved from
+// the underlying storage successfully because of a) its data can
+// not be transformed e.g. decryption failure, or b) it fails
+// to decode into an object.
+// NOTE: unsafe deletion ignores finalizer constraints, skips
+// precondition checks, and removes the object from the storage.
+// WARNING: This may potentially break the cluster if the workload
+// associated with the resource being unsafe-deleted relies on normal
+// deletion flow. Use only if you REALLY know what you are doing.
+// The default value is false, and the user must opt in to enable it
+func (d *DeleteOptionsDieMut) IgnoreStoreReadErrorWithClusterBreakingPotential() diefields.OptionalMut[bool, *DeleteOptionsDieMut] {
+	return diefields.OptionalMutOf(d, deleteOptionsFields.Get().IgnoreStoreReadErrorWithClusterBreakingPotential)
 }
 
 // FieldSelectorRequirement is a selector that contains values, a key, and an operator that
 // relates the key and values.
+//
+// FieldSelectorRequirementDie is immutable: it reads.
+// FieldSelectorRequirementDieMut, its mutable die, also writes, as DieWith passes it.
 type FieldSelectorRequirementDie struct {
-	diebase.DieBase[FieldSelectorRequirement, *FieldSelectorRequirementDie]
+	diebase.DieBase[FieldSelectorRequirement, *FieldSelectorRequirementDie, *FieldSelectorRequirementDieMut]
 }
 
-func (*FieldSelectorRequirementDie) DieFrom(b diebase.DieBase[FieldSelectorRequirement, *FieldSelectorRequirementDie]) *FieldSelectorRequirementDie {
+// FieldSelectorRequirementDieMut is the mutable die of FieldSelectorRequirement: see FieldSelectorRequirementDie.
+type FieldSelectorRequirementDieMut struct {
+	diebase.DieMutBase[FieldSelectorRequirement, *FieldSelectorRequirementDie, *FieldSelectorRequirementDieMut]
+}
+
+func (*FieldSelectorRequirementDie) DieFrom(b diebase.DieBase[FieldSelectorRequirement, *FieldSelectorRequirementDie, *FieldSelectorRequirementDieMut]) *FieldSelectorRequirementDie {
 	return &FieldSelectorRequirementDie{b}
 }
 
-var _ diebase.DieOf[FieldSelectorRequirement, *FieldSelectorRequirementDie] = (*FieldSelectorRequirementDie)(nil)
+func (*FieldSelectorRequirementDieMut) DieFrom(b diebase.DieMutBase[FieldSelectorRequirement, *FieldSelectorRequirementDie, *FieldSelectorRequirementDieMut]) *FieldSelectorRequirementDieMut {
+	return &FieldSelectorRequirementDieMut{b}
+}
 
-var FieldSelectorRequirementBlank = diebase.Blank[FieldSelectorRequirement, *FieldSelectorRequirementDie]()
+var (
+	_ diebase.DieOf[FieldSelectorRequirement, *FieldSelectorRequirementDie, *FieldSelectorRequirementDieMut]    = (*FieldSelectorRequirementDie)(nil)
+	_ diebase.DieMutOf[FieldSelectorRequirement, *FieldSelectorRequirementDie, *FieldSelectorRequirementDieMut] = (*FieldSelectorRequirementDieMut)(nil)
+)
+
+var FieldSelectorRequirementBlank = diebase.Blank[FieldSelectorRequirement, *FieldSelectorRequirementDie, *FieldSelectorRequirementDieMut]()
 
 type fieldSelectorRequirementFieldsTable struct {
 	Key      diefields.Field[FieldSelectorRequirement, string]
@@ -848,36 +1424,70 @@ var fieldSelectorRequirementFields = &diefields.Table[fieldSelectorRequirementFi
 }}
 
 // key is the field selector key that the requirement applies to.
-func (d *FieldSelectorRequirementDie) Key() diefields.Value[string, *FieldSelectorRequirementDie] {
+func (d *FieldSelectorRequirementDie) Key() diefields.Value[string] {
 	return diefields.ValueOf(d, fieldSelectorRequirementFields.Get().Key)
 }
 
 // operator represents a key's relationship to a set of values.
 // Valid operators are In, NotIn, Exists, DoesNotExist.
 // The list of operators may grow in the future.
-func (d *FieldSelectorRequirementDie) Operator() diefields.Value[FieldSelectorOperator, *FieldSelectorRequirementDie] {
+func (d *FieldSelectorRequirementDie) Operator() diefields.Value[FieldSelectorOperator] {
 	return diefields.ValueOf(d, fieldSelectorRequirementFields.Get().Operator)
 }
 
 // values is an array of string values.
 // If the operator is In or NotIn, the values array must be non-empty.
 // If the operator is Exists or DoesNotExist, the values array must be empty.
-func (d *FieldSelectorRequirementDie) Values() diefields.Value[[]string, *FieldSelectorRequirementDie] {
+func (d *FieldSelectorRequirementDie) Values() diefields.Value[[]string] {
 	return diefields.ValueOf(d, fieldSelectorRequirementFields.Get().Values)
 }
 
-// GetOptions is the standard query options to the standard REST get call.
-type GetOptionsDie struct {
-	diebase.DieBase[GetOptions, *GetOptionsDie]
+// key is the field selector key that the requirement applies to.
+func (d *FieldSelectorRequirementDieMut) Key() diefields.ValueMut[string, *FieldSelectorRequirementDieMut] {
+	return diefields.ValueMutOf(d, fieldSelectorRequirementFields.Get().Key)
 }
 
-func (*GetOptionsDie) DieFrom(b diebase.DieBase[GetOptions, *GetOptionsDie]) *GetOptionsDie {
+// operator represents a key's relationship to a set of values.
+// Valid operators are In, NotIn, Exists, DoesNotExist.
+// The list of operators may grow in the future.
+func (d *FieldSelectorRequirementDieMut) Operator() diefields.ValueMut[FieldSelectorOperator, *FieldSelectorRequirementDieMut] {
+	return diefields.ValueMutOf(d, fieldSelectorRequirementFields.Get().Operator)
+}
+
+// values is an array of string values.
+// If the operator is In or NotIn, the values array must be non-empty.
+// If the operator is Exists or DoesNotExist, the values array must be empty.
+func (d *FieldSelectorRequirementDieMut) Values() diefields.ValueMut[[]string, *FieldSelectorRequirementDieMut] {
+	return diefields.ValueMutOf(d, fieldSelectorRequirementFields.Get().Values)
+}
+
+// GetOptions is the standard query options to the standard REST get call.
+//
+// GetOptionsDie is immutable: it reads.
+// GetOptionsDieMut, its mutable die, also writes, as DieWith passes it.
+type GetOptionsDie struct {
+	diebase.DieBase[GetOptions, *GetOptionsDie, *GetOptionsDieMut]
+}
+
+// GetOptionsDieMut is the mutable die of GetOptions: see GetOptionsDie.
+type GetOptionsDieMut struct {
+	diebase.DieMutBase[GetOptions, *GetOptionsDie, *GetOptionsDieMut]
+}
+
+func (*GetOptionsDie) DieFrom(b diebase.DieBase[GetOptions, *GetOptionsDie, *GetOptionsDieMut]) *GetOptionsDie {
 	return &GetOptionsDie{b}
 }
 
-var _ diebase.DieOf[GetOptions, *GetOptionsDie] = (*GetOptionsDie)(nil)
+func (*GetOptionsDieMut) DieFrom(b diebase.DieMutBase[GetOptions, *GetOptionsDie, *GetOptionsDieMut]) *GetOptionsDieMut {
+	return &GetOptionsDieMut{b}
+}
 
-var GetOptionsBlank = diebase.Blank[GetOptions, *GetOptionsDie]()
+var (
+	_ diebase.DieOf[GetOptions, *GetOptionsDie, *GetOptionsDieMut]    = (*GetOptionsDie)(nil)
+	_ diebase.DieMutOf[GetOptions, *GetOptionsDie, *GetOptionsDieMut] = (*GetOptionsDieMut)(nil)
+)
+
+var GetOptionsBlank = diebase.Blank[GetOptions, *GetOptionsDie, *GetOptionsDieMut]()
 
 type getOptionsFieldsTable struct {
 	Kind            diefields.Field[GetOptions, string]
@@ -898,7 +1508,7 @@ var getOptionsFields = &diefields.Table[getOptionsFieldsTable]{Build: func() (f 
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *GetOptionsDie) Kind() diefields.Value[string, *GetOptionsDie] {
+func (d *GetOptionsDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, getOptionsFields.Get().Kind)
 }
 
@@ -906,7 +1516,7 @@ func (d *GetOptionsDie) Kind() diefields.Value[string, *GetOptionsDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *GetOptionsDie) APIVersion() diefields.Value[string, *GetOptionsDie] {
+func (d *GetOptionsDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, getOptionsFields.Get().APIVersion)
 }
 
@@ -915,23 +1525,64 @@ func (d *GetOptionsDie) APIVersion() diefields.Value[string, *GetOptionsDie] {
 // details.
 //
 // Defaults to unset
-func (d *GetOptionsDie) ResourceVersion() diefields.Value[string, *GetOptionsDie] {
+func (d *GetOptionsDie) ResourceVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, getOptionsFields.Get().ResourceVersion)
+}
+
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *GetOptionsDieMut) Kind() diefields.ValueMut[string, *GetOptionsDieMut] {
+	return diefields.ValueMutOf(d, getOptionsFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *GetOptionsDieMut) APIVersion() diefields.ValueMut[string, *GetOptionsDieMut] {
+	return diefields.ValueMutOf(d, getOptionsFields.Get().APIVersion)
+}
+
+// resourceVersion sets a constraint on what resource versions a request may be served from.
+// See https://kubernetes.io/docs/reference/using-api/api-concepts/#resource-versions for
+// details.
+//
+// Defaults to unset
+func (d *GetOptionsDieMut) ResourceVersion() diefields.ValueMut[string, *GetOptionsDieMut] {
+	return diefields.ValueMutOf(d, getOptionsFields.Get().ResourceVersion)
 }
 
 // GroupKind specifies a Group and a Kind, but does not force a version.  This is useful for identifying
 // concepts during lookup stages without having partially valid types
+//
+// GroupKindDie is immutable: it reads.
+// GroupKindDieMut, its mutable die, also writes, as DieWith passes it.
 type GroupKindDie struct {
-	diebase.DieBase[GroupKind, *GroupKindDie]
+	diebase.DieBase[GroupKind, *GroupKindDie, *GroupKindDieMut]
 }
 
-func (*GroupKindDie) DieFrom(b diebase.DieBase[GroupKind, *GroupKindDie]) *GroupKindDie {
+// GroupKindDieMut is the mutable die of GroupKind: see GroupKindDie.
+type GroupKindDieMut struct {
+	diebase.DieMutBase[GroupKind, *GroupKindDie, *GroupKindDieMut]
+}
+
+func (*GroupKindDie) DieFrom(b diebase.DieBase[GroupKind, *GroupKindDie, *GroupKindDieMut]) *GroupKindDie {
 	return &GroupKindDie{b}
 }
 
-var _ diebase.DieOf[GroupKind, *GroupKindDie] = (*GroupKindDie)(nil)
+func (*GroupKindDieMut) DieFrom(b diebase.DieMutBase[GroupKind, *GroupKindDie, *GroupKindDieMut]) *GroupKindDieMut {
+	return &GroupKindDieMut{b}
+}
 
-var GroupKindBlank = diebase.Blank[GroupKind, *GroupKindDie]()
+var (
+	_ diebase.DieOf[GroupKind, *GroupKindDie, *GroupKindDieMut]    = (*GroupKindDie)(nil)
+	_ diebase.DieMutOf[GroupKind, *GroupKindDie, *GroupKindDieMut] = (*GroupKindDieMut)(nil)
+)
+
+var GroupKindBlank = diebase.Blank[GroupKind, *GroupKindDie, *GroupKindDieMut]()
 
 type groupKindFieldsTable struct {
 	Group diefields.Field[GroupKind, string]
@@ -945,27 +1596,50 @@ var groupKindFields = &diefields.Table[groupKindFieldsTable]{Build: func() (f gr
 	return
 }}
 
-func (d *GroupKindDie) Group() diefields.Value[string, *GroupKindDie] {
+func (d *GroupKindDie) Group() diefields.Value[string] {
 	return diefields.ValueOf(d, groupKindFields.Get().Group)
 }
 
-func (d *GroupKindDie) Kind() diefields.Value[string, *GroupKindDie] {
+func (d *GroupKindDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, groupKindFields.Get().Kind)
+}
+
+func (d *GroupKindDieMut) Group() diefields.ValueMut[string, *GroupKindDieMut] {
+	return diefields.ValueMutOf(d, groupKindFields.Get().Group)
+}
+
+func (d *GroupKindDieMut) Kind() diefields.ValueMut[string, *GroupKindDieMut] {
+	return diefields.ValueMutOf(d, groupKindFields.Get().Kind)
 }
 
 // GroupResource specifies a Group and a Resource, but does not force a version.  This is useful for identifying
 // concepts during lookup stages without having partially valid types
+//
+// GroupResourceDie is immutable: it reads.
+// GroupResourceDieMut, its mutable die, also writes, as DieWith passes it.
 type GroupResourceDie struct {
-	diebase.DieBase[GroupResource, *GroupResourceDie]
+	diebase.DieBase[GroupResource, *GroupResourceDie, *GroupResourceDieMut]
 }
 
-func (*GroupResourceDie) DieFrom(b diebase.DieBase[GroupResource, *GroupResourceDie]) *GroupResourceDie {
+// GroupResourceDieMut is the mutable die of GroupResource: see GroupResourceDie.
+type GroupResourceDieMut struct {
+	diebase.DieMutBase[GroupResource, *GroupResourceDie, *GroupResourceDieMut]
+}
+
+func (*GroupResourceDie) DieFrom(b diebase.DieBase[GroupResource, *GroupResourceDie, *GroupResourceDieMut]) *GroupResourceDie {
 	return &GroupResourceDie{b}
 }
 
-var _ diebase.DieOf[GroupResource, *GroupResourceDie] = (*GroupResourceDie)(nil)
+func (*GroupResourceDieMut) DieFrom(b diebase.DieMutBase[GroupResource, *GroupResourceDie, *GroupResourceDieMut]) *GroupResourceDieMut {
+	return &GroupResourceDieMut{b}
+}
 
-var GroupResourceBlank = diebase.Blank[GroupResource, *GroupResourceDie]()
+var (
+	_ diebase.DieOf[GroupResource, *GroupResourceDie, *GroupResourceDieMut]    = (*GroupResourceDie)(nil)
+	_ diebase.DieMutOf[GroupResource, *GroupResourceDie, *GroupResourceDieMut] = (*GroupResourceDieMut)(nil)
+)
+
+var GroupResourceBlank = diebase.Blank[GroupResource, *GroupResourceDie, *GroupResourceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -974,34 +1648,47 @@ func (d *GroupResourceDie) DieReleaseApplyConfiguration() *GroupResourceApplyCon
 	return diecodegen.ReleaseApplyConfiguration[GroupResourceApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *GroupResourceDie) DieFeedApplyConfiguration(ac *GroupResourceApplyConfiguration) *GroupResourceDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *GroupResourceDie) DieStampApplyConfiguration(fn func(ac *GroupResourceApplyConfiguration)) *GroupResourceDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *GroupResourceDie) DieReleaseApplyConfigurationE() (*GroupResourceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[GroupResourceApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *GroupResourceDieMut) DieReleaseApplyConfiguration() *GroupResourceApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[GroupResourceApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *GroupResourceDieMut) DieReleaseApplyConfigurationE() (*GroupResourceApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[GroupResourceApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *GroupResourceDieMut) DieFeedApplyConfiguration(ac *GroupResourceApplyConfiguration) *GroupResourceDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *GroupResourceDieMut) DieStampApplyConfiguration(fn func(ac *GroupResourceApplyConfiguration)) *GroupResourceDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *GroupResourceDie) DieFeedApplyConfigurationE(ac *GroupResourceApplyConfiguration) (*GroupResourceDie, error) {
+func (d *GroupResourceDieMut) DieFeedApplyConfigurationE(ac *GroupResourceApplyConfiguration) (*GroupResourceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *GroupResourceDie) DieStampApplyConfigurationE(fn func(ac *GroupResourceApplyConfiguration)) (*GroupResourceDie, error) {
+func (d *GroupResourceDieMut) DieStampApplyConfigurationE(fn func(ac *GroupResourceApplyConfiguration)) (*GroupResourceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1017,27 +1704,50 @@ var groupResourceFields = &diefields.Table[groupResourceFieldsTable]{Build: func
 	return
 }}
 
-func (d *GroupResourceDie) Group() diefields.Value[string, *GroupResourceDie] {
+func (d *GroupResourceDie) Group() diefields.Value[string] {
 	return diefields.ValueOf(d, groupResourceFields.Get().Group)
 }
 
-func (d *GroupResourceDie) Resource() diefields.Value[string, *GroupResourceDie] {
+func (d *GroupResourceDie) Resource() diefields.Value[string] {
 	return diefields.ValueOf(d, groupResourceFields.Get().Resource)
+}
+
+func (d *GroupResourceDieMut) Group() diefields.ValueMut[string, *GroupResourceDieMut] {
+	return diefields.ValueMutOf(d, groupResourceFields.Get().Group)
+}
+
+func (d *GroupResourceDieMut) Resource() diefields.ValueMut[string, *GroupResourceDieMut] {
+	return diefields.ValueMutOf(d, groupResourceFields.Get().Resource)
 }
 
 // GroupVersion contains the "group/version" and "version" string of a version.
 // It is made a struct to keep extensibility.
+//
+// GroupVersionForDiscoveryDie is immutable: it reads.
+// GroupVersionForDiscoveryDieMut, its mutable die, also writes, as DieWith passes it.
 type GroupVersionForDiscoveryDie struct {
-	diebase.DieBase[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie]
+	diebase.DieBase[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]
 }
 
-func (*GroupVersionForDiscoveryDie) DieFrom(b diebase.DieBase[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie]) *GroupVersionForDiscoveryDie {
+// GroupVersionForDiscoveryDieMut is the mutable die of GroupVersionForDiscovery: see GroupVersionForDiscoveryDie.
+type GroupVersionForDiscoveryDieMut struct {
+	diebase.DieMutBase[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]
+}
+
+func (*GroupVersionForDiscoveryDie) DieFrom(b diebase.DieBase[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]) *GroupVersionForDiscoveryDie {
 	return &GroupVersionForDiscoveryDie{b}
 }
 
-var _ diebase.DieOf[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie] = (*GroupVersionForDiscoveryDie)(nil)
+func (*GroupVersionForDiscoveryDieMut) DieFrom(b diebase.DieMutBase[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]) *GroupVersionForDiscoveryDieMut {
+	return &GroupVersionForDiscoveryDieMut{b}
+}
 
-var GroupVersionForDiscoveryBlank = diebase.Blank[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie]()
+var (
+	_ diebase.DieOf[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]    = (*GroupVersionForDiscoveryDie)(nil)
+	_ diebase.DieMutOf[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut] = (*GroupVersionForDiscoveryDieMut)(nil)
+)
+
+var GroupVersionForDiscoveryBlank = diebase.Blank[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]()
 
 type groupVersionForDiscoveryFieldsTable struct {
 	GroupVersion diefields.Field[GroupVersionForDiscovery, string]
@@ -1052,29 +1762,55 @@ var groupVersionForDiscoveryFields = &diefields.Table[groupVersionForDiscoveryFi
 }}
 
 // groupVersion specifies the API group and version in the form "group/version"
-func (d *GroupVersionForDiscoveryDie) GroupVersion() diefields.Value[string, *GroupVersionForDiscoveryDie] {
+func (d *GroupVersionForDiscoveryDie) GroupVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, groupVersionForDiscoveryFields.Get().GroupVersion)
 }
 
 // version specifies the version in the form of "version". This is to save
 // the clients the trouble of splitting the GroupVersion.
-func (d *GroupVersionForDiscoveryDie) Version() diefields.Value[string, *GroupVersionForDiscoveryDie] {
+func (d *GroupVersionForDiscoveryDie) Version() diefields.Value[string] {
 	return diefields.ValueOf(d, groupVersionForDiscoveryFields.Get().Version)
+}
+
+// groupVersion specifies the API group and version in the form "group/version"
+func (d *GroupVersionForDiscoveryDieMut) GroupVersion() diefields.ValueMut[string, *GroupVersionForDiscoveryDieMut] {
+	return diefields.ValueMutOf(d, groupVersionForDiscoveryFields.Get().GroupVersion)
+}
+
+// version specifies the version in the form of "version". This is to save
+// the clients the trouble of splitting the GroupVersion.
+func (d *GroupVersionForDiscoveryDieMut) Version() diefields.ValueMut[string, *GroupVersionForDiscoveryDieMut] {
+	return diefields.ValueMutOf(d, groupVersionForDiscoveryFields.Get().Version)
 }
 
 // GroupVersionKind unambiguously identifies a kind.  It doesn't anonymously include GroupVersion
 // to avoid automatic coercion.  It doesn't use a GroupVersion to avoid custom marshalling
+//
+// GroupVersionKindDie is immutable: it reads.
+// GroupVersionKindDieMut, its mutable die, also writes, as DieWith passes it.
 type GroupVersionKindDie struct {
-	diebase.DieBase[GroupVersionKind, *GroupVersionKindDie]
+	diebase.DieBase[GroupVersionKind, *GroupVersionKindDie, *GroupVersionKindDieMut]
 }
 
-func (*GroupVersionKindDie) DieFrom(b diebase.DieBase[GroupVersionKind, *GroupVersionKindDie]) *GroupVersionKindDie {
+// GroupVersionKindDieMut is the mutable die of GroupVersionKind: see GroupVersionKindDie.
+type GroupVersionKindDieMut struct {
+	diebase.DieMutBase[GroupVersionKind, *GroupVersionKindDie, *GroupVersionKindDieMut]
+}
+
+func (*GroupVersionKindDie) DieFrom(b diebase.DieBase[GroupVersionKind, *GroupVersionKindDie, *GroupVersionKindDieMut]) *GroupVersionKindDie {
 	return &GroupVersionKindDie{b}
 }
 
-var _ diebase.DieOf[GroupVersionKind, *GroupVersionKindDie] = (*GroupVersionKindDie)(nil)
+func (*GroupVersionKindDieMut) DieFrom(b diebase.DieMutBase[GroupVersionKind, *GroupVersionKindDie, *GroupVersionKindDieMut]) *GroupVersionKindDieMut {
+	return &GroupVersionKindDieMut{b}
+}
 
-var GroupVersionKindBlank = diebase.Blank[GroupVersionKind, *GroupVersionKindDie]()
+var (
+	_ diebase.DieOf[GroupVersionKind, *GroupVersionKindDie, *GroupVersionKindDieMut]    = (*GroupVersionKindDie)(nil)
+	_ diebase.DieMutOf[GroupVersionKind, *GroupVersionKindDie, *GroupVersionKindDieMut] = (*GroupVersionKindDieMut)(nil)
+)
+
+var GroupVersionKindBlank = diebase.Blank[GroupVersionKind, *GroupVersionKindDie, *GroupVersionKindDieMut]()
 
 type groupVersionKindFieldsTable struct {
 	Group   diefields.Field[GroupVersionKind, string]
@@ -1090,31 +1826,58 @@ var groupVersionKindFields = &diefields.Table[groupVersionKindFieldsTable]{Build
 	return
 }}
 
-func (d *GroupVersionKindDie) Group() diefields.Value[string, *GroupVersionKindDie] {
+func (d *GroupVersionKindDie) Group() diefields.Value[string] {
 	return diefields.ValueOf(d, groupVersionKindFields.Get().Group)
 }
 
-func (d *GroupVersionKindDie) Version() diefields.Value[string, *GroupVersionKindDie] {
+func (d *GroupVersionKindDie) Version() diefields.Value[string] {
 	return diefields.ValueOf(d, groupVersionKindFields.Get().Version)
 }
 
-func (d *GroupVersionKindDie) Kind() diefields.Value[string, *GroupVersionKindDie] {
+func (d *GroupVersionKindDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, groupVersionKindFields.Get().Kind)
+}
+
+func (d *GroupVersionKindDieMut) Group() diefields.ValueMut[string, *GroupVersionKindDieMut] {
+	return diefields.ValueMutOf(d, groupVersionKindFields.Get().Group)
+}
+
+func (d *GroupVersionKindDieMut) Version() diefields.ValueMut[string, *GroupVersionKindDieMut] {
+	return diefields.ValueMutOf(d, groupVersionKindFields.Get().Version)
+}
+
+func (d *GroupVersionKindDieMut) Kind() diefields.ValueMut[string, *GroupVersionKindDieMut] {
+	return diefields.ValueMutOf(d, groupVersionKindFields.Get().Kind)
 }
 
 // GroupVersionResource unambiguously identifies a resource.  It doesn't anonymously include GroupVersion
 // to avoid automatic coercion.  It doesn't use a GroupVersion to avoid custom marshalling
+//
+// GroupVersionResourceDie is immutable: it reads.
+// GroupVersionResourceDieMut, its mutable die, also writes, as DieWith passes it.
 type GroupVersionResourceDie struct {
-	diebase.DieBase[GroupVersionResource, *GroupVersionResourceDie]
+	diebase.DieBase[GroupVersionResource, *GroupVersionResourceDie, *GroupVersionResourceDieMut]
 }
 
-func (*GroupVersionResourceDie) DieFrom(b diebase.DieBase[GroupVersionResource, *GroupVersionResourceDie]) *GroupVersionResourceDie {
+// GroupVersionResourceDieMut is the mutable die of GroupVersionResource: see GroupVersionResourceDie.
+type GroupVersionResourceDieMut struct {
+	diebase.DieMutBase[GroupVersionResource, *GroupVersionResourceDie, *GroupVersionResourceDieMut]
+}
+
+func (*GroupVersionResourceDie) DieFrom(b diebase.DieBase[GroupVersionResource, *GroupVersionResourceDie, *GroupVersionResourceDieMut]) *GroupVersionResourceDie {
 	return &GroupVersionResourceDie{b}
 }
 
-var _ diebase.DieOf[GroupVersionResource, *GroupVersionResourceDie] = (*GroupVersionResourceDie)(nil)
+func (*GroupVersionResourceDieMut) DieFrom(b diebase.DieMutBase[GroupVersionResource, *GroupVersionResourceDie, *GroupVersionResourceDieMut]) *GroupVersionResourceDieMut {
+	return &GroupVersionResourceDieMut{b}
+}
 
-var GroupVersionResourceBlank = diebase.Blank[GroupVersionResource, *GroupVersionResourceDie]()
+var (
+	_ diebase.DieOf[GroupVersionResource, *GroupVersionResourceDie, *GroupVersionResourceDieMut]    = (*GroupVersionResourceDie)(nil)
+	_ diebase.DieMutOf[GroupVersionResource, *GroupVersionResourceDie, *GroupVersionResourceDieMut] = (*GroupVersionResourceDieMut)(nil)
+)
+
+var GroupVersionResourceBlank = diebase.Blank[GroupVersionResource, *GroupVersionResourceDie, *GroupVersionResourceDieMut]()
 
 type groupVersionResourceFieldsTable struct {
 	Group    diefields.Field[GroupVersionResource, string]
@@ -1130,30 +1893,57 @@ var groupVersionResourceFields = &diefields.Table[groupVersionResourceFieldsTabl
 	return
 }}
 
-func (d *GroupVersionResourceDie) Group() diefields.Value[string, *GroupVersionResourceDie] {
+func (d *GroupVersionResourceDie) Group() diefields.Value[string] {
 	return diefields.ValueOf(d, groupVersionResourceFields.Get().Group)
 }
 
-func (d *GroupVersionResourceDie) Version() diefields.Value[string, *GroupVersionResourceDie] {
+func (d *GroupVersionResourceDie) Version() diefields.Value[string] {
 	return diefields.ValueOf(d, groupVersionResourceFields.Get().Version)
 }
 
-func (d *GroupVersionResourceDie) Resource() diefields.Value[string, *GroupVersionResourceDie] {
+func (d *GroupVersionResourceDie) Resource() diefields.Value[string] {
 	return diefields.ValueOf(d, groupVersionResourceFields.Get().Resource)
 }
 
-// InternalEvent makes watch.Event versioned
-type InternalEventDie struct {
-	diebase.DieBase[InternalEvent, *InternalEventDie]
+func (d *GroupVersionResourceDieMut) Group() diefields.ValueMut[string, *GroupVersionResourceDieMut] {
+	return diefields.ValueMutOf(d, groupVersionResourceFields.Get().Group)
 }
 
-func (*InternalEventDie) DieFrom(b diebase.DieBase[InternalEvent, *InternalEventDie]) *InternalEventDie {
+func (d *GroupVersionResourceDieMut) Version() diefields.ValueMut[string, *GroupVersionResourceDieMut] {
+	return diefields.ValueMutOf(d, groupVersionResourceFields.Get().Version)
+}
+
+func (d *GroupVersionResourceDieMut) Resource() diefields.ValueMut[string, *GroupVersionResourceDieMut] {
+	return diefields.ValueMutOf(d, groupVersionResourceFields.Get().Resource)
+}
+
+// InternalEvent makes watch.Event versioned
+//
+// InternalEventDie is immutable: it reads.
+// InternalEventDieMut, its mutable die, also writes, as DieWith passes it.
+type InternalEventDie struct {
+	diebase.DieBase[InternalEvent, *InternalEventDie, *InternalEventDieMut]
+}
+
+// InternalEventDieMut is the mutable die of InternalEvent: see InternalEventDie.
+type InternalEventDieMut struct {
+	diebase.DieMutBase[InternalEvent, *InternalEventDie, *InternalEventDieMut]
+}
+
+func (*InternalEventDie) DieFrom(b diebase.DieBase[InternalEvent, *InternalEventDie, *InternalEventDieMut]) *InternalEventDie {
 	return &InternalEventDie{b}
 }
 
-var _ diebase.DieOf[InternalEvent, *InternalEventDie] = (*InternalEventDie)(nil)
+func (*InternalEventDieMut) DieFrom(b diebase.DieMutBase[InternalEvent, *InternalEventDie, *InternalEventDieMut]) *InternalEventDieMut {
+	return &InternalEventDieMut{b}
+}
 
-var InternalEventBlank = diebase.Blank[InternalEvent, *InternalEventDie]()
+var (
+	_ diebase.DieOf[InternalEvent, *InternalEventDie, *InternalEventDieMut]    = (*InternalEventDie)(nil)
+	_ diebase.DieMutOf[InternalEvent, *InternalEventDie, *InternalEventDieMut] = (*InternalEventDieMut)(nil)
+)
+
+var InternalEventBlank = diebase.Blank[InternalEvent, *InternalEventDie, *InternalEventDieMut]()
 
 type internalEventFieldsTable struct {
 	Type   diefields.Field[InternalEvent, watch.EventType]
@@ -1167,7 +1957,7 @@ var internalEventFields = &diefields.Table[internalEventFieldsTable]{Build: func
 	return
 }}
 
-func (d *InternalEventDie) Type() diefields.Value[watch.EventType, *InternalEventDie] {
+func (d *InternalEventDie) Type() diefields.Value[watch.EventType] {
 	return diefields.ValueOf(d, internalEventFields.Get().Type)
 }
 
@@ -1180,24 +1970,56 @@ func (d *InternalEventDie) Type() diefields.Value[watch.EventType, *InternalEven
 //     nor miss any events.
 //   - If Type is Error: *api.Status is recommended; other types may make sense
 //     depending on context.
-func (d *InternalEventDie) Object() diefields.Value[runtime.Object, *InternalEventDie] {
+func (d *InternalEventDie) Object() diefields.Value[runtime.Object] {
 	return diefields.ValueOf(d, internalEventFields.Get().Object)
+}
+
+func (d *InternalEventDieMut) Type() diefields.ValueMut[watch.EventType, *InternalEventDieMut] {
+	return diefields.ValueMutOf(d, internalEventFields.Get().Type)
+}
+
+// Object is:
+//   - If Type is Added or Modified: the new state of the object.
+//   - If Type is Deleted: the state of the object immediately before deletion.
+//   - If Type is Bookmark: the object (instance of a type being watched) where
+//     only ResourceVersion field is set. On successful restart of watch from a
+//     bookmark resourceVersion, client is guaranteed to not get repeat event
+//     nor miss any events.
+//   - If Type is Error: *api.Status is recommended; other types may make sense
+//     depending on context.
+func (d *InternalEventDieMut) Object() diefields.ValueMut[runtime.Object, *InternalEventDieMut] {
+	return diefields.ValueMutOf(d, internalEventFields.Get().Object)
 }
 
 // A label selector is a label query over a set of resources. The result of matchLabels and
 // matchExpressions are ANDed. An empty label selector matches all objects. A null
 // label selector matches no objects.
+//
+// LabelSelectorDie is immutable: it reads.
+// LabelSelectorDieMut, its mutable die, also writes, as DieWith passes it.
 type LabelSelectorDie struct {
-	diebase.DieBase[LabelSelector, *LabelSelectorDie]
+	diebase.DieBase[LabelSelector, *LabelSelectorDie, *LabelSelectorDieMut]
 }
 
-func (*LabelSelectorDie) DieFrom(b diebase.DieBase[LabelSelector, *LabelSelectorDie]) *LabelSelectorDie {
+// LabelSelectorDieMut is the mutable die of LabelSelector: see LabelSelectorDie.
+type LabelSelectorDieMut struct {
+	diebase.DieMutBase[LabelSelector, *LabelSelectorDie, *LabelSelectorDieMut]
+}
+
+func (*LabelSelectorDie) DieFrom(b diebase.DieBase[LabelSelector, *LabelSelectorDie, *LabelSelectorDieMut]) *LabelSelectorDie {
 	return &LabelSelectorDie{b}
 }
 
-var _ diebase.DieOf[LabelSelector, *LabelSelectorDie] = (*LabelSelectorDie)(nil)
+func (*LabelSelectorDieMut) DieFrom(b diebase.DieMutBase[LabelSelector, *LabelSelectorDie, *LabelSelectorDieMut]) *LabelSelectorDieMut {
+	return &LabelSelectorDieMut{b}
+}
 
-var LabelSelectorBlank = diebase.Blank[LabelSelector, *LabelSelectorDie]()
+var (
+	_ diebase.DieOf[LabelSelector, *LabelSelectorDie, *LabelSelectorDieMut]    = (*LabelSelectorDie)(nil)
+	_ diebase.DieMutOf[LabelSelector, *LabelSelectorDie, *LabelSelectorDieMut] = (*LabelSelectorDieMut)(nil)
+)
+
+var LabelSelectorBlank = diebase.Blank[LabelSelector, *LabelSelectorDie, *LabelSelectorDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1206,34 +2028,47 @@ func (d *LabelSelectorDie) DieReleaseApplyConfiguration() *LabelSelectorApplyCon
 	return diecodegen.ReleaseApplyConfiguration[LabelSelectorApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *LabelSelectorDie) DieFeedApplyConfiguration(ac *LabelSelectorApplyConfiguration) *LabelSelectorDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *LabelSelectorDie) DieStampApplyConfiguration(fn func(ac *LabelSelectorApplyConfiguration)) *LabelSelectorDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *LabelSelectorDie) DieReleaseApplyConfigurationE() (*LabelSelectorApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[LabelSelectorApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *LabelSelectorDieMut) DieReleaseApplyConfiguration() *LabelSelectorApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[LabelSelectorApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *LabelSelectorDieMut) DieReleaseApplyConfigurationE() (*LabelSelectorApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[LabelSelectorApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *LabelSelectorDieMut) DieFeedApplyConfiguration(ac *LabelSelectorApplyConfiguration) *LabelSelectorDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *LabelSelectorDieMut) DieStampApplyConfiguration(fn func(ac *LabelSelectorApplyConfiguration)) *LabelSelectorDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *LabelSelectorDie) DieFeedApplyConfigurationE(ac *LabelSelectorApplyConfiguration) (*LabelSelectorDie, error) {
+func (d *LabelSelectorDieMut) DieFeedApplyConfigurationE(ac *LabelSelectorApplyConfiguration) (*LabelSelectorDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *LabelSelectorDie) DieStampApplyConfigurationE(fn func(ac *LabelSelectorApplyConfiguration)) (*LabelSelectorDie, error) {
+func (d *LabelSelectorDieMut) DieStampApplyConfigurationE(fn func(ac *LabelSelectorApplyConfiguration)) (*LabelSelectorDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1257,23 +2092,50 @@ func (d *LabelSelectorDie) MatchLabels() *diefields.Map[string, string] {
 }
 
 // matchExpressions is a list of label selector requirements. The requirements are ANDed.
-func (d *LabelSelectorDie) MatchExpressions() diefields.Value[[]LabelSelectorRequirement, *LabelSelectorDie] {
+func (d *LabelSelectorDie) MatchExpressions() diefields.Value[[]LabelSelectorRequirement] {
 	return diefields.ValueOf(d, labelSelectorFields.Get().MatchExpressions)
+}
+
+// matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+// map is equivalent to an element of matchExpressions, whose key field is "key", the
+// operator is "In", and the values array contains only "value". The requirements are ANDed.
+func (d *LabelSelectorDieMut) MatchLabels() *diefields.MapMut[string, string] {
+	return diefields.MapMutOf(d, labelSelectorFields.Get().MatchLabels)
+}
+
+// matchExpressions is a list of label selector requirements. The requirements are ANDed.
+func (d *LabelSelectorDieMut) MatchExpressions() diefields.ValueMut[[]LabelSelectorRequirement, *LabelSelectorDieMut] {
+	return diefields.ValueMutOf(d, labelSelectorFields.Get().MatchExpressions)
 }
 
 // A label selector requirement is a selector that contains values, a key, and an operator that
 // relates the key and values.
+//
+// LabelSelectorRequirementDie is immutable: it reads.
+// LabelSelectorRequirementDieMut, its mutable die, also writes, as DieWith passes it.
 type LabelSelectorRequirementDie struct {
-	diebase.DieBase[LabelSelectorRequirement, *LabelSelectorRequirementDie]
+	diebase.DieBase[LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut]
 }
 
-func (*LabelSelectorRequirementDie) DieFrom(b diebase.DieBase[LabelSelectorRequirement, *LabelSelectorRequirementDie]) *LabelSelectorRequirementDie {
+// LabelSelectorRequirementDieMut is the mutable die of LabelSelectorRequirement: see LabelSelectorRequirementDie.
+type LabelSelectorRequirementDieMut struct {
+	diebase.DieMutBase[LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut]
+}
+
+func (*LabelSelectorRequirementDie) DieFrom(b diebase.DieBase[LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut]) *LabelSelectorRequirementDie {
 	return &LabelSelectorRequirementDie{b}
 }
 
-var _ diebase.DieOf[LabelSelectorRequirement, *LabelSelectorRequirementDie] = (*LabelSelectorRequirementDie)(nil)
+func (*LabelSelectorRequirementDieMut) DieFrom(b diebase.DieMutBase[LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut]) *LabelSelectorRequirementDieMut {
+	return &LabelSelectorRequirementDieMut{b}
+}
 
-var LabelSelectorRequirementBlank = diebase.Blank[LabelSelectorRequirement, *LabelSelectorRequirementDie]()
+var (
+	_ diebase.DieOf[LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut]    = (*LabelSelectorRequirementDie)(nil)
+	_ diebase.DieMutOf[LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut] = (*LabelSelectorRequirementDieMut)(nil)
+)
+
+var LabelSelectorRequirementBlank = diebase.Blank[LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1282,34 +2144,47 @@ func (d *LabelSelectorRequirementDie) DieReleaseApplyConfiguration() *LabelSelec
 	return diecodegen.ReleaseApplyConfiguration[LabelSelectorRequirementApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *LabelSelectorRequirementDie) DieFeedApplyConfiguration(ac *LabelSelectorRequirementApplyConfiguration) *LabelSelectorRequirementDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *LabelSelectorRequirementDie) DieStampApplyConfiguration(fn func(ac *LabelSelectorRequirementApplyConfiguration)) *LabelSelectorRequirementDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *LabelSelectorRequirementDie) DieReleaseApplyConfigurationE() (*LabelSelectorRequirementApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[LabelSelectorRequirementApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *LabelSelectorRequirementDieMut) DieReleaseApplyConfiguration() *LabelSelectorRequirementApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[LabelSelectorRequirementApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *LabelSelectorRequirementDieMut) DieReleaseApplyConfigurationE() (*LabelSelectorRequirementApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[LabelSelectorRequirementApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *LabelSelectorRequirementDieMut) DieFeedApplyConfiguration(ac *LabelSelectorRequirementApplyConfiguration) *LabelSelectorRequirementDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *LabelSelectorRequirementDieMut) DieStampApplyConfiguration(fn func(ac *LabelSelectorRequirementApplyConfiguration)) *LabelSelectorRequirementDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *LabelSelectorRequirementDie) DieFeedApplyConfigurationE(ac *LabelSelectorRequirementApplyConfiguration) (*LabelSelectorRequirementDie, error) {
+func (d *LabelSelectorRequirementDieMut) DieFeedApplyConfigurationE(ac *LabelSelectorRequirementApplyConfiguration) (*LabelSelectorRequirementDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *LabelSelectorRequirementDie) DieStampApplyConfigurationE(fn func(ac *LabelSelectorRequirementApplyConfiguration)) (*LabelSelectorRequirementDie, error) {
+func (d *LabelSelectorRequirementDieMut) DieStampApplyConfigurationE(fn func(ac *LabelSelectorRequirementApplyConfiguration)) (*LabelSelectorRequirementDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1328,13 +2203,13 @@ var labelSelectorRequirementFields = &diefields.Table[labelSelectorRequirementFi
 }}
 
 // key is the label key that the selector applies to.
-func (d *LabelSelectorRequirementDie) Key() diefields.Value[string, *LabelSelectorRequirementDie] {
+func (d *LabelSelectorRequirementDie) Key() diefields.Value[string] {
 	return diefields.ValueOf(d, labelSelectorRequirementFields.Get().Key)
 }
 
 // operator represents a key's relationship to a set of values.
 // Valid operators are In, NotIn, Exists and DoesNotExist.
-func (d *LabelSelectorRequirementDie) Operator() diefields.Value[LabelSelectorOperator, *LabelSelectorRequirementDie] {
+func (d *LabelSelectorRequirementDie) Operator() diefields.Value[LabelSelectorOperator] {
 	return diefields.ValueOf(d, labelSelectorRequirementFields.Get().Operator)
 }
 
@@ -1342,25 +2217,59 @@ func (d *LabelSelectorRequirementDie) Operator() diefields.Value[LabelSelectorOp
 // the values array must be non-empty. If the operator is Exists or DoesNotExist,
 // the values array must be empty. This array is replaced during a strategic
 // merge patch.
-func (d *LabelSelectorRequirementDie) Values() diefields.Value[[]string, *LabelSelectorRequirementDie] {
+func (d *LabelSelectorRequirementDie) Values() diefields.Value[[]string] {
 	return diefields.ValueOf(d, labelSelectorRequirementFields.Get().Values)
 }
 
-// List holds a list of objects, which may not be known by the server.
-type ListDie struct {
-	diebase.DieBase[List, *ListDie]
+// key is the label key that the selector applies to.
+func (d *LabelSelectorRequirementDieMut) Key() diefields.ValueMut[string, *LabelSelectorRequirementDieMut] {
+	return diefields.ValueMutOf(d, labelSelectorRequirementFields.Get().Key)
 }
 
-func (*ListDie) DieFrom(b diebase.DieBase[List, *ListDie]) *ListDie { return &ListDie{b} }
+// operator represents a key's relationship to a set of values.
+// Valid operators are In, NotIn, Exists and DoesNotExist.
+func (d *LabelSelectorRequirementDieMut) Operator() diefields.ValueMut[LabelSelectorOperator, *LabelSelectorRequirementDieMut] {
+	return diefields.ValueMutOf(d, labelSelectorRequirementFields.Get().Operator)
+}
 
-var _ diebase.DieOf[List, *ListDie] = (*ListDie)(nil)
+// values is an array of string values. If the operator is In or NotIn,
+// the values array must be non-empty. If the operator is Exists or DoesNotExist,
+// the values array must be empty. This array is replaced during a strategic
+// merge patch.
+func (d *LabelSelectorRequirementDieMut) Values() diefields.ValueMut[[]string, *LabelSelectorRequirementDieMut] {
+	return diefields.ValueMutOf(d, labelSelectorRequirementFields.Get().Values)
+}
 
-var ListBlank = diebase.Blank[List, *ListDie]()
+// List holds a list of objects, which may not be known by the server.
+//
+// ListDie is immutable: it reads.
+// ListDieMut, its mutable die, also writes, as DieWith passes it.
+type ListDie struct {
+	diebase.DieBase[List, *ListDie, *ListDieMut]
+}
+
+// ListDieMut is the mutable die of List: see ListDie.
+type ListDieMut struct {
+	diebase.DieMutBase[List, *ListDie, *ListDieMut]
+}
+
+func (*ListDie) DieFrom(b diebase.DieBase[List, *ListDie, *ListDieMut]) *ListDie { return &ListDie{b} }
+
+func (*ListDieMut) DieFrom(b diebase.DieMutBase[List, *ListDie, *ListDieMut]) *ListDieMut {
+	return &ListDieMut{b}
+}
+
+var (
+	_ diebase.DieOf[List, *ListDie, *ListDieMut]    = (*ListDie)(nil)
+	_ diebase.DieMutOf[List, *ListDie, *ListDieMut] = (*ListDieMut)(nil)
+)
+
+var ListBlank = diebase.Blank[List, *ListDie, *ListDieMut]()
 
 type listFieldsTable struct {
 	Kind       diefields.Field[List, string]
 	APIVersion diefields.Field[List, string]
-	Metadata   diefields.Struct[List, ListMeta, *ListMetaDie]
+	Metadata   diefields.Struct[List, ListMeta, *ListMetaDie, *ListMetaDieMut]
 	Items      diefields.Field[List, []runtime.RawExtension]
 }
 
@@ -1368,7 +2277,7 @@ var listFields = &diefields.Table[listFieldsTable]{Build: func() (f listFieldsTa
 	_ = annotated
 	f.Kind = diefields.NewField[List, string]("kind")
 	f.APIVersion = diefields.NewField[List, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[List, ListMeta, *ListMetaDie]("metadata")
+	f.Metadata = diefields.NewStruct[List, ListMeta, *ListMetaDie, *ListMetaDieMut]("metadata")
 	f.Items = diefields.NewField[List, []runtime.RawExtension]("items")
 	return
 }}
@@ -1378,15 +2287,13 @@ var listFields = &diefields.Table[listFieldsTable]{Build: func() (f listFieldsTa
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *ListDie) Kind() diefields.Value[string, *ListDie] {
-	return diefields.ValueOf(d, listFields.Get().Kind)
-}
+func (d *ListDie) Kind() diefields.Value[string] { return diefields.ValueOf(d, listFields.Get().Kind) }
 
 // APIVersion defines the versioned schema of this representation of an object.
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *ListDie) APIVersion() diefields.Value[string, *ListDie] {
+func (d *ListDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, listFields.Get().APIVersion)
 }
 
@@ -1395,30 +2302,73 @@ func (d *ListDie) APIVersion() diefields.Value[string, *ListDie] {
 func (d *ListDie) Metadata() *ListMetaDie { return diefields.Child(d, listFields.Get().Metadata) }
 
 // List of objects
-func (d *ListDie) Items() diefields.Value[[]runtime.RawExtension, *ListDie] {
+func (d *ListDie) Items() diefields.Value[[]runtime.RawExtension] {
 	return diefields.ValueOf(d, listFields.Get().Items)
+}
+
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ListDieMut) Kind() diefields.ValueMut[string, *ListDieMut] {
+	return diefields.ValueMutOf(d, listFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *ListDieMut) APIVersion() diefields.ValueMut[string, *ListDieMut] {
+	return diefields.ValueMutOf(d, listFields.Get().APIVersion)
+}
+
+// Standard list metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ListDieMut) Metadata() *ListMetaDieMut {
+	return diefields.ChildMut(d, listFields.Get().Metadata)
+}
+
+// List of objects
+func (d *ListDieMut) Items() diefields.ValueMut[[]runtime.RawExtension, *ListDieMut] {
+	return diefields.ValueMutOf(d, listFields.Get().Items)
 }
 
 // ListMeta describes metadata that synthetic resources must have, including lists and
 // various status objects. A resource may have only one of {ObjectMeta, ListMeta}.
+//
+// ListMetaDie is immutable: it reads.
+// ListMetaDieMut, its mutable die, also writes, as DieWith passes it.
 type ListMetaDie struct {
-	diebase.DieBase[ListMeta, *ListMetaDie]
+	diebase.DieBase[ListMeta, *ListMetaDie, *ListMetaDieMut]
 }
 
-func (*ListMetaDie) DieFrom(b diebase.DieBase[ListMeta, *ListMetaDie]) *ListMetaDie {
+// ListMetaDieMut is the mutable die of ListMeta: see ListMetaDie.
+type ListMetaDieMut struct {
+	diebase.DieMutBase[ListMeta, *ListMetaDie, *ListMetaDieMut]
+}
+
+func (*ListMetaDie) DieFrom(b diebase.DieBase[ListMeta, *ListMetaDie, *ListMetaDieMut]) *ListMetaDie {
 	return &ListMetaDie{b}
 }
 
-var _ diebase.DieOf[ListMeta, *ListMetaDie] = (*ListMetaDie)(nil)
+func (*ListMetaDieMut) DieFrom(b diebase.DieMutBase[ListMeta, *ListMetaDie, *ListMetaDieMut]) *ListMetaDieMut {
+	return &ListMetaDieMut{b}
+}
 
-var ListMetaBlank = diebase.Blank[ListMeta, *ListMetaDie]()
+var (
+	_ diebase.DieOf[ListMeta, *ListMetaDie, *ListMetaDieMut]    = (*ListMetaDie)(nil)
+	_ diebase.DieMutOf[ListMeta, *ListMetaDie, *ListMetaDieMut] = (*ListMetaDieMut)(nil)
+)
+
+var ListMetaBlank = diebase.Blank[ListMeta, *ListMetaDie, *ListMetaDieMut]()
 
 type listMetaFieldsTable struct {
 	SelfLink           diefields.Field[ListMeta, string]
 	ResourceVersion    diefields.Field[ListMeta, string]
 	Continue           diefields.Field[ListMeta, string]
 	RemainingItemCount diefields.Field[ListMeta, *int64]
-	ShardInfo          diefields.Struct[ListMeta, ShardInfo, *ShardInfoDie]
+	ShardInfo          diefields.Struct[ListMeta, ShardInfo, *ShardInfoDie, *ShardInfoDieMut]
 }
 
 var listMetaFields = &diefields.Table[listMetaFieldsTable]{Build: func() (f listMetaFieldsTable) {
@@ -1427,12 +2377,12 @@ var listMetaFields = &diefields.Table[listMetaFieldsTable]{Build: func() (f list
 	f.ResourceVersion = diefields.NewField[ListMeta, string]("resourceVersion")
 	f.Continue = diefields.NewField[ListMeta, string]("continue")
 	f.RemainingItemCount = diefields.NewField[ListMeta, *int64]("remainingItemCount")
-	f.ShardInfo = diefields.NewStruct[ListMeta, ShardInfo, *ShardInfoDie]("shardInfo")
+	f.ShardInfo = diefields.NewStruct[ListMeta, ShardInfo, *ShardInfoDie, *ShardInfoDieMut]("shardInfo")
 	return
 }}
 
 // Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
-func (d *ListMetaDie) SelfLink() diefields.Value[string, *ListMetaDie] {
+func (d *ListMetaDie) SelfLink() diefields.Value[string] {
 	return diefields.ValueOf(d, listMetaFields.Get().SelfLink)
 }
 
@@ -1442,7 +2392,7 @@ func (d *ListMetaDie) SelfLink() diefields.Value[string, *ListMetaDie] {
 // Populated by the system.
 // Read-only.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
-func (d *ListMetaDie) ResourceVersion() diefields.Value[string, *ListMetaDie] {
+func (d *ListMetaDie) ResourceVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, listMetaFields.Get().ResourceVersion)
 }
 
@@ -1453,7 +2403,7 @@ func (d *ListMetaDie) ResourceVersion() diefields.Value[string, *ListMetaDie] {
 // minutes have passed. The resourceVersion field returned when using this continue value will be
 // identical to the value in the first response, unless you have received this token from an error
 // message.
-func (d *ListMetaDie) Continue() diefields.Value[string, *ListMetaDie] {
+func (d *ListMetaDie) Continue() diefields.Value[string] {
 	return diefields.ValueOf(d, listMetaFields.Get().Continue)
 }
 
@@ -1466,7 +2416,7 @@ func (d *ListMetaDie) Continue() diefields.Value[string, *ListMetaDie] {
 // Servers older than v1.15 do not set this field.
 // The intended use of the remainingItemCount is *estimating* the size of a collection. Clients
 // should not rely on the remainingItemCount to be set or to be exact.
-func (d *ListMetaDie) RemainingItemCount() diefields.Optional[int64, *ListMetaDie] {
+func (d *ListMetaDie) RemainingItemCount() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, listMetaFields.Get().RemainingItemCount)
 }
 
@@ -1481,18 +2431,83 @@ func (d *ListMetaDie) ShardInfo() *ShardInfoDie {
 	return diefields.Child(d, listMetaFields.Get().ShardInfo)
 }
 
-// ListOptions is the query options to a standard REST list call.
-type ListOptionsDie struct {
-	diebase.DieBase[ListOptions, *ListOptionsDie]
+// Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
+func (d *ListMetaDieMut) SelfLink() diefields.ValueMut[string, *ListMetaDieMut] {
+	return diefields.ValueMutOf(d, listMetaFields.Get().SelfLink)
 }
 
-func (*ListOptionsDie) DieFrom(b diebase.DieBase[ListOptions, *ListOptionsDie]) *ListOptionsDie {
+// String that identifies the server's internal version of this object that
+// can be used by clients to determine when objects have changed.
+// Value must be treated as opaque by clients and passed unmodified back to the server.
+// Populated by the system.
+// Read-only.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+func (d *ListMetaDieMut) ResourceVersion() diefields.ValueMut[string, *ListMetaDieMut] {
+	return diefields.ValueMutOf(d, listMetaFields.Get().ResourceVersion)
+}
+
+// continue may be set if the user set a limit on the number of items returned, and indicates that
+// the server has more data available. The value is opaque and may be used to issue another request
+// to the endpoint that served this list to retrieve the next set of available objects. Continuing a
+// consistent list may not be possible if the server configuration has changed or more than a few
+// minutes have passed. The resourceVersion field returned when using this continue value will be
+// identical to the value in the first response, unless you have received this token from an error
+// message.
+func (d *ListMetaDieMut) Continue() diefields.ValueMut[string, *ListMetaDieMut] {
+	return diefields.ValueMutOf(d, listMetaFields.Get().Continue)
+}
+
+// remainingItemCount is the number of subsequent items in the list which are not included in this
+// list response. If the list request contained label or field selectors, then the number of
+// remaining items is unknown and the field will be left unset and omitted during serialization.
+// If the list is complete (either because it is not chunking or because this is the last chunk),
+// then there are no more remaining items and this field will be left unset and omitted during
+// serialization.
+// Servers older than v1.15 do not set this field.
+// The intended use of the remainingItemCount is *estimating* the size of a collection. Clients
+// should not rely on the remainingItemCount to be set or to be exact.
+func (d *ListMetaDieMut) RemainingItemCount() diefields.OptionalMut[int64, *ListMetaDieMut] {
+	return diefields.OptionalMutOf(d, listMetaFields.Get().RemainingItemCount)
+}
+
+// shardInfo is set when the list is a filtered subset of the full collection,
+// as selected by a shard selector on the request. It echoes back the selector
+// so clients can verify which shard they received and merge sharded responses.
+// Clients should not cache sharded list responses as a full representation
+// of the collection.
+//
+// This is an alpha field and requires enabling the ShardedListAndWatch feature gate.
+func (d *ListMetaDieMut) ShardInfo() *ShardInfoDieMut {
+	return diefields.ChildMut(d, listMetaFields.Get().ShardInfo)
+}
+
+// ListOptions is the query options to a standard REST list call.
+//
+// ListOptionsDie is immutable: it reads.
+// ListOptionsDieMut, its mutable die, also writes, as DieWith passes it.
+type ListOptionsDie struct {
+	diebase.DieBase[ListOptions, *ListOptionsDie, *ListOptionsDieMut]
+}
+
+// ListOptionsDieMut is the mutable die of ListOptions: see ListOptionsDie.
+type ListOptionsDieMut struct {
+	diebase.DieMutBase[ListOptions, *ListOptionsDie, *ListOptionsDieMut]
+}
+
+func (*ListOptionsDie) DieFrom(b diebase.DieBase[ListOptions, *ListOptionsDie, *ListOptionsDieMut]) *ListOptionsDie {
 	return &ListOptionsDie{b}
 }
 
-var _ diebase.DieOf[ListOptions, *ListOptionsDie] = (*ListOptionsDie)(nil)
+func (*ListOptionsDieMut) DieFrom(b diebase.DieMutBase[ListOptions, *ListOptionsDie, *ListOptionsDieMut]) *ListOptionsDieMut {
+	return &ListOptionsDieMut{b}
+}
 
-var ListOptionsBlank = diebase.Blank[ListOptions, *ListOptionsDie]()
+var (
+	_ diebase.DieOf[ListOptions, *ListOptionsDie, *ListOptionsDieMut]    = (*ListOptionsDie)(nil)
+	_ diebase.DieMutOf[ListOptions, *ListOptionsDie, *ListOptionsDieMut] = (*ListOptionsDieMut)(nil)
+)
+
+var ListOptionsBlank = diebase.Blank[ListOptions, *ListOptionsDie, *ListOptionsDieMut]()
 
 type listOptionsFieldsTable struct {
 	Kind                 diefields.Field[ListOptions, string]
@@ -1533,7 +2548,7 @@ var listOptionsFields = &diefields.Table[listOptionsFieldsTable]{Build: func() (
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *ListOptionsDie) Kind() diefields.Value[string, *ListOptionsDie] {
+func (d *ListOptionsDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, listOptionsFields.Get().Kind)
 }
 
@@ -1541,25 +2556,25 @@ func (d *ListOptionsDie) Kind() diefields.Value[string, *ListOptionsDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *ListOptionsDie) APIVersion() diefields.Value[string, *ListOptionsDie] {
+func (d *ListOptionsDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, listOptionsFields.Get().APIVersion)
 }
 
 // A selector to restrict the list of returned objects by their labels.
 // Defaults to everything.
-func (d *ListOptionsDie) LabelSelector() diefields.Value[string, *ListOptionsDie] {
+func (d *ListOptionsDie) LabelSelector() diefields.Value[string] {
 	return diefields.ValueOf(d, listOptionsFields.Get().LabelSelector)
 }
 
 // A selector to restrict the list of returned objects by their fields.
 // Defaults to everything.
-func (d *ListOptionsDie) FieldSelector() diefields.Value[string, *ListOptionsDie] {
+func (d *ListOptionsDie) FieldSelector() diefields.Value[string] {
 	return diefields.ValueOf(d, listOptionsFields.Get().FieldSelector)
 }
 
 // Watch for changes to the described resources and return them as a stream of
 // add, update, and remove notifications. Specify resourceVersion.
-func (d *ListOptionsDie) Watch() diefields.Value[bool, *ListOptionsDie] {
+func (d *ListOptionsDie) Watch() diefields.Value[bool] {
 	return diefields.ValueOf(d, listOptionsFields.Get().Watch)
 }
 
@@ -1569,7 +2584,7 @@ func (d *ListOptionsDie) Watch() diefields.Value[bool, *ListOptionsDie] {
 // assume bookmarks are returned at any specific interval, nor may they
 // assume the server will send any BOOKMARK event during a session.
 // If this is not a watch, this field is ignored.
-func (d *ListOptionsDie) AllowWatchBookmarks() diefields.Value[bool, *ListOptionsDie] {
+func (d *ListOptionsDie) AllowWatchBookmarks() diefields.Value[bool] {
 	return diefields.ValueOf(d, listOptionsFields.Get().AllowWatchBookmarks)
 }
 
@@ -1578,7 +2593,7 @@ func (d *ListOptionsDie) AllowWatchBookmarks() diefields.Value[bool, *ListOption
 // details.
 //
 // Defaults to unset
-func (d *ListOptionsDie) ResourceVersion() diefields.Value[string, *ListOptionsDie] {
+func (d *ListOptionsDie) ResourceVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, listOptionsFields.Get().ResourceVersion)
 }
 
@@ -1589,13 +2604,13 @@ func (d *ListOptionsDie) ResourceVersion() diefields.Value[string, *ListOptionsD
 // details.
 //
 // Defaults to unset
-func (d *ListOptionsDie) ResourceVersionMatch() diefields.Value[ResourceVersionMatch, *ListOptionsDie] {
+func (d *ListOptionsDie) ResourceVersionMatch() diefields.Value[ResourceVersionMatch] {
 	return diefields.ValueOf(d, listOptionsFields.Get().ResourceVersionMatch)
 }
 
 // Timeout for the list/watch call.
 // This limits the duration of the call, regardless of any activity or inactivity.
-func (d *ListOptionsDie) TimeoutSeconds() diefields.Optional[int64, *ListOptionsDie] {
+func (d *ListOptionsDie) TimeoutSeconds() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, listOptionsFields.Get().TimeoutSeconds)
 }
 
@@ -1615,7 +2630,7 @@ func (d *ListOptionsDie) TimeoutSeconds() diefields.Optional[int64, *ListOptions
 // smaller chunks of a very large result can ensure they see all possible objects. If objects are
 // updated during a chunked list the version of the object that was present at the time the first list
 // result was calculated is returned.
-func (d *ListOptionsDie) Limit() diefields.Value[int64, *ListOptionsDie] {
+func (d *ListOptionsDie) Limit() diefields.Value[int64] {
 	return diefields.ValueOf(d, listOptionsFields.Get().Limit)
 }
 
@@ -1633,7 +2648,7 @@ func (d *ListOptionsDie) Limit() diefields.Value[int64, *ListOptionsDie] {
 //
 // This field is not supported when watch is true. Clients may start a watch from the last
 // resourceVersion value returned by the server and not miss any modifications.
-func (d *ListOptionsDie) Continue() diefields.Value[string, *ListOptionsDie] {
+func (d *ListOptionsDie) Continue() diefields.Value[string] {
 	return diefields.ValueOf(d, listOptionsFields.Get().Continue)
 }
 
@@ -1660,7 +2675,7 @@ func (d *ListOptionsDie) Continue() diefields.Value[string, *ListOptionsDie] {
 //
 // Defaults to true if `resourceVersion=""` or `resourceVersion="0"` (for backward
 // compatibility reasons) and to false otherwise.
-func (d *ListOptionsDie) SendInitialEvents() diefields.Optional[bool, *ListOptionsDie] {
+func (d *ListOptionsDie) SendInitialEvents() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, listOptionsFields.Get().SendInitialEvents)
 }
 
@@ -1693,23 +2708,207 @@ func (d *ListOptionsDie) SendInitialEvents() diefields.Optional[bool, *ListOptio
 //	  shard 3: shardRange(object.metadata.uid, '0xc000000000000000', '0x10000000000000000')
 //
 // This is an alpha field and requires enabling the ShardedListAndWatch feature gate.
-func (d *ListOptionsDie) ShardSelector() diefields.Value[string, *ListOptionsDie] {
+func (d *ListOptionsDie) ShardSelector() diefields.Value[string] {
 	return diefields.ValueOf(d, listOptionsFields.Get().ShardSelector)
+}
+
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ListOptionsDieMut) Kind() diefields.ValueMut[string, *ListOptionsDieMut] {
+	return diefields.ValueMutOf(d, listOptionsFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *ListOptionsDieMut) APIVersion() diefields.ValueMut[string, *ListOptionsDieMut] {
+	return diefields.ValueMutOf(d, listOptionsFields.Get().APIVersion)
+}
+
+// A selector to restrict the list of returned objects by their labels.
+// Defaults to everything.
+func (d *ListOptionsDieMut) LabelSelector() diefields.ValueMut[string, *ListOptionsDieMut] {
+	return diefields.ValueMutOf(d, listOptionsFields.Get().LabelSelector)
+}
+
+// A selector to restrict the list of returned objects by their fields.
+// Defaults to everything.
+func (d *ListOptionsDieMut) FieldSelector() diefields.ValueMut[string, *ListOptionsDieMut] {
+	return diefields.ValueMutOf(d, listOptionsFields.Get().FieldSelector)
+}
+
+// Watch for changes to the described resources and return them as a stream of
+// add, update, and remove notifications. Specify resourceVersion.
+func (d *ListOptionsDieMut) Watch() diefields.ValueMut[bool, *ListOptionsDieMut] {
+	return diefields.ValueMutOf(d, listOptionsFields.Get().Watch)
+}
+
+// allowWatchBookmarks requests watch events with type "BOOKMARK".
+// Servers that do not implement bookmarks may ignore this flag and
+// bookmarks are sent at the server's discretion. Clients should not
+// assume bookmarks are returned at any specific interval, nor may they
+// assume the server will send any BOOKMARK event during a session.
+// If this is not a watch, this field is ignored.
+func (d *ListOptionsDieMut) AllowWatchBookmarks() diefields.ValueMut[bool, *ListOptionsDieMut] {
+	return diefields.ValueMutOf(d, listOptionsFields.Get().AllowWatchBookmarks)
+}
+
+// resourceVersion sets a constraint on what resource versions a request may be served from.
+// See https://kubernetes.io/docs/reference/using-api/api-concepts/#resource-versions for
+// details.
+//
+// Defaults to unset
+func (d *ListOptionsDieMut) ResourceVersion() diefields.ValueMut[string, *ListOptionsDieMut] {
+	return diefields.ValueMutOf(d, listOptionsFields.Get().ResourceVersion)
+}
+
+// resourceVersionMatch determines how resourceVersion is applied to list calls.
+// It is highly recommended that resourceVersionMatch be set for list calls where
+// resourceVersion is set
+// See https://kubernetes.io/docs/reference/using-api/api-concepts/#resource-versions for
+// details.
+//
+// Defaults to unset
+func (d *ListOptionsDieMut) ResourceVersionMatch() diefields.ValueMut[ResourceVersionMatch, *ListOptionsDieMut] {
+	return diefields.ValueMutOf(d, listOptionsFields.Get().ResourceVersionMatch)
+}
+
+// Timeout for the list/watch call.
+// This limits the duration of the call, regardless of any activity or inactivity.
+func (d *ListOptionsDieMut) TimeoutSeconds() diefields.OptionalMut[int64, *ListOptionsDieMut] {
+	return diefields.OptionalMutOf(d, listOptionsFields.Get().TimeoutSeconds)
+}
+
+// limit is a maximum number of responses to return for a list call. If more items exist, the
+// server will set the `continue` field on the list metadata to a value that can be used with the
+// same initial query to retrieve the next set of results. Setting a limit may return fewer than
+// the requested amount of items (up to zero items) in the event all requested objects are
+// filtered out and clients should only use the presence of the continue field to determine whether
+// more results are available. Servers may choose not to support the limit argument and will return
+// all of the available results. If limit is specified and the continue field is empty, clients may
+// assume that no more results are available. This field is not supported if watch is true.
+//
+// The server guarantees that the objects returned when using continue will be identical to issuing
+// a single list call without a limit - that is, no objects created, modified, or deleted after the
+// first request is issued will be included in any subsequent continued requests. This is sometimes
+// referred to as a consistent snapshot, and ensures that a client that is using limit to receive
+// smaller chunks of a very large result can ensure they see all possible objects. If objects are
+// updated during a chunked list the version of the object that was present at the time the first list
+// result was calculated is returned.
+func (d *ListOptionsDieMut) Limit() diefields.ValueMut[int64, *ListOptionsDieMut] {
+	return diefields.ValueMutOf(d, listOptionsFields.Get().Limit)
+}
+
+// The continue option should be set when retrieving more results from the server. Since this value is
+// server defined, clients may only use the continue value from a previous query result with identical
+// query parameters (except for the value of continue) and the server may reject a continue value it
+// does not recognize. If the specified continue value is no longer valid whether due to expiration
+// (generally five to fifteen minutes) or a configuration change on the server, the server will
+// respond with a 410 ResourceExpired error together with a continue token. If the client needs a
+// consistent list, it must restart their list without the continue field. Otherwise, the client may
+// send another list request with the token received with the 410 error, the server will respond with
+// a list starting from the next key, but from the latest snapshot, which is inconsistent from the
+// previous list results - objects that are created, modified, or deleted after the first list request
+// will be included in the response, as long as their keys are after the "next key".
+//
+// This field is not supported when watch is true. Clients may start a watch from the last
+// resourceVersion value returned by the server and not miss any modifications.
+func (d *ListOptionsDieMut) Continue() diefields.ValueMut[string, *ListOptionsDieMut] {
+	return diefields.ValueMutOf(d, listOptionsFields.Get().Continue)
+}
+
+// `sendInitialEvents=true` may be set together with `watch=true`.
+// In that case, the watch stream will begin with synthetic events to
+// produce the current state of objects in the collection. Once all such
+// events have been sent, a synthetic "Bookmark" event  will be sent.
+// The bookmark will report the ResourceVersion (RV) corresponding to the
+// set of objects, and be marked with `"k8s.io/initial-events-end": "true"` annotation.
+// Afterwards, the watch stream will proceed as usual, sending watch events
+// corresponding to changes (subsequent to the RV) to objects watched.
+//
+// When `sendInitialEvents` option is set, we require `resourceVersionMatch`
+// option to also be set. The semantic of the watch request is as following:
+//   - `resourceVersionMatch` = NotOlderThan
+//     is interpreted as "data at least as new as the provided `resourceVersion`"
+//     and the bookmark event is send when the state is synced
+//     to a `resourceVersion` at least as fresh as the one provided by the ListOptions.
+//     If `resourceVersion` is unset, this is interpreted as "consistent read" and the
+//     bookmark event is send when the state is synced at least to the moment
+//     when request started being processed.
+//   - `resourceVersionMatch` set to any other value or unset
+//     Invalid error is returned.
+//
+// Defaults to true if `resourceVersion=""` or `resourceVersion="0"` (for backward
+// compatibility reasons) and to false otherwise.
+func (d *ListOptionsDieMut) SendInitialEvents() diefields.OptionalMut[bool, *ListOptionsDieMut] {
+	return diefields.OptionalMutOf(d, listOptionsFields.Get().SendInitialEvents)
+}
+
+// shardSelector restricts the list of returned objects using a CEL-based
+// shard selector expression. The format uses the shardRange() function
+// combined with || (logical OR) to specify one or more hash ranges:
+//
+//	shardRange(object.metadata.uid, '0x0', '0x8000000000000000')
+//	shardRange(object.metadata.uid, '0x0', '0x8000000000000000') || shardRange(object.metadata.uid, '0x8000000000000000', '0x10000000000000000')
+//
+// Field paths use CEL-style object-rooted syntax (e.g. "object.metadata.uid"),
+// NOT the fieldSelector format ("metadata.uid"). Currently supported paths:
+//   - object.metadata.uid
+//   - object.metadata.namespace
+//
+// hexStart and hexEnd are single-quoted CEL string literals with a '0x' prefix,
+// defining the inclusive lower and exclusive upper bounds over the 64-bit FNV-1a
+// hash space. The full range is [0x0, 0x10000000000000000), where the exclusive
+// upper bound equals 2^64.
+//
+// Examples:
+//
+//	2-shard split:
+//	  shard 0: shardRange(object.metadata.uid, '0x0000000000000000', '0x8000000000000000')
+//	  shard 1: shardRange(object.metadata.uid, '0x8000000000000000', '0x10000000000000000')
+//	4-shard split:
+//	  shard 0: shardRange(object.metadata.uid, '0x0000000000000000', '0x4000000000000000')
+//	  shard 1: shardRange(object.metadata.uid, '0x4000000000000000', '0x8000000000000000')
+//	  shard 2: shardRange(object.metadata.uid, '0x8000000000000000', '0xc000000000000000')
+//	  shard 3: shardRange(object.metadata.uid, '0xc000000000000000', '0x10000000000000000')
+//
+// This is an alpha field and requires enabling the ShardedListAndWatch feature gate.
+func (d *ListOptionsDieMut) ShardSelector() diefields.ValueMut[string, *ListOptionsDieMut] {
+	return diefields.ValueMutOf(d, listOptionsFields.Get().ShardSelector)
 }
 
 // ManagedFieldsEntry is a workflow-id, a FieldSet and the group version of the resource
 // that the fieldset applies to.
+//
+// ManagedFieldsEntryDie is immutable: it reads.
+// ManagedFieldsEntryDieMut, its mutable die, also writes, as DieWith passes it.
 type ManagedFieldsEntryDie struct {
-	diebase.DieBase[ManagedFieldsEntry, *ManagedFieldsEntryDie]
+	diebase.DieBase[ManagedFieldsEntry, *ManagedFieldsEntryDie, *ManagedFieldsEntryDieMut]
 }
 
-func (*ManagedFieldsEntryDie) DieFrom(b diebase.DieBase[ManagedFieldsEntry, *ManagedFieldsEntryDie]) *ManagedFieldsEntryDie {
+// ManagedFieldsEntryDieMut is the mutable die of ManagedFieldsEntry: see ManagedFieldsEntryDie.
+type ManagedFieldsEntryDieMut struct {
+	diebase.DieMutBase[ManagedFieldsEntry, *ManagedFieldsEntryDie, *ManagedFieldsEntryDieMut]
+}
+
+func (*ManagedFieldsEntryDie) DieFrom(b diebase.DieBase[ManagedFieldsEntry, *ManagedFieldsEntryDie, *ManagedFieldsEntryDieMut]) *ManagedFieldsEntryDie {
 	return &ManagedFieldsEntryDie{b}
 }
 
-var _ diebase.DieOf[ManagedFieldsEntry, *ManagedFieldsEntryDie] = (*ManagedFieldsEntryDie)(nil)
+func (*ManagedFieldsEntryDieMut) DieFrom(b diebase.DieMutBase[ManagedFieldsEntry, *ManagedFieldsEntryDie, *ManagedFieldsEntryDieMut]) *ManagedFieldsEntryDieMut {
+	return &ManagedFieldsEntryDieMut{b}
+}
 
-var ManagedFieldsEntryBlank = diebase.Blank[ManagedFieldsEntry, *ManagedFieldsEntryDie]()
+var (
+	_ diebase.DieOf[ManagedFieldsEntry, *ManagedFieldsEntryDie, *ManagedFieldsEntryDieMut]    = (*ManagedFieldsEntryDie)(nil)
+	_ diebase.DieMutOf[ManagedFieldsEntry, *ManagedFieldsEntryDie, *ManagedFieldsEntryDieMut] = (*ManagedFieldsEntryDieMut)(nil)
+)
+
+var ManagedFieldsEntryBlank = diebase.Blank[ManagedFieldsEntry, *ManagedFieldsEntryDie, *ManagedFieldsEntryDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1718,34 +2917,47 @@ func (d *ManagedFieldsEntryDie) DieReleaseApplyConfiguration() *ManagedFieldsEnt
 	return diecodegen.ReleaseApplyConfiguration[ManagedFieldsEntryApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ManagedFieldsEntryDie) DieFeedApplyConfiguration(ac *ManagedFieldsEntryApplyConfiguration) *ManagedFieldsEntryDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ManagedFieldsEntryDie) DieStampApplyConfiguration(fn func(ac *ManagedFieldsEntryApplyConfiguration)) *ManagedFieldsEntryDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ManagedFieldsEntryDie) DieReleaseApplyConfigurationE() (*ManagedFieldsEntryApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ManagedFieldsEntryApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ManagedFieldsEntryDieMut) DieReleaseApplyConfiguration() *ManagedFieldsEntryApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ManagedFieldsEntryApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ManagedFieldsEntryDieMut) DieReleaseApplyConfigurationE() (*ManagedFieldsEntryApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ManagedFieldsEntryApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ManagedFieldsEntryDieMut) DieFeedApplyConfiguration(ac *ManagedFieldsEntryApplyConfiguration) *ManagedFieldsEntryDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ManagedFieldsEntryDieMut) DieStampApplyConfiguration(fn func(ac *ManagedFieldsEntryApplyConfiguration)) *ManagedFieldsEntryDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ManagedFieldsEntryDie) DieFeedApplyConfigurationE(ac *ManagedFieldsEntryApplyConfiguration) (*ManagedFieldsEntryDie, error) {
+func (d *ManagedFieldsEntryDieMut) DieFeedApplyConfigurationE(ac *ManagedFieldsEntryApplyConfiguration) (*ManagedFieldsEntryDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ManagedFieldsEntryDie) DieStampApplyConfigurationE(fn func(ac *ManagedFieldsEntryApplyConfiguration)) (*ManagedFieldsEntryDie, error) {
+func (d *ManagedFieldsEntryDieMut) DieStampApplyConfigurationE(fn func(ac *ManagedFieldsEntryApplyConfiguration)) (*ManagedFieldsEntryDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1772,13 +2984,13 @@ var managedFieldsEntryFields = &diefields.Table[managedFieldsEntryFieldsTable]{B
 }}
 
 // Manager is an identifier of the workflow managing these fields.
-func (d *ManagedFieldsEntryDie) Manager() diefields.Value[string, *ManagedFieldsEntryDie] {
+func (d *ManagedFieldsEntryDie) Manager() diefields.Value[string] {
 	return diefields.ValueOf(d, managedFieldsEntryFields.Get().Manager)
 }
 
 // Operation is the type of operation which lead to this ManagedFieldsEntry being created.
 // The only valid values for this field are 'Apply' and 'Update'.
-func (d *ManagedFieldsEntryDie) Operation() diefields.Value[ManagedFieldsOperationType, *ManagedFieldsEntryDie] {
+func (d *ManagedFieldsEntryDie) Operation() diefields.Value[ManagedFieldsOperationType] {
 	return diefields.ValueOf(d, managedFieldsEntryFields.Get().Operation)
 }
 
@@ -1786,7 +2998,7 @@ func (d *ManagedFieldsEntryDie) Operation() diefields.Value[ManagedFieldsOperati
 // applies to. The format is "group/version" just like the top-level
 // APIVersion field. It is necessary to track the version of a field
 // set because it cannot be automatically converted.
-func (d *ManagedFieldsEntryDie) APIVersion() diefields.Value[string, *ManagedFieldsEntryDie] {
+func (d *ManagedFieldsEntryDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, managedFieldsEntryFields.Get().APIVersion)
 }
 
@@ -1795,18 +3007,18 @@ func (d *ManagedFieldsEntryDie) APIVersion() diefields.Value[string, *ManagedFie
 // changes any of the owned fields value or removes a field. The
 // timestamp does not update when a field is removed from the entry
 // because another manager took it over.
-func (d *ManagedFieldsEntryDie) Time() diefields.Optional[Time, *ManagedFieldsEntryDie] {
+func (d *ManagedFieldsEntryDie) Time() diefields.Optional[Time] {
 	return diefields.OptionalOf(d, managedFieldsEntryFields.Get().Time)
 }
 
 // FieldsType is the discriminator for the different fields format and version.
 // There is currently only one possible value: "FieldsV1"
-func (d *ManagedFieldsEntryDie) FieldsType() diefields.Value[string, *ManagedFieldsEntryDie] {
+func (d *ManagedFieldsEntryDie) FieldsType() diefields.Value[string] {
 	return diefields.ValueOf(d, managedFieldsEntryFields.Get().FieldsType)
 }
 
 // FieldsV1 holds the first JSON version format as described in the "FieldsV1" type.
-func (d *ManagedFieldsEntryDie) FieldsV1() diefields.Optional[FieldsV1, *ManagedFieldsEntryDie] {
+func (d *ManagedFieldsEntryDie) FieldsV1() diefields.Optional[FieldsV1] {
 	return diefields.OptionalOf(d, managedFieldsEntryFields.Get().FieldsV1)
 }
 
@@ -1817,23 +3029,88 @@ func (d *ManagedFieldsEntryDie) FieldsV1() diefields.Optional[FieldsV1, *Managed
 // regular update using the same manager name.
 // Note that the APIVersion field is not related to the Subresource field and
 // it always corresponds to the version of the main resource.
-func (d *ManagedFieldsEntryDie) Subresource() diefields.Value[string, *ManagedFieldsEntryDie] {
+func (d *ManagedFieldsEntryDie) Subresource() diefields.Value[string] {
 	return diefields.ValueOf(d, managedFieldsEntryFields.Get().Subresource)
+}
+
+// Manager is an identifier of the workflow managing these fields.
+func (d *ManagedFieldsEntryDieMut) Manager() diefields.ValueMut[string, *ManagedFieldsEntryDieMut] {
+	return diefields.ValueMutOf(d, managedFieldsEntryFields.Get().Manager)
+}
+
+// Operation is the type of operation which lead to this ManagedFieldsEntry being created.
+// The only valid values for this field are 'Apply' and 'Update'.
+func (d *ManagedFieldsEntryDieMut) Operation() diefields.ValueMut[ManagedFieldsOperationType, *ManagedFieldsEntryDieMut] {
+	return diefields.ValueMutOf(d, managedFieldsEntryFields.Get().Operation)
+}
+
+// APIVersion defines the version of this resource that this field set
+// applies to. The format is "group/version" just like the top-level
+// APIVersion field. It is necessary to track the version of a field
+// set because it cannot be automatically converted.
+func (d *ManagedFieldsEntryDieMut) APIVersion() diefields.ValueMut[string, *ManagedFieldsEntryDieMut] {
+	return diefields.ValueMutOf(d, managedFieldsEntryFields.Get().APIVersion)
+}
+
+// Time is the timestamp of when the ManagedFields entry was added. The
+// timestamp will also be updated if a field is added, the manager
+// changes any of the owned fields value or removes a field. The
+// timestamp does not update when a field is removed from the entry
+// because another manager took it over.
+func (d *ManagedFieldsEntryDieMut) Time() diefields.OptionalMut[Time, *ManagedFieldsEntryDieMut] {
+	return diefields.OptionalMutOf(d, managedFieldsEntryFields.Get().Time)
+}
+
+// FieldsType is the discriminator for the different fields format and version.
+// There is currently only one possible value: "FieldsV1"
+func (d *ManagedFieldsEntryDieMut) FieldsType() diefields.ValueMut[string, *ManagedFieldsEntryDieMut] {
+	return diefields.ValueMutOf(d, managedFieldsEntryFields.Get().FieldsType)
+}
+
+// FieldsV1 holds the first JSON version format as described in the "FieldsV1" type.
+func (d *ManagedFieldsEntryDieMut) FieldsV1() diefields.OptionalMut[FieldsV1, *ManagedFieldsEntryDieMut] {
+	return diefields.OptionalMutOf(d, managedFieldsEntryFields.Get().FieldsV1)
+}
+
+// Subresource is the name of the subresource used to update that object, or
+// empty string if the object was updated through the main resource. The
+// value of this field is used to distinguish between managers, even if they
+// share the same name. For example, a status update will be distinct from a
+// regular update using the same manager name.
+// Note that the APIVersion field is not related to the Subresource field and
+// it always corresponds to the version of the main resource.
+func (d *ManagedFieldsEntryDieMut) Subresource() diefields.ValueMut[string, *ManagedFieldsEntryDieMut] {
+	return diefields.ValueMutOf(d, managedFieldsEntryFields.Get().Subresource)
 }
 
 // ObjectMeta is metadata that all persisted resources must have, which includes all objects
 // users must create.
+//
+// ObjectMetaDie is immutable: it reads.
+// ObjectMetaDieMut, its mutable die, also writes, as DieWith passes it.
 type ObjectMetaDie struct {
-	diebase.DieBase[ObjectMeta, *ObjectMetaDie]
+	diebase.DieBase[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]
 }
 
-func (*ObjectMetaDie) DieFrom(b diebase.DieBase[ObjectMeta, *ObjectMetaDie]) *ObjectMetaDie {
+// ObjectMetaDieMut is the mutable die of ObjectMeta: see ObjectMetaDie.
+type ObjectMetaDieMut struct {
+	diebase.DieMutBase[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]
+}
+
+func (*ObjectMetaDie) DieFrom(b diebase.DieBase[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]) *ObjectMetaDie {
 	return &ObjectMetaDie{b}
 }
 
-var _ diebase.DieOf[ObjectMeta, *ObjectMetaDie] = (*ObjectMetaDie)(nil)
+func (*ObjectMetaDieMut) DieFrom(b diebase.DieMutBase[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]) *ObjectMetaDieMut {
+	return &ObjectMetaDieMut{b}
+}
 
-var ObjectMetaBlank = diebase.Blank[ObjectMeta, *ObjectMetaDie]()
+var (
+	_ diebase.DieOf[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]    = (*ObjectMetaDie)(nil)
+	_ diebase.DieMutOf[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut] = (*ObjectMetaDieMut)(nil)
+)
+
+var ObjectMetaBlank = diebase.Blank[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1842,34 +3119,47 @@ func (d *ObjectMetaDie) DieReleaseApplyConfiguration() *ObjectMetaApplyConfigura
 	return diecodegen.ReleaseApplyConfiguration[ObjectMetaApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ObjectMetaDie) DieFeedApplyConfiguration(ac *ObjectMetaApplyConfiguration) *ObjectMetaDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ObjectMetaDie) DieStampApplyConfiguration(fn func(ac *ObjectMetaApplyConfiguration)) *ObjectMetaDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ObjectMetaDie) DieReleaseApplyConfigurationE() (*ObjectMetaApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ObjectMetaApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ObjectMetaDieMut) DieReleaseApplyConfiguration() *ObjectMetaApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ObjectMetaApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ObjectMetaDieMut) DieReleaseApplyConfigurationE() (*ObjectMetaApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ObjectMetaApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ObjectMetaDieMut) DieFeedApplyConfiguration(ac *ObjectMetaApplyConfiguration) *ObjectMetaDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ObjectMetaDieMut) DieStampApplyConfiguration(fn func(ac *ObjectMetaApplyConfiguration)) *ObjectMetaDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ObjectMetaDie) DieFeedApplyConfigurationE(ac *ObjectMetaApplyConfiguration) (*ObjectMetaDie, error) {
+func (d *ObjectMetaDieMut) DieFeedApplyConfigurationE(ac *ObjectMetaApplyConfiguration) (*ObjectMetaDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ObjectMetaDie) DieStampApplyConfigurationE(fn func(ac *ObjectMetaApplyConfiguration)) (*ObjectMetaDie, error) {
+func (d *ObjectMetaDieMut) DieStampApplyConfigurationE(fn func(ac *ObjectMetaApplyConfiguration)) (*ObjectMetaDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1886,7 +3176,7 @@ type objectMetaFieldsTable struct {
 	DeletionGracePeriodSeconds diefields.Field[ObjectMeta, *int64]
 	Labels                     diefields.MapField[ObjectMeta, string, string]
 	Annotations                diefields.MapField[ObjectMeta, string, string]
-	OwnerReferences            diefields.ListMapField[ObjectMeta, OwnerReference, *OwnerReferenceDie, types.UID]
+	OwnerReferences            diefields.ListMapField[ObjectMeta, OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut, types.UID]
 	Finalizers                 diefields.Field[ObjectMeta, []string]
 	ManagedFields              diefields.Field[ObjectMeta, []ManagedFieldsEntry]
 }
@@ -1905,7 +3195,7 @@ var objectMetaFields = &diefields.Table[objectMetaFieldsTable]{Build: func() (f 
 	f.DeletionGracePeriodSeconds = diefields.NewField[ObjectMeta, *int64]("deletionGracePeriodSeconds")
 	f.Labels = diefields.NewMap[ObjectMeta, string, string]("labels")
 	f.Annotations = diefields.NewMap[ObjectMeta, string, string]("annotations")
-	f.OwnerReferences = diefields.NewListMap[ObjectMeta, OwnerReference, *OwnerReferenceDie]("ownerReferences", func(k types.UID) []any { return []any{k} }, func(e OwnerReference) types.UID { return e.UID })
+	f.OwnerReferences = diefields.NewListMap[ObjectMeta, OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut]("ownerReferences", func(k types.UID) []any { return []any{k} }, func(e OwnerReference) types.UID { return e.UID })
 	f.Finalizers = diefields.NewField[ObjectMeta, []string]("finalizers")
 	f.ManagedFields = diefields.NewField[ObjectMeta, []ManagedFieldsEntry]("managedFields")
 	return
@@ -1917,7 +3207,7 @@ var objectMetaFields = &diefields.Table[objectMetaFieldsTable]{Build: func() (f 
 // definition.
 // Cannot be updated.
 // More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names
-func (d *ObjectMetaDie) Name() diefields.Value[string, *ObjectMetaDie] {
+func (d *ObjectMetaDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, objectMetaFields.Get().Name)
 }
 
@@ -1933,7 +3223,7 @@ func (d *ObjectMetaDie) Name() diefields.Value[string, *ObjectMetaDie] {
 //
 // Applied only if Name is not specified.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
-func (d *ObjectMetaDie) GenerateName() diefields.Value[string, *ObjectMetaDie] {
+func (d *ObjectMetaDie) GenerateName() diefields.Value[string] {
 	return diefields.ValueOf(d, objectMetaFields.Get().GenerateName)
 }
 
@@ -1945,12 +3235,12 @@ func (d *ObjectMetaDie) GenerateName() diefields.Value[string, *ObjectMetaDie] {
 // Must be a DNS_LABEL.
 // Cannot be updated.
 // More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces
-func (d *ObjectMetaDie) Namespace() diefields.Value[string, *ObjectMetaDie] {
+func (d *ObjectMetaDie) Namespace() diefields.Value[string] {
 	return diefields.ValueOf(d, objectMetaFields.Get().Namespace)
 }
 
 // Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
-func (d *ObjectMetaDie) SelfLink() diefields.Value[string, *ObjectMetaDie] {
+func (d *ObjectMetaDie) SelfLink() diefields.Value[string] {
 	return diefields.ValueOf(d, objectMetaFields.Get().SelfLink)
 }
 
@@ -1961,7 +3251,7 @@ func (d *ObjectMetaDie) SelfLink() diefields.Value[string, *ObjectMetaDie] {
 // Populated by the system.
 // Read-only.
 // More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
-func (d *ObjectMetaDie) UID() diefields.Value[types.UID, *ObjectMetaDie] {
+func (d *ObjectMetaDie) UID() diefields.Value[types.UID] {
 	return diefields.ValueOf(d, objectMetaFields.Get().UID)
 }
 
@@ -1975,13 +3265,13 @@ func (d *ObjectMetaDie) UID() diefields.Value[types.UID, *ObjectMetaDie] {
 // Read-only.
 // Value must be treated as opaque by clients and .
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
-func (d *ObjectMetaDie) ResourceVersion() diefields.Value[string, *ObjectMetaDie] {
+func (d *ObjectMetaDie) ResourceVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, objectMetaFields.Get().ResourceVersion)
 }
 
 // A sequence number representing a specific generation of the desired state.
 // Populated by the system. Read-only.
-func (d *ObjectMetaDie) Generation() diefields.Value[int64, *ObjectMetaDie] {
+func (d *ObjectMetaDie) Generation() diefields.Value[int64] {
 	return diefields.ValueOf(d, objectMetaFields.Get().Generation)
 }
 
@@ -1993,7 +3283,7 @@ func (d *ObjectMetaDie) Generation() diefields.Value[int64, *ObjectMetaDie] {
 // Read-only.
 // Null for lists.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-func (d *ObjectMetaDie) CreationTimestamp() diefields.Value[Time, *ObjectMetaDie] {
+func (d *ObjectMetaDie) CreationTimestamp() diefields.Value[Time] {
 	return diefields.ValueOf(d, objectMetaFields.Get().CreationTimestamp)
 }
 
@@ -2015,7 +3305,7 @@ func (d *ObjectMetaDie) CreationTimestamp() diefields.Value[Time, *ObjectMetaDie
 // Populated by the system when a graceful deletion is requested.
 // Read-only.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-func (d *ObjectMetaDie) DeletionTimestamp() diefields.Optional[Time, *ObjectMetaDie] {
+func (d *ObjectMetaDie) DeletionTimestamp() diefields.Optional[Time] {
 	return diefields.OptionalOf(d, objectMetaFields.Get().DeletionTimestamp)
 }
 
@@ -2023,7 +3313,7 @@ func (d *ObjectMetaDie) DeletionTimestamp() diefields.Optional[Time, *ObjectMeta
 // it will be removed from the system. Only set when deletionTimestamp is also set.
 // May only be shortened.
 // Read-only.
-func (d *ObjectMetaDie) DeletionGracePeriodSeconds() diefields.Optional[int64, *ObjectMetaDie] {
+func (d *ObjectMetaDie) DeletionGracePeriodSeconds() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, objectMetaFields.Get().DeletionGracePeriodSeconds)
 }
 
@@ -2064,7 +3354,7 @@ func (d *ObjectMetaDie) OwnerReferences() *diefields.ListMap[OwnerReference, *Ow
 // component responsible for a finalizer later in the list, resulting in a deadlock.
 // Without enforced ordering finalizers are free to order amongst themselves and
 // are not vulnerable to ordering changes in the list.
-func (d *ObjectMetaDie) Finalizers() diefields.Value[[]string, *ObjectMetaDie] {
+func (d *ObjectMetaDie) Finalizers() diefields.Value[[]string] {
 	return diefields.ValueOf(d, objectMetaFields.Get().Finalizers)
 }
 
@@ -2075,24 +3365,207 @@ func (d *ObjectMetaDie) Finalizers() diefields.Value[[]string, *ObjectMetaDie] {
 // controller's name, or the name of a specific apply path like
 // "ci-cd". The set of fields is always in the version that the
 // workflow used when modifying the object.
-func (d *ObjectMetaDie) ManagedFields() diefields.Value[[]ManagedFieldsEntry, *ObjectMetaDie] {
+func (d *ObjectMetaDie) ManagedFields() diefields.Value[[]ManagedFieldsEntry] {
 	return diefields.ValueOf(d, objectMetaFields.Get().ManagedFields)
+}
+
+// Name must be unique within a namespace. Is required when creating resources, although
+// some resources may allow a client to request the generation of an appropriate name
+// automatically. Name is primarily intended for creation idempotence and configuration
+// definition.
+// Cannot be updated.
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names
+func (d *ObjectMetaDieMut) Name() diefields.ValueMut[string, *ObjectMetaDieMut] {
+	return diefields.ValueMutOf(d, objectMetaFields.Get().Name)
+}
+
+// GenerateName is an optional prefix, used by the server, to generate a unique
+// name ONLY IF the Name field has not been provided.
+// If this field is used, the name returned to the client will be different
+// than the name passed. This value will also be combined with a unique suffix.
+// The provided value has the same validation rules as the Name field,
+// and may be truncated by the length of the suffix required to make the value
+// unique on the server.
+//
+// If this field is specified and the generated name exists, the server will return a 409.
+//
+// Applied only if Name is not specified.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
+func (d *ObjectMetaDieMut) GenerateName() diefields.ValueMut[string, *ObjectMetaDieMut] {
+	return diefields.ValueMutOf(d, objectMetaFields.Get().GenerateName)
+}
+
+// Namespace defines the space within which each name must be unique. An empty namespace is
+// equivalent to the "default" namespace, but "default" is the canonical representation.
+// Not all objects are required to be scoped to a namespace - the value of this field for
+// those objects will be empty.
+//
+// Must be a DNS_LABEL.
+// Cannot be updated.
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces
+func (d *ObjectMetaDieMut) Namespace() diefields.ValueMut[string, *ObjectMetaDieMut] {
+	return diefields.ValueMutOf(d, objectMetaFields.Get().Namespace)
+}
+
+// Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
+func (d *ObjectMetaDieMut) SelfLink() diefields.ValueMut[string, *ObjectMetaDieMut] {
+	return diefields.ValueMutOf(d, objectMetaFields.Get().SelfLink)
+}
+
+// UID is the unique in time and space value for this object. It is typically generated by
+// the server on successful creation of a resource and is not allowed to change on PUT
+// operations.
+//
+// Populated by the system.
+// Read-only.
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
+func (d *ObjectMetaDieMut) UID() diefields.ValueMut[types.UID, *ObjectMetaDieMut] {
+	return diefields.ValueMutOf(d, objectMetaFields.Get().UID)
+}
+
+// An opaque value that represents the internal version of this object that can
+// be used by clients to determine when objects have changed. May be used for optimistic
+// concurrency, change detection, and the watch operation on a resource or set of resources.
+// Clients must treat these values as opaque and passed unmodified back to the server.
+// They may only be valid for a particular resource or set of resources.
+//
+// Populated by the system.
+// Read-only.
+// Value must be treated as opaque by clients and .
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+func (d *ObjectMetaDieMut) ResourceVersion() diefields.ValueMut[string, *ObjectMetaDieMut] {
+	return diefields.ValueMutOf(d, objectMetaFields.Get().ResourceVersion)
+}
+
+// A sequence number representing a specific generation of the desired state.
+// Populated by the system. Read-only.
+func (d *ObjectMetaDieMut) Generation() diefields.ValueMut[int64, *ObjectMetaDieMut] {
+	return diefields.ValueMutOf(d, objectMetaFields.Get().Generation)
+}
+
+// CreationTimestamp is a timestamp representing the server time when this object was
+// created. It is not guaranteed to be set in happens-before order across separate operations.
+// Clients may not set this value. It is represented in RFC3339 form and is in UTC.
+//
+// Populated by the system.
+// Read-only.
+// Null for lists.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *ObjectMetaDieMut) CreationTimestamp() diefields.ValueMut[Time, *ObjectMetaDieMut] {
+	return diefields.ValueMutOf(d, objectMetaFields.Get().CreationTimestamp)
+}
+
+// DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This
+// field is set by the server when a graceful deletion is requested by the user, and is not
+// directly settable by a client. The resource is expected to be deleted (no longer visible
+// from resource lists, and not reachable by name) after the time in this field, once the
+// finalizers list is empty. As long as the finalizers list contains items, deletion is blocked.
+// Once the deletionTimestamp is set, this value may not be unset or be set further into the
+// future, although it may be shortened or the resource may be deleted prior to this time.
+// For example, a user may request that a pod is deleted in 30 seconds. The Kubelet will react
+// by sending a graceful termination signal to the containers in the pod. After that 30 seconds,
+// the Kubelet will send a hard termination signal (SIGKILL) to the container and after cleanup,
+// remove the pod from the API. In the presence of network partitions, this object may still
+// exist after this timestamp, until an administrator or automated process can determine the
+// resource is fully terminated.
+// If not set, graceful deletion of the object has not been requested.
+//
+// Populated by the system when a graceful deletion is requested.
+// Read-only.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *ObjectMetaDieMut) DeletionTimestamp() diefields.OptionalMut[Time, *ObjectMetaDieMut] {
+	return diefields.OptionalMutOf(d, objectMetaFields.Get().DeletionTimestamp)
+}
+
+// Number of seconds allowed for this object to gracefully terminate before
+// it will be removed from the system. Only set when deletionTimestamp is also set.
+// May only be shortened.
+// Read-only.
+func (d *ObjectMetaDieMut) DeletionGracePeriodSeconds() diefields.OptionalMut[int64, *ObjectMetaDieMut] {
+	return diefields.OptionalMutOf(d, objectMetaFields.Get().DeletionGracePeriodSeconds)
+}
+
+// Map of string keys and values that can be used to organize and categorize
+// (scope and select) objects. May match selectors of replication controllers
+// and services.
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
+func (d *ObjectMetaDieMut) Labels() *diefields.MapMut[string, string] {
+	return diefields.MapMutOf(d, objectMetaFields.Get().Labels)
+}
+
+// Annotations is an unstructured key value map stored with a resource that may be
+// set by external tools to store and retrieve arbitrary metadata. They are not
+// queryable and should be preserved when modifying objects.
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
+func (d *ObjectMetaDieMut) Annotations() *diefields.MapMut[string, string] {
+	return diefields.MapMutOf(d, objectMetaFields.Get().Annotations)
+}
+
+// List of objects depended by this object. If ALL objects in the list have
+// been deleted, this object will be garbage collected. If this object is managed by a controller,
+// then an entry in this list will point to this controller, with the controller field set to true.
+// There cannot be more than one managing controller.
+func (d *ObjectMetaDieMut) OwnerReferences() *diefields.ListMapMut[OwnerReference, *OwnerReferenceDieMut, types.UID] {
+	return diefields.ListMapMutOf(d, objectMetaFields.Get().OwnerReferences)
+}
+
+// Must be empty before the object is deleted from the registry. Each entry
+// is an identifier for the responsible component that will remove the entry
+// from the list. If the deletionTimestamp of the object is non-nil, entries
+// in this list can only be removed.
+// Finalizers may be processed and removed in any order.  Order is NOT enforced
+// because it introduces significant risk of stuck finalizers.
+// finalizers is a shared field, any actor with permission can reorder it.
+// If the finalizer list is processed in order, then this can lead to a situation
+// in which the component responsible for the first finalizer in the list is
+// waiting for a signal (field value, external system, or other) produced by a
+// component responsible for a finalizer later in the list, resulting in a deadlock.
+// Without enforced ordering finalizers are free to order amongst themselves and
+// are not vulnerable to ordering changes in the list.
+func (d *ObjectMetaDieMut) Finalizers() diefields.ValueMut[[]string, *ObjectMetaDieMut] {
+	return diefields.ValueMutOf(d, objectMetaFields.Get().Finalizers)
+}
+
+// ManagedFields maps workflow-id and version to the set of fields
+// that are managed by that workflow. This is mostly for internal
+// housekeeping, and users typically shouldn't need to set or
+// understand this field. A workflow can be the user's name, a
+// controller's name, or the name of a specific apply path like
+// "ci-cd". The set of fields is always in the version that the
+// workflow used when modifying the object.
+func (d *ObjectMetaDieMut) ManagedFields() diefields.ValueMut[[]ManagedFieldsEntry, *ObjectMetaDieMut] {
+	return diefields.ValueMutOf(d, objectMetaFields.Get().ManagedFields)
 }
 
 // OwnerReference contains enough information to let you identify an owning
 // object. An owning object must be in the same namespace as the dependent, or
 // be cluster-scoped, so there is no namespace field.
+//
+// OwnerReferenceDie is immutable: it reads.
+// OwnerReferenceDieMut, its mutable die, also writes, as DieWith passes it.
 type OwnerReferenceDie struct {
-	diebase.DieBase[OwnerReference, *OwnerReferenceDie]
+	diebase.DieBase[OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut]
 }
 
-func (*OwnerReferenceDie) DieFrom(b diebase.DieBase[OwnerReference, *OwnerReferenceDie]) *OwnerReferenceDie {
+// OwnerReferenceDieMut is the mutable die of OwnerReference: see OwnerReferenceDie.
+type OwnerReferenceDieMut struct {
+	diebase.DieMutBase[OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut]
+}
+
+func (*OwnerReferenceDie) DieFrom(b diebase.DieBase[OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut]) *OwnerReferenceDie {
 	return &OwnerReferenceDie{b}
 }
 
-var _ diebase.DieOf[OwnerReference, *OwnerReferenceDie] = (*OwnerReferenceDie)(nil)
+func (*OwnerReferenceDieMut) DieFrom(b diebase.DieMutBase[OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut]) *OwnerReferenceDieMut {
+	return &OwnerReferenceDieMut{b}
+}
 
-var OwnerReferenceBlank = diebase.Blank[OwnerReference, *OwnerReferenceDie]()
+var (
+	_ diebase.DieOf[OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut]    = (*OwnerReferenceDie)(nil)
+	_ diebase.DieMutOf[OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut] = (*OwnerReferenceDieMut)(nil)
+)
+
+var OwnerReferenceBlank = diebase.Blank[OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -2101,34 +3574,47 @@ func (d *OwnerReferenceDie) DieReleaseApplyConfiguration() *OwnerReferenceApplyC
 	return diecodegen.ReleaseApplyConfiguration[OwnerReferenceApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *OwnerReferenceDie) DieFeedApplyConfiguration(ac *OwnerReferenceApplyConfiguration) *OwnerReferenceDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *OwnerReferenceDie) DieStampApplyConfiguration(fn func(ac *OwnerReferenceApplyConfiguration)) *OwnerReferenceDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *OwnerReferenceDie) DieReleaseApplyConfigurationE() (*OwnerReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[OwnerReferenceApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *OwnerReferenceDieMut) DieReleaseApplyConfiguration() *OwnerReferenceApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[OwnerReferenceApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *OwnerReferenceDieMut) DieReleaseApplyConfigurationE() (*OwnerReferenceApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[OwnerReferenceApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *OwnerReferenceDieMut) DieFeedApplyConfiguration(ac *OwnerReferenceApplyConfiguration) *OwnerReferenceDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *OwnerReferenceDieMut) DieStampApplyConfiguration(fn func(ac *OwnerReferenceApplyConfiguration)) *OwnerReferenceDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *OwnerReferenceDie) DieFeedApplyConfigurationE(ac *OwnerReferenceApplyConfiguration) (*OwnerReferenceDie, error) {
+func (d *OwnerReferenceDieMut) DieFeedApplyConfigurationE(ac *OwnerReferenceApplyConfiguration) (*OwnerReferenceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *OwnerReferenceDie) DieStampApplyConfigurationE(fn func(ac *OwnerReferenceApplyConfiguration)) (*OwnerReferenceDie, error) {
+func (d *OwnerReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *OwnerReferenceApplyConfiguration)) (*OwnerReferenceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -2153,30 +3639,30 @@ var ownerReferenceFields = &diefields.Table[ownerReferenceFieldsTable]{Build: fu
 }}
 
 // API version of the referent.
-func (d *OwnerReferenceDie) APIVersion() diefields.Value[string, *OwnerReferenceDie] {
+func (d *OwnerReferenceDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, ownerReferenceFields.Get().APIVersion)
 }
 
 // Kind of the referent.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *OwnerReferenceDie) Kind() diefields.Value[string, *OwnerReferenceDie] {
+func (d *OwnerReferenceDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, ownerReferenceFields.Get().Kind)
 }
 
 // Name of the referent.
 // More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names
-func (d *OwnerReferenceDie) Name() diefields.Value[string, *OwnerReferenceDie] {
+func (d *OwnerReferenceDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, ownerReferenceFields.Get().Name)
 }
 
 // UID of the referent.
 // More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
-func (d *OwnerReferenceDie) UID() diefields.Value[types.UID, *OwnerReferenceDie] {
+func (d *OwnerReferenceDie) UID() diefields.Value[types.UID] {
 	return diefields.ValueOf(d, ownerReferenceFields.Get().UID)
 }
 
 // If true, this reference points to the managing controller.
-func (d *OwnerReferenceDie) Controller() diefields.Optional[bool, *OwnerReferenceDie] {
+func (d *OwnerReferenceDie) Controller() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, ownerReferenceFields.Get().Controller)
 }
 
@@ -2188,35 +3674,90 @@ func (d *OwnerReferenceDie) Controller() diefields.Optional[bool, *OwnerReferenc
 // Defaults to false.
 // To set this field, a user needs "delete" permission of the owner,
 // otherwise 422 (Unprocessable Entity) will be returned.
-func (d *OwnerReferenceDie) BlockOwnerDeletion() diefields.Optional[bool, *OwnerReferenceDie] {
+func (d *OwnerReferenceDie) BlockOwnerDeletion() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, ownerReferenceFields.Get().BlockOwnerDeletion)
+}
+
+// API version of the referent.
+func (d *OwnerReferenceDieMut) APIVersion() diefields.ValueMut[string, *OwnerReferenceDieMut] {
+	return diefields.ValueMutOf(d, ownerReferenceFields.Get().APIVersion)
+}
+
+// Kind of the referent.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *OwnerReferenceDieMut) Kind() diefields.ValueMut[string, *OwnerReferenceDieMut] {
+	return diefields.ValueMutOf(d, ownerReferenceFields.Get().Kind)
+}
+
+// Name of the referent.
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names
+func (d *OwnerReferenceDieMut) Name() diefields.ValueMut[string, *OwnerReferenceDieMut] {
+	return diefields.ValueMutOf(d, ownerReferenceFields.Get().Name)
+}
+
+// UID of the referent.
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
+func (d *OwnerReferenceDieMut) UID() diefields.ValueMut[types.UID, *OwnerReferenceDieMut] {
+	return diefields.ValueMutOf(d, ownerReferenceFields.Get().UID)
+}
+
+// If true, this reference points to the managing controller.
+func (d *OwnerReferenceDieMut) Controller() diefields.OptionalMut[bool, *OwnerReferenceDieMut] {
+	return diefields.OptionalMutOf(d, ownerReferenceFields.Get().Controller)
+}
+
+// If true, AND if the owner has the "foregroundDeletion" finalizer, then
+// the owner cannot be deleted from the key-value store until this
+// reference is removed.
+// See https://kubernetes.io/docs/concepts/architecture/garbage-collection/#foreground-deletion
+// for how the garbage collector interacts with this field and enforces the foreground deletion.
+// Defaults to false.
+// To set this field, a user needs "delete" permission of the owner,
+// otherwise 422 (Unprocessable Entity) will be returned.
+func (d *OwnerReferenceDieMut) BlockOwnerDeletion() diefields.OptionalMut[bool, *OwnerReferenceDieMut] {
+	return diefields.OptionalMutOf(d, ownerReferenceFields.Get().BlockOwnerDeletion)
 }
 
 // PartialObjectMetadata is a generic representation of any object with ObjectMeta. It allows clients
 // to get access to a particular ObjectMeta schema without knowing the details of the version.
+//
+// PartialObjectMetadataDie is immutable: it reads.
+// PartialObjectMetadataDieMut, its mutable die, also writes, as DieWith passes it.
 type PartialObjectMetadataDie struct {
-	diebase.DieBase[PartialObjectMetadata, *PartialObjectMetadataDie]
+	diebase.DieBase[PartialObjectMetadata, *PartialObjectMetadataDie, *PartialObjectMetadataDieMut]
 }
 
-func (*PartialObjectMetadataDie) DieFrom(b diebase.DieBase[PartialObjectMetadata, *PartialObjectMetadataDie]) *PartialObjectMetadataDie {
+// PartialObjectMetadataDieMut is the mutable die of PartialObjectMetadata: see PartialObjectMetadataDie.
+type PartialObjectMetadataDieMut struct {
+	diebase.DieMutBase[PartialObjectMetadata, *PartialObjectMetadataDie, *PartialObjectMetadataDieMut]
+}
+
+func (*PartialObjectMetadataDie) DieFrom(b diebase.DieBase[PartialObjectMetadata, *PartialObjectMetadataDie, *PartialObjectMetadataDieMut]) *PartialObjectMetadataDie {
 	return &PartialObjectMetadataDie{b}
 }
 
-var _ diebase.DieOf[PartialObjectMetadata, *PartialObjectMetadataDie] = (*PartialObjectMetadataDie)(nil)
+func (*PartialObjectMetadataDieMut) DieFrom(b diebase.DieMutBase[PartialObjectMetadata, *PartialObjectMetadataDie, *PartialObjectMetadataDieMut]) *PartialObjectMetadataDieMut {
+	return &PartialObjectMetadataDieMut{b}
+}
 
-var PartialObjectMetadataBlank = diebase.Blank[PartialObjectMetadata, *PartialObjectMetadataDie]()
+var (
+	_ diebase.DieOf[PartialObjectMetadata, *PartialObjectMetadataDie, *PartialObjectMetadataDieMut]    = (*PartialObjectMetadataDie)(nil)
+	_ diebase.DieMutOf[PartialObjectMetadata, *PartialObjectMetadataDie, *PartialObjectMetadataDieMut] = (*PartialObjectMetadataDieMut)(nil)
+)
+
+var PartialObjectMetadataBlank = diebase.Blank[PartialObjectMetadata, *PartialObjectMetadataDie, *PartialObjectMetadataDieMut]()
 
 type partialObjectMetadataFieldsTable struct {
 	Kind       diefields.Field[PartialObjectMetadata, string]
 	APIVersion diefields.Field[PartialObjectMetadata, string]
-	Metadata   diefields.Struct[PartialObjectMetadata, ObjectMeta, *ObjectMetaDie]
+	Metadata   diefields.Struct[PartialObjectMetadata, ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]
 }
 
 var partialObjectMetadataFields = &diefields.Table[partialObjectMetadataFieldsTable]{Build: func() (f partialObjectMetadataFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[PartialObjectMetadata, string]("kind")
 	f.APIVersion = diefields.NewField[PartialObjectMetadata, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[PartialObjectMetadata, ObjectMeta, *ObjectMetaDie]("metadata")
+	f.Metadata = diefields.NewStruct[PartialObjectMetadata, ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]("metadata")
 	return
 }}
 
@@ -2225,7 +3766,7 @@ var partialObjectMetadataFields = &diefields.Table[partialObjectMetadataFieldsTa
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *PartialObjectMetadataDie) Kind() diefields.Value[string, *PartialObjectMetadataDie] {
+func (d *PartialObjectMetadataDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, partialObjectMetadataFields.Get().Kind)
 }
 
@@ -2233,7 +3774,7 @@ func (d *PartialObjectMetadataDie) Kind() diefields.Value[string, *PartialObject
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *PartialObjectMetadataDie) APIVersion() diefields.Value[string, *PartialObjectMetadataDie] {
+func (d *PartialObjectMetadataDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, partialObjectMetadataFields.Get().APIVersion)
 }
 
@@ -2243,23 +3784,61 @@ func (d *PartialObjectMetadataDie) Metadata() *ObjectMetaDie {
 	return diefields.Child(d, partialObjectMetadataFields.Get().Metadata)
 }
 
-// PartialObjectMetadataList contains a list of objects containing only their metadata
-type PartialObjectMetadataListDie struct {
-	diebase.DieBase[PartialObjectMetadataList, *PartialObjectMetadataListDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *PartialObjectMetadataDieMut) Kind() diefields.ValueMut[string, *PartialObjectMetadataDieMut] {
+	return diefields.ValueMutOf(d, partialObjectMetadataFields.Get().Kind)
 }
 
-func (*PartialObjectMetadataListDie) DieFrom(b diebase.DieBase[PartialObjectMetadataList, *PartialObjectMetadataListDie]) *PartialObjectMetadataListDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *PartialObjectMetadataDieMut) APIVersion() diefields.ValueMut[string, *PartialObjectMetadataDieMut] {
+	return diefields.ValueMutOf(d, partialObjectMetadataFields.Get().APIVersion)
+}
+
+// Standard object's metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *PartialObjectMetadataDieMut) Metadata() *ObjectMetaDieMut {
+	return diefields.ChildMut(d, partialObjectMetadataFields.Get().Metadata)
+}
+
+// PartialObjectMetadataList contains a list of objects containing only their metadata
+//
+// PartialObjectMetadataListDie is immutable: it reads.
+// PartialObjectMetadataListDieMut, its mutable die, also writes, as DieWith passes it.
+type PartialObjectMetadataListDie struct {
+	diebase.DieBase[PartialObjectMetadataList, *PartialObjectMetadataListDie, *PartialObjectMetadataListDieMut]
+}
+
+// PartialObjectMetadataListDieMut is the mutable die of PartialObjectMetadataList: see PartialObjectMetadataListDie.
+type PartialObjectMetadataListDieMut struct {
+	diebase.DieMutBase[PartialObjectMetadataList, *PartialObjectMetadataListDie, *PartialObjectMetadataListDieMut]
+}
+
+func (*PartialObjectMetadataListDie) DieFrom(b diebase.DieBase[PartialObjectMetadataList, *PartialObjectMetadataListDie, *PartialObjectMetadataListDieMut]) *PartialObjectMetadataListDie {
 	return &PartialObjectMetadataListDie{b}
 }
 
-var _ diebase.DieOf[PartialObjectMetadataList, *PartialObjectMetadataListDie] = (*PartialObjectMetadataListDie)(nil)
+func (*PartialObjectMetadataListDieMut) DieFrom(b diebase.DieMutBase[PartialObjectMetadataList, *PartialObjectMetadataListDie, *PartialObjectMetadataListDieMut]) *PartialObjectMetadataListDieMut {
+	return &PartialObjectMetadataListDieMut{b}
+}
 
-var PartialObjectMetadataListBlank = diebase.Blank[PartialObjectMetadataList, *PartialObjectMetadataListDie]()
+var (
+	_ diebase.DieOf[PartialObjectMetadataList, *PartialObjectMetadataListDie, *PartialObjectMetadataListDieMut]    = (*PartialObjectMetadataListDie)(nil)
+	_ diebase.DieMutOf[PartialObjectMetadataList, *PartialObjectMetadataListDie, *PartialObjectMetadataListDieMut] = (*PartialObjectMetadataListDieMut)(nil)
+)
+
+var PartialObjectMetadataListBlank = diebase.Blank[PartialObjectMetadataList, *PartialObjectMetadataListDie, *PartialObjectMetadataListDieMut]()
 
 type partialObjectMetadataListFieldsTable struct {
 	Kind       diefields.Field[PartialObjectMetadataList, string]
 	APIVersion diefields.Field[PartialObjectMetadataList, string]
-	Metadata   diefields.Struct[PartialObjectMetadataList, ListMeta, *ListMetaDie]
+	Metadata   diefields.Struct[PartialObjectMetadataList, ListMeta, *ListMetaDie, *ListMetaDieMut]
 	Items      diefields.Field[PartialObjectMetadataList, []PartialObjectMetadata]
 }
 
@@ -2267,7 +3846,7 @@ var partialObjectMetadataListFields = &diefields.Table[partialObjectMetadataList
 	_ = annotated
 	f.Kind = diefields.NewField[PartialObjectMetadataList, string]("kind")
 	f.APIVersion = diefields.NewField[PartialObjectMetadataList, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[PartialObjectMetadataList, ListMeta, *ListMetaDie]("metadata")
+	f.Metadata = diefields.NewStruct[PartialObjectMetadataList, ListMeta, *ListMetaDie, *ListMetaDieMut]("metadata")
 	f.Items = diefields.NewField[PartialObjectMetadataList, []PartialObjectMetadata]("items")
 	return
 }}
@@ -2277,7 +3856,7 @@ var partialObjectMetadataListFields = &diefields.Table[partialObjectMetadataList
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *PartialObjectMetadataListDie) Kind() diefields.Value[string, *PartialObjectMetadataListDie] {
+func (d *PartialObjectMetadataListDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, partialObjectMetadataListFields.Get().Kind)
 }
 
@@ -2285,7 +3864,7 @@ func (d *PartialObjectMetadataListDie) Kind() diefields.Value[string, *PartialOb
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *PartialObjectMetadataListDie) APIVersion() diefields.Value[string, *PartialObjectMetadataListDie] {
+func (d *PartialObjectMetadataListDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, partialObjectMetadataListFields.Get().APIVersion)
 }
 
@@ -2296,20 +3875,65 @@ func (d *PartialObjectMetadataListDie) Metadata() *ListMetaDie {
 }
 
 // items contains each of the included items.
-func (d *PartialObjectMetadataListDie) Items() diefields.Value[[]PartialObjectMetadata, *PartialObjectMetadataListDie] {
+func (d *PartialObjectMetadataListDie) Items() diefields.Value[[]PartialObjectMetadata] {
 	return diefields.ValueOf(d, partialObjectMetadataListFields.Get().Items)
 }
 
-// Patch is provided to give a concrete name and type to the Kubernetes PATCH request body.
-type PatchDie struct {
-	diebase.DieBase[Patch, *PatchDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *PartialObjectMetadataListDieMut) Kind() diefields.ValueMut[string, *PartialObjectMetadataListDieMut] {
+	return diefields.ValueMutOf(d, partialObjectMetadataListFields.Get().Kind)
 }
 
-func (*PatchDie) DieFrom(b diebase.DieBase[Patch, *PatchDie]) *PatchDie { return &PatchDie{b} }
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *PartialObjectMetadataListDieMut) APIVersion() diefields.ValueMut[string, *PartialObjectMetadataListDieMut] {
+	return diefields.ValueMutOf(d, partialObjectMetadataListFields.Get().APIVersion)
+}
 
-var _ diebase.DieOf[Patch, *PatchDie] = (*PatchDie)(nil)
+// Standard list metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *PartialObjectMetadataListDieMut) Metadata() *ListMetaDieMut {
+	return diefields.ChildMut(d, partialObjectMetadataListFields.Get().Metadata)
+}
 
-var PatchBlank = diebase.Blank[Patch, *PatchDie]()
+// items contains each of the included items.
+func (d *PartialObjectMetadataListDieMut) Items() diefields.ValueMut[[]PartialObjectMetadata, *PartialObjectMetadataListDieMut] {
+	return diefields.ValueMutOf(d, partialObjectMetadataListFields.Get().Items)
+}
+
+// Patch is provided to give a concrete name and type to the Kubernetes PATCH request body.
+//
+// PatchDie is immutable: it reads.
+// PatchDieMut, its mutable die, also writes, as DieWith passes it.
+type PatchDie struct {
+	diebase.DieBase[Patch, *PatchDie, *PatchDieMut]
+}
+
+// PatchDieMut is the mutable die of Patch: see PatchDie.
+type PatchDieMut struct {
+	diebase.DieMutBase[Patch, *PatchDie, *PatchDieMut]
+}
+
+func (*PatchDie) DieFrom(b diebase.DieBase[Patch, *PatchDie, *PatchDieMut]) *PatchDie {
+	return &PatchDie{b}
+}
+
+func (*PatchDieMut) DieFrom(b diebase.DieMutBase[Patch, *PatchDie, *PatchDieMut]) *PatchDieMut {
+	return &PatchDieMut{b}
+}
+
+var (
+	_ diebase.DieOf[Patch, *PatchDie, *PatchDieMut]    = (*PatchDie)(nil)
+	_ diebase.DieMutOf[Patch, *PatchDie, *PatchDieMut] = (*PatchDieMut)(nil)
+)
+
+var PatchBlank = diebase.Blank[Patch, *PatchDie, *PatchDieMut]()
 
 type patchFieldsTable struct {
 }
@@ -2321,17 +3945,32 @@ var patchFields = &diefields.Table[patchFieldsTable]{Build: func() (f patchField
 
 // PatchOptions may be provided when patching an API object.
 // PatchOptions is meant to be a superset of UpdateOptions.
+//
+// PatchOptionsDie is immutable: it reads.
+// PatchOptionsDieMut, its mutable die, also writes, as DieWith passes it.
 type PatchOptionsDie struct {
-	diebase.DieBase[PatchOptions, *PatchOptionsDie]
+	diebase.DieBase[PatchOptions, *PatchOptionsDie, *PatchOptionsDieMut]
 }
 
-func (*PatchOptionsDie) DieFrom(b diebase.DieBase[PatchOptions, *PatchOptionsDie]) *PatchOptionsDie {
+// PatchOptionsDieMut is the mutable die of PatchOptions: see PatchOptionsDie.
+type PatchOptionsDieMut struct {
+	diebase.DieMutBase[PatchOptions, *PatchOptionsDie, *PatchOptionsDieMut]
+}
+
+func (*PatchOptionsDie) DieFrom(b diebase.DieBase[PatchOptions, *PatchOptionsDie, *PatchOptionsDieMut]) *PatchOptionsDie {
 	return &PatchOptionsDie{b}
 }
 
-var _ diebase.DieOf[PatchOptions, *PatchOptionsDie] = (*PatchOptionsDie)(nil)
+func (*PatchOptionsDieMut) DieFrom(b diebase.DieMutBase[PatchOptions, *PatchOptionsDie, *PatchOptionsDieMut]) *PatchOptionsDieMut {
+	return &PatchOptionsDieMut{b}
+}
 
-var PatchOptionsBlank = diebase.Blank[PatchOptions, *PatchOptionsDie]()
+var (
+	_ diebase.DieOf[PatchOptions, *PatchOptionsDie, *PatchOptionsDieMut]    = (*PatchOptionsDie)(nil)
+	_ diebase.DieMutOf[PatchOptions, *PatchOptionsDie, *PatchOptionsDieMut] = (*PatchOptionsDieMut)(nil)
+)
+
+var PatchOptionsBlank = diebase.Blank[PatchOptions, *PatchOptionsDie, *PatchOptionsDieMut]()
 
 type patchOptionsFieldsTable struct {
 	Kind            diefields.Field[PatchOptions, string]
@@ -2358,7 +3997,7 @@ var patchOptionsFields = &diefields.Table[patchOptionsFieldsTable]{Build: func()
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *PatchOptionsDie) Kind() diefields.Value[string, *PatchOptionsDie] {
+func (d *PatchOptionsDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, patchOptionsFields.Get().Kind)
 }
 
@@ -2366,7 +4005,7 @@ func (d *PatchOptionsDie) Kind() diefields.Value[string, *PatchOptionsDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *PatchOptionsDie) APIVersion() diefields.Value[string, *PatchOptionsDie] {
+func (d *PatchOptionsDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, patchOptionsFields.Get().APIVersion)
 }
 
@@ -2375,14 +4014,14 @@ func (d *PatchOptionsDie) APIVersion() diefields.Value[string, *PatchOptionsDie]
 // result in an error response and no further processing of the
 // request. Valid values are:
 // - All: all dry run stages will be processed
-func (d *PatchOptionsDie) DryRun() diefields.Value[[]string, *PatchOptionsDie] {
+func (d *PatchOptionsDie) DryRun() diefields.Value[[]string] {
 	return diefields.ValueOf(d, patchOptionsFields.Get().DryRun)
 }
 
 // Force is going to "force" Apply requests. It means user will
 // re-acquire conflicting fields owned by other people. Force
 // flag must be unset for non-apply patch requests.
-func (d *PatchOptionsDie) Force() diefields.Optional[bool, *PatchOptionsDie] {
+func (d *PatchOptionsDie) Force() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, patchOptionsFields.Get().Force)
 }
 
@@ -2393,7 +4032,7 @@ func (d *PatchOptionsDie) Force() diefields.Optional[bool, *PatchOptionsDie] {
 // field is required for apply requests
 // (application/apply-patch) but optional for non-apply patch
 // types (JsonPatch, MergePatch, StrategicMergePatch).
-func (d *PatchOptionsDie) FieldManager() diefields.Value[string, *PatchOptionsDie] {
+func (d *PatchOptionsDie) FieldManager() diefields.Value[string] {
 	return diefields.ValueOf(d, patchOptionsFields.Get().FieldManager)
 }
 
@@ -2413,22 +4052,101 @@ func (d *PatchOptionsDie) FieldManager() diefields.Value[string, *PatchOptionsDi
 // any unknown fields would be dropped from the object, or if any
 // duplicate fields are present. The error returned from the server
 // will contain all unknown and duplicate fields encountered.
-func (d *PatchOptionsDie) FieldValidation() diefields.Value[string, *PatchOptionsDie] {
+func (d *PatchOptionsDie) FieldValidation() diefields.Value[string] {
 	return diefields.ValueOf(d, patchOptionsFields.Get().FieldValidation)
 }
 
-// Preconditions must be fulfilled before an operation (update, delete, etc.) is carried out.
-type PreconditionsDie struct {
-	diebase.DieBase[Preconditions, *PreconditionsDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *PatchOptionsDieMut) Kind() diefields.ValueMut[string, *PatchOptionsDieMut] {
+	return diefields.ValueMutOf(d, patchOptionsFields.Get().Kind)
 }
 
-func (*PreconditionsDie) DieFrom(b diebase.DieBase[Preconditions, *PreconditionsDie]) *PreconditionsDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *PatchOptionsDieMut) APIVersion() diefields.ValueMut[string, *PatchOptionsDieMut] {
+	return diefields.ValueMutOf(d, patchOptionsFields.Get().APIVersion)
+}
+
+// When present, indicates that modifications should not be
+// persisted. An invalid or unrecognized dryRun directive will
+// result in an error response and no further processing of the
+// request. Valid values are:
+// - All: all dry run stages will be processed
+func (d *PatchOptionsDieMut) DryRun() diefields.ValueMut[[]string, *PatchOptionsDieMut] {
+	return diefields.ValueMutOf(d, patchOptionsFields.Get().DryRun)
+}
+
+// Force is going to "force" Apply requests. It means user will
+// re-acquire conflicting fields owned by other people. Force
+// flag must be unset for non-apply patch requests.
+func (d *PatchOptionsDieMut) Force() diefields.OptionalMut[bool, *PatchOptionsDieMut] {
+	return diefields.OptionalMutOf(d, patchOptionsFields.Get().Force)
+}
+
+// fieldManager is a name associated with the actor or entity
+// that is making these changes. The value must be less than or
+// 128 characters long, and only contain printable characters,
+// as defined by https://golang.org/pkg/unicode/#IsPrint. This
+// field is required for apply requests
+// (application/apply-patch) but optional for non-apply patch
+// types (JsonPatch, MergePatch, StrategicMergePatch).
+func (d *PatchOptionsDieMut) FieldManager() diefields.ValueMut[string, *PatchOptionsDieMut] {
+	return diefields.ValueMutOf(d, patchOptionsFields.Get().FieldManager)
+}
+
+// fieldValidation instructs the server on how to handle
+// objects in the request (POST/PUT/PATCH) containing unknown
+// or duplicate fields. Valid values are:
+// - Ignore: This will ignore any unknown fields that are silently
+// dropped from the object, and will ignore all but the last duplicate
+// field that the decoder encounters. This is the default behavior
+// prior to v1.23.
+// - Warn: This will send a warning via the standard warning response
+// header for each unknown field that is dropped from the object, and
+// for each duplicate field that is encountered. The request will
+// still succeed if there are no other errors, and will only persist
+// the last of any duplicate fields. This is the default in v1.23+
+// - Strict: This will fail the request with a BadRequest error if
+// any unknown fields would be dropped from the object, or if any
+// duplicate fields are present. The error returned from the server
+// will contain all unknown and duplicate fields encountered.
+func (d *PatchOptionsDieMut) FieldValidation() diefields.ValueMut[string, *PatchOptionsDieMut] {
+	return diefields.ValueMutOf(d, patchOptionsFields.Get().FieldValidation)
+}
+
+// Preconditions must be fulfilled before an operation (update, delete, etc.) is carried out.
+//
+// PreconditionsDie is immutable: it reads.
+// PreconditionsDieMut, its mutable die, also writes, as DieWith passes it.
+type PreconditionsDie struct {
+	diebase.DieBase[Preconditions, *PreconditionsDie, *PreconditionsDieMut]
+}
+
+// PreconditionsDieMut is the mutable die of Preconditions: see PreconditionsDie.
+type PreconditionsDieMut struct {
+	diebase.DieMutBase[Preconditions, *PreconditionsDie, *PreconditionsDieMut]
+}
+
+func (*PreconditionsDie) DieFrom(b diebase.DieBase[Preconditions, *PreconditionsDie, *PreconditionsDieMut]) *PreconditionsDie {
 	return &PreconditionsDie{b}
 }
 
-var _ diebase.DieOf[Preconditions, *PreconditionsDie] = (*PreconditionsDie)(nil)
+func (*PreconditionsDieMut) DieFrom(b diebase.DieMutBase[Preconditions, *PreconditionsDie, *PreconditionsDieMut]) *PreconditionsDieMut {
+	return &PreconditionsDieMut{b}
+}
 
-var PreconditionsBlank = diebase.Blank[Preconditions, *PreconditionsDie]()
+var (
+	_ diebase.DieOf[Preconditions, *PreconditionsDie, *PreconditionsDieMut]    = (*PreconditionsDie)(nil)
+	_ diebase.DieMutOf[Preconditions, *PreconditionsDie, *PreconditionsDieMut] = (*PreconditionsDieMut)(nil)
+)
+
+var PreconditionsBlank = diebase.Blank[Preconditions, *PreconditionsDie, *PreconditionsDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -2437,34 +4155,47 @@ func (d *PreconditionsDie) DieReleaseApplyConfiguration() *PreconditionsApplyCon
 	return diecodegen.ReleaseApplyConfiguration[PreconditionsApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PreconditionsDie) DieFeedApplyConfiguration(ac *PreconditionsApplyConfiguration) *PreconditionsDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PreconditionsDie) DieStampApplyConfiguration(fn func(ac *PreconditionsApplyConfiguration)) *PreconditionsDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PreconditionsDie) DieReleaseApplyConfigurationE() (*PreconditionsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PreconditionsApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PreconditionsDieMut) DieReleaseApplyConfiguration() *PreconditionsApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PreconditionsApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PreconditionsDieMut) DieReleaseApplyConfigurationE() (*PreconditionsApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PreconditionsApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PreconditionsDieMut) DieFeedApplyConfiguration(ac *PreconditionsApplyConfiguration) *PreconditionsDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PreconditionsDieMut) DieStampApplyConfiguration(fn func(ac *PreconditionsApplyConfiguration)) *PreconditionsDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PreconditionsDie) DieFeedApplyConfigurationE(ac *PreconditionsApplyConfiguration) (*PreconditionsDie, error) {
+func (d *PreconditionsDieMut) DieFeedApplyConfigurationE(ac *PreconditionsApplyConfiguration) (*PreconditionsDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PreconditionsDie) DieStampApplyConfigurationE(fn func(ac *PreconditionsApplyConfiguration)) (*PreconditionsDie, error) {
+func (d *PreconditionsDieMut) DieStampApplyConfigurationE(fn func(ac *PreconditionsApplyConfiguration)) (*PreconditionsDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -2481,28 +4212,53 @@ var preconditionsFields = &diefields.Table[preconditionsFieldsTable]{Build: func
 }}
 
 // Specifies the target UID.
-func (d *PreconditionsDie) UID() diefields.Optional[types.UID, *PreconditionsDie] {
+func (d *PreconditionsDie) UID() diefields.Optional[types.UID] {
 	return diefields.OptionalOf(d, preconditionsFields.Get().UID)
 }
 
 // Specifies the target ResourceVersion
-func (d *PreconditionsDie) ResourceVersion() diefields.Optional[string, *PreconditionsDie] {
+func (d *PreconditionsDie) ResourceVersion() diefields.Optional[string] {
 	return diefields.OptionalOf(d, preconditionsFields.Get().ResourceVersion)
+}
+
+// Specifies the target UID.
+func (d *PreconditionsDieMut) UID() diefields.OptionalMut[types.UID, *PreconditionsDieMut] {
+	return diefields.OptionalMutOf(d, preconditionsFields.Get().UID)
+}
+
+// Specifies the target ResourceVersion
+func (d *PreconditionsDieMut) ResourceVersion() diefields.OptionalMut[string, *PreconditionsDieMut] {
+	return diefields.OptionalMutOf(d, preconditionsFields.Get().ResourceVersion)
 }
 
 // RootPaths lists the paths available at root.
 // For example: "/healthz", "/apis".
+//
+// RootPathsDie is immutable: it reads.
+// RootPathsDieMut, its mutable die, also writes, as DieWith passes it.
 type RootPathsDie struct {
-	diebase.DieBase[RootPaths, *RootPathsDie]
+	diebase.DieBase[RootPaths, *RootPathsDie, *RootPathsDieMut]
 }
 
-func (*RootPathsDie) DieFrom(b diebase.DieBase[RootPaths, *RootPathsDie]) *RootPathsDie {
+// RootPathsDieMut is the mutable die of RootPaths: see RootPathsDie.
+type RootPathsDieMut struct {
+	diebase.DieMutBase[RootPaths, *RootPathsDie, *RootPathsDieMut]
+}
+
+func (*RootPathsDie) DieFrom(b diebase.DieBase[RootPaths, *RootPathsDie, *RootPathsDieMut]) *RootPathsDie {
 	return &RootPathsDie{b}
 }
 
-var _ diebase.DieOf[RootPaths, *RootPathsDie] = (*RootPathsDie)(nil)
+func (*RootPathsDieMut) DieFrom(b diebase.DieMutBase[RootPaths, *RootPathsDie, *RootPathsDieMut]) *RootPathsDieMut {
+	return &RootPathsDieMut{b}
+}
 
-var RootPathsBlank = diebase.Blank[RootPaths, *RootPathsDie]()
+var (
+	_ diebase.DieOf[RootPaths, *RootPathsDie, *RootPathsDieMut]    = (*RootPathsDie)(nil)
+	_ diebase.DieMutOf[RootPaths, *RootPathsDie, *RootPathsDieMut] = (*RootPathsDieMut)(nil)
+)
+
+var RootPathsBlank = diebase.Blank[RootPaths, *RootPathsDie, *RootPathsDieMut]()
 
 type rootPathsFieldsTable struct {
 	Paths diefields.Field[RootPaths, []string]
@@ -2515,22 +4271,42 @@ var rootPathsFields = &diefields.Table[rootPathsFieldsTable]{Build: func() (f ro
 }}
 
 // paths are the paths available at root.
-func (d *RootPathsDie) Paths() diefields.Value[[]string, *RootPathsDie] {
+func (d *RootPathsDie) Paths() diefields.Value[[]string] {
 	return diefields.ValueOf(d, rootPathsFields.Get().Paths)
 }
 
-// ServerAddressByClientCIDR helps the client to determine the server address that they should use, depending on the clientCIDR that they match.
-type ServerAddressByClientCIDRDie struct {
-	diebase.DieBase[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie]
+// paths are the paths available at root.
+func (d *RootPathsDieMut) Paths() diefields.ValueMut[[]string, *RootPathsDieMut] {
+	return diefields.ValueMutOf(d, rootPathsFields.Get().Paths)
 }
 
-func (*ServerAddressByClientCIDRDie) DieFrom(b diebase.DieBase[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie]) *ServerAddressByClientCIDRDie {
+// ServerAddressByClientCIDR helps the client to determine the server address that they should use, depending on the clientCIDR that they match.
+//
+// ServerAddressByClientCIDRDie is immutable: it reads.
+// ServerAddressByClientCIDRDieMut, its mutable die, also writes, as DieWith passes it.
+type ServerAddressByClientCIDRDie struct {
+	diebase.DieBase[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]
+}
+
+// ServerAddressByClientCIDRDieMut is the mutable die of ServerAddressByClientCIDR: see ServerAddressByClientCIDRDie.
+type ServerAddressByClientCIDRDieMut struct {
+	diebase.DieMutBase[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]
+}
+
+func (*ServerAddressByClientCIDRDie) DieFrom(b diebase.DieBase[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]) *ServerAddressByClientCIDRDie {
 	return &ServerAddressByClientCIDRDie{b}
 }
 
-var _ diebase.DieOf[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie] = (*ServerAddressByClientCIDRDie)(nil)
+func (*ServerAddressByClientCIDRDieMut) DieFrom(b diebase.DieMutBase[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]) *ServerAddressByClientCIDRDieMut {
+	return &ServerAddressByClientCIDRDieMut{b}
+}
 
-var ServerAddressByClientCIDRBlank = diebase.Blank[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie]()
+var (
+	_ diebase.DieOf[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]    = (*ServerAddressByClientCIDRDie)(nil)
+	_ diebase.DieMutOf[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut] = (*ServerAddressByClientCIDRDieMut)(nil)
+)
+
+var ServerAddressByClientCIDRBlank = diebase.Blank[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]()
 
 type serverAddressByClientCIDRFieldsTable struct {
 	ClientCIDR    diefields.Field[ServerAddressByClientCIDR, string]
@@ -2545,29 +4321,55 @@ var serverAddressByClientCIDRFields = &diefields.Table[serverAddressByClientCIDR
 }}
 
 // The CIDR with which clients can match their IP to figure out the server address that they should use.
-func (d *ServerAddressByClientCIDRDie) ClientCIDR() diefields.Value[string, *ServerAddressByClientCIDRDie] {
+func (d *ServerAddressByClientCIDRDie) ClientCIDR() diefields.Value[string] {
 	return diefields.ValueOf(d, serverAddressByClientCIDRFields.Get().ClientCIDR)
 }
 
 // Address of this server, suitable for a client that matches the above CIDR.
 // This can be a hostname, hostname:port, IP or IP:port.
-func (d *ServerAddressByClientCIDRDie) ServerAddress() diefields.Value[string, *ServerAddressByClientCIDRDie] {
+func (d *ServerAddressByClientCIDRDie) ServerAddress() diefields.Value[string] {
 	return diefields.ValueOf(d, serverAddressByClientCIDRFields.Get().ServerAddress)
+}
+
+// The CIDR with which clients can match their IP to figure out the server address that they should use.
+func (d *ServerAddressByClientCIDRDieMut) ClientCIDR() diefields.ValueMut[string, *ServerAddressByClientCIDRDieMut] {
+	return diefields.ValueMutOf(d, serverAddressByClientCIDRFields.Get().ClientCIDR)
+}
+
+// Address of this server, suitable for a client that matches the above CIDR.
+// This can be a hostname, hostname:port, IP or IP:port.
+func (d *ServerAddressByClientCIDRDieMut) ServerAddress() diefields.ValueMut[string, *ServerAddressByClientCIDRDieMut] {
+	return diefields.ValueMutOf(d, serverAddressByClientCIDRFields.Get().ServerAddress)
 }
 
 // ShardInfo describes the shard selector that was applied to produce a list response.
 // Its presence on a list response indicates the list is a filtered subset.
+//
+// ShardInfoDie is immutable: it reads.
+// ShardInfoDieMut, its mutable die, also writes, as DieWith passes it.
 type ShardInfoDie struct {
-	diebase.DieBase[ShardInfo, *ShardInfoDie]
+	diebase.DieBase[ShardInfo, *ShardInfoDie, *ShardInfoDieMut]
 }
 
-func (*ShardInfoDie) DieFrom(b diebase.DieBase[ShardInfo, *ShardInfoDie]) *ShardInfoDie {
+// ShardInfoDieMut is the mutable die of ShardInfo: see ShardInfoDie.
+type ShardInfoDieMut struct {
+	diebase.DieMutBase[ShardInfo, *ShardInfoDie, *ShardInfoDieMut]
+}
+
+func (*ShardInfoDie) DieFrom(b diebase.DieBase[ShardInfo, *ShardInfoDie, *ShardInfoDieMut]) *ShardInfoDie {
 	return &ShardInfoDie{b}
 }
 
-var _ diebase.DieOf[ShardInfo, *ShardInfoDie] = (*ShardInfoDie)(nil)
+func (*ShardInfoDieMut) DieFrom(b diebase.DieMutBase[ShardInfo, *ShardInfoDie, *ShardInfoDieMut]) *ShardInfoDieMut {
+	return &ShardInfoDieMut{b}
+}
 
-var ShardInfoBlank = diebase.Blank[ShardInfo, *ShardInfoDie]()
+var (
+	_ diebase.DieOf[ShardInfo, *ShardInfoDie, *ShardInfoDieMut]    = (*ShardInfoDie)(nil)
+	_ diebase.DieMutOf[ShardInfo, *ShardInfoDie, *ShardInfoDieMut] = (*ShardInfoDieMut)(nil)
+)
+
+var ShardInfoBlank = diebase.Blank[ShardInfo, *ShardInfoDie, *ShardInfoDieMut]()
 
 type shardInfoFieldsTable struct {
 	Selector diefields.Field[ShardInfo, string]
@@ -2581,29 +4383,52 @@ var shardInfoFields = &diefields.Table[shardInfoFieldsTable]{Build: func() (f sh
 
 // selector is the shard selector string from the request, echoed back so clients
 // can verify which shard they received and merge responses from multiple shards.
-func (d *ShardInfoDie) Selector() diefields.Value[string, *ShardInfoDie] {
+func (d *ShardInfoDie) Selector() diefields.Value[string] {
 	return diefields.ValueOf(d, shardInfoFields.Get().Selector)
 }
 
-// Status is a return value for calls that don't return other objects.
-type StatusDie struct {
-	diebase.DieBase[Status, *StatusDie]
+// selector is the shard selector string from the request, echoed back so clients
+// can verify which shard they received and merge responses from multiple shards.
+func (d *ShardInfoDieMut) Selector() diefields.ValueMut[string, *ShardInfoDieMut] {
+	return diefields.ValueMutOf(d, shardInfoFields.Get().Selector)
 }
 
-func (*StatusDie) DieFrom(b diebase.DieBase[Status, *StatusDie]) *StatusDie { return &StatusDie{b} }
+// Status is a return value for calls that don't return other objects.
+//
+// StatusDie is immutable: it reads.
+// StatusDieMut, its mutable die, also writes, as DieWith passes it.
+type StatusDie struct {
+	diebase.DieBase[Status, *StatusDie, *StatusDieMut]
+}
 
-var _ diebase.DieOf[Status, *StatusDie] = (*StatusDie)(nil)
+// StatusDieMut is the mutable die of Status: see StatusDie.
+type StatusDieMut struct {
+	diebase.DieMutBase[Status, *StatusDie, *StatusDieMut]
+}
 
-var StatusBlank = diebase.Blank[Status, *StatusDie]()
+func (*StatusDie) DieFrom(b diebase.DieBase[Status, *StatusDie, *StatusDieMut]) *StatusDie {
+	return &StatusDie{b}
+}
+
+func (*StatusDieMut) DieFrom(b diebase.DieMutBase[Status, *StatusDie, *StatusDieMut]) *StatusDieMut {
+	return &StatusDieMut{b}
+}
+
+var (
+	_ diebase.DieOf[Status, *StatusDie, *StatusDieMut]    = (*StatusDie)(nil)
+	_ diebase.DieMutOf[Status, *StatusDie, *StatusDieMut] = (*StatusDieMut)(nil)
+)
+
+var StatusBlank = diebase.Blank[Status, *StatusDie, *StatusDieMut]()
 
 type statusFieldsTable struct {
 	Kind       diefields.Field[Status, string]
 	APIVersion diefields.Field[Status, string]
-	Metadata   diefields.Struct[Status, ListMeta, *ListMetaDie]
+	Metadata   diefields.Struct[Status, ListMeta, *ListMetaDie, *ListMetaDieMut]
 	Status     diefields.Field[Status, string]
 	Message    diefields.Field[Status, string]
 	Reason     diefields.Field[Status, StatusReason]
-	Details    diefields.Struct[Status, StatusDetails, *StatusDetailsDie]
+	Details    diefields.Struct[Status, StatusDetails, *StatusDetailsDie, *StatusDetailsDieMut]
 	Code       diefields.Field[Status, int32]
 }
 
@@ -2611,11 +4436,11 @@ var statusFields = &diefields.Table[statusFieldsTable]{Build: func() (f statusFi
 	_ = annotated
 	f.Kind = diefields.NewField[Status, string]("kind")
 	f.APIVersion = diefields.NewField[Status, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[Status, ListMeta, *ListMetaDie]("metadata")
+	f.Metadata = diefields.NewStruct[Status, ListMeta, *ListMetaDie, *ListMetaDieMut]("metadata")
 	f.Status = diefields.NewField[Status, string]("status")
 	f.Message = diefields.NewField[Status, string]("message")
 	f.Reason = diefields.NewField[Status, StatusReason]("reason")
-	f.Details = diefields.NewStruct[Status, StatusDetails, *StatusDetailsDie]("details")
+	f.Details = diefields.NewStruct[Status, StatusDetails, *StatusDetailsDie, *StatusDetailsDieMut]("details")
 	f.Code = diefields.NewField[Status, int32]("code")
 	return
 }}
@@ -2625,7 +4450,7 @@ var statusFields = &diefields.Table[statusFieldsTable]{Build: func() (f statusFi
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *StatusDie) Kind() diefields.Value[string, *StatusDie] {
+func (d *StatusDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, statusFields.Get().Kind)
 }
 
@@ -2633,7 +4458,7 @@ func (d *StatusDie) Kind() diefields.Value[string, *StatusDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *StatusDie) APIVersion() diefields.Value[string, *StatusDie] {
+func (d *StatusDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, statusFields.Get().APIVersion)
 }
 
@@ -2644,12 +4469,12 @@ func (d *StatusDie) Metadata() *ListMetaDie { return diefields.Child(d, statusFi
 // Status of the operation.
 // One of: "Success" or "Failure".
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-func (d *StatusDie) Status() diefields.Value[string, *StatusDie] {
+func (d *StatusDie) Status() diefields.Value[string] {
 	return diefields.ValueOf(d, statusFields.Get().Status)
 }
 
 // A human-readable description of the status of this operation.
-func (d *StatusDie) Message() diefields.Value[string, *StatusDie] {
+func (d *StatusDie) Message() diefields.Value[string] {
 	return diefields.ValueOf(d, statusFields.Get().Message)
 }
 
@@ -2657,7 +4482,7 @@ func (d *StatusDie) Message() diefields.Value[string, *StatusDie] {
 // "Failure" status. If this value is empty there
 // is no information available. A Reason clarifies an HTTP status
 // code but does not override it.
-func (d *StatusDie) Reason() diefields.Value[StatusReason, *StatusDie] {
+func (d *StatusDie) Reason() diefields.Value[StatusReason] {
 	return diefields.ValueOf(d, statusFields.Get().Reason)
 }
 
@@ -2670,23 +4495,94 @@ func (d *StatusDie) Details() *StatusDetailsDie {
 }
 
 // Suggested HTTP return code for this status, 0 if not set.
-func (d *StatusDie) Code() diefields.Value[int32, *StatusDie] {
+func (d *StatusDie) Code() diefields.Value[int32] {
 	return diefields.ValueOf(d, statusFields.Get().Code)
+}
+
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *StatusDieMut) Kind() diefields.ValueMut[string, *StatusDieMut] {
+	return diefields.ValueMutOf(d, statusFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *StatusDieMut) APIVersion() diefields.ValueMut[string, *StatusDieMut] {
+	return diefields.ValueMutOf(d, statusFields.Get().APIVersion)
+}
+
+// Standard list metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *StatusDieMut) Metadata() *ListMetaDieMut {
+	return diefields.ChildMut(d, statusFields.Get().Metadata)
+}
+
+// Status of the operation.
+// One of: "Success" or "Failure".
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *StatusDieMut) Status() diefields.ValueMut[string, *StatusDieMut] {
+	return diefields.ValueMutOf(d, statusFields.Get().Status)
+}
+
+// A human-readable description of the status of this operation.
+func (d *StatusDieMut) Message() diefields.ValueMut[string, *StatusDieMut] {
+	return diefields.ValueMutOf(d, statusFields.Get().Message)
+}
+
+// A machine-readable description of why this operation is in the
+// "Failure" status. If this value is empty there
+// is no information available. A Reason clarifies an HTTP status
+// code but does not override it.
+func (d *StatusDieMut) Reason() diefields.ValueMut[StatusReason, *StatusDieMut] {
+	return diefields.ValueMutOf(d, statusFields.Get().Reason)
+}
+
+// Extended data associated with the reason.  Each reason may define its
+// own extended details. This field is optional and the data returned
+// is not guaranteed to conform to any schema except that defined by
+// the reason type.
+func (d *StatusDieMut) Details() *StatusDetailsDieMut {
+	return diefields.ChildMut(d, statusFields.Get().Details)
+}
+
+// Suggested HTTP return code for this status, 0 if not set.
+func (d *StatusDieMut) Code() diefields.ValueMut[int32, *StatusDieMut] {
+	return diefields.ValueMutOf(d, statusFields.Get().Code)
 }
 
 // StatusCause provides more information about an api.Status failure, including
 // cases when multiple errors are encountered.
+//
+// StatusCauseDie is immutable: it reads.
+// StatusCauseDieMut, its mutable die, also writes, as DieWith passes it.
 type StatusCauseDie struct {
-	diebase.DieBase[StatusCause, *StatusCauseDie]
+	diebase.DieBase[StatusCause, *StatusCauseDie, *StatusCauseDieMut]
 }
 
-func (*StatusCauseDie) DieFrom(b diebase.DieBase[StatusCause, *StatusCauseDie]) *StatusCauseDie {
+// StatusCauseDieMut is the mutable die of StatusCause: see StatusCauseDie.
+type StatusCauseDieMut struct {
+	diebase.DieMutBase[StatusCause, *StatusCauseDie, *StatusCauseDieMut]
+}
+
+func (*StatusCauseDie) DieFrom(b diebase.DieBase[StatusCause, *StatusCauseDie, *StatusCauseDieMut]) *StatusCauseDie {
 	return &StatusCauseDie{b}
 }
 
-var _ diebase.DieOf[StatusCause, *StatusCauseDie] = (*StatusCauseDie)(nil)
+func (*StatusCauseDieMut) DieFrom(b diebase.DieMutBase[StatusCause, *StatusCauseDie, *StatusCauseDieMut]) *StatusCauseDieMut {
+	return &StatusCauseDieMut{b}
+}
 
-var StatusCauseBlank = diebase.Blank[StatusCause, *StatusCauseDie]()
+var (
+	_ diebase.DieOf[StatusCause, *StatusCauseDie, *StatusCauseDieMut]    = (*StatusCauseDie)(nil)
+	_ diebase.DieMutOf[StatusCause, *StatusCauseDie, *StatusCauseDieMut] = (*StatusCauseDieMut)(nil)
+)
+
+var StatusCauseBlank = diebase.Blank[StatusCause, *StatusCauseDie, *StatusCauseDieMut]()
 
 type statusCauseFieldsTable struct {
 	Type    diefields.Field[StatusCause, CauseType]
@@ -2704,13 +4600,13 @@ var statusCauseFields = &diefields.Table[statusCauseFieldsTable]{Build: func() (
 
 // A machine-readable description of the cause of the error. If this value is
 // empty there is no information available.
-func (d *StatusCauseDie) Type() diefields.Value[CauseType, *StatusCauseDie] {
+func (d *StatusCauseDie) Type() diefields.Value[CauseType] {
 	return diefields.ValueOf(d, statusCauseFields.Get().Type)
 }
 
 // A human-readable description of the cause of the error.  This field may be
 // presented as-is to a reader.
-func (d *StatusCauseDie) Message() diefields.Value[string, *StatusCauseDie] {
+func (d *StatusCauseDie) Message() diefields.Value[string] {
 	return diefields.ValueOf(d, statusCauseFields.Get().Message)
 }
 
@@ -2724,8 +4620,34 @@ func (d *StatusCauseDie) Message() diefields.Value[string, *StatusCauseDie] {
 //
 //	"name" - the field "name" on the current resource
 //	"items[0].name" - the field "name" on the first array entry in "items"
-func (d *StatusCauseDie) Field() diefields.Value[string, *StatusCauseDie] {
+func (d *StatusCauseDie) Field() diefields.Value[string] {
 	return diefields.ValueOf(d, statusCauseFields.Get().Field)
+}
+
+// A machine-readable description of the cause of the error. If this value is
+// empty there is no information available.
+func (d *StatusCauseDieMut) Type() diefields.ValueMut[CauseType, *StatusCauseDieMut] {
+	return diefields.ValueMutOf(d, statusCauseFields.Get().Type)
+}
+
+// A human-readable description of the cause of the error.  This field may be
+// presented as-is to a reader.
+func (d *StatusCauseDieMut) Message() diefields.ValueMut[string, *StatusCauseDieMut] {
+	return diefields.ValueMutOf(d, statusCauseFields.Get().Message)
+}
+
+// The field of the resource that has caused this error, as named by its JSON
+// serialization. May include dot and postfix notation for nested attributes.
+// Arrays are zero-indexed.  Fields may appear more than once in an array of
+// causes due to fields having multiple errors.
+// Optional.
+//
+// Examples:
+//
+//	"name" - the field "name" on the current resource
+//	"items[0].name" - the field "name" on the first array entry in "items"
+func (d *StatusCauseDieMut) Field() diefields.ValueMut[string, *StatusCauseDieMut] {
+	return diefields.ValueMutOf(d, statusCauseFields.Get().Field)
 }
 
 // StatusDetails is a set of additional properties that MAY be set by the
@@ -2734,17 +4656,32 @@ func (d *StatusCauseDie) Field() diefields.Value[string, *StatusCauseDie] {
 // must ignore fields that do not match the defined type of each attribute,
 // and should assume that any attribute may be empty, invalid, or under
 // defined.
+//
+// StatusDetailsDie is immutable: it reads.
+// StatusDetailsDieMut, its mutable die, also writes, as DieWith passes it.
 type StatusDetailsDie struct {
-	diebase.DieBase[StatusDetails, *StatusDetailsDie]
+	diebase.DieBase[StatusDetails, *StatusDetailsDie, *StatusDetailsDieMut]
 }
 
-func (*StatusDetailsDie) DieFrom(b diebase.DieBase[StatusDetails, *StatusDetailsDie]) *StatusDetailsDie {
+// StatusDetailsDieMut is the mutable die of StatusDetails: see StatusDetailsDie.
+type StatusDetailsDieMut struct {
+	diebase.DieMutBase[StatusDetails, *StatusDetailsDie, *StatusDetailsDieMut]
+}
+
+func (*StatusDetailsDie) DieFrom(b diebase.DieBase[StatusDetails, *StatusDetailsDie, *StatusDetailsDieMut]) *StatusDetailsDie {
 	return &StatusDetailsDie{b}
 }
 
-var _ diebase.DieOf[StatusDetails, *StatusDetailsDie] = (*StatusDetailsDie)(nil)
+func (*StatusDetailsDieMut) DieFrom(b diebase.DieMutBase[StatusDetails, *StatusDetailsDie, *StatusDetailsDieMut]) *StatusDetailsDieMut {
+	return &StatusDetailsDieMut{b}
+}
 
-var StatusDetailsBlank = diebase.Blank[StatusDetails, *StatusDetailsDie]()
+var (
+	_ diebase.DieOf[StatusDetails, *StatusDetailsDie, *StatusDetailsDieMut]    = (*StatusDetailsDie)(nil)
+	_ diebase.DieMutOf[StatusDetails, *StatusDetailsDie, *StatusDetailsDieMut] = (*StatusDetailsDieMut)(nil)
+)
+
+var StatusDetailsBlank = diebase.Blank[StatusDetails, *StatusDetailsDie, *StatusDetailsDieMut]()
 
 type statusDetailsFieldsTable struct {
 	Name              diefields.Field[StatusDetails, string]
@@ -2768,58 +4705,113 @@ var statusDetailsFields = &diefields.Table[statusDetailsFieldsTable]{Build: func
 
 // The name attribute of the resource associated with the status StatusReason
 // (when there is a single name which can be described).
-func (d *StatusDetailsDie) Name() diefields.Value[string, *StatusDetailsDie] {
+func (d *StatusDetailsDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, statusDetailsFields.Get().Name)
 }
 
 // The group attribute of the resource associated with the status StatusReason.
-func (d *StatusDetailsDie) Group() diefields.Value[string, *StatusDetailsDie] {
+func (d *StatusDetailsDie) Group() diefields.Value[string] {
 	return diefields.ValueOf(d, statusDetailsFields.Get().Group)
 }
 
 // The kind attribute of the resource associated with the status StatusReason.
 // On some operations may differ from the requested resource Kind.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *StatusDetailsDie) Kind() diefields.Value[string, *StatusDetailsDie] {
+func (d *StatusDetailsDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, statusDetailsFields.Get().Kind)
 }
 
 // UID of the resource.
 // (when there is a single resource which can be described).
 // More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
-func (d *StatusDetailsDie) UID() diefields.Value[types.UID, *StatusDetailsDie] {
+func (d *StatusDetailsDie) UID() diefields.Value[types.UID] {
 	return diefields.ValueOf(d, statusDetailsFields.Get().UID)
 }
 
 // The Causes array includes more details associated with the StatusReason
 // failure. Not all StatusReasons may provide detailed causes.
-func (d *StatusDetailsDie) Causes() diefields.Value[[]StatusCause, *StatusDetailsDie] {
+func (d *StatusDetailsDie) Causes() diefields.Value[[]StatusCause] {
 	return diefields.ValueOf(d, statusDetailsFields.Get().Causes)
 }
 
 // If specified, the time in seconds before the operation should be retried. Some errors may indicate
 // the client must take an alternate action - for those errors this field may indicate how long to wait
 // before taking the alternate action.
-func (d *StatusDetailsDie) RetryAfterSeconds() diefields.Value[int32, *StatusDetailsDie] {
+func (d *StatusDetailsDie) RetryAfterSeconds() diefields.Value[int32] {
 	return diefields.ValueOf(d, statusDetailsFields.Get().RetryAfterSeconds)
+}
+
+// The name attribute of the resource associated with the status StatusReason
+// (when there is a single name which can be described).
+func (d *StatusDetailsDieMut) Name() diefields.ValueMut[string, *StatusDetailsDieMut] {
+	return diefields.ValueMutOf(d, statusDetailsFields.Get().Name)
+}
+
+// The group attribute of the resource associated with the status StatusReason.
+func (d *StatusDetailsDieMut) Group() diefields.ValueMut[string, *StatusDetailsDieMut] {
+	return diefields.ValueMutOf(d, statusDetailsFields.Get().Group)
+}
+
+// The kind attribute of the resource associated with the status StatusReason.
+// On some operations may differ from the requested resource Kind.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *StatusDetailsDieMut) Kind() diefields.ValueMut[string, *StatusDetailsDieMut] {
+	return diefields.ValueMutOf(d, statusDetailsFields.Get().Kind)
+}
+
+// UID of the resource.
+// (when there is a single resource which can be described).
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
+func (d *StatusDetailsDieMut) UID() diefields.ValueMut[types.UID, *StatusDetailsDieMut] {
+	return diefields.ValueMutOf(d, statusDetailsFields.Get().UID)
+}
+
+// The Causes array includes more details associated with the StatusReason
+// failure. Not all StatusReasons may provide detailed causes.
+func (d *StatusDetailsDieMut) Causes() diefields.ValueMut[[]StatusCause, *StatusDetailsDieMut] {
+	return diefields.ValueMutOf(d, statusDetailsFields.Get().Causes)
+}
+
+// If specified, the time in seconds before the operation should be retried. Some errors may indicate
+// the client must take an alternate action - for those errors this field may indicate how long to wait
+// before taking the alternate action.
+func (d *StatusDetailsDieMut) RetryAfterSeconds() diefields.ValueMut[int32, *StatusDetailsDieMut] {
+	return diefields.ValueMutOf(d, statusDetailsFields.Get().RetryAfterSeconds)
 }
 
 // Table is a tabular representation of a set of API resources. The server transforms the
 // object into a set of preferred columns for quickly reviewing the objects.
+//
+// TableDie is immutable: it reads.
+// TableDieMut, its mutable die, also writes, as DieWith passes it.
 type TableDie struct {
-	diebase.DieBase[Table, *TableDie]
+	diebase.DieBase[Table, *TableDie, *TableDieMut]
 }
 
-func (*TableDie) DieFrom(b diebase.DieBase[Table, *TableDie]) *TableDie { return &TableDie{b} }
+// TableDieMut is the mutable die of Table: see TableDie.
+type TableDieMut struct {
+	diebase.DieMutBase[Table, *TableDie, *TableDieMut]
+}
 
-var _ diebase.DieOf[Table, *TableDie] = (*TableDie)(nil)
+func (*TableDie) DieFrom(b diebase.DieBase[Table, *TableDie, *TableDieMut]) *TableDie {
+	return &TableDie{b}
+}
 
-var TableBlank = diebase.Blank[Table, *TableDie]()
+func (*TableDieMut) DieFrom(b diebase.DieMutBase[Table, *TableDie, *TableDieMut]) *TableDieMut {
+	return &TableDieMut{b}
+}
+
+var (
+	_ diebase.DieOf[Table, *TableDie, *TableDieMut]    = (*TableDie)(nil)
+	_ diebase.DieMutOf[Table, *TableDie, *TableDieMut] = (*TableDieMut)(nil)
+)
+
+var TableBlank = diebase.Blank[Table, *TableDie, *TableDieMut]()
 
 type tableFieldsTable struct {
 	Kind              diefields.Field[Table, string]
 	APIVersion        diefields.Field[Table, string]
-	Metadata          diefields.Struct[Table, ListMeta, *ListMetaDie]
+	Metadata          diefields.Struct[Table, ListMeta, *ListMetaDie, *ListMetaDieMut]
 	ColumnDefinitions diefields.Field[Table, []TableColumnDefinition]
 	Rows              diefields.Field[Table, []TableRow]
 }
@@ -2828,7 +4820,7 @@ var tableFields = &diefields.Table[tableFieldsTable]{Build: func() (f tableField
 	_ = annotated
 	f.Kind = diefields.NewField[Table, string]("kind")
 	f.APIVersion = diefields.NewField[Table, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[Table, ListMeta, *ListMetaDie]("metadata")
+	f.Metadata = diefields.NewStruct[Table, ListMeta, *ListMetaDie, *ListMetaDieMut]("metadata")
 	f.ColumnDefinitions = diefields.NewField[Table, []TableColumnDefinition]("columnDefinitions")
 	f.Rows = diefields.NewField[Table, []TableRow]("rows")
 	return
@@ -2839,7 +4831,7 @@ var tableFields = &diefields.Table[tableFieldsTable]{Build: func() (f tableField
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *TableDie) Kind() diefields.Value[string, *TableDie] {
+func (d *TableDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, tableFields.Get().Kind)
 }
 
@@ -2847,7 +4839,7 @@ func (d *TableDie) Kind() diefields.Value[string, *TableDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *TableDie) APIVersion() diefields.Value[string, *TableDie] {
+func (d *TableDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, tableFields.Get().APIVersion)
 }
 
@@ -2857,27 +4849,76 @@ func (d *TableDie) Metadata() *ListMetaDie { return diefields.Child(d, tableFiel
 
 // columnDefinitions describes each column in the returned items array. The number of cells per row
 // will always match the number of column definitions.
-func (d *TableDie) ColumnDefinitions() diefields.Value[[]TableColumnDefinition, *TableDie] {
+func (d *TableDie) ColumnDefinitions() diefields.Value[[]TableColumnDefinition] {
 	return diefields.ValueOf(d, tableFields.Get().ColumnDefinitions)
 }
 
 // rows is the list of items in the table.
-func (d *TableDie) Rows() diefields.Value[[]TableRow, *TableDie] {
+func (d *TableDie) Rows() diefields.Value[[]TableRow] {
 	return diefields.ValueOf(d, tableFields.Get().Rows)
 }
 
-// TableColumnDefinition contains information about a column returned in the Table.
-type TableColumnDefinitionDie struct {
-	diebase.DieBase[TableColumnDefinition, *TableColumnDefinitionDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *TableDieMut) Kind() diefields.ValueMut[string, *TableDieMut] {
+	return diefields.ValueMutOf(d, tableFields.Get().Kind)
 }
 
-func (*TableColumnDefinitionDie) DieFrom(b diebase.DieBase[TableColumnDefinition, *TableColumnDefinitionDie]) *TableColumnDefinitionDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *TableDieMut) APIVersion() diefields.ValueMut[string, *TableDieMut] {
+	return diefields.ValueMutOf(d, tableFields.Get().APIVersion)
+}
+
+// Standard list metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *TableDieMut) Metadata() *ListMetaDieMut {
+	return diefields.ChildMut(d, tableFields.Get().Metadata)
+}
+
+// columnDefinitions describes each column in the returned items array. The number of cells per row
+// will always match the number of column definitions.
+func (d *TableDieMut) ColumnDefinitions() diefields.ValueMut[[]TableColumnDefinition, *TableDieMut] {
+	return diefields.ValueMutOf(d, tableFields.Get().ColumnDefinitions)
+}
+
+// rows is the list of items in the table.
+func (d *TableDieMut) Rows() diefields.ValueMut[[]TableRow, *TableDieMut] {
+	return diefields.ValueMutOf(d, tableFields.Get().Rows)
+}
+
+// TableColumnDefinition contains information about a column returned in the Table.
+//
+// TableColumnDefinitionDie is immutable: it reads.
+// TableColumnDefinitionDieMut, its mutable die, also writes, as DieWith passes it.
+type TableColumnDefinitionDie struct {
+	diebase.DieBase[TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut]
+}
+
+// TableColumnDefinitionDieMut is the mutable die of TableColumnDefinition: see TableColumnDefinitionDie.
+type TableColumnDefinitionDieMut struct {
+	diebase.DieMutBase[TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut]
+}
+
+func (*TableColumnDefinitionDie) DieFrom(b diebase.DieBase[TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut]) *TableColumnDefinitionDie {
 	return &TableColumnDefinitionDie{b}
 }
 
-var _ diebase.DieOf[TableColumnDefinition, *TableColumnDefinitionDie] = (*TableColumnDefinitionDie)(nil)
+func (*TableColumnDefinitionDieMut) DieFrom(b diebase.DieMutBase[TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut]) *TableColumnDefinitionDieMut {
+	return &TableColumnDefinitionDieMut{b}
+}
 
-var TableColumnDefinitionBlank = diebase.Blank[TableColumnDefinition, *TableColumnDefinitionDie]()
+var (
+	_ diebase.DieOf[TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut]    = (*TableColumnDefinitionDie)(nil)
+	_ diebase.DieMutOf[TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut] = (*TableColumnDefinitionDieMut)(nil)
+)
+
+var TableColumnDefinitionBlank = diebase.Blank[TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut]()
 
 type tableColumnDefinitionFieldsTable struct {
 	Name        diefields.Field[TableColumnDefinition, string]
@@ -2898,14 +4939,14 @@ var tableColumnDefinitionFields = &diefields.Table[tableColumnDefinitionFieldsTa
 }}
 
 // name is a human readable name for the column.
-func (d *TableColumnDefinitionDie) Name() diefields.Value[string, *TableColumnDefinitionDie] {
+func (d *TableColumnDefinitionDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, tableColumnDefinitionFields.Get().Name)
 }
 
 // type is an OpenAPI type definition for this column, such as number, integer, string, or
 // array.
 // See https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#data-types for more.
-func (d *TableColumnDefinitionDie) Type() diefields.Value[string, *TableColumnDefinitionDie] {
+func (d *TableColumnDefinitionDie) Type() diefields.Value[string] {
 	return diefields.ValueOf(d, tableColumnDefinitionFields.Get().Type)
 }
 
@@ -2914,34 +4955,82 @@ func (d *TableColumnDefinitionDie) Type() diefields.Value[string, *TableColumnDe
 // to the primary identifier column which has type 'string' to assist in clients identifying column
 // is the resource name.
 // See https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#data-types for more.
-func (d *TableColumnDefinitionDie) Format() diefields.Value[string, *TableColumnDefinitionDie] {
+func (d *TableColumnDefinitionDie) Format() diefields.Value[string] {
 	return diefields.ValueOf(d, tableColumnDefinitionFields.Get().Format)
 }
 
 // description is a human readable description of this column.
-func (d *TableColumnDefinitionDie) Description() diefields.Value[string, *TableColumnDefinitionDie] {
+func (d *TableColumnDefinitionDie) Description() diefields.Value[string] {
 	return diefields.ValueOf(d, tableColumnDefinitionFields.Get().Description)
 }
 
 // priority is an integer defining the relative importance of this column compared to others. Lower
 // numbers are considered higher priority. Columns that may be omitted in limited space scenarios
 // should be given a higher priority.
-func (d *TableColumnDefinitionDie) Priority() diefields.Value[int32, *TableColumnDefinitionDie] {
+func (d *TableColumnDefinitionDie) Priority() diefields.Value[int32] {
 	return diefields.ValueOf(d, tableColumnDefinitionFields.Get().Priority)
 }
 
-// TableOptions are used when a Table is requested by the caller.
-type TableOptionsDie struct {
-	diebase.DieBase[TableOptions, *TableOptionsDie]
+// name is a human readable name for the column.
+func (d *TableColumnDefinitionDieMut) Name() diefields.ValueMut[string, *TableColumnDefinitionDieMut] {
+	return diefields.ValueMutOf(d, tableColumnDefinitionFields.Get().Name)
 }
 
-func (*TableOptionsDie) DieFrom(b diebase.DieBase[TableOptions, *TableOptionsDie]) *TableOptionsDie {
+// type is an OpenAPI type definition for this column, such as number, integer, string, or
+// array.
+// See https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#data-types for more.
+func (d *TableColumnDefinitionDieMut) Type() diefields.ValueMut[string, *TableColumnDefinitionDieMut] {
+	return diefields.ValueMutOf(d, tableColumnDefinitionFields.Get().Type)
+}
+
+// format is an optional OpenAPI type modifier for this column. A format modifies the type and
+// imposes additional rules, like date or time formatting for a string. The 'name' format is applied
+// to the primary identifier column which has type 'string' to assist in clients identifying column
+// is the resource name.
+// See https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#data-types for more.
+func (d *TableColumnDefinitionDieMut) Format() diefields.ValueMut[string, *TableColumnDefinitionDieMut] {
+	return diefields.ValueMutOf(d, tableColumnDefinitionFields.Get().Format)
+}
+
+// description is a human readable description of this column.
+func (d *TableColumnDefinitionDieMut) Description() diefields.ValueMut[string, *TableColumnDefinitionDieMut] {
+	return diefields.ValueMutOf(d, tableColumnDefinitionFields.Get().Description)
+}
+
+// priority is an integer defining the relative importance of this column compared to others. Lower
+// numbers are considered higher priority. Columns that may be omitted in limited space scenarios
+// should be given a higher priority.
+func (d *TableColumnDefinitionDieMut) Priority() diefields.ValueMut[int32, *TableColumnDefinitionDieMut] {
+	return diefields.ValueMutOf(d, tableColumnDefinitionFields.Get().Priority)
+}
+
+// TableOptions are used when a Table is requested by the caller.
+//
+// TableOptionsDie is immutable: it reads.
+// TableOptionsDieMut, its mutable die, also writes, as DieWith passes it.
+type TableOptionsDie struct {
+	diebase.DieBase[TableOptions, *TableOptionsDie, *TableOptionsDieMut]
+}
+
+// TableOptionsDieMut is the mutable die of TableOptions: see TableOptionsDie.
+type TableOptionsDieMut struct {
+	diebase.DieMutBase[TableOptions, *TableOptionsDie, *TableOptionsDieMut]
+}
+
+func (*TableOptionsDie) DieFrom(b diebase.DieBase[TableOptions, *TableOptionsDie, *TableOptionsDieMut]) *TableOptionsDie {
 	return &TableOptionsDie{b}
 }
 
-var _ diebase.DieOf[TableOptions, *TableOptionsDie] = (*TableOptionsDie)(nil)
+func (*TableOptionsDieMut) DieFrom(b diebase.DieMutBase[TableOptions, *TableOptionsDie, *TableOptionsDieMut]) *TableOptionsDieMut {
+	return &TableOptionsDieMut{b}
+}
 
-var TableOptionsBlank = diebase.Blank[TableOptions, *TableOptionsDie]()
+var (
+	_ diebase.DieOf[TableOptions, *TableOptionsDie, *TableOptionsDieMut]    = (*TableOptionsDie)(nil)
+	_ diebase.DieMutOf[TableOptions, *TableOptionsDie, *TableOptionsDieMut] = (*TableOptionsDieMut)(nil)
+)
+
+var TableOptionsBlank = diebase.Blank[TableOptions, *TableOptionsDie, *TableOptionsDieMut]()
 
 type tableOptionsFieldsTable struct {
 	Kind          diefields.Field[TableOptions, string]
@@ -2962,7 +5051,7 @@ var tableOptionsFields = &diefields.Table[tableOptionsFieldsTable]{Build: func()
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *TableOptionsDie) Kind() diefields.Value[string, *TableOptionsDie] {
+func (d *TableOptionsDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, tableOptionsFields.Get().Kind)
 }
 
@@ -2970,7 +5059,7 @@ func (d *TableOptionsDie) Kind() diefields.Value[string, *TableOptionsDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *TableOptionsDie) APIVersion() diefields.Value[string, *TableOptionsDie] {
+func (d *TableOptionsDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, tableOptionsFields.Get().APIVersion)
 }
 
@@ -2978,22 +5067,62 @@ func (d *TableOptionsDie) APIVersion() diefields.Value[string, *TableOptionsDie]
 // Specifying "None" will return no object, specifying "Object" will return the full object contents, and
 // specifying "Metadata" (the default) will return the object's metadata in the PartialObjectMetadata kind
 // in version v1beta1 of the meta.k8s.io API group.
-func (d *TableOptionsDie) IncludeObject() diefields.Value[IncludeObjectPolicy, *TableOptionsDie] {
+func (d *TableOptionsDie) IncludeObject() diefields.Value[IncludeObjectPolicy] {
 	return diefields.ValueOf(d, tableOptionsFields.Get().IncludeObject)
 }
 
-// TableRow is an individual row in a table.
-type TableRowDie struct {
-	diebase.DieBase[TableRow, *TableRowDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *TableOptionsDieMut) Kind() diefields.ValueMut[string, *TableOptionsDieMut] {
+	return diefields.ValueMutOf(d, tableOptionsFields.Get().Kind)
 }
 
-func (*TableRowDie) DieFrom(b diebase.DieBase[TableRow, *TableRowDie]) *TableRowDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *TableOptionsDieMut) APIVersion() diefields.ValueMut[string, *TableOptionsDieMut] {
+	return diefields.ValueMutOf(d, tableOptionsFields.Get().APIVersion)
+}
+
+// includeObject decides whether to include each object along with its columnar information.
+// Specifying "None" will return no object, specifying "Object" will return the full object contents, and
+// specifying "Metadata" (the default) will return the object's metadata in the PartialObjectMetadata kind
+// in version v1beta1 of the meta.k8s.io API group.
+func (d *TableOptionsDieMut) IncludeObject() diefields.ValueMut[IncludeObjectPolicy, *TableOptionsDieMut] {
+	return diefields.ValueMutOf(d, tableOptionsFields.Get().IncludeObject)
+}
+
+// TableRow is an individual row in a table.
+//
+// TableRowDie is immutable: it reads.
+// TableRowDieMut, its mutable die, also writes, as DieWith passes it.
+type TableRowDie struct {
+	diebase.DieBase[TableRow, *TableRowDie, *TableRowDieMut]
+}
+
+// TableRowDieMut is the mutable die of TableRow: see TableRowDie.
+type TableRowDieMut struct {
+	diebase.DieMutBase[TableRow, *TableRowDie, *TableRowDieMut]
+}
+
+func (*TableRowDie) DieFrom(b diebase.DieBase[TableRow, *TableRowDie, *TableRowDieMut]) *TableRowDie {
 	return &TableRowDie{b}
 }
 
-var _ diebase.DieOf[TableRow, *TableRowDie] = (*TableRowDie)(nil)
+func (*TableRowDieMut) DieFrom(b diebase.DieMutBase[TableRow, *TableRowDie, *TableRowDieMut]) *TableRowDieMut {
+	return &TableRowDieMut{b}
+}
 
-var TableRowBlank = diebase.Blank[TableRow, *TableRowDie]()
+var (
+	_ diebase.DieOf[TableRow, *TableRowDie, *TableRowDieMut]    = (*TableRowDie)(nil)
+	_ diebase.DieMutOf[TableRow, *TableRowDie, *TableRowDieMut] = (*TableRowDieMut)(nil)
+)
+
+var TableRowBlank = diebase.Blank[TableRow, *TableRowDie, *TableRowDieMut]()
 
 type tableRowFieldsTable struct {
 	Cells      diefields.Field[TableRow, []any]
@@ -3012,7 +5141,7 @@ var tableRowFields = &diefields.Table[tableRowFieldsTable]{Build: func() (f tabl
 // cells will be as wide as the column definitions array and may contain strings, numbers (float64 or
 // int64), booleans, simple maps, lists, or null. See the type field of the column definition for a
 // more detailed description.
-func (d *TableRowDie) Cells() diefields.Value[[]any, *TableRowDie] {
+func (d *TableRowDie) Cells() diefields.Value[[]any] {
 	return diefields.ValueOf(d, tableRowFields.Get().Cells)
 }
 
@@ -3020,7 +5149,7 @@ func (d *TableRowDie) Cells() diefields.Value[[]any, *TableRowDie] {
 // apply to the row, not to the object, and will be specific to table output. The only defined
 // condition type is 'Completed', for a row that indicates a resource that has run to completion and
 // can be given less visual priority.
-func (d *TableRowDie) Conditions() diefields.Value[[]TableRowCondition, *TableRowDie] {
+func (d *TableRowDie) Conditions() diefields.Value[[]TableRowCondition] {
 	return diefields.ValueOf(d, tableRowFields.Get().Conditions)
 }
 
@@ -3030,22 +5159,62 @@ func (d *TableRowDie) Conditions() diefields.Value[[]TableRowCondition, *TableRo
 // contain the object metadata. Check the returned kind and apiVersion of the object before parsing.
 // The media type of the object will always match the enclosing list - if this as a JSON table, these
 // will be JSON encoded objects.
-func (d *TableRowDie) Object() diefields.Value[runtime.RawExtension, *TableRowDie] {
+func (d *TableRowDie) Object() diefields.Value[runtime.RawExtension] {
 	return diefields.ValueOf(d, tableRowFields.Get().Object)
 }
 
-// TableRowCondition allows a row to be marked with additional information.
-type TableRowConditionDie struct {
-	diebase.DieBase[TableRowCondition, *TableRowConditionDie]
+// cells will be as wide as the column definitions array and may contain strings, numbers (float64 or
+// int64), booleans, simple maps, lists, or null. See the type field of the column definition for a
+// more detailed description.
+func (d *TableRowDieMut) Cells() diefields.ValueMut[[]any, *TableRowDieMut] {
+	return diefields.ValueMutOf(d, tableRowFields.Get().Cells)
 }
 
-func (*TableRowConditionDie) DieFrom(b diebase.DieBase[TableRowCondition, *TableRowConditionDie]) *TableRowConditionDie {
+// conditions describe additional status of a row that are relevant for a human user. These conditions
+// apply to the row, not to the object, and will be specific to table output. The only defined
+// condition type is 'Completed', for a row that indicates a resource that has run to completion and
+// can be given less visual priority.
+func (d *TableRowDieMut) Conditions() diefields.ValueMut[[]TableRowCondition, *TableRowDieMut] {
+	return diefields.ValueMutOf(d, tableRowFields.Get().Conditions)
+}
+
+// This field contains the requested additional information about each object based on the includeObject
+// policy when requesting the Table. If "None", this field is empty, if "Object" this will be the
+// default serialization of the object for the current API version, and if "Metadata" (the default) will
+// contain the object metadata. Check the returned kind and apiVersion of the object before parsing.
+// The media type of the object will always match the enclosing list - if this as a JSON table, these
+// will be JSON encoded objects.
+func (d *TableRowDieMut) Object() diefields.ValueMut[runtime.RawExtension, *TableRowDieMut] {
+	return diefields.ValueMutOf(d, tableRowFields.Get().Object)
+}
+
+// TableRowCondition allows a row to be marked with additional information.
+//
+// TableRowConditionDie is immutable: it reads.
+// TableRowConditionDieMut, its mutable die, also writes, as DieWith passes it.
+type TableRowConditionDie struct {
+	diebase.DieBase[TableRowCondition, *TableRowConditionDie, *TableRowConditionDieMut]
+}
+
+// TableRowConditionDieMut is the mutable die of TableRowCondition: see TableRowConditionDie.
+type TableRowConditionDieMut struct {
+	diebase.DieMutBase[TableRowCondition, *TableRowConditionDie, *TableRowConditionDieMut]
+}
+
+func (*TableRowConditionDie) DieFrom(b diebase.DieBase[TableRowCondition, *TableRowConditionDie, *TableRowConditionDieMut]) *TableRowConditionDie {
 	return &TableRowConditionDie{b}
 }
 
-var _ diebase.DieOf[TableRowCondition, *TableRowConditionDie] = (*TableRowConditionDie)(nil)
+func (*TableRowConditionDieMut) DieFrom(b diebase.DieMutBase[TableRowCondition, *TableRowConditionDie, *TableRowConditionDieMut]) *TableRowConditionDieMut {
+	return &TableRowConditionDieMut{b}
+}
 
-var TableRowConditionBlank = diebase.Blank[TableRowCondition, *TableRowConditionDie]()
+var (
+	_ diebase.DieOf[TableRowCondition, *TableRowConditionDie, *TableRowConditionDieMut]    = (*TableRowConditionDie)(nil)
+	_ diebase.DieMutOf[TableRowCondition, *TableRowConditionDie, *TableRowConditionDieMut] = (*TableRowConditionDieMut)(nil)
+)
+
+var TableRowConditionBlank = diebase.Blank[TableRowCondition, *TableRowConditionDie, *TableRowConditionDieMut]()
 
 type tableRowConditionFieldsTable struct {
 	Type    diefields.Field[TableRowCondition, RowConditionType]
@@ -3067,39 +5236,77 @@ var tableRowConditionFields = &diefields.Table[tableRowConditionFieldsTable]{Bui
 // object this row represents has reached a completed state and may be given less visual
 // priority than other rows. Clients are not required to honor any conditions but should
 // be consistent where possible about handling the conditions.
-func (d *TableRowConditionDie) Type() diefields.Value[RowConditionType, *TableRowConditionDie] {
+func (d *TableRowConditionDie) Type() diefields.Value[RowConditionType] {
 	return diefields.ValueOf(d, tableRowConditionFields.Get().Type)
 }
 
 // Status of the condition, one of True, False, Unknown.
-func (d *TableRowConditionDie) Status() diefields.Value[ConditionStatus, *TableRowConditionDie] {
+func (d *TableRowConditionDie) Status() diefields.Value[ConditionStatus] {
 	return diefields.ValueOf(d, tableRowConditionFields.Get().Status)
 }
 
 // (brief) machine readable reason for the condition's last transition.
-func (d *TableRowConditionDie) Reason() diefields.Value[string, *TableRowConditionDie] {
+func (d *TableRowConditionDie) Reason() diefields.Value[string] {
 	return diefields.ValueOf(d, tableRowConditionFields.Get().Reason)
 }
 
 // Human readable message indicating details about last transition.
-func (d *TableRowConditionDie) Message() diefields.Value[string, *TableRowConditionDie] {
+func (d *TableRowConditionDie) Message() diefields.Value[string] {
 	return diefields.ValueOf(d, tableRowConditionFields.Get().Message)
+}
+
+// Type of row condition. The only defined value is 'Completed' indicating that the
+// object this row represents has reached a completed state and may be given less visual
+// priority than other rows. Clients are not required to honor any conditions but should
+// be consistent where possible about handling the conditions.
+func (d *TableRowConditionDieMut) Type() diefields.ValueMut[RowConditionType, *TableRowConditionDieMut] {
+	return diefields.ValueMutOf(d, tableRowConditionFields.Get().Type)
+}
+
+// Status of the condition, one of True, False, Unknown.
+func (d *TableRowConditionDieMut) Status() diefields.ValueMut[ConditionStatus, *TableRowConditionDieMut] {
+	return diefields.ValueMutOf(d, tableRowConditionFields.Get().Status)
+}
+
+// (brief) machine readable reason for the condition's last transition.
+func (d *TableRowConditionDieMut) Reason() diefields.ValueMut[string, *TableRowConditionDieMut] {
+	return diefields.ValueMutOf(d, tableRowConditionFields.Get().Reason)
+}
+
+// Human readable message indicating details about last transition.
+func (d *TableRowConditionDieMut) Message() diefields.ValueMut[string, *TableRowConditionDieMut] {
+	return diefields.ValueMutOf(d, tableRowConditionFields.Get().Message)
 }
 
 // Timestamp is a struct that is equivalent to Time, but intended for
 // protobuf marshalling/unmarshalling. It is generated into a serialization
 // that matches Time. Do not use in Go structs.
+//
+// TimestampDie is immutable: it reads.
+// TimestampDieMut, its mutable die, also writes, as DieWith passes it.
 type TimestampDie struct {
-	diebase.DieBase[Timestamp, *TimestampDie]
+	diebase.DieBase[Timestamp, *TimestampDie, *TimestampDieMut]
 }
 
-func (*TimestampDie) DieFrom(b diebase.DieBase[Timestamp, *TimestampDie]) *TimestampDie {
+// TimestampDieMut is the mutable die of Timestamp: see TimestampDie.
+type TimestampDieMut struct {
+	diebase.DieMutBase[Timestamp, *TimestampDie, *TimestampDieMut]
+}
+
+func (*TimestampDie) DieFrom(b diebase.DieBase[Timestamp, *TimestampDie, *TimestampDieMut]) *TimestampDie {
 	return &TimestampDie{b}
 }
 
-var _ diebase.DieOf[Timestamp, *TimestampDie] = (*TimestampDie)(nil)
+func (*TimestampDieMut) DieFrom(b diebase.DieMutBase[Timestamp, *TimestampDie, *TimestampDieMut]) *TimestampDieMut {
+	return &TimestampDieMut{b}
+}
 
-var TimestampBlank = diebase.Blank[Timestamp, *TimestampDie]()
+var (
+	_ diebase.DieOf[Timestamp, *TimestampDie, *TimestampDieMut]    = (*TimestampDie)(nil)
+	_ diebase.DieMutOf[Timestamp, *TimestampDie, *TimestampDieMut] = (*TimestampDieMut)(nil)
+)
+
+var TimestampBlank = diebase.Blank[Timestamp, *TimestampDie, *TimestampDieMut]()
 
 type timestampFieldsTable struct {
 	Seconds diefields.Field[Timestamp, int64]
@@ -3116,7 +5323,7 @@ var timestampFields = &diefields.Table[timestampFieldsTable]{Build: func() (f ti
 // Represents seconds of UTC time since Unix epoch
 // 1970-01-01T00:00:00Z. Must be from 0001-01-01T00:00:00Z to
 // 9999-12-31T23:59:59Z inclusive.
-func (d *TimestampDie) Seconds() diefields.Value[int64, *TimestampDie] {
+func (d *TimestampDie) Seconds() diefields.Value[int64] {
 	return diefields.ValueOf(d, timestampFields.Get().Seconds)
 }
 
@@ -3124,24 +5331,54 @@ func (d *TimestampDie) Seconds() diefields.Value[int64, *TimestampDie] {
 // second values with fractions must still have non-negative nanos values
 // that count forward in time. Must be from 0 to 999,999,999
 // inclusive. This field may be limited in precision depending on context.
-func (d *TimestampDie) Nanos() diefields.Value[int32, *TimestampDie] {
+func (d *TimestampDie) Nanos() diefields.Value[int32] {
 	return diefields.ValueOf(d, timestampFields.Get().Nanos)
+}
+
+// Represents seconds of UTC time since Unix epoch
+// 1970-01-01T00:00:00Z. Must be from 0001-01-01T00:00:00Z to
+// 9999-12-31T23:59:59Z inclusive.
+func (d *TimestampDieMut) Seconds() diefields.ValueMut[int64, *TimestampDieMut] {
+	return diefields.ValueMutOf(d, timestampFields.Get().Seconds)
+}
+
+// Non-negative fractions of a second at nanosecond resolution. Negative
+// second values with fractions must still have non-negative nanos values
+// that count forward in time. Must be from 0 to 999,999,999
+// inclusive. This field may be limited in precision depending on context.
+func (d *TimestampDieMut) Nanos() diefields.ValueMut[int32, *TimestampDieMut] {
+	return diefields.ValueMutOf(d, timestampFields.Get().Nanos)
 }
 
 // TypeMeta describes an individual object in an API response or request
 // with strings representing the type of the object and its API schema version.
 // Structures that are versioned or persisted should inline TypeMeta.
+//
+// TypeMetaDie is immutable: it reads.
+// TypeMetaDieMut, its mutable die, also writes, as DieWith passes it.
 type TypeMetaDie struct {
-	diebase.DieBase[TypeMeta, *TypeMetaDie]
+	diebase.DieBase[TypeMeta, *TypeMetaDie, *TypeMetaDieMut]
 }
 
-func (*TypeMetaDie) DieFrom(b diebase.DieBase[TypeMeta, *TypeMetaDie]) *TypeMetaDie {
+// TypeMetaDieMut is the mutable die of TypeMeta: see TypeMetaDie.
+type TypeMetaDieMut struct {
+	diebase.DieMutBase[TypeMeta, *TypeMetaDie, *TypeMetaDieMut]
+}
+
+func (*TypeMetaDie) DieFrom(b diebase.DieBase[TypeMeta, *TypeMetaDie, *TypeMetaDieMut]) *TypeMetaDie {
 	return &TypeMetaDie{b}
 }
 
-var _ diebase.DieOf[TypeMeta, *TypeMetaDie] = (*TypeMetaDie)(nil)
+func (*TypeMetaDieMut) DieFrom(b diebase.DieMutBase[TypeMeta, *TypeMetaDie, *TypeMetaDieMut]) *TypeMetaDieMut {
+	return &TypeMetaDieMut{b}
+}
 
-var TypeMetaBlank = diebase.Blank[TypeMeta, *TypeMetaDie]()
+var (
+	_ diebase.DieOf[TypeMeta, *TypeMetaDie, *TypeMetaDieMut]    = (*TypeMetaDie)(nil)
+	_ diebase.DieMutOf[TypeMeta, *TypeMetaDie, *TypeMetaDieMut] = (*TypeMetaDieMut)(nil)
+)
+
+var TypeMetaBlank = diebase.Blank[TypeMeta, *TypeMetaDie, *TypeMetaDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -3150,34 +5387,47 @@ func (d *TypeMetaDie) DieReleaseApplyConfiguration() *TypeMetaApplyConfiguration
 	return diecodegen.ReleaseApplyConfiguration[TypeMetaApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *TypeMetaDie) DieFeedApplyConfiguration(ac *TypeMetaApplyConfiguration) *TypeMetaDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *TypeMetaDie) DieStampApplyConfiguration(fn func(ac *TypeMetaApplyConfiguration)) *TypeMetaDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *TypeMetaDie) DieReleaseApplyConfigurationE() (*TypeMetaApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[TypeMetaApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *TypeMetaDieMut) DieReleaseApplyConfiguration() *TypeMetaApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[TypeMetaApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *TypeMetaDieMut) DieReleaseApplyConfigurationE() (*TypeMetaApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[TypeMetaApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *TypeMetaDieMut) DieFeedApplyConfiguration(ac *TypeMetaApplyConfiguration) *TypeMetaDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *TypeMetaDieMut) DieStampApplyConfiguration(fn func(ac *TypeMetaApplyConfiguration)) *TypeMetaDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *TypeMetaDie) DieFeedApplyConfigurationE(ac *TypeMetaApplyConfiguration) (*TypeMetaDie, error) {
+func (d *TypeMetaDieMut) DieFeedApplyConfigurationE(ac *TypeMetaApplyConfiguration) (*TypeMetaDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *TypeMetaDie) DieStampApplyConfigurationE(fn func(ac *TypeMetaApplyConfiguration)) (*TypeMetaDie, error) {
+func (d *TypeMetaDieMut) DieStampApplyConfigurationE(fn func(ac *TypeMetaApplyConfiguration)) (*TypeMetaDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -3198,7 +5448,7 @@ var typeMetaFields = &diefields.Table[typeMetaFieldsTable]{Build: func() (f type
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *TypeMetaDie) Kind() diefields.Value[string, *TypeMetaDie] {
+func (d *TypeMetaDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, typeMetaFields.Get().Kind)
 }
 
@@ -3206,23 +5456,55 @@ func (d *TypeMetaDie) Kind() diefields.Value[string, *TypeMetaDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *TypeMetaDie) APIVersion() diefields.Value[string, *TypeMetaDie] {
+func (d *TypeMetaDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, typeMetaFields.Get().APIVersion)
+}
+
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *TypeMetaDieMut) Kind() diefields.ValueMut[string, *TypeMetaDieMut] {
+	return diefields.ValueMutOf(d, typeMetaFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *TypeMetaDieMut) APIVersion() diefields.ValueMut[string, *TypeMetaDieMut] {
+	return diefields.ValueMutOf(d, typeMetaFields.Get().APIVersion)
 }
 
 // UpdateOptions may be provided when updating an API object.
 // All fields in UpdateOptions should also be present in PatchOptions.
+//
+// UpdateOptionsDie is immutable: it reads.
+// UpdateOptionsDieMut, its mutable die, also writes, as DieWith passes it.
 type UpdateOptionsDie struct {
-	diebase.DieBase[UpdateOptions, *UpdateOptionsDie]
+	diebase.DieBase[UpdateOptions, *UpdateOptionsDie, *UpdateOptionsDieMut]
 }
 
-func (*UpdateOptionsDie) DieFrom(b diebase.DieBase[UpdateOptions, *UpdateOptionsDie]) *UpdateOptionsDie {
+// UpdateOptionsDieMut is the mutable die of UpdateOptions: see UpdateOptionsDie.
+type UpdateOptionsDieMut struct {
+	diebase.DieMutBase[UpdateOptions, *UpdateOptionsDie, *UpdateOptionsDieMut]
+}
+
+func (*UpdateOptionsDie) DieFrom(b diebase.DieBase[UpdateOptions, *UpdateOptionsDie, *UpdateOptionsDieMut]) *UpdateOptionsDie {
 	return &UpdateOptionsDie{b}
 }
 
-var _ diebase.DieOf[UpdateOptions, *UpdateOptionsDie] = (*UpdateOptionsDie)(nil)
+func (*UpdateOptionsDieMut) DieFrom(b diebase.DieMutBase[UpdateOptions, *UpdateOptionsDie, *UpdateOptionsDieMut]) *UpdateOptionsDieMut {
+	return &UpdateOptionsDieMut{b}
+}
 
-var UpdateOptionsBlank = diebase.Blank[UpdateOptions, *UpdateOptionsDie]()
+var (
+	_ diebase.DieOf[UpdateOptions, *UpdateOptionsDie, *UpdateOptionsDieMut]    = (*UpdateOptionsDie)(nil)
+	_ diebase.DieMutOf[UpdateOptions, *UpdateOptionsDie, *UpdateOptionsDieMut] = (*UpdateOptionsDieMut)(nil)
+)
+
+var UpdateOptionsBlank = diebase.Blank[UpdateOptions, *UpdateOptionsDie, *UpdateOptionsDieMut]()
 
 type updateOptionsFieldsTable struct {
 	Kind            diefields.Field[UpdateOptions, string]
@@ -3247,7 +5529,7 @@ var updateOptionsFields = &diefields.Table[updateOptionsFieldsTable]{Build: func
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *UpdateOptionsDie) Kind() diefields.Value[string, *UpdateOptionsDie] {
+func (d *UpdateOptionsDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, updateOptionsFields.Get().Kind)
 }
 
@@ -3255,7 +5537,7 @@ func (d *UpdateOptionsDie) Kind() diefields.Value[string, *UpdateOptionsDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *UpdateOptionsDie) APIVersion() diefields.Value[string, *UpdateOptionsDie] {
+func (d *UpdateOptionsDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, updateOptionsFields.Get().APIVersion)
 }
 
@@ -3264,7 +5546,7 @@ func (d *UpdateOptionsDie) APIVersion() diefields.Value[string, *UpdateOptionsDi
 // result in an error response and no further processing of the
 // request. Valid values are:
 // - All: all dry run stages will be processed
-func (d *UpdateOptionsDie) DryRun() diefields.Value[[]string, *UpdateOptionsDie] {
+func (d *UpdateOptionsDie) DryRun() diefields.Value[[]string] {
 	return diefields.ValueOf(d, updateOptionsFields.Get().DryRun)
 }
 
@@ -3272,7 +5554,7 @@ func (d *UpdateOptionsDie) DryRun() diefields.Value[[]string, *UpdateOptionsDie]
 // that is making these changes. The value must be less than or
 // 128 characters long, and only contain printable characters,
 // as defined by https://golang.org/pkg/unicode/#IsPrint.
-func (d *UpdateOptionsDie) FieldManager() diefields.Value[string, *UpdateOptionsDie] {
+func (d *UpdateOptionsDie) FieldManager() diefields.Value[string] {
 	return diefields.ValueOf(d, updateOptionsFields.Get().FieldManager)
 }
 
@@ -3292,22 +5574,91 @@ func (d *UpdateOptionsDie) FieldManager() diefields.Value[string, *UpdateOptions
 // any unknown fields would be dropped from the object, or if any
 // duplicate fields are present. The error returned from the server
 // will contain all unknown and duplicate fields encountered.
-func (d *UpdateOptionsDie) FieldValidation() diefields.Value[string, *UpdateOptionsDie] {
+func (d *UpdateOptionsDie) FieldValidation() diefields.Value[string] {
 	return diefields.ValueOf(d, updateOptionsFields.Get().FieldValidation)
 }
 
-// Event represents a single event to a watched resource.
-type WatchEventDie struct {
-	diebase.DieBase[WatchEvent, *WatchEventDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *UpdateOptionsDieMut) Kind() diefields.ValueMut[string, *UpdateOptionsDieMut] {
+	return diefields.ValueMutOf(d, updateOptionsFields.Get().Kind)
 }
 
-func (*WatchEventDie) DieFrom(b diebase.DieBase[WatchEvent, *WatchEventDie]) *WatchEventDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *UpdateOptionsDieMut) APIVersion() diefields.ValueMut[string, *UpdateOptionsDieMut] {
+	return diefields.ValueMutOf(d, updateOptionsFields.Get().APIVersion)
+}
+
+// When present, indicates that modifications should not be
+// persisted. An invalid or unrecognized dryRun directive will
+// result in an error response and no further processing of the
+// request. Valid values are:
+// - All: all dry run stages will be processed
+func (d *UpdateOptionsDieMut) DryRun() diefields.ValueMut[[]string, *UpdateOptionsDieMut] {
+	return diefields.ValueMutOf(d, updateOptionsFields.Get().DryRun)
+}
+
+// fieldManager is a name associated with the actor or entity
+// that is making these changes. The value must be less than or
+// 128 characters long, and only contain printable characters,
+// as defined by https://golang.org/pkg/unicode/#IsPrint.
+func (d *UpdateOptionsDieMut) FieldManager() diefields.ValueMut[string, *UpdateOptionsDieMut] {
+	return diefields.ValueMutOf(d, updateOptionsFields.Get().FieldManager)
+}
+
+// fieldValidation instructs the server on how to handle
+// objects in the request (POST/PUT/PATCH) containing unknown
+// or duplicate fields. Valid values are:
+// - Ignore: This will ignore any unknown fields that are silently
+// dropped from the object, and will ignore all but the last duplicate
+// field that the decoder encounters. This is the default behavior
+// prior to v1.23.
+// - Warn: This will send a warning via the standard warning response
+// header for each unknown field that is dropped from the object, and
+// for each duplicate field that is encountered. The request will
+// still succeed if there are no other errors, and will only persist
+// the last of any duplicate fields. This is the default in v1.23+
+// - Strict: This will fail the request with a BadRequest error if
+// any unknown fields would be dropped from the object, or if any
+// duplicate fields are present. The error returned from the server
+// will contain all unknown and duplicate fields encountered.
+func (d *UpdateOptionsDieMut) FieldValidation() diefields.ValueMut[string, *UpdateOptionsDieMut] {
+	return diefields.ValueMutOf(d, updateOptionsFields.Get().FieldValidation)
+}
+
+// Event represents a single event to a watched resource.
+//
+// WatchEventDie is immutable: it reads.
+// WatchEventDieMut, its mutable die, also writes, as DieWith passes it.
+type WatchEventDie struct {
+	diebase.DieBase[WatchEvent, *WatchEventDie, *WatchEventDieMut]
+}
+
+// WatchEventDieMut is the mutable die of WatchEvent: see WatchEventDie.
+type WatchEventDieMut struct {
+	diebase.DieMutBase[WatchEvent, *WatchEventDie, *WatchEventDieMut]
+}
+
+func (*WatchEventDie) DieFrom(b diebase.DieBase[WatchEvent, *WatchEventDie, *WatchEventDieMut]) *WatchEventDie {
 	return &WatchEventDie{b}
 }
 
-var _ diebase.DieOf[WatchEvent, *WatchEventDie] = (*WatchEventDie)(nil)
+func (*WatchEventDieMut) DieFrom(b diebase.DieMutBase[WatchEvent, *WatchEventDie, *WatchEventDieMut]) *WatchEventDieMut {
+	return &WatchEventDieMut{b}
+}
 
-var WatchEventBlank = diebase.Blank[WatchEvent, *WatchEventDie]()
+var (
+	_ diebase.DieOf[WatchEvent, *WatchEventDie, *WatchEventDieMut]    = (*WatchEventDie)(nil)
+	_ diebase.DieMutOf[WatchEvent, *WatchEventDie, *WatchEventDieMut] = (*WatchEventDieMut)(nil)
+)
+
+var WatchEventBlank = diebase.Blank[WatchEvent, *WatchEventDie, *WatchEventDieMut]()
 
 type watchEventFieldsTable struct {
 	Type   diefields.Field[WatchEvent, string]
@@ -3321,7 +5672,7 @@ var watchEventFields = &diefields.Table[watchEventFieldsTable]{Build: func() (f 
 	return
 }}
 
-func (d *WatchEventDie) Type() diefields.Value[string, *WatchEventDie] {
+func (d *WatchEventDie) Type() diefields.Value[string] {
 	return diefields.ValueOf(d, watchEventFields.Get().Type)
 }
 
@@ -3330,8 +5681,21 @@ func (d *WatchEventDie) Type() diefields.Value[string, *WatchEventDie] {
 //   - If Type is Deleted: the state of the object immediately before deletion.
 //   - If Type is Error: *Status is recommended; other types may make sense
 //     depending on context.
-func (d *WatchEventDie) Object() diefields.Value[runtime.RawExtension, *WatchEventDie] {
+func (d *WatchEventDie) Object() diefields.Value[runtime.RawExtension] {
 	return diefields.ValueOf(d, watchEventFields.Get().Object)
+}
+
+func (d *WatchEventDieMut) Type() diefields.ValueMut[string, *WatchEventDieMut] {
+	return diefields.ValueMutOf(d, watchEventFields.Get().Type)
+}
+
+// Object is:
+//   - If Type is Added or Modified: the new state of the object.
+//   - If Type is Deleted: the state of the object immediately before deletion.
+//   - If Type is Error: *Status is recommended; other types may make sense
+//     depending on context.
+func (d *WatchEventDieMut) Object() diefields.ValueMut[runtime.RawExtension, *WatchEventDieMut] {
+	return diefields.ValueMutOf(d, watchEventFields.Get().Object)
 }
 
 // SchemeBuilder registers this package's object and list dies, of which

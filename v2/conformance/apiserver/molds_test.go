@@ -44,7 +44,7 @@ var (
 // jig of the unstructured die, so they're the same intent.
 func TestUnstructuredAppliesAsTyped(t *testing.T) {
 	blank := moldedBlank(t, serverMolds(t), deploymentGVK)
-	server := deployment("default").DieWith(func(d *dieappsv1.DeploymentDie) {
+	server := deployment("default").DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Labels().Set("tier", "web")
 		d.Spec().MinReadySeconds().Set(5)
 		ref := d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef()
@@ -55,30 +55,30 @@ func TestUnstructuredAppliesAsTyped(t *testing.T) {
 	for _, c := range []struct {
 		name   string
 		server bool
-		change func(d *dieappsv1.DeploymentDie)
+		change func(d *dieappsv1.DeploymentDieMut)
 	}{
-		{"from a blank", false, func(d *dieappsv1.DeploymentDie) {
+		{"from a blank", false, func(d *dieappsv1.DeploymentDieMut) {
 			d.Metadata().Namespace().Set("default")
 			d.Metadata().Name().Set("web")
 			d.Spec().Replicas().Set(0)
 			d.Spec().Selector().MatchLabels().Set("app", "web")
-			d.Spec().Template().Spec().Containers().At("app").DieWith(func(c *diecorev1.ContainerDie) {
+			d.Spec().Template().Spec().Containers().At("app").DieWith(func(c *diecorev1.ContainerDieMut) {
 				c.Image().Set("app:1")
 				c.Args().Set([]string{"--verbose"})
 				c.Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080, Protocol: diecorev1.ProtocolTCP}).Name().Set("http")
 			})
 			d.Spec().Template().Spec().Tolerations().Empty()
 		}},
-		{"clearing a field", true, func(d *dieappsv1.DeploymentDie) {
+		{"clearing a field", true, func(d *dieappsv1.DeploymentDieMut) {
 			d.Spec().MinReadySeconds().Clear()
 		}},
-		{"removing a map entry", true, func(d *dieappsv1.DeploymentDie) {
+		{"removing a map entry", true, func(d *dieappsv1.DeploymentDieMut) {
 			d.Metadata().Labels().Remove("tier")
 		}},
-		{"within an atomic struct", true, func(d *dieappsv1.DeploymentDie) {
+		{"within an atomic struct", true, func(d *dieappsv1.DeploymentDieMut) {
 			d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef().Key().Set("colour")
 		}},
-		{"removing a list-map element", true, func(d *dieappsv1.DeploymentDie) {
+		{"removing a list-map element", true, func(d *dieappsv1.DeploymentDieMut) {
 			d.Spec().Template().Spec().Containers().Remove("app")
 			d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("sidecar:1")
 		}},
@@ -86,11 +86,12 @@ func TestUnstructuredAppliesAsTyped(t *testing.T) {
 		t.Run(c.name, func(t *testing.T) {
 			typed, u := dieappsv1.DeploymentBlank, blank
 			if c.server {
-				typed, u = typed.DieFeedJSON(server), u.DieFeedJSON(server)
+				typed = typed.DieWith(func(d *dieappsv1.DeploymentDieMut) { d.DieFeedJSON(server) })
+				u = u.DieWith(func(d *dieunstructured.ObjectMut) { d.DieFeedJSON(server) })
 			}
 			typed = typed.DieWith(c.change)
-			mu := u.DieImmutable(false)
-			c.change(dieunstructured.JigAs[*dieappsv1.DeploymentDie](mu.Node()))
+			mu := u.DieMutable()
+			c.change(dieunstructured.JigAsMut[*dieappsv1.DeploymentDieMut](mu.Node()))
 
 			want, err := typed.DieReleaseApplyPatchE()
 			if err != nil {
@@ -125,7 +126,7 @@ func TestClearingCustomResourceFields(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		got, err := d.DieWithE(func(d *dieunstructured.Object) error {
+		got, err := d.DieWithE(func(d *dieunstructured.ObjectMut) error {
 			return dies.Patch(ctx, d, client.RawPatch(types.ApplyPatchType, body), client.FieldOwner(manager), client.ForceOwnership)
 		})
 		if err != nil {
@@ -138,7 +139,7 @@ func TestClearingCustomResourceFields(t *testing.T) {
 		clear func(manager string)
 	}{
 		{"typed", func(manager string) {
-			d := widget(ns).DieWith(func(d *widgetv1.WidgetDie) {
+			d := widget(ns).DieWith(func(d *widgetv1.WidgetDieMut) {
 				d.Spec().Match().Exact().Clear()
 				d.Spec().Match().Note().Clear()
 			})
@@ -146,10 +147,10 @@ func TestClearingCustomResourceFields(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			applyObject(t, d.DieImmutable(false), body, manager, false)
+			applyObject(t, d.DieMutable(), body, manager, false)
 		}},
 		{"unstructured", func(manager string) {
-			applyU(t, unstructuredBlank.DieWith(func(d *dieunstructured.Object) {
+			applyU(t, unstructuredBlank.DieWith(func(d *dieunstructured.ObjectMut) {
 				d.SetNamespace(ns)
 				d.SetName("web")
 				match := d.Node().Field("spec").Field("match")
@@ -159,7 +160,7 @@ func TestClearingCustomResourceFields(t *testing.T) {
 		}},
 	} {
 		t.Run(c.name, func(t *testing.T) {
-			applyU(t, unstructuredBlank.DieWith(func(d *dieunstructured.Object) {
+			applyU(t, unstructuredBlank.DieWith(func(d *dieunstructured.ObjectMut) {
 				d.SetNamespace(ns)
 				d.SetName("web")
 				match := d.Node().Field("spec").Field("match")
@@ -169,7 +170,7 @@ func TestClearingCustomResourceFields(t *testing.T) {
 
 			c.clear("clearer-" + c.name)
 			// what the server has, rather than a die with its intent on top
-			got, err := dieunstructured.BlankFor("example.dev/v1", "Widget").DieWithE(func(d *dieunstructured.Object) error {
+			got, err := dieunstructured.BlankFor("example.dev/v1", "Widget").DieWithE(func(d *dieunstructured.ObjectMut) error {
 				return dies.Get(ctx, keyOf(ns, "web"), d)
 			})
 			if err != nil {

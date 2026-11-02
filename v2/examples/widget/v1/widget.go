@@ -22,9 +22,9 @@ import (
 
 // Ready marks the widget's Ready condition true. It is a hand-written method
 // on a generated die, which doesn't compile until the die is generated; that
-// must not keep the die from being generated.
-func (d *WidgetDie) Ready(reason string) *WidgetDie {
-	return d.DieWith(func(d *WidgetDie) {
-		d.Status().Conditions().At("Ready").Status().Set(metav1.ConditionTrue).Reason().Set(reason)
-	})
+// must not keep the die from being generated. It writes, so it is a method of
+// the mutable die.
+func (d *WidgetDieMut) Ready(reason string) *WidgetDieMut {
+	d.Status().Conditions().At("Ready").Status().Set(metav1.ConditionTrue).Reason().Set(reason)
+	return d
 }

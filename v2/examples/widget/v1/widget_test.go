@@ -44,7 +44,7 @@ func assertJSON(t *testing.T, got []byte, err error, want string) {
 }
 
 func TestLocalTypeDies(t *testing.T) {
-	w := widgetv1.WidgetBlank.DieWith(func(d *widgetv1.WidgetDie) {
+	w := widgetv1.WidgetBlank.DieWith(func(d *widgetv1.WidgetDieMut) {
 		d.Metadata().Name().Set("my-widget")
 		// a list map from the local type's own markers
 		d.Spec().Ports().At("http").Port().Set(8080)
@@ -81,7 +81,7 @@ func TestLocalTypeDies(t *testing.T) {
 }
 
 func TestHandWrittenMethod(t *testing.T) {
-	w := widgetv1.WidgetBlank.Ready("Available")
+	w := widgetv1.WidgetBlank.DieMutable().Ready("Available")
 	got, err := w.DieSubresource("status").DieReleaseApplyPatchE()
 	assertJSON(t, got, err, `{
 		"apiVersion": "example.dev/v1",
@@ -93,7 +93,7 @@ func TestHandWrittenMethod(t *testing.T) {
 // WidgetGadget embeds gadget's GadgetSpec, whose die package overrides parts
 // to atomic. The widget's dies and the runtime both follow that override.
 func TestEmbeddedTypeFromAnotherDiePackage(t *testing.T) {
-	w := widgetv1.WidgetBlank.DieWith(func(d *widgetv1.WidgetDie) {
+	w := widgetv1.WidgetBlank.DieWith(func(d *widgetv1.WidgetDieMut) {
 		d.Spec().Gadget().Label().Set("knob")
 		d.Spec().Gadget().Parts().Set([]gadgetv1.GadgetPart{{Name: "a"}, {Name: "b"}})
 	})
@@ -111,7 +111,7 @@ func TestEmbeddedTypeFromAnotherDiePackage(t *testing.T) {
 }
 
 func TestRenamedAccessor(t *testing.T) {
-	w := widgetv1.WidgetBlank.DieWith(func(d *widgetv1.WidgetDie) {
+	w := widgetv1.WidgetBlank.DieWith(func(d *widgetv1.WidgetDieMut) {
 		d.Spec().Match().Exact().Set(true)
 	})
 	if !w.Spec().Match().Exact().Get() || !w.DieRelease().Spec.Match.Equal {

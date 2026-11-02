@@ -42,19 +42,19 @@ import (
 // status this controller owns, and apply only that, from a blank, to the
 // status subresource.
 func reconcile(ctx context.Context, c client.Client, key client.ObjectKey) error {
-	actual, err := dieappsv1.DeploymentBlank.DieWithE(func(d *dieappsv1.DeploymentDie) error {
+	actual, err := dieappsv1.DeploymentBlank.DieWithE(func(d *dieappsv1.DeploymentDieMut) error {
 		return c.Get(ctx, key, d)
 	})
 	if err != nil {
 		return err
 	}
 
-	status := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+	status := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Namespace().Set(actual.GetNamespace())
 		d.Metadata().Name().Set(actual.GetName())
 		d.Status().ObservedGeneration().Set(actual.GetGeneration())
 		d.Status().Replicas().Set(actual.Spec().Replicas().Get())
-		d.Status().Conditions().At(dieappsv1.DeploymentAvailable).DieWith(func(c *dieappsv1.DeploymentConditionDie) {
+		d.Status().Conditions().At(dieappsv1.DeploymentAvailable).DieWith(func(c *dieappsv1.DeploymentConditionDieMut) {
 			c.Status().Set(diecorev1.ConditionTrue)
 			c.Reason().Set("Reconciled")
 		})
@@ -64,7 +64,7 @@ func reconcile(ctx context.Context, c client.Client, key client.ObjectKey) error
 		return err
 	}
 	// the client decodes the server's response into the die it's given
-	applied, err := status.DieWithE(func(d *dieappsv1.DeploymentDie) error {
+	applied, err := status.DieWithE(func(d *dieappsv1.DeploymentDieMut) error {
 		return c.Status().Patch(ctx, d, client.RawPatch(types.ApplyPatchType, body), client.FieldOwner("litmus"), client.ForceOwnership)
 	})
 	if err != nil {
@@ -85,18 +85,18 @@ func TestReconcileAppliesOnlyWhatItOwns(t *testing.T) {
 	mapper := meta.NewDefaultRESTMapper(nil)
 	mapper.Add(gvk, meta.RESTScopeNamespace)
 
-	seed := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+	seed := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Namespace().Set("default")
 		d.Metadata().Name().Set("web")
 		d.Spec().Replicas().Set(2)
 		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
-	}).DieCommit().DieImmutable(false)
+	}).DieCommit().DieMutable()
 	c := fake.NewClientBuilder().WithScheme(scheme).WithRESTMapper(mapper).
-		WithObjects(seed).WithStatusSubresource(&dieappsv1.DeploymentDie{}).WithReturnManagedFields().Build()
+		WithObjects(seed).WithStatusSubresource(&dieappsv1.DeploymentDieMut{}).WithReturnManagedFields().Build()
 	ctx := context.Background()
 
 	// another controller owns a condition of its own
-	other := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+	other := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Namespace().Set("default")
 		d.Metadata().Name().Set("web")
 		d.Status().Conditions().At(dieappsv1.DeploymentProgressing).Status().Set(diecorev1.ConditionTrue)
@@ -105,7 +105,7 @@ func TestReconcileAppliesOnlyWhatItOwns(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := c.Status().Patch(ctx, other.DieImmutable(false), client.RawPatch(types.ApplyPatchType, body), client.FieldOwner("other")); err != nil {
+	if err := c.Status().Patch(ctx, other.DieMutable(), client.RawPatch(types.ApplyPatchType, body), client.FieldOwner("other")); err != nil {
 		t.Fatal(err)
 	}
 
@@ -115,7 +115,7 @@ func TestReconcileAppliesOnlyWhatItOwns(t *testing.T) {
 		}
 	}
 
-	got := dieappsv1.DeploymentBlank.DieImmutable(false)
+	got := dieappsv1.DeploymentBlank.DieMutable()
 	if err := c.Get(ctx, key(), got); err != nil {
 		t.Fatal(err)
 	}
@@ -157,7 +157,7 @@ func TestUpdateKeepsUnknownFields(t *testing.T) {
 	gvk := schema.GroupVersionKind{Group: "apps", Version: "v1", Kind: "Deployment"}
 	mapper := meta.NewDefaultRESTMapper(nil)
 	mapper.Add(gvk, meta.RESTScopeNamespace)
-	seed := dieappsv1.DeploymentBlank.DieImmutable(false)
+	seed := dieappsv1.DeploymentBlank.DieMutable()
 	if err := json.Unmarshal([]byte(`{
 		"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"namespace": "default", "name": "web"},
 		"spec": {"futureField": "from a newer API", "template": {"spec": {"containers": [{"name": "app", "image": "app:1"}]}}}
@@ -167,7 +167,7 @@ func TestUpdateKeepsUnknownFields(t *testing.T) {
 	c := fake.NewClientBuilder().WithScheme(scheme).WithRESTMapper(mapper).WithObjects(seed).Build()
 	ctx := context.Background()
 
-	d := dieappsv1.DeploymentBlank.DieImmutable(false)
+	d := dieappsv1.DeploymentBlank.DieMutable()
 	if err := c.Get(ctx, key(), d); err != nil {
 		t.Fatal(err)
 	}
@@ -203,7 +203,7 @@ func TestApplyConfigurationRoundTrip(t *testing.T) {
 	c := fake.NewClientBuilder().WithScheme(scheme).WithRESTMapper(mapper).WithReturnManagedFields().Build()
 	ctx := context.Background()
 
-	applied := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+	applied := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Namespace().Set("default")
 		d.Metadata().Name().Set("web")
 		d.Spec().Replicas().Set(2)
@@ -217,7 +217,7 @@ func TestApplyConfigurationRoundTrip(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	live := dieappsv1.DeploymentBlank.DieImmutable(false)
+	live := dieappsv1.DeploymentBlank.DieMutable()
 	if err := c.Get(ctx, key(), live); err != nil {
 		t.Fatal(err)
 	}
@@ -226,7 +226,7 @@ func TestApplyConfigurationRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	mine := dieappsv1.DeploymentBlank.DieFeedApplyConfiguration(owned)
+	mine := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) { d.DieFeedApplyConfiguration(owned) })
 	got, err := mine.DieReleaseApplyPatchE()
 	if err != nil {
 		t.Fatal(err)
@@ -266,7 +266,7 @@ func TestApplyingAnyDie(t *testing.T) {
 	c := fake.NewClientBuilder().WithScheme(scheme).WithRESTMapper(mapper).Build()
 	ctx := context.Background()
 
-	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Namespace().Set("default")
 		d.Metadata().Name().Set("web")
 		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
@@ -276,12 +276,12 @@ func TestApplyingAnyDie(t *testing.T) {
 		t.Fatal(err)
 	}
 	// the object as the server returned it
-	applied := dieappsv1.DeploymentBlank.DieFeedJSON(ac.Result())
+	applied := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) { d.DieFeedJSON(ac.Result()) })
 	if applied.GetResourceVersion() == "" || applied.Spec().Template().Spec().Containers().At("app").Image().Get() != "app:1" {
 		t.Errorf("result %s", ac.Result())
 	}
 
-	workload := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieWith(func(d *dieunstructured.Object) {
+	workload := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieWith(func(d *dieunstructured.ObjectMut) {
 		d.SetNamespace("default")
 		d.SetName("web")
 		d.Node().Field("spec").Field("replicas").Set(2)

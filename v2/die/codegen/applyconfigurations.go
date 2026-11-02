@@ -54,16 +54,16 @@ func ReleaseApplyConfigurationE[AC any](d base.Die) (*AC, error) {
 
 // FeedApplyConfiguration replaces a die's intent with an apply
 // configuration's: each value it sets becomes intent, over the die's value.
-// A nil apply configuration clears the intent. As for any write, a root that
-// is immutable returns a new die, and a die within an immutable one fails.
-func FeedApplyConfiguration[D base.Die](d D, ac any) D {
+// A nil apply configuration clears the intent. The die is mutable, and
+// changed in place.
+func FeedApplyConfiguration[M base.MutableDie](d M, ac any) M {
 	return core.Must(FeedApplyConfigurationE(d, ac))
 }
 
 // FeedApplyConfigurationE is FeedApplyConfiguration, returning an error
 // rather than panicking.
-func FeedApplyConfigurationE[D base.Die](d D, ac any) (D, error) {
-	var zero D
+func FeedApplyConfigurationE[M base.MutableDie](d M, ac any) (M, error) {
+	var zero M
 	h, at := dies.MustStateOf(d)
 	data, err := json.Marshal(ac)
 	if err != nil {
@@ -74,28 +74,24 @@ func FeedApplyConfigurationE[D base.Die](d D, ac any) (D, error) {
 	if err := utiljson.Unmarshal(data, &raw); err != nil {
 		return zero, core.Errorf("die: decoding a %T: %w", ac, err)
 	}
-	nh, err := core.FeedIntent(h, at, raw)
-	if err != nil {
+	if _, err := core.FeedIntent(h, at, raw); err != nil {
 		return zero, err
 	}
-	if nh != h {
-		return dies.Wrap[D](nh, nil), nil
-	}
-	return dies.Wrap[D](h, at), nil
+	return d, nil
 }
 
 // StampApplyConfiguration passes a die's intent, as an apply configuration,
 // to fn, and feeds back what fn makes of it.
-func StampApplyConfiguration[AC any, D base.Die](d D, fn func(ac *AC)) D {
+func StampApplyConfiguration[AC any, M base.MutableDie](d M, fn func(ac *AC)) M {
 	return core.Must(StampApplyConfigurationE(d, fn))
 }
 
 // StampApplyConfigurationE is StampApplyConfiguration, returning an error
 // rather than panicking.
-func StampApplyConfigurationE[AC any, D base.Die](d D, fn func(ac *AC)) (D, error) {
+func StampApplyConfigurationE[AC any, M base.MutableDie](d M, fn func(ac *AC)) (M, error) {
 	ac, err := ReleaseApplyConfigurationE[AC](d)
 	if err != nil {
-		var zero D
+		var zero M
 		return zero, err
 	}
 	fn(ac)

@@ -114,11 +114,11 @@ func fedDie(t *testing.T) *appsv1.DeploymentDie {
 		t.Fatal(err)
 	}
 	// the zero value die is mutable, as a decoder would allocate it
-	d := &appsv1.DeploymentDie{}
+	d := &appsv1.DeploymentDieMut{}
 	if err := json.Unmarshal(b, d); err != nil {
 		t.Fatal(err)
 	}
-	return d.DieImmutable(true)
+	return d.DieImmutable()
 }
 
 func assertJSON(t *testing.T, got []byte, err error, want string) {
@@ -142,7 +142,7 @@ func assertJSON(t *testing.T, got []byte, err error, want string) {
 // libraries without conversion, and the aliases make one import enough.
 func TestUpstreamTypesInAndOut(t *testing.T) {
 	var in *upstreamappsv1.Deployment = upstreamDeployment()
-	d := appsv1.DeploymentBlank.DieFeedPtr(in)
+	d := appsv1.DeploymentBlank.DieWith(func(d *appsv1.DeploymentDieMut) { d.DieFeedPtr(in) })
 
 	var out upstreamappsv1.Deployment = d.DieRelease()
 	if !reflect.DeepEqual(*in, out) {
@@ -206,7 +206,7 @@ func TestReadsThroughGeneratedAccessors(t *testing.T) {
 }
 
 func TestApplyFromServerState(t *testing.T) {
-	d := fedDie(t).DieWith(func(d *appsv1.DeploymentDie) {
+	d := fedDie(t).DieWith(func(d *appsv1.DeploymentDieMut) {
 		c := d.Spec().Template().Spec().Containers().At("app")
 		c.Image().Set("busybox:2")
 		c.Env().At("B").Value().Set("2")
@@ -235,7 +235,7 @@ func TestApplyFromServerState(t *testing.T) {
 }
 
 func TestStatusSubresourceFromMarkers(t *testing.T) {
-	d := fedDie(t).DieWith(func(d *appsv1.DeploymentDie) {
+	d := fedDie(t).DieWith(func(d *appsv1.DeploymentDieMut) {
 		d.Spec().Replicas().Set(5)
 		d.Status().ObservedGeneration().Set(3)
 	})
@@ -280,7 +280,7 @@ func TestDieEnumeratesItsFields(t *testing.T) {
 	}
 
 	// fields are locations, so they can select intent
-	d = d.DieWith(func(d *appsv1.DeploymentDie) {
+	d = d.DieWith(func(d *appsv1.DeploymentDieMut) {
 		d.Spec().Replicas().Set(5)
 		d.Spec().Paused().Set(true)
 		d.Spec().Template().Spec().Containers().At("app").Image().Set("busybox:2")
@@ -308,7 +308,7 @@ func TestObjectInterfaces(t *testing.T) {
 		t.Errorf("gvk %v", gvk)
 	}
 
-	d := fedDie(t).DieImmutable(false)
+	d := fedDie(t).DieMutable()
 	accessor, err := meta.Accessor(d)
 	if err != nil {
 		t.Fatal(err)
@@ -326,7 +326,7 @@ func TestObjectInterfaces(t *testing.T) {
 	assertJSON(t, got, err, `{"metadata": {"labels": {"app": null, "tier": "web"}, "resourceVersion": "42"}}`)
 
 	// a copy is a die, independent of the original
-	c := d.DeepCopyObject().(*appsv1.DeploymentDie)
+	c := d.DeepCopyObject().(*appsv1.DeploymentDieMut)
 	c.SetName("copy")
 	if d.GetName() != "my-app" || c.GetName() != "copy" {
 		t.Errorf("names %q and %q", d.GetName(), c.GetName())
@@ -336,7 +336,7 @@ func TestObjectInterfaces(t *testing.T) {
 	assertPanics(t, func() { appsv1.DeploymentBlank.SetName("x") })
 	assertPanics(t, func() { appsv1.DeploymentBlank.GetObjectKind().SetGroupVersionKind(schema.GroupVersionKind{}) })
 
-	list := appsv1.NewDeploymentList(fedDie(t).DieImmutable(false))
+	list := appsv1.NewDeploymentList(fedDie(t).DieMutable())
 	la, err := meta.ListAccessor(list)
 	if err != nil {
 		t.Fatal(err)
@@ -356,7 +356,7 @@ func TestObjectInterfaces(t *testing.T) {
 	if err != nil || len(objs) != 1 || objs[0] != runtime.Object(list.Items[0]) {
 		t.Fatalf("extracted %v, %v", objs, err)
 	}
-	other := appsv1.DeploymentBlank.DieWith(func(d *appsv1.DeploymentDie) { d.Metadata().Name().Set("other") })
+	other := appsv1.DeploymentBlank.DieWith(func(d *appsv1.DeploymentDieMut) { d.Metadata().Name().Set("other") }).DieMutable()
 	if err := meta.SetList(list, append(objs, other)); err != nil {
 		t.Fatal(err)
 	}

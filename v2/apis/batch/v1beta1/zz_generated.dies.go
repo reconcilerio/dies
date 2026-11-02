@@ -33,17 +33,32 @@ import (
 )
 
 // CronJob represents the configuration of a single cron job.
+//
+// CronJobDie is immutable: it reads.
+// CronJobDieMut, its mutable die, also writes, as DieWith passes it.
 type CronJobDie struct {
-	diebase.DieObjectBase[CronJob, *CronJobDie]
+	diebase.DieObjectBase[CronJob, *CronJobDie, *CronJobDieMut]
 }
 
-func (*CronJobDie) DieFrom(b diebase.DieBase[CronJob, *CronJobDie]) *CronJobDie {
+// CronJobDieMut is the mutable die of CronJob: see CronJobDie.
+type CronJobDieMut struct {
+	diebase.DieObjectMutBase[CronJob, *CronJobDie, *CronJobDieMut]
+}
+
+func (*CronJobDie) DieFrom(b diebase.DieBase[CronJob, *CronJobDie, *CronJobDieMut]) *CronJobDie {
 	return &CronJobDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[CronJob, *CronJobDie] = (*CronJobDie)(nil)
+func (*CronJobDieMut) DieFrom(b diebase.DieMutBase[CronJob, *CronJobDie, *CronJobDieMut]) *CronJobDieMut {
+	return &CronJobDieMut{diebase.AsObjectMut(b)}
+}
 
-var CronJobBlank = diebase.BlankOf[CronJob, *CronJobDie](CronJob{TypeMeta: metav1.TypeMeta{APIVersion: "batch/v1beta1", Kind: "CronJob"}})
+var (
+	_ dieobjects.DieObjectOf[CronJob, *CronJobDie, *CronJobDieMut]    = (*CronJobDie)(nil)
+	_ dieobjects.DieObjectMutOf[CronJob, *CronJobDie, *CronJobDieMut] = (*CronJobDieMut)(nil)
+)
+
+var CronJobBlank = diebase.BlankOf[CronJob, *CronJobDie, *CronJobDieMut](CronJob{TypeMeta: metav1.TypeMeta{APIVersion: "batch/v1beta1", Kind: "CronJob"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -52,52 +67,65 @@ func (d *CronJobDie) DieReleaseApplyConfiguration() *CronJobApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[CronJobApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CronJobDie) DieFeedApplyConfiguration(ac *CronJobApplyConfiguration) *CronJobDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CronJobDie) DieStampApplyConfiguration(fn func(ac *CronJobApplyConfiguration)) *CronJobDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CronJobDie) DieReleaseApplyConfigurationE() (*CronJobApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CronJobDieMut) DieReleaseApplyConfiguration() *CronJobApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CronJobApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CronJobDieMut) DieReleaseApplyConfigurationE() (*CronJobApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CronJobApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CronJobDieMut) DieFeedApplyConfiguration(ac *CronJobApplyConfiguration) *CronJobDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CronJobDieMut) DieStampApplyConfiguration(fn func(ac *CronJobApplyConfiguration)) *CronJobDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CronJobDie) DieFeedApplyConfigurationE(ac *CronJobApplyConfiguration) (*CronJobDie, error) {
+func (d *CronJobDieMut) DieFeedApplyConfigurationE(ac *CronJobApplyConfiguration) (*CronJobDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CronJobDie) DieStampApplyConfigurationE(fn func(ac *CronJobApplyConfiguration)) (*CronJobDie, error) {
+func (d *CronJobDieMut) DieStampApplyConfigurationE(fn func(ac *CronJobApplyConfiguration)) (*CronJobDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type cronJobFieldsTable struct {
 	Kind       diefields.Field[CronJob, string]
 	APIVersion diefields.Field[CronJob, string]
-	Metadata   diefields.Struct[CronJob, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[CronJob, CronJobSpec, *CronJobSpecDie]
-	Status     diefields.Struct[CronJob, CronJobStatus, *CronJobStatusDie]
+	Metadata   diefields.Struct[CronJob, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[CronJob, CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]
+	Status     diefields.Struct[CronJob, CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]
 }
 
 var cronJobFields = &diefields.Table[cronJobFieldsTable]{Build: func() (f cronJobFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[CronJob, string]("kind")
 	f.APIVersion = diefields.NewField[CronJob, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[CronJob, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[CronJob, CronJobSpec, *CronJobSpecDie]("spec")
-	f.Status = diefields.NewStruct[CronJob, CronJobStatus, *CronJobStatusDie]("status")
+	f.Metadata = diefields.NewStruct[CronJob, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[CronJob, CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[CronJob, CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]("status")
 	return
 }}
 
@@ -106,7 +134,7 @@ var cronJobFields = &diefields.Table[cronJobFieldsTable]{Build: func() (f cronJo
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *CronJobDie) Kind() diefields.Value[string, *CronJobDie] {
+func (d *CronJobDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, cronJobFields.Get().Kind)
 }
 
@@ -114,7 +142,7 @@ func (d *CronJobDie) Kind() diefields.Value[string, *CronJobDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *CronJobDie) APIVersion() diefields.Value[string, *CronJobDie] {
+func (d *CronJobDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, cronJobFields.Get().APIVersion)
 }
 
@@ -134,15 +162,50 @@ func (d *CronJobDie) Status() *CronJobStatusDie {
 	return diefields.Child(d, cronJobFields.Get().Status)
 }
 
-// CronJobList is a collection of cron jobs.
-type CronJobListDie struct {
-	dielists.List[*CronJobDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *CronJobDieMut) Kind() diefields.ValueMut[string, *CronJobDieMut] {
+	return diefields.ValueMutOf(d, cronJobFields.Get().Kind)
 }
 
-var _ dielists.DieListOf[*CronJobDie] = (*CronJobListDie)(nil)
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *CronJobDieMut) APIVersion() diefields.ValueMut[string, *CronJobDieMut] {
+	return diefields.ValueMutOf(d, cronJobFields.Get().APIVersion)
+}
+
+// Standard object's metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *CronJobDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, cronJobFields.Get().Metadata)
+}
+
+// Specification of the desired behavior of a cron job, including the schedule.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *CronJobDieMut) Spec() *CronJobSpecDieMut {
+	return diefields.ChildMut(d, cronJobFields.Get().Spec)
+}
+
+// Current status of a cron job.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *CronJobDieMut) Status() *CronJobStatusDieMut {
+	return diefields.ChildMut(d, cronJobFields.Get().Status)
+}
+
+// CronJobList is a collection of cron jobs.
+type CronJobListDie struct {
+	dielists.List[*CronJobDieMut]
+}
+
+var _ dielists.DieListOf[*CronJobDieMut] = (*CronJobListDie)(nil)
 
 // NewCronJobList returns a list with items.
-func NewCronJobList(items ...*CronJobDie) *CronJobListDie {
+func NewCronJobList(items ...*CronJobDieMut) *CronJobListDie {
 	return &CronJobListDie{dielists.NewList("batch/v1beta1", "CronJobList", items...)}
 }
 
@@ -152,17 +215,32 @@ func (l *CronJobListDie) DeepCopy() *CronJobListDie { return &CronJobListDie{l.D
 func (l *CronJobListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // CronJobSpec describes how the job execution will look like and when it will actually run.
+//
+// CronJobSpecDie is immutable: it reads.
+// CronJobSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type CronJobSpecDie struct {
-	diebase.DieBase[CronJobSpec, *CronJobSpecDie]
+	diebase.DieBase[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]
 }
 
-func (*CronJobSpecDie) DieFrom(b diebase.DieBase[CronJobSpec, *CronJobSpecDie]) *CronJobSpecDie {
+// CronJobSpecDieMut is the mutable die of CronJobSpec: see CronJobSpecDie.
+type CronJobSpecDieMut struct {
+	diebase.DieMutBase[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]
+}
+
+func (*CronJobSpecDie) DieFrom(b diebase.DieBase[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]) *CronJobSpecDie {
 	return &CronJobSpecDie{b}
 }
 
-var _ diebase.DieOf[CronJobSpec, *CronJobSpecDie] = (*CronJobSpecDie)(nil)
+func (*CronJobSpecDieMut) DieFrom(b diebase.DieMutBase[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]) *CronJobSpecDieMut {
+	return &CronJobSpecDieMut{b}
+}
 
-var CronJobSpecBlank = diebase.Blank[CronJobSpec, *CronJobSpecDie]()
+var (
+	_ diebase.DieOf[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]    = (*CronJobSpecDie)(nil)
+	_ diebase.DieMutOf[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut] = (*CronJobSpecDieMut)(nil)
+)
+
+var CronJobSpecBlank = diebase.Blank[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -171,34 +249,47 @@ func (d *CronJobSpecDie) DieReleaseApplyConfiguration() *CronJobSpecApplyConfigu
 	return diecodegen.ReleaseApplyConfiguration[CronJobSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CronJobSpecDie) DieFeedApplyConfiguration(ac *CronJobSpecApplyConfiguration) *CronJobSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CronJobSpecDie) DieStampApplyConfiguration(fn func(ac *CronJobSpecApplyConfiguration)) *CronJobSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CronJobSpecDie) DieReleaseApplyConfigurationE() (*CronJobSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CronJobSpecDieMut) DieReleaseApplyConfiguration() *CronJobSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CronJobSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CronJobSpecDieMut) DieReleaseApplyConfigurationE() (*CronJobSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CronJobSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CronJobSpecDieMut) DieFeedApplyConfiguration(ac *CronJobSpecApplyConfiguration) *CronJobSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CronJobSpecDieMut) DieStampApplyConfiguration(fn func(ac *CronJobSpecApplyConfiguration)) *CronJobSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CronJobSpecDie) DieFeedApplyConfigurationE(ac *CronJobSpecApplyConfiguration) (*CronJobSpecDie, error) {
+func (d *CronJobSpecDieMut) DieFeedApplyConfigurationE(ac *CronJobSpecApplyConfiguration) (*CronJobSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CronJobSpecDie) DieStampApplyConfigurationE(fn func(ac *CronJobSpecApplyConfiguration)) (*CronJobSpecDie, error) {
+func (d *CronJobSpecDieMut) DieStampApplyConfigurationE(fn func(ac *CronJobSpecApplyConfiguration)) (*CronJobSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -208,7 +299,7 @@ type cronJobSpecFieldsTable struct {
 	StartingDeadlineSeconds    diefields.Field[CronJobSpec, *int64]
 	ConcurrencyPolicy          diefields.Field[CronJobSpec, ConcurrencyPolicy]
 	Suspend                    diefields.Field[CronJobSpec, *bool]
-	JobTemplate                diefields.Struct[CronJobSpec, JobTemplateSpec, *JobTemplateSpecDie]
+	JobTemplate                diefields.Struct[CronJobSpec, JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]
 	SuccessfulJobsHistoryLimit diefields.Field[CronJobSpec, *int32]
 	FailedJobsHistoryLimit     diefields.Field[CronJobSpec, *int32]
 }
@@ -220,14 +311,14 @@ var cronJobSpecFields = &diefields.Table[cronJobSpecFieldsTable]{Build: func() (
 	f.StartingDeadlineSeconds = diefields.NewField[CronJobSpec, *int64]("startingDeadlineSeconds")
 	f.ConcurrencyPolicy = diefields.NewField[CronJobSpec, ConcurrencyPolicy]("concurrencyPolicy")
 	f.Suspend = diefields.NewField[CronJobSpec, *bool]("suspend")
-	f.JobTemplate = diefields.NewStruct[CronJobSpec, JobTemplateSpec, *JobTemplateSpecDie]("jobTemplate")
+	f.JobTemplate = diefields.NewStruct[CronJobSpec, JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]("jobTemplate")
 	f.SuccessfulJobsHistoryLimit = diefields.NewField[CronJobSpec, *int32]("successfulJobsHistoryLimit")
 	f.FailedJobsHistoryLimit = diefields.NewField[CronJobSpec, *int32]("failedJobsHistoryLimit")
 	return
 }}
 
 // The schedule in Cron format, see https://en.wikipedia.org/wiki/Cron.
-func (d *CronJobSpecDie) Schedule() diefields.Value[string, *CronJobSpecDie] {
+func (d *CronJobSpecDie) Schedule() diefields.Value[string] {
 	return diefields.ValueOf(d, cronJobSpecFields.Get().Schedule)
 }
 
@@ -240,13 +331,13 @@ func (d *CronJobSpecDie) Schedule() diefields.Value[string, *CronJobSpecDie] {
 // configuration, the controller will stop creating new new Jobs and will create a system event with the
 // reason UnknownTimeZone.
 // More information can be found in https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#time-zones
-func (d *CronJobSpecDie) TimeZone() diefields.Optional[string, *CronJobSpecDie] {
+func (d *CronJobSpecDie) TimeZone() diefields.Optional[string] {
 	return diefields.OptionalOf(d, cronJobSpecFields.Get().TimeZone)
 }
 
 // Optional deadline in seconds for starting the job if it misses scheduled
 // time for any reason.  Missed jobs executions will be counted as failed ones.
-func (d *CronJobSpecDie) StartingDeadlineSeconds() diefields.Optional[int64, *CronJobSpecDie] {
+func (d *CronJobSpecDie) StartingDeadlineSeconds() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, cronJobSpecFields.Get().StartingDeadlineSeconds)
 }
 
@@ -256,13 +347,13 @@ func (d *CronJobSpecDie) StartingDeadlineSeconds() diefields.Optional[int64, *Cr
 // - "Allow" (default): allows CronJobs to run concurrently;
 // - "Forbid": forbids concurrent runs, skipping next run if previous run hasn't finished yet;
 // - "Replace": cancels currently running job and replaces it with a new one
-func (d *CronJobSpecDie) ConcurrencyPolicy() diefields.Value[ConcurrencyPolicy, *CronJobSpecDie] {
+func (d *CronJobSpecDie) ConcurrencyPolicy() diefields.Value[ConcurrencyPolicy] {
 	return diefields.ValueOf(d, cronJobSpecFields.Get().ConcurrencyPolicy)
 }
 
 // This flag tells the controller to suspend subsequent executions, it does
 // not apply to already started executions.  Defaults to false.
-func (d *CronJobSpecDie) Suspend() diefields.Optional[bool, *CronJobSpecDie] {
+func (d *CronJobSpecDie) Suspend() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, cronJobSpecFields.Get().Suspend)
 }
 
@@ -274,29 +365,103 @@ func (d *CronJobSpecDie) JobTemplate() *JobTemplateSpecDie {
 // The number of successful finished jobs to retain.
 // This is a pointer to distinguish between explicit zero and not specified.
 // Defaults to 3.
-func (d *CronJobSpecDie) SuccessfulJobsHistoryLimit() diefields.Optional[int32, *CronJobSpecDie] {
+func (d *CronJobSpecDie) SuccessfulJobsHistoryLimit() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, cronJobSpecFields.Get().SuccessfulJobsHistoryLimit)
 }
 
 // The number of failed finished jobs to retain.
 // This is a pointer to distinguish between explicit zero and not specified.
 // Defaults to 1.
-func (d *CronJobSpecDie) FailedJobsHistoryLimit() diefields.Optional[int32, *CronJobSpecDie] {
+func (d *CronJobSpecDie) FailedJobsHistoryLimit() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, cronJobSpecFields.Get().FailedJobsHistoryLimit)
 }
 
-// CronJobStatus represents the current state of a cron job.
-type CronJobStatusDie struct {
-	diebase.DieBase[CronJobStatus, *CronJobStatusDie]
+// The schedule in Cron format, see https://en.wikipedia.org/wiki/Cron.
+func (d *CronJobSpecDieMut) Schedule() diefields.ValueMut[string, *CronJobSpecDieMut] {
+	return diefields.ValueMutOf(d, cronJobSpecFields.Get().Schedule)
 }
 
-func (*CronJobStatusDie) DieFrom(b diebase.DieBase[CronJobStatus, *CronJobStatusDie]) *CronJobStatusDie {
+// The time zone name for the given schedule, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones.
+// If not specified, this will default to the time zone of the kube-controller-manager process.
+// The set of valid time zone names and the time zone offset is loaded from the system-wide time zone
+// database by the API server during CronJob validation and the controller manager during execution.
+// If no system-wide time zone database can be found a bundled version of the database is used instead.
+// If the time zone name becomes invalid during the lifetime of a CronJob or due to a change in host
+// configuration, the controller will stop creating new new Jobs and will create a system event with the
+// reason UnknownTimeZone.
+// More information can be found in https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#time-zones
+func (d *CronJobSpecDieMut) TimeZone() diefields.OptionalMut[string, *CronJobSpecDieMut] {
+	return diefields.OptionalMutOf(d, cronJobSpecFields.Get().TimeZone)
+}
+
+// Optional deadline in seconds for starting the job if it misses scheduled
+// time for any reason.  Missed jobs executions will be counted as failed ones.
+func (d *CronJobSpecDieMut) StartingDeadlineSeconds() diefields.OptionalMut[int64, *CronJobSpecDieMut] {
+	return diefields.OptionalMutOf(d, cronJobSpecFields.Get().StartingDeadlineSeconds)
+}
+
+// Specifies how to treat concurrent executions of a Job.
+// Valid values are:
+//
+// - "Allow" (default): allows CronJobs to run concurrently;
+// - "Forbid": forbids concurrent runs, skipping next run if previous run hasn't finished yet;
+// - "Replace": cancels currently running job and replaces it with a new one
+func (d *CronJobSpecDieMut) ConcurrencyPolicy() diefields.ValueMut[ConcurrencyPolicy, *CronJobSpecDieMut] {
+	return diefields.ValueMutOf(d, cronJobSpecFields.Get().ConcurrencyPolicy)
+}
+
+// This flag tells the controller to suspend subsequent executions, it does
+// not apply to already started executions.  Defaults to false.
+func (d *CronJobSpecDieMut) Suspend() diefields.OptionalMut[bool, *CronJobSpecDieMut] {
+	return diefields.OptionalMutOf(d, cronJobSpecFields.Get().Suspend)
+}
+
+// Specifies the job that will be created when executing a CronJob.
+func (d *CronJobSpecDieMut) JobTemplate() *JobTemplateSpecDieMut {
+	return diefields.ChildMut(d, cronJobSpecFields.Get().JobTemplate)
+}
+
+// The number of successful finished jobs to retain.
+// This is a pointer to distinguish between explicit zero and not specified.
+// Defaults to 3.
+func (d *CronJobSpecDieMut) SuccessfulJobsHistoryLimit() diefields.OptionalMut[int32, *CronJobSpecDieMut] {
+	return diefields.OptionalMutOf(d, cronJobSpecFields.Get().SuccessfulJobsHistoryLimit)
+}
+
+// The number of failed finished jobs to retain.
+// This is a pointer to distinguish between explicit zero and not specified.
+// Defaults to 1.
+func (d *CronJobSpecDieMut) FailedJobsHistoryLimit() diefields.OptionalMut[int32, *CronJobSpecDieMut] {
+	return diefields.OptionalMutOf(d, cronJobSpecFields.Get().FailedJobsHistoryLimit)
+}
+
+// CronJobStatus represents the current state of a cron job.
+//
+// CronJobStatusDie is immutable: it reads.
+// CronJobStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type CronJobStatusDie struct {
+	diebase.DieBase[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]
+}
+
+// CronJobStatusDieMut is the mutable die of CronJobStatus: see CronJobStatusDie.
+type CronJobStatusDieMut struct {
+	diebase.DieMutBase[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]
+}
+
+func (*CronJobStatusDie) DieFrom(b diebase.DieBase[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]) *CronJobStatusDie {
 	return &CronJobStatusDie{b}
 }
 
-var _ diebase.DieOf[CronJobStatus, *CronJobStatusDie] = (*CronJobStatusDie)(nil)
+func (*CronJobStatusDieMut) DieFrom(b diebase.DieMutBase[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]) *CronJobStatusDieMut {
+	return &CronJobStatusDieMut{b}
+}
 
-var CronJobStatusBlank = diebase.Blank[CronJobStatus, *CronJobStatusDie]()
+var (
+	_ diebase.DieOf[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]    = (*CronJobStatusDie)(nil)
+	_ diebase.DieMutOf[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut] = (*CronJobStatusDieMut)(nil)
+)
+
+var CronJobStatusBlank = diebase.Blank[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -305,34 +470,47 @@ func (d *CronJobStatusDie) DieReleaseApplyConfiguration() *CronJobStatusApplyCon
 	return diecodegen.ReleaseApplyConfiguration[CronJobStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CronJobStatusDie) DieFeedApplyConfiguration(ac *CronJobStatusApplyConfiguration) *CronJobStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CronJobStatusDie) DieStampApplyConfiguration(fn func(ac *CronJobStatusApplyConfiguration)) *CronJobStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CronJobStatusDie) DieReleaseApplyConfigurationE() (*CronJobStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CronJobStatusDieMut) DieReleaseApplyConfiguration() *CronJobStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CronJobStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CronJobStatusDieMut) DieReleaseApplyConfigurationE() (*CronJobStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CronJobStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CronJobStatusDieMut) DieFeedApplyConfiguration(ac *CronJobStatusApplyConfiguration) *CronJobStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CronJobStatusDieMut) DieStampApplyConfiguration(fn func(ac *CronJobStatusApplyConfiguration)) *CronJobStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CronJobStatusDie) DieFeedApplyConfigurationE(ac *CronJobStatusApplyConfiguration) (*CronJobStatusDie, error) {
+func (d *CronJobStatusDieMut) DieFeedApplyConfigurationE(ac *CronJobStatusApplyConfiguration) (*CronJobStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CronJobStatusDie) DieStampApplyConfigurationE(fn func(ac *CronJobStatusApplyConfiguration)) (*CronJobStatusDie, error) {
+func (d *CronJobStatusDieMut) DieStampApplyConfigurationE(fn func(ac *CronJobStatusApplyConfiguration)) (*CronJobStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -351,32 +529,62 @@ var cronJobStatusFields = &diefields.Table[cronJobStatusFieldsTable]{Build: func
 }}
 
 // A list of pointers to currently running jobs.
-func (d *CronJobStatusDie) Active() diefields.Value[[]diecorev1.ObjectReference, *CronJobStatusDie] {
+func (d *CronJobStatusDie) Active() diefields.Value[[]diecorev1.ObjectReference] {
 	return diefields.ValueOf(d, cronJobStatusFields.Get().Active)
 }
 
 // Information when was the last time the job was successfully scheduled.
-func (d *CronJobStatusDie) LastScheduleTime() diefields.Optional[diemetav1.Time, *CronJobStatusDie] {
+func (d *CronJobStatusDie) LastScheduleTime() diefields.Optional[diemetav1.Time] {
 	return diefields.OptionalOf(d, cronJobStatusFields.Get().LastScheduleTime)
 }
 
 // Information when was the last time the job successfully completed.
-func (d *CronJobStatusDie) LastSuccessfulTime() diefields.Optional[diemetav1.Time, *CronJobStatusDie] {
+func (d *CronJobStatusDie) LastSuccessfulTime() diefields.Optional[diemetav1.Time] {
 	return diefields.OptionalOf(d, cronJobStatusFields.Get().LastSuccessfulTime)
 }
 
-// JobTemplateSpec describes the data a Job should have when created from a template
-type JobTemplateSpecDie struct {
-	diebase.DieBase[JobTemplateSpec, *JobTemplateSpecDie]
+// A list of pointers to currently running jobs.
+func (d *CronJobStatusDieMut) Active() diefields.ValueMut[[]diecorev1.ObjectReference, *CronJobStatusDieMut] {
+	return diefields.ValueMutOf(d, cronJobStatusFields.Get().Active)
 }
 
-func (*JobTemplateSpecDie) DieFrom(b diebase.DieBase[JobTemplateSpec, *JobTemplateSpecDie]) *JobTemplateSpecDie {
+// Information when was the last time the job was successfully scheduled.
+func (d *CronJobStatusDieMut) LastScheduleTime() diefields.OptionalMut[diemetav1.Time, *CronJobStatusDieMut] {
+	return diefields.OptionalMutOf(d, cronJobStatusFields.Get().LastScheduleTime)
+}
+
+// Information when was the last time the job successfully completed.
+func (d *CronJobStatusDieMut) LastSuccessfulTime() diefields.OptionalMut[diemetav1.Time, *CronJobStatusDieMut] {
+	return diefields.OptionalMutOf(d, cronJobStatusFields.Get().LastSuccessfulTime)
+}
+
+// JobTemplateSpec describes the data a Job should have when created from a template
+//
+// JobTemplateSpecDie is immutable: it reads.
+// JobTemplateSpecDieMut, its mutable die, also writes, as DieWith passes it.
+type JobTemplateSpecDie struct {
+	diebase.DieBase[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]
+}
+
+// JobTemplateSpecDieMut is the mutable die of JobTemplateSpec: see JobTemplateSpecDie.
+type JobTemplateSpecDieMut struct {
+	diebase.DieMutBase[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]
+}
+
+func (*JobTemplateSpecDie) DieFrom(b diebase.DieBase[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]) *JobTemplateSpecDie {
 	return &JobTemplateSpecDie{b}
 }
 
-var _ diebase.DieOf[JobTemplateSpec, *JobTemplateSpecDie] = (*JobTemplateSpecDie)(nil)
+func (*JobTemplateSpecDieMut) DieFrom(b diebase.DieMutBase[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]) *JobTemplateSpecDieMut {
+	return &JobTemplateSpecDieMut{b}
+}
 
-var JobTemplateSpecBlank = diebase.Blank[JobTemplateSpec, *JobTemplateSpecDie]()
+var (
+	_ diebase.DieOf[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]    = (*JobTemplateSpecDie)(nil)
+	_ diebase.DieMutOf[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut] = (*JobTemplateSpecDieMut)(nil)
+)
+
+var JobTemplateSpecBlank = diebase.Blank[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -385,46 +593,59 @@ func (d *JobTemplateSpecDie) DieReleaseApplyConfiguration() *JobTemplateSpecAppl
 	return diecodegen.ReleaseApplyConfiguration[JobTemplateSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *JobTemplateSpecDie) DieFeedApplyConfiguration(ac *JobTemplateSpecApplyConfiguration) *JobTemplateSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *JobTemplateSpecDie) DieStampApplyConfiguration(fn func(ac *JobTemplateSpecApplyConfiguration)) *JobTemplateSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *JobTemplateSpecDie) DieReleaseApplyConfigurationE() (*JobTemplateSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobTemplateSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *JobTemplateSpecDieMut) DieReleaseApplyConfiguration() *JobTemplateSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[JobTemplateSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *JobTemplateSpecDieMut) DieReleaseApplyConfigurationE() (*JobTemplateSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[JobTemplateSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *JobTemplateSpecDieMut) DieFeedApplyConfiguration(ac *JobTemplateSpecApplyConfiguration) *JobTemplateSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *JobTemplateSpecDieMut) DieStampApplyConfiguration(fn func(ac *JobTemplateSpecApplyConfiguration)) *JobTemplateSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *JobTemplateSpecDie) DieFeedApplyConfigurationE(ac *JobTemplateSpecApplyConfiguration) (*JobTemplateSpecDie, error) {
+func (d *JobTemplateSpecDieMut) DieFeedApplyConfigurationE(ac *JobTemplateSpecApplyConfiguration) (*JobTemplateSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *JobTemplateSpecDie) DieStampApplyConfigurationE(fn func(ac *JobTemplateSpecApplyConfiguration)) (*JobTemplateSpecDie, error) {
+func (d *JobTemplateSpecDieMut) DieStampApplyConfigurationE(fn func(ac *JobTemplateSpecApplyConfiguration)) (*JobTemplateSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type jobTemplateSpecFieldsTable struct {
-	Metadata diefields.Struct[JobTemplateSpec, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec     diefields.Struct[JobTemplateSpec, diebatchv1.JobSpec, *diebatchv1.JobSpecDie]
+	Metadata diefields.Struct[JobTemplateSpec, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec     diefields.Struct[JobTemplateSpec, diebatchv1.JobSpec, *diebatchv1.JobSpecDie, *diebatchv1.JobSpecDieMut]
 }
 
 var jobTemplateSpecFields = &diefields.Table[jobTemplateSpecFieldsTable]{Build: func() (f jobTemplateSpecFieldsTable) {
 	_ = annotated
-	f.Metadata = diefields.NewStruct[JobTemplateSpec, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[JobTemplateSpec, diebatchv1.JobSpec, *diebatchv1.JobSpecDie]("spec")
+	f.Metadata = diefields.NewStruct[JobTemplateSpec, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[JobTemplateSpec, diebatchv1.JobSpec, *diebatchv1.JobSpecDie, *diebatchv1.JobSpecDieMut]("spec")
 	return
 }}
 
@@ -440,18 +661,30 @@ func (d *JobTemplateSpecDie) Spec() *diebatchv1.JobSpecDie {
 	return diefields.Child(d, jobTemplateSpecFields.Get().Spec)
 }
 
+// Standard object's metadata of the jobs created from this template.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *JobTemplateSpecDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, jobTemplateSpecFields.Get().Metadata)
+}
+
+// Specification of the desired behavior of the job.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *JobTemplateSpecDieMut) Spec() *diebatchv1.JobSpecDieMut {
+	return diefields.ChildMut(d, jobTemplateSpecFields.Get().Spec)
+}
+
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "batch", Version: "v1beta1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CronJob"), &CronJobDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CronJob"), &CronJobDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CronJobList"), &CronJobListDie{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

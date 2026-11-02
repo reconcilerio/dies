@@ -27,17 +27,19 @@ import (
 )
 
 func TestJigAs(t *testing.T) {
-	d := unstructured.Blank.DieFeedUnstructured(server())
+	d := unstructured.Blank.DieWith(func(d *unstructured.ObjectMut) { d.DieFeedUnstructured(server()) })
 
 	app := unstructured.JigAs[*diecorev1.ContainerDie](d.Node().Field("spec").Field("containers").Item("name", "app"))
 	if got := app.Image().Get(); got != "app:1" {
 		t.Errorf("image %q", got)
 	}
-	assertPanics(t, "read-only", func() { app.Image().Set("app:2") })
+	// the jig of an immutable die is immutable, and of a mutable die,
+	// JigAsMut, mutable: JigAs takes only immutable dies and nodes, and
+	// JigAsMut only mutable ones
 
-	d = d.DieWith(func(d *unstructured.Object) {
+	d = d.DieWith(func(d *unstructured.ObjectMut) {
 		containers := d.Node().Field("spec").Field("containers")
-		app := unstructured.JigAs[*diecorev1.ContainerDie](containers.Item("name", "app"))
+		app := unstructured.JigAsMut[*diecorev1.ContainerDieMut](containers.Item("name", "app"))
 		app.Image().Set("app:2")
 		app.Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http")
 		app.Env().At("MODE").Value().Set("full")
@@ -47,7 +49,7 @@ func TestJigAs(t *testing.T) {
 			t.Errorf("workingDir %q", got)
 		}
 		// a jig of a list element by its index
-		proxy := unstructured.JigAs[*diecorev1.ContainerDie](containers.Index(1))
+		proxy := unstructured.JigAsMut[*diecorev1.ContainerDieMut](containers.Index(1))
 		proxy.Args().Set([]string{"--verbose"})
 	})
 
@@ -69,7 +71,7 @@ func TestJigAs(t *testing.T) {
 
 // The whole of an unstructured die can be read and held as a typed die.
 func TestJigAsOfAnUnstructuredObject(t *testing.T) {
-	d := unstructured.BlankFor("apps/v1", "Deployment").DieWith(func(d *unstructured.Object) {
+	d := unstructured.BlankFor("apps/v1", "Deployment").DieWith(func(d *unstructured.ObjectMut) {
 		d.Node().Field("metadata").Field("name").Set("web")
 		d.Node().Field("spec").Field("futureField").Set(true)
 	}).DieCommit()
@@ -77,8 +79,8 @@ func TestJigAsOfAnUnstructuredObject(t *testing.T) {
 	if got := unstructured.GetAs[appsv1.Deployment](d).Name; got != "web" {
 		t.Errorf("name %q", got)
 	}
-	d = d.DieWith(func(d *unstructured.Object) {
-		deploy := unstructured.JigAs[*dieappsv1.DeploymentDie](d)
+	d = d.DieWith(func(d *unstructured.ObjectMut) {
+		deploy := unstructured.JigAsMut[*dieappsv1.DeploymentDieMut](d)
 		if got := deploy.Metadata().Name().Get(); got != "web" {
 			t.Errorf("name %q", got)
 		}

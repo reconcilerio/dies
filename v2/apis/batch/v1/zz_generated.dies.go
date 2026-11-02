@@ -34,17 +34,32 @@ import (
 )
 
 // CronJob represents the configuration of a single cron job.
+//
+// CronJobDie is immutable: it reads.
+// CronJobDieMut, its mutable die, also writes, as DieWith passes it.
 type CronJobDie struct {
-	diebase.DieObjectBase[CronJob, *CronJobDie]
+	diebase.DieObjectBase[CronJob, *CronJobDie, *CronJobDieMut]
 }
 
-func (*CronJobDie) DieFrom(b diebase.DieBase[CronJob, *CronJobDie]) *CronJobDie {
+// CronJobDieMut is the mutable die of CronJob: see CronJobDie.
+type CronJobDieMut struct {
+	diebase.DieObjectMutBase[CronJob, *CronJobDie, *CronJobDieMut]
+}
+
+func (*CronJobDie) DieFrom(b diebase.DieBase[CronJob, *CronJobDie, *CronJobDieMut]) *CronJobDie {
 	return &CronJobDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[CronJob, *CronJobDie] = (*CronJobDie)(nil)
+func (*CronJobDieMut) DieFrom(b diebase.DieMutBase[CronJob, *CronJobDie, *CronJobDieMut]) *CronJobDieMut {
+	return &CronJobDieMut{diebase.AsObjectMut(b)}
+}
 
-var CronJobBlank = diebase.BlankOf[CronJob, *CronJobDie](CronJob{TypeMeta: metav1.TypeMeta{APIVersion: "batch/v1", Kind: "CronJob"}})
+var (
+	_ dieobjects.DieObjectOf[CronJob, *CronJobDie, *CronJobDieMut]    = (*CronJobDie)(nil)
+	_ dieobjects.DieObjectMutOf[CronJob, *CronJobDie, *CronJobDieMut] = (*CronJobDieMut)(nil)
+)
+
+var CronJobBlank = diebase.BlankOf[CronJob, *CronJobDie, *CronJobDieMut](CronJob{TypeMeta: metav1.TypeMeta{APIVersion: "batch/v1", Kind: "CronJob"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -53,52 +68,65 @@ func (d *CronJobDie) DieReleaseApplyConfiguration() *CronJobApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[CronJobApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CronJobDie) DieFeedApplyConfiguration(ac *CronJobApplyConfiguration) *CronJobDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CronJobDie) DieStampApplyConfiguration(fn func(ac *CronJobApplyConfiguration)) *CronJobDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CronJobDie) DieReleaseApplyConfigurationE() (*CronJobApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CronJobDieMut) DieReleaseApplyConfiguration() *CronJobApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CronJobApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CronJobDieMut) DieReleaseApplyConfigurationE() (*CronJobApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CronJobApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CronJobDieMut) DieFeedApplyConfiguration(ac *CronJobApplyConfiguration) *CronJobDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CronJobDieMut) DieStampApplyConfiguration(fn func(ac *CronJobApplyConfiguration)) *CronJobDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CronJobDie) DieFeedApplyConfigurationE(ac *CronJobApplyConfiguration) (*CronJobDie, error) {
+func (d *CronJobDieMut) DieFeedApplyConfigurationE(ac *CronJobApplyConfiguration) (*CronJobDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CronJobDie) DieStampApplyConfigurationE(fn func(ac *CronJobApplyConfiguration)) (*CronJobDie, error) {
+func (d *CronJobDieMut) DieStampApplyConfigurationE(fn func(ac *CronJobApplyConfiguration)) (*CronJobDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type cronJobFieldsTable struct {
 	Kind       diefields.Field[CronJob, string]
 	APIVersion diefields.Field[CronJob, string]
-	Metadata   diefields.Struct[CronJob, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[CronJob, CronJobSpec, *CronJobSpecDie]
-	Status     diefields.Struct[CronJob, CronJobStatus, *CronJobStatusDie]
+	Metadata   diefields.Struct[CronJob, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[CronJob, CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]
+	Status     diefields.Struct[CronJob, CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]
 }
 
 var cronJobFields = &diefields.Table[cronJobFieldsTable]{Build: func() (f cronJobFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[CronJob, string]("kind")
 	f.APIVersion = diefields.NewField[CronJob, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[CronJob, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[CronJob, CronJobSpec, *CronJobSpecDie]("spec")
-	f.Status = diefields.NewStruct[CronJob, CronJobStatus, *CronJobStatusDie]("status")
+	f.Metadata = diefields.NewStruct[CronJob, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[CronJob, CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[CronJob, CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]("status")
 	return
 }}
 
@@ -107,7 +135,7 @@ var cronJobFields = &diefields.Table[cronJobFieldsTable]{Build: func() (f cronJo
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *CronJobDie) Kind() diefields.Value[string, *CronJobDie] {
+func (d *CronJobDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, cronJobFields.Get().Kind)
 }
 
@@ -115,7 +143,7 @@ func (d *CronJobDie) Kind() diefields.Value[string, *CronJobDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *CronJobDie) APIVersion() diefields.Value[string, *CronJobDie] {
+func (d *CronJobDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, cronJobFields.Get().APIVersion)
 }
 
@@ -135,15 +163,50 @@ func (d *CronJobDie) Status() *CronJobStatusDie {
 	return diefields.Child(d, cronJobFields.Get().Status)
 }
 
-// CronJobList is a collection of cron jobs.
-type CronJobListDie struct {
-	dielists.List[*CronJobDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *CronJobDieMut) Kind() diefields.ValueMut[string, *CronJobDieMut] {
+	return diefields.ValueMutOf(d, cronJobFields.Get().Kind)
 }
 
-var _ dielists.DieListOf[*CronJobDie] = (*CronJobListDie)(nil)
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *CronJobDieMut) APIVersion() diefields.ValueMut[string, *CronJobDieMut] {
+	return diefields.ValueMutOf(d, cronJobFields.Get().APIVersion)
+}
+
+// Standard object's metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *CronJobDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, cronJobFields.Get().Metadata)
+}
+
+// Specification of the desired behavior of a cron job, including the schedule.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *CronJobDieMut) Spec() *CronJobSpecDieMut {
+	return diefields.ChildMut(d, cronJobFields.Get().Spec)
+}
+
+// Current status of a cron job.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *CronJobDieMut) Status() *CronJobStatusDieMut {
+	return diefields.ChildMut(d, cronJobFields.Get().Status)
+}
+
+// CronJobList is a collection of cron jobs.
+type CronJobListDie struct {
+	dielists.List[*CronJobDieMut]
+}
+
+var _ dielists.DieListOf[*CronJobDieMut] = (*CronJobListDie)(nil)
 
 // NewCronJobList returns a list with items.
-func NewCronJobList(items ...*CronJobDie) *CronJobListDie {
+func NewCronJobList(items ...*CronJobDieMut) *CronJobListDie {
 	return &CronJobListDie{dielists.NewList("batch/v1", "CronJobList", items...)}
 }
 
@@ -153,17 +216,32 @@ func (l *CronJobListDie) DeepCopy() *CronJobListDie { return &CronJobListDie{l.D
 func (l *CronJobListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // CronJobSpec describes how the job execution will look like and when it will actually run.
+//
+// CronJobSpecDie is immutable: it reads.
+// CronJobSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type CronJobSpecDie struct {
-	diebase.DieBase[CronJobSpec, *CronJobSpecDie]
+	diebase.DieBase[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]
 }
 
-func (*CronJobSpecDie) DieFrom(b diebase.DieBase[CronJobSpec, *CronJobSpecDie]) *CronJobSpecDie {
+// CronJobSpecDieMut is the mutable die of CronJobSpec: see CronJobSpecDie.
+type CronJobSpecDieMut struct {
+	diebase.DieMutBase[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]
+}
+
+func (*CronJobSpecDie) DieFrom(b diebase.DieBase[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]) *CronJobSpecDie {
 	return &CronJobSpecDie{b}
 }
 
-var _ diebase.DieOf[CronJobSpec, *CronJobSpecDie] = (*CronJobSpecDie)(nil)
+func (*CronJobSpecDieMut) DieFrom(b diebase.DieMutBase[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]) *CronJobSpecDieMut {
+	return &CronJobSpecDieMut{b}
+}
 
-var CronJobSpecBlank = diebase.Blank[CronJobSpec, *CronJobSpecDie]()
+var (
+	_ diebase.DieOf[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]    = (*CronJobSpecDie)(nil)
+	_ diebase.DieMutOf[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut] = (*CronJobSpecDieMut)(nil)
+)
+
+var CronJobSpecBlank = diebase.Blank[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -172,34 +250,47 @@ func (d *CronJobSpecDie) DieReleaseApplyConfiguration() *CronJobSpecApplyConfigu
 	return diecodegen.ReleaseApplyConfiguration[CronJobSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CronJobSpecDie) DieFeedApplyConfiguration(ac *CronJobSpecApplyConfiguration) *CronJobSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CronJobSpecDie) DieStampApplyConfiguration(fn func(ac *CronJobSpecApplyConfiguration)) *CronJobSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CronJobSpecDie) DieReleaseApplyConfigurationE() (*CronJobSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CronJobSpecDieMut) DieReleaseApplyConfiguration() *CronJobSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CronJobSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CronJobSpecDieMut) DieReleaseApplyConfigurationE() (*CronJobSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CronJobSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CronJobSpecDieMut) DieFeedApplyConfiguration(ac *CronJobSpecApplyConfiguration) *CronJobSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CronJobSpecDieMut) DieStampApplyConfiguration(fn func(ac *CronJobSpecApplyConfiguration)) *CronJobSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CronJobSpecDie) DieFeedApplyConfigurationE(ac *CronJobSpecApplyConfiguration) (*CronJobSpecDie, error) {
+func (d *CronJobSpecDieMut) DieFeedApplyConfigurationE(ac *CronJobSpecApplyConfiguration) (*CronJobSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CronJobSpecDie) DieStampApplyConfigurationE(fn func(ac *CronJobSpecApplyConfiguration)) (*CronJobSpecDie, error) {
+func (d *CronJobSpecDieMut) DieStampApplyConfigurationE(fn func(ac *CronJobSpecApplyConfiguration)) (*CronJobSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -209,7 +300,7 @@ type cronJobSpecFieldsTable struct {
 	StartingDeadlineSeconds    diefields.Field[CronJobSpec, *int64]
 	ConcurrencyPolicy          diefields.Field[CronJobSpec, ConcurrencyPolicy]
 	Suspend                    diefields.Field[CronJobSpec, *bool]
-	JobTemplate                diefields.Struct[CronJobSpec, JobTemplateSpec, *JobTemplateSpecDie]
+	JobTemplate                diefields.Struct[CronJobSpec, JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]
 	SuccessfulJobsHistoryLimit diefields.Field[CronJobSpec, *int32]
 	FailedJobsHistoryLimit     diefields.Field[CronJobSpec, *int32]
 }
@@ -221,14 +312,14 @@ var cronJobSpecFields = &diefields.Table[cronJobSpecFieldsTable]{Build: func() (
 	f.StartingDeadlineSeconds = diefields.NewField[CronJobSpec, *int64]("startingDeadlineSeconds")
 	f.ConcurrencyPolicy = diefields.NewField[CronJobSpec, ConcurrencyPolicy]("concurrencyPolicy")
 	f.Suspend = diefields.NewField[CronJobSpec, *bool]("suspend")
-	f.JobTemplate = diefields.NewStruct[CronJobSpec, JobTemplateSpec, *JobTemplateSpecDie]("jobTemplate")
+	f.JobTemplate = diefields.NewStruct[CronJobSpec, JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]("jobTemplate")
 	f.SuccessfulJobsHistoryLimit = diefields.NewField[CronJobSpec, *int32]("successfulJobsHistoryLimit")
 	f.FailedJobsHistoryLimit = diefields.NewField[CronJobSpec, *int32]("failedJobsHistoryLimit")
 	return
 }}
 
 // The schedule in Cron format, see https://en.wikipedia.org/wiki/Cron.
-func (d *CronJobSpecDie) Schedule() diefields.Value[string, *CronJobSpecDie] {
+func (d *CronJobSpecDie) Schedule() diefields.Value[string] {
 	return diefields.ValueOf(d, cronJobSpecFields.Get().Schedule)
 }
 
@@ -241,13 +332,13 @@ func (d *CronJobSpecDie) Schedule() diefields.Value[string, *CronJobSpecDie] {
 // configuration, the controller will stop creating new new Jobs and will create a system event with the
 // reason UnknownTimeZone.
 // More information can be found in https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#time-zones
-func (d *CronJobSpecDie) TimeZone() diefields.Optional[string, *CronJobSpecDie] {
+func (d *CronJobSpecDie) TimeZone() diefields.Optional[string] {
 	return diefields.OptionalOf(d, cronJobSpecFields.Get().TimeZone)
 }
 
 // Optional deadline in seconds for starting the job if it misses scheduled
 // time for any reason.  Missed jobs executions will be counted as failed ones.
-func (d *CronJobSpecDie) StartingDeadlineSeconds() diefields.Optional[int64, *CronJobSpecDie] {
+func (d *CronJobSpecDie) StartingDeadlineSeconds() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, cronJobSpecFields.Get().StartingDeadlineSeconds)
 }
 
@@ -257,13 +348,13 @@ func (d *CronJobSpecDie) StartingDeadlineSeconds() diefields.Optional[int64, *Cr
 // - "Allow" (default): allows CronJobs to run concurrently;
 // - "Forbid": forbids concurrent runs, skipping next run if previous run hasn't finished yet;
 // - "Replace": cancels currently running job and replaces it with a new one
-func (d *CronJobSpecDie) ConcurrencyPolicy() diefields.Value[ConcurrencyPolicy, *CronJobSpecDie] {
+func (d *CronJobSpecDie) ConcurrencyPolicy() diefields.Value[ConcurrencyPolicy] {
 	return diefields.ValueOf(d, cronJobSpecFields.Get().ConcurrencyPolicy)
 }
 
 // This flag tells the controller to suspend subsequent executions, it does
 // not apply to already started executions.  Defaults to false.
-func (d *CronJobSpecDie) Suspend() diefields.Optional[bool, *CronJobSpecDie] {
+func (d *CronJobSpecDie) Suspend() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, cronJobSpecFields.Get().Suspend)
 }
 
@@ -274,28 +365,100 @@ func (d *CronJobSpecDie) JobTemplate() *JobTemplateSpecDie {
 
 // The number of successful finished jobs to retain. Value must be non-negative integer.
 // Defaults to 3.
-func (d *CronJobSpecDie) SuccessfulJobsHistoryLimit() diefields.Optional[int32, *CronJobSpecDie] {
+func (d *CronJobSpecDie) SuccessfulJobsHistoryLimit() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, cronJobSpecFields.Get().SuccessfulJobsHistoryLimit)
 }
 
 // The number of failed finished jobs to retain. Value must be non-negative integer.
 // Defaults to 1.
-func (d *CronJobSpecDie) FailedJobsHistoryLimit() diefields.Optional[int32, *CronJobSpecDie] {
+func (d *CronJobSpecDie) FailedJobsHistoryLimit() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, cronJobSpecFields.Get().FailedJobsHistoryLimit)
 }
 
-// CronJobStatus represents the current state of a cron job.
-type CronJobStatusDie struct {
-	diebase.DieBase[CronJobStatus, *CronJobStatusDie]
+// The schedule in Cron format, see https://en.wikipedia.org/wiki/Cron.
+func (d *CronJobSpecDieMut) Schedule() diefields.ValueMut[string, *CronJobSpecDieMut] {
+	return diefields.ValueMutOf(d, cronJobSpecFields.Get().Schedule)
 }
 
-func (*CronJobStatusDie) DieFrom(b diebase.DieBase[CronJobStatus, *CronJobStatusDie]) *CronJobStatusDie {
+// The time zone name for the given schedule, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones.
+// If not specified, this will default to the time zone of the kube-controller-manager process.
+// The set of valid time zone names and the time zone offset is loaded from the system-wide time zone
+// database by the API server during CronJob validation and the controller manager during execution.
+// If no system-wide time zone database can be found a bundled version of the database is used instead.
+// If the time zone name becomes invalid during the lifetime of a CronJob or due to a change in host
+// configuration, the controller will stop creating new new Jobs and will create a system event with the
+// reason UnknownTimeZone.
+// More information can be found in https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#time-zones
+func (d *CronJobSpecDieMut) TimeZone() diefields.OptionalMut[string, *CronJobSpecDieMut] {
+	return diefields.OptionalMutOf(d, cronJobSpecFields.Get().TimeZone)
+}
+
+// Optional deadline in seconds for starting the job if it misses scheduled
+// time for any reason.  Missed jobs executions will be counted as failed ones.
+func (d *CronJobSpecDieMut) StartingDeadlineSeconds() diefields.OptionalMut[int64, *CronJobSpecDieMut] {
+	return diefields.OptionalMutOf(d, cronJobSpecFields.Get().StartingDeadlineSeconds)
+}
+
+// Specifies how to treat concurrent executions of a Job.
+// Valid values are:
+//
+// - "Allow" (default): allows CronJobs to run concurrently;
+// - "Forbid": forbids concurrent runs, skipping next run if previous run hasn't finished yet;
+// - "Replace": cancels currently running job and replaces it with a new one
+func (d *CronJobSpecDieMut) ConcurrencyPolicy() diefields.ValueMut[ConcurrencyPolicy, *CronJobSpecDieMut] {
+	return diefields.ValueMutOf(d, cronJobSpecFields.Get().ConcurrencyPolicy)
+}
+
+// This flag tells the controller to suspend subsequent executions, it does
+// not apply to already started executions.  Defaults to false.
+func (d *CronJobSpecDieMut) Suspend() diefields.OptionalMut[bool, *CronJobSpecDieMut] {
+	return diefields.OptionalMutOf(d, cronJobSpecFields.Get().Suspend)
+}
+
+// Specifies the job that will be created when executing a CronJob.
+func (d *CronJobSpecDieMut) JobTemplate() *JobTemplateSpecDieMut {
+	return diefields.ChildMut(d, cronJobSpecFields.Get().JobTemplate)
+}
+
+// The number of successful finished jobs to retain. Value must be non-negative integer.
+// Defaults to 3.
+func (d *CronJobSpecDieMut) SuccessfulJobsHistoryLimit() diefields.OptionalMut[int32, *CronJobSpecDieMut] {
+	return diefields.OptionalMutOf(d, cronJobSpecFields.Get().SuccessfulJobsHistoryLimit)
+}
+
+// The number of failed finished jobs to retain. Value must be non-negative integer.
+// Defaults to 1.
+func (d *CronJobSpecDieMut) FailedJobsHistoryLimit() diefields.OptionalMut[int32, *CronJobSpecDieMut] {
+	return diefields.OptionalMutOf(d, cronJobSpecFields.Get().FailedJobsHistoryLimit)
+}
+
+// CronJobStatus represents the current state of a cron job.
+//
+// CronJobStatusDie is immutable: it reads.
+// CronJobStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type CronJobStatusDie struct {
+	diebase.DieBase[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]
+}
+
+// CronJobStatusDieMut is the mutable die of CronJobStatus: see CronJobStatusDie.
+type CronJobStatusDieMut struct {
+	diebase.DieMutBase[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]
+}
+
+func (*CronJobStatusDie) DieFrom(b diebase.DieBase[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]) *CronJobStatusDie {
 	return &CronJobStatusDie{b}
 }
 
-var _ diebase.DieOf[CronJobStatus, *CronJobStatusDie] = (*CronJobStatusDie)(nil)
+func (*CronJobStatusDieMut) DieFrom(b diebase.DieMutBase[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]) *CronJobStatusDieMut {
+	return &CronJobStatusDieMut{b}
+}
 
-var CronJobStatusBlank = diebase.Blank[CronJobStatus, *CronJobStatusDie]()
+var (
+	_ diebase.DieOf[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]    = (*CronJobStatusDie)(nil)
+	_ diebase.DieMutOf[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut] = (*CronJobStatusDieMut)(nil)
+)
+
+var CronJobStatusBlank = diebase.Blank[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -304,34 +467,47 @@ func (d *CronJobStatusDie) DieReleaseApplyConfiguration() *CronJobStatusApplyCon
 	return diecodegen.ReleaseApplyConfiguration[CronJobStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CronJobStatusDie) DieFeedApplyConfiguration(ac *CronJobStatusApplyConfiguration) *CronJobStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CronJobStatusDie) DieStampApplyConfiguration(fn func(ac *CronJobStatusApplyConfiguration)) *CronJobStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CronJobStatusDie) DieReleaseApplyConfigurationE() (*CronJobStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CronJobStatusDieMut) DieReleaseApplyConfiguration() *CronJobStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CronJobStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CronJobStatusDieMut) DieReleaseApplyConfigurationE() (*CronJobStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CronJobStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CronJobStatusDieMut) DieFeedApplyConfiguration(ac *CronJobStatusApplyConfiguration) *CronJobStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CronJobStatusDieMut) DieStampApplyConfiguration(fn func(ac *CronJobStatusApplyConfiguration)) *CronJobStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CronJobStatusDie) DieFeedApplyConfigurationE(ac *CronJobStatusApplyConfiguration) (*CronJobStatusDie, error) {
+func (d *CronJobStatusDieMut) DieFeedApplyConfigurationE(ac *CronJobStatusApplyConfiguration) (*CronJobStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CronJobStatusDie) DieStampApplyConfigurationE(fn func(ac *CronJobStatusApplyConfiguration)) (*CronJobStatusDie, error) {
+func (d *CronJobStatusDieMut) DieStampApplyConfigurationE(fn func(ac *CronJobStatusApplyConfiguration)) (*CronJobStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -350,30 +526,62 @@ var cronJobStatusFields = &diefields.Table[cronJobStatusFieldsTable]{Build: func
 }}
 
 // A list of pointers to currently running jobs.
-func (d *CronJobStatusDie) Active() diefields.Value[[]diecorev1.ObjectReference, *CronJobStatusDie] {
+func (d *CronJobStatusDie) Active() diefields.Value[[]diecorev1.ObjectReference] {
 	return diefields.ValueOf(d, cronJobStatusFields.Get().Active)
 }
 
 // Information when was the last time the job was successfully scheduled.
-func (d *CronJobStatusDie) LastScheduleTime() diefields.Optional[diemetav1.Time, *CronJobStatusDie] {
+func (d *CronJobStatusDie) LastScheduleTime() diefields.Optional[diemetav1.Time] {
 	return diefields.OptionalOf(d, cronJobStatusFields.Get().LastScheduleTime)
 }
 
 // Information when was the last time the job successfully completed.
-func (d *CronJobStatusDie) LastSuccessfulTime() diefields.Optional[diemetav1.Time, *CronJobStatusDie] {
+func (d *CronJobStatusDie) LastSuccessfulTime() diefields.Optional[diemetav1.Time] {
 	return diefields.OptionalOf(d, cronJobStatusFields.Get().LastSuccessfulTime)
 }
 
-// Job represents the configuration of a single job.
-type JobDie struct {
-	diebase.DieObjectBase[Job, *JobDie]
+// A list of pointers to currently running jobs.
+func (d *CronJobStatusDieMut) Active() diefields.ValueMut[[]diecorev1.ObjectReference, *CronJobStatusDieMut] {
+	return diefields.ValueMutOf(d, cronJobStatusFields.Get().Active)
 }
 
-func (*JobDie) DieFrom(b diebase.DieBase[Job, *JobDie]) *JobDie { return &JobDie{diebase.AsObject(b)} }
+// Information when was the last time the job was successfully scheduled.
+func (d *CronJobStatusDieMut) LastScheduleTime() diefields.OptionalMut[diemetav1.Time, *CronJobStatusDieMut] {
+	return diefields.OptionalMutOf(d, cronJobStatusFields.Get().LastScheduleTime)
+}
 
-var _ dieobjects.DieObjectOf[Job, *JobDie] = (*JobDie)(nil)
+// Information when was the last time the job successfully completed.
+func (d *CronJobStatusDieMut) LastSuccessfulTime() diefields.OptionalMut[diemetav1.Time, *CronJobStatusDieMut] {
+	return diefields.OptionalMutOf(d, cronJobStatusFields.Get().LastSuccessfulTime)
+}
 
-var JobBlank = diebase.BlankOf[Job, *JobDie](Job{TypeMeta: metav1.TypeMeta{APIVersion: "batch/v1", Kind: "Job"}})
+// Job represents the configuration of a single job.
+//
+// JobDie is immutable: it reads.
+// JobDieMut, its mutable die, also writes, as DieWith passes it.
+type JobDie struct {
+	diebase.DieObjectBase[Job, *JobDie, *JobDieMut]
+}
+
+// JobDieMut is the mutable die of Job: see JobDie.
+type JobDieMut struct {
+	diebase.DieObjectMutBase[Job, *JobDie, *JobDieMut]
+}
+
+func (*JobDie) DieFrom(b diebase.DieBase[Job, *JobDie, *JobDieMut]) *JobDie {
+	return &JobDie{diebase.AsObject(b)}
+}
+
+func (*JobDieMut) DieFrom(b diebase.DieMutBase[Job, *JobDie, *JobDieMut]) *JobDieMut {
+	return &JobDieMut{diebase.AsObjectMut(b)}
+}
+
+var (
+	_ dieobjects.DieObjectOf[Job, *JobDie, *JobDieMut]    = (*JobDie)(nil)
+	_ dieobjects.DieObjectMutOf[Job, *JobDie, *JobDieMut] = (*JobDieMut)(nil)
+)
+
+var JobBlank = diebase.BlankOf[Job, *JobDie, *JobDieMut](Job{TypeMeta: metav1.TypeMeta{APIVersion: "batch/v1", Kind: "Job"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -382,52 +590,65 @@ func (d *JobDie) DieReleaseApplyConfiguration() *JobApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[JobApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *JobDie) DieFeedApplyConfiguration(ac *JobApplyConfiguration) *JobDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *JobDie) DieStampApplyConfiguration(fn func(ac *JobApplyConfiguration)) *JobDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *JobDie) DieReleaseApplyConfigurationE() (*JobApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *JobDieMut) DieReleaseApplyConfiguration() *JobApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[JobApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *JobDieMut) DieReleaseApplyConfigurationE() (*JobApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[JobApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *JobDieMut) DieFeedApplyConfiguration(ac *JobApplyConfiguration) *JobDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *JobDieMut) DieStampApplyConfiguration(fn func(ac *JobApplyConfiguration)) *JobDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *JobDie) DieFeedApplyConfigurationE(ac *JobApplyConfiguration) (*JobDie, error) {
+func (d *JobDieMut) DieFeedApplyConfigurationE(ac *JobApplyConfiguration) (*JobDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *JobDie) DieStampApplyConfigurationE(fn func(ac *JobApplyConfiguration)) (*JobDie, error) {
+func (d *JobDieMut) DieStampApplyConfigurationE(fn func(ac *JobApplyConfiguration)) (*JobDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type jobFieldsTable struct {
 	Kind       diefields.Field[Job, string]
 	APIVersion diefields.Field[Job, string]
-	Metadata   diefields.Struct[Job, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[Job, JobSpec, *JobSpecDie]
-	Status     diefields.Struct[Job, JobStatus, *JobStatusDie]
+	Metadata   diefields.Struct[Job, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[Job, JobSpec, *JobSpecDie, *JobSpecDieMut]
+	Status     diefields.Struct[Job, JobStatus, *JobStatusDie, *JobStatusDieMut]
 }
 
 var jobFields = &diefields.Table[jobFieldsTable]{Build: func() (f jobFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[Job, string]("kind")
 	f.APIVersion = diefields.NewField[Job, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[Job, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[Job, JobSpec, *JobSpecDie]("spec")
-	f.Status = diefields.NewStruct[Job, JobStatus, *JobStatusDie]("status")
+	f.Metadata = diefields.NewStruct[Job, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[Job, JobSpec, *JobSpecDie, *JobSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[Job, JobStatus, *JobStatusDie, *JobStatusDieMut]("status")
 	return
 }}
 
@@ -436,15 +657,13 @@ var jobFields = &diefields.Table[jobFieldsTable]{Build: func() (f jobFieldsTable
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *JobDie) Kind() diefields.Value[string, *JobDie] {
-	return diefields.ValueOf(d, jobFields.Get().Kind)
-}
+func (d *JobDie) Kind() diefields.Value[string] { return diefields.ValueOf(d, jobFields.Get().Kind) }
 
 // APIVersion defines the versioned schema of this representation of an object.
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *JobDie) APIVersion() diefields.Value[string, *JobDie] {
+func (d *JobDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, jobFields.Get().APIVersion)
 }
 
@@ -462,18 +681,64 @@ func (d *JobDie) Spec() *JobSpecDie { return diefields.Child(d, jobFields.Get().
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 func (d *JobDie) Status() *JobStatusDie { return diefields.Child(d, jobFields.Get().Status) }
 
-// JobCondition describes current state of a job.
-type JobConditionDie struct {
-	diebase.DieBase[JobCondition, *JobConditionDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *JobDieMut) Kind() diefields.ValueMut[string, *JobDieMut] {
+	return diefields.ValueMutOf(d, jobFields.Get().Kind)
 }
 
-func (*JobConditionDie) DieFrom(b diebase.DieBase[JobCondition, *JobConditionDie]) *JobConditionDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *JobDieMut) APIVersion() diefields.ValueMut[string, *JobDieMut] {
+	return diefields.ValueMutOf(d, jobFields.Get().APIVersion)
+}
+
+// Standard object's metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *JobDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, jobFields.Get().Metadata)
+}
+
+// Specification of the desired behavior of a job.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *JobDieMut) Spec() *JobSpecDieMut { return diefields.ChildMut(d, jobFields.Get().Spec) }
+
+// Current status of a job.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *JobDieMut) Status() *JobStatusDieMut { return diefields.ChildMut(d, jobFields.Get().Status) }
+
+// JobCondition describes current state of a job.
+//
+// JobConditionDie is immutable: it reads.
+// JobConditionDieMut, its mutable die, also writes, as DieWith passes it.
+type JobConditionDie struct {
+	diebase.DieBase[JobCondition, *JobConditionDie, *JobConditionDieMut]
+}
+
+// JobConditionDieMut is the mutable die of JobCondition: see JobConditionDie.
+type JobConditionDieMut struct {
+	diebase.DieMutBase[JobCondition, *JobConditionDie, *JobConditionDieMut]
+}
+
+func (*JobConditionDie) DieFrom(b diebase.DieBase[JobCondition, *JobConditionDie, *JobConditionDieMut]) *JobConditionDie {
 	return &JobConditionDie{b}
 }
 
-var _ diebase.DieOf[JobCondition, *JobConditionDie] = (*JobConditionDie)(nil)
+func (*JobConditionDieMut) DieFrom(b diebase.DieMutBase[JobCondition, *JobConditionDie, *JobConditionDieMut]) *JobConditionDieMut {
+	return &JobConditionDieMut{b}
+}
 
-var JobConditionBlank = diebase.Blank[JobCondition, *JobConditionDie]()
+var (
+	_ diebase.DieOf[JobCondition, *JobConditionDie, *JobConditionDieMut]    = (*JobConditionDie)(nil)
+	_ diebase.DieMutOf[JobCondition, *JobConditionDie, *JobConditionDieMut] = (*JobConditionDieMut)(nil)
+)
+
+var JobConditionBlank = diebase.Blank[JobCondition, *JobConditionDie, *JobConditionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -482,34 +747,47 @@ func (d *JobConditionDie) DieReleaseApplyConfiguration() *JobConditionApplyConfi
 	return diecodegen.ReleaseApplyConfiguration[JobConditionApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *JobConditionDie) DieFeedApplyConfiguration(ac *JobConditionApplyConfiguration) *JobConditionDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *JobConditionDie) DieStampApplyConfiguration(fn func(ac *JobConditionApplyConfiguration)) *JobConditionDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *JobConditionDie) DieReleaseApplyConfigurationE() (*JobConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobConditionApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *JobConditionDieMut) DieReleaseApplyConfiguration() *JobConditionApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[JobConditionApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *JobConditionDieMut) DieReleaseApplyConfigurationE() (*JobConditionApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[JobConditionApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *JobConditionDieMut) DieFeedApplyConfiguration(ac *JobConditionApplyConfiguration) *JobConditionDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *JobConditionDieMut) DieStampApplyConfiguration(fn func(ac *JobConditionApplyConfiguration)) *JobConditionDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *JobConditionDie) DieFeedApplyConfigurationE(ac *JobConditionApplyConfiguration) (*JobConditionDie, error) {
+func (d *JobConditionDieMut) DieFeedApplyConfigurationE(ac *JobConditionApplyConfiguration) (*JobConditionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *JobConditionDie) DieStampApplyConfigurationE(fn func(ac *JobConditionApplyConfiguration)) (*JobConditionDie, error) {
+func (d *JobConditionDieMut) DieStampApplyConfigurationE(fn func(ac *JobConditionApplyConfiguration)) (*JobConditionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -534,44 +812,74 @@ var jobConditionFields = &diefields.Table[jobConditionFieldsTable]{Build: func()
 }}
 
 // Type of job condition, Complete or Failed.
-func (d *JobConditionDie) Type() diefields.Value[JobConditionType, *JobConditionDie] {
+func (d *JobConditionDie) Type() diefields.Value[JobConditionType] {
 	return diefields.ValueOf(d, jobConditionFields.Get().Type)
 }
 
 // Status of the condition, one of True, False, Unknown.
-func (d *JobConditionDie) Status() diefields.Value[diecorev1.ConditionStatus, *JobConditionDie] {
+func (d *JobConditionDie) Status() diefields.Value[diecorev1.ConditionStatus] {
 	return diefields.ValueOf(d, jobConditionFields.Get().Status)
 }
 
 // Last time the condition was checked.
-func (d *JobConditionDie) LastProbeTime() diefields.Value[diemetav1.Time, *JobConditionDie] {
+func (d *JobConditionDie) LastProbeTime() diefields.Value[diemetav1.Time] {
 	return diefields.ValueOf(d, jobConditionFields.Get().LastProbeTime)
 }
 
 // Last time the condition transit from one status to another.
-func (d *JobConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time, *JobConditionDie] {
+func (d *JobConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time] {
 	return diefields.ValueOf(d, jobConditionFields.Get().LastTransitionTime)
 }
 
 // (brief) reason for the condition's last transition.
-func (d *JobConditionDie) Reason() diefields.Value[string, *JobConditionDie] {
+func (d *JobConditionDie) Reason() diefields.Value[string] {
 	return diefields.ValueOf(d, jobConditionFields.Get().Reason)
 }
 
 // Human readable message indicating details about last transition.
-func (d *JobConditionDie) Message() diefields.Value[string, *JobConditionDie] {
+func (d *JobConditionDie) Message() diefields.Value[string] {
 	return diefields.ValueOf(d, jobConditionFields.Get().Message)
+}
+
+// Type of job condition, Complete or Failed.
+func (d *JobConditionDieMut) Type() diefields.ValueMut[JobConditionType, *JobConditionDieMut] {
+	return diefields.ValueMutOf(d, jobConditionFields.Get().Type)
+}
+
+// Status of the condition, one of True, False, Unknown.
+func (d *JobConditionDieMut) Status() diefields.ValueMut[diecorev1.ConditionStatus, *JobConditionDieMut] {
+	return diefields.ValueMutOf(d, jobConditionFields.Get().Status)
+}
+
+// Last time the condition was checked.
+func (d *JobConditionDieMut) LastProbeTime() diefields.ValueMut[diemetav1.Time, *JobConditionDieMut] {
+	return diefields.ValueMutOf(d, jobConditionFields.Get().LastProbeTime)
+}
+
+// Last time the condition transit from one status to another.
+func (d *JobConditionDieMut) LastTransitionTime() diefields.ValueMut[diemetav1.Time, *JobConditionDieMut] {
+	return diefields.ValueMutOf(d, jobConditionFields.Get().LastTransitionTime)
+}
+
+// (brief) reason for the condition's last transition.
+func (d *JobConditionDieMut) Reason() diefields.ValueMut[string, *JobConditionDieMut] {
+	return diefields.ValueMutOf(d, jobConditionFields.Get().Reason)
+}
+
+// Human readable message indicating details about last transition.
+func (d *JobConditionDieMut) Message() diefields.ValueMut[string, *JobConditionDieMut] {
+	return diefields.ValueMutOf(d, jobConditionFields.Get().Message)
 }
 
 // JobList is a collection of jobs.
 type JobListDie struct {
-	dielists.List[*JobDie]
+	dielists.List[*JobDieMut]
 }
 
-var _ dielists.DieListOf[*JobDie] = (*JobListDie)(nil)
+var _ dielists.DieListOf[*JobDieMut] = (*JobListDie)(nil)
 
 // NewJobList returns a list with items.
-func NewJobList(items ...*JobDie) *JobListDie {
+func NewJobList(items ...*JobDieMut) *JobListDie {
 	return &JobListDie{dielists.NewList("batch/v1", "JobList", items...)}
 }
 
@@ -582,17 +890,32 @@ func (l *JobListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // JobSchedulingConfiguration composes the reusable workload-aware
 // scheduling building blocks.
+//
+// JobSchedulingConfigurationDie is immutable: it reads.
+// JobSchedulingConfigurationDieMut, its mutable die, also writes, as DieWith passes it.
 type JobSchedulingConfigurationDie struct {
-	diebase.DieBase[JobSchedulingConfiguration, *JobSchedulingConfigurationDie]
+	diebase.DieBase[JobSchedulingConfiguration, *JobSchedulingConfigurationDie, *JobSchedulingConfigurationDieMut]
 }
 
-func (*JobSchedulingConfigurationDie) DieFrom(b diebase.DieBase[JobSchedulingConfiguration, *JobSchedulingConfigurationDie]) *JobSchedulingConfigurationDie {
+// JobSchedulingConfigurationDieMut is the mutable die of JobSchedulingConfiguration: see JobSchedulingConfigurationDie.
+type JobSchedulingConfigurationDieMut struct {
+	diebase.DieMutBase[JobSchedulingConfiguration, *JobSchedulingConfigurationDie, *JobSchedulingConfigurationDieMut]
+}
+
+func (*JobSchedulingConfigurationDie) DieFrom(b diebase.DieBase[JobSchedulingConfiguration, *JobSchedulingConfigurationDie, *JobSchedulingConfigurationDieMut]) *JobSchedulingConfigurationDie {
 	return &JobSchedulingConfigurationDie{b}
 }
 
-var _ diebase.DieOf[JobSchedulingConfiguration, *JobSchedulingConfigurationDie] = (*JobSchedulingConfigurationDie)(nil)
+func (*JobSchedulingConfigurationDieMut) DieFrom(b diebase.DieMutBase[JobSchedulingConfiguration, *JobSchedulingConfigurationDie, *JobSchedulingConfigurationDieMut]) *JobSchedulingConfigurationDieMut {
+	return &JobSchedulingConfigurationDieMut{b}
+}
 
-var JobSchedulingConfigurationBlank = diebase.Blank[JobSchedulingConfiguration, *JobSchedulingConfigurationDie]()
+var (
+	_ diebase.DieOf[JobSchedulingConfiguration, *JobSchedulingConfigurationDie, *JobSchedulingConfigurationDieMut]    = (*JobSchedulingConfigurationDie)(nil)
+	_ diebase.DieMutOf[JobSchedulingConfiguration, *JobSchedulingConfigurationDie, *JobSchedulingConfigurationDieMut] = (*JobSchedulingConfigurationDieMut)(nil)
+)
+
+var JobSchedulingConfigurationBlank = diebase.Blank[JobSchedulingConfiguration, *JobSchedulingConfigurationDie, *JobSchedulingConfigurationDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -601,50 +924,63 @@ func (d *JobSchedulingConfigurationDie) DieReleaseApplyConfiguration() *JobSched
 	return diecodegen.ReleaseApplyConfiguration[JobSchedulingConfigurationApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *JobSchedulingConfigurationDie) DieFeedApplyConfiguration(ac *JobSchedulingConfigurationApplyConfiguration) *JobSchedulingConfigurationDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *JobSchedulingConfigurationDie) DieStampApplyConfiguration(fn func(ac *JobSchedulingConfigurationApplyConfiguration)) *JobSchedulingConfigurationDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *JobSchedulingConfigurationDie) DieReleaseApplyConfigurationE() (*JobSchedulingConfigurationApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobSchedulingConfigurationApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *JobSchedulingConfigurationDieMut) DieReleaseApplyConfiguration() *JobSchedulingConfigurationApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[JobSchedulingConfigurationApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *JobSchedulingConfigurationDieMut) DieReleaseApplyConfigurationE() (*JobSchedulingConfigurationApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[JobSchedulingConfigurationApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *JobSchedulingConfigurationDieMut) DieFeedApplyConfiguration(ac *JobSchedulingConfigurationApplyConfiguration) *JobSchedulingConfigurationDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *JobSchedulingConfigurationDieMut) DieStampApplyConfiguration(fn func(ac *JobSchedulingConfigurationApplyConfiguration)) *JobSchedulingConfigurationDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *JobSchedulingConfigurationDie) DieFeedApplyConfigurationE(ac *JobSchedulingConfigurationApplyConfiguration) (*JobSchedulingConfigurationDie, error) {
+func (d *JobSchedulingConfigurationDieMut) DieFeedApplyConfigurationE(ac *JobSchedulingConfigurationApplyConfiguration) (*JobSchedulingConfigurationDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *JobSchedulingConfigurationDie) DieStampApplyConfigurationE(fn func(ac *JobSchedulingConfigurationApplyConfiguration)) (*JobSchedulingConfigurationDie, error) {
+func (d *JobSchedulingConfigurationDieMut) DieStampApplyConfigurationE(fn func(ac *JobSchedulingConfigurationApplyConfiguration)) (*JobSchedulingConfigurationDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type jobSchedulingConfigurationFieldsTable struct {
-	SchedulingPolicy      diefields.Struct[JobSchedulingConfiguration, dieschedulingv1alpha3.WorkloadPodGroupSchedulingPolicy, *dieschedulingv1alpha3.WorkloadPodGroupSchedulingPolicyDie]
-	SchedulingConstraints diefields.Struct[JobSchedulingConfiguration, dieschedulingv1alpha3.WorkloadPodGroupSchedulingConstraints, *dieschedulingv1alpha3.WorkloadPodGroupSchedulingConstraintsDie]
-	DisruptionMode        diefields.Struct[JobSchedulingConfiguration, dieschedulingv1alpha3.WorkloadPodGroupDisruptionMode, *dieschedulingv1alpha3.WorkloadPodGroupDisruptionModeDie]
-	ResourceClaims        diefields.ListMapField[JobSchedulingConfiguration, dieschedulingv1alpha3.WorkloadPodGroupResourceClaim, *dieschedulingv1alpha3.WorkloadPodGroupResourceClaimDie, string]
+	SchedulingPolicy      diefields.Struct[JobSchedulingConfiguration, dieschedulingv1alpha3.WorkloadPodGroupSchedulingPolicy, *dieschedulingv1alpha3.WorkloadPodGroupSchedulingPolicyDie, *dieschedulingv1alpha3.WorkloadPodGroupSchedulingPolicyDieMut]
+	SchedulingConstraints diefields.Struct[JobSchedulingConfiguration, dieschedulingv1alpha3.WorkloadPodGroupSchedulingConstraints, *dieschedulingv1alpha3.WorkloadPodGroupSchedulingConstraintsDie, *dieschedulingv1alpha3.WorkloadPodGroupSchedulingConstraintsDieMut]
+	DisruptionMode        diefields.Struct[JobSchedulingConfiguration, dieschedulingv1alpha3.WorkloadPodGroupDisruptionMode, *dieschedulingv1alpha3.WorkloadPodGroupDisruptionModeDie, *dieschedulingv1alpha3.WorkloadPodGroupDisruptionModeDieMut]
+	ResourceClaims        diefields.ListMapField[JobSchedulingConfiguration, dieschedulingv1alpha3.WorkloadPodGroupResourceClaim, *dieschedulingv1alpha3.WorkloadPodGroupResourceClaimDie, *dieschedulingv1alpha3.WorkloadPodGroupResourceClaimDieMut, string]
 }
 
 var jobSchedulingConfigurationFields = &diefields.Table[jobSchedulingConfigurationFieldsTable]{Build: func() (f jobSchedulingConfigurationFieldsTable) {
 	_ = annotated
-	f.SchedulingPolicy = diefields.NewStruct[JobSchedulingConfiguration, dieschedulingv1alpha3.WorkloadPodGroupSchedulingPolicy, *dieschedulingv1alpha3.WorkloadPodGroupSchedulingPolicyDie]("schedulingPolicy")
-	f.SchedulingConstraints = diefields.NewStruct[JobSchedulingConfiguration, dieschedulingv1alpha3.WorkloadPodGroupSchedulingConstraints, *dieschedulingv1alpha3.WorkloadPodGroupSchedulingConstraintsDie]("schedulingConstraints")
-	f.DisruptionMode = diefields.NewStruct[JobSchedulingConfiguration, dieschedulingv1alpha3.WorkloadPodGroupDisruptionMode, *dieschedulingv1alpha3.WorkloadPodGroupDisruptionModeDie]("disruptionMode")
-	f.ResourceClaims = diefields.NewListMap[JobSchedulingConfiguration, dieschedulingv1alpha3.WorkloadPodGroupResourceClaim, *dieschedulingv1alpha3.WorkloadPodGroupResourceClaimDie]("resourceClaims", func(k string) []any { return []any{k} }, func(e dieschedulingv1alpha3.WorkloadPodGroupResourceClaim) string { return e.Name })
+	f.SchedulingPolicy = diefields.NewStruct[JobSchedulingConfiguration, dieschedulingv1alpha3.WorkloadPodGroupSchedulingPolicy, *dieschedulingv1alpha3.WorkloadPodGroupSchedulingPolicyDie, *dieschedulingv1alpha3.WorkloadPodGroupSchedulingPolicyDieMut]("schedulingPolicy")
+	f.SchedulingConstraints = diefields.NewStruct[JobSchedulingConfiguration, dieschedulingv1alpha3.WorkloadPodGroupSchedulingConstraints, *dieschedulingv1alpha3.WorkloadPodGroupSchedulingConstraintsDie, *dieschedulingv1alpha3.WorkloadPodGroupSchedulingConstraintsDieMut]("schedulingConstraints")
+	f.DisruptionMode = diefields.NewStruct[JobSchedulingConfiguration, dieschedulingv1alpha3.WorkloadPodGroupDisruptionMode, *dieschedulingv1alpha3.WorkloadPodGroupDisruptionModeDie, *dieschedulingv1alpha3.WorkloadPodGroupDisruptionModeDieMut]("disruptionMode")
+	f.ResourceClaims = diefields.NewListMap[JobSchedulingConfiguration, dieschedulingv1alpha3.WorkloadPodGroupResourceClaim, *dieschedulingv1alpha3.WorkloadPodGroupResourceClaimDie, *dieschedulingv1alpha3.WorkloadPodGroupResourceClaimDieMut]("resourceClaims", func(k string) []any { return []any{k} }, func(e dieschedulingv1alpha3.WorkloadPodGroupResourceClaim) string { return e.Name })
 	return
 }}
 
@@ -684,18 +1020,69 @@ func (d *JobSchedulingConfigurationDie) ResourceClaims() *diefields.ListMap[dies
 	return diefields.ListMapOf(d, jobSchedulingConfigurationFields.Get().ResourceClaims)
 }
 
-// JobSpec describes how the job execution will look like.
-type JobSpecDie struct {
-	diebase.DieBase[JobSpec, *JobSpecDie]
+// SchedulingPolicy defines the scheduling policy for this Job.
+// Exactly one of Basic or Gang must be set.
+// This field is immutable after creation: the policy may not be added or
+// removed. The policy variant (basic/gang) is frozen by hand-written
+// validation; only schedulingPolicy.gang.minCount may be changed.
+func (d *JobSchedulingConfigurationDieMut) SchedulingPolicy() *dieschedulingv1alpha3.WorkloadPodGroupSchedulingPolicyDieMut {
+	return diefields.ChildMut(d, jobSchedulingConfigurationFields.Get().SchedulingPolicy)
 }
 
-func (*JobSpecDie) DieFrom(b diebase.DieBase[JobSpec, *JobSpecDie]) *JobSpecDie {
+// SchedulingConstraints defines scheduling constraints (e.g. topology)
+// for the Job's pods.
+// This field is immutable after creation.
+func (d *JobSchedulingConfigurationDieMut) SchedulingConstraints() *dieschedulingv1alpha3.WorkloadPodGroupSchedulingConstraintsDieMut {
+	return diefields.ChildMut(d, jobSchedulingConfigurationFields.Get().SchedulingConstraints)
+}
+
+// DisruptionMode defines the mode in which the Job's pods can be disrupted.
+// One of Single, All.
+// This field is immutable after creation: it may not be added or removed,
+// and the selected mode may not be changed.
+func (d *JobSchedulingConfigurationDieMut) DisruptionMode() *dieschedulingv1alpha3.WorkloadPodGroupDisruptionModeDieMut {
+	return diefields.ChildMut(d, jobSchedulingConfigurationFields.Get().DisruptionMode)
+}
+
+// ResourceClaims defines which ResourceClaims may be shared among Pods in
+// the Job. Pods consume the devices allocated to a PodGroup's claim by
+// defining a claim in its own Spec.ResourceClaims that matches the
+// PodGroup's claim exactly. The claim must have the same name and refer to
+// the same ResourceClaim or ResourceClaimTemplate.
+// At most 4 claims may be set, matching the limit on the resulting PodGroup.
+// This list is immutable after creation: entries may neither be added,
+// removed, nor modified.
+func (d *JobSchedulingConfigurationDieMut) ResourceClaims() *diefields.ListMapMut[dieschedulingv1alpha3.WorkloadPodGroupResourceClaim, *dieschedulingv1alpha3.WorkloadPodGroupResourceClaimDieMut, string] {
+	return diefields.ListMapMutOf(d, jobSchedulingConfigurationFields.Get().ResourceClaims)
+}
+
+// JobSpec describes how the job execution will look like.
+//
+// JobSpecDie is immutable: it reads.
+// JobSpecDieMut, its mutable die, also writes, as DieWith passes it.
+type JobSpecDie struct {
+	diebase.DieBase[JobSpec, *JobSpecDie, *JobSpecDieMut]
+}
+
+// JobSpecDieMut is the mutable die of JobSpec: see JobSpecDie.
+type JobSpecDieMut struct {
+	diebase.DieMutBase[JobSpec, *JobSpecDie, *JobSpecDieMut]
+}
+
+func (*JobSpecDie) DieFrom(b diebase.DieBase[JobSpec, *JobSpecDie, *JobSpecDieMut]) *JobSpecDie {
 	return &JobSpecDie{b}
 }
 
-var _ diebase.DieOf[JobSpec, *JobSpecDie] = (*JobSpecDie)(nil)
+func (*JobSpecDieMut) DieFrom(b diebase.DieMutBase[JobSpec, *JobSpecDie, *JobSpecDieMut]) *JobSpecDieMut {
+	return &JobSpecDieMut{b}
+}
 
-var JobSpecBlank = diebase.Blank[JobSpec, *JobSpecDie]()
+var (
+	_ diebase.DieOf[JobSpec, *JobSpecDie, *JobSpecDieMut]    = (*JobSpecDie)(nil)
+	_ diebase.DieMutOf[JobSpec, *JobSpecDie, *JobSpecDieMut] = (*JobSpecDieMut)(nil)
+)
+
+var JobSpecBlank = diebase.Blank[JobSpec, *JobSpecDie, *JobSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -704,34 +1091,47 @@ func (d *JobSpecDie) DieReleaseApplyConfiguration() *JobSpecApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[JobSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *JobSpecDie) DieFeedApplyConfiguration(ac *JobSpecApplyConfiguration) *JobSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *JobSpecDie) DieStampApplyConfiguration(fn func(ac *JobSpecApplyConfiguration)) *JobSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *JobSpecDie) DieReleaseApplyConfigurationE() (*JobSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *JobSpecDieMut) DieReleaseApplyConfiguration() *JobSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[JobSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *JobSpecDieMut) DieReleaseApplyConfigurationE() (*JobSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[JobSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *JobSpecDieMut) DieFeedApplyConfiguration(ac *JobSpecApplyConfiguration) *JobSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *JobSpecDieMut) DieStampApplyConfiguration(fn func(ac *JobSpecApplyConfiguration)) *JobSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *JobSpecDie) DieFeedApplyConfigurationE(ac *JobSpecApplyConfiguration) (*JobSpecDie, error) {
+func (d *JobSpecDieMut) DieFeedApplyConfigurationE(ac *JobSpecApplyConfiguration) (*JobSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *JobSpecDie) DieStampApplyConfigurationE(fn func(ac *JobSpecApplyConfiguration)) (*JobSpecDie, error) {
+func (d *JobSpecDieMut) DieStampApplyConfigurationE(fn func(ac *JobSpecApplyConfiguration)) (*JobSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -739,20 +1139,20 @@ type jobSpecFieldsTable struct {
 	Parallelism             diefields.Field[JobSpec, *int32]
 	Completions             diefields.Field[JobSpec, *int32]
 	ActiveDeadlineSeconds   diefields.Field[JobSpec, *int64]
-	PodFailurePolicy        diefields.Struct[JobSpec, PodFailurePolicy, *PodFailurePolicyDie]
-	SuccessPolicy           diefields.Struct[JobSpec, SuccessPolicy, *SuccessPolicyDie]
+	PodFailurePolicy        diefields.Struct[JobSpec, PodFailurePolicy, *PodFailurePolicyDie, *PodFailurePolicyDieMut]
+	SuccessPolicy           diefields.Struct[JobSpec, SuccessPolicy, *SuccessPolicyDie, *SuccessPolicyDieMut]
 	BackoffLimit            diefields.Field[JobSpec, *int32]
 	BackoffLimitPerIndex    diefields.Field[JobSpec, *int32]
 	MaxFailedIndexes        diefields.Field[JobSpec, *int32]
-	Selector                diefields.Struct[JobSpec, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]
+	Selector                diefields.Struct[JobSpec, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 	ManualSelector          diefields.Field[JobSpec, *bool]
-	Template                diefields.Struct[JobSpec, diecorev1.PodTemplateSpec, *diecorev1.PodTemplateSpecDie]
+	Template                diefields.Struct[JobSpec, diecorev1.PodTemplateSpec, *diecorev1.PodTemplateSpecDie, *diecorev1.PodTemplateSpecDieMut]
 	TTLSecondsAfterFinished diefields.Field[JobSpec, *int32]
 	CompletionMode          diefields.Field[JobSpec, *CompletionMode]
 	Suspend                 diefields.Field[JobSpec, *bool]
 	PodReplacementPolicy    diefields.Field[JobSpec, *PodReplacementPolicy]
 	ManagedBy               diefields.Field[JobSpec, *string]
-	Scheduling              diefields.Struct[JobSpec, JobSchedulingConfiguration, *JobSchedulingConfigurationDie]
+	Scheduling              diefields.Struct[JobSpec, JobSchedulingConfiguration, *JobSchedulingConfigurationDie, *JobSchedulingConfigurationDieMut]
 }
 
 var jobSpecFields = &diefields.Table[jobSpecFieldsTable]{Build: func() (f jobSpecFieldsTable) {
@@ -760,20 +1160,20 @@ var jobSpecFields = &diefields.Table[jobSpecFieldsTable]{Build: func() (f jobSpe
 	f.Parallelism = diefields.NewField[JobSpec, *int32]("parallelism")
 	f.Completions = diefields.NewField[JobSpec, *int32]("completions")
 	f.ActiveDeadlineSeconds = diefields.NewField[JobSpec, *int64]("activeDeadlineSeconds")
-	f.PodFailurePolicy = diefields.NewStruct[JobSpec, PodFailurePolicy, *PodFailurePolicyDie]("podFailurePolicy")
-	f.SuccessPolicy = diefields.NewStruct[JobSpec, SuccessPolicy, *SuccessPolicyDie]("successPolicy")
+	f.PodFailurePolicy = diefields.NewStruct[JobSpec, PodFailurePolicy, *PodFailurePolicyDie, *PodFailurePolicyDieMut]("podFailurePolicy")
+	f.SuccessPolicy = diefields.NewStruct[JobSpec, SuccessPolicy, *SuccessPolicyDie, *SuccessPolicyDieMut]("successPolicy")
 	f.BackoffLimit = diefields.NewField[JobSpec, *int32]("backoffLimit")
 	f.BackoffLimitPerIndex = diefields.NewField[JobSpec, *int32]("backoffLimitPerIndex")
 	f.MaxFailedIndexes = diefields.NewField[JobSpec, *int32]("maxFailedIndexes")
-	f.Selector = diefields.NewStruct[JobSpec, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]("selector")
+	f.Selector = diefields.NewStruct[JobSpec, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("selector")
 	f.ManualSelector = diefields.NewField[JobSpec, *bool]("manualSelector")
-	f.Template = diefields.NewStruct[JobSpec, diecorev1.PodTemplateSpec, *diecorev1.PodTemplateSpecDie]("template")
+	f.Template = diefields.NewStruct[JobSpec, diecorev1.PodTemplateSpec, *diecorev1.PodTemplateSpecDie, *diecorev1.PodTemplateSpecDieMut]("template")
 	f.TTLSecondsAfterFinished = diefields.NewField[JobSpec, *int32]("ttlSecondsAfterFinished")
 	f.CompletionMode = diefields.NewField[JobSpec, *CompletionMode]("completionMode")
 	f.Suspend = diefields.NewField[JobSpec, *bool]("suspend")
 	f.PodReplacementPolicy = diefields.NewField[JobSpec, *PodReplacementPolicy]("podReplacementPolicy")
 	f.ManagedBy = diefields.NewField[JobSpec, *string]("managedBy")
-	f.Scheduling = diefields.NewStruct[JobSpec, JobSchedulingConfiguration, *JobSchedulingConfigurationDie]("scheduling")
+	f.Scheduling = diefields.NewStruct[JobSpec, JobSchedulingConfiguration, *JobSchedulingConfigurationDie, *JobSchedulingConfigurationDieMut]("scheduling")
 	return
 }}
 
@@ -782,7 +1182,7 @@ var jobSpecFields = &diefields.Table[jobSpecFieldsTable]{Build: func() (f jobSpe
 // be less than this number when ((.spec.completions - .status.successful) < .spec.parallelism),
 // i.e. when the work left to do is less than max parallelism.
 // More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
-func (d *JobSpecDie) Parallelism() diefields.Optional[int32, *JobSpecDie] {
+func (d *JobSpecDie) Parallelism() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, jobSpecFields.Get().Parallelism)
 }
 
@@ -792,7 +1192,7 @@ func (d *JobSpecDie) Parallelism() diefields.Optional[int32, *JobSpecDie] {
 // value.  Setting to 1 means that parallelism is limited to 1 and the success of that
 // pod signals the success of the job.
 // More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
-func (d *JobSpecDie) Completions() diefields.Optional[int32, *JobSpecDie] {
+func (d *JobSpecDie) Completions() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, jobSpecFields.Get().Completions)
 }
 
@@ -801,7 +1201,7 @@ func (d *JobSpecDie) Completions() diefields.Optional[int32, *JobSpecDie] {
 // must be positive integer. If a Job is suspended (at creation or through an
 // update), this timer will effectively be stopped and reset when the Job is
 // resumed again.
-func (d *JobSpecDie) ActiveDeadlineSeconds() diefields.Optional[int64, *JobSpecDie] {
+func (d *JobSpecDie) ActiveDeadlineSeconds() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, jobSpecFields.Get().ActiveDeadlineSeconds)
 }
 
@@ -828,7 +1228,7 @@ func (d *JobSpecDie) SuccessPolicy() *SuccessPolicyDie {
 // Specifies the number of retries before marking this job failed.
 // Defaults to 6, unless backoffLimitPerIndex (only Indexed Job) is specified.
 // When backoffLimitPerIndex is specified, backoffLimit defaults to 2147483647.
-func (d *JobSpecDie) BackoffLimit() diefields.Optional[int32, *JobSpecDie] {
+func (d *JobSpecDie) BackoffLimit() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, jobSpecFields.Get().BackoffLimit)
 }
 
@@ -838,7 +1238,7 @@ func (d *JobSpecDie) BackoffLimit() diefields.Optional[int32, *JobSpecDie] {
 // batch.kubernetes.io/job-index-failure-count annotation. It can only
 // be set when Job's completionMode=Indexed, and the Pod's restart
 // policy is Never. The field is immutable.
-func (d *JobSpecDie) BackoffLimitPerIndex() diefields.Optional[int32, *JobSpecDie] {
+func (d *JobSpecDie) BackoffLimitPerIndex() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, jobSpecFields.Get().BackoffLimitPerIndex)
 }
 
@@ -850,7 +1250,7 @@ func (d *JobSpecDie) BackoffLimitPerIndex() diefields.Optional[int32, *JobSpecDi
 // It can only be specified when backoffLimitPerIndex is set.
 // It can be null or up to completions. It is required and must be
 // less than or equal to 10^4 when is completions greater than 10^5.
-func (d *JobSpecDie) MaxFailedIndexes() diefields.Optional[int32, *JobSpecDie] {
+func (d *JobSpecDie) MaxFailedIndexes() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, jobSpecFields.Get().MaxFailedIndexes)
 }
 
@@ -871,7 +1271,7 @@ func (d *JobSpecDie) Selector() *diemetav1.LabelSelectorDie {
 // `manualSelector=true` in jobs that were created with the old `extensions/v1beta1`
 // API.
 // More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/#specifying-your-own-pod-selector
-func (d *JobSpecDie) ManualSelector() diefields.Optional[bool, *JobSpecDie] {
+func (d *JobSpecDie) ManualSelector() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, jobSpecFields.Get().ManualSelector)
 }
 
@@ -889,7 +1289,7 @@ func (d *JobSpecDie) Template() *diecorev1.PodTemplateSpecDie {
 // guarantees (e.g. finalizers) will be honored. If this field is unset,
 // the Job won't be automatically deleted. If this field is set to zero,
 // the Job becomes eligible to be deleted immediately after it finishes.
-func (d *JobSpecDie) TTLSecondsAfterFinished() diefields.Optional[int32, *JobSpecDie] {
+func (d *JobSpecDie) TTLSecondsAfterFinished() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, jobSpecFields.Get().TTLSecondsAfterFinished)
 }
 
@@ -915,7 +1315,7 @@ func (d *JobSpecDie) TTLSecondsAfterFinished() diefields.Optional[int32, *JobSpe
 // If the Job controller observes a mode that it doesn't recognize, which
 // is possible during upgrades due to version skew, the controller
 // skips updates for the Job.
-func (d *JobSpecDie) CompletionMode() diefields.Optional[CompletionMode, *JobSpecDie] {
+func (d *JobSpecDie) CompletionMode() diefields.Optional[CompletionMode] {
 	return diefields.OptionalOf(d, jobSpecFields.Get().CompletionMode)
 }
 
@@ -926,7 +1326,7 @@ func (d *JobSpecDie) CompletionMode() diefields.Optional[CompletionMode, *JobSpe
 // with this Job. Users must design their workload to gracefully handle this.
 // Suspending a Job will reset the StartTime field of the Job, effectively
 // resetting the ActiveDeadlineSeconds timer too. Defaults to false.
-func (d *JobSpecDie) Suspend() diefields.Optional[bool, *JobSpecDie] {
+func (d *JobSpecDie) Suspend() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, jobSpecFields.Get().Suspend)
 }
 
@@ -939,7 +1339,7 @@ func (d *JobSpecDie) Suspend() diefields.Optional[bool, *JobSpecDie] {
 //
 // When using podFailurePolicy, Failed is the the only allowed value.
 // TerminatingOrFailed and Failed are allowed values when podFailurePolicy is not in use.
-func (d *JobSpecDie) PodReplacementPolicy() diefields.Optional[PodReplacementPolicy, *JobSpecDie] {
+func (d *JobSpecDie) PodReplacementPolicy() diefields.Optional[PodReplacementPolicy] {
 	return diefields.OptionalOf(d, jobSpecFields.Get().PodReplacementPolicy)
 }
 
@@ -952,7 +1352,7 @@ func (d *JobSpecDie) PodReplacementPolicy() diefields.Optional[PodReplacementPol
 // by RFC 1123. All characters trailing the first "/" must be valid HTTP Path
 // characters as defined by RFC 3986. The value cannot exceed 63 characters.
 // This field is immutable.
-func (d *JobSpecDie) ManagedBy() diefields.Optional[string, *JobSpecDie] {
+func (d *JobSpecDie) ManagedBy() diefields.Optional[string] {
 	return diefields.OptionalOf(d, jobSpecFields.Get().ManagedBy)
 }
 
@@ -968,18 +1368,224 @@ func (d *JobSpecDie) Scheduling() *JobSchedulingConfigurationDie {
 	return diefields.Child(d, jobSpecFields.Get().Scheduling)
 }
 
-// JobStatus represents the current state of a Job.
-type JobStatusDie struct {
-	diebase.DieBase[JobStatus, *JobStatusDie]
+// Specifies the maximum desired number of pods the job should
+// run at any given time. The actual number of pods running in steady state will
+// be less than this number when ((.spec.completions - .status.successful) < .spec.parallelism),
+// i.e. when the work left to do is less than max parallelism.
+// More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
+func (d *JobSpecDieMut) Parallelism() diefields.OptionalMut[int32, *JobSpecDieMut] {
+	return diefields.OptionalMutOf(d, jobSpecFields.Get().Parallelism)
 }
 
-func (*JobStatusDie) DieFrom(b diebase.DieBase[JobStatus, *JobStatusDie]) *JobStatusDie {
+// Specifies the desired number of successfully finished pods the
+// job should be run with.  Setting to null means that the success of any
+// pod signals the success of all pods, and allows parallelism to have any positive
+// value.  Setting to 1 means that parallelism is limited to 1 and the success of that
+// pod signals the success of the job.
+// More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
+func (d *JobSpecDieMut) Completions() diefields.OptionalMut[int32, *JobSpecDieMut] {
+	return diefields.OptionalMutOf(d, jobSpecFields.Get().Completions)
+}
+
+// Specifies the duration in seconds relative to the startTime that the job
+// may be continuously active before the system tries to terminate it; value
+// must be positive integer. If a Job is suspended (at creation or through an
+// update), this timer will effectively be stopped and reset when the Job is
+// resumed again.
+func (d *JobSpecDieMut) ActiveDeadlineSeconds() diefields.OptionalMut[int64, *JobSpecDieMut] {
+	return diefields.OptionalMutOf(d, jobSpecFields.Get().ActiveDeadlineSeconds)
+}
+
+// Specifies the policy of handling failed pods. In particular, it allows to
+// specify the set of actions and conditions which need to be
+// satisfied to take the associated action.
+// If empty, the default behaviour applies - the counter of failed pods,
+// represented by the jobs's .status.failed field, is incremented and it is
+// checked against the backoffLimit. This field cannot be used in combination
+// with restartPolicy=OnFailure.
+func (d *JobSpecDieMut) PodFailurePolicy() *PodFailurePolicyDieMut {
+	return diefields.ChildMut(d, jobSpecFields.Get().PodFailurePolicy)
+}
+
+// successPolicy specifies the policy when the Job can be declared as succeeded.
+// If empty, the default behavior applies - the Job is declared as succeeded
+// only when the number of succeeded pods equals to the completions.
+// When the field is specified, it must be immutable and works only for the Indexed Jobs.
+// Once the Job meets the SuccessPolicy, the lingering pods are terminated.
+func (d *JobSpecDieMut) SuccessPolicy() *SuccessPolicyDieMut {
+	return diefields.ChildMut(d, jobSpecFields.Get().SuccessPolicy)
+}
+
+// Specifies the number of retries before marking this job failed.
+// Defaults to 6, unless backoffLimitPerIndex (only Indexed Job) is specified.
+// When backoffLimitPerIndex is specified, backoffLimit defaults to 2147483647.
+func (d *JobSpecDieMut) BackoffLimit() diefields.OptionalMut[int32, *JobSpecDieMut] {
+	return diefields.OptionalMutOf(d, jobSpecFields.Get().BackoffLimit)
+}
+
+// Specifies the limit for the number of retries within an
+// index before marking this index as failed. When enabled the number of
+// failures per index is kept in the pod's
+// batch.kubernetes.io/job-index-failure-count annotation. It can only
+// be set when Job's completionMode=Indexed, and the Pod's restart
+// policy is Never. The field is immutable.
+func (d *JobSpecDieMut) BackoffLimitPerIndex() diefields.OptionalMut[int32, *JobSpecDieMut] {
+	return diefields.OptionalMutOf(d, jobSpecFields.Get().BackoffLimitPerIndex)
+}
+
+// Specifies the maximal number of failed indexes before marking the Job as
+// failed, when backoffLimitPerIndex is set. Once the number of failed
+// indexes exceeds this number the entire Job is marked as Failed and its
+// execution is terminated. When left as null the job continues execution of
+// all of its indexes and is marked with the `Complete` Job condition.
+// It can only be specified when backoffLimitPerIndex is set.
+// It can be null or up to completions. It is required and must be
+// less than or equal to 10^4 when is completions greater than 10^5.
+func (d *JobSpecDieMut) MaxFailedIndexes() diefields.OptionalMut[int32, *JobSpecDieMut] {
+	return diefields.OptionalMutOf(d, jobSpecFields.Get().MaxFailedIndexes)
+}
+
+// A label query over pods that should match the pod count.
+// Normally, the system sets this field for you.
+// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
+func (d *JobSpecDieMut) Selector() *diemetav1.LabelSelectorDieMut {
+	return diefields.ChildMut(d, jobSpecFields.Get().Selector)
+}
+
+// manualSelector controls generation of pod labels and pod selectors.
+// Leave `manualSelector` unset unless you are certain what you are doing.
+// When false or unset, the system pick labels unique to this job
+// and appends those labels to the pod template.  When true,
+// the user is responsible for picking unique labels and specifying
+// the selector.  Failure to pick a unique label may cause this
+// and other jobs to not function correctly.  However, You may see
+// `manualSelector=true` in jobs that were created with the old `extensions/v1beta1`
+// API.
+// More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/#specifying-your-own-pod-selector
+func (d *JobSpecDieMut) ManualSelector() diefields.OptionalMut[bool, *JobSpecDieMut] {
+	return diefields.OptionalMutOf(d, jobSpecFields.Get().ManualSelector)
+}
+
+// Describes the pod that will be created when executing a job.
+// The only allowed template.spec.restartPolicy values are "Never" or "OnFailure".
+// More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
+func (d *JobSpecDieMut) Template() *diecorev1.PodTemplateSpecDieMut {
+	return diefields.ChildMut(d, jobSpecFields.Get().Template)
+}
+
+// ttlSecondsAfterFinished limits the lifetime of a Job that has finished
+// execution (either Complete or Failed). If this field is set,
+// ttlSecondsAfterFinished after the Job finishes, it is eligible to be
+// automatically deleted. When the Job is being deleted, its lifecycle
+// guarantees (e.g. finalizers) will be honored. If this field is unset,
+// the Job won't be automatically deleted. If this field is set to zero,
+// the Job becomes eligible to be deleted immediately after it finishes.
+func (d *JobSpecDieMut) TTLSecondsAfterFinished() diefields.OptionalMut[int32, *JobSpecDieMut] {
+	return diefields.OptionalMutOf(d, jobSpecFields.Get().TTLSecondsAfterFinished)
+}
+
+// completionMode specifies how Pod completions are tracked. It can be
+// `NonIndexed` (default) or `Indexed`.
+//
+// `NonIndexed` means that the Job is considered complete when there have
+// been .spec.completions successfully completed Pods. Each Pod completion is
+// homologous to each other.
+//
+// `Indexed` means that the Pods of a
+// Job get an associated completion index from 0 to (.spec.completions - 1),
+// available in the annotation batch.kubernetes.io/job-completion-index.
+// The Job is considered complete when there is one successfully completed Pod
+// for each index.
+// When value is `Indexed`, .spec.completions must be specified and
+// `.spec.parallelism` must be less than or equal to 10^5.
+// In addition, The Pod name takes the form
+// `$(job-name)-$(index)-$(random-string)`,
+// the Pod hostname takes the form `$(job-name)-$(index)`.
+//
+// More completion modes can be added in the future.
+// If the Job controller observes a mode that it doesn't recognize, which
+// is possible during upgrades due to version skew, the controller
+// skips updates for the Job.
+func (d *JobSpecDieMut) CompletionMode() diefields.OptionalMut[CompletionMode, *JobSpecDieMut] {
+	return diefields.OptionalMutOf(d, jobSpecFields.Get().CompletionMode)
+}
+
+// suspend specifies whether the Job controller should create Pods or not. If
+// a Job is created with suspend set to true, no Pods are created by the Job
+// controller. If a Job is suspended after creation (i.e. the flag goes from
+// false to true), the Job controller will delete all active Pods associated
+// with this Job. Users must design their workload to gracefully handle this.
+// Suspending a Job will reset the StartTime field of the Job, effectively
+// resetting the ActiveDeadlineSeconds timer too. Defaults to false.
+func (d *JobSpecDieMut) Suspend() diefields.OptionalMut[bool, *JobSpecDieMut] {
+	return diefields.OptionalMutOf(d, jobSpecFields.Get().Suspend)
+}
+
+// podReplacementPolicy specifies when to create replacement Pods.
+// Possible values are:
+//   - TerminatingOrFailed means that we recreate pods
+//     when they are terminating (has a metadata.deletionTimestamp) or failed.
+//   - Failed means to wait until a previously created Pod is fully terminated (has phase
+//     Failed or Succeeded) before creating a replacement Pod.
+//
+// When using podFailurePolicy, Failed is the the only allowed value.
+// TerminatingOrFailed and Failed are allowed values when podFailurePolicy is not in use.
+func (d *JobSpecDieMut) PodReplacementPolicy() diefields.OptionalMut[PodReplacementPolicy, *JobSpecDieMut] {
+	return diefields.OptionalMutOf(d, jobSpecFields.Get().PodReplacementPolicy)
+}
+
+// ManagedBy field indicates the controller that manages a Job. The k8s Job
+// controller reconciles jobs which don't have this field at all or the field
+// value is the reserved string `kubernetes.io/job-controller`, but skips
+// reconciling Jobs with a custom value for this field.
+// The value must be a valid domain-prefixed path (e.g. acme.io/foo) -
+// all characters before the first "/" must be a valid subdomain as defined
+// by RFC 1123. All characters trailing the first "/" must be valid HTTP Path
+// characters as defined by RFC 3986. The value cannot exceed 63 characters.
+// This field is immutable.
+func (d *JobSpecDieMut) ManagedBy() diefields.OptionalMut[string, *JobSpecDieMut] {
+	return diefields.OptionalMutOf(d, jobSpecFields.Get().ManagedBy)
+}
+
+// scheduling defines the Workload-aware Scheduling configuration for this Job.
+// When set, it specifies the scheduling policy (basic or gang), topology
+// constraints, disruption mode, and shared resource claims.
+// When omitted, the Job defaults to the basic scheduling policy, which behaves
+// as standard pod-by-pod scheduling.
+// This field is alpha-level and requires the WorkloadWithJob feature gate.
+// This field is immutable, including whether it is set at all, only
+// policy.gang.minCount may be changed after creation.
+func (d *JobSpecDieMut) Scheduling() *JobSchedulingConfigurationDieMut {
+	return diefields.ChildMut(d, jobSpecFields.Get().Scheduling)
+}
+
+// JobStatus represents the current state of a Job.
+//
+// JobStatusDie is immutable: it reads.
+// JobStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type JobStatusDie struct {
+	diebase.DieBase[JobStatus, *JobStatusDie, *JobStatusDieMut]
+}
+
+// JobStatusDieMut is the mutable die of JobStatus: see JobStatusDie.
+type JobStatusDieMut struct {
+	diebase.DieMutBase[JobStatus, *JobStatusDie, *JobStatusDieMut]
+}
+
+func (*JobStatusDie) DieFrom(b diebase.DieBase[JobStatus, *JobStatusDie, *JobStatusDieMut]) *JobStatusDie {
 	return &JobStatusDie{b}
 }
 
-var _ diebase.DieOf[JobStatus, *JobStatusDie] = (*JobStatusDie)(nil)
+func (*JobStatusDieMut) DieFrom(b diebase.DieMutBase[JobStatus, *JobStatusDie, *JobStatusDieMut]) *JobStatusDieMut {
+	return &JobStatusDieMut{b}
+}
 
-var JobStatusBlank = diebase.Blank[JobStatus, *JobStatusDie]()
+var (
+	_ diebase.DieOf[JobStatus, *JobStatusDie, *JobStatusDieMut]    = (*JobStatusDie)(nil)
+	_ diebase.DieMutOf[JobStatus, *JobStatusDie, *JobStatusDieMut] = (*JobStatusDieMut)(nil)
+)
+
+var JobStatusBlank = diebase.Blank[JobStatus, *JobStatusDie, *JobStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -988,34 +1594,47 @@ func (d *JobStatusDie) DieReleaseApplyConfiguration() *JobStatusApplyConfigurati
 	return diecodegen.ReleaseApplyConfiguration[JobStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *JobStatusDie) DieFeedApplyConfiguration(ac *JobStatusApplyConfiguration) *JobStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *JobStatusDie) DieStampApplyConfiguration(fn func(ac *JobStatusApplyConfiguration)) *JobStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *JobStatusDie) DieReleaseApplyConfigurationE() (*JobStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *JobStatusDieMut) DieReleaseApplyConfiguration() *JobStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[JobStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *JobStatusDieMut) DieReleaseApplyConfigurationE() (*JobStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[JobStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *JobStatusDieMut) DieFeedApplyConfiguration(ac *JobStatusApplyConfiguration) *JobStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *JobStatusDieMut) DieStampApplyConfiguration(fn func(ac *JobStatusApplyConfiguration)) *JobStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *JobStatusDie) DieFeedApplyConfigurationE(ac *JobStatusApplyConfiguration) (*JobStatusDie, error) {
+func (d *JobStatusDieMut) DieFeedApplyConfigurationE(ac *JobStatusApplyConfiguration) (*JobStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *JobStatusDie) DieStampApplyConfigurationE(fn func(ac *JobStatusApplyConfiguration)) (*JobStatusDie, error) {
+func (d *JobStatusDieMut) DieStampApplyConfigurationE(fn func(ac *JobStatusApplyConfiguration)) (*JobStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1029,7 +1648,7 @@ type jobStatusFieldsTable struct {
 	Terminating             diefields.Field[JobStatus, *int32]
 	CompletedIndexes        diefields.Field[JobStatus, string]
 	FailedIndexes           diefields.Field[JobStatus, *string]
-	UncountedTerminatedPods diefields.Struct[JobStatus, UncountedTerminatedPods, *UncountedTerminatedPodsDie]
+	UncountedTerminatedPods diefields.Struct[JobStatus, UncountedTerminatedPods, *UncountedTerminatedPodsDie, *UncountedTerminatedPodsDieMut]
 	Ready                   diefields.Field[JobStatus, *int32]
 }
 
@@ -1044,7 +1663,7 @@ var jobStatusFields = &diefields.Table[jobStatusFieldsTable]{Build: func() (f jo
 	f.Terminating = diefields.NewField[JobStatus, *int32]("terminating")
 	f.CompletedIndexes = diefields.NewField[JobStatus, string]("completedIndexes")
 	f.FailedIndexes = diefields.NewField[JobStatus, *string]("failedIndexes")
-	f.UncountedTerminatedPods = diefields.NewStruct[JobStatus, UncountedTerminatedPods, *UncountedTerminatedPodsDie]("uncountedTerminatedPods")
+	f.UncountedTerminatedPods = diefields.NewStruct[JobStatus, UncountedTerminatedPods, *UncountedTerminatedPodsDie, *UncountedTerminatedPodsDieMut]("uncountedTerminatedPods")
 	f.Ready = diefields.NewField[JobStatus, *int32]("ready")
 	return
 }}
@@ -1062,7 +1681,7 @@ var jobStatusFields = &diefields.Table[jobStatusFieldsTable]{Build: func() (f jo
 // The "Complete", "Failed" and "FailureTarget" conditions cannot be disabled.
 //
 // More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
-func (d *JobStatusDie) Conditions() diefields.Value[[]JobCondition, *JobStatusDie] {
+func (d *JobStatusDie) Conditions() diefields.Value[[]JobCondition] {
 	return diefields.ValueOf(d, jobStatusFields.Get().Conditions)
 }
 
@@ -1073,7 +1692,7 @@ func (d *JobStatusDie) Conditions() diefields.Value[[]JobCondition, *JobStatusDi
 //
 // Once set, the field can only be removed when the job is suspended.
 // The field cannot be modified while the job is unsuspended or finished.
-func (d *JobStatusDie) StartTime() diefields.Optional[diemetav1.Time, *JobStatusDie] {
+func (d *JobStatusDie) StartTime() diefields.Optional[diemetav1.Time] {
 	return diefields.OptionalOf(d, jobStatusFields.Get().StartTime)
 }
 
@@ -1083,33 +1702,33 @@ func (d *JobStatusDie) StartTime() diefields.Optional[diemetav1.Time, *JobStatus
 // The completion time is set when the job finishes successfully, and only then.
 // The value cannot be updated or removed. The value indicates the same or
 // later point in time as the startTime field.
-func (d *JobStatusDie) CompletionTime() diefields.Optional[diemetav1.Time, *JobStatusDie] {
+func (d *JobStatusDie) CompletionTime() diefields.Optional[diemetav1.Time] {
 	return diefields.OptionalOf(d, jobStatusFields.Get().CompletionTime)
 }
 
 // The number of pending and running pods which are not terminating (without
 // a deletionTimestamp).
 // The value is zero for finished jobs.
-func (d *JobStatusDie) Active() diefields.Value[int32, *JobStatusDie] {
+func (d *JobStatusDie) Active() diefields.Value[int32] {
 	return diefields.ValueOf(d, jobStatusFields.Get().Active)
 }
 
 // The number of pods which reached phase Succeeded.
 // The value increases monotonically for a given spec. However, it may
 // decrease in reaction to scale down of elastic indexed jobs.
-func (d *JobStatusDie) Succeeded() diefields.Value[int32, *JobStatusDie] {
+func (d *JobStatusDie) Succeeded() diefields.Value[int32] {
 	return diefields.ValueOf(d, jobStatusFields.Get().Succeeded)
 }
 
 // The number of pods which reached phase Failed.
 // The value increases monotonically.
-func (d *JobStatusDie) Failed() diefields.Value[int32, *JobStatusDie] {
+func (d *JobStatusDie) Failed() diefields.Value[int32] {
 	return diefields.ValueOf(d, jobStatusFields.Get().Failed)
 }
 
 // The number of pods which are terminating (in phase Pending or Running
 // and have a deletionTimestamp).
-func (d *JobStatusDie) Terminating() diefields.Optional[int32, *JobStatusDie] {
+func (d *JobStatusDie) Terminating() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, jobStatusFields.Get().Terminating)
 }
 
@@ -1120,7 +1739,7 @@ func (d *JobStatusDie) Terminating() diefields.Optional[int32, *JobStatusDie] {
 // last element of the series, separated by a hyphen.
 // For example, if the completed indexes are 1, 3, 4, 5 and 7, they are
 // represented as "1,3-5,7".
-func (d *JobStatusDie) CompletedIndexes() diefields.Value[string, *JobStatusDie] {
+func (d *JobStatusDie) CompletedIndexes() diefields.Value[string] {
 	return diefields.ValueOf(d, jobStatusFields.Get().CompletedIndexes)
 }
 
@@ -1133,7 +1752,7 @@ func (d *JobStatusDie) CompletedIndexes() diefields.Value[string, *JobStatusDie]
 // For example, if the failed indexes are 1, 3, 4, 5 and 7, they are
 // represented as "1,3-5,7".
 // The set of failed indexes cannot overlap with the set of completed indexes.
-func (d *JobStatusDie) FailedIndexes() diefields.Optional[string, *JobStatusDie] {
+func (d *JobStatusDie) FailedIndexes() diefields.Optional[string] {
 	return diefields.OptionalOf(d, jobStatusFields.Get().FailedIndexes)
 }
 
@@ -1158,22 +1777,150 @@ func (d *JobStatusDie) UncountedTerminatedPods() *UncountedTerminatedPodsDie {
 
 // The number of active pods which have a Ready condition and are not
 // terminating (without a deletionTimestamp).
-func (d *JobStatusDie) Ready() diefields.Optional[int32, *JobStatusDie] {
+func (d *JobStatusDie) Ready() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, jobStatusFields.Get().Ready)
 }
 
-// JobTemplateSpec describes the data a Job should have when created from a template
-type JobTemplateSpecDie struct {
-	diebase.DieBase[JobTemplateSpec, *JobTemplateSpecDie]
+// The latest available observations of an object's current state. When a Job
+// fails, one of the conditions will have type "Failed" and status true. When
+// a Job is suspended, one of the conditions will have type "Suspended" and
+// status true; when the Job is resumed, the status of this condition will
+// become false. When a Job is completed, one of the conditions will have
+// type "Complete" and status true.
+//
+// A job is considered finished when it is in a terminal condition, either
+// "Complete" or "Failed". A Job cannot have both the "Complete" and "Failed" conditions.
+// Additionally, it cannot be in the "Complete" and "FailureTarget" conditions.
+// The "Complete", "Failed" and "FailureTarget" conditions cannot be disabled.
+//
+// More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
+func (d *JobStatusDieMut) Conditions() diefields.ValueMut[[]JobCondition, *JobStatusDieMut] {
+	return diefields.ValueMutOf(d, jobStatusFields.Get().Conditions)
 }
 
-func (*JobTemplateSpecDie) DieFrom(b diebase.DieBase[JobTemplateSpec, *JobTemplateSpecDie]) *JobTemplateSpecDie {
+// Represents time when the job controller started processing a job. When a
+// Job is created in the suspended state, this field is not set until the
+// first time it is resumed. This field is reset every time a Job is resumed
+// from suspension. It is represented in RFC3339 form and is in UTC.
+//
+// Once set, the field can only be removed when the job is suspended.
+// The field cannot be modified while the job is unsuspended or finished.
+func (d *JobStatusDieMut) StartTime() diefields.OptionalMut[diemetav1.Time, *JobStatusDieMut] {
+	return diefields.OptionalMutOf(d, jobStatusFields.Get().StartTime)
+}
+
+// Represents time when the job was completed. It is not guaranteed to
+// be set in happens-before order across separate operations.
+// It is represented in RFC3339 form and is in UTC.
+// The completion time is set when the job finishes successfully, and only then.
+// The value cannot be updated or removed. The value indicates the same or
+// later point in time as the startTime field.
+func (d *JobStatusDieMut) CompletionTime() diefields.OptionalMut[diemetav1.Time, *JobStatusDieMut] {
+	return diefields.OptionalMutOf(d, jobStatusFields.Get().CompletionTime)
+}
+
+// The number of pending and running pods which are not terminating (without
+// a deletionTimestamp).
+// The value is zero for finished jobs.
+func (d *JobStatusDieMut) Active() diefields.ValueMut[int32, *JobStatusDieMut] {
+	return diefields.ValueMutOf(d, jobStatusFields.Get().Active)
+}
+
+// The number of pods which reached phase Succeeded.
+// The value increases monotonically for a given spec. However, it may
+// decrease in reaction to scale down of elastic indexed jobs.
+func (d *JobStatusDieMut) Succeeded() diefields.ValueMut[int32, *JobStatusDieMut] {
+	return diefields.ValueMutOf(d, jobStatusFields.Get().Succeeded)
+}
+
+// The number of pods which reached phase Failed.
+// The value increases monotonically.
+func (d *JobStatusDieMut) Failed() diefields.ValueMut[int32, *JobStatusDieMut] {
+	return diefields.ValueMutOf(d, jobStatusFields.Get().Failed)
+}
+
+// The number of pods which are terminating (in phase Pending or Running
+// and have a deletionTimestamp).
+func (d *JobStatusDieMut) Terminating() diefields.OptionalMut[int32, *JobStatusDieMut] {
+	return diefields.OptionalMutOf(d, jobStatusFields.Get().Terminating)
+}
+
+// completedIndexes holds the completed indexes when .spec.completionMode =
+// "Indexed" in a text format. The indexes are represented as decimal integers
+// separated by commas. The numbers are listed in increasing order. Three or
+// more consecutive numbers are compressed and represented by the first and
+// last element of the series, separated by a hyphen.
+// For example, if the completed indexes are 1, 3, 4, 5 and 7, they are
+// represented as "1,3-5,7".
+func (d *JobStatusDieMut) CompletedIndexes() diefields.ValueMut[string, *JobStatusDieMut] {
+	return diefields.ValueMutOf(d, jobStatusFields.Get().CompletedIndexes)
+}
+
+// FailedIndexes holds the failed indexes when spec.backoffLimitPerIndex is set.
+// The indexes are represented in the text format analogous as for the
+// `completedIndexes` field, ie. they are kept as decimal integers
+// separated by commas. The numbers are listed in increasing order. Three or
+// more consecutive numbers are compressed and represented by the first and
+// last element of the series, separated by a hyphen.
+// For example, if the failed indexes are 1, 3, 4, 5 and 7, they are
+// represented as "1,3-5,7".
+// The set of failed indexes cannot overlap with the set of completed indexes.
+func (d *JobStatusDieMut) FailedIndexes() diefields.OptionalMut[string, *JobStatusDieMut] {
+	return diefields.OptionalMutOf(d, jobStatusFields.Get().FailedIndexes)
+}
+
+// uncountedTerminatedPods holds the UIDs of Pods that have terminated but
+// the job controller hasn't yet accounted for in the status counters.
+//
+// The job controller creates pods with a finalizer. When a pod terminates
+// (succeeded or failed), the controller does three steps to account for it
+// in the job status:
+//
+//  1. Add the pod UID to the arrays in this field.
+//  2. Remove the pod finalizer.
+//  3. Remove the pod UID from the arrays while increasing the corresponding
+//     counter.
+//
+// Old jobs might not be tracked using this field, in which case the field
+// remains null.
+// The structure is empty for finished jobs.
+func (d *JobStatusDieMut) UncountedTerminatedPods() *UncountedTerminatedPodsDieMut {
+	return diefields.ChildMut(d, jobStatusFields.Get().UncountedTerminatedPods)
+}
+
+// The number of active pods which have a Ready condition and are not
+// terminating (without a deletionTimestamp).
+func (d *JobStatusDieMut) Ready() diefields.OptionalMut[int32, *JobStatusDieMut] {
+	return diefields.OptionalMutOf(d, jobStatusFields.Get().Ready)
+}
+
+// JobTemplateSpec describes the data a Job should have when created from a template
+//
+// JobTemplateSpecDie is immutable: it reads.
+// JobTemplateSpecDieMut, its mutable die, also writes, as DieWith passes it.
+type JobTemplateSpecDie struct {
+	diebase.DieBase[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]
+}
+
+// JobTemplateSpecDieMut is the mutable die of JobTemplateSpec: see JobTemplateSpecDie.
+type JobTemplateSpecDieMut struct {
+	diebase.DieMutBase[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]
+}
+
+func (*JobTemplateSpecDie) DieFrom(b diebase.DieBase[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]) *JobTemplateSpecDie {
 	return &JobTemplateSpecDie{b}
 }
 
-var _ diebase.DieOf[JobTemplateSpec, *JobTemplateSpecDie] = (*JobTemplateSpecDie)(nil)
+func (*JobTemplateSpecDieMut) DieFrom(b diebase.DieMutBase[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]) *JobTemplateSpecDieMut {
+	return &JobTemplateSpecDieMut{b}
+}
 
-var JobTemplateSpecBlank = diebase.Blank[JobTemplateSpec, *JobTemplateSpecDie]()
+var (
+	_ diebase.DieOf[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]    = (*JobTemplateSpecDie)(nil)
+	_ diebase.DieMutOf[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut] = (*JobTemplateSpecDieMut)(nil)
+)
+
+var JobTemplateSpecBlank = diebase.Blank[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1182,46 +1929,59 @@ func (d *JobTemplateSpecDie) DieReleaseApplyConfiguration() *JobTemplateSpecAppl
 	return diecodegen.ReleaseApplyConfiguration[JobTemplateSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *JobTemplateSpecDie) DieFeedApplyConfiguration(ac *JobTemplateSpecApplyConfiguration) *JobTemplateSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *JobTemplateSpecDie) DieStampApplyConfiguration(fn func(ac *JobTemplateSpecApplyConfiguration)) *JobTemplateSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *JobTemplateSpecDie) DieReleaseApplyConfigurationE() (*JobTemplateSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobTemplateSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *JobTemplateSpecDieMut) DieReleaseApplyConfiguration() *JobTemplateSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[JobTemplateSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *JobTemplateSpecDieMut) DieReleaseApplyConfigurationE() (*JobTemplateSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[JobTemplateSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *JobTemplateSpecDieMut) DieFeedApplyConfiguration(ac *JobTemplateSpecApplyConfiguration) *JobTemplateSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *JobTemplateSpecDieMut) DieStampApplyConfiguration(fn func(ac *JobTemplateSpecApplyConfiguration)) *JobTemplateSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *JobTemplateSpecDie) DieFeedApplyConfigurationE(ac *JobTemplateSpecApplyConfiguration) (*JobTemplateSpecDie, error) {
+func (d *JobTemplateSpecDieMut) DieFeedApplyConfigurationE(ac *JobTemplateSpecApplyConfiguration) (*JobTemplateSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *JobTemplateSpecDie) DieStampApplyConfigurationE(fn func(ac *JobTemplateSpecApplyConfiguration)) (*JobTemplateSpecDie, error) {
+func (d *JobTemplateSpecDieMut) DieStampApplyConfigurationE(fn func(ac *JobTemplateSpecApplyConfiguration)) (*JobTemplateSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type jobTemplateSpecFieldsTable struct {
-	Metadata diefields.Struct[JobTemplateSpec, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec     diefields.Struct[JobTemplateSpec, JobSpec, *JobSpecDie]
+	Metadata diefields.Struct[JobTemplateSpec, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec     diefields.Struct[JobTemplateSpec, JobSpec, *JobSpecDie, *JobSpecDieMut]
 }
 
 var jobTemplateSpecFields = &diefields.Table[jobTemplateSpecFieldsTable]{Build: func() (f jobTemplateSpecFieldsTable) {
 	_ = annotated
-	f.Metadata = diefields.NewStruct[JobTemplateSpec, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[JobTemplateSpec, JobSpec, *JobSpecDie]("spec")
+	f.Metadata = diefields.NewStruct[JobTemplateSpec, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[JobTemplateSpec, JobSpec, *JobSpecDie, *JobSpecDieMut]("spec")
 	return
 }}
 
@@ -1237,18 +1997,45 @@ func (d *JobTemplateSpecDie) Spec() *JobSpecDie {
 	return diefields.Child(d, jobTemplateSpecFields.Get().Spec)
 }
 
-// PodFailurePolicy describes how failed pods influence the backoffLimit.
-type PodFailurePolicyDie struct {
-	diebase.DieBase[PodFailurePolicy, *PodFailurePolicyDie]
+// Standard object's metadata of the jobs created from this template.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *JobTemplateSpecDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, jobTemplateSpecFields.Get().Metadata)
 }
 
-func (*PodFailurePolicyDie) DieFrom(b diebase.DieBase[PodFailurePolicy, *PodFailurePolicyDie]) *PodFailurePolicyDie {
+// Specification of the desired behavior of the job.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *JobTemplateSpecDieMut) Spec() *JobSpecDieMut {
+	return diefields.ChildMut(d, jobTemplateSpecFields.Get().Spec)
+}
+
+// PodFailurePolicy describes how failed pods influence the backoffLimit.
+//
+// PodFailurePolicyDie is immutable: it reads.
+// PodFailurePolicyDieMut, its mutable die, also writes, as DieWith passes it.
+type PodFailurePolicyDie struct {
+	diebase.DieBase[PodFailurePolicy, *PodFailurePolicyDie, *PodFailurePolicyDieMut]
+}
+
+// PodFailurePolicyDieMut is the mutable die of PodFailurePolicy: see PodFailurePolicyDie.
+type PodFailurePolicyDieMut struct {
+	diebase.DieMutBase[PodFailurePolicy, *PodFailurePolicyDie, *PodFailurePolicyDieMut]
+}
+
+func (*PodFailurePolicyDie) DieFrom(b diebase.DieBase[PodFailurePolicy, *PodFailurePolicyDie, *PodFailurePolicyDieMut]) *PodFailurePolicyDie {
 	return &PodFailurePolicyDie{b}
 }
 
-var _ diebase.DieOf[PodFailurePolicy, *PodFailurePolicyDie] = (*PodFailurePolicyDie)(nil)
+func (*PodFailurePolicyDieMut) DieFrom(b diebase.DieMutBase[PodFailurePolicy, *PodFailurePolicyDie, *PodFailurePolicyDieMut]) *PodFailurePolicyDieMut {
+	return &PodFailurePolicyDieMut{b}
+}
 
-var PodFailurePolicyBlank = diebase.Blank[PodFailurePolicy, *PodFailurePolicyDie]()
+var (
+	_ diebase.DieOf[PodFailurePolicy, *PodFailurePolicyDie, *PodFailurePolicyDieMut]    = (*PodFailurePolicyDie)(nil)
+	_ diebase.DieMutOf[PodFailurePolicy, *PodFailurePolicyDie, *PodFailurePolicyDieMut] = (*PodFailurePolicyDieMut)(nil)
+)
+
+var PodFailurePolicyBlank = diebase.Blank[PodFailurePolicy, *PodFailurePolicyDie, *PodFailurePolicyDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1257,34 +2044,47 @@ func (d *PodFailurePolicyDie) DieReleaseApplyConfiguration() *PodFailurePolicyAp
 	return diecodegen.ReleaseApplyConfiguration[PodFailurePolicyApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PodFailurePolicyDie) DieFeedApplyConfiguration(ac *PodFailurePolicyApplyConfiguration) *PodFailurePolicyDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PodFailurePolicyDie) DieStampApplyConfiguration(fn func(ac *PodFailurePolicyApplyConfiguration)) *PodFailurePolicyDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PodFailurePolicyDie) DieReleaseApplyConfigurationE() (*PodFailurePolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodFailurePolicyApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PodFailurePolicyDieMut) DieReleaseApplyConfiguration() *PodFailurePolicyApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PodFailurePolicyApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PodFailurePolicyDieMut) DieReleaseApplyConfigurationE() (*PodFailurePolicyApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PodFailurePolicyApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PodFailurePolicyDieMut) DieFeedApplyConfiguration(ac *PodFailurePolicyApplyConfiguration) *PodFailurePolicyDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PodFailurePolicyDieMut) DieStampApplyConfiguration(fn func(ac *PodFailurePolicyApplyConfiguration)) *PodFailurePolicyDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodFailurePolicyDie) DieFeedApplyConfigurationE(ac *PodFailurePolicyApplyConfiguration) (*PodFailurePolicyDie, error) {
+func (d *PodFailurePolicyDieMut) DieFeedApplyConfigurationE(ac *PodFailurePolicyApplyConfiguration) (*PodFailurePolicyDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodFailurePolicyDie) DieStampApplyConfigurationE(fn func(ac *PodFailurePolicyApplyConfiguration)) (*PodFailurePolicyDie, error) {
+func (d *PodFailurePolicyDieMut) DieStampApplyConfigurationE(fn func(ac *PodFailurePolicyApplyConfiguration)) (*PodFailurePolicyDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1303,8 +2103,17 @@ var podFailurePolicyFields = &diefields.Table[podFailurePolicyFieldsTable]{Build
 // When no rule matches the Pod failure, the default handling applies - the
 // counter of pod failures is incremented and it is checked against
 // the backoffLimit. At most 20 elements are allowed.
-func (d *PodFailurePolicyDie) Rules() diefields.Value[[]PodFailurePolicyRule, *PodFailurePolicyDie] {
+func (d *PodFailurePolicyDie) Rules() diefields.Value[[]PodFailurePolicyRule] {
 	return diefields.ValueOf(d, podFailurePolicyFields.Get().Rules)
+}
+
+// A list of pod failure policy rules. The rules are evaluated in order.
+// Once a rule matches a Pod failure, the remaining of the rules are ignored.
+// When no rule matches the Pod failure, the default handling applies - the
+// counter of pod failures is incremented and it is checked against
+// the backoffLimit. At most 20 elements are allowed.
+func (d *PodFailurePolicyDieMut) Rules() diefields.ValueMut[[]PodFailurePolicyRule, *PodFailurePolicyDieMut] {
+	return diefields.ValueMutOf(d, podFailurePolicyFields.Get().Rules)
 }
 
 // PodFailurePolicyOnExitCodesRequirement describes the requirement for handling
@@ -1313,17 +2122,32 @@ func (d *PodFailurePolicyDie) Rules() diefields.Value[[]PodFailurePolicyRule, *P
 // represented by the .status.containerStatuses and .status.initContainerStatuses
 // fields in the Pod status, respectively. Containers completed with success
 // (exit code 0) are excluded from the requirement check.
+//
+// PodFailurePolicyOnExitCodesRequirementDie is immutable: it reads.
+// PodFailurePolicyOnExitCodesRequirementDieMut, its mutable die, also writes, as DieWith passes it.
 type PodFailurePolicyOnExitCodesRequirementDie struct {
-	diebase.DieBase[PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie]
+	diebase.DieBase[PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut]
 }
 
-func (*PodFailurePolicyOnExitCodesRequirementDie) DieFrom(b diebase.DieBase[PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie]) *PodFailurePolicyOnExitCodesRequirementDie {
+// PodFailurePolicyOnExitCodesRequirementDieMut is the mutable die of PodFailurePolicyOnExitCodesRequirement: see PodFailurePolicyOnExitCodesRequirementDie.
+type PodFailurePolicyOnExitCodesRequirementDieMut struct {
+	diebase.DieMutBase[PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut]
+}
+
+func (*PodFailurePolicyOnExitCodesRequirementDie) DieFrom(b diebase.DieBase[PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut]) *PodFailurePolicyOnExitCodesRequirementDie {
 	return &PodFailurePolicyOnExitCodesRequirementDie{b}
 }
 
-var _ diebase.DieOf[PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie] = (*PodFailurePolicyOnExitCodesRequirementDie)(nil)
+func (*PodFailurePolicyOnExitCodesRequirementDieMut) DieFrom(b diebase.DieMutBase[PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut]) *PodFailurePolicyOnExitCodesRequirementDieMut {
+	return &PodFailurePolicyOnExitCodesRequirementDieMut{b}
+}
 
-var PodFailurePolicyOnExitCodesRequirementBlank = diebase.Blank[PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie]()
+var (
+	_ diebase.DieOf[PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut]    = (*PodFailurePolicyOnExitCodesRequirementDie)(nil)
+	_ diebase.DieMutOf[PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut] = (*PodFailurePolicyOnExitCodesRequirementDieMut)(nil)
+)
+
+var PodFailurePolicyOnExitCodesRequirementBlank = diebase.Blank[PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1332,34 +2156,47 @@ func (d *PodFailurePolicyOnExitCodesRequirementDie) DieReleaseApplyConfiguration
 	return diecodegen.ReleaseApplyConfiguration[PodFailurePolicyOnExitCodesRequirementApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PodFailurePolicyOnExitCodesRequirementDie) DieFeedApplyConfiguration(ac *PodFailurePolicyOnExitCodesRequirementApplyConfiguration) *PodFailurePolicyOnExitCodesRequirementDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PodFailurePolicyOnExitCodesRequirementDie) DieStampApplyConfiguration(fn func(ac *PodFailurePolicyOnExitCodesRequirementApplyConfiguration)) *PodFailurePolicyOnExitCodesRequirementDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PodFailurePolicyOnExitCodesRequirementDie) DieReleaseApplyConfigurationE() (*PodFailurePolicyOnExitCodesRequirementApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodFailurePolicyOnExitCodesRequirementApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PodFailurePolicyOnExitCodesRequirementDieMut) DieReleaseApplyConfiguration() *PodFailurePolicyOnExitCodesRequirementApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PodFailurePolicyOnExitCodesRequirementApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PodFailurePolicyOnExitCodesRequirementDieMut) DieReleaseApplyConfigurationE() (*PodFailurePolicyOnExitCodesRequirementApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PodFailurePolicyOnExitCodesRequirementApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PodFailurePolicyOnExitCodesRequirementDieMut) DieFeedApplyConfiguration(ac *PodFailurePolicyOnExitCodesRequirementApplyConfiguration) *PodFailurePolicyOnExitCodesRequirementDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PodFailurePolicyOnExitCodesRequirementDieMut) DieStampApplyConfiguration(fn func(ac *PodFailurePolicyOnExitCodesRequirementApplyConfiguration)) *PodFailurePolicyOnExitCodesRequirementDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodFailurePolicyOnExitCodesRequirementDie) DieFeedApplyConfigurationE(ac *PodFailurePolicyOnExitCodesRequirementApplyConfiguration) (*PodFailurePolicyOnExitCodesRequirementDie, error) {
+func (d *PodFailurePolicyOnExitCodesRequirementDieMut) DieFeedApplyConfigurationE(ac *PodFailurePolicyOnExitCodesRequirementApplyConfiguration) (*PodFailurePolicyOnExitCodesRequirementDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodFailurePolicyOnExitCodesRequirementDie) DieStampApplyConfigurationE(fn func(ac *PodFailurePolicyOnExitCodesRequirementApplyConfiguration)) (*PodFailurePolicyOnExitCodesRequirementDie, error) {
+func (d *PodFailurePolicyOnExitCodesRequirementDieMut) DieStampApplyConfigurationE(fn func(ac *PodFailurePolicyOnExitCodesRequirementApplyConfiguration)) (*PodFailurePolicyOnExitCodesRequirementDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1381,7 +2218,7 @@ var podFailurePolicyOnExitCodesRequirementFields = &diefields.Table[podFailurePo
 // specified name. When null, the rule applies to all containers.
 // When specified, it should match one the container or initContainer
 // names in the pod template.
-func (d *PodFailurePolicyOnExitCodesRequirementDie) ContainerName() diefields.Optional[string, *PodFailurePolicyOnExitCodesRequirementDie] {
+func (d *PodFailurePolicyOnExitCodesRequirementDie) ContainerName() diefields.Optional[string] {
 	return diefields.OptionalOf(d, podFailurePolicyOnExitCodesRequirementFields.Get().ContainerName)
 }
 
@@ -1398,7 +2235,7 @@ func (d *PodFailurePolicyOnExitCodesRequirementDie) ContainerName() diefields.Op
 //
 // Additional values are considered to be added in the future. Clients should
 // react to an unknown operator by assuming the requirement is not satisfied.
-func (d *PodFailurePolicyOnExitCodesRequirementDie) Operator() diefields.Value[PodFailurePolicyOnExitCodesOperator, *PodFailurePolicyOnExitCodesRequirementDie] {
+func (d *PodFailurePolicyOnExitCodesRequirementDie) Operator() diefields.Value[PodFailurePolicyOnExitCodesOperator] {
 	return diefields.ValueOf(d, podFailurePolicyOnExitCodesRequirementFields.Get().Operator)
 }
 
@@ -1407,23 +2244,72 @@ func (d *PodFailurePolicyOnExitCodesRequirementDie) Operator() diefields.Value[P
 // values with respect to the operator. The list of values must be ordered
 // and must not contain duplicates. Value '0' cannot be used for the In operator.
 // At least one element is required. At most 255 elements are allowed.
-func (d *PodFailurePolicyOnExitCodesRequirementDie) Values() diefields.Value[[]int32, *PodFailurePolicyOnExitCodesRequirementDie] {
+func (d *PodFailurePolicyOnExitCodesRequirementDie) Values() diefields.Value[[]int32] {
 	return diefields.ValueOf(d, podFailurePolicyOnExitCodesRequirementFields.Get().Values)
+}
+
+// Restricts the check for exit codes to the container with the
+// specified name. When null, the rule applies to all containers.
+// When specified, it should match one the container or initContainer
+// names in the pod template.
+func (d *PodFailurePolicyOnExitCodesRequirementDieMut) ContainerName() diefields.OptionalMut[string, *PodFailurePolicyOnExitCodesRequirementDieMut] {
+	return diefields.OptionalMutOf(d, podFailurePolicyOnExitCodesRequirementFields.Get().ContainerName)
+}
+
+// Represents the relationship between the container exit code(s) and the
+// specified values. Containers completed with success (exit code 0) are
+// excluded from the requirement check. Possible values are:
+//
+//   - In: the requirement is satisfied if at least one container exit code
+//     (might be multiple if there are multiple containers not restricted
+//     by the 'containerName' field) is in the set of specified values.
+//   - NotIn: the requirement is satisfied if at least one container exit code
+//     (might be multiple if there are multiple containers not restricted
+//     by the 'containerName' field) is not in the set of specified values.
+//
+// Additional values are considered to be added in the future. Clients should
+// react to an unknown operator by assuming the requirement is not satisfied.
+func (d *PodFailurePolicyOnExitCodesRequirementDieMut) Operator() diefields.ValueMut[PodFailurePolicyOnExitCodesOperator, *PodFailurePolicyOnExitCodesRequirementDieMut] {
+	return diefields.ValueMutOf(d, podFailurePolicyOnExitCodesRequirementFields.Get().Operator)
+}
+
+// Specifies the set of values. Each returned container exit code (might be
+// multiple in case of multiple containers) is checked against this set of
+// values with respect to the operator. The list of values must be ordered
+// and must not contain duplicates. Value '0' cannot be used for the In operator.
+// At least one element is required. At most 255 elements are allowed.
+func (d *PodFailurePolicyOnExitCodesRequirementDieMut) Values() diefields.ValueMut[[]int32, *PodFailurePolicyOnExitCodesRequirementDieMut] {
+	return diefields.ValueMutOf(d, podFailurePolicyOnExitCodesRequirementFields.Get().Values)
 }
 
 // PodFailurePolicyOnPodConditionsPattern describes a pattern for matching
 // an actual pod condition type.
+//
+// PodFailurePolicyOnPodConditionsPatternDie is immutable: it reads.
+// PodFailurePolicyOnPodConditionsPatternDieMut, its mutable die, also writes, as DieWith passes it.
 type PodFailurePolicyOnPodConditionsPatternDie struct {
-	diebase.DieBase[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie]
+	diebase.DieBase[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie, *PodFailurePolicyOnPodConditionsPatternDieMut]
 }
 
-func (*PodFailurePolicyOnPodConditionsPatternDie) DieFrom(b diebase.DieBase[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie]) *PodFailurePolicyOnPodConditionsPatternDie {
+// PodFailurePolicyOnPodConditionsPatternDieMut is the mutable die of PodFailurePolicyOnPodConditionsPattern: see PodFailurePolicyOnPodConditionsPatternDie.
+type PodFailurePolicyOnPodConditionsPatternDieMut struct {
+	diebase.DieMutBase[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie, *PodFailurePolicyOnPodConditionsPatternDieMut]
+}
+
+func (*PodFailurePolicyOnPodConditionsPatternDie) DieFrom(b diebase.DieBase[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie, *PodFailurePolicyOnPodConditionsPatternDieMut]) *PodFailurePolicyOnPodConditionsPatternDie {
 	return &PodFailurePolicyOnPodConditionsPatternDie{b}
 }
 
-var _ diebase.DieOf[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie] = (*PodFailurePolicyOnPodConditionsPatternDie)(nil)
+func (*PodFailurePolicyOnPodConditionsPatternDieMut) DieFrom(b diebase.DieMutBase[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie, *PodFailurePolicyOnPodConditionsPatternDieMut]) *PodFailurePolicyOnPodConditionsPatternDieMut {
+	return &PodFailurePolicyOnPodConditionsPatternDieMut{b}
+}
 
-var PodFailurePolicyOnPodConditionsPatternBlank = diebase.Blank[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie]()
+var (
+	_ diebase.DieOf[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie, *PodFailurePolicyOnPodConditionsPatternDieMut]    = (*PodFailurePolicyOnPodConditionsPatternDie)(nil)
+	_ diebase.DieMutOf[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie, *PodFailurePolicyOnPodConditionsPatternDieMut] = (*PodFailurePolicyOnPodConditionsPatternDieMut)(nil)
+)
+
+var PodFailurePolicyOnPodConditionsPatternBlank = diebase.Blank[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie, *PodFailurePolicyOnPodConditionsPatternDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1432,34 +2318,47 @@ func (d *PodFailurePolicyOnPodConditionsPatternDie) DieReleaseApplyConfiguration
 	return diecodegen.ReleaseApplyConfiguration[PodFailurePolicyOnPodConditionsPatternApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PodFailurePolicyOnPodConditionsPatternDie) DieFeedApplyConfiguration(ac *PodFailurePolicyOnPodConditionsPatternApplyConfiguration) *PodFailurePolicyOnPodConditionsPatternDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PodFailurePolicyOnPodConditionsPatternDie) DieStampApplyConfiguration(fn func(ac *PodFailurePolicyOnPodConditionsPatternApplyConfiguration)) *PodFailurePolicyOnPodConditionsPatternDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PodFailurePolicyOnPodConditionsPatternDie) DieReleaseApplyConfigurationE() (*PodFailurePolicyOnPodConditionsPatternApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodFailurePolicyOnPodConditionsPatternApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PodFailurePolicyOnPodConditionsPatternDieMut) DieReleaseApplyConfiguration() *PodFailurePolicyOnPodConditionsPatternApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PodFailurePolicyOnPodConditionsPatternApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PodFailurePolicyOnPodConditionsPatternDieMut) DieReleaseApplyConfigurationE() (*PodFailurePolicyOnPodConditionsPatternApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PodFailurePolicyOnPodConditionsPatternApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PodFailurePolicyOnPodConditionsPatternDieMut) DieFeedApplyConfiguration(ac *PodFailurePolicyOnPodConditionsPatternApplyConfiguration) *PodFailurePolicyOnPodConditionsPatternDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PodFailurePolicyOnPodConditionsPatternDieMut) DieStampApplyConfiguration(fn func(ac *PodFailurePolicyOnPodConditionsPatternApplyConfiguration)) *PodFailurePolicyOnPodConditionsPatternDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodFailurePolicyOnPodConditionsPatternDie) DieFeedApplyConfigurationE(ac *PodFailurePolicyOnPodConditionsPatternApplyConfiguration) (*PodFailurePolicyOnPodConditionsPatternDie, error) {
+func (d *PodFailurePolicyOnPodConditionsPatternDieMut) DieFeedApplyConfigurationE(ac *PodFailurePolicyOnPodConditionsPatternApplyConfiguration) (*PodFailurePolicyOnPodConditionsPatternDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodFailurePolicyOnPodConditionsPatternDie) DieStampApplyConfigurationE(fn func(ac *PodFailurePolicyOnPodConditionsPatternApplyConfiguration)) (*PodFailurePolicyOnPodConditionsPatternDie, error) {
+func (d *PodFailurePolicyOnPodConditionsPatternDieMut) DieStampApplyConfigurationE(fn func(ac *PodFailurePolicyOnPodConditionsPatternApplyConfiguration)) (*PodFailurePolicyOnPodConditionsPatternDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1477,30 +2376,58 @@ var podFailurePolicyOnPodConditionsPatternFields = &diefields.Table[podFailurePo
 
 // Specifies the required Pod condition type. To match a pod condition
 // it is required that specified type equals the pod condition type.
-func (d *PodFailurePolicyOnPodConditionsPatternDie) Type() diefields.Value[diecorev1.PodConditionType, *PodFailurePolicyOnPodConditionsPatternDie] {
+func (d *PodFailurePolicyOnPodConditionsPatternDie) Type() diefields.Value[diecorev1.PodConditionType] {
 	return diefields.ValueOf(d, podFailurePolicyOnPodConditionsPatternFields.Get().Type)
 }
 
 // Specifies the required Pod condition status. To match a pod condition
 // it is required that the specified status equals the pod condition status.
 // Defaults to True.
-func (d *PodFailurePolicyOnPodConditionsPatternDie) Status() diefields.Value[diecorev1.ConditionStatus, *PodFailurePolicyOnPodConditionsPatternDie] {
+func (d *PodFailurePolicyOnPodConditionsPatternDie) Status() diefields.Value[diecorev1.ConditionStatus] {
 	return diefields.ValueOf(d, podFailurePolicyOnPodConditionsPatternFields.Get().Status)
+}
+
+// Specifies the required Pod condition type. To match a pod condition
+// it is required that specified type equals the pod condition type.
+func (d *PodFailurePolicyOnPodConditionsPatternDieMut) Type() diefields.ValueMut[diecorev1.PodConditionType, *PodFailurePolicyOnPodConditionsPatternDieMut] {
+	return diefields.ValueMutOf(d, podFailurePolicyOnPodConditionsPatternFields.Get().Type)
+}
+
+// Specifies the required Pod condition status. To match a pod condition
+// it is required that the specified status equals the pod condition status.
+// Defaults to True.
+func (d *PodFailurePolicyOnPodConditionsPatternDieMut) Status() diefields.ValueMut[diecorev1.ConditionStatus, *PodFailurePolicyOnPodConditionsPatternDieMut] {
+	return diefields.ValueMutOf(d, podFailurePolicyOnPodConditionsPatternFields.Get().Status)
 }
 
 // PodFailurePolicyRule describes how a pod failure is handled when the requirements are met.
 // One of onExitCodes and onPodConditions, but not both, can be used in each rule.
+//
+// PodFailurePolicyRuleDie is immutable: it reads.
+// PodFailurePolicyRuleDieMut, its mutable die, also writes, as DieWith passes it.
 type PodFailurePolicyRuleDie struct {
-	diebase.DieBase[PodFailurePolicyRule, *PodFailurePolicyRuleDie]
+	diebase.DieBase[PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut]
 }
 
-func (*PodFailurePolicyRuleDie) DieFrom(b diebase.DieBase[PodFailurePolicyRule, *PodFailurePolicyRuleDie]) *PodFailurePolicyRuleDie {
+// PodFailurePolicyRuleDieMut is the mutable die of PodFailurePolicyRule: see PodFailurePolicyRuleDie.
+type PodFailurePolicyRuleDieMut struct {
+	diebase.DieMutBase[PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut]
+}
+
+func (*PodFailurePolicyRuleDie) DieFrom(b diebase.DieBase[PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut]) *PodFailurePolicyRuleDie {
 	return &PodFailurePolicyRuleDie{b}
 }
 
-var _ diebase.DieOf[PodFailurePolicyRule, *PodFailurePolicyRuleDie] = (*PodFailurePolicyRuleDie)(nil)
+func (*PodFailurePolicyRuleDieMut) DieFrom(b diebase.DieMutBase[PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut]) *PodFailurePolicyRuleDieMut {
+	return &PodFailurePolicyRuleDieMut{b}
+}
 
-var PodFailurePolicyRuleBlank = diebase.Blank[PodFailurePolicyRule, *PodFailurePolicyRuleDie]()
+var (
+	_ diebase.DieOf[PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut]    = (*PodFailurePolicyRuleDie)(nil)
+	_ diebase.DieMutOf[PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut] = (*PodFailurePolicyRuleDieMut)(nil)
+)
+
+var PodFailurePolicyRuleBlank = diebase.Blank[PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1509,47 +2436,60 @@ func (d *PodFailurePolicyRuleDie) DieReleaseApplyConfiguration() *PodFailurePoli
 	return diecodegen.ReleaseApplyConfiguration[PodFailurePolicyRuleApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PodFailurePolicyRuleDie) DieFeedApplyConfiguration(ac *PodFailurePolicyRuleApplyConfiguration) *PodFailurePolicyRuleDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PodFailurePolicyRuleDie) DieStampApplyConfiguration(fn func(ac *PodFailurePolicyRuleApplyConfiguration)) *PodFailurePolicyRuleDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PodFailurePolicyRuleDie) DieReleaseApplyConfigurationE() (*PodFailurePolicyRuleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodFailurePolicyRuleApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PodFailurePolicyRuleDieMut) DieReleaseApplyConfiguration() *PodFailurePolicyRuleApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PodFailurePolicyRuleApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PodFailurePolicyRuleDieMut) DieReleaseApplyConfigurationE() (*PodFailurePolicyRuleApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PodFailurePolicyRuleApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PodFailurePolicyRuleDieMut) DieFeedApplyConfiguration(ac *PodFailurePolicyRuleApplyConfiguration) *PodFailurePolicyRuleDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PodFailurePolicyRuleDieMut) DieStampApplyConfiguration(fn func(ac *PodFailurePolicyRuleApplyConfiguration)) *PodFailurePolicyRuleDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodFailurePolicyRuleDie) DieFeedApplyConfigurationE(ac *PodFailurePolicyRuleApplyConfiguration) (*PodFailurePolicyRuleDie, error) {
+func (d *PodFailurePolicyRuleDieMut) DieFeedApplyConfigurationE(ac *PodFailurePolicyRuleApplyConfiguration) (*PodFailurePolicyRuleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodFailurePolicyRuleDie) DieStampApplyConfigurationE(fn func(ac *PodFailurePolicyRuleApplyConfiguration)) (*PodFailurePolicyRuleDie, error) {
+func (d *PodFailurePolicyRuleDieMut) DieStampApplyConfigurationE(fn func(ac *PodFailurePolicyRuleApplyConfiguration)) (*PodFailurePolicyRuleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type podFailurePolicyRuleFieldsTable struct {
 	Action          diefields.Field[PodFailurePolicyRule, PodFailurePolicyAction]
-	OnExitCodes     diefields.Struct[PodFailurePolicyRule, PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie]
+	OnExitCodes     diefields.Struct[PodFailurePolicyRule, PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut]
 	OnPodConditions diefields.Field[PodFailurePolicyRule, []PodFailurePolicyOnPodConditionsPattern]
 }
 
 var podFailurePolicyRuleFields = &diefields.Table[podFailurePolicyRuleFieldsTable]{Build: func() (f podFailurePolicyRuleFieldsTable) {
 	_ = annotated
 	f.Action = diefields.NewField[PodFailurePolicyRule, PodFailurePolicyAction]("action")
-	f.OnExitCodes = diefields.NewStruct[PodFailurePolicyRule, PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie]("onExitCodes")
+	f.OnExitCodes = diefields.NewStruct[PodFailurePolicyRule, PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut]("onExitCodes")
 	f.OnPodConditions = diefields.NewField[PodFailurePolicyRule, []PodFailurePolicyOnPodConditionsPattern]("onPodConditions")
 	return
 }}
@@ -1568,7 +2508,7 @@ var podFailurePolicyRuleFields = &diefields.Table[podFailurePolicyRuleFieldsTabl
 //
 // Additional values are considered to be added in the future. Clients should
 // react to an unknown action by skipping the rule.
-func (d *PodFailurePolicyRuleDie) Action() diefields.Value[PodFailurePolicyAction, *PodFailurePolicyRuleDie] {
+func (d *PodFailurePolicyRuleDie) Action() diefields.Value[PodFailurePolicyAction] {
 	return diefields.ValueOf(d, podFailurePolicyRuleFields.Get().Action)
 }
 
@@ -1580,22 +2520,67 @@ func (d *PodFailurePolicyRuleDie) OnExitCodes() *PodFailurePolicyOnExitCodesRequ
 // Represents the requirement on the pod conditions. The requirement is represented
 // as a list of pod condition patterns. The requirement is satisfied if at
 // least one pattern matches an actual pod condition. At most 20 elements are allowed.
-func (d *PodFailurePolicyRuleDie) OnPodConditions() diefields.Value[[]PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyRuleDie] {
+func (d *PodFailurePolicyRuleDie) OnPodConditions() diefields.Value[[]PodFailurePolicyOnPodConditionsPattern] {
 	return diefields.ValueOf(d, podFailurePolicyRuleFields.Get().OnPodConditions)
 }
 
-// SuccessPolicy describes when a Job can be declared as succeeded based on the success of some indexes.
-type SuccessPolicyDie struct {
-	diebase.DieBase[SuccessPolicy, *SuccessPolicyDie]
+// Specifies the action taken on a pod failure when the requirements are satisfied.
+// Possible values are:
+//
+//   - FailJob: indicates that the pod's job is marked as Failed and all
+//     running pods are terminated.
+//   - FailIndex: indicates that the pod's index is marked as Failed and will
+//     not be restarted.
+//   - Ignore: indicates that the counter towards the .backoffLimit is not
+//     incremented and a replacement pod is created.
+//   - Count: indicates that the pod is handled in the default way - the
+//     counter towards the .backoffLimit is incremented.
+//
+// Additional values are considered to be added in the future. Clients should
+// react to an unknown action by skipping the rule.
+func (d *PodFailurePolicyRuleDieMut) Action() diefields.ValueMut[PodFailurePolicyAction, *PodFailurePolicyRuleDieMut] {
+	return diefields.ValueMutOf(d, podFailurePolicyRuleFields.Get().Action)
 }
 
-func (*SuccessPolicyDie) DieFrom(b diebase.DieBase[SuccessPolicy, *SuccessPolicyDie]) *SuccessPolicyDie {
+// Represents the requirement on the container exit codes.
+func (d *PodFailurePolicyRuleDieMut) OnExitCodes() *PodFailurePolicyOnExitCodesRequirementDieMut {
+	return diefields.ChildMut(d, podFailurePolicyRuleFields.Get().OnExitCodes)
+}
+
+// Represents the requirement on the pod conditions. The requirement is represented
+// as a list of pod condition patterns. The requirement is satisfied if at
+// least one pattern matches an actual pod condition. At most 20 elements are allowed.
+func (d *PodFailurePolicyRuleDieMut) OnPodConditions() diefields.ValueMut[[]PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyRuleDieMut] {
+	return diefields.ValueMutOf(d, podFailurePolicyRuleFields.Get().OnPodConditions)
+}
+
+// SuccessPolicy describes when a Job can be declared as succeeded based on the success of some indexes.
+//
+// SuccessPolicyDie is immutable: it reads.
+// SuccessPolicyDieMut, its mutable die, also writes, as DieWith passes it.
+type SuccessPolicyDie struct {
+	diebase.DieBase[SuccessPolicy, *SuccessPolicyDie, *SuccessPolicyDieMut]
+}
+
+// SuccessPolicyDieMut is the mutable die of SuccessPolicy: see SuccessPolicyDie.
+type SuccessPolicyDieMut struct {
+	diebase.DieMutBase[SuccessPolicy, *SuccessPolicyDie, *SuccessPolicyDieMut]
+}
+
+func (*SuccessPolicyDie) DieFrom(b diebase.DieBase[SuccessPolicy, *SuccessPolicyDie, *SuccessPolicyDieMut]) *SuccessPolicyDie {
 	return &SuccessPolicyDie{b}
 }
 
-var _ diebase.DieOf[SuccessPolicy, *SuccessPolicyDie] = (*SuccessPolicyDie)(nil)
+func (*SuccessPolicyDieMut) DieFrom(b diebase.DieMutBase[SuccessPolicy, *SuccessPolicyDie, *SuccessPolicyDieMut]) *SuccessPolicyDieMut {
+	return &SuccessPolicyDieMut{b}
+}
 
-var SuccessPolicyBlank = diebase.Blank[SuccessPolicy, *SuccessPolicyDie]()
+var (
+	_ diebase.DieOf[SuccessPolicy, *SuccessPolicyDie, *SuccessPolicyDieMut]    = (*SuccessPolicyDie)(nil)
+	_ diebase.DieMutOf[SuccessPolicy, *SuccessPolicyDie, *SuccessPolicyDieMut] = (*SuccessPolicyDieMut)(nil)
+)
+
+var SuccessPolicyBlank = diebase.Blank[SuccessPolicy, *SuccessPolicyDie, *SuccessPolicyDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1604,34 +2589,47 @@ func (d *SuccessPolicyDie) DieReleaseApplyConfiguration() *SuccessPolicyApplyCon
 	return diecodegen.ReleaseApplyConfiguration[SuccessPolicyApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *SuccessPolicyDie) DieFeedApplyConfiguration(ac *SuccessPolicyApplyConfiguration) *SuccessPolicyDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *SuccessPolicyDie) DieStampApplyConfiguration(fn func(ac *SuccessPolicyApplyConfiguration)) *SuccessPolicyDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *SuccessPolicyDie) DieReleaseApplyConfigurationE() (*SuccessPolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[SuccessPolicyApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *SuccessPolicyDieMut) DieReleaseApplyConfiguration() *SuccessPolicyApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[SuccessPolicyApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *SuccessPolicyDieMut) DieReleaseApplyConfigurationE() (*SuccessPolicyApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[SuccessPolicyApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *SuccessPolicyDieMut) DieFeedApplyConfiguration(ac *SuccessPolicyApplyConfiguration) *SuccessPolicyDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *SuccessPolicyDieMut) DieStampApplyConfiguration(fn func(ac *SuccessPolicyApplyConfiguration)) *SuccessPolicyDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *SuccessPolicyDie) DieFeedApplyConfigurationE(ac *SuccessPolicyApplyConfiguration) (*SuccessPolicyDie, error) {
+func (d *SuccessPolicyDieMut) DieFeedApplyConfigurationE(ac *SuccessPolicyApplyConfiguration) (*SuccessPolicyDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *SuccessPolicyDie) DieStampApplyConfigurationE(fn func(ac *SuccessPolicyApplyConfiguration)) (*SuccessPolicyDie, error) {
+func (d *SuccessPolicyDieMut) DieStampApplyConfigurationE(fn func(ac *SuccessPolicyApplyConfiguration)) (*SuccessPolicyDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1651,23 +2649,48 @@ var successPolicyFields = &diefields.Table[successPolicyFieldsTable]{Build: func
 // The terminal state for such a Job has the "Complete" condition.
 // Additionally, these rules are evaluated in order; Once the Job meets one of the rules,
 // other rules are ignored. At most 20 elements are allowed.
-func (d *SuccessPolicyDie) Rules() diefields.Value[[]SuccessPolicyRule, *SuccessPolicyDie] {
+func (d *SuccessPolicyDie) Rules() diefields.Value[[]SuccessPolicyRule] {
 	return diefields.ValueOf(d, successPolicyFields.Get().Rules)
+}
+
+// rules represents the list of alternative rules for the declaring the Jobs
+// as successful before `.status.succeeded >= .spec.completions`. Once any of the rules are met,
+// the "SuccessCriteriaMet" condition is added, and the lingering pods are removed.
+// The terminal state for such a Job has the "Complete" condition.
+// Additionally, these rules are evaluated in order; Once the Job meets one of the rules,
+// other rules are ignored. At most 20 elements are allowed.
+func (d *SuccessPolicyDieMut) Rules() diefields.ValueMut[[]SuccessPolicyRule, *SuccessPolicyDieMut] {
+	return diefields.ValueMutOf(d, successPolicyFields.Get().Rules)
 }
 
 // SuccessPolicyRule describes rule for declaring a Job as succeeded.
 // Each rule must have at least one of the "succeededIndexes" or "succeededCount" specified.
+//
+// SuccessPolicyRuleDie is immutable: it reads.
+// SuccessPolicyRuleDieMut, its mutable die, also writes, as DieWith passes it.
 type SuccessPolicyRuleDie struct {
-	diebase.DieBase[SuccessPolicyRule, *SuccessPolicyRuleDie]
+	diebase.DieBase[SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut]
 }
 
-func (*SuccessPolicyRuleDie) DieFrom(b diebase.DieBase[SuccessPolicyRule, *SuccessPolicyRuleDie]) *SuccessPolicyRuleDie {
+// SuccessPolicyRuleDieMut is the mutable die of SuccessPolicyRule: see SuccessPolicyRuleDie.
+type SuccessPolicyRuleDieMut struct {
+	diebase.DieMutBase[SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut]
+}
+
+func (*SuccessPolicyRuleDie) DieFrom(b diebase.DieBase[SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut]) *SuccessPolicyRuleDie {
 	return &SuccessPolicyRuleDie{b}
 }
 
-var _ diebase.DieOf[SuccessPolicyRule, *SuccessPolicyRuleDie] = (*SuccessPolicyRuleDie)(nil)
+func (*SuccessPolicyRuleDieMut) DieFrom(b diebase.DieMutBase[SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut]) *SuccessPolicyRuleDieMut {
+	return &SuccessPolicyRuleDieMut{b}
+}
 
-var SuccessPolicyRuleBlank = diebase.Blank[SuccessPolicyRule, *SuccessPolicyRuleDie]()
+var (
+	_ diebase.DieOf[SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut]    = (*SuccessPolicyRuleDie)(nil)
+	_ diebase.DieMutOf[SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut] = (*SuccessPolicyRuleDieMut)(nil)
+)
+
+var SuccessPolicyRuleBlank = diebase.Blank[SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1676,34 +2699,47 @@ func (d *SuccessPolicyRuleDie) DieReleaseApplyConfiguration() *SuccessPolicyRule
 	return diecodegen.ReleaseApplyConfiguration[SuccessPolicyRuleApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *SuccessPolicyRuleDie) DieFeedApplyConfiguration(ac *SuccessPolicyRuleApplyConfiguration) *SuccessPolicyRuleDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *SuccessPolicyRuleDie) DieStampApplyConfiguration(fn func(ac *SuccessPolicyRuleApplyConfiguration)) *SuccessPolicyRuleDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *SuccessPolicyRuleDie) DieReleaseApplyConfigurationE() (*SuccessPolicyRuleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[SuccessPolicyRuleApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *SuccessPolicyRuleDieMut) DieReleaseApplyConfiguration() *SuccessPolicyRuleApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[SuccessPolicyRuleApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *SuccessPolicyRuleDieMut) DieReleaseApplyConfigurationE() (*SuccessPolicyRuleApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[SuccessPolicyRuleApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *SuccessPolicyRuleDieMut) DieFeedApplyConfiguration(ac *SuccessPolicyRuleApplyConfiguration) *SuccessPolicyRuleDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *SuccessPolicyRuleDieMut) DieStampApplyConfiguration(fn func(ac *SuccessPolicyRuleApplyConfiguration)) *SuccessPolicyRuleDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *SuccessPolicyRuleDie) DieFeedApplyConfigurationE(ac *SuccessPolicyRuleApplyConfiguration) (*SuccessPolicyRuleDie, error) {
+func (d *SuccessPolicyRuleDieMut) DieFeedApplyConfigurationE(ac *SuccessPolicyRuleApplyConfiguration) (*SuccessPolicyRuleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *SuccessPolicyRuleDie) DieStampApplyConfigurationE(fn func(ac *SuccessPolicyRuleApplyConfiguration)) (*SuccessPolicyRuleDie, error) {
+func (d *SuccessPolicyRuleDieMut) DieStampApplyConfigurationE(fn func(ac *SuccessPolicyRuleApplyConfiguration)) (*SuccessPolicyRuleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1731,7 +2767,7 @@ var successPolicyRuleFields = &diefields.Table[successPolicyRuleFieldsTable]{Bui
 // represented as "1,3-5,7".
 // When this field is null, this field doesn't default to any value
 // and is never evaluated at any time.
-func (d *SuccessPolicyRuleDie) SucceededIndexes() diefields.Optional[string, *SuccessPolicyRuleDie] {
+func (d *SuccessPolicyRuleDie) SucceededIndexes() diefields.Optional[string] {
 	return diefields.OptionalOf(d, successPolicyRuleFields.Get().SucceededIndexes)
 }
 
@@ -1744,23 +2780,67 @@ func (d *SuccessPolicyRuleDie) SucceededIndexes() diefields.Optional[string, *Su
 // When this field is null, this doesn't default to any value and
 // is never evaluated at any time.
 // When specified it needs to be a positive integer.
-func (d *SuccessPolicyRuleDie) SucceededCount() diefields.Optional[int32, *SuccessPolicyRuleDie] {
+func (d *SuccessPolicyRuleDie) SucceededCount() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, successPolicyRuleFields.Get().SucceededCount)
+}
+
+// succeededIndexes specifies the set of indexes
+// which need to be contained in the actual set of the succeeded indexes for the Job.
+// The list of indexes must be within 0 to ".spec.completions-1" and
+// must not contain duplicates. At least one element is required.
+// The indexes are represented as intervals separated by commas.
+// The intervals can be a decimal integer or a pair of decimal integers separated by a hyphen.
+// The number are listed in represented by the first and last element of the series,
+// separated by a hyphen.
+// For example, if the completed indexes are 1, 3, 4, 5 and 7, they are
+// represented as "1,3-5,7".
+// When this field is null, this field doesn't default to any value
+// and is never evaluated at any time.
+func (d *SuccessPolicyRuleDieMut) SucceededIndexes() diefields.OptionalMut[string, *SuccessPolicyRuleDieMut] {
+	return diefields.OptionalMutOf(d, successPolicyRuleFields.Get().SucceededIndexes)
+}
+
+// succeededCount specifies the minimal required size of the actual set of the succeeded indexes
+// for the Job. When succeededCount is used along with succeededIndexes, the check is
+// constrained only to the set of indexes specified by succeededIndexes.
+// For example, given that succeededIndexes is "1-4", succeededCount is "3",
+// and completed indexes are "1", "3", and "5", the Job isn't declared as succeeded
+// because only "1" and "3" indexes are considered in that rules.
+// When this field is null, this doesn't default to any value and
+// is never evaluated at any time.
+// When specified it needs to be a positive integer.
+func (d *SuccessPolicyRuleDieMut) SucceededCount() diefields.OptionalMut[int32, *SuccessPolicyRuleDieMut] {
+	return diefields.OptionalMutOf(d, successPolicyRuleFields.Get().SucceededCount)
 }
 
 // UncountedTerminatedPods holds UIDs of Pods that have terminated but haven't
 // been accounted in Job status counters.
+//
+// UncountedTerminatedPodsDie is immutable: it reads.
+// UncountedTerminatedPodsDieMut, its mutable die, also writes, as DieWith passes it.
 type UncountedTerminatedPodsDie struct {
-	diebase.DieBase[UncountedTerminatedPods, *UncountedTerminatedPodsDie]
+	diebase.DieBase[UncountedTerminatedPods, *UncountedTerminatedPodsDie, *UncountedTerminatedPodsDieMut]
 }
 
-func (*UncountedTerminatedPodsDie) DieFrom(b diebase.DieBase[UncountedTerminatedPods, *UncountedTerminatedPodsDie]) *UncountedTerminatedPodsDie {
+// UncountedTerminatedPodsDieMut is the mutable die of UncountedTerminatedPods: see UncountedTerminatedPodsDie.
+type UncountedTerminatedPodsDieMut struct {
+	diebase.DieMutBase[UncountedTerminatedPods, *UncountedTerminatedPodsDie, *UncountedTerminatedPodsDieMut]
+}
+
+func (*UncountedTerminatedPodsDie) DieFrom(b diebase.DieBase[UncountedTerminatedPods, *UncountedTerminatedPodsDie, *UncountedTerminatedPodsDieMut]) *UncountedTerminatedPodsDie {
 	return &UncountedTerminatedPodsDie{b}
 }
 
-var _ diebase.DieOf[UncountedTerminatedPods, *UncountedTerminatedPodsDie] = (*UncountedTerminatedPodsDie)(nil)
+func (*UncountedTerminatedPodsDieMut) DieFrom(b diebase.DieMutBase[UncountedTerminatedPods, *UncountedTerminatedPodsDie, *UncountedTerminatedPodsDieMut]) *UncountedTerminatedPodsDieMut {
+	return &UncountedTerminatedPodsDieMut{b}
+}
 
-var UncountedTerminatedPodsBlank = diebase.Blank[UncountedTerminatedPods, *UncountedTerminatedPodsDie]()
+var (
+	_ diebase.DieOf[UncountedTerminatedPods, *UncountedTerminatedPodsDie, *UncountedTerminatedPodsDieMut]    = (*UncountedTerminatedPodsDie)(nil)
+	_ diebase.DieMutOf[UncountedTerminatedPods, *UncountedTerminatedPodsDie, *UncountedTerminatedPodsDieMut] = (*UncountedTerminatedPodsDieMut)(nil)
+)
+
+var UncountedTerminatedPodsBlank = diebase.Blank[UncountedTerminatedPods, *UncountedTerminatedPodsDie, *UncountedTerminatedPodsDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1769,34 +2849,47 @@ func (d *UncountedTerminatedPodsDie) DieReleaseApplyConfiguration() *UncountedTe
 	return diecodegen.ReleaseApplyConfiguration[UncountedTerminatedPodsApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *UncountedTerminatedPodsDie) DieFeedApplyConfiguration(ac *UncountedTerminatedPodsApplyConfiguration) *UncountedTerminatedPodsDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *UncountedTerminatedPodsDie) DieStampApplyConfiguration(fn func(ac *UncountedTerminatedPodsApplyConfiguration)) *UncountedTerminatedPodsDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *UncountedTerminatedPodsDie) DieReleaseApplyConfigurationE() (*UncountedTerminatedPodsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[UncountedTerminatedPodsApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *UncountedTerminatedPodsDieMut) DieReleaseApplyConfiguration() *UncountedTerminatedPodsApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[UncountedTerminatedPodsApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *UncountedTerminatedPodsDieMut) DieReleaseApplyConfigurationE() (*UncountedTerminatedPodsApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[UncountedTerminatedPodsApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *UncountedTerminatedPodsDieMut) DieFeedApplyConfiguration(ac *UncountedTerminatedPodsApplyConfiguration) *UncountedTerminatedPodsDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *UncountedTerminatedPodsDieMut) DieStampApplyConfiguration(fn func(ac *UncountedTerminatedPodsApplyConfiguration)) *UncountedTerminatedPodsDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *UncountedTerminatedPodsDie) DieFeedApplyConfigurationE(ac *UncountedTerminatedPodsApplyConfiguration) (*UncountedTerminatedPodsDie, error) {
+func (d *UncountedTerminatedPodsDieMut) DieFeedApplyConfigurationE(ac *UncountedTerminatedPodsApplyConfiguration) (*UncountedTerminatedPodsDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *UncountedTerminatedPodsDie) DieStampApplyConfigurationE(fn func(ac *UncountedTerminatedPodsApplyConfiguration)) (*UncountedTerminatedPodsDie, error) {
+func (d *UncountedTerminatedPodsDieMut) DieStampApplyConfigurationE(fn func(ac *UncountedTerminatedPodsApplyConfiguration)) (*UncountedTerminatedPodsDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1813,29 +2906,39 @@ var uncountedTerminatedPodsFields = &diefields.Table[uncountedTerminatedPodsFiel
 }}
 
 // succeeded holds UIDs of succeeded Pods.
-func (d *UncountedTerminatedPodsDie) Succeeded() diefields.Value[[]types.UID, *UncountedTerminatedPodsDie] {
+func (d *UncountedTerminatedPodsDie) Succeeded() diefields.Value[[]types.UID] {
 	return diefields.ValueOf(d, uncountedTerminatedPodsFields.Get().Succeeded)
 }
 
 // failed holds UIDs of failed Pods.
-func (d *UncountedTerminatedPodsDie) Failed() diefields.Value[[]types.UID, *UncountedTerminatedPodsDie] {
+func (d *UncountedTerminatedPodsDie) Failed() diefields.Value[[]types.UID] {
 	return diefields.ValueOf(d, uncountedTerminatedPodsFields.Get().Failed)
+}
+
+// succeeded holds UIDs of succeeded Pods.
+func (d *UncountedTerminatedPodsDieMut) Succeeded() diefields.ValueMut[[]types.UID, *UncountedTerminatedPodsDieMut] {
+	return diefields.ValueMutOf(d, uncountedTerminatedPodsFields.Get().Succeeded)
+}
+
+// failed holds UIDs of failed Pods.
+func (d *UncountedTerminatedPodsDieMut) Failed() diefields.ValueMut[[]types.UID, *UncountedTerminatedPodsDieMut] {
+	return diefields.ValueMutOf(d, uncountedTerminatedPodsFields.Get().Failed)
 }
 
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "batch", Version: "v1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CronJob"), &CronJobDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CronJob"), &CronJobDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CronJobList"), &CronJobListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Job"), &JobDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Job"), &JobDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("JobList"), &JobListDie{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

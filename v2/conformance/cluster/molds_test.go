@@ -45,7 +45,7 @@ var (
 func TestUnstructuredBuiltInAppliesAsTyped(t *testing.T) {
 	ns := harness.Namespace(t, dies)
 	blank := harness.MoldedBlank(t, harness.Molds(t, config), deploymentGVK)
-	change := func(d *dieappsv1.DeploymentDie) {
+	change := func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Namespace().Set(ns)
 		d.Metadata().Name().Set("web")
 		d.Spec().Replicas().Set(0)
@@ -56,9 +56,9 @@ func TestUnstructuredBuiltInAppliesAsTyped(t *testing.T) {
 		d.Spec().Template().Spec().Containers().At("app").Image().Set("registry.example/app:1")
 	}
 	typed := dieappsv1.DeploymentBlank.DieWith(change)
-	u := blank.DieImmutable(false)
-	change(dieunstructured.JigAs[*dieappsv1.DeploymentDie](u.Node()))
-	u = u.DieImmutable(true)
+	u := blank.DieWith(func(u *dieunstructured.ObjectMut) {
+		change(dieunstructured.JigAsMut[*dieappsv1.DeploymentDieMut](u.Node()))
+	})
 
 	want, _ := typed.DieReleaseApplyPatchE()
 	got, err := u.DieReleaseApplyPatchE()
@@ -76,18 +76,18 @@ func TestUnstructuredBuiltInAppliesAsTyped(t *testing.T) {
 // removed.
 func TestUnstructuredCustomResource(t *testing.T) {
 	ns := harness.Namespace(t, dies)
-	blank := harness.MoldedBlank(t, harness.Molds(t, config), widgetGVK).DieWith(func(d *dieunstructured.Object) {
+	blank := harness.MoldedBlank(t, harness.Molds(t, config), widgetGVK).DieWith(func(d *dieunstructured.ObjectMut) {
 		d.SetNamespace(ns)
 		d.SetName("web")
 	})
-	apply(t, blank.DieWith(func(d *dieunstructured.Object) {
+	apply(t, blank.DieWith(func(d *dieunstructured.ObjectMut) {
 		match := d.Node().Field("spec").Field("match")
 		match.Field("equal").Set(true)
 		match.Field("note").Set("set by matcher")
 		d.Node().Field("spec").Field("ports").Item("name", "http").Field("port").Set(int64(80))
 	}), "matcher", false)
 
-	got := apply(t, blank.DieWith(func(d *dieunstructured.Object) {
+	got := apply(t, blank.DieWith(func(d *dieunstructured.ObjectMut) {
 		match := d.Node().Field("spec").Field("match")
 		match.Field("equal").Clear()
 		match.Field("note").Clear()
@@ -122,14 +122,14 @@ func wardle(t *testing.T) *dieunstructured.Molds {
 func TestAggregatedAPI(t *testing.T) {
 	molds := wardle(t)
 	ns := harness.Namespace(t, dies)
-	flunder := harness.MoldedBlank(t, molds, flunderGVK).DieWith(func(d *dieunstructured.Object) {
+	flunder := harness.MoldedBlank(t, molds, flunderGVK).DieWith(func(d *dieunstructured.ObjectMut) {
 		d.SetNamespace(ns)
 		d.SetName("web")
 	})
-	apply(t, flunder.DieWith(func(d *dieunstructured.Object) {
+	apply(t, flunder.DieWith(func(d *dieunstructured.ObjectMut) {
 		d.Node().Field("spec").Field("reference").Set("other")
 	}), "referrer", false)
-	got := apply(t, flunder.DieWith(func(d *dieunstructured.Object) {
+	got := apply(t, flunder.DieWith(func(d *dieunstructured.ObjectMut) {
 		d.Node().Field("spec").Field("referenceType").Set("Flunder")
 	}), "typer", false)
 	if spec := got.Node().Field("spec"); spec.Field("reference").Get() != "other" || spec.Field("referenceType").Get() != "Flunder" {
@@ -137,7 +137,7 @@ func TestAggregatedAPI(t *testing.T) {
 	}
 	harness.AssertOwned(t, got, "typer", "", ".spec.referenceType")
 
-	got = apply(t, flunder.DieWith(func(d *dieunstructured.Object) {
+	got = apply(t, flunder.DieWith(func(d *dieunstructured.ObjectMut) {
 		d.Node().Field("spec").Field("reference").Clear()
 	}), "clearer", false)
 	if got.Node().Field("spec").Field("reference").Has() {
@@ -152,17 +152,17 @@ func TestAggregatedAPIAtomicList(t *testing.T) {
 	molds := wardle(t)
 	name := "dies-" + strings.ToLower(strings.ReplaceAll(t.Name(), "/", "-"))
 	// cluster scoped, so it's labeled and deleted after, as namespaces are
-	fischer := harness.MoldedBlank(t, molds, fischerGVK).DieWith(func(d *dieunstructured.Object) {
+	fischer := harness.MoldedBlank(t, molds, fischerGVK).DieWith(func(d *dieunstructured.ObjectMut) {
 		d.SetName(name)
 		d.SetLabels(map[string]string{harness.Label: "true"})
 	})
-	actual := apply(t, fischer.DieWith(func(d *dieunstructured.Object) {
+	actual := apply(t, fischer.DieWith(func(d *dieunstructured.ObjectMut) {
 		d.Node().Field("disallowedFlunders").Set([]any{"a", "b"})
 	}), "app", false)
 	// t.Context is done by the time cleanups run
-	t.Cleanup(func() { _ = dies.Delete(context.Background(), actual.DieImmutable(false)) })
+	t.Cleanup(func() { _ = dies.Delete(context.Background(), actual.DieMutable()) })
 
-	got := apply(t, actual.DieWith(func(d *dieunstructured.Object) {
+	got := apply(t, actual.DieWith(func(d *dieunstructured.ObjectMut) {
 		d.Node().Field("disallowedFlunders").Index(1).Set("c")
 	}), "app", false)
 	if list := got.Node().Field("disallowedFlunders").Get(); !reflect.DeepEqual(list, []any{"a", "c"}) {

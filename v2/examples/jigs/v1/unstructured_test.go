@@ -152,7 +152,8 @@ func TestUnstructuredKeysMustBeUnique(t *testing.T) {
 // A typed jig over an unstructured die records what it writes as intent on
 // the die, so it has exact patches, for a kind with no Go types.
 func TestStructuredJigOfAnUnstructuredDie(t *testing.T) {
-	d := dieunstructured.Blank.DieFeedUnstructured(unstructuredFromJSON(t, `{
+	d := dieunstructured.Blank.DieWith(func(d *dieunstructured.ObjectMut) {
+		d.DieFeedUnstructured(unstructuredFromJSON(t, `{
 		"apiVersion": "acme.dev/v1", "kind": "Workload",
 		"metadata": {"name": "web"},
 		"spec": {
@@ -163,9 +164,10 @@ func TestStructuredJigOfAnUnstructuredDie(t *testing.T) {
 				"futureField": {"from": "a newer API"}
 			}]}}
 		}
-	}`)).DieImmutable(false)
+	}`))
+	}).DieMutable()
 
-	ps, ok := jigsv1.PodSpecableJig.Of(d)
+	ps, ok := jigsv1.PodSpecableJig.OfMut(d)
 	if !ok {
 		t.Fatal("no jig of an unstructured die")
 	}
@@ -196,7 +198,9 @@ func TestStructuredJigOfAnUnstructuredDie(t *testing.T) {
 		t.Errorf("containers %v", containers)
 	}
 
-	// and the same jig of an immutable die is read-only
-	ro, _ := jigsv1.PodSpecableJig.Of(dieunstructured.Blank.DieFeedUnstructured(u))
-	assertPanicsWith(t, "read-only", func() { injectSidecar(ro) })
+	// and the same jig of an immutable die reads
+	ro, _ := jigsv1.PodSpecableJig.Of(dieunstructured.Blank.DieWith(func(d *dieunstructured.ObjectMut) { d.DieFeedUnstructured(u) }))
+	if ro.Template().Spec().Containers().Len() != 2 {
+		t.Errorf("containers %d", ro.Template().Spec().Containers().Len())
+	}
 }

@@ -39,17 +39,32 @@ import (
 // Kubernetes, and have special scaling options on top of those available to
 // normal per-pod metrics using the "pods" source. Only one "target" type
 // should be set.
+//
+// ContainerResourceMetricSourceDie is immutable: it reads.
+// ContainerResourceMetricSourceDieMut, its mutable die, also writes, as DieWith passes it.
 type ContainerResourceMetricSourceDie struct {
-	diebase.DieBase[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie]
+	diebase.DieBase[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]
 }
 
-func (*ContainerResourceMetricSourceDie) DieFrom(b diebase.DieBase[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie]) *ContainerResourceMetricSourceDie {
+// ContainerResourceMetricSourceDieMut is the mutable die of ContainerResourceMetricSource: see ContainerResourceMetricSourceDie.
+type ContainerResourceMetricSourceDieMut struct {
+	diebase.DieMutBase[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]
+}
+
+func (*ContainerResourceMetricSourceDie) DieFrom(b diebase.DieBase[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]) *ContainerResourceMetricSourceDie {
 	return &ContainerResourceMetricSourceDie{b}
 }
 
-var _ diebase.DieOf[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie] = (*ContainerResourceMetricSourceDie)(nil)
+func (*ContainerResourceMetricSourceDieMut) DieFrom(b diebase.DieMutBase[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]) *ContainerResourceMetricSourceDieMut {
+	return &ContainerResourceMetricSourceDieMut{b}
+}
 
-var ContainerResourceMetricSourceBlank = diebase.Blank[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie]()
+var (
+	_ diebase.DieOf[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]    = (*ContainerResourceMetricSourceDie)(nil)
+	_ diebase.DieMutOf[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut] = (*ContainerResourceMetricSourceDieMut)(nil)
+)
+
+var ContainerResourceMetricSourceBlank = diebase.Blank[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]()
 
 type containerResourceMetricSourceFieldsTable struct {
 	Name                     diefields.Field[ContainerResourceMetricSource, diecorev1.ResourceName]
@@ -68,27 +83,51 @@ var containerResourceMetricSourceFields = &diefields.Table[containerResourceMetr
 }}
 
 // name is the name of the resource in question.
-func (d *ContainerResourceMetricSourceDie) Name() diefields.Value[diecorev1.ResourceName, *ContainerResourceMetricSourceDie] {
+func (d *ContainerResourceMetricSourceDie) Name() diefields.Value[diecorev1.ResourceName] {
 	return diefields.ValueOf(d, containerResourceMetricSourceFields.Get().Name)
 }
 
 // targetAverageUtilization is the target value of the average of the
 // resource metric across all relevant pods, represented as a percentage of
 // the requested value of the resource for the pods.
-func (d *ContainerResourceMetricSourceDie) TargetAverageUtilization() diefields.Optional[int32, *ContainerResourceMetricSourceDie] {
+func (d *ContainerResourceMetricSourceDie) TargetAverageUtilization() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, containerResourceMetricSourceFields.Get().TargetAverageUtilization)
 }
 
 // targetAverageValue is the target value of the average of the
 // resource metric across all relevant pods, as a raw value (instead of as
 // a percentage of the request), similar to the "pods" metric source type.
-func (d *ContainerResourceMetricSourceDie) TargetAverageValue() diefields.Optional[resource.Quantity, *ContainerResourceMetricSourceDie] {
+func (d *ContainerResourceMetricSourceDie) TargetAverageValue() diefields.Optional[resource.Quantity] {
 	return diefields.OptionalOf(d, containerResourceMetricSourceFields.Get().TargetAverageValue)
 }
 
 // container is the name of the container in the pods of the scaling target.
-func (d *ContainerResourceMetricSourceDie) Container() diefields.Value[string, *ContainerResourceMetricSourceDie] {
+func (d *ContainerResourceMetricSourceDie) Container() diefields.Value[string] {
 	return diefields.ValueOf(d, containerResourceMetricSourceFields.Get().Container)
+}
+
+// name is the name of the resource in question.
+func (d *ContainerResourceMetricSourceDieMut) Name() diefields.ValueMut[diecorev1.ResourceName, *ContainerResourceMetricSourceDieMut] {
+	return diefields.ValueMutOf(d, containerResourceMetricSourceFields.Get().Name)
+}
+
+// targetAverageUtilization is the target value of the average of the
+// resource metric across all relevant pods, represented as a percentage of
+// the requested value of the resource for the pods.
+func (d *ContainerResourceMetricSourceDieMut) TargetAverageUtilization() diefields.OptionalMut[int32, *ContainerResourceMetricSourceDieMut] {
+	return diefields.OptionalMutOf(d, containerResourceMetricSourceFields.Get().TargetAverageUtilization)
+}
+
+// targetAverageValue is the target value of the average of the
+// resource metric across all relevant pods, as a raw value (instead of as
+// a percentage of the request), similar to the "pods" metric source type.
+func (d *ContainerResourceMetricSourceDieMut) TargetAverageValue() diefields.OptionalMut[resource.Quantity, *ContainerResourceMetricSourceDieMut] {
+	return diefields.OptionalMutOf(d, containerResourceMetricSourceFields.Get().TargetAverageValue)
+}
+
+// container is the name of the container in the pods of the scaling target.
+func (d *ContainerResourceMetricSourceDieMut) Container() diefields.ValueMut[string, *ContainerResourceMetricSourceDieMut] {
+	return diefields.ValueMutOf(d, containerResourceMetricSourceFields.Get().Container)
 }
 
 // ContainerResourceMetricStatus indicates the current value of a resource metric known to
@@ -96,17 +135,32 @@ func (d *ContainerResourceMetricSourceDie) Container() diefields.Value[string, *
 // current scale target (e.g. CPU or memory).  Such metrics are built in to
 // Kubernetes, and have special scaling options on top of those available to
 // normal per-pod metrics using the "pods" source.
+//
+// ContainerResourceMetricStatusDie is immutable: it reads.
+// ContainerResourceMetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
 type ContainerResourceMetricStatusDie struct {
-	diebase.DieBase[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie]
+	diebase.DieBase[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]
 }
 
-func (*ContainerResourceMetricStatusDie) DieFrom(b diebase.DieBase[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie]) *ContainerResourceMetricStatusDie {
+// ContainerResourceMetricStatusDieMut is the mutable die of ContainerResourceMetricStatus: see ContainerResourceMetricStatusDie.
+type ContainerResourceMetricStatusDieMut struct {
+	diebase.DieMutBase[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]
+}
+
+func (*ContainerResourceMetricStatusDie) DieFrom(b diebase.DieBase[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]) *ContainerResourceMetricStatusDie {
 	return &ContainerResourceMetricStatusDie{b}
 }
 
-var _ diebase.DieOf[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie] = (*ContainerResourceMetricStatusDie)(nil)
+func (*ContainerResourceMetricStatusDieMut) DieFrom(b diebase.DieMutBase[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]) *ContainerResourceMetricStatusDieMut {
+	return &ContainerResourceMetricStatusDieMut{b}
+}
 
-var ContainerResourceMetricStatusBlank = diebase.Blank[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie]()
+var (
+	_ diebase.DieOf[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]    = (*ContainerResourceMetricStatusDie)(nil)
+	_ diebase.DieMutOf[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut] = (*ContainerResourceMetricStatusDieMut)(nil)
+)
+
+var ContainerResourceMetricStatusBlank = diebase.Blank[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]()
 
 type containerResourceMetricStatusFieldsTable struct {
 	Name                      diefields.Field[ContainerResourceMetricStatus, diecorev1.ResourceName]
@@ -125,7 +179,7 @@ var containerResourceMetricStatusFields = &diefields.Table[containerResourceMetr
 }}
 
 // name is the name of the resource in question.
-func (d *ContainerResourceMetricStatusDie) Name() diefields.Value[diecorev1.ResourceName, *ContainerResourceMetricStatusDie] {
+func (d *ContainerResourceMetricStatusDie) Name() diefields.Value[diecorev1.ResourceName] {
 	return diefields.ValueOf(d, containerResourceMetricStatusFields.Get().Name)
 }
 
@@ -134,7 +188,7 @@ func (d *ContainerResourceMetricStatusDie) Name() diefields.Value[diecorev1.Reso
 // the requested value of the resource for the pods.  It will only be
 // present if `targetAverageValue` was set in the corresponding metric
 // specification.
-func (d *ContainerResourceMetricStatusDie) CurrentAverageUtilization() diefields.Optional[int32, *ContainerResourceMetricStatusDie] {
+func (d *ContainerResourceMetricStatusDie) CurrentAverageUtilization() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, containerResourceMetricStatusFields.Get().CurrentAverageUtilization)
 }
 
@@ -142,27 +196,69 @@ func (d *ContainerResourceMetricStatusDie) CurrentAverageUtilization() diefields
 // resource metric across all relevant pods, as a raw value (instead of as
 // a percentage of the request), similar to the "pods" metric source type.
 // It will always be set, regardless of the corresponding metric specification.
-func (d *ContainerResourceMetricStatusDie) CurrentAverageValue() diefields.Value[resource.Quantity, *ContainerResourceMetricStatusDie] {
+func (d *ContainerResourceMetricStatusDie) CurrentAverageValue() diefields.Value[resource.Quantity] {
 	return diefields.ValueOf(d, containerResourceMetricStatusFields.Get().CurrentAverageValue)
 }
 
 // container is the name of the container in the pods of the scaling taget
-func (d *ContainerResourceMetricStatusDie) Container() diefields.Value[string, *ContainerResourceMetricStatusDie] {
+func (d *ContainerResourceMetricStatusDie) Container() diefields.Value[string] {
 	return diefields.ValueOf(d, containerResourceMetricStatusFields.Get().Container)
 }
 
-// CrossVersionObjectReference contains enough information to let you identify the referred resource.
-type CrossVersionObjectReferenceDie struct {
-	diebase.DieBase[CrossVersionObjectReference, *CrossVersionObjectReferenceDie]
+// name is the name of the resource in question.
+func (d *ContainerResourceMetricStatusDieMut) Name() diefields.ValueMut[diecorev1.ResourceName, *ContainerResourceMetricStatusDieMut] {
+	return diefields.ValueMutOf(d, containerResourceMetricStatusFields.Get().Name)
 }
 
-func (*CrossVersionObjectReferenceDie) DieFrom(b diebase.DieBase[CrossVersionObjectReference, *CrossVersionObjectReferenceDie]) *CrossVersionObjectReferenceDie {
+// currentAverageUtilization is the current value of the average of the
+// resource metric across all relevant pods, represented as a percentage of
+// the requested value of the resource for the pods.  It will only be
+// present if `targetAverageValue` was set in the corresponding metric
+// specification.
+func (d *ContainerResourceMetricStatusDieMut) CurrentAverageUtilization() diefields.OptionalMut[int32, *ContainerResourceMetricStatusDieMut] {
+	return diefields.OptionalMutOf(d, containerResourceMetricStatusFields.Get().CurrentAverageUtilization)
+}
+
+// currentAverageValue is the current value of the average of the
+// resource metric across all relevant pods, as a raw value (instead of as
+// a percentage of the request), similar to the "pods" metric source type.
+// It will always be set, regardless of the corresponding metric specification.
+func (d *ContainerResourceMetricStatusDieMut) CurrentAverageValue() diefields.ValueMut[resource.Quantity, *ContainerResourceMetricStatusDieMut] {
+	return diefields.ValueMutOf(d, containerResourceMetricStatusFields.Get().CurrentAverageValue)
+}
+
+// container is the name of the container in the pods of the scaling taget
+func (d *ContainerResourceMetricStatusDieMut) Container() diefields.ValueMut[string, *ContainerResourceMetricStatusDieMut] {
+	return diefields.ValueMutOf(d, containerResourceMetricStatusFields.Get().Container)
+}
+
+// CrossVersionObjectReference contains enough information to let you identify the referred resource.
+//
+// CrossVersionObjectReferenceDie is immutable: it reads.
+// CrossVersionObjectReferenceDieMut, its mutable die, also writes, as DieWith passes it.
+type CrossVersionObjectReferenceDie struct {
+	diebase.DieBase[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]
+}
+
+// CrossVersionObjectReferenceDieMut is the mutable die of CrossVersionObjectReference: see CrossVersionObjectReferenceDie.
+type CrossVersionObjectReferenceDieMut struct {
+	diebase.DieMutBase[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]
+}
+
+func (*CrossVersionObjectReferenceDie) DieFrom(b diebase.DieBase[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]) *CrossVersionObjectReferenceDie {
 	return &CrossVersionObjectReferenceDie{b}
 }
 
-var _ diebase.DieOf[CrossVersionObjectReference, *CrossVersionObjectReferenceDie] = (*CrossVersionObjectReferenceDie)(nil)
+func (*CrossVersionObjectReferenceDieMut) DieFrom(b diebase.DieMutBase[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]) *CrossVersionObjectReferenceDieMut {
+	return &CrossVersionObjectReferenceDieMut{b}
+}
 
-var CrossVersionObjectReferenceBlank = diebase.Blank[CrossVersionObjectReference, *CrossVersionObjectReferenceDie]()
+var (
+	_ diebase.DieOf[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]    = (*CrossVersionObjectReferenceDie)(nil)
+	_ diebase.DieMutOf[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut] = (*CrossVersionObjectReferenceDieMut)(nil)
+)
+
+var CrossVersionObjectReferenceBlank = diebase.Blank[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -171,34 +267,47 @@ func (d *CrossVersionObjectReferenceDie) DieReleaseApplyConfiguration() *CrossVe
 	return diecodegen.ReleaseApplyConfiguration[CrossVersionObjectReferenceApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CrossVersionObjectReferenceDie) DieFeedApplyConfiguration(ac *CrossVersionObjectReferenceApplyConfiguration) *CrossVersionObjectReferenceDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CrossVersionObjectReferenceDie) DieStampApplyConfiguration(fn func(ac *CrossVersionObjectReferenceApplyConfiguration)) *CrossVersionObjectReferenceDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CrossVersionObjectReferenceDie) DieReleaseApplyConfigurationE() (*CrossVersionObjectReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CrossVersionObjectReferenceApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CrossVersionObjectReferenceDieMut) DieReleaseApplyConfiguration() *CrossVersionObjectReferenceApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CrossVersionObjectReferenceApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CrossVersionObjectReferenceDieMut) DieReleaseApplyConfigurationE() (*CrossVersionObjectReferenceApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CrossVersionObjectReferenceApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CrossVersionObjectReferenceDieMut) DieFeedApplyConfiguration(ac *CrossVersionObjectReferenceApplyConfiguration) *CrossVersionObjectReferenceDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CrossVersionObjectReferenceDieMut) DieStampApplyConfiguration(fn func(ac *CrossVersionObjectReferenceApplyConfiguration)) *CrossVersionObjectReferenceDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CrossVersionObjectReferenceDie) DieFeedApplyConfigurationE(ac *CrossVersionObjectReferenceApplyConfiguration) (*CrossVersionObjectReferenceDie, error) {
+func (d *CrossVersionObjectReferenceDieMut) DieFeedApplyConfigurationE(ac *CrossVersionObjectReferenceApplyConfiguration) (*CrossVersionObjectReferenceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CrossVersionObjectReferenceDie) DieStampApplyConfigurationE(fn func(ac *CrossVersionObjectReferenceApplyConfiguration)) (*CrossVersionObjectReferenceDie, error) {
+func (d *CrossVersionObjectReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *CrossVersionObjectReferenceApplyConfiguration)) (*CrossVersionObjectReferenceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -217,38 +326,68 @@ var crossVersionObjectReferenceFields = &diefields.Table[crossVersionObjectRefer
 }}
 
 // kind is the kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *CrossVersionObjectReferenceDie) Kind() diefields.Value[string, *CrossVersionObjectReferenceDie] {
+func (d *CrossVersionObjectReferenceDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, crossVersionObjectReferenceFields.Get().Kind)
 }
 
 // name is the name of the referent; More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-func (d *CrossVersionObjectReferenceDie) Name() diefields.Value[string, *CrossVersionObjectReferenceDie] {
+func (d *CrossVersionObjectReferenceDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, crossVersionObjectReferenceFields.Get().Name)
 }
 
 // apiVersion is the API version of the referent
-func (d *CrossVersionObjectReferenceDie) APIVersion() diefields.Value[string, *CrossVersionObjectReferenceDie] {
+func (d *CrossVersionObjectReferenceDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, crossVersionObjectReferenceFields.Get().APIVersion)
+}
+
+// kind is the kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *CrossVersionObjectReferenceDieMut) Kind() diefields.ValueMut[string, *CrossVersionObjectReferenceDieMut] {
+	return diefields.ValueMutOf(d, crossVersionObjectReferenceFields.Get().Kind)
+}
+
+// name is the name of the referent; More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+func (d *CrossVersionObjectReferenceDieMut) Name() diefields.ValueMut[string, *CrossVersionObjectReferenceDieMut] {
+	return diefields.ValueMutOf(d, crossVersionObjectReferenceFields.Get().Name)
+}
+
+// apiVersion is the API version of the referent
+func (d *CrossVersionObjectReferenceDieMut) APIVersion() diefields.ValueMut[string, *CrossVersionObjectReferenceDieMut] {
+	return diefields.ValueMutOf(d, crossVersionObjectReferenceFields.Get().APIVersion)
 }
 
 // ExternalMetricSource indicates how to scale on a metric not associated with
 // any Kubernetes object (for example length of queue in cloud
 // messaging service, or QPS from loadbalancer running outside of cluster).
+//
+// ExternalMetricSourceDie is immutable: it reads.
+// ExternalMetricSourceDieMut, its mutable die, also writes, as DieWith passes it.
 type ExternalMetricSourceDie struct {
-	diebase.DieBase[ExternalMetricSource, *ExternalMetricSourceDie]
+	diebase.DieBase[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]
 }
 
-func (*ExternalMetricSourceDie) DieFrom(b diebase.DieBase[ExternalMetricSource, *ExternalMetricSourceDie]) *ExternalMetricSourceDie {
+// ExternalMetricSourceDieMut is the mutable die of ExternalMetricSource: see ExternalMetricSourceDie.
+type ExternalMetricSourceDieMut struct {
+	diebase.DieMutBase[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]
+}
+
+func (*ExternalMetricSourceDie) DieFrom(b diebase.DieBase[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]) *ExternalMetricSourceDie {
 	return &ExternalMetricSourceDie{b}
 }
 
-var _ diebase.DieOf[ExternalMetricSource, *ExternalMetricSourceDie] = (*ExternalMetricSourceDie)(nil)
+func (*ExternalMetricSourceDieMut) DieFrom(b diebase.DieMutBase[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]) *ExternalMetricSourceDieMut {
+	return &ExternalMetricSourceDieMut{b}
+}
 
-var ExternalMetricSourceBlank = diebase.Blank[ExternalMetricSource, *ExternalMetricSourceDie]()
+var (
+	_ diebase.DieOf[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]    = (*ExternalMetricSourceDie)(nil)
+	_ diebase.DieMutOf[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut] = (*ExternalMetricSourceDieMut)(nil)
+)
+
+var ExternalMetricSourceBlank = diebase.Blank[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]()
 
 type externalMetricSourceFieldsTable struct {
 	MetricName         diefields.Field[ExternalMetricSource, string]
-	MetricSelector     diefields.Struct[ExternalMetricSource, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]
+	MetricSelector     diefields.Struct[ExternalMetricSource, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 	TargetValue        diefields.Field[ExternalMetricSource, *resource.Quantity]
 	TargetAverageValue diefields.Field[ExternalMetricSource, *resource.Quantity]
 }
@@ -256,14 +395,14 @@ type externalMetricSourceFieldsTable struct {
 var externalMetricSourceFields = &diefields.Table[externalMetricSourceFieldsTable]{Build: func() (f externalMetricSourceFieldsTable) {
 	_ = annotated
 	f.MetricName = diefields.NewField[ExternalMetricSource, string]("metricName")
-	f.MetricSelector = diefields.NewStruct[ExternalMetricSource, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]("metricSelector")
+	f.MetricSelector = diefields.NewStruct[ExternalMetricSource, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("metricSelector")
 	f.TargetValue = diefields.NewField[ExternalMetricSource, *resource.Quantity]("targetValue")
 	f.TargetAverageValue = diefields.NewField[ExternalMetricSource, *resource.Quantity]("targetAverageValue")
 	return
 }}
 
 // metricName is the name of the metric in question.
-func (d *ExternalMetricSourceDie) MetricName() diefields.Value[string, *ExternalMetricSourceDie] {
+func (d *ExternalMetricSourceDie) MetricName() diefields.Value[string] {
 	return diefields.ValueOf(d, externalMetricSourceFields.Get().MetricName)
 }
 
@@ -275,33 +414,71 @@ func (d *ExternalMetricSourceDie) MetricSelector() *diemetav1.LabelSelectorDie {
 
 // targetValue is the target value of the metric (as a quantity).
 // Mutually exclusive with TargetAverageValue.
-func (d *ExternalMetricSourceDie) TargetValue() diefields.Optional[resource.Quantity, *ExternalMetricSourceDie] {
+func (d *ExternalMetricSourceDie) TargetValue() diefields.Optional[resource.Quantity] {
 	return diefields.OptionalOf(d, externalMetricSourceFields.Get().TargetValue)
 }
 
 // targetAverageValue is the target per-pod value of global metric (as a quantity).
 // Mutually exclusive with TargetValue.
-func (d *ExternalMetricSourceDie) TargetAverageValue() diefields.Optional[resource.Quantity, *ExternalMetricSourceDie] {
+func (d *ExternalMetricSourceDie) TargetAverageValue() diefields.Optional[resource.Quantity] {
 	return diefields.OptionalOf(d, externalMetricSourceFields.Get().TargetAverageValue)
+}
+
+// metricName is the name of the metric in question.
+func (d *ExternalMetricSourceDieMut) MetricName() diefields.ValueMut[string, *ExternalMetricSourceDieMut] {
+	return diefields.ValueMutOf(d, externalMetricSourceFields.Get().MetricName)
+}
+
+// metricSelector is used to identify a specific time series
+// within a given metric.
+func (d *ExternalMetricSourceDieMut) MetricSelector() *diemetav1.LabelSelectorDieMut {
+	return diefields.ChildMut(d, externalMetricSourceFields.Get().MetricSelector)
+}
+
+// targetValue is the target value of the metric (as a quantity).
+// Mutually exclusive with TargetAverageValue.
+func (d *ExternalMetricSourceDieMut) TargetValue() diefields.OptionalMut[resource.Quantity, *ExternalMetricSourceDieMut] {
+	return diefields.OptionalMutOf(d, externalMetricSourceFields.Get().TargetValue)
+}
+
+// targetAverageValue is the target per-pod value of global metric (as a quantity).
+// Mutually exclusive with TargetValue.
+func (d *ExternalMetricSourceDieMut) TargetAverageValue() diefields.OptionalMut[resource.Quantity, *ExternalMetricSourceDieMut] {
+	return diefields.OptionalMutOf(d, externalMetricSourceFields.Get().TargetAverageValue)
 }
 
 // ExternalMetricStatus indicates the current value of a global metric
 // not associated with any Kubernetes object.
+//
+// ExternalMetricStatusDie is immutable: it reads.
+// ExternalMetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
 type ExternalMetricStatusDie struct {
-	diebase.DieBase[ExternalMetricStatus, *ExternalMetricStatusDie]
+	diebase.DieBase[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]
 }
 
-func (*ExternalMetricStatusDie) DieFrom(b diebase.DieBase[ExternalMetricStatus, *ExternalMetricStatusDie]) *ExternalMetricStatusDie {
+// ExternalMetricStatusDieMut is the mutable die of ExternalMetricStatus: see ExternalMetricStatusDie.
+type ExternalMetricStatusDieMut struct {
+	diebase.DieMutBase[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]
+}
+
+func (*ExternalMetricStatusDie) DieFrom(b diebase.DieBase[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]) *ExternalMetricStatusDie {
 	return &ExternalMetricStatusDie{b}
 }
 
-var _ diebase.DieOf[ExternalMetricStatus, *ExternalMetricStatusDie] = (*ExternalMetricStatusDie)(nil)
+func (*ExternalMetricStatusDieMut) DieFrom(b diebase.DieMutBase[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]) *ExternalMetricStatusDieMut {
+	return &ExternalMetricStatusDieMut{b}
+}
 
-var ExternalMetricStatusBlank = diebase.Blank[ExternalMetricStatus, *ExternalMetricStatusDie]()
+var (
+	_ diebase.DieOf[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]    = (*ExternalMetricStatusDie)(nil)
+	_ diebase.DieMutOf[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut] = (*ExternalMetricStatusDieMut)(nil)
+)
+
+var ExternalMetricStatusBlank = diebase.Blank[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]()
 
 type externalMetricStatusFieldsTable struct {
 	MetricName          diefields.Field[ExternalMetricStatus, string]
-	MetricSelector      diefields.Struct[ExternalMetricStatus, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]
+	MetricSelector      diefields.Struct[ExternalMetricStatus, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 	CurrentValue        diefields.Field[ExternalMetricStatus, resource.Quantity]
 	CurrentAverageValue diefields.Field[ExternalMetricStatus, *resource.Quantity]
 }
@@ -309,7 +486,7 @@ type externalMetricStatusFieldsTable struct {
 var externalMetricStatusFields = &diefields.Table[externalMetricStatusFieldsTable]{Build: func() (f externalMetricStatusFieldsTable) {
 	_ = annotated
 	f.MetricName = diefields.NewField[ExternalMetricStatus, string]("metricName")
-	f.MetricSelector = diefields.NewStruct[ExternalMetricStatus, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]("metricSelector")
+	f.MetricSelector = diefields.NewStruct[ExternalMetricStatus, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("metricSelector")
 	f.CurrentValue = diefields.NewField[ExternalMetricStatus, resource.Quantity]("currentValue")
 	f.CurrentAverageValue = diefields.NewField[ExternalMetricStatus, *resource.Quantity]("currentAverageValue")
 	return
@@ -317,7 +494,7 @@ var externalMetricStatusFields = &diefields.Table[externalMetricStatusFieldsTabl
 
 // metricName is the name of a metric used for autoscaling in
 // metric system.
-func (d *ExternalMetricStatusDie) MetricName() diefields.Value[string, *ExternalMetricStatusDie] {
+func (d *ExternalMetricStatusDie) MetricName() diefields.Value[string] {
 	return diefields.ValueOf(d, externalMetricStatusFields.Get().MetricName)
 }
 
@@ -328,27 +505,64 @@ func (d *ExternalMetricStatusDie) MetricSelector() *diemetav1.LabelSelectorDie {
 }
 
 // currentValue is the current value of the metric (as a quantity)
-func (d *ExternalMetricStatusDie) CurrentValue() diefields.Value[resource.Quantity, *ExternalMetricStatusDie] {
+func (d *ExternalMetricStatusDie) CurrentValue() diefields.Value[resource.Quantity] {
 	return diefields.ValueOf(d, externalMetricStatusFields.Get().CurrentValue)
 }
 
 // currentAverageValue is the current value of metric averaged over autoscaled pods.
-func (d *ExternalMetricStatusDie) CurrentAverageValue() diefields.Optional[resource.Quantity, *ExternalMetricStatusDie] {
+func (d *ExternalMetricStatusDie) CurrentAverageValue() diefields.Optional[resource.Quantity] {
 	return diefields.OptionalOf(d, externalMetricStatusFields.Get().CurrentAverageValue)
 }
 
-// configuration of a horizontal pod autoscaler.
-type HorizontalPodAutoscalerDie struct {
-	diebase.DieObjectBase[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie]
+// metricName is the name of a metric used for autoscaling in
+// metric system.
+func (d *ExternalMetricStatusDieMut) MetricName() diefields.ValueMut[string, *ExternalMetricStatusDieMut] {
+	return diefields.ValueMutOf(d, externalMetricStatusFields.Get().MetricName)
 }
 
-func (*HorizontalPodAutoscalerDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie]) *HorizontalPodAutoscalerDie {
+// metricSelector is used to identify a specific time series
+// within a given metric.
+func (d *ExternalMetricStatusDieMut) MetricSelector() *diemetav1.LabelSelectorDieMut {
+	return diefields.ChildMut(d, externalMetricStatusFields.Get().MetricSelector)
+}
+
+// currentValue is the current value of the metric (as a quantity)
+func (d *ExternalMetricStatusDieMut) CurrentValue() diefields.ValueMut[resource.Quantity, *ExternalMetricStatusDieMut] {
+	return diefields.ValueMutOf(d, externalMetricStatusFields.Get().CurrentValue)
+}
+
+// currentAverageValue is the current value of metric averaged over autoscaled pods.
+func (d *ExternalMetricStatusDieMut) CurrentAverageValue() diefields.OptionalMut[resource.Quantity, *ExternalMetricStatusDieMut] {
+	return diefields.OptionalMutOf(d, externalMetricStatusFields.Get().CurrentAverageValue)
+}
+
+// configuration of a horizontal pod autoscaler.
+//
+// HorizontalPodAutoscalerDie is immutable: it reads.
+// HorizontalPodAutoscalerDieMut, its mutable die, also writes, as DieWith passes it.
+type HorizontalPodAutoscalerDie struct {
+	diebase.DieObjectBase[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut]
+}
+
+// HorizontalPodAutoscalerDieMut is the mutable die of HorizontalPodAutoscaler: see HorizontalPodAutoscalerDie.
+type HorizontalPodAutoscalerDieMut struct {
+	diebase.DieObjectMutBase[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut]
+}
+
+func (*HorizontalPodAutoscalerDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut]) *HorizontalPodAutoscalerDie {
 	return &HorizontalPodAutoscalerDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie] = (*HorizontalPodAutoscalerDie)(nil)
+func (*HorizontalPodAutoscalerDieMut) DieFrom(b diebase.DieMutBase[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut]) *HorizontalPodAutoscalerDieMut {
+	return &HorizontalPodAutoscalerDieMut{diebase.AsObjectMut(b)}
+}
 
-var HorizontalPodAutoscalerBlank = diebase.BlankOf[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie](HorizontalPodAutoscaler{TypeMeta: metav1.TypeMeta{APIVersion: "autoscaling/v1", Kind: "HorizontalPodAutoscaler"}})
+var (
+	_ dieobjects.DieObjectOf[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut]    = (*HorizontalPodAutoscalerDie)(nil)
+	_ dieobjects.DieObjectMutOf[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut] = (*HorizontalPodAutoscalerDieMut)(nil)
+)
+
+var HorizontalPodAutoscalerBlank = diebase.BlankOf[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut](HorizontalPodAutoscaler{TypeMeta: metav1.TypeMeta{APIVersion: "autoscaling/v1", Kind: "HorizontalPodAutoscaler"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -357,52 +571,65 @@ func (d *HorizontalPodAutoscalerDie) DieReleaseApplyConfiguration() *HorizontalP
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *HorizontalPodAutoscalerDie) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerApplyConfiguration) *HorizontalPodAutoscalerDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *HorizontalPodAutoscalerDie) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerApplyConfiguration)) *HorizontalPodAutoscalerDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *HorizontalPodAutoscalerDie) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *HorizontalPodAutoscalerDieMut) DieReleaseApplyConfiguration() *HorizontalPodAutoscalerApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *HorizontalPodAutoscalerDieMut) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *HorizontalPodAutoscalerDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerApplyConfiguration) *HorizontalPodAutoscalerDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *HorizontalPodAutoscalerDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerApplyConfiguration)) *HorizontalPodAutoscalerDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HorizontalPodAutoscalerDie) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerApplyConfiguration) (*HorizontalPodAutoscalerDie, error) {
+func (d *HorizontalPodAutoscalerDieMut) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerApplyConfiguration) (*HorizontalPodAutoscalerDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HorizontalPodAutoscalerDie) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerApplyConfiguration)) (*HorizontalPodAutoscalerDie, error) {
+func (d *HorizontalPodAutoscalerDieMut) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerApplyConfiguration)) (*HorizontalPodAutoscalerDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type horizontalPodAutoscalerFieldsTable struct {
 	Kind       diefields.Field[HorizontalPodAutoscaler, string]
 	APIVersion diefields.Field[HorizontalPodAutoscaler, string]
-	Metadata   diefields.Struct[HorizontalPodAutoscaler, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[HorizontalPodAutoscaler, HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie]
-	Status     diefields.Struct[HorizontalPodAutoscaler, HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie]
+	Metadata   diefields.Struct[HorizontalPodAutoscaler, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[HorizontalPodAutoscaler, HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]
+	Status     diefields.Struct[HorizontalPodAutoscaler, HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]
 }
 
 var horizontalPodAutoscalerFields = &diefields.Table[horizontalPodAutoscalerFieldsTable]{Build: func() (f horizontalPodAutoscalerFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[HorizontalPodAutoscaler, string]("kind")
 	f.APIVersion = diefields.NewField[HorizontalPodAutoscaler, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[HorizontalPodAutoscaler, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[HorizontalPodAutoscaler, HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie]("spec")
-	f.Status = diefields.NewStruct[HorizontalPodAutoscaler, HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie]("status")
+	f.Metadata = diefields.NewStruct[HorizontalPodAutoscaler, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[HorizontalPodAutoscaler, HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[HorizontalPodAutoscaler, HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]("status")
 	return
 }}
 
@@ -411,7 +638,7 @@ var horizontalPodAutoscalerFields = &diefields.Table[horizontalPodAutoscalerFiel
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *HorizontalPodAutoscalerDie) Kind() diefields.Value[string, *HorizontalPodAutoscalerDie] {
+func (d *HorizontalPodAutoscalerDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerFields.Get().Kind)
 }
 
@@ -419,7 +646,7 @@ func (d *HorizontalPodAutoscalerDie) Kind() diefields.Value[string, *HorizontalP
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *HorizontalPodAutoscalerDie) APIVersion() diefields.Value[string, *HorizontalPodAutoscalerDie] {
+func (d *HorizontalPodAutoscalerDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerFields.Get().APIVersion)
 }
 
@@ -438,19 +665,66 @@ func (d *HorizontalPodAutoscalerDie) Status() *HorizontalPodAutoscalerStatusDie 
 	return diefields.Child(d, horizontalPodAutoscalerFields.Get().Status)
 }
 
-// HorizontalPodAutoscalerCondition describes the state of
-// a HorizontalPodAutoscaler at a certain point.
-type HorizontalPodAutoscalerConditionDie struct {
-	diebase.DieBase[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *HorizontalPodAutoscalerDieMut) Kind() diefields.ValueMut[string, *HorizontalPodAutoscalerDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerFields.Get().Kind)
 }
 
-func (*HorizontalPodAutoscalerConditionDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie]) *HorizontalPodAutoscalerConditionDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *HorizontalPodAutoscalerDieMut) APIVersion() diefields.ValueMut[string, *HorizontalPodAutoscalerDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerFields.Get().APIVersion)
+}
+
+// metadata is the standard object metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *HorizontalPodAutoscalerDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, horizontalPodAutoscalerFields.Get().Metadata)
+}
+
+// spec defines the behaviour of autoscaler. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.
+func (d *HorizontalPodAutoscalerDieMut) Spec() *HorizontalPodAutoscalerSpecDieMut {
+	return diefields.ChildMut(d, horizontalPodAutoscalerFields.Get().Spec)
+}
+
+// status is the current information about the autoscaler.
+func (d *HorizontalPodAutoscalerDieMut) Status() *HorizontalPodAutoscalerStatusDieMut {
+	return diefields.ChildMut(d, horizontalPodAutoscalerFields.Get().Status)
+}
+
+// HorizontalPodAutoscalerCondition describes the state of
+// a HorizontalPodAutoscaler at a certain point.
+//
+// HorizontalPodAutoscalerConditionDie is immutable: it reads.
+// HorizontalPodAutoscalerConditionDieMut, its mutable die, also writes, as DieWith passes it.
+type HorizontalPodAutoscalerConditionDie struct {
+	diebase.DieBase[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]
+}
+
+// HorizontalPodAutoscalerConditionDieMut is the mutable die of HorizontalPodAutoscalerCondition: see HorizontalPodAutoscalerConditionDie.
+type HorizontalPodAutoscalerConditionDieMut struct {
+	diebase.DieMutBase[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]
+}
+
+func (*HorizontalPodAutoscalerConditionDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]) *HorizontalPodAutoscalerConditionDie {
 	return &HorizontalPodAutoscalerConditionDie{b}
 }
 
-var _ diebase.DieOf[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie] = (*HorizontalPodAutoscalerConditionDie)(nil)
+func (*HorizontalPodAutoscalerConditionDieMut) DieFrom(b diebase.DieMutBase[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]) *HorizontalPodAutoscalerConditionDieMut {
+	return &HorizontalPodAutoscalerConditionDieMut{b}
+}
 
-var HorizontalPodAutoscalerConditionBlank = diebase.Blank[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie]()
+var (
+	_ diebase.DieOf[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]    = (*HorizontalPodAutoscalerConditionDie)(nil)
+	_ diebase.DieMutOf[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut] = (*HorizontalPodAutoscalerConditionDieMut)(nil)
+)
+
+var HorizontalPodAutoscalerConditionBlank = diebase.Blank[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]()
 
 type horizontalPodAutoscalerConditionFieldsTable struct {
 	Type               diefields.Field[HorizontalPodAutoscalerCondition, HorizontalPodAutoscalerConditionType]
@@ -473,48 +747,82 @@ var horizontalPodAutoscalerConditionFields = &diefields.Table[horizontalPodAutos
 }}
 
 // type describes the current condition
-func (d *HorizontalPodAutoscalerConditionDie) Type() diefields.Value[HorizontalPodAutoscalerConditionType, *HorizontalPodAutoscalerConditionDie] {
+func (d *HorizontalPodAutoscalerConditionDie) Type() diefields.Value[HorizontalPodAutoscalerConditionType] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerConditionFields.Get().Type)
 }
 
 // status is the status of the condition (True, False, Unknown)
-func (d *HorizontalPodAutoscalerConditionDie) Status() diefields.Value[diecorev1.ConditionStatus, *HorizontalPodAutoscalerConditionDie] {
+func (d *HorizontalPodAutoscalerConditionDie) Status() diefields.Value[diecorev1.ConditionStatus] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerConditionFields.Get().Status)
 }
 
 // lastTransitionTime is the last time the condition transitioned from
 // one status to another
-func (d *HorizontalPodAutoscalerConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time, *HorizontalPodAutoscalerConditionDie] {
+func (d *HorizontalPodAutoscalerConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerConditionFields.Get().LastTransitionTime)
 }
 
 // reason is the reason for the condition's last transition.
-func (d *HorizontalPodAutoscalerConditionDie) Reason() diefields.Value[string, *HorizontalPodAutoscalerConditionDie] {
+func (d *HorizontalPodAutoscalerConditionDie) Reason() diefields.Value[string] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerConditionFields.Get().Reason)
 }
 
 // message is a human-readable explanation containing details about
 // the transition
-func (d *HorizontalPodAutoscalerConditionDie) Message() diefields.Value[string, *HorizontalPodAutoscalerConditionDie] {
+func (d *HorizontalPodAutoscalerConditionDie) Message() diefields.Value[string] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerConditionFields.Get().Message)
 }
 
 // observedGeneration represents the .metadata.generation that the condition was set based upon.
 // For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
 // with respect to the current state of the instance.
-func (d *HorizontalPodAutoscalerConditionDie) ObservedGeneration() diefields.Optional[int64, *HorizontalPodAutoscalerConditionDie] {
+func (d *HorizontalPodAutoscalerConditionDie) ObservedGeneration() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, horizontalPodAutoscalerConditionFields.Get().ObservedGeneration)
+}
+
+// type describes the current condition
+func (d *HorizontalPodAutoscalerConditionDieMut) Type() diefields.ValueMut[HorizontalPodAutoscalerConditionType, *HorizontalPodAutoscalerConditionDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerConditionFields.Get().Type)
+}
+
+// status is the status of the condition (True, False, Unknown)
+func (d *HorizontalPodAutoscalerConditionDieMut) Status() diefields.ValueMut[diecorev1.ConditionStatus, *HorizontalPodAutoscalerConditionDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerConditionFields.Get().Status)
+}
+
+// lastTransitionTime is the last time the condition transitioned from
+// one status to another
+func (d *HorizontalPodAutoscalerConditionDieMut) LastTransitionTime() diefields.ValueMut[diemetav1.Time, *HorizontalPodAutoscalerConditionDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerConditionFields.Get().LastTransitionTime)
+}
+
+// reason is the reason for the condition's last transition.
+func (d *HorizontalPodAutoscalerConditionDieMut) Reason() diefields.ValueMut[string, *HorizontalPodAutoscalerConditionDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerConditionFields.Get().Reason)
+}
+
+// message is a human-readable explanation containing details about
+// the transition
+func (d *HorizontalPodAutoscalerConditionDieMut) Message() diefields.ValueMut[string, *HorizontalPodAutoscalerConditionDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerConditionFields.Get().Message)
+}
+
+// observedGeneration represents the .metadata.generation that the condition was set based upon.
+// For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+// with respect to the current state of the instance.
+func (d *HorizontalPodAutoscalerConditionDieMut) ObservedGeneration() diefields.OptionalMut[int64, *HorizontalPodAutoscalerConditionDieMut] {
+	return diefields.OptionalMutOf(d, horizontalPodAutoscalerConditionFields.Get().ObservedGeneration)
 }
 
 // list of horizontal pod autoscaler objects.
 type HorizontalPodAutoscalerListDie struct {
-	dielists.List[*HorizontalPodAutoscalerDie]
+	dielists.List[*HorizontalPodAutoscalerDieMut]
 }
 
-var _ dielists.DieListOf[*HorizontalPodAutoscalerDie] = (*HorizontalPodAutoscalerListDie)(nil)
+var _ dielists.DieListOf[*HorizontalPodAutoscalerDieMut] = (*HorizontalPodAutoscalerListDie)(nil)
 
 // NewHorizontalPodAutoscalerList returns a list with items.
-func NewHorizontalPodAutoscalerList(items ...*HorizontalPodAutoscalerDie) *HorizontalPodAutoscalerListDie {
+func NewHorizontalPodAutoscalerList(items ...*HorizontalPodAutoscalerDieMut) *HorizontalPodAutoscalerListDie {
 	return &HorizontalPodAutoscalerListDie{dielists.NewList("autoscaling/v1", "HorizontalPodAutoscalerList", items...)}
 }
 
@@ -526,17 +834,32 @@ func (l *HorizontalPodAutoscalerListDie) DeepCopy() *HorizontalPodAutoscalerList
 func (l *HorizontalPodAutoscalerListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // specification of a horizontal pod autoscaler.
+//
+// HorizontalPodAutoscalerSpecDie is immutable: it reads.
+// HorizontalPodAutoscalerSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type HorizontalPodAutoscalerSpecDie struct {
-	diebase.DieBase[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie]
+	diebase.DieBase[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]
 }
 
-func (*HorizontalPodAutoscalerSpecDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie]) *HorizontalPodAutoscalerSpecDie {
+// HorizontalPodAutoscalerSpecDieMut is the mutable die of HorizontalPodAutoscalerSpec: see HorizontalPodAutoscalerSpecDie.
+type HorizontalPodAutoscalerSpecDieMut struct {
+	diebase.DieMutBase[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]
+}
+
+func (*HorizontalPodAutoscalerSpecDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]) *HorizontalPodAutoscalerSpecDie {
 	return &HorizontalPodAutoscalerSpecDie{b}
 }
 
-var _ diebase.DieOf[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie] = (*HorizontalPodAutoscalerSpecDie)(nil)
+func (*HorizontalPodAutoscalerSpecDieMut) DieFrom(b diebase.DieMutBase[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]) *HorizontalPodAutoscalerSpecDieMut {
+	return &HorizontalPodAutoscalerSpecDieMut{b}
+}
 
-var HorizontalPodAutoscalerSpecBlank = diebase.Blank[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie]()
+var (
+	_ diebase.DieOf[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]    = (*HorizontalPodAutoscalerSpecDie)(nil)
+	_ diebase.DieMutOf[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut] = (*HorizontalPodAutoscalerSpecDieMut)(nil)
+)
+
+var HorizontalPodAutoscalerSpecBlank = diebase.Blank[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -545,39 +868,52 @@ func (d *HorizontalPodAutoscalerSpecDie) DieReleaseApplyConfiguration() *Horizon
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *HorizontalPodAutoscalerSpecDie) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerSpecApplyConfiguration) *HorizontalPodAutoscalerSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *HorizontalPodAutoscalerSpecDie) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerSpecApplyConfiguration)) *HorizontalPodAutoscalerSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *HorizontalPodAutoscalerSpecDie) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *HorizontalPodAutoscalerSpecDieMut) DieReleaseApplyConfiguration() *HorizontalPodAutoscalerSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *HorizontalPodAutoscalerSpecDieMut) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *HorizontalPodAutoscalerSpecDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerSpecApplyConfiguration) *HorizontalPodAutoscalerSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *HorizontalPodAutoscalerSpecDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerSpecApplyConfiguration)) *HorizontalPodAutoscalerSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HorizontalPodAutoscalerSpecDie) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerSpecApplyConfiguration) (*HorizontalPodAutoscalerSpecDie, error) {
+func (d *HorizontalPodAutoscalerSpecDieMut) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerSpecApplyConfiguration) (*HorizontalPodAutoscalerSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HorizontalPodAutoscalerSpecDie) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerSpecApplyConfiguration)) (*HorizontalPodAutoscalerSpecDie, error) {
+func (d *HorizontalPodAutoscalerSpecDieMut) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerSpecApplyConfiguration)) (*HorizontalPodAutoscalerSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type horizontalPodAutoscalerSpecFieldsTable struct {
-	ScaleTargetRef                 diefields.Struct[HorizontalPodAutoscalerSpec, CrossVersionObjectReference, *CrossVersionObjectReferenceDie]
+	ScaleTargetRef                 diefields.Struct[HorizontalPodAutoscalerSpec, CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]
 	MinReplicas                    diefields.Field[HorizontalPodAutoscalerSpec, *int32]
 	MaxReplicas                    diefields.Field[HorizontalPodAutoscalerSpec, int32]
 	TargetCPUUtilizationPercentage diefields.Field[HorizontalPodAutoscalerSpec, *int32]
@@ -585,7 +921,7 @@ type horizontalPodAutoscalerSpecFieldsTable struct {
 
 var horizontalPodAutoscalerSpecFields = &diefields.Table[horizontalPodAutoscalerSpecFieldsTable]{Build: func() (f horizontalPodAutoscalerSpecFieldsTable) {
 	_ = annotated
-	f.ScaleTargetRef = diefields.NewStruct[HorizontalPodAutoscalerSpec, CrossVersionObjectReference, *CrossVersionObjectReferenceDie]("scaleTargetRef")
+	f.ScaleTargetRef = diefields.NewStruct[HorizontalPodAutoscalerSpec, CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]("scaleTargetRef")
 	f.MinReplicas = diefields.NewField[HorizontalPodAutoscalerSpec, *int32]("minReplicas")
 	f.MaxReplicas = diefields.NewField[HorizontalPodAutoscalerSpec, int32]("maxReplicas")
 	f.TargetCPUUtilizationPercentage = diefields.NewField[HorizontalPodAutoscalerSpec, *int32]("targetCPUUtilizationPercentage")
@@ -603,33 +939,74 @@ func (d *HorizontalPodAutoscalerSpecDie) ScaleTargetRef() *CrossVersionObjectRef
 // alpha feature gate HPAScaleToZero is enabled and at least one Object or External
 // metric is configured.  Scaling is active as long as at least one metric value is
 // available.
-func (d *HorizontalPodAutoscalerSpecDie) MinReplicas() diefields.Optional[int32, *HorizontalPodAutoscalerSpecDie] {
+func (d *HorizontalPodAutoscalerSpecDie) MinReplicas() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, horizontalPodAutoscalerSpecFields.Get().MinReplicas)
 }
 
 // maxReplicas is the upper limit for the number of pods that can be set by the autoscaler; cannot be smaller than MinReplicas.
-func (d *HorizontalPodAutoscalerSpecDie) MaxReplicas() diefields.Value[int32, *HorizontalPodAutoscalerSpecDie] {
+func (d *HorizontalPodAutoscalerSpecDie) MaxReplicas() diefields.Value[int32] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerSpecFields.Get().MaxReplicas)
 }
 
 // targetCPUUtilizationPercentage is the target average CPU utilization (represented as a percentage of requested CPU) over all the pods;
 // if not specified the default autoscaling policy will be used.
-func (d *HorizontalPodAutoscalerSpecDie) TargetCPUUtilizationPercentage() diefields.Optional[int32, *HorizontalPodAutoscalerSpecDie] {
+func (d *HorizontalPodAutoscalerSpecDie) TargetCPUUtilizationPercentage() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, horizontalPodAutoscalerSpecFields.Get().TargetCPUUtilizationPercentage)
 }
 
-// current status of a horizontal pod autoscaler
-type HorizontalPodAutoscalerStatusDie struct {
-	diebase.DieBase[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie]
+// scaleTargetRef is the reference to scaled resource; horizontal pod autoscaler will learn the current resource consumption
+// and will set the desired number of pods by using its Scale subresource.
+func (d *HorizontalPodAutoscalerSpecDieMut) ScaleTargetRef() *CrossVersionObjectReferenceDieMut {
+	return diefields.ChildMut(d, horizontalPodAutoscalerSpecFields.Get().ScaleTargetRef)
 }
 
-func (*HorizontalPodAutoscalerStatusDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie]) *HorizontalPodAutoscalerStatusDie {
+// minReplicas is the lower limit for the number of replicas to which the autoscaler
+// can scale down.  It defaults to 1 pod.  minReplicas is allowed to be 0 if the
+// alpha feature gate HPAScaleToZero is enabled and at least one Object or External
+// metric is configured.  Scaling is active as long as at least one metric value is
+// available.
+func (d *HorizontalPodAutoscalerSpecDieMut) MinReplicas() diefields.OptionalMut[int32, *HorizontalPodAutoscalerSpecDieMut] {
+	return diefields.OptionalMutOf(d, horizontalPodAutoscalerSpecFields.Get().MinReplicas)
+}
+
+// maxReplicas is the upper limit for the number of pods that can be set by the autoscaler; cannot be smaller than MinReplicas.
+func (d *HorizontalPodAutoscalerSpecDieMut) MaxReplicas() diefields.ValueMut[int32, *HorizontalPodAutoscalerSpecDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerSpecFields.Get().MaxReplicas)
+}
+
+// targetCPUUtilizationPercentage is the target average CPU utilization (represented as a percentage of requested CPU) over all the pods;
+// if not specified the default autoscaling policy will be used.
+func (d *HorizontalPodAutoscalerSpecDieMut) TargetCPUUtilizationPercentage() diefields.OptionalMut[int32, *HorizontalPodAutoscalerSpecDieMut] {
+	return diefields.OptionalMutOf(d, horizontalPodAutoscalerSpecFields.Get().TargetCPUUtilizationPercentage)
+}
+
+// current status of a horizontal pod autoscaler
+//
+// HorizontalPodAutoscalerStatusDie is immutable: it reads.
+// HorizontalPodAutoscalerStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type HorizontalPodAutoscalerStatusDie struct {
+	diebase.DieBase[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]
+}
+
+// HorizontalPodAutoscalerStatusDieMut is the mutable die of HorizontalPodAutoscalerStatus: see HorizontalPodAutoscalerStatusDie.
+type HorizontalPodAutoscalerStatusDieMut struct {
+	diebase.DieMutBase[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]
+}
+
+func (*HorizontalPodAutoscalerStatusDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]) *HorizontalPodAutoscalerStatusDie {
 	return &HorizontalPodAutoscalerStatusDie{b}
 }
 
-var _ diebase.DieOf[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie] = (*HorizontalPodAutoscalerStatusDie)(nil)
+func (*HorizontalPodAutoscalerStatusDieMut) DieFrom(b diebase.DieMutBase[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]) *HorizontalPodAutoscalerStatusDieMut {
+	return &HorizontalPodAutoscalerStatusDieMut{b}
+}
 
-var HorizontalPodAutoscalerStatusBlank = diebase.Blank[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie]()
+var (
+	_ diebase.DieOf[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]    = (*HorizontalPodAutoscalerStatusDie)(nil)
+	_ diebase.DieMutOf[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut] = (*HorizontalPodAutoscalerStatusDieMut)(nil)
+)
+
+var HorizontalPodAutoscalerStatusBlank = diebase.Blank[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -638,34 +1015,47 @@ func (d *HorizontalPodAutoscalerStatusDie) DieReleaseApplyConfiguration() *Horiz
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *HorizontalPodAutoscalerStatusDie) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerStatusApplyConfiguration) *HorizontalPodAutoscalerStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *HorizontalPodAutoscalerStatusDie) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerStatusApplyConfiguration)) *HorizontalPodAutoscalerStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *HorizontalPodAutoscalerStatusDie) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *HorizontalPodAutoscalerStatusDieMut) DieReleaseApplyConfiguration() *HorizontalPodAutoscalerStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *HorizontalPodAutoscalerStatusDieMut) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *HorizontalPodAutoscalerStatusDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerStatusApplyConfiguration) *HorizontalPodAutoscalerStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *HorizontalPodAutoscalerStatusDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerStatusApplyConfiguration)) *HorizontalPodAutoscalerStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HorizontalPodAutoscalerStatusDie) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerStatusApplyConfiguration) (*HorizontalPodAutoscalerStatusDie, error) {
+func (d *HorizontalPodAutoscalerStatusDieMut) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerStatusApplyConfiguration) (*HorizontalPodAutoscalerStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HorizontalPodAutoscalerStatusDie) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerStatusApplyConfiguration)) (*HorizontalPodAutoscalerStatusDie, error) {
+func (d *HorizontalPodAutoscalerStatusDieMut) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerStatusApplyConfiguration)) (*HorizontalPodAutoscalerStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -688,69 +1078,111 @@ var horizontalPodAutoscalerStatusFields = &diefields.Table[horizontalPodAutoscal
 }}
 
 // observedGeneration is the most recent generation observed by this autoscaler.
-func (d *HorizontalPodAutoscalerStatusDie) ObservedGeneration() diefields.Optional[int64, *HorizontalPodAutoscalerStatusDie] {
+func (d *HorizontalPodAutoscalerStatusDie) ObservedGeneration() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, horizontalPodAutoscalerStatusFields.Get().ObservedGeneration)
 }
 
 // lastScaleTime is the last time the HorizontalPodAutoscaler scaled the number of pods;
 // used by the autoscaler to control how often the number of pods is changed.
-func (d *HorizontalPodAutoscalerStatusDie) LastScaleTime() diefields.Optional[diemetav1.Time, *HorizontalPodAutoscalerStatusDie] {
+func (d *HorizontalPodAutoscalerStatusDie) LastScaleTime() diefields.Optional[diemetav1.Time] {
 	return diefields.OptionalOf(d, horizontalPodAutoscalerStatusFields.Get().LastScaleTime)
 }
 
 // currentReplicas is the current number of replicas of pods managed by this autoscaler.
-func (d *HorizontalPodAutoscalerStatusDie) CurrentReplicas() diefields.Value[int32, *HorizontalPodAutoscalerStatusDie] {
+func (d *HorizontalPodAutoscalerStatusDie) CurrentReplicas() diefields.Value[int32] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerStatusFields.Get().CurrentReplicas)
 }
 
 // desiredReplicas is the  desired number of replicas of pods managed by this autoscaler.
-func (d *HorizontalPodAutoscalerStatusDie) DesiredReplicas() diefields.Value[int32, *HorizontalPodAutoscalerStatusDie] {
+func (d *HorizontalPodAutoscalerStatusDie) DesiredReplicas() diefields.Value[int32] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerStatusFields.Get().DesiredReplicas)
 }
 
 // currentCPUUtilizationPercentage is the current average CPU utilization over all pods, represented as a percentage of requested CPU,
 // e.g. 70 means that an average pod is using now 70% of its requested CPU.
-func (d *HorizontalPodAutoscalerStatusDie) CurrentCPUUtilizationPercentage() diefields.Optional[int32, *HorizontalPodAutoscalerStatusDie] {
+func (d *HorizontalPodAutoscalerStatusDie) CurrentCPUUtilizationPercentage() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, horizontalPodAutoscalerStatusFields.Get().CurrentCPUUtilizationPercentage)
+}
+
+// observedGeneration is the most recent generation observed by this autoscaler.
+func (d *HorizontalPodAutoscalerStatusDieMut) ObservedGeneration() diefields.OptionalMut[int64, *HorizontalPodAutoscalerStatusDieMut] {
+	return diefields.OptionalMutOf(d, horizontalPodAutoscalerStatusFields.Get().ObservedGeneration)
+}
+
+// lastScaleTime is the last time the HorizontalPodAutoscaler scaled the number of pods;
+// used by the autoscaler to control how often the number of pods is changed.
+func (d *HorizontalPodAutoscalerStatusDieMut) LastScaleTime() diefields.OptionalMut[diemetav1.Time, *HorizontalPodAutoscalerStatusDieMut] {
+	return diefields.OptionalMutOf(d, horizontalPodAutoscalerStatusFields.Get().LastScaleTime)
+}
+
+// currentReplicas is the current number of replicas of pods managed by this autoscaler.
+func (d *HorizontalPodAutoscalerStatusDieMut) CurrentReplicas() diefields.ValueMut[int32, *HorizontalPodAutoscalerStatusDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerStatusFields.Get().CurrentReplicas)
+}
+
+// desiredReplicas is the  desired number of replicas of pods managed by this autoscaler.
+func (d *HorizontalPodAutoscalerStatusDieMut) DesiredReplicas() diefields.ValueMut[int32, *HorizontalPodAutoscalerStatusDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerStatusFields.Get().DesiredReplicas)
+}
+
+// currentCPUUtilizationPercentage is the current average CPU utilization over all pods, represented as a percentage of requested CPU,
+// e.g. 70 means that an average pod is using now 70% of its requested CPU.
+func (d *HorizontalPodAutoscalerStatusDieMut) CurrentCPUUtilizationPercentage() diefields.OptionalMut[int32, *HorizontalPodAutoscalerStatusDieMut] {
+	return diefields.OptionalMutOf(d, horizontalPodAutoscalerStatusFields.Get().CurrentCPUUtilizationPercentage)
 }
 
 // MetricSpec specifies how to scale based on a single metric
 // (only `type` and one other matching field should be set at once).
+//
+// MetricSpecDie is immutable: it reads.
+// MetricSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type MetricSpecDie struct {
-	diebase.DieBase[MetricSpec, *MetricSpecDie]
+	diebase.DieBase[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]
 }
 
-func (*MetricSpecDie) DieFrom(b diebase.DieBase[MetricSpec, *MetricSpecDie]) *MetricSpecDie {
+// MetricSpecDieMut is the mutable die of MetricSpec: see MetricSpecDie.
+type MetricSpecDieMut struct {
+	diebase.DieMutBase[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]
+}
+
+func (*MetricSpecDie) DieFrom(b diebase.DieBase[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]) *MetricSpecDie {
 	return &MetricSpecDie{b}
 }
 
-var _ diebase.DieOf[MetricSpec, *MetricSpecDie] = (*MetricSpecDie)(nil)
+func (*MetricSpecDieMut) DieFrom(b diebase.DieMutBase[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]) *MetricSpecDieMut {
+	return &MetricSpecDieMut{b}
+}
 
-var MetricSpecBlank = diebase.Blank[MetricSpec, *MetricSpecDie]()
+var (
+	_ diebase.DieOf[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]    = (*MetricSpecDie)(nil)
+	_ diebase.DieMutOf[MetricSpec, *MetricSpecDie, *MetricSpecDieMut] = (*MetricSpecDieMut)(nil)
+)
+
+var MetricSpecBlank = diebase.Blank[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]()
 
 type metricSpecFieldsTable struct {
 	Type              diefields.Field[MetricSpec, MetricSourceType]
-	Object            diefields.Struct[MetricSpec, ObjectMetricSource, *ObjectMetricSourceDie]
-	Pods              diefields.Struct[MetricSpec, PodsMetricSource, *PodsMetricSourceDie]
-	Resource          diefields.Struct[MetricSpec, ResourceMetricSource, *ResourceMetricSourceDie]
-	ContainerResource diefields.Struct[MetricSpec, ContainerResourceMetricSource, *ContainerResourceMetricSourceDie]
-	External          diefields.Struct[MetricSpec, ExternalMetricSource, *ExternalMetricSourceDie]
+	Object            diefields.Struct[MetricSpec, ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]
+	Pods              diefields.Struct[MetricSpec, PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]
+	Resource          diefields.Struct[MetricSpec, ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]
+	ContainerResource diefields.Struct[MetricSpec, ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]
+	External          diefields.Struct[MetricSpec, ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]
 }
 
 var metricSpecFields = &diefields.Table[metricSpecFieldsTable]{Build: func() (f metricSpecFieldsTable) {
 	_ = annotated
 	f.Type = diefields.NewField[MetricSpec, MetricSourceType]("type")
-	f.Object = diefields.NewStruct[MetricSpec, ObjectMetricSource, *ObjectMetricSourceDie]("object")
-	f.Pods = diefields.NewStruct[MetricSpec, PodsMetricSource, *PodsMetricSourceDie]("pods")
-	f.Resource = diefields.NewStruct[MetricSpec, ResourceMetricSource, *ResourceMetricSourceDie]("resource")
-	f.ContainerResource = diefields.NewStruct[MetricSpec, ContainerResourceMetricSource, *ContainerResourceMetricSourceDie]("containerResource")
-	f.External = diefields.NewStruct[MetricSpec, ExternalMetricSource, *ExternalMetricSourceDie]("external")
+	f.Object = diefields.NewStruct[MetricSpec, ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]("object")
+	f.Pods = diefields.NewStruct[MetricSpec, PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]("pods")
+	f.Resource = diefields.NewStruct[MetricSpec, ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]("resource")
+	f.ContainerResource = diefields.NewStruct[MetricSpec, ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]("containerResource")
+	f.External = diefields.NewStruct[MetricSpec, ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]("external")
 	return
 }}
 
 // type is the type of metric source.  It should be one of "ContainerResource",
 // "External", "Object", "Pods" or "Resource", each mapping to a matching field in the object.
-func (d *MetricSpecDie) Type() diefields.Value[MetricSourceType, *MetricSpecDie] {
+func (d *MetricSpecDie) Type() diefields.Value[MetricSourceType] {
 	return diefields.ValueOf(d, metricSpecFields.Get().Type)
 }
 
@@ -794,42 +1226,103 @@ func (d *MetricSpecDie) External() *ExternalMetricSourceDie {
 	return diefields.Child(d, metricSpecFields.Get().External)
 }
 
-// MetricStatus describes the last-read state of a single metric.
-type MetricStatusDie struct {
-	diebase.DieBase[MetricStatus, *MetricStatusDie]
+// type is the type of metric source.  It should be one of "ContainerResource",
+// "External", "Object", "Pods" or "Resource", each mapping to a matching field in the object.
+func (d *MetricSpecDieMut) Type() diefields.ValueMut[MetricSourceType, *MetricSpecDieMut] {
+	return diefields.ValueMutOf(d, metricSpecFields.Get().Type)
 }
 
-func (*MetricStatusDie) DieFrom(b diebase.DieBase[MetricStatus, *MetricStatusDie]) *MetricStatusDie {
+// object refers to a metric describing a single kubernetes object
+// (for example, hits-per-second on an Ingress object).
+func (d *MetricSpecDieMut) Object() *ObjectMetricSourceDieMut {
+	return diefields.ChildMut(d, metricSpecFields.Get().Object)
+}
+
+// pods refers to a metric describing each pod in the current scale target
+// (for example, transactions-processed-per-second).  The values will be
+// averaged together before being compared to the target value.
+func (d *MetricSpecDieMut) Pods() *PodsMetricSourceDieMut {
+	return diefields.ChildMut(d, metricSpecFields.Get().Pods)
+}
+
+// resource refers to a resource metric (such as those specified in
+// requests and limits) known to Kubernetes describing each pod in the
+// current scale target (e.g. CPU or memory). Such metrics are built in to
+// Kubernetes, and have special scaling options on top of those available
+// to normal per-pod metrics using the "pods" source.
+func (d *MetricSpecDieMut) Resource() *ResourceMetricSourceDieMut {
+	return diefields.ChildMut(d, metricSpecFields.Get().Resource)
+}
+
+// containerResource refers to a resource metric (such as those specified in
+// requests and limits) known to Kubernetes describing a single container in each pod of the
+// current scale target (e.g. CPU or memory). Such metrics are built in to
+// Kubernetes, and have special scaling options on top of those available
+// to normal per-pod metrics using the "pods" source.
+func (d *MetricSpecDieMut) ContainerResource() *ContainerResourceMetricSourceDieMut {
+	return diefields.ChildMut(d, metricSpecFields.Get().ContainerResource)
+}
+
+// external refers to a global metric that is not associated
+// with any Kubernetes object. It allows autoscaling based on information
+// coming from components running outside of cluster
+// (for example length of queue in cloud messaging service, or
+// QPS from loadbalancer running outside of cluster).
+func (d *MetricSpecDieMut) External() *ExternalMetricSourceDieMut {
+	return diefields.ChildMut(d, metricSpecFields.Get().External)
+}
+
+// MetricStatus describes the last-read state of a single metric.
+//
+// MetricStatusDie is immutable: it reads.
+// MetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type MetricStatusDie struct {
+	diebase.DieBase[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]
+}
+
+// MetricStatusDieMut is the mutable die of MetricStatus: see MetricStatusDie.
+type MetricStatusDieMut struct {
+	diebase.DieMutBase[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]
+}
+
+func (*MetricStatusDie) DieFrom(b diebase.DieBase[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]) *MetricStatusDie {
 	return &MetricStatusDie{b}
 }
 
-var _ diebase.DieOf[MetricStatus, *MetricStatusDie] = (*MetricStatusDie)(nil)
+func (*MetricStatusDieMut) DieFrom(b diebase.DieMutBase[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]) *MetricStatusDieMut {
+	return &MetricStatusDieMut{b}
+}
 
-var MetricStatusBlank = diebase.Blank[MetricStatus, *MetricStatusDie]()
+var (
+	_ diebase.DieOf[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]    = (*MetricStatusDie)(nil)
+	_ diebase.DieMutOf[MetricStatus, *MetricStatusDie, *MetricStatusDieMut] = (*MetricStatusDieMut)(nil)
+)
+
+var MetricStatusBlank = diebase.Blank[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]()
 
 type metricStatusFieldsTable struct {
 	Type              diefields.Field[MetricStatus, MetricSourceType]
-	Object            diefields.Struct[MetricStatus, ObjectMetricStatus, *ObjectMetricStatusDie]
-	Pods              diefields.Struct[MetricStatus, PodsMetricStatus, *PodsMetricStatusDie]
-	Resource          diefields.Struct[MetricStatus, ResourceMetricStatus, *ResourceMetricStatusDie]
-	ContainerResource diefields.Struct[MetricStatus, ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie]
-	External          diefields.Struct[MetricStatus, ExternalMetricStatus, *ExternalMetricStatusDie]
+	Object            diefields.Struct[MetricStatus, ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]
+	Pods              diefields.Struct[MetricStatus, PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]
+	Resource          diefields.Struct[MetricStatus, ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]
+	ContainerResource diefields.Struct[MetricStatus, ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]
+	External          diefields.Struct[MetricStatus, ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]
 }
 
 var metricStatusFields = &diefields.Table[metricStatusFieldsTable]{Build: func() (f metricStatusFieldsTable) {
 	_ = annotated
 	f.Type = diefields.NewField[MetricStatus, MetricSourceType]("type")
-	f.Object = diefields.NewStruct[MetricStatus, ObjectMetricStatus, *ObjectMetricStatusDie]("object")
-	f.Pods = diefields.NewStruct[MetricStatus, PodsMetricStatus, *PodsMetricStatusDie]("pods")
-	f.Resource = diefields.NewStruct[MetricStatus, ResourceMetricStatus, *ResourceMetricStatusDie]("resource")
-	f.ContainerResource = diefields.NewStruct[MetricStatus, ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie]("containerResource")
-	f.External = diefields.NewStruct[MetricStatus, ExternalMetricStatus, *ExternalMetricStatusDie]("external")
+	f.Object = diefields.NewStruct[MetricStatus, ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]("object")
+	f.Pods = diefields.NewStruct[MetricStatus, PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]("pods")
+	f.Resource = diefields.NewStruct[MetricStatus, ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]("resource")
+	f.ContainerResource = diefields.NewStruct[MetricStatus, ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]("containerResource")
+	f.External = diefields.NewStruct[MetricStatus, ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]("external")
 	return
 }}
 
 // type is the type of metric source.  It will be one of "ContainerResource",
 // "External", "Object", "Pods" or "Resource", each corresponds to a matching field in the object.
-func (d *MetricStatusDie) Type() diefields.Value[MetricSourceType, *MetricStatusDie] {
+func (d *MetricStatusDie) Type() diefields.Value[MetricSourceType] {
 	return diefields.ValueOf(d, metricStatusFields.Get().Type)
 }
 
@@ -873,34 +1366,95 @@ func (d *MetricStatusDie) External() *ExternalMetricStatusDie {
 	return diefields.Child(d, metricStatusFields.Get().External)
 }
 
-// ObjectMetricSource indicates how to scale on a metric describing a
-// kubernetes object (for example, hits-per-second on an Ingress object).
-type ObjectMetricSourceDie struct {
-	diebase.DieBase[ObjectMetricSource, *ObjectMetricSourceDie]
+// type is the type of metric source.  It will be one of "ContainerResource",
+// "External", "Object", "Pods" or "Resource", each corresponds to a matching field in the object.
+func (d *MetricStatusDieMut) Type() diefields.ValueMut[MetricSourceType, *MetricStatusDieMut] {
+	return diefields.ValueMutOf(d, metricStatusFields.Get().Type)
 }
 
-func (*ObjectMetricSourceDie) DieFrom(b diebase.DieBase[ObjectMetricSource, *ObjectMetricSourceDie]) *ObjectMetricSourceDie {
+// object refers to a metric describing a single kubernetes object
+// (for example, hits-per-second on an Ingress object).
+func (d *MetricStatusDieMut) Object() *ObjectMetricStatusDieMut {
+	return diefields.ChildMut(d, metricStatusFields.Get().Object)
+}
+
+// pods refers to a metric describing each pod in the current scale target
+// (for example, transactions-processed-per-second).  The values will be
+// averaged together before being compared to the target value.
+func (d *MetricStatusDieMut) Pods() *PodsMetricStatusDieMut {
+	return diefields.ChildMut(d, metricStatusFields.Get().Pods)
+}
+
+// resource refers to a resource metric (such as those specified in
+// requests and limits) known to Kubernetes describing each pod in the
+// current scale target (e.g. CPU or memory). Such metrics are built in to
+// Kubernetes, and have special scaling options on top of those available
+// to normal per-pod metrics using the "pods" source.
+func (d *MetricStatusDieMut) Resource() *ResourceMetricStatusDieMut {
+	return diefields.ChildMut(d, metricStatusFields.Get().Resource)
+}
+
+// containerResource refers to a resource metric (such as those specified in
+// requests and limits) known to Kubernetes describing a single container in each pod in the
+// current scale target (e.g. CPU or memory). Such metrics are built in to
+// Kubernetes, and have special scaling options on top of those available
+// to normal per-pod metrics using the "pods" source.
+func (d *MetricStatusDieMut) ContainerResource() *ContainerResourceMetricStatusDieMut {
+	return diefields.ChildMut(d, metricStatusFields.Get().ContainerResource)
+}
+
+// external refers to a global metric that is not associated
+// with any Kubernetes object. It allows autoscaling based on information
+// coming from components running outside of cluster
+// (for example length of queue in cloud messaging service, or
+// QPS from loadbalancer running outside of cluster).
+func (d *MetricStatusDieMut) External() *ExternalMetricStatusDieMut {
+	return diefields.ChildMut(d, metricStatusFields.Get().External)
+}
+
+// ObjectMetricSource indicates how to scale on a metric describing a
+// kubernetes object (for example, hits-per-second on an Ingress object).
+//
+// ObjectMetricSourceDie is immutable: it reads.
+// ObjectMetricSourceDieMut, its mutable die, also writes, as DieWith passes it.
+type ObjectMetricSourceDie struct {
+	diebase.DieBase[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]
+}
+
+// ObjectMetricSourceDieMut is the mutable die of ObjectMetricSource: see ObjectMetricSourceDie.
+type ObjectMetricSourceDieMut struct {
+	diebase.DieMutBase[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]
+}
+
+func (*ObjectMetricSourceDie) DieFrom(b diebase.DieBase[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]) *ObjectMetricSourceDie {
 	return &ObjectMetricSourceDie{b}
 }
 
-var _ diebase.DieOf[ObjectMetricSource, *ObjectMetricSourceDie] = (*ObjectMetricSourceDie)(nil)
+func (*ObjectMetricSourceDieMut) DieFrom(b diebase.DieMutBase[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]) *ObjectMetricSourceDieMut {
+	return &ObjectMetricSourceDieMut{b}
+}
 
-var ObjectMetricSourceBlank = diebase.Blank[ObjectMetricSource, *ObjectMetricSourceDie]()
+var (
+	_ diebase.DieOf[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]    = (*ObjectMetricSourceDie)(nil)
+	_ diebase.DieMutOf[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut] = (*ObjectMetricSourceDieMut)(nil)
+)
+
+var ObjectMetricSourceBlank = diebase.Blank[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]()
 
 type objectMetricSourceFieldsTable struct {
-	Target       diefields.Struct[ObjectMetricSource, CrossVersionObjectReference, *CrossVersionObjectReferenceDie]
+	Target       diefields.Struct[ObjectMetricSource, CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]
 	MetricName   diefields.Field[ObjectMetricSource, string]
 	TargetValue  diefields.Field[ObjectMetricSource, resource.Quantity]
-	Selector     diefields.Struct[ObjectMetricSource, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]
+	Selector     diefields.Struct[ObjectMetricSource, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 	AverageValue diefields.Field[ObjectMetricSource, *resource.Quantity]
 }
 
 var objectMetricSourceFields = &diefields.Table[objectMetricSourceFieldsTable]{Build: func() (f objectMetricSourceFieldsTable) {
 	_ = annotated
-	f.Target = diefields.NewStruct[ObjectMetricSource, CrossVersionObjectReference, *CrossVersionObjectReferenceDie]("target")
+	f.Target = diefields.NewStruct[ObjectMetricSource, CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]("target")
 	f.MetricName = diefields.NewField[ObjectMetricSource, string]("metricName")
 	f.TargetValue = diefields.NewField[ObjectMetricSource, resource.Quantity]("targetValue")
-	f.Selector = diefields.NewStruct[ObjectMetricSource, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]("selector")
+	f.Selector = diefields.NewStruct[ObjectMetricSource, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("selector")
 	f.AverageValue = diefields.NewField[ObjectMetricSource, *resource.Quantity]("averageValue")
 	return
 }}
@@ -911,12 +1465,12 @@ func (d *ObjectMetricSourceDie) Target() *CrossVersionObjectReferenceDie {
 }
 
 // metricName is the name of the metric in question.
-func (d *ObjectMetricSourceDie) MetricName() diefields.Value[string, *ObjectMetricSourceDie] {
+func (d *ObjectMetricSourceDie) MetricName() diefields.Value[string] {
 	return diefields.ValueOf(d, objectMetricSourceFields.Get().MetricName)
 }
 
 // targetValue is the target value of the metric (as a quantity).
-func (d *ObjectMetricSourceDie) TargetValue() diefields.Value[resource.Quantity, *ObjectMetricSourceDie] {
+func (d *ObjectMetricSourceDie) TargetValue() diefields.Value[resource.Quantity] {
 	return diefields.ValueOf(d, objectMetricSourceFields.Get().TargetValue)
 }
 
@@ -929,38 +1483,81 @@ func (d *ObjectMetricSourceDie) Selector() *diemetav1.LabelSelectorDie {
 
 // averageValue is the target value of the average of the
 // metric across all relevant pods (as a quantity)
-func (d *ObjectMetricSourceDie) AverageValue() diefields.Optional[resource.Quantity, *ObjectMetricSourceDie] {
+func (d *ObjectMetricSourceDie) AverageValue() diefields.Optional[resource.Quantity] {
 	return diefields.OptionalOf(d, objectMetricSourceFields.Get().AverageValue)
+}
+
+// target is the described Kubernetes object.
+func (d *ObjectMetricSourceDieMut) Target() *CrossVersionObjectReferenceDieMut {
+	return diefields.ChildMut(d, objectMetricSourceFields.Get().Target)
+}
+
+// metricName is the name of the metric in question.
+func (d *ObjectMetricSourceDieMut) MetricName() diefields.ValueMut[string, *ObjectMetricSourceDieMut] {
+	return diefields.ValueMutOf(d, objectMetricSourceFields.Get().MetricName)
+}
+
+// targetValue is the target value of the metric (as a quantity).
+func (d *ObjectMetricSourceDieMut) TargetValue() diefields.ValueMut[resource.Quantity, *ObjectMetricSourceDieMut] {
+	return diefields.ValueMutOf(d, objectMetricSourceFields.Get().TargetValue)
+}
+
+// selector is the string-encoded form of a standard kubernetes label selector for the given metric.
+// When set, it is passed as an additional parameter to the metrics server for more specific metrics scoping
+// When unset, just the metricName will be used to gather metrics.
+func (d *ObjectMetricSourceDieMut) Selector() *diemetav1.LabelSelectorDieMut {
+	return diefields.ChildMut(d, objectMetricSourceFields.Get().Selector)
+}
+
+// averageValue is the target value of the average of the
+// metric across all relevant pods (as a quantity)
+func (d *ObjectMetricSourceDieMut) AverageValue() diefields.OptionalMut[resource.Quantity, *ObjectMetricSourceDieMut] {
+	return diefields.OptionalMutOf(d, objectMetricSourceFields.Get().AverageValue)
 }
 
 // ObjectMetricStatus indicates the current value of a metric describing a
 // kubernetes object (for example, hits-per-second on an Ingress object).
+//
+// ObjectMetricStatusDie is immutable: it reads.
+// ObjectMetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
 type ObjectMetricStatusDie struct {
-	diebase.DieBase[ObjectMetricStatus, *ObjectMetricStatusDie]
+	diebase.DieBase[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]
 }
 
-func (*ObjectMetricStatusDie) DieFrom(b diebase.DieBase[ObjectMetricStatus, *ObjectMetricStatusDie]) *ObjectMetricStatusDie {
+// ObjectMetricStatusDieMut is the mutable die of ObjectMetricStatus: see ObjectMetricStatusDie.
+type ObjectMetricStatusDieMut struct {
+	diebase.DieMutBase[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]
+}
+
+func (*ObjectMetricStatusDie) DieFrom(b diebase.DieBase[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]) *ObjectMetricStatusDie {
 	return &ObjectMetricStatusDie{b}
 }
 
-var _ diebase.DieOf[ObjectMetricStatus, *ObjectMetricStatusDie] = (*ObjectMetricStatusDie)(nil)
+func (*ObjectMetricStatusDieMut) DieFrom(b diebase.DieMutBase[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]) *ObjectMetricStatusDieMut {
+	return &ObjectMetricStatusDieMut{b}
+}
 
-var ObjectMetricStatusBlank = diebase.Blank[ObjectMetricStatus, *ObjectMetricStatusDie]()
+var (
+	_ diebase.DieOf[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]    = (*ObjectMetricStatusDie)(nil)
+	_ diebase.DieMutOf[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut] = (*ObjectMetricStatusDieMut)(nil)
+)
+
+var ObjectMetricStatusBlank = diebase.Blank[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]()
 
 type objectMetricStatusFieldsTable struct {
-	Target       diefields.Struct[ObjectMetricStatus, CrossVersionObjectReference, *CrossVersionObjectReferenceDie]
+	Target       diefields.Struct[ObjectMetricStatus, CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]
 	MetricName   diefields.Field[ObjectMetricStatus, string]
 	CurrentValue diefields.Field[ObjectMetricStatus, resource.Quantity]
-	Selector     diefields.Struct[ObjectMetricStatus, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]
+	Selector     diefields.Struct[ObjectMetricStatus, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 	AverageValue diefields.Field[ObjectMetricStatus, *resource.Quantity]
 }
 
 var objectMetricStatusFields = &diefields.Table[objectMetricStatusFieldsTable]{Build: func() (f objectMetricStatusFieldsTable) {
 	_ = annotated
-	f.Target = diefields.NewStruct[ObjectMetricStatus, CrossVersionObjectReference, *CrossVersionObjectReferenceDie]("target")
+	f.Target = diefields.NewStruct[ObjectMetricStatus, CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]("target")
 	f.MetricName = diefields.NewField[ObjectMetricStatus, string]("metricName")
 	f.CurrentValue = diefields.NewField[ObjectMetricStatus, resource.Quantity]("currentValue")
-	f.Selector = diefields.NewStruct[ObjectMetricStatus, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]("selector")
+	f.Selector = diefields.NewStruct[ObjectMetricStatus, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("selector")
 	f.AverageValue = diefields.NewField[ObjectMetricStatus, *resource.Quantity]("averageValue")
 	return
 }}
@@ -971,12 +1568,12 @@ func (d *ObjectMetricStatusDie) Target() *CrossVersionObjectReferenceDie {
 }
 
 // metricName is the name of the metric in question.
-func (d *ObjectMetricStatusDie) MetricName() diefields.Value[string, *ObjectMetricStatusDie] {
+func (d *ObjectMetricStatusDie) MetricName() diefields.Value[string] {
 	return diefields.ValueOf(d, objectMetricStatusFields.Get().MetricName)
 }
 
 // currentValue is the current value of the metric (as a quantity).
-func (d *ObjectMetricStatusDie) CurrentValue() diefields.Value[resource.Quantity, *ObjectMetricStatusDie] {
+func (d *ObjectMetricStatusDie) CurrentValue() diefields.Value[resource.Quantity] {
 	return diefields.ValueOf(d, objectMetricStatusFields.Get().CurrentValue)
 }
 
@@ -989,48 +1586,91 @@ func (d *ObjectMetricStatusDie) Selector() *diemetav1.LabelSelectorDie {
 
 // averageValue is the current value of the average of the
 // metric across all relevant pods (as a quantity)
-func (d *ObjectMetricStatusDie) AverageValue() diefields.Optional[resource.Quantity, *ObjectMetricStatusDie] {
+func (d *ObjectMetricStatusDie) AverageValue() diefields.Optional[resource.Quantity] {
 	return diefields.OptionalOf(d, objectMetricStatusFields.Get().AverageValue)
+}
+
+// target is the described Kubernetes object.
+func (d *ObjectMetricStatusDieMut) Target() *CrossVersionObjectReferenceDieMut {
+	return diefields.ChildMut(d, objectMetricStatusFields.Get().Target)
+}
+
+// metricName is the name of the metric in question.
+func (d *ObjectMetricStatusDieMut) MetricName() diefields.ValueMut[string, *ObjectMetricStatusDieMut] {
+	return diefields.ValueMutOf(d, objectMetricStatusFields.Get().MetricName)
+}
+
+// currentValue is the current value of the metric (as a quantity).
+func (d *ObjectMetricStatusDieMut) CurrentValue() diefields.ValueMut[resource.Quantity, *ObjectMetricStatusDieMut] {
+	return diefields.ValueMutOf(d, objectMetricStatusFields.Get().CurrentValue)
+}
+
+// selector is the string-encoded form of a standard kubernetes label selector for the given metric
+// When set in the ObjectMetricSource, it is passed as an additional parameter to the metrics server for more specific metrics scoping.
+// When unset, just the metricName will be used to gather metrics.
+func (d *ObjectMetricStatusDieMut) Selector() *diemetav1.LabelSelectorDieMut {
+	return diefields.ChildMut(d, objectMetricStatusFields.Get().Selector)
+}
+
+// averageValue is the current value of the average of the
+// metric across all relevant pods (as a quantity)
+func (d *ObjectMetricStatusDieMut) AverageValue() diefields.OptionalMut[resource.Quantity, *ObjectMetricStatusDieMut] {
+	return diefields.OptionalMutOf(d, objectMetricStatusFields.Get().AverageValue)
 }
 
 // PodsMetricSource indicates how to scale on a metric describing each pod in
 // the current scale target (for example, transactions-processed-per-second).
 // The values will be averaged together before being compared to the target
 // value.
+//
+// PodsMetricSourceDie is immutable: it reads.
+// PodsMetricSourceDieMut, its mutable die, also writes, as DieWith passes it.
 type PodsMetricSourceDie struct {
-	diebase.DieBase[PodsMetricSource, *PodsMetricSourceDie]
+	diebase.DieBase[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]
 }
 
-func (*PodsMetricSourceDie) DieFrom(b diebase.DieBase[PodsMetricSource, *PodsMetricSourceDie]) *PodsMetricSourceDie {
+// PodsMetricSourceDieMut is the mutable die of PodsMetricSource: see PodsMetricSourceDie.
+type PodsMetricSourceDieMut struct {
+	diebase.DieMutBase[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]
+}
+
+func (*PodsMetricSourceDie) DieFrom(b diebase.DieBase[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]) *PodsMetricSourceDie {
 	return &PodsMetricSourceDie{b}
 }
 
-var _ diebase.DieOf[PodsMetricSource, *PodsMetricSourceDie] = (*PodsMetricSourceDie)(nil)
+func (*PodsMetricSourceDieMut) DieFrom(b diebase.DieMutBase[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]) *PodsMetricSourceDieMut {
+	return &PodsMetricSourceDieMut{b}
+}
 
-var PodsMetricSourceBlank = diebase.Blank[PodsMetricSource, *PodsMetricSourceDie]()
+var (
+	_ diebase.DieOf[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]    = (*PodsMetricSourceDie)(nil)
+	_ diebase.DieMutOf[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut] = (*PodsMetricSourceDieMut)(nil)
+)
+
+var PodsMetricSourceBlank = diebase.Blank[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]()
 
 type podsMetricSourceFieldsTable struct {
 	MetricName         diefields.Field[PodsMetricSource, string]
 	TargetAverageValue diefields.Field[PodsMetricSource, resource.Quantity]
-	Selector           diefields.Struct[PodsMetricSource, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]
+	Selector           diefields.Struct[PodsMetricSource, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 }
 
 var podsMetricSourceFields = &diefields.Table[podsMetricSourceFieldsTable]{Build: func() (f podsMetricSourceFieldsTable) {
 	_ = annotated
 	f.MetricName = diefields.NewField[PodsMetricSource, string]("metricName")
 	f.TargetAverageValue = diefields.NewField[PodsMetricSource, resource.Quantity]("targetAverageValue")
-	f.Selector = diefields.NewStruct[PodsMetricSource, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]("selector")
+	f.Selector = diefields.NewStruct[PodsMetricSource, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("selector")
 	return
 }}
 
 // metricName is the name of the metric in question
-func (d *PodsMetricSourceDie) MetricName() diefields.Value[string, *PodsMetricSourceDie] {
+func (d *PodsMetricSourceDie) MetricName() diefields.Value[string] {
 	return diefields.ValueOf(d, podsMetricSourceFields.Get().MetricName)
 }
 
 // targetAverageValue is the target value of the average of the
 // metric across all relevant pods (as a quantity)
-func (d *PodsMetricSourceDie) TargetAverageValue() diefields.Value[resource.Quantity, *PodsMetricSourceDie] {
+func (d *PodsMetricSourceDie) TargetAverageValue() diefields.Value[resource.Quantity] {
 	return diefields.ValueOf(d, podsMetricSourceFields.Get().TargetAverageValue)
 }
 
@@ -1041,42 +1681,75 @@ func (d *PodsMetricSourceDie) Selector() *diemetav1.LabelSelectorDie {
 	return diefields.Child(d, podsMetricSourceFields.Get().Selector)
 }
 
-// PodsMetricStatus indicates the current value of a metric describing each pod in
-// the current scale target (for example, transactions-processed-per-second).
-type PodsMetricStatusDie struct {
-	diebase.DieBase[PodsMetricStatus, *PodsMetricStatusDie]
+// metricName is the name of the metric in question
+func (d *PodsMetricSourceDieMut) MetricName() diefields.ValueMut[string, *PodsMetricSourceDieMut] {
+	return diefields.ValueMutOf(d, podsMetricSourceFields.Get().MetricName)
 }
 
-func (*PodsMetricStatusDie) DieFrom(b diebase.DieBase[PodsMetricStatus, *PodsMetricStatusDie]) *PodsMetricStatusDie {
+// targetAverageValue is the target value of the average of the
+// metric across all relevant pods (as a quantity)
+func (d *PodsMetricSourceDieMut) TargetAverageValue() diefields.ValueMut[resource.Quantity, *PodsMetricSourceDieMut] {
+	return diefields.ValueMutOf(d, podsMetricSourceFields.Get().TargetAverageValue)
+}
+
+// selector is the string-encoded form of a standard kubernetes label selector for the given metric
+// When set, it is passed as an additional parameter to the metrics server for more specific metrics scoping
+// When unset, just the metricName will be used to gather metrics.
+func (d *PodsMetricSourceDieMut) Selector() *diemetav1.LabelSelectorDieMut {
+	return diefields.ChildMut(d, podsMetricSourceFields.Get().Selector)
+}
+
+// PodsMetricStatus indicates the current value of a metric describing each pod in
+// the current scale target (for example, transactions-processed-per-second).
+//
+// PodsMetricStatusDie is immutable: it reads.
+// PodsMetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type PodsMetricStatusDie struct {
+	diebase.DieBase[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]
+}
+
+// PodsMetricStatusDieMut is the mutable die of PodsMetricStatus: see PodsMetricStatusDie.
+type PodsMetricStatusDieMut struct {
+	diebase.DieMutBase[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]
+}
+
+func (*PodsMetricStatusDie) DieFrom(b diebase.DieBase[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]) *PodsMetricStatusDie {
 	return &PodsMetricStatusDie{b}
 }
 
-var _ diebase.DieOf[PodsMetricStatus, *PodsMetricStatusDie] = (*PodsMetricStatusDie)(nil)
+func (*PodsMetricStatusDieMut) DieFrom(b diebase.DieMutBase[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]) *PodsMetricStatusDieMut {
+	return &PodsMetricStatusDieMut{b}
+}
 
-var PodsMetricStatusBlank = diebase.Blank[PodsMetricStatus, *PodsMetricStatusDie]()
+var (
+	_ diebase.DieOf[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]    = (*PodsMetricStatusDie)(nil)
+	_ diebase.DieMutOf[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut] = (*PodsMetricStatusDieMut)(nil)
+)
+
+var PodsMetricStatusBlank = diebase.Blank[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]()
 
 type podsMetricStatusFieldsTable struct {
 	MetricName          diefields.Field[PodsMetricStatus, string]
 	CurrentAverageValue diefields.Field[PodsMetricStatus, resource.Quantity]
-	Selector            diefields.Struct[PodsMetricStatus, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]
+	Selector            diefields.Struct[PodsMetricStatus, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 }
 
 var podsMetricStatusFields = &diefields.Table[podsMetricStatusFieldsTable]{Build: func() (f podsMetricStatusFieldsTable) {
 	_ = annotated
 	f.MetricName = diefields.NewField[PodsMetricStatus, string]("metricName")
 	f.CurrentAverageValue = diefields.NewField[PodsMetricStatus, resource.Quantity]("currentAverageValue")
-	f.Selector = diefields.NewStruct[PodsMetricStatus, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]("selector")
+	f.Selector = diefields.NewStruct[PodsMetricStatus, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("selector")
 	return
 }}
 
 // metricName is the name of the metric in question
-func (d *PodsMetricStatusDie) MetricName() diefields.Value[string, *PodsMetricStatusDie] {
+func (d *PodsMetricStatusDie) MetricName() diefields.Value[string] {
 	return diefields.ValueOf(d, podsMetricStatusFields.Get().MetricName)
 }
 
 // currentAverageValue is the current value of the average of the
 // metric across all relevant pods (as a quantity)
-func (d *PodsMetricStatusDie) CurrentAverageValue() diefields.Value[resource.Quantity, *PodsMetricStatusDie] {
+func (d *PodsMetricStatusDie) CurrentAverageValue() diefields.Value[resource.Quantity] {
 	return diefields.ValueOf(d, podsMetricStatusFields.Get().CurrentAverageValue)
 }
 
@@ -1087,6 +1760,24 @@ func (d *PodsMetricStatusDie) Selector() *diemetav1.LabelSelectorDie {
 	return diefields.Child(d, podsMetricStatusFields.Get().Selector)
 }
 
+// metricName is the name of the metric in question
+func (d *PodsMetricStatusDieMut) MetricName() diefields.ValueMut[string, *PodsMetricStatusDieMut] {
+	return diefields.ValueMutOf(d, podsMetricStatusFields.Get().MetricName)
+}
+
+// currentAverageValue is the current value of the average of the
+// metric across all relevant pods (as a quantity)
+func (d *PodsMetricStatusDieMut) CurrentAverageValue() diefields.ValueMut[resource.Quantity, *PodsMetricStatusDieMut] {
+	return diefields.ValueMutOf(d, podsMetricStatusFields.Get().CurrentAverageValue)
+}
+
+// selector is the string-encoded form of a standard kubernetes label selector for the given metric
+// When set in the PodsMetricSource, it is passed as an additional parameter to the metrics server for more specific metrics scoping.
+// When unset, just the metricName will be used to gather metrics.
+func (d *PodsMetricStatusDieMut) Selector() *diemetav1.LabelSelectorDieMut {
+	return diefields.ChildMut(d, podsMetricStatusFields.Get().Selector)
+}
+
 // ResourceMetricSource indicates how to scale on a resource metric known to
 // Kubernetes, as specified in requests and limits, describing each pod in the
 // current scale target (e.g. CPU or memory).  The values will be averaged
@@ -1094,17 +1785,32 @@ func (d *PodsMetricStatusDie) Selector() *diemetav1.LabelSelectorDie {
 // Kubernetes, and have special scaling options on top of those available to
 // normal per-pod metrics using the "pods" source.  Only one "target" type
 // should be set.
+//
+// ResourceMetricSourceDie is immutable: it reads.
+// ResourceMetricSourceDieMut, its mutable die, also writes, as DieWith passes it.
 type ResourceMetricSourceDie struct {
-	diebase.DieBase[ResourceMetricSource, *ResourceMetricSourceDie]
+	diebase.DieBase[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]
 }
 
-func (*ResourceMetricSourceDie) DieFrom(b diebase.DieBase[ResourceMetricSource, *ResourceMetricSourceDie]) *ResourceMetricSourceDie {
+// ResourceMetricSourceDieMut is the mutable die of ResourceMetricSource: see ResourceMetricSourceDie.
+type ResourceMetricSourceDieMut struct {
+	diebase.DieMutBase[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]
+}
+
+func (*ResourceMetricSourceDie) DieFrom(b diebase.DieBase[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]) *ResourceMetricSourceDie {
 	return &ResourceMetricSourceDie{b}
 }
 
-var _ diebase.DieOf[ResourceMetricSource, *ResourceMetricSourceDie] = (*ResourceMetricSourceDie)(nil)
+func (*ResourceMetricSourceDieMut) DieFrom(b diebase.DieMutBase[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]) *ResourceMetricSourceDieMut {
+	return &ResourceMetricSourceDieMut{b}
+}
 
-var ResourceMetricSourceBlank = diebase.Blank[ResourceMetricSource, *ResourceMetricSourceDie]()
+var (
+	_ diebase.DieOf[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]    = (*ResourceMetricSourceDie)(nil)
+	_ diebase.DieMutOf[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut] = (*ResourceMetricSourceDieMut)(nil)
+)
+
+var ResourceMetricSourceBlank = diebase.Blank[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]()
 
 type resourceMetricSourceFieldsTable struct {
 	Name                     diefields.Field[ResourceMetricSource, diecorev1.ResourceName]
@@ -1121,22 +1827,41 @@ var resourceMetricSourceFields = &diefields.Table[resourceMetricSourceFieldsTabl
 }}
 
 // name is the name of the resource in question.
-func (d *ResourceMetricSourceDie) Name() diefields.Value[diecorev1.ResourceName, *ResourceMetricSourceDie] {
+func (d *ResourceMetricSourceDie) Name() diefields.Value[diecorev1.ResourceName] {
 	return diefields.ValueOf(d, resourceMetricSourceFields.Get().Name)
 }
 
 // targetAverageUtilization is the target value of the average of the
 // resource metric across all relevant pods, represented as a percentage of
 // the requested value of the resource for the pods.
-func (d *ResourceMetricSourceDie) TargetAverageUtilization() diefields.Optional[int32, *ResourceMetricSourceDie] {
+func (d *ResourceMetricSourceDie) TargetAverageUtilization() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, resourceMetricSourceFields.Get().TargetAverageUtilization)
 }
 
 // targetAverageValue is the target value of the average of the
 // resource metric across all relevant pods, as a raw value (instead of as
 // a percentage of the request), similar to the "pods" metric source type.
-func (d *ResourceMetricSourceDie) TargetAverageValue() diefields.Optional[resource.Quantity, *ResourceMetricSourceDie] {
+func (d *ResourceMetricSourceDie) TargetAverageValue() diefields.Optional[resource.Quantity] {
 	return diefields.OptionalOf(d, resourceMetricSourceFields.Get().TargetAverageValue)
+}
+
+// name is the name of the resource in question.
+func (d *ResourceMetricSourceDieMut) Name() diefields.ValueMut[diecorev1.ResourceName, *ResourceMetricSourceDieMut] {
+	return diefields.ValueMutOf(d, resourceMetricSourceFields.Get().Name)
+}
+
+// targetAverageUtilization is the target value of the average of the
+// resource metric across all relevant pods, represented as a percentage of
+// the requested value of the resource for the pods.
+func (d *ResourceMetricSourceDieMut) TargetAverageUtilization() diefields.OptionalMut[int32, *ResourceMetricSourceDieMut] {
+	return diefields.OptionalMutOf(d, resourceMetricSourceFields.Get().TargetAverageUtilization)
+}
+
+// targetAverageValue is the target value of the average of the
+// resource metric across all relevant pods, as a raw value (instead of as
+// a percentage of the request), similar to the "pods" metric source type.
+func (d *ResourceMetricSourceDieMut) TargetAverageValue() diefields.OptionalMut[resource.Quantity, *ResourceMetricSourceDieMut] {
+	return diefields.OptionalMutOf(d, resourceMetricSourceFields.Get().TargetAverageValue)
 }
 
 // ResourceMetricStatus indicates the current value of a resource metric known to
@@ -1144,17 +1869,32 @@ func (d *ResourceMetricSourceDie) TargetAverageValue() diefields.Optional[resour
 // current scale target (e.g. CPU or memory).  Such metrics are built in to
 // Kubernetes, and have special scaling options on top of those available to
 // normal per-pod metrics using the "pods" source.
+//
+// ResourceMetricStatusDie is immutable: it reads.
+// ResourceMetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
 type ResourceMetricStatusDie struct {
-	diebase.DieBase[ResourceMetricStatus, *ResourceMetricStatusDie]
+	diebase.DieBase[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]
 }
 
-func (*ResourceMetricStatusDie) DieFrom(b diebase.DieBase[ResourceMetricStatus, *ResourceMetricStatusDie]) *ResourceMetricStatusDie {
+// ResourceMetricStatusDieMut is the mutable die of ResourceMetricStatus: see ResourceMetricStatusDie.
+type ResourceMetricStatusDieMut struct {
+	diebase.DieMutBase[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]
+}
+
+func (*ResourceMetricStatusDie) DieFrom(b diebase.DieBase[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]) *ResourceMetricStatusDie {
 	return &ResourceMetricStatusDie{b}
 }
 
-var _ diebase.DieOf[ResourceMetricStatus, *ResourceMetricStatusDie] = (*ResourceMetricStatusDie)(nil)
+func (*ResourceMetricStatusDieMut) DieFrom(b diebase.DieMutBase[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]) *ResourceMetricStatusDieMut {
+	return &ResourceMetricStatusDieMut{b}
+}
 
-var ResourceMetricStatusBlank = diebase.Blank[ResourceMetricStatus, *ResourceMetricStatusDie]()
+var (
+	_ diebase.DieOf[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]    = (*ResourceMetricStatusDie)(nil)
+	_ diebase.DieMutOf[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut] = (*ResourceMetricStatusDieMut)(nil)
+)
+
+var ResourceMetricStatusBlank = diebase.Blank[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]()
 
 type resourceMetricStatusFieldsTable struct {
 	Name                      diefields.Field[ResourceMetricStatus, diecorev1.ResourceName]
@@ -1171,7 +1911,7 @@ var resourceMetricStatusFields = &diefields.Table[resourceMetricStatusFieldsTabl
 }}
 
 // name is the name of the resource in question.
-func (d *ResourceMetricStatusDie) Name() diefields.Value[diecorev1.ResourceName, *ResourceMetricStatusDie] {
+func (d *ResourceMetricStatusDie) Name() diefields.Value[diecorev1.ResourceName] {
 	return diefields.ValueOf(d, resourceMetricStatusFields.Get().Name)
 }
 
@@ -1180,7 +1920,7 @@ func (d *ResourceMetricStatusDie) Name() diefields.Value[diecorev1.ResourceName,
 // the requested value of the resource for the pods.  It will only be
 // present if `targetAverageValue` was set in the corresponding metric
 // specification.
-func (d *ResourceMetricStatusDie) CurrentAverageUtilization() diefields.Optional[int32, *ResourceMetricStatusDie] {
+func (d *ResourceMetricStatusDie) CurrentAverageUtilization() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, resourceMetricStatusFields.Get().CurrentAverageUtilization)
 }
 
@@ -1188,22 +1928,59 @@ func (d *ResourceMetricStatusDie) CurrentAverageUtilization() diefields.Optional
 // resource metric across all relevant pods, as a raw value (instead of as
 // a percentage of the request), similar to the "pods" metric source type.
 // It will always be set, regardless of the corresponding metric specification.
-func (d *ResourceMetricStatusDie) CurrentAverageValue() diefields.Value[resource.Quantity, *ResourceMetricStatusDie] {
+func (d *ResourceMetricStatusDie) CurrentAverageValue() diefields.Value[resource.Quantity] {
 	return diefields.ValueOf(d, resourceMetricStatusFields.Get().CurrentAverageValue)
 }
 
-// Scale represents a scaling request for a resource.
-type ScaleDie struct {
-	diebase.DieObjectBase[Scale, *ScaleDie]
+// name is the name of the resource in question.
+func (d *ResourceMetricStatusDieMut) Name() diefields.ValueMut[diecorev1.ResourceName, *ResourceMetricStatusDieMut] {
+	return diefields.ValueMutOf(d, resourceMetricStatusFields.Get().Name)
 }
 
-func (*ScaleDie) DieFrom(b diebase.DieBase[Scale, *ScaleDie]) *ScaleDie {
+// currentAverageUtilization is the current value of the average of the
+// resource metric across all relevant pods, represented as a percentage of
+// the requested value of the resource for the pods.  It will only be
+// present if `targetAverageValue` was set in the corresponding metric
+// specification.
+func (d *ResourceMetricStatusDieMut) CurrentAverageUtilization() diefields.OptionalMut[int32, *ResourceMetricStatusDieMut] {
+	return diefields.OptionalMutOf(d, resourceMetricStatusFields.Get().CurrentAverageUtilization)
+}
+
+// currentAverageValue is the current value of the average of the
+// resource metric across all relevant pods, as a raw value (instead of as
+// a percentage of the request), similar to the "pods" metric source type.
+// It will always be set, regardless of the corresponding metric specification.
+func (d *ResourceMetricStatusDieMut) CurrentAverageValue() diefields.ValueMut[resource.Quantity, *ResourceMetricStatusDieMut] {
+	return diefields.ValueMutOf(d, resourceMetricStatusFields.Get().CurrentAverageValue)
+}
+
+// Scale represents a scaling request for a resource.
+//
+// ScaleDie is immutable: it reads.
+// ScaleDieMut, its mutable die, also writes, as DieWith passes it.
+type ScaleDie struct {
+	diebase.DieObjectBase[Scale, *ScaleDie, *ScaleDieMut]
+}
+
+// ScaleDieMut is the mutable die of Scale: see ScaleDie.
+type ScaleDieMut struct {
+	diebase.DieObjectMutBase[Scale, *ScaleDie, *ScaleDieMut]
+}
+
+func (*ScaleDie) DieFrom(b diebase.DieBase[Scale, *ScaleDie, *ScaleDieMut]) *ScaleDie {
 	return &ScaleDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[Scale, *ScaleDie] = (*ScaleDie)(nil)
+func (*ScaleDieMut) DieFrom(b diebase.DieMutBase[Scale, *ScaleDie, *ScaleDieMut]) *ScaleDieMut {
+	return &ScaleDieMut{diebase.AsObjectMut(b)}
+}
 
-var ScaleBlank = diebase.BlankOf[Scale, *ScaleDie](Scale{TypeMeta: metav1.TypeMeta{APIVersion: "autoscaling/v1", Kind: "Scale"}})
+var (
+	_ dieobjects.DieObjectOf[Scale, *ScaleDie, *ScaleDieMut]    = (*ScaleDie)(nil)
+	_ dieobjects.DieObjectMutOf[Scale, *ScaleDie, *ScaleDieMut] = (*ScaleDieMut)(nil)
+)
+
+var ScaleBlank = diebase.BlankOf[Scale, *ScaleDie, *ScaleDieMut](Scale{TypeMeta: metav1.TypeMeta{APIVersion: "autoscaling/v1", Kind: "Scale"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1212,52 +1989,65 @@ func (d *ScaleDie) DieReleaseApplyConfiguration() *ScaleApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[ScaleApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ScaleDie) DieFeedApplyConfiguration(ac *ScaleApplyConfiguration) *ScaleDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ScaleDie) DieStampApplyConfiguration(fn func(ac *ScaleApplyConfiguration)) *ScaleDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ScaleDie) DieReleaseApplyConfigurationE() (*ScaleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ScaleApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ScaleDieMut) DieReleaseApplyConfiguration() *ScaleApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ScaleApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ScaleDieMut) DieReleaseApplyConfigurationE() (*ScaleApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ScaleApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ScaleDieMut) DieFeedApplyConfiguration(ac *ScaleApplyConfiguration) *ScaleDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ScaleDieMut) DieStampApplyConfiguration(fn func(ac *ScaleApplyConfiguration)) *ScaleDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ScaleDie) DieFeedApplyConfigurationE(ac *ScaleApplyConfiguration) (*ScaleDie, error) {
+func (d *ScaleDieMut) DieFeedApplyConfigurationE(ac *ScaleApplyConfiguration) (*ScaleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ScaleDie) DieStampApplyConfigurationE(fn func(ac *ScaleApplyConfiguration)) (*ScaleDie, error) {
+func (d *ScaleDieMut) DieStampApplyConfigurationE(fn func(ac *ScaleApplyConfiguration)) (*ScaleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type scaleFieldsTable struct {
 	Kind       diefields.Field[Scale, string]
 	APIVersion diefields.Field[Scale, string]
-	Metadata   diefields.Struct[Scale, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[Scale, ScaleSpec, *ScaleSpecDie]
-	Status     diefields.Struct[Scale, ScaleStatus, *ScaleStatusDie]
+	Metadata   diefields.Struct[Scale, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[Scale, ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut]
+	Status     diefields.Struct[Scale, ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut]
 }
 
 var scaleFields = &diefields.Table[scaleFieldsTable]{Build: func() (f scaleFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[Scale, string]("kind")
 	f.APIVersion = diefields.NewField[Scale, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[Scale, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[Scale, ScaleSpec, *ScaleSpecDie]("spec")
-	f.Status = diefields.NewStruct[Scale, ScaleStatus, *ScaleStatusDie]("status")
+	f.Metadata = diefields.NewStruct[Scale, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[Scale, ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[Scale, ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut]("status")
 	return
 }}
 
@@ -1266,7 +2056,7 @@ var scaleFields = &diefields.Table[scaleFieldsTable]{Build: func() (f scaleField
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *ScaleDie) Kind() diefields.Value[string, *ScaleDie] {
+func (d *ScaleDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, scaleFields.Get().Kind)
 }
 
@@ -1274,7 +2064,7 @@ func (d *ScaleDie) Kind() diefields.Value[string, *ScaleDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *ScaleDie) APIVersion() diefields.Value[string, *ScaleDie] {
+func (d *ScaleDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, scaleFields.Get().APIVersion)
 }
 
@@ -1289,18 +2079,63 @@ func (d *ScaleDie) Spec() *ScaleSpecDie { return diefields.Child(d, scaleFields.
 // status is the current status of the scale. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status. Read-only.
 func (d *ScaleDie) Status() *ScaleStatusDie { return diefields.Child(d, scaleFields.Get().Status) }
 
-// ScaleSpec describes the attributes of a scale subresource.
-type ScaleSpecDie struct {
-	diebase.DieBase[ScaleSpec, *ScaleSpecDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ScaleDieMut) Kind() diefields.ValueMut[string, *ScaleDieMut] {
+	return diefields.ValueMutOf(d, scaleFields.Get().Kind)
 }
 
-func (*ScaleSpecDie) DieFrom(b diebase.DieBase[ScaleSpec, *ScaleSpecDie]) *ScaleSpecDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *ScaleDieMut) APIVersion() diefields.ValueMut[string, *ScaleDieMut] {
+	return diefields.ValueMutOf(d, scaleFields.Get().APIVersion)
+}
+
+// metadata is the standard object metadata; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata.
+func (d *ScaleDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, scaleFields.Get().Metadata)
+}
+
+// spec defines the behavior of the scale. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.
+func (d *ScaleDieMut) Spec() *ScaleSpecDieMut { return diefields.ChildMut(d, scaleFields.Get().Spec) }
+
+// status is the current status of the scale. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status. Read-only.
+func (d *ScaleDieMut) Status() *ScaleStatusDieMut {
+	return diefields.ChildMut(d, scaleFields.Get().Status)
+}
+
+// ScaleSpec describes the attributes of a scale subresource.
+//
+// ScaleSpecDie is immutable: it reads.
+// ScaleSpecDieMut, its mutable die, also writes, as DieWith passes it.
+type ScaleSpecDie struct {
+	diebase.DieBase[ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut]
+}
+
+// ScaleSpecDieMut is the mutable die of ScaleSpec: see ScaleSpecDie.
+type ScaleSpecDieMut struct {
+	diebase.DieMutBase[ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut]
+}
+
+func (*ScaleSpecDie) DieFrom(b diebase.DieBase[ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut]) *ScaleSpecDie {
 	return &ScaleSpecDie{b}
 }
 
-var _ diebase.DieOf[ScaleSpec, *ScaleSpecDie] = (*ScaleSpecDie)(nil)
+func (*ScaleSpecDieMut) DieFrom(b diebase.DieMutBase[ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut]) *ScaleSpecDieMut {
+	return &ScaleSpecDieMut{b}
+}
 
-var ScaleSpecBlank = diebase.Blank[ScaleSpec, *ScaleSpecDie]()
+var (
+	_ diebase.DieOf[ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut]    = (*ScaleSpecDie)(nil)
+	_ diebase.DieMutOf[ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut] = (*ScaleSpecDieMut)(nil)
+)
+
+var ScaleSpecBlank = diebase.Blank[ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1309,34 +2144,47 @@ func (d *ScaleSpecDie) DieReleaseApplyConfiguration() *ScaleSpecApplyConfigurati
 	return diecodegen.ReleaseApplyConfiguration[ScaleSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ScaleSpecDie) DieFeedApplyConfiguration(ac *ScaleSpecApplyConfiguration) *ScaleSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ScaleSpecDie) DieStampApplyConfiguration(fn func(ac *ScaleSpecApplyConfiguration)) *ScaleSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ScaleSpecDie) DieReleaseApplyConfigurationE() (*ScaleSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ScaleSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ScaleSpecDieMut) DieReleaseApplyConfiguration() *ScaleSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ScaleSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ScaleSpecDieMut) DieReleaseApplyConfigurationE() (*ScaleSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ScaleSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ScaleSpecDieMut) DieFeedApplyConfiguration(ac *ScaleSpecApplyConfiguration) *ScaleSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ScaleSpecDieMut) DieStampApplyConfiguration(fn func(ac *ScaleSpecApplyConfiguration)) *ScaleSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ScaleSpecDie) DieFeedApplyConfigurationE(ac *ScaleSpecApplyConfiguration) (*ScaleSpecDie, error) {
+func (d *ScaleSpecDieMut) DieFeedApplyConfigurationE(ac *ScaleSpecApplyConfiguration) (*ScaleSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ScaleSpecDie) DieStampApplyConfigurationE(fn func(ac *ScaleSpecApplyConfiguration)) (*ScaleSpecDie, error) {
+func (d *ScaleSpecDieMut) DieStampApplyConfigurationE(fn func(ac *ScaleSpecApplyConfiguration)) (*ScaleSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1351,22 +2199,42 @@ var scaleSpecFields = &diefields.Table[scaleSpecFieldsTable]{Build: func() (f sc
 }}
 
 // replicas is the desired number of instances for the scaled object.
-func (d *ScaleSpecDie) Replicas() diefields.Value[int32, *ScaleSpecDie] {
+func (d *ScaleSpecDie) Replicas() diefields.Value[int32] {
 	return diefields.ValueOf(d, scaleSpecFields.Get().Replicas)
 }
 
-// ScaleStatus represents the current status of a scale subresource.
-type ScaleStatusDie struct {
-	diebase.DieBase[ScaleStatus, *ScaleStatusDie]
+// replicas is the desired number of instances for the scaled object.
+func (d *ScaleSpecDieMut) Replicas() diefields.ValueMut[int32, *ScaleSpecDieMut] {
+	return diefields.ValueMutOf(d, scaleSpecFields.Get().Replicas)
 }
 
-func (*ScaleStatusDie) DieFrom(b diebase.DieBase[ScaleStatus, *ScaleStatusDie]) *ScaleStatusDie {
+// ScaleStatus represents the current status of a scale subresource.
+//
+// ScaleStatusDie is immutable: it reads.
+// ScaleStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type ScaleStatusDie struct {
+	diebase.DieBase[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut]
+}
+
+// ScaleStatusDieMut is the mutable die of ScaleStatus: see ScaleStatusDie.
+type ScaleStatusDieMut struct {
+	diebase.DieMutBase[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut]
+}
+
+func (*ScaleStatusDie) DieFrom(b diebase.DieBase[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut]) *ScaleStatusDie {
 	return &ScaleStatusDie{b}
 }
 
-var _ diebase.DieOf[ScaleStatus, *ScaleStatusDie] = (*ScaleStatusDie)(nil)
+func (*ScaleStatusDieMut) DieFrom(b diebase.DieMutBase[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut]) *ScaleStatusDieMut {
+	return &ScaleStatusDieMut{b}
+}
 
-var ScaleStatusBlank = diebase.Blank[ScaleStatus, *ScaleStatusDie]()
+var (
+	_ diebase.DieOf[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut]    = (*ScaleStatusDie)(nil)
+	_ diebase.DieMutOf[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut] = (*ScaleStatusDieMut)(nil)
+)
+
+var ScaleStatusBlank = diebase.Blank[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1375,34 +2243,47 @@ func (d *ScaleStatusDie) DieReleaseApplyConfiguration() *ScaleStatusApplyConfigu
 	return diecodegen.ReleaseApplyConfiguration[ScaleStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ScaleStatusDie) DieFeedApplyConfiguration(ac *ScaleStatusApplyConfiguration) *ScaleStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ScaleStatusDie) DieStampApplyConfiguration(fn func(ac *ScaleStatusApplyConfiguration)) *ScaleStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ScaleStatusDie) DieReleaseApplyConfigurationE() (*ScaleStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ScaleStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ScaleStatusDieMut) DieReleaseApplyConfiguration() *ScaleStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ScaleStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ScaleStatusDieMut) DieReleaseApplyConfigurationE() (*ScaleStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ScaleStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ScaleStatusDieMut) DieFeedApplyConfiguration(ac *ScaleStatusApplyConfiguration) *ScaleStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ScaleStatusDieMut) DieStampApplyConfiguration(fn func(ac *ScaleStatusApplyConfiguration)) *ScaleStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ScaleStatusDie) DieFeedApplyConfigurationE(ac *ScaleStatusApplyConfiguration) (*ScaleStatusDie, error) {
+func (d *ScaleStatusDieMut) DieFeedApplyConfigurationE(ac *ScaleStatusApplyConfiguration) (*ScaleStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ScaleStatusDie) DieStampApplyConfigurationE(fn func(ac *ScaleStatusApplyConfiguration)) (*ScaleStatusDie, error) {
+func (d *ScaleStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ScaleStatusApplyConfiguration)) (*ScaleStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1419,7 +2300,7 @@ var scaleStatusFields = &diefields.Table[scaleStatusFieldsTable]{Build: func() (
 }}
 
 // replicas is the actual number of observed instances of the scaled object.
-func (d *ScaleStatusDie) Replicas() diefields.Value[int32, *ScaleStatusDie] {
+func (d *ScaleStatusDie) Replicas() diefields.Value[int32] {
 	return diefields.ValueOf(d, scaleStatusFields.Get().Replicas)
 }
 
@@ -1427,24 +2308,37 @@ func (d *ScaleStatusDie) Replicas() diefields.Value[int32, *ScaleStatusDie] {
 // as the label selector but in the string format to avoid introspection
 // by clients. The string will be in the same format as the query-param syntax.
 // More info about label selectors: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-func (d *ScaleStatusDie) Selector() diefields.Value[string, *ScaleStatusDie] {
+func (d *ScaleStatusDie) Selector() diefields.Value[string] {
 	return diefields.ValueOf(d, scaleStatusFields.Get().Selector)
+}
+
+// replicas is the actual number of observed instances of the scaled object.
+func (d *ScaleStatusDieMut) Replicas() diefields.ValueMut[int32, *ScaleStatusDieMut] {
+	return diefields.ValueMutOf(d, scaleStatusFields.Get().Replicas)
+}
+
+// selector is the label query over pods that should match the replicas count. This is same
+// as the label selector but in the string format to avoid introspection
+// by clients. The string will be in the same format as the query-param syntax.
+// More info about label selectors: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+func (d *ScaleStatusDieMut) Selector() diefields.ValueMut[string, *ScaleStatusDieMut] {
+	return diefields.ValueMutOf(d, scaleStatusFields.Get().Selector)
 }
 
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "autoscaling", Version: "v1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("HorizontalPodAutoscaler"), &HorizontalPodAutoscalerDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("HorizontalPodAutoscaler"), &HorizontalPodAutoscalerDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("HorizontalPodAutoscalerList"), &HorizontalPodAutoscalerListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Scale"), &ScaleDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Scale"), &ScaleDieMut{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }

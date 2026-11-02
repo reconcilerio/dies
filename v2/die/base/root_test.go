@@ -29,13 +29,13 @@ import (
 
 // A die within another returns its root die, sharing its state.
 func TestDieRoot(t *testing.T) {
-	d := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+	d := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Namespace().Set("default")
 		d.Metadata().Name().Set("web")
-	}).DieImmutable(false)
+	}).DieMutable()
 	spec := d.Spec().Template().Spec()
 
-	root, ok := spec.DieRoot().(*dieappsv1.DeploymentDie)
+	root, ok := spec.DieRoot().(*dieappsv1.DeploymentDieMut)
 	if !ok || root.GetName() != "web" {
 		t.Fatalf("root %T", spec.DieRoot())
 	}
@@ -49,18 +49,18 @@ func TestDieRoot(t *testing.T) {
 		t.Errorf("namespace %q", namespace)
 	}
 	// handles, and a root itself
-	if _, ok := spec.Containers().At("app").Image().DieRoot().(*dieappsv1.DeploymentDie); !ok {
+	if _, ok := spec.Containers().At("app").Image().DieRoot().(*dieappsv1.DeploymentDieMut); !ok {
 		t.Errorf("a handle's root is %T", spec.Containers().At("app").Image().DieRoot())
 	}
-	if _, ok := d.DieRoot().(*dieappsv1.DeploymentDie); !ok {
+	if _, ok := d.DieRoot().(*dieappsv1.DeploymentDieMut); !ok {
 		t.Errorf("a root's root is %T", d.DieRoot())
 	}
 	// a copy of a die within another is unlinked: its own root
 	copied := spec.DeepCopy()
-	if _, ok := copied.Containers().DieRoot().(*diecorev1.PodSpecDie); !ok {
+	if _, ok := copied.Containers().DieRoot().(*diecorev1.PodSpecDieMut); !ok {
 		t.Errorf("a copy's root is %T", copied.Containers().DieRoot())
 	}
-	if _, ok := spec.DieRoot().(*diecorev1.PodSpecDie); ok {
+	if _, ok := spec.DieRoot().(*diecorev1.PodSpecDieMut); ok {
 		t.Errorf("the root is a %T", spec.DieRoot())
 	}
 }
@@ -68,17 +68,17 @@ func TestDieRoot(t *testing.T) {
 // An unstructured node's root is its object, and a jig's dies are within the
 // jig.
 func TestDieRootOfNodesAndJigs(t *testing.T) {
-	u := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieImmutable(false)
-	if _, ok := u.Node().Field("spec").Field("replicas").DieRoot().(*dieunstructured.Object); !ok {
+	u := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieMutable()
+	if _, ok := u.Node().Field("spec").Field("replicas").DieRoot().(*dieunstructured.ObjectMut); !ok {
 		t.Errorf("a node's root is %T", u.Node().Field("spec").DieRoot())
 	}
 
-	d := dieappsv1.DeploymentBlank.DieImmutable(false)
-	ps, ok := jigsv1.PodSpecableJig.Of(d)
+	d := dieappsv1.DeploymentBlank.DieMutable()
+	ps, ok := jigsv1.PodSpecableJig.OfMut(d)
 	if !ok {
 		t.Fatal("no jig")
 	}
-	if _, ok := ps.Template().Spec().DieRoot().(*jigsv1.PodSpecableDie); !ok {
+	if _, ok := ps.Template().Spec().DieRoot().(*jigsv1.PodSpecableDieMut); !ok {
 		t.Errorf("a jig's die's root is %T", ps.Template().Spec().DieRoot())
 	}
 }

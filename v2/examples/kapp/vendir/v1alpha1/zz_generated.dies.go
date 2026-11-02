@@ -25,24 +25,38 @@ import (
 	diefields "reconciler.io/dies/v2/die/fields"
 )
 
+// VersionSelectionDie is immutable: it reads.
+// VersionSelectionDieMut, its mutable die, also writes, as DieWith passes it.
 type VersionSelectionDie struct {
-	diebase.DieBase[VersionSelection, *VersionSelectionDie]
+	diebase.DieBase[VersionSelection, *VersionSelectionDie, *VersionSelectionDieMut]
 }
 
-func (*VersionSelectionDie) DieFrom(b diebase.DieBase[VersionSelection, *VersionSelectionDie]) *VersionSelectionDie {
+// VersionSelectionDieMut is the mutable die of VersionSelection: see VersionSelectionDie.
+type VersionSelectionDieMut struct {
+	diebase.DieMutBase[VersionSelection, *VersionSelectionDie, *VersionSelectionDieMut]
+}
+
+func (*VersionSelectionDie) DieFrom(b diebase.DieBase[VersionSelection, *VersionSelectionDie, *VersionSelectionDieMut]) *VersionSelectionDie {
 	return &VersionSelectionDie{b}
 }
 
-var _ diebase.DieOf[VersionSelection, *VersionSelectionDie] = (*VersionSelectionDie)(nil)
+func (*VersionSelectionDieMut) DieFrom(b diebase.DieMutBase[VersionSelection, *VersionSelectionDie, *VersionSelectionDieMut]) *VersionSelectionDieMut {
+	return &VersionSelectionDieMut{b}
+}
 
-var VersionSelectionBlank = diebase.Blank[VersionSelection, *VersionSelectionDie]()
+var (
+	_ diebase.DieOf[VersionSelection, *VersionSelectionDie, *VersionSelectionDieMut]    = (*VersionSelectionDie)(nil)
+	_ diebase.DieMutOf[VersionSelection, *VersionSelectionDie, *VersionSelectionDieMut] = (*VersionSelectionDieMut)(nil)
+)
+
+var VersionSelectionBlank = diebase.Blank[VersionSelection, *VersionSelectionDie, *VersionSelectionDieMut]()
 
 type versionSelectionFieldsTable struct {
-	Semver diefields.Struct[VersionSelection, VersionSelectionSemver, *VersionSelectionSemverDie]
+	Semver diefields.Struct[VersionSelection, VersionSelectionSemver, *VersionSelectionSemverDie, *VersionSelectionSemverDieMut]
 }
 
 var versionSelectionFields = &diefields.Table[versionSelectionFieldsTable]{Build: func() (f versionSelectionFieldsTable) {
-	f.Semver = diefields.NewStruct[VersionSelection, VersionSelectionSemver, *VersionSelectionSemverDie]("semver")
+	f.Semver = diefields.NewStruct[VersionSelection, VersionSelectionSemver, *VersionSelectionSemverDie, *VersionSelectionSemverDieMut]("semver")
 	return
 }}
 
@@ -50,30 +64,48 @@ func (d *VersionSelectionDie) Semver() *VersionSelectionSemverDie {
 	return diefields.Child(d, versionSelectionFields.Get().Semver)
 }
 
-type VersionSelectionSemverDie struct {
-	diebase.DieBase[VersionSelectionSemver, *VersionSelectionSemverDie]
+func (d *VersionSelectionDieMut) Semver() *VersionSelectionSemverDieMut {
+	return diefields.ChildMut(d, versionSelectionFields.Get().Semver)
 }
 
-func (*VersionSelectionSemverDie) DieFrom(b diebase.DieBase[VersionSelectionSemver, *VersionSelectionSemverDie]) *VersionSelectionSemverDie {
+// VersionSelectionSemverDie is immutable: it reads.
+// VersionSelectionSemverDieMut, its mutable die, also writes, as DieWith passes it.
+type VersionSelectionSemverDie struct {
+	diebase.DieBase[VersionSelectionSemver, *VersionSelectionSemverDie, *VersionSelectionSemverDieMut]
+}
+
+// VersionSelectionSemverDieMut is the mutable die of VersionSelectionSemver: see VersionSelectionSemverDie.
+type VersionSelectionSemverDieMut struct {
+	diebase.DieMutBase[VersionSelectionSemver, *VersionSelectionSemverDie, *VersionSelectionSemverDieMut]
+}
+
+func (*VersionSelectionSemverDie) DieFrom(b diebase.DieBase[VersionSelectionSemver, *VersionSelectionSemverDie, *VersionSelectionSemverDieMut]) *VersionSelectionSemverDie {
 	return &VersionSelectionSemverDie{b}
 }
 
-var _ diebase.DieOf[VersionSelectionSemver, *VersionSelectionSemverDie] = (*VersionSelectionSemverDie)(nil)
+func (*VersionSelectionSemverDieMut) DieFrom(b diebase.DieMutBase[VersionSelectionSemver, *VersionSelectionSemverDie, *VersionSelectionSemverDieMut]) *VersionSelectionSemverDieMut {
+	return &VersionSelectionSemverDieMut{b}
+}
 
-var VersionSelectionSemverBlank = diebase.Blank[VersionSelectionSemver, *VersionSelectionSemverDie]()
+var (
+	_ diebase.DieOf[VersionSelectionSemver, *VersionSelectionSemverDie, *VersionSelectionSemverDieMut]    = (*VersionSelectionSemverDie)(nil)
+	_ diebase.DieMutOf[VersionSelectionSemver, *VersionSelectionSemverDie, *VersionSelectionSemverDieMut] = (*VersionSelectionSemverDieMut)(nil)
+)
+
+var VersionSelectionSemverBlank = diebase.Blank[VersionSelectionSemver, *VersionSelectionSemverDie, *VersionSelectionSemverDieMut]()
 
 type versionSelectionSemverFieldsTable struct {
 	Constraints diefields.Field[VersionSelectionSemver, string]
-	Prereleases diefields.Struct[VersionSelectionSemver, VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie]
+	Prereleases diefields.Struct[VersionSelectionSemver, VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie, *VersionSelectionSemverPrereleasesDieMut]
 }
 
 var versionSelectionSemverFields = &diefields.Table[versionSelectionSemverFieldsTable]{Build: func() (f versionSelectionSemverFieldsTable) {
 	f.Constraints = diefields.NewField[VersionSelectionSemver, string]("constraints")
-	f.Prereleases = diefields.NewStruct[VersionSelectionSemver, VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie]("prereleases")
+	f.Prereleases = diefields.NewStruct[VersionSelectionSemver, VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie, *VersionSelectionSemverPrereleasesDieMut]("prereleases")
 	return
 }}
 
-func (d *VersionSelectionSemverDie) Constraints() diefields.Value[string, *VersionSelectionSemverDie] {
+func (d *VersionSelectionSemverDie) Constraints() diefields.Value[string] {
 	return diefields.ValueOf(d, versionSelectionSemverFields.Get().Constraints)
 }
 
@@ -81,17 +113,39 @@ func (d *VersionSelectionSemverDie) Prereleases() *VersionSelectionSemverPrerele
 	return diefields.Child(d, versionSelectionSemverFields.Get().Prereleases)
 }
 
-type VersionSelectionSemverPrereleasesDie struct {
-	diebase.DieBase[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie]
+func (d *VersionSelectionSemverDieMut) Constraints() diefields.ValueMut[string, *VersionSelectionSemverDieMut] {
+	return diefields.ValueMutOf(d, versionSelectionSemverFields.Get().Constraints)
 }
 
-func (*VersionSelectionSemverPrereleasesDie) DieFrom(b diebase.DieBase[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie]) *VersionSelectionSemverPrereleasesDie {
+func (d *VersionSelectionSemverDieMut) Prereleases() *VersionSelectionSemverPrereleasesDieMut {
+	return diefields.ChildMut(d, versionSelectionSemverFields.Get().Prereleases)
+}
+
+// VersionSelectionSemverPrereleasesDie is immutable: it reads.
+// VersionSelectionSemverPrereleasesDieMut, its mutable die, also writes, as DieWith passes it.
+type VersionSelectionSemverPrereleasesDie struct {
+	diebase.DieBase[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie, *VersionSelectionSemverPrereleasesDieMut]
+}
+
+// VersionSelectionSemverPrereleasesDieMut is the mutable die of VersionSelectionSemverPrereleases: see VersionSelectionSemverPrereleasesDie.
+type VersionSelectionSemverPrereleasesDieMut struct {
+	diebase.DieMutBase[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie, *VersionSelectionSemverPrereleasesDieMut]
+}
+
+func (*VersionSelectionSemverPrereleasesDie) DieFrom(b diebase.DieBase[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie, *VersionSelectionSemverPrereleasesDieMut]) *VersionSelectionSemverPrereleasesDie {
 	return &VersionSelectionSemverPrereleasesDie{b}
 }
 
-var _ diebase.DieOf[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie] = (*VersionSelectionSemverPrereleasesDie)(nil)
+func (*VersionSelectionSemverPrereleasesDieMut) DieFrom(b diebase.DieMutBase[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie, *VersionSelectionSemverPrereleasesDieMut]) *VersionSelectionSemverPrereleasesDieMut {
+	return &VersionSelectionSemverPrereleasesDieMut{b}
+}
 
-var VersionSelectionSemverPrereleasesBlank = diebase.Blank[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie]()
+var (
+	_ diebase.DieOf[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie, *VersionSelectionSemverPrereleasesDieMut]    = (*VersionSelectionSemverPrereleasesDie)(nil)
+	_ diebase.DieMutOf[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie, *VersionSelectionSemverPrereleasesDieMut] = (*VersionSelectionSemverPrereleasesDieMut)(nil)
+)
+
+var VersionSelectionSemverPrereleasesBlank = diebase.Blank[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie, *VersionSelectionSemverPrereleasesDieMut]()
 
 type versionSelectionSemverPrereleasesFieldsTable struct {
 	Identifiers diefields.Field[VersionSelectionSemverPrereleases, []string]
@@ -102,8 +156,12 @@ var versionSelectionSemverPrereleasesFields = &diefields.Table[versionSelectionS
 	return
 }}
 
-func (d *VersionSelectionSemverPrereleasesDie) Identifiers() diefields.Value[[]string, *VersionSelectionSemverPrereleasesDie] {
+func (d *VersionSelectionSemverPrereleasesDie) Identifiers() diefields.Value[[]string] {
 	return diefields.ValueOf(d, versionSelectionSemverPrereleasesFields.Get().Identifiers)
+}
+
+func (d *VersionSelectionSemverPrereleasesDieMut) Identifiers() diefields.ValueMut[[]string, *VersionSelectionSemverPrereleasesDieMut] {
+	return diefields.ValueMutOf(d, versionSelectionSemverPrereleasesFields.Get().Identifiers)
 }
 
 // SchemeBuilder registers this package's object and list dies, of which

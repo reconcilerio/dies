@@ -89,7 +89,7 @@ func assertPanics(t *testing.T, fn func()) {
 }
 
 func TestGetChainCreatesOnWrite(t *testing.T) {
-	d := DeploymentBlank.DieWith(func(d *DeploymentDie) {
+	d := DeploymentBlank.DieWith(func(d *DeploymentDieMut) {
 		c := d.Spec().Template().Spec().Containers().At("app")
 		// reads have no side effects, and a missing element reads with its key
 		if c.Name().Get() != "app" || c.Image().Get() != "" {
@@ -112,24 +112,27 @@ func TestGetChainCreatesOnWrite(t *testing.T) {
 }
 
 func TestImmutability(t *testing.T) {
-	a := DeploymentBlank.DieWith(func(d *DeploymentDie) { d.Metadata().Name().Set("a") })
-	b := a.DieWith(func(d *DeploymentDie) { d.Metadata().Name().Set("b") })
+	a := DeploymentBlank.DieWith(func(d *DeploymentDieMut) { d.Metadata().Name().Set("a") })
+	b := a.DieWith(func(d *DeploymentDieMut) { d.Metadata().Name().Set("b") })
 	if DeploymentBlank.Metadata().Name().Get() != "" || a.Metadata().Name().Get() != "a" || b.Metadata().Name().Get() != "b" {
 		t.Errorf("names: blank=%q a=%q b=%q", DeploymentBlank.Metadata().Name().Get(), a.Metadata().Name().Get(), b.Metadata().Name().Get())
 	}
 
-	// a write through a child of an immutable root would be lost, so it panics
-	assertPanics(t, func() { a.Metadata().Name().Set("x") })
-	assertPanics(t, func() { a.Spec().Template().Spec().Containers().At("app").Image().Set("x") })
-
-	// a standalone root returns a modified copy, so chaining works
-	c := corev1.ContainerBlank.Name().Set("app").Image().Set("busybox")
+	// an immutable die has no writes: its mutable copy writes, and chains,
+	// without reaching it
+	c := corev1.ContainerBlank.DieMutable().Name().Set("app").Image().Set("busybox")
 	if corev1.ContainerBlank.Name().Get() != "" || c.Name().Get() != "app" || c.Image().Get() != "busybox" {
 		t.Errorf("unexpected container %+v", c.DieRelease())
 	}
+	// nor does an immutable copy of it see its later writes
+	frozen := c.DieImmutable()
+	c.Image().Set("nginx")
+	if frozen.Image().Get() != "busybox" {
+		t.Errorf("an immutable copy saw a later write: %q", frozen.Image().Get())
+	}
 
-	// the zero value is a mutable blank, ready for a decoder
-	var z DeploymentDie
+	// the zero value of a mutable die is a mutable blank, ready for a decoder
+	var z DeploymentDieMut
 	z.Metadata().Name().Set("z")
 	if z.Metadata().Name().Get() != "z" {
 		t.Errorf("zero value die is not mutable")
@@ -137,7 +140,7 @@ func TestImmutability(t *testing.T) {
 }
 
 func TestApplyPatchFromBlank(t *testing.T) {
-	d := DeploymentBlank.DieWith(func(d *DeploymentDie) {
+	d := DeploymentBlank.DieWith(func(d *DeploymentDieMut) {
 		d.Metadata().Name().Set("my-app").Namespace().Set("default")
 		// explicit zero values, including an omitempty bool
 		d.Spec().Replicas().Set(0).Paused().Set(false)
@@ -166,7 +169,7 @@ func TestApplyPatchFromBlank(t *testing.T) {
 }
 
 func TestPatchesFromServerState(t *testing.T) {
-	d := DeploymentBlank.DieFeed(serverDeployment()).DieWith(func(d *DeploymentDie) {
+	d := DeploymentBlank.DieWith(func(d *DeploymentDieMut) { d.DieFeed(serverDeployment()) }).DieWith(func(d *DeploymentDieMut) {
 		d.Spec().Template().Spec().Containers().At("app").Env().At("FOO").Value().Set("bar")
 		d.Metadata().Labels().Remove("team")
 	})
@@ -196,7 +199,7 @@ func TestPatchesFromServerState(t *testing.T) {
 }
 
 func TestUnionOverInlinedStruct(t *testing.T) {
-	d := DeploymentBlank.DieFeed(serverDeployment()).DieWith(func(d *DeploymentDie) {
+	d := DeploymentBlank.DieWith(func(d *DeploymentDieMut) { d.DieFeed(serverDeployment()) }).DieWith(func(d *DeploymentDieMut) {
 		v := d.Spec().Template().Spec().Volumes().At("creds")
 		if !v.Secret().DieHas() {
 			t.Errorf("expected secret volume")
@@ -228,7 +231,7 @@ func TestUnionOverInlinedStruct(t *testing.T) {
 }
 
 func TestMultiKeyListMap(t *testing.T) {
-	c := corev1.ContainerBlank.DieWith(func(c *corev1.ContainerDie) {
+	c := corev1.ContainerBlank.DieWith(func(c *corev1.ContainerDieMut) {
 		c.Ports().At(corev1.PortKey{ContainerPort: 80, Protocol: "TCP"}).Name().Set("http")
 	})
 	want := []corev1.ContainerPort{{Name: "http", ContainerPort: 80, Protocol: "TCP"}}
@@ -243,9 +246,11 @@ func TestMultiKeyListMap(t *testing.T) {
 
 func TestDefaultedListMapKey(t *testing.T) {
 	// as created by a client, before the server defaults the protocol
-	c := corev1.ContainerBlank.DieFeed(corev1.Container{
-		Name:  "app",
-		Ports: []corev1.ContainerPort{{ContainerPort: 80}},
+	c := corev1.ContainerBlank.DieWith(func(d *corev1.ContainerDieMut) {
+		d.DieFeed(corev1.Container{
+			Name:  "app",
+			Ports: []corev1.ContainerPort{{ContainerPort: 80}},
+		})
 	})
 
 	// an unset protocol and the default protocol identify the same element
@@ -261,7 +266,7 @@ func TestDefaultedListMapKey(t *testing.T) {
 		t.Errorf("keys %+v", keys)
 	}
 
-	c = c.DieWith(func(c *corev1.ContainerDie) {
+	c = c.DieWith(func(c *corev1.ContainerDieMut) {
 		// updates the existing element rather than adding a second one
 		c.Ports().At(corev1.PortKey{ContainerPort: 80}).Name().Set("http")
 		// a new element gets the default written explicitly
@@ -288,7 +293,7 @@ func TestDefaultedListMapKey(t *testing.T) {
 	]}`)
 
 	// diffing a stamp matches elements by their defaulted keys
-	s := c.DieCommit().DieStamp(func(r *corev1.Container) {
+	s := c.DieCommit().DieMutable().DieStamp(func(r *corev1.Container) {
 		r.Ports[0].Protocol = "TCP"
 		r.Ports[1].Protocol = ""
 	})
@@ -299,11 +304,13 @@ func TestDefaultedListMapKey(t *testing.T) {
 }
 
 func TestStampRecordsIntent(t *testing.T) {
-	c := corev1.ContainerBlank.DieFeed(corev1.Container{
-		Name:  "app",
-		Image: "busybox:1",
-		Env:   []corev1.EnvVar{{Name: "A", Value: "1"}, {Name: "B", Value: "2"}},
-	}).DieStamp(func(r *corev1.Container) {
+	c := corev1.ContainerBlank.DieWith(func(d *corev1.ContainerDieMut) {
+		d.DieFeed(corev1.Container{
+			Name:  "app",
+			Image: "busybox:1",
+			Env:   []corev1.EnvVar{{Name: "A", Value: "1"}, {Name: "B", Value: "2"}},
+		})
+	}).DieMutable().DieStamp(func(r *corev1.Container) {
 		r.Image = "busybox:2"
 		r.Env = r.Env[:1]
 	})
@@ -314,7 +321,7 @@ func TestStampRecordsIntent(t *testing.T) {
 }
 
 func TestUnmarshalRebasesIntent(t *testing.T) {
-	d := DeploymentBlank.DieFeed(serverDeployment()).DieImmutable(false)
+	d := DeploymentBlank.DieMutable().DieFeed(serverDeployment())
 	d.Spec().Template().Spec().Containers().At("app").Image().Set("busybox:2")
 
 	// someone else scaled the deployment; decoding the latest state into the
@@ -347,7 +354,7 @@ func TestUnmarshalRebasesIntent(t *testing.T) {
 }
 
 func TestSubresourceSplit(t *testing.T) {
-	d := DeploymentBlank.DieWith(func(d *DeploymentDie) {
+	d := DeploymentBlank.DieWith(func(d *DeploymentDieMut) {
 		d.Metadata().Name().Set("my-app")
 		d.Spec().Replicas().Set(2)
 		d.Status().ObservedGeneration().Set(4)
@@ -386,7 +393,7 @@ func TestSubresourceSplit(t *testing.T) {
 }
 
 func TestPresenceOfOptionalScalars(t *testing.T) {
-	d := DeploymentBlank.DieWith(func(d *DeploymentDie) {
+	d := DeploymentBlank.DieWith(func(d *DeploymentDieMut) {
 		ps := d.Spec().Template().Spec()
 		if ps.AutomountServiceAccountToken().Has() {
 			t.Errorf("unset field is present")
@@ -403,7 +410,7 @@ func TestPresenceOfOptionalScalars(t *testing.T) {
 		"spec": {"template": {"spec": {"automountServiceAccountToken": false}}}
 	}`)
 
-	d = d.DieWith(func(d *DeploymentDie) {
+	d = d.DieWith(func(d *DeploymentDieMut) {
 		d.Spec().Template().Spec().AutomountServiceAccountToken().Clear()
 	})
 	if d.Spec().Template().Spec().AutomountServiceAccountToken().Has() {
@@ -418,11 +425,13 @@ func TestPresenceOfOptionalScalars(t *testing.T) {
 }
 
 func TestEqualIgnoresIntent(t *testing.T) {
-	fed := DeploymentBlank.DieFeed(Deployment{
-		TypeMeta:   metav1.TypeMeta{APIVersion: "apps/v1", Kind: "Deployment"},
-		ObjectMeta: metav1.ObjectMeta{Name: "x"},
+	fed := DeploymentBlank.DieWith(func(d *DeploymentDieMut) {
+		d.DieFeed(Deployment{
+			TypeMeta:   metav1.TypeMeta{APIVersion: "apps/v1", Kind: "Deployment"},
+			ObjectMeta: metav1.ObjectMeta{Name: "x"},
+		})
 	})
-	stamped := DeploymentBlank.DieWith(func(d *DeploymentDie) { d.Metadata().Name().Set("x") })
+	stamped := DeploymentBlank.DieWith(func(d *DeploymentDieMut) { d.Metadata().Name().Set("x") })
 	if !fed.Equal(stamped) {
 		t.Errorf("equal values with different intent should be equal")
 	}
@@ -432,7 +441,7 @@ func TestEqualIgnoresIntent(t *testing.T) {
 }
 
 func TestDeepCopyIsIndependent(t *testing.T) {
-	m := DeploymentBlank.DieImmutable(false)
+	m := DeploymentBlank.DieMutable()
 	c := m.DeepCopy()
 	c.Metadata().Name().Set("c")
 	c.Metadata().Labels().Set("k", "v")

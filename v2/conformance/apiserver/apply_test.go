@@ -32,7 +32,7 @@ import (
 
 // deployment is a minimal valid Deployment, with one container, app.
 func deployment(namespace string) *dieappsv1.DeploymentDie {
-	return dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+	return dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Namespace().Set(namespace)
 		d.Metadata().Name().Set("web")
 		d.Spec().Selector().MatchLabels().Set("app", "web")
@@ -43,7 +43,7 @@ func deployment(namespace string) *dieappsv1.DeploymentDie {
 
 // identity is a Deployment with only its identity, to apply nothing else.
 func identity(namespace string) *dieappsv1.DeploymentDie {
-	return dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+	return dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Namespace().Set(namespace)
 		d.Metadata().Name().Set("web")
 	})
@@ -57,11 +57,11 @@ func apply(t *testing.T, d *dieappsv1.DeploymentDie, manager string) *dieappsv1.
 	if err != nil {
 		t.Fatal(err)
 	}
-	got := d.DieImmutable(false)
+	got := d.DieMutable()
 	if err := dies.Patch(context.Background(), got, client.RawPatch(types.ApplyPatchType, body), client.FieldOwner(manager), client.ForceOwnership); err != nil {
 		t.Fatalf("apply %s: %v", body, err)
 	}
-	return got.DieImmutable(true)
+	return got.DieImmutable()
 }
 
 func TestApplyOwnsOnlyWhatWasSet(t *testing.T) {
@@ -84,7 +84,7 @@ func TestApplyOwnsOnlyWhatWasSet(t *testing.T) {
 // defaulted.
 func TestApplySendsExplicitZeroValues(t *testing.T) {
 	ns := namespace(t)
-	got := apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	got := apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().Replicas().Set(0)
 		d.Spec().Paused().Set(false)
 	}), "conformance")
@@ -100,7 +100,7 @@ func TestApplySendsExplicitZeroValues(t *testing.T) {
 func TestApplyMergesListMapsByKey(t *testing.T) {
 	ns := namespace(t)
 	apply(t, deployment(ns), "app")
-	sidecar := deployment(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	sidecar := deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().Template().Spec().Containers().Remove("app")
 		d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("sidecar:1")
 	})
@@ -129,7 +129,7 @@ func TestApplyMergesListMapsByKey(t *testing.T) {
 // port set without a protocol is the TCP one, on the die and on the server.
 func TestApplyDefaultedListMapKeys(t *testing.T) {
 	ns := namespace(t)
-	withPort := deployment(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	withPort := deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().Template().Spec().Containers().At("app").Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http")
 	})
 	first := apply(t, withPort, "app")
@@ -138,7 +138,7 @@ func TestApplyDefaultedListMapKeys(t *testing.T) {
 		t.Errorf("applying the same port again changed the object")
 	}
 
-	udp := deployment(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	udp := deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().Template().Spec().Containers().At("app").Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080, Protocol: diecorev1.ProtocolUDP}).Name().Set("dns")
 	})
 	got := apply(t, udp, "dns")
@@ -156,7 +156,7 @@ func TestApplyDefaultedListMapKeys(t *testing.T) {
 // what the server has, keeps its name.
 func TestApplySendsAtomicStructsWhole(t *testing.T) {
 	ns := namespace(t)
-	withEnv := deployment(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	withEnv := deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		ref := d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef()
 		ref.Name().Set("settings")
 		ref.Key().Set("color")
@@ -167,7 +167,8 @@ func TestApplySendsAtomicStructsWhole(t *testing.T) {
 	// from the server's state, change only the key, as another manager: an
 	// apply is all of a manager's intent, so app applying only this would
 	// drop the rest of what it owns
-	changed := dieappsv1.DeploymentBlank.DieFeed(actual.DieRelease()).DieWith(func(d *dieappsv1.DeploymentDie) {
+	changed := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
+		d.DieFeed(actual.DieRelease())
 		d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef().Key().Set("colour")
 	})
 	got := apply(t, changed, "localizer")
@@ -181,11 +182,11 @@ func TestApplySendsAtomicStructsWhole(t *testing.T) {
 // Clear on a field sends null: the manager owns it, and it's absent.
 func TestApplyClearRemovesAField(t *testing.T) {
 	ns := namespace(t)
-	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().MinReadySeconds().Set(5)
 	}), "rollout")
 
-	got := apply(t, identity(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	got := apply(t, identity(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().MinReadySeconds().Clear()
 	}), "app")
 	if got.Spec().MinReadySeconds().Has() {
@@ -200,11 +201,11 @@ func TestApplyClearRemovesAField(t *testing.T) {
 // longer applying it.
 func TestApplyRemovingAMapEntry(t *testing.T) {
 	ns := namespace(t)
-	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Labels().Set("tier", "web")
 	}), "labeler")
 
-	got := apply(t, identity(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	got := apply(t, identity(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Labels().Remove("tier")
 	}), "app")
 	if tier := got.GetLabels()["tier"]; tier != "web" {
@@ -220,7 +221,7 @@ func TestApplyRemovingAMapEntry(t *testing.T) {
 // Empty sends []: the manager owns a list that's present and empty.
 func TestApplyEmptyOwnsAnEmptyList(t *testing.T) {
 	ns := namespace(t)
-	got := apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	got := apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().Template().Spec().Tolerations().Empty()
 	}), "app")
 	assertOwns(t, got, "app", "", ".spec.template.spec.tolerations")
@@ -232,9 +233,9 @@ func TestApplyStatusSubresource(t *testing.T) {
 	ns := namespace(t)
 	apply(t, deployment(ns), "app")
 
-	status := identity(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	status := identity(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Status().ObservedGeneration().Set(1)
-		d.Status().Conditions().At(dieappsv1.DeploymentAvailable).DieWith(func(c *dieappsv1.DeploymentConditionDie) {
+		d.Status().Conditions().At(dieappsv1.DeploymentAvailable).DieWith(func(c *dieappsv1.DeploymentConditionDieMut) {
 			c.Status().Set(diecorev1.ConditionTrue)
 			c.Reason().Set("Reconciled")
 		})
@@ -243,7 +244,7 @@ func TestApplyStatusSubresource(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got := status.DieImmutable(false)
+	got := status.DieMutable()
 	if err := dies.Status().Patch(context.Background(), got, client.RawPatch(types.ApplyPatchType, body), client.FieldOwner("controller"), client.ForceOwnership); err != nil {
 		t.Fatal(err)
 	}
@@ -272,13 +273,13 @@ func TestApplyConfigurations(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ac := base.ApplyConfigurationOf(deployment(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	ac := base.ApplyConfigurationOf(deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().Replicas().Set(3)
 	}))
 	if err := dies.Apply(ctx, ac, client.FieldOwner("adapted"), client.ForceOwnership); err != nil {
 		t.Fatal(err)
 	}
-	got := dieappsv1.DeploymentBlank.DieFeedJSON(ac.Result())
+	got := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) { d.DieFeedJSON(ac.Result()) })
 	if got.Spec().Replicas().Get() != 3 {
 		t.Errorf("replicas %v", got.Spec().Replicas().Ptr())
 	}

@@ -30,7 +30,8 @@ func CRDs() []*apiextensionsv1.CustomResourceDefinition {
 // WidgetCRD is the CRD for examples/widget/v1, with the list maps its markers
 // declare, so the server merges them as the dies do.
 func WidgetCRD() *apiextensionsv1.CustomResourceDefinition {
-	schema := dieapiextensionsv1.JSONSchemaPropsBlank.DieFeedYAML([]byte(`
+	schema := dieapiextensionsv1.JSONSchemaPropsBlank.DieWith(func(d *dieapiextensionsv1.JSONSchemaPropsDieMut) {
+		d.DieFeedYAML([]byte(`
 type: object
 properties:
   spec:
@@ -72,19 +73,20 @@ properties:
           properties:
             type: {type: string}
             status: {type: string}
-`)).DieRelease()
-	version := dieapiextensionsv1.CustomResourceDefinitionVersionBlank.DieWith(func(d *dieapiextensionsv1.CustomResourceDefinitionVersionDie) {
+`))
+	}).DieRelease()
+	version := dieapiextensionsv1.CustomResourceDefinitionVersionBlank.DieWith(func(d *dieapiextensionsv1.CustomResourceDefinitionVersionDieMut) {
 		d.Name().Set("v1")
 		d.Served().Set(true)
 		d.Storage().Set(true)
 		d.Schema().OpenAPIV3Schema().DieFeed(schema)
 		d.Subresources().Status().DieFeed(apiextensionsv1.CustomResourceSubresourceStatus{})
 	}).DieRelease()
-	return dieapiextensionsv1.CustomResourceDefinitionBlank.DieWith(func(d *dieapiextensionsv1.CustomResourceDefinitionDie) {
+	return dieapiextensionsv1.CustomResourceDefinitionBlank.DieWith(func(d *dieapiextensionsv1.CustomResourceDefinitionDieMut) {
 		d.Metadata().Name().Set("widgets.example.dev")
 		d.Spec().Group().Set("example.dev")
 		d.Spec().Scope().Set(dieapiextensionsv1.NamespaceScoped)
-		d.Spec().Names().DieWith(func(n *dieapiextensionsv1.CustomResourceDefinitionNamesDie) {
+		d.Spec().Names().DieWith(func(n *dieapiextensionsv1.CustomResourceDefinitionNamesDieMut) {
 			n.Kind().Set("Widget")
 			n.ListKind().Set("WidgetList")
 			n.Plural().Set("widgets")

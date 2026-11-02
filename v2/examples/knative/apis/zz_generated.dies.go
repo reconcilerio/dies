@@ -29,17 +29,32 @@ import (
 
 // Condition defines a readiness condition for a Knative resource.
 // See: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#typical-status-properties
+//
+// ConditionDie is immutable: it reads.
+// ConditionDieMut, its mutable die, also writes, as DieWith passes it.
 type ConditionDie struct {
-	diebase.DieBase[Condition, *ConditionDie]
+	diebase.DieBase[Condition, *ConditionDie, *ConditionDieMut]
 }
 
-func (*ConditionDie) DieFrom(b diebase.DieBase[Condition, *ConditionDie]) *ConditionDie {
+// ConditionDieMut is the mutable die of Condition: see ConditionDie.
+type ConditionDieMut struct {
+	diebase.DieMutBase[Condition, *ConditionDie, *ConditionDieMut]
+}
+
+func (*ConditionDie) DieFrom(b diebase.DieBase[Condition, *ConditionDie, *ConditionDieMut]) *ConditionDie {
 	return &ConditionDie{b}
 }
 
-var _ diebase.DieOf[Condition, *ConditionDie] = (*ConditionDie)(nil)
+func (*ConditionDieMut) DieFrom(b diebase.DieMutBase[Condition, *ConditionDie, *ConditionDieMut]) *ConditionDieMut {
+	return &ConditionDieMut{b}
+}
 
-var ConditionBlank = diebase.Blank[Condition, *ConditionDie]()
+var (
+	_ diebase.DieOf[Condition, *ConditionDie, *ConditionDieMut]    = (*ConditionDie)(nil)
+	_ diebase.DieMutOf[Condition, *ConditionDie, *ConditionDieMut] = (*ConditionDieMut)(nil)
+)
+
+var ConditionBlank = diebase.Blank[Condition, *ConditionDie, *ConditionDieMut]()
 
 type conditionFieldsTable struct {
 	Type               diefields.Field[Condition, ConditionType]
@@ -61,53 +76,101 @@ var conditionFields = &diefields.Table[conditionFieldsTable]{Build: func() (f co
 }}
 
 // Type of condition.
-func (d *ConditionDie) Type() diefields.Value[ConditionType, *ConditionDie] {
+func (d *ConditionDie) Type() diefields.Value[ConditionType] {
 	return diefields.ValueOf(d, conditionFields.Get().Type)
 }
 
 // Status of the condition, one of True, False, Unknown.
-func (d *ConditionDie) Status() diefields.Value[diecorev1.ConditionStatus, *ConditionDie] {
+func (d *ConditionDie) Status() diefields.Value[diecorev1.ConditionStatus] {
 	return diefields.ValueOf(d, conditionFields.Get().Status)
 }
 
 // Severity with which to treat failures of this type of condition.
 // When this is not specified, it defaults to Error.
-func (d *ConditionDie) Severity() diefields.Value[ConditionSeverity, *ConditionDie] {
+func (d *ConditionDie) Severity() diefields.Value[ConditionSeverity] {
 	return diefields.ValueOf(d, conditionFields.Get().Severity)
 }
 
 // LastTransitionTime is the last time the condition transitioned from one status to another.
 // We use VolatileTime in place of metav1.Time to exclude this from creating equality.Semantic
 // differences (all other things held constant).
-func (d *ConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time, *ConditionDie] {
+func (d *ConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time] {
 	return diefields.ValueOf(d, conditionFields.Get().LastTransitionTime)
 }
 
 // The reason for the condition's last transition.
-func (d *ConditionDie) Reason() diefields.Value[string, *ConditionDie] {
+func (d *ConditionDie) Reason() diefields.Value[string] {
 	return diefields.ValueOf(d, conditionFields.Get().Reason)
 }
 
 // A human readable message indicating details about the transition.
-func (d *ConditionDie) Message() diefields.Value[string, *ConditionDie] {
+func (d *ConditionDie) Message() diefields.Value[string] {
 	return diefields.ValueOf(d, conditionFields.Get().Message)
+}
+
+// Type of condition.
+func (d *ConditionDieMut) Type() diefields.ValueMut[ConditionType, *ConditionDieMut] {
+	return diefields.ValueMutOf(d, conditionFields.Get().Type)
+}
+
+// Status of the condition, one of True, False, Unknown.
+func (d *ConditionDieMut) Status() diefields.ValueMut[diecorev1.ConditionStatus, *ConditionDieMut] {
+	return diefields.ValueMutOf(d, conditionFields.Get().Status)
+}
+
+// Severity with which to treat failures of this type of condition.
+// When this is not specified, it defaults to Error.
+func (d *ConditionDieMut) Severity() diefields.ValueMut[ConditionSeverity, *ConditionDieMut] {
+	return diefields.ValueMutOf(d, conditionFields.Get().Severity)
+}
+
+// LastTransitionTime is the last time the condition transitioned from one status to another.
+// We use VolatileTime in place of metav1.Time to exclude this from creating equality.Semantic
+// differences (all other things held constant).
+func (d *ConditionDieMut) LastTransitionTime() diefields.ValueMut[diemetav1.Time, *ConditionDieMut] {
+	return diefields.ValueMutOf(d, conditionFields.Get().LastTransitionTime)
+}
+
+// The reason for the condition's last transition.
+func (d *ConditionDieMut) Reason() diefields.ValueMut[string, *ConditionDieMut] {
+	return diefields.ValueMutOf(d, conditionFields.Get().Reason)
+}
+
+// A human readable message indicating details about the transition.
+func (d *ConditionDieMut) Message() diefields.ValueMut[string, *ConditionDieMut] {
+	return diefields.ValueMutOf(d, conditionFields.Get().Message)
 }
 
 // ConditionSet is an abstract collection of the possible ConditionType values
 // that a particular resource might expose.  It also holds the "happy condition"
 // for that resource, which we define to be one of Ready or Succeeded depending
 // on whether it is a Living or Batch process respectively.
+//
+// ConditionSetDie is immutable: it reads.
+// ConditionSetDieMut, its mutable die, also writes, as DieWith passes it.
 type ConditionSetDie struct {
-	diebase.DieBase[ConditionSet, *ConditionSetDie]
+	diebase.DieBase[ConditionSet, *ConditionSetDie, *ConditionSetDieMut]
 }
 
-func (*ConditionSetDie) DieFrom(b diebase.DieBase[ConditionSet, *ConditionSetDie]) *ConditionSetDie {
+// ConditionSetDieMut is the mutable die of ConditionSet: see ConditionSetDie.
+type ConditionSetDieMut struct {
+	diebase.DieMutBase[ConditionSet, *ConditionSetDie, *ConditionSetDieMut]
+}
+
+func (*ConditionSetDie) DieFrom(b diebase.DieBase[ConditionSet, *ConditionSetDie, *ConditionSetDieMut]) *ConditionSetDie {
 	return &ConditionSetDie{b}
 }
 
-var _ diebase.DieOf[ConditionSet, *ConditionSetDie] = (*ConditionSetDie)(nil)
+func (*ConditionSetDieMut) DieFrom(b diebase.DieMutBase[ConditionSet, *ConditionSetDie, *ConditionSetDieMut]) *ConditionSetDieMut {
+	return &ConditionSetDieMut{b}
+}
 
-var ConditionSetBlank = diebase.Blank[ConditionSet, *ConditionSetDie]()
+var (
+	_ diebase.DieOf[ConditionSet, *ConditionSetDie, *ConditionSetDieMut]    = (*ConditionSetDie)(nil)
+	_ diebase.DieMutOf[ConditionSet, *ConditionSetDie, *ConditionSetDieMut] = (*ConditionSetDieMut)(nil)
+)
+
+var ConditionSetBlank = diebase.Blank[ConditionSet, *ConditionSetDie, *ConditionSetDieMut]()
 
 type conditionSetFieldsTable struct {
 }
@@ -120,17 +183,32 @@ var conditionSetFields = &diefields.Table[conditionSetFieldsTable]{Build: func()
 // specific fields in a manner suitable for use in a recursive walk, so
 // that errors contain the appropriate field context.
 // FieldError methods are non-mutating.
+//
+// FieldErrorDie is immutable: it reads.
+// FieldErrorDieMut, its mutable die, also writes, as DieWith passes it.
 type FieldErrorDie struct {
-	diebase.DieBase[FieldError, *FieldErrorDie]
+	diebase.DieBase[FieldError, *FieldErrorDie, *FieldErrorDieMut]
 }
 
-func (*FieldErrorDie) DieFrom(b diebase.DieBase[FieldError, *FieldErrorDie]) *FieldErrorDie {
+// FieldErrorDieMut is the mutable die of FieldError: see FieldErrorDie.
+type FieldErrorDieMut struct {
+	diebase.DieMutBase[FieldError, *FieldErrorDie, *FieldErrorDieMut]
+}
+
+func (*FieldErrorDie) DieFrom(b diebase.DieBase[FieldError, *FieldErrorDie, *FieldErrorDieMut]) *FieldErrorDie {
 	return &FieldErrorDie{b}
 }
 
-var _ diebase.DieOf[FieldError, *FieldErrorDie] = (*FieldErrorDie)(nil)
+func (*FieldErrorDieMut) DieFrom(b diebase.DieMutBase[FieldError, *FieldErrorDie, *FieldErrorDieMut]) *FieldErrorDieMut {
+	return &FieldErrorDieMut{b}
+}
 
-var FieldErrorBlank = diebase.Blank[FieldError, *FieldErrorDie]()
+var (
+	_ diebase.DieOf[FieldError, *FieldErrorDie, *FieldErrorDieMut]    = (*FieldErrorDie)(nil)
+	_ diebase.DieMutOf[FieldError, *FieldErrorDie, *FieldErrorDieMut] = (*FieldErrorDieMut)(nil)
+)
+
+var FieldErrorBlank = diebase.Blank[FieldError, *FieldErrorDie, *FieldErrorDieMut]()
 
 type fieldErrorFieldsTable struct {
 	Message diefields.Field[FieldError, string]
@@ -148,24 +226,45 @@ var fieldErrorFields = &diefields.Table[fieldErrorFieldsTable]{Build: func() (f 
 }}
 
 // Message holds the main diagnostic message carried by this FieldError
-func (d *FieldErrorDie) Message() diefields.Value[string, *FieldErrorDie] {
+func (d *FieldErrorDie) Message() diefields.Value[string] {
 	return diefields.ValueOf(d, fieldErrorFields.Get().Message)
 }
 
 // Paths holds a list of paths to which this diagnostic pertains
-func (d *FieldErrorDie) Paths() diefields.Value[[]string, *FieldErrorDie] {
+func (d *FieldErrorDie) Paths() diefields.Value[[]string] {
 	return diefields.ValueOf(d, fieldErrorFields.Get().Paths)
 }
 
 // Level holds the severity of the diagnostic.
 // If empty, this defaults to ErrorLevel.
-func (d *FieldErrorDie) Level() diefields.Value[DiagnosticLevel, *FieldErrorDie] {
+func (d *FieldErrorDie) Level() diefields.Value[DiagnosticLevel] {
 	return diefields.ValueOf(d, fieldErrorFields.Get().Level)
 }
 
 // Details contains an optional longer payload.
-func (d *FieldErrorDie) Details() diefields.Value[string, *FieldErrorDie] {
+func (d *FieldErrorDie) Details() diefields.Value[string] {
 	return diefields.ValueOf(d, fieldErrorFields.Get().Details)
+}
+
+// Message holds the main diagnostic message carried by this FieldError
+func (d *FieldErrorDieMut) Message() diefields.ValueMut[string, *FieldErrorDieMut] {
+	return diefields.ValueMutOf(d, fieldErrorFields.Get().Message)
+}
+
+// Paths holds a list of paths to which this diagnostic pertains
+func (d *FieldErrorDieMut) Paths() diefields.ValueMut[[]string, *FieldErrorDieMut] {
+	return diefields.ValueMutOf(d, fieldErrorFields.Get().Paths)
+}
+
+// Level holds the severity of the diagnostic.
+// If empty, this defaults to ErrorLevel.
+func (d *FieldErrorDieMut) Level() diefields.ValueMut[DiagnosticLevel, *FieldErrorDieMut] {
+	return diefields.ValueMutOf(d, fieldErrorFields.Get().Level)
+}
+
+// Details contains an optional longer payload.
+func (d *FieldErrorDieMut) Details() diefields.ValueMut[string, *FieldErrorDieMut] {
+	return diefields.ValueMutOf(d, fieldErrorFields.Get().Details)
 }
 
 // SchemeBuilder registers this package's object and list dies, of which

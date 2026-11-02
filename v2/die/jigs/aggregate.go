@@ -37,16 +37,16 @@ type Member[X any] struct {
 }
 
 // erased is the jig for the engine.
-func (v *Jig[V, VD]) erased() *core.ViewSource {
+func (v *Jig[V, VD, VDM]) erased() *core.ViewSource {
 	return &core.ViewSource{BindingsFor: v.bindingsFor, Type: reflect.TypeFor[V]()}
 }
 
-func (v *Jig[V, VD]) bindingsFor(t reflect.Type) ([]Binding, bool) {
+func (v *Jig[V, VD, VDM]) bindingsFor(t reflect.Type) ([]Binding, bool) {
 	b, ok := v.sources[t]
 	return b, ok
 }
 
-func (v *Jig[V, VD]) viewType() reflect.Type { return reflect.TypeFor[V]() }
+func (v *Jig[V, VD, VDM]) viewType() reflect.Type { return reflect.TypeFor[V]() }
 
 // Each is a source list whose elements are the aggregate's elements.
 func Each[X any](source base.LocatedAs[[]X]) Member[X] {
@@ -62,7 +62,7 @@ func One[X any](source base.LocatedAs[X]) Member[X] {
 
 // EachVia is a source list whose elements are presented as the aggregate's
 // elements by a jig.
-func EachVia[S, X any, XD base.DieOf[X, XD]](source base.LocatedAs[[]S], jig *Jig[X, XD]) Member[X] {
+func EachVia[S, X any, XD base.DieOf[X, XD, XDM], XDM base.DieMutOf[X, XD, XDM]](source base.LocatedAs[[]S], jig *Jig[X, XD, XDM]) Member[X] {
 	root, err := core.RootOf(source)
 	return Member[X]{core.Member{Src: source.DiePath(), Root: root, View: jig.erased(), Err: err}}
 }
@@ -80,7 +80,7 @@ func OneAt[X any](path string) Member[X] {
 
 // OneVia is a single source value presented as an element of the aggregate
 // by a jig.
-func OneVia[S, X any, XD base.DieOf[X, XD]](source base.LocatedAs[S], jig *Jig[X, XD]) Member[X] {
+func OneVia[S, X any, XD base.DieOf[X, XD, XDM], XDM base.DieMutOf[X, XD, XDM]](source base.LocatedAs[S], jig *Jig[X, XD, XDM]) Member[X] {
 	root, err := core.RootOf(source)
 	return Member[X]{core.Member{Src: source.DiePath(), Root: root, Single: true, View: jig.erased(), Err: err}}
 }

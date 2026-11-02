@@ -47,22 +47,19 @@ func dieError(t *testing.T, fn func()) *base.Error {
 func TestFluentAndEVariants(t *testing.T) {
 	blank := dieappsv1.DeploymentBlank
 
-	// a write through a child of an immutable die
-	panicked := dieError(t, func() { blank.Spec().Replicas().Set(2) })
-	if !errors.Is(panicked, base.ErrImmutableChild) {
+	// a write to an immutable die through an interface it implements
+	panicked := dieError(t, func() { blank.SetName("web") })
+	if !errors.Is(panicked, base.ErrImmutable) {
 		t.Errorf("panicked with %v", panicked)
 	}
-	if _, err := blank.Spec().Replicas().SetE(2); !errors.Is(err, base.ErrImmutableChild) {
-		t.Errorf("SetE returned %v", err)
-	}
 	// on a mutable die, the E variant succeeds, as the fluent method does
-	m := blank.DieImmutable(false)
+	m := blank.DieMutable()
 	if _, err := m.Spec().Replicas().SetE(2); err != nil || m.Spec().Replicas().Get() != 2 {
 		t.Errorf("SetE: %v, replicas %d", err, m.Spec().Replicas().Get())
 	}
 
 	// a cause, such as JSON's, is wrapped
-	_, err := blank.DieFeedJSONE([]byte(`{"spec": "not an object"}`))
+	_, err := blank.DieMutable().DieFeedJSONE([]byte(`{"spec": "not an object"}`))
 	var typeErr *json.UnmarshalTypeError
 	if !errors.As(err, &typeErr) {
 		t.Errorf("DieFeedJSONE returned %v, want it to wrap a *json.UnmarshalTypeError", err)
@@ -73,19 +70,18 @@ func TestFluentAndEVariants(t *testing.T) {
 }
 
 // DieWithE returns the first error of its functions, such as an E method's,
-// with the die as they left it, and its own, rather than panicking, on a die
-// within an immutable one.
+// with the die as they left it.
 func TestDieWithEReturnsErrors(t *testing.T) {
 	got, err := dieappsv1.DeploymentBlank.DieWithE(
-		func(d *dieappsv1.DeploymentDie) error {
+		func(d *dieappsv1.DeploymentDieMut) error {
 			_, err := d.Spec().Replicas().SetE(2)
 			return err
 		},
-		func(d *dieappsv1.DeploymentDie) error {
+		func(d *dieappsv1.DeploymentDieMut) error {
 			_, err := d.DieFeedJSONE([]byte(`{"spec": "not an object"}`))
 			return err
 		},
-		func(d *dieappsv1.DeploymentDie) error { t.Error("ran after an error"); return nil },
+		func(d *dieappsv1.DeploymentDieMut) error { t.Error("ran after an error"); return nil },
 	)
 	if _, ok := errors.AsType[*base.Error](err); !ok {
 		t.Errorf("error %T %v, want a *base.Error", err, err)
@@ -94,10 +90,13 @@ func TestDieWithEReturnsErrors(t *testing.T) {
 		t.Errorf("replicas %d, want the die as the functions left it", got.Spec().Replicas().Get())
 	}
 
-	ran := false
-	_, err = dieappsv1.DeploymentBlank.Spec().DieWithE(func(*dieappsv1.DeploymentSpecDie) error { ran = true; return nil })
-	if !errors.Is(err, base.ErrImmutableChild) || ran {
-		t.Errorf("DieWithE on a child of an immutable die: %v, ran %v", err, ran)
+	// on a die within an immutable one, it runs on a copy, a new root
+	spec, err := dieappsv1.DeploymentBlank.Spec().DieWithE(func(d *dieappsv1.DeploymentSpecDieMut) error {
+		_, err := d.Replicas().SetE(3)
+		return err
+	})
+	if err != nil || spec.Replicas().Get() != 3 || len(spec.DiePath()) != 0 || dieappsv1.DeploymentBlank.Spec().Replicas().Has() {
+		t.Errorf("DieWithE on a child of an immutable die: %v, replicas %d at %s", err, spec.Replicas().Get(), spec.DiePath())
 	}
 }
 
@@ -109,6 +108,6 @@ func TestEVariantsDontRecoverOtherPanics(t *testing.T) {
 			t.Errorf("recovered %#v", r)
 		}
 	}()
-	_, _ = dieappsv1.DeploymentBlank.DieStampE(func(*dieappsv1.Deployment) { panic("the caller's own") })
+	_, _ = dieappsv1.DeploymentBlank.DieMutable().DieStampE(func(*dieappsv1.Deployment) { panic("the caller's own") })
 	t.Error("didn't panic")
 }

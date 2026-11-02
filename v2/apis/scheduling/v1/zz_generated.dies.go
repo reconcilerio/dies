@@ -33,17 +33,32 @@ import (
 
 // PriorityClass defines mapping from a priority class name to the priority
 // integer value. The value can be any valid integer.
+//
+// PriorityClassDie is immutable: it reads.
+// PriorityClassDieMut, its mutable die, also writes, as DieWith passes it.
 type PriorityClassDie struct {
-	diebase.DieObjectBase[PriorityClass, *PriorityClassDie]
+	diebase.DieObjectBase[PriorityClass, *PriorityClassDie, *PriorityClassDieMut]
 }
 
-func (*PriorityClassDie) DieFrom(b diebase.DieBase[PriorityClass, *PriorityClassDie]) *PriorityClassDie {
+// PriorityClassDieMut is the mutable die of PriorityClass: see PriorityClassDie.
+type PriorityClassDieMut struct {
+	diebase.DieObjectMutBase[PriorityClass, *PriorityClassDie, *PriorityClassDieMut]
+}
+
+func (*PriorityClassDie) DieFrom(b diebase.DieBase[PriorityClass, *PriorityClassDie, *PriorityClassDieMut]) *PriorityClassDie {
 	return &PriorityClassDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[PriorityClass, *PriorityClassDie] = (*PriorityClassDie)(nil)
+func (*PriorityClassDieMut) DieFrom(b diebase.DieMutBase[PriorityClass, *PriorityClassDie, *PriorityClassDieMut]) *PriorityClassDieMut {
+	return &PriorityClassDieMut{diebase.AsObjectMut(b)}
+}
 
-var PriorityClassBlank = diebase.BlankOf[PriorityClass, *PriorityClassDie](PriorityClass{TypeMeta: metav1.TypeMeta{APIVersion: "scheduling.k8s.io/v1", Kind: "PriorityClass"}})
+var (
+	_ dieobjects.DieObjectOf[PriorityClass, *PriorityClassDie, *PriorityClassDieMut]    = (*PriorityClassDie)(nil)
+	_ dieobjects.DieObjectMutOf[PriorityClass, *PriorityClassDie, *PriorityClassDieMut] = (*PriorityClassDieMut)(nil)
+)
+
+var PriorityClassBlank = diebase.BlankOf[PriorityClass, *PriorityClassDie, *PriorityClassDieMut](PriorityClass{TypeMeta: metav1.TypeMeta{APIVersion: "scheduling.k8s.io/v1", Kind: "PriorityClass"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -52,41 +67,54 @@ func (d *PriorityClassDie) DieReleaseApplyConfiguration() *PriorityClassApplyCon
 	return diecodegen.ReleaseApplyConfiguration[PriorityClassApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PriorityClassDie) DieFeedApplyConfiguration(ac *PriorityClassApplyConfiguration) *PriorityClassDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PriorityClassDie) DieStampApplyConfiguration(fn func(ac *PriorityClassApplyConfiguration)) *PriorityClassDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PriorityClassDie) DieReleaseApplyConfigurationE() (*PriorityClassApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PriorityClassApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PriorityClassDieMut) DieReleaseApplyConfiguration() *PriorityClassApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PriorityClassApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PriorityClassDieMut) DieReleaseApplyConfigurationE() (*PriorityClassApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PriorityClassApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PriorityClassDieMut) DieFeedApplyConfiguration(ac *PriorityClassApplyConfiguration) *PriorityClassDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PriorityClassDieMut) DieStampApplyConfiguration(fn func(ac *PriorityClassApplyConfiguration)) *PriorityClassDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PriorityClassDie) DieFeedApplyConfigurationE(ac *PriorityClassApplyConfiguration) (*PriorityClassDie, error) {
+func (d *PriorityClassDieMut) DieFeedApplyConfigurationE(ac *PriorityClassApplyConfiguration) (*PriorityClassDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PriorityClassDie) DieStampApplyConfigurationE(fn func(ac *PriorityClassApplyConfiguration)) (*PriorityClassDie, error) {
+func (d *PriorityClassDieMut) DieStampApplyConfigurationE(fn func(ac *PriorityClassApplyConfiguration)) (*PriorityClassDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type priorityClassFieldsTable struct {
 	Kind             diefields.Field[PriorityClass, string]
 	APIVersion       diefields.Field[PriorityClass, string]
-	Metadata         diefields.Struct[PriorityClass, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
+	Metadata         diefields.Struct[PriorityClass, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
 	Value            diefields.Field[PriorityClass, int32]
 	GlobalDefault    diefields.Field[PriorityClass, bool]
 	Description      diefields.Field[PriorityClass, string]
@@ -97,7 +125,7 @@ var priorityClassFields = &diefields.Table[priorityClassFieldsTable]{Build: func
 	_ = annotated
 	f.Kind = diefields.NewField[PriorityClass, string]("kind")
 	f.APIVersion = diefields.NewField[PriorityClass, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[PriorityClass, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
+	f.Metadata = diefields.NewStruct[PriorityClass, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
 	f.Value = diefields.NewField[PriorityClass, int32]("value")
 	f.GlobalDefault = diefields.NewField[PriorityClass, bool]("globalDefault")
 	f.Description = diefields.NewField[PriorityClass, string]("description")
@@ -110,7 +138,7 @@ var priorityClassFields = &diefields.Table[priorityClassFieldsTable]{Build: func
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *PriorityClassDie) Kind() diefields.Value[string, *PriorityClassDie] {
+func (d *PriorityClassDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, priorityClassFields.Get().Kind)
 }
 
@@ -118,7 +146,7 @@ func (d *PriorityClassDie) Kind() diefields.Value[string, *PriorityClassDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *PriorityClassDie) APIVersion() diefields.Value[string, *PriorityClassDie] {
+func (d *PriorityClassDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, priorityClassFields.Get().APIVersion)
 }
 
@@ -130,7 +158,7 @@ func (d *PriorityClassDie) Metadata() *diemetav1.ObjectMetaDie {
 
 // value represents the integer value of this priority class. This is the actual priority that pods
 // receive when they have the name of this class in their pod spec.
-func (d *PriorityClassDie) Value() diefields.Value[int32, *PriorityClassDie] {
+func (d *PriorityClassDie) Value() diefields.Value[int32] {
 	return diefields.ValueOf(d, priorityClassFields.Get().Value)
 }
 
@@ -139,32 +167,83 @@ func (d *PriorityClassDie) Value() diefields.Value[int32, *PriorityClassDie] {
 // Only one PriorityClass can be marked as `globalDefault`. However, if more than
 // one PriorityClasses exists with their `globalDefault` field set to true,
 // the smallest value of such global default PriorityClasses will be used as the default priority.
-func (d *PriorityClassDie) GlobalDefault() diefields.Value[bool, *PriorityClassDie] {
+func (d *PriorityClassDie) GlobalDefault() diefields.Value[bool] {
 	return diefields.ValueOf(d, priorityClassFields.Get().GlobalDefault)
 }
 
 // description is an arbitrary string that usually provides guidelines on
 // when this priority class should be used.
-func (d *PriorityClassDie) Description() diefields.Value[string, *PriorityClassDie] {
+func (d *PriorityClassDie) Description() diefields.Value[string] {
 	return diefields.ValueOf(d, priorityClassFields.Get().Description)
 }
 
 // preemptionPolicy is the Policy for preempting pods with lower priority.
 // One of Never, PreemptLowerPriority.
 // Defaults to PreemptLowerPriority if unset.
-func (d *PriorityClassDie) PreemptionPolicy() diefields.Optional[diecorev1.PreemptionPolicy, *PriorityClassDie] {
+func (d *PriorityClassDie) PreemptionPolicy() diefields.Optional[diecorev1.PreemptionPolicy] {
 	return diefields.OptionalOf(d, priorityClassFields.Get().PreemptionPolicy)
+}
+
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *PriorityClassDieMut) Kind() diefields.ValueMut[string, *PriorityClassDieMut] {
+	return diefields.ValueMutOf(d, priorityClassFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *PriorityClassDieMut) APIVersion() diefields.ValueMut[string, *PriorityClassDieMut] {
+	return diefields.ValueMutOf(d, priorityClassFields.Get().APIVersion)
+}
+
+// metadata is the standard object metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *PriorityClassDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, priorityClassFields.Get().Metadata)
+}
+
+// value represents the integer value of this priority class. This is the actual priority that pods
+// receive when they have the name of this class in their pod spec.
+func (d *PriorityClassDieMut) Value() diefields.ValueMut[int32, *PriorityClassDieMut] {
+	return diefields.ValueMutOf(d, priorityClassFields.Get().Value)
+}
+
+// globalDefault specifies whether this PriorityClass should be considered as
+// the default priority for pods that do not have any priority class.
+// Only one PriorityClass can be marked as `globalDefault`. However, if more than
+// one PriorityClasses exists with their `globalDefault` field set to true,
+// the smallest value of such global default PriorityClasses will be used as the default priority.
+func (d *PriorityClassDieMut) GlobalDefault() diefields.ValueMut[bool, *PriorityClassDieMut] {
+	return diefields.ValueMutOf(d, priorityClassFields.Get().GlobalDefault)
+}
+
+// description is an arbitrary string that usually provides guidelines on
+// when this priority class should be used.
+func (d *PriorityClassDieMut) Description() diefields.ValueMut[string, *PriorityClassDieMut] {
+	return diefields.ValueMutOf(d, priorityClassFields.Get().Description)
+}
+
+// preemptionPolicy is the Policy for preempting pods with lower priority.
+// One of Never, PreemptLowerPriority.
+// Defaults to PreemptLowerPriority if unset.
+func (d *PriorityClassDieMut) PreemptionPolicy() diefields.OptionalMut[diecorev1.PreemptionPolicy, *PriorityClassDieMut] {
+	return diefields.OptionalMutOf(d, priorityClassFields.Get().PreemptionPolicy)
 }
 
 // PriorityClassList is a collection of priority classes.
 type PriorityClassListDie struct {
-	dielists.List[*PriorityClassDie]
+	dielists.List[*PriorityClassDieMut]
 }
 
-var _ dielists.DieListOf[*PriorityClassDie] = (*PriorityClassListDie)(nil)
+var _ dielists.DieListOf[*PriorityClassDieMut] = (*PriorityClassListDie)(nil)
 
 // NewPriorityClassList returns a list with items.
-func NewPriorityClassList(items ...*PriorityClassDie) *PriorityClassListDie {
+func NewPriorityClassList(items ...*PriorityClassDieMut) *PriorityClassListDie {
 	return &PriorityClassListDie{dielists.NewList("scheduling.k8s.io/v1", "PriorityClassList", items...)}
 }
 
@@ -178,15 +257,15 @@ func (l *PriorityClassListDie) DeepCopyObject() runtime.Object { return l.DeepCo
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "scheduling.k8s.io", Version: "v1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PriorityClass"), &PriorityClassDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PriorityClass"), &PriorityClassDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PriorityClassList"), &PriorityClassListDie{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

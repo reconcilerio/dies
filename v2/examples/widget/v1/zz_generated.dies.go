@@ -32,33 +32,48 @@ import (
 )
 
 // Widget runs a pod template with named ports.
+//
+// WidgetDie is immutable: it reads.
+// WidgetDieMut, its mutable die, also writes, as DieWith passes it.
 type WidgetDie struct {
-	diebase.DieObjectBase[Widget, *WidgetDie]
+	diebase.DieObjectBase[Widget, *WidgetDie, *WidgetDieMut]
 }
 
-func (*WidgetDie) DieFrom(b diebase.DieBase[Widget, *WidgetDie]) *WidgetDie {
+// WidgetDieMut is the mutable die of Widget: see WidgetDie.
+type WidgetDieMut struct {
+	diebase.DieObjectMutBase[Widget, *WidgetDie, *WidgetDieMut]
+}
+
+func (*WidgetDie) DieFrom(b diebase.DieBase[Widget, *WidgetDie, *WidgetDieMut]) *WidgetDie {
 	return &WidgetDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[Widget, *WidgetDie] = (*WidgetDie)(nil)
+func (*WidgetDieMut) DieFrom(b diebase.DieMutBase[Widget, *WidgetDie, *WidgetDieMut]) *WidgetDieMut {
+	return &WidgetDieMut{diebase.AsObjectMut(b)}
+}
 
-var WidgetBlank = diebase.BlankOf[Widget, *WidgetDie](Widget{TypeMeta: metav1.TypeMeta{APIVersion: "example.dev/v1", Kind: "Widget"}})
+var (
+	_ dieobjects.DieObjectOf[Widget, *WidgetDie, *WidgetDieMut]    = (*WidgetDie)(nil)
+	_ dieobjects.DieObjectMutOf[Widget, *WidgetDie, *WidgetDieMut] = (*WidgetDieMut)(nil)
+)
+
+var WidgetBlank = diebase.BlankOf[Widget, *WidgetDie, *WidgetDieMut](Widget{TypeMeta: metav1.TypeMeta{APIVersion: "example.dev/v1", Kind: "Widget"}})
 
 type widgetFieldsTable struct {
 	Kind       diefields.Field[Widget, string]
 	APIVersion diefields.Field[Widget, string]
-	Metadata   diefields.Struct[Widget, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[Widget, WidgetSpec, *WidgetSpecDie]
-	Status     diefields.Struct[Widget, WidgetStatus, *WidgetStatusDie]
+	Metadata   diefields.Struct[Widget, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[Widget, WidgetSpec, *WidgetSpecDie, *WidgetSpecDieMut]
+	Status     diefields.Struct[Widget, WidgetStatus, *WidgetStatusDie, *WidgetStatusDieMut]
 }
 
 var widgetFields = &diefields.Table[widgetFieldsTable]{Build: func() (f widgetFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[Widget, string]("kind")
 	f.APIVersion = diefields.NewField[Widget, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[Widget, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[Widget, WidgetSpec, *WidgetSpecDie]("spec")
-	f.Status = diefields.NewStruct[Widget, WidgetStatus, *WidgetStatusDie]("status")
+	f.Metadata = diefields.NewStruct[Widget, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[Widget, WidgetSpec, *WidgetSpecDie, *WidgetSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[Widget, WidgetStatus, *WidgetStatusDie, *WidgetStatusDieMut]("status")
 	return
 }}
 
@@ -67,7 +82,7 @@ var widgetFields = &diefields.Table[widgetFieldsTable]{Build: func() (f widgetFi
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *WidgetDie) Kind() diefields.Value[string, *WidgetDie] {
+func (d *WidgetDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, widgetFields.Get().Kind)
 }
 
@@ -75,7 +90,7 @@ func (d *WidgetDie) Kind() diefields.Value[string, *WidgetDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *WidgetDie) APIVersion() diefields.Value[string, *WidgetDie] {
+func (d *WidgetDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, widgetFields.Get().APIVersion)
 }
 
@@ -87,17 +102,60 @@ func (d *WidgetDie) Spec() *WidgetSpecDie { return diefields.Child(d, widgetFiel
 
 func (d *WidgetDie) Status() *WidgetStatusDie { return diefields.Child(d, widgetFields.Get().Status) }
 
-type WidgetGadgetDie struct {
-	diebase.DieBase[WidgetGadget, *WidgetGadgetDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *WidgetDieMut) Kind() diefields.ValueMut[string, *WidgetDieMut] {
+	return diefields.ValueMutOf(d, widgetFields.Get().Kind)
 }
 
-func (*WidgetGadgetDie) DieFrom(b diebase.DieBase[WidgetGadget, *WidgetGadgetDie]) *WidgetGadgetDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *WidgetDieMut) APIVersion() diefields.ValueMut[string, *WidgetDieMut] {
+	return diefields.ValueMutOf(d, widgetFields.Get().APIVersion)
+}
+
+func (d *WidgetDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, widgetFields.Get().Metadata)
+}
+
+func (d *WidgetDieMut) Spec() *WidgetSpecDieMut {
+	return diefields.ChildMut(d, widgetFields.Get().Spec)
+}
+
+func (d *WidgetDieMut) Status() *WidgetStatusDieMut {
+	return diefields.ChildMut(d, widgetFields.Get().Status)
+}
+
+// WidgetGadgetDie is immutable: it reads.
+// WidgetGadgetDieMut, its mutable die, also writes, as DieWith passes it.
+type WidgetGadgetDie struct {
+	diebase.DieBase[WidgetGadget, *WidgetGadgetDie, *WidgetGadgetDieMut]
+}
+
+// WidgetGadgetDieMut is the mutable die of WidgetGadget: see WidgetGadgetDie.
+type WidgetGadgetDieMut struct {
+	diebase.DieMutBase[WidgetGadget, *WidgetGadgetDie, *WidgetGadgetDieMut]
+}
+
+func (*WidgetGadgetDie) DieFrom(b diebase.DieBase[WidgetGadget, *WidgetGadgetDie, *WidgetGadgetDieMut]) *WidgetGadgetDie {
 	return &WidgetGadgetDie{b}
 }
 
-var _ diebase.DieOf[WidgetGadget, *WidgetGadgetDie] = (*WidgetGadgetDie)(nil)
+func (*WidgetGadgetDieMut) DieFrom(b diebase.DieMutBase[WidgetGadget, *WidgetGadgetDie, *WidgetGadgetDieMut]) *WidgetGadgetDieMut {
+	return &WidgetGadgetDieMut{b}
+}
 
-var WidgetGadgetBlank = diebase.Blank[WidgetGadget, *WidgetGadgetDie]()
+var (
+	_ diebase.DieOf[WidgetGadget, *WidgetGadgetDie, *WidgetGadgetDieMut]    = (*WidgetGadgetDie)(nil)
+	_ diebase.DieMutOf[WidgetGadget, *WidgetGadgetDie, *WidgetGadgetDieMut] = (*WidgetGadgetDieMut)(nil)
+)
+
+var WidgetGadgetBlank = diebase.Blank[WidgetGadget, *WidgetGadgetDie, *WidgetGadgetDieMut]()
 
 type widgetGadgetFieldsTable struct {
 	Label diefields.Field[WidgetGadget, string]
@@ -111,27 +169,50 @@ var widgetGadgetFields = &diefields.Table[widgetGadgetFieldsTable]{Build: func()
 	return
 }}
 
-func (d *WidgetGadgetDie) Label() diefields.Value[string, *WidgetGadgetDie] {
+func (d *WidgetGadgetDie) Label() diefields.Value[string] {
 	return diefields.ValueOf(d, widgetGadgetFields.Get().Label)
 }
 
-func (d *WidgetGadgetDie) Parts() diefields.Value[[]gadgetv1.GadgetPart, *WidgetGadgetDie] {
+func (d *WidgetGadgetDie) Parts() diefields.Value[[]gadgetv1.GadgetPart] {
 	return diefields.ValueOf(d, widgetGadgetFields.Get().Parts)
+}
+
+func (d *WidgetGadgetDieMut) Label() diefields.ValueMut[string, *WidgetGadgetDieMut] {
+	return diefields.ValueMutOf(d, widgetGadgetFields.Get().Label)
+}
+
+func (d *WidgetGadgetDieMut) Parts() diefields.ValueMut[[]gadgetv1.GadgetPart, *WidgetGadgetDieMut] {
+	return diefields.ValueMutOf(d, widgetGadgetFields.Get().Parts)
 }
 
 // WidgetMatch's equal field would have an accessor named Equal, which
 // collides with the die method that compares dies, so it is renamed.
+//
+// WidgetMatchDie is immutable: it reads.
+// WidgetMatchDieMut, its mutable die, also writes, as DieWith passes it.
 type WidgetMatchDie struct {
-	diebase.DieBase[WidgetMatch, *WidgetMatchDie]
+	diebase.DieBase[WidgetMatch, *WidgetMatchDie, *WidgetMatchDieMut]
 }
 
-func (*WidgetMatchDie) DieFrom(b diebase.DieBase[WidgetMatch, *WidgetMatchDie]) *WidgetMatchDie {
+// WidgetMatchDieMut is the mutable die of WidgetMatch: see WidgetMatchDie.
+type WidgetMatchDieMut struct {
+	diebase.DieMutBase[WidgetMatch, *WidgetMatchDie, *WidgetMatchDieMut]
+}
+
+func (*WidgetMatchDie) DieFrom(b diebase.DieBase[WidgetMatch, *WidgetMatchDie, *WidgetMatchDieMut]) *WidgetMatchDie {
 	return &WidgetMatchDie{b}
 }
 
-var _ diebase.DieOf[WidgetMatch, *WidgetMatchDie] = (*WidgetMatchDie)(nil)
+func (*WidgetMatchDieMut) DieFrom(b diebase.DieMutBase[WidgetMatch, *WidgetMatchDie, *WidgetMatchDieMut]) *WidgetMatchDieMut {
+	return &WidgetMatchDieMut{b}
+}
 
-var WidgetMatchBlank = diebase.Blank[WidgetMatch, *WidgetMatchDie]()
+var (
+	_ diebase.DieOf[WidgetMatch, *WidgetMatchDie, *WidgetMatchDieMut]    = (*WidgetMatchDie)(nil)
+	_ diebase.DieMutOf[WidgetMatch, *WidgetMatchDie, *WidgetMatchDieMut] = (*WidgetMatchDieMut)(nil)
+)
+
+var WidgetMatchBlank = diebase.Blank[WidgetMatch, *WidgetMatchDie, *WidgetMatchDieMut]()
 
 type widgetMatchFieldsTable struct {
 	Exact diefields.Field[WidgetMatch, bool]
@@ -145,27 +226,51 @@ var widgetMatchFields = &diefields.Table[widgetMatchFieldsTable]{Build: func() (
 	return
 }}
 
-func (d *WidgetMatchDie) Exact() diefields.Value[bool, *WidgetMatchDie] {
+func (d *WidgetMatchDie) Exact() diefields.Value[bool] {
 	return diefields.ValueOf(d, widgetMatchFields.Get().Exact)
 }
 
 // Note accepts null, so an apply clears it with null, as a custom
 // resource's validation rejects null for fields that don't.
-func (d *WidgetMatchDie) Note() diefields.Optional[string, *WidgetMatchDie] {
+func (d *WidgetMatchDie) Note() diefields.Optional[string] {
 	return diefields.OptionalOf(d, widgetMatchFields.Get().Note)
 }
 
-type WidgetPortDie struct {
-	diebase.DieBase[WidgetPort, *WidgetPortDie]
+func (d *WidgetMatchDieMut) Exact() diefields.ValueMut[bool, *WidgetMatchDieMut] {
+	return diefields.ValueMutOf(d, widgetMatchFields.Get().Exact)
 }
 
-func (*WidgetPortDie) DieFrom(b diebase.DieBase[WidgetPort, *WidgetPortDie]) *WidgetPortDie {
+// Note accepts null, so an apply clears it with null, as a custom
+// resource's validation rejects null for fields that don't.
+func (d *WidgetMatchDieMut) Note() diefields.OptionalMut[string, *WidgetMatchDieMut] {
+	return diefields.OptionalMutOf(d, widgetMatchFields.Get().Note)
+}
+
+// WidgetPortDie is immutable: it reads.
+// WidgetPortDieMut, its mutable die, also writes, as DieWith passes it.
+type WidgetPortDie struct {
+	diebase.DieBase[WidgetPort, *WidgetPortDie, *WidgetPortDieMut]
+}
+
+// WidgetPortDieMut is the mutable die of WidgetPort: see WidgetPortDie.
+type WidgetPortDieMut struct {
+	diebase.DieMutBase[WidgetPort, *WidgetPortDie, *WidgetPortDieMut]
+}
+
+func (*WidgetPortDie) DieFrom(b diebase.DieBase[WidgetPort, *WidgetPortDie, *WidgetPortDieMut]) *WidgetPortDie {
 	return &WidgetPortDie{b}
 }
 
-var _ diebase.DieOf[WidgetPort, *WidgetPortDie] = (*WidgetPortDie)(nil)
+func (*WidgetPortDieMut) DieFrom(b diebase.DieMutBase[WidgetPort, *WidgetPortDie, *WidgetPortDieMut]) *WidgetPortDieMut {
+	return &WidgetPortDieMut{b}
+}
 
-var WidgetPortBlank = diebase.Blank[WidgetPort, *WidgetPortDie]()
+var (
+	_ diebase.DieOf[WidgetPort, *WidgetPortDie, *WidgetPortDieMut]    = (*WidgetPortDie)(nil)
+	_ diebase.DieMutOf[WidgetPort, *WidgetPortDie, *WidgetPortDieMut] = (*WidgetPortDieMut)(nil)
+)
+
+var WidgetPortBlank = diebase.Blank[WidgetPort, *WidgetPortDie, *WidgetPortDieMut]()
 
 type widgetPortFieldsTable struct {
 	Name diefields.Field[WidgetPort, string]
@@ -179,39 +284,61 @@ var widgetPortFields = &diefields.Table[widgetPortFieldsTable]{Build: func() (f 
 	return
 }}
 
-func (d *WidgetPortDie) Name() diefields.Value[string, *WidgetPortDie] {
+func (d *WidgetPortDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, widgetPortFields.Get().Name)
 }
 
-func (d *WidgetPortDie) Port() diefields.Value[int32, *WidgetPortDie] {
+func (d *WidgetPortDie) Port() diefields.Value[int32] {
 	return diefields.ValueOf(d, widgetPortFields.Get().Port)
 }
 
-type WidgetSpecDie struct {
-	diebase.DieBase[WidgetSpec, *WidgetSpecDie]
+func (d *WidgetPortDieMut) Name() diefields.ValueMut[string, *WidgetPortDieMut] {
+	return diefields.ValueMutOf(d, widgetPortFields.Get().Name)
 }
 
-func (*WidgetSpecDie) DieFrom(b diebase.DieBase[WidgetSpec, *WidgetSpecDie]) *WidgetSpecDie {
+func (d *WidgetPortDieMut) Port() diefields.ValueMut[int32, *WidgetPortDieMut] {
+	return diefields.ValueMutOf(d, widgetPortFields.Get().Port)
+}
+
+// WidgetSpecDie is immutable: it reads.
+// WidgetSpecDieMut, its mutable die, also writes, as DieWith passes it.
+type WidgetSpecDie struct {
+	diebase.DieBase[WidgetSpec, *WidgetSpecDie, *WidgetSpecDieMut]
+}
+
+// WidgetSpecDieMut is the mutable die of WidgetSpec: see WidgetSpecDie.
+type WidgetSpecDieMut struct {
+	diebase.DieMutBase[WidgetSpec, *WidgetSpecDie, *WidgetSpecDieMut]
+}
+
+func (*WidgetSpecDie) DieFrom(b diebase.DieBase[WidgetSpec, *WidgetSpecDie, *WidgetSpecDieMut]) *WidgetSpecDie {
 	return &WidgetSpecDie{b}
 }
 
-var _ diebase.DieOf[WidgetSpec, *WidgetSpecDie] = (*WidgetSpecDie)(nil)
+func (*WidgetSpecDieMut) DieFrom(b diebase.DieMutBase[WidgetSpec, *WidgetSpecDie, *WidgetSpecDieMut]) *WidgetSpecDieMut {
+	return &WidgetSpecDieMut{b}
+}
 
-var WidgetSpecBlank = diebase.Blank[WidgetSpec, *WidgetSpecDie]()
+var (
+	_ diebase.DieOf[WidgetSpec, *WidgetSpecDie, *WidgetSpecDieMut]    = (*WidgetSpecDie)(nil)
+	_ diebase.DieMutOf[WidgetSpec, *WidgetSpecDie, *WidgetSpecDieMut] = (*WidgetSpecDieMut)(nil)
+)
+
+var WidgetSpecBlank = diebase.Blank[WidgetSpec, *WidgetSpecDie, *WidgetSpecDieMut]()
 
 type widgetSpecFieldsTable struct {
-	Ports    diefields.ListMapField[WidgetSpec, WidgetPort, *WidgetPortDie, string]
-	Template diefields.Struct[WidgetSpec, diecorev1.PodTemplateSpec, *diecorev1.PodTemplateSpecDie]
-	Gadget   diefields.Struct[WidgetSpec, WidgetGadget, *WidgetGadgetDie]
-	Match    diefields.Struct[WidgetSpec, WidgetMatch, *WidgetMatchDie]
+	Ports    diefields.ListMapField[WidgetSpec, WidgetPort, *WidgetPortDie, *WidgetPortDieMut, string]
+	Template diefields.Struct[WidgetSpec, diecorev1.PodTemplateSpec, *diecorev1.PodTemplateSpecDie, *diecorev1.PodTemplateSpecDieMut]
+	Gadget   diefields.Struct[WidgetSpec, WidgetGadget, *WidgetGadgetDie, *WidgetGadgetDieMut]
+	Match    diefields.Struct[WidgetSpec, WidgetMatch, *WidgetMatchDie, *WidgetMatchDieMut]
 }
 
 var widgetSpecFields = &diefields.Table[widgetSpecFieldsTable]{Build: func() (f widgetSpecFieldsTable) {
 	_ = annotated
-	f.Ports = diefields.NewListMap[WidgetSpec, WidgetPort, *WidgetPortDie]("ports", func(k string) []any { return []any{k} }, func(e WidgetPort) string { return e.Name })
-	f.Template = diefields.NewStruct[WidgetSpec, diecorev1.PodTemplateSpec, *diecorev1.PodTemplateSpecDie]("template")
-	f.Gadget = diefields.NewStruct[WidgetSpec, WidgetGadget, *WidgetGadgetDie]("gadget")
-	f.Match = diefields.NewStruct[WidgetSpec, WidgetMatch, *WidgetMatchDie]("match")
+	f.Ports = diefields.NewListMap[WidgetSpec, WidgetPort, *WidgetPortDie, *WidgetPortDieMut]("ports", func(k string) []any { return []any{k} }, func(e WidgetPort) string { return e.Name })
+	f.Template = diefields.NewStruct[WidgetSpec, diecorev1.PodTemplateSpec, *diecorev1.PodTemplateSpecDie, *diecorev1.PodTemplateSpecDieMut]("template")
+	f.Gadget = diefields.NewStruct[WidgetSpec, WidgetGadget, *WidgetGadgetDie, *WidgetGadgetDieMut]("gadget")
+	f.Match = diefields.NewStruct[WidgetSpec, WidgetMatch, *WidgetMatchDie, *WidgetMatchDieMut]("match")
 	return
 }}
 
@@ -235,31 +362,65 @@ func (d *WidgetSpecDie) Match() *WidgetMatchDie {
 	return diefields.Child(d, widgetSpecFields.Get().Match)
 }
 
-type WidgetStatusDie struct {
-	diebase.DieBase[WidgetStatus, *WidgetStatusDie]
+// Ports exposed by the widget.
+func (d *WidgetSpecDieMut) Ports() *diefields.ListMapMut[WidgetPort, *WidgetPortDieMut, string] {
+	return diefields.ListMapMutOf(d, widgetSpecFields.Get().Ports)
 }
 
-func (*WidgetStatusDie) DieFrom(b diebase.DieBase[WidgetStatus, *WidgetStatusDie]) *WidgetStatusDie {
+// Template for the widget's pods.
+func (d *WidgetSpecDieMut) Template() *diecorev1.PodTemplateSpecDieMut {
+	return diefields.ChildMut(d, widgetSpecFields.Get().Template)
+}
+
+// Gadget embeds a type from another die package.
+func (d *WidgetSpecDieMut) Gadget() *WidgetGadgetDieMut {
+	return diefields.ChildMut(d, widgetSpecFields.Get().Gadget)
+}
+
+// Match has a field whose accessor is renamed.
+func (d *WidgetSpecDieMut) Match() *WidgetMatchDieMut {
+	return diefields.ChildMut(d, widgetSpecFields.Get().Match)
+}
+
+// WidgetStatusDie is immutable: it reads.
+// WidgetStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type WidgetStatusDie struct {
+	diebase.DieBase[WidgetStatus, *WidgetStatusDie, *WidgetStatusDieMut]
+}
+
+// WidgetStatusDieMut is the mutable die of WidgetStatus: see WidgetStatusDie.
+type WidgetStatusDieMut struct {
+	diebase.DieMutBase[WidgetStatus, *WidgetStatusDie, *WidgetStatusDieMut]
+}
+
+func (*WidgetStatusDie) DieFrom(b diebase.DieBase[WidgetStatus, *WidgetStatusDie, *WidgetStatusDieMut]) *WidgetStatusDie {
 	return &WidgetStatusDie{b}
 }
 
-var _ diebase.DieOf[WidgetStatus, *WidgetStatusDie] = (*WidgetStatusDie)(nil)
+func (*WidgetStatusDieMut) DieFrom(b diebase.DieMutBase[WidgetStatus, *WidgetStatusDie, *WidgetStatusDieMut]) *WidgetStatusDieMut {
+	return &WidgetStatusDieMut{b}
+}
 
-var WidgetStatusBlank = diebase.Blank[WidgetStatus, *WidgetStatusDie]()
+var (
+	_ diebase.DieOf[WidgetStatus, *WidgetStatusDie, *WidgetStatusDieMut]    = (*WidgetStatusDie)(nil)
+	_ diebase.DieMutOf[WidgetStatus, *WidgetStatusDie, *WidgetStatusDieMut] = (*WidgetStatusDieMut)(nil)
+)
+
+var WidgetStatusBlank = diebase.Blank[WidgetStatus, *WidgetStatusDie, *WidgetStatusDieMut]()
 
 type widgetStatusFieldsTable struct {
 	ObservedGeneration diefields.Field[WidgetStatus, int64]
-	Conditions         diefields.ListMapField[WidgetStatus, diemetav1.Condition, *diemetav1.ConditionDie, string]
+	Conditions         diefields.ListMapField[WidgetStatus, diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string]
 }
 
 var widgetStatusFields = &diefields.Table[widgetStatusFieldsTable]{Build: func() (f widgetStatusFieldsTable) {
 	_ = annotated
 	f.ObservedGeneration = diefields.NewField[WidgetStatus, int64]("observedGeneration")
-	f.Conditions = diefields.NewListMap[WidgetStatus, diemetav1.Condition, *diemetav1.ConditionDie]("conditions", func(k string) []any { return []any{k} }, func(e diemetav1.Condition) string { return e.Type })
+	f.Conditions = diefields.NewListMap[WidgetStatus, diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut]("conditions", func(k string) []any { return []any{k} }, func(e diemetav1.Condition) string { return e.Type })
 	return
 }}
 
-func (d *WidgetStatusDie) ObservedGeneration() diefields.Value[int64, *WidgetStatusDie] {
+func (d *WidgetStatusDie) ObservedGeneration() diefields.Value[int64] {
 	return diefields.ValueOf(d, widgetStatusFields.Get().ObservedGeneration)
 }
 
@@ -267,18 +428,26 @@ func (d *WidgetStatusDie) Conditions() *diefields.ListMap[diemetav1.Condition, *
 	return diefields.ListMapOf(d, widgetStatusFields.Get().Conditions)
 }
 
+func (d *WidgetStatusDieMut) ObservedGeneration() diefields.ValueMut[int64, *WidgetStatusDieMut] {
+	return diefields.ValueMutOf(d, widgetStatusFields.Get().ObservedGeneration)
+}
+
+func (d *WidgetStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+	return diefields.ListMapMutOf(d, widgetStatusFields.Get().Conditions)
+}
+
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "example.dev", Version: "v1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Widget"), &WidgetDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Widget"), &WidgetDieMut{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }

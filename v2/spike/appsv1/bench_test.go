@@ -41,7 +41,7 @@ func largeDeployment(n int) Deployment {
 // its cost should not depend on the size of the object.
 func BenchmarkImmutableSet(b *testing.B) {
 	for _, n := range []int{1, 10, 50} {
-		d := DeploymentBlank.DieFeed(largeDeployment(n))
+		d := DeploymentBlank.DieMutable().DieFeed(largeDeployment(n))
 		b.Run(fmt.Sprintf("size=%d", n), func(b *testing.B) {
 			for b.Loop() {
 				d.Kind().Set("Deployment")
@@ -56,7 +56,7 @@ func BenchmarkDeepCopyBaseline(b *testing.B) {
 		d := largeDeployment(n)
 		b.Run(fmt.Sprintf("size=%d", n), func(b *testing.B) {
 			for b.Loop() {
-				_ = DeploymentBlank.DieFeed(d)
+				_ = DeploymentBlank.DieMutable().DieFeed(d)
 			}
 		})
 	}
@@ -65,7 +65,7 @@ func BenchmarkDeepCopyBaseline(b *testing.B) {
 // A read of a scalar walks the path; it does not materialize the object.
 func BenchmarkReadLeaf(b *testing.B) {
 	for _, n := range []int{1, 10, 50} {
-		d := DeploymentBlank.DieFeed(largeDeployment(n)).DieWith(func(d *DeploymentDie) {
+		d := DeploymentBlank.DieWith(func(d *DeploymentDieMut) { d.DieFeed(largeDeployment(n)) }).DieWith(func(d *DeploymentDieMut) {
 			d.Spec().Template().Spec().Containers().At("c0").Image().Set("busybox:2")
 		})
 		b.Run(fmt.Sprintf("size=%d", n), func(b *testing.B) {

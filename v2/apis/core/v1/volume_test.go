@@ -25,10 +25,12 @@ import (
 // The hand-written VolumeSource alias declares a union, which applies to the
 // members flattened into Volume.
 func TestVolumeSourceUnionOverride(t *testing.T) {
-	v := corev1.VolumeBlank.DieFeed(corev1.Volume{
-		Name:         "creds",
-		VolumeSource: corev1.VolumeSource{Secret: &corev1.SecretVolumeSource{SecretName: "creds"}},
-	}).DieWith(func(d *corev1.VolumeDie) {
+	v := corev1.VolumeBlank.DieWith(func(d *corev1.VolumeDieMut) {
+		d.DieFeed(corev1.Volume{
+			Name:         "creds",
+			VolumeSource: corev1.VolumeSource{Secret: &corev1.SecretVolumeSource{SecretName: "creds"}},
+		})
+	}).DieWith(func(d *corev1.VolumeDieMut) {
 		d.EmptyDir().Medium().Set(corev1.StorageMediumMemory)
 	})
 

@@ -42,7 +42,7 @@ func TestCheckRegistered(t *testing.T) {
 	}{
 		"a kind without a die": {
 			dies: func(s *runtime.Scheme) error {
-				s.AddKnownTypeWithName(gv.WithKind("Deployment"), &dieappsv1.DeploymentDie{})
+				s.AddKnownTypeWithName(gv.WithKind("Deployment"), &dieappsv1.DeploymentDieMut{})
 				metav1.AddToGroupVersion(s, gv)
 				return nil
 			},
@@ -57,7 +57,7 @@ func TestCheckRegistered(t *testing.T) {
 				if err := dieappsv1.AddToScheme(s); err != nil {
 					return err
 				}
-				s.AddKnownTypeWithName(gv.WithKind("Widget"), &dieappsv1.DeploymentDie{})
+				s.AddKnownTypeWithName(gv.WithKind("Widget"), &dieappsv1.DeploymentDieMut{})
 				return nil
 			},
 			want: "kinds upstream doesn't have [Widget]",

@@ -101,7 +101,7 @@ func thingMolds() *dieunstructured.Molds {
 // a thing as the server has it
 func serverThing(t *testing.T, d *dieunstructured.Object) *dieunstructured.Object {
 	t.Helper()
-	return d.DieFeedJSON([]byte(`{
+	return d.DieMutable().DieFeedJSON([]byte(`{
 		"apiVersion": "acme.dev/v1", "kind": "Thing",
 		"metadata": {"name": "web", "namespace": "default", "labels": {"team": "a"}},
 		"spec": {
@@ -113,7 +113,7 @@ func serverThing(t *testing.T, d *dieunstructured.Object) *dieunstructured.Objec
 			"minReady": 5,
 			"template": {"spec": {"replicas": 1}}
 		}
-	}`))
+	}`)).DieImmutable()
 }
 
 // With the server's schema, an unstructured die's apply follows the schema as
@@ -123,7 +123,7 @@ func TestMoldsApplyPatches(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	d := serverThing(t, blank).DieWith(func(d *dieunstructured.Object) {
+	d := serverThing(t, blank).DieWith(func(d *dieunstructured.ObjectMut) {
 		spec := d.Node().Field("spec")
 		// an object's nullable field: null; a custom resource's validation
 		// rejects null for another, which is left out
@@ -158,7 +158,7 @@ func TestMoldsApplyPatches(t *testing.T) {
 	// without a schema, the same intent is guessed at: the field is a map
 	// entry, left out, and so is every other removal; the atomic list is sent
 	// as the element written, and the atomic struct as the field written
-	plain := serverThing(t, dieunstructured.Blank).DieWith(func(d *dieunstructured.Object) {
+	plain := serverThing(t, dieunstructured.Blank).DieWith(func(d *dieunstructured.ObjectMut) {
 		spec := d.Node().Field("spec")
 		spec.Field("minReady").Clear()
 		spec.Field("ref").Field("key").Set("colour")
@@ -181,7 +181,7 @@ func TestMoldsAreKept(t *testing.T) {
 	}
 	clearsAsNull := func(t *testing.T, d *dieunstructured.Object) {
 		t.Helper()
-		got, err := d.DieWith(func(d *dieunstructured.Object) {
+		got, err := d.DieWith(func(d *dieunstructured.ObjectMut) {
 			d.Node().Field("spec").Field("minReady").Clear()
 		}).DieReleaseApplyPatchE()
 		if err != nil || !strings.Contains(string(got), `"minReady":null`) {
@@ -189,12 +189,12 @@ func TestMoldsAreKept(t *testing.T) {
 		}
 	}
 	clearsAsNull(t, serverThing(t, blank))
-	clearsAsNull(t, serverThing(t, blank).DieImmutable(false).DieImmutable(true))
+	clearsAsNull(t, serverThing(t, blank).DieMutable().DieImmutable())
 	clearsAsNull(t, serverThing(t, blank).DeepCopy())
 
 	// a client zeroes the object it decodes into, holder and all
-	read, err := blank.DieWithE(func(d *dieunstructured.Object) error {
-		*d = dieunstructured.Object{}
+	read, err := blank.DieWithE(func(d *dieunstructured.ObjectMut) error {
+		*d = dieunstructured.ObjectMut{}
 		return json.Unmarshal([]byte(`{"apiVersion": "acme.dev/v1", "kind": "Thing", "spec": {"minReady": 5}}`), d)
 	})
 	if err != nil {
@@ -232,7 +232,7 @@ func TestMoldsGoTypedKinds(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			got, err := serverThing(t, blank).DieWith(func(d *dieunstructured.Object) {
+			got, err := serverThing(t, blank).DieWith(func(d *dieunstructured.ObjectMut) {
 				d.Node().Field("spec").Field("count").Clear()
 			}).DieReleaseApplyPatchE()
 			if err != nil || strings.Contains(string(got), `"count":null`) != c.null {
@@ -283,7 +283,7 @@ func TestMoldsFeedPatches(t *testing.T) {
 			"ports": [{"name": "metrics", "port": 9090}]
 		}
 	}`)
-	fed := serverThing(t, blank).DieFeedApplyPatch(apply)
+	fed := serverThing(t, blank).DieMutable().DieFeedApplyPatch(apply)
 	got, err := fed.DieReleaseApplyPatchE()
 	assertJSON(t, got, err, string(apply))
 	// the list map's other elements are kept, as the element is found by key
@@ -293,7 +293,7 @@ func TestMoldsFeedPatches(t *testing.T) {
 	}
 
 	merge := []byte(`{"metadata": {"labels": {"team": null}}, "spec": {"minReady": 7, "ports": [{"name": "http", "port": 8080}]}}`)
-	fed = serverThing(t, blank).DieFeedMergePatch(merge)
+	fed = serverThing(t, blank).DieMutable().DieFeedMergePatch(merge)
 	got, err = fed.DieReleaseMergePatchE()
 	assertJSON(t, got, err, string(merge))
 	if fed.Node().Field("metadata").Field("labels").Field("team").Has() || fed.Node().Field("spec").Field("ports").Len() != 1 {
@@ -302,7 +302,7 @@ func TestMoldsFeedPatches(t *testing.T) {
 
 	// without a mold, the list map's element can't be found by key, so the
 	// list is set whole
-	plain := serverThing(t, dieunstructured.Blank).DieFeedApplyPatch(apply)
+	plain := serverThing(t, dieunstructured.Blank).DieMutable().DieFeedApplyPatch(apply)
 	if ports := plain.Node().Field("spec").Field("ports"); ports.Len() != 1 {
 		t.Errorf("ports %v, want the list set whole", ports.Get())
 	}

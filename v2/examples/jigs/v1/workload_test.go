@@ -41,18 +41,18 @@ func assertPanicsWith(t *testing.T, want string, fn func()) {
 	fn()
 }
 
-func deployment() *dieappsv1.DeploymentDie {
-	return dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+func deployment() *dieappsv1.DeploymentDieMut {
+	return dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Name().Set("web")
 		ps := d.Spec().Template().Spec()
 		ps.Containers().At("app").Image().Set("app:1")
 		ps.InitContainers().At("migrate").Image().Set("migrate:1")
-	}).DieCommit().DieImmutable(false)
+	}).DieCommit().DieMutable()
 }
 
 func TestAggregateOfContainersAndInitContainers(t *testing.T) {
 	deploy := deployment()
-	w, _ := jigsv1.WorkloadJig.Of(deploy)
+	w, _ := jigsv1.WorkloadJig.OfMut(deploy)
 
 	if got := w.Containers().Keys(); !reflect.DeepEqual(got, []string{"app", "migrate"}) {
 		t.Errorf("containers %v", got)
@@ -101,12 +101,12 @@ func TestAggregateOfContainersAndInitContainers(t *testing.T) {
 }
 
 func TestAggregateOfAListASingleValueAndAJig(t *testing.T) {
-	pipeline := jigsv1.PipelineBlank.DieWith(func(d *jigsv1.PipelineDie) {
+	pipeline := jigsv1.PipelineBlank.DieWith(func(d *jigsv1.PipelineDieMut) {
 		d.Steps().At("build").Image().Set("build:1")
 		d.Sidecar().Name().Set("proxy")
 		d.Builder().Name().Set("compile")
-	}).DieImmutable(false)
-	w, _ := jigsv1.WorkloadJig.Of(pipeline)
+	}).DieMutable()
+	w, _ := jigsv1.WorkloadJig.OfMut(pipeline)
 
 	if got := w.Containers().Keys(); !reflect.DeepEqual(got, []string{"build", "proxy", "compile"}) {
 		t.Errorf("containers %v", got)
@@ -148,8 +148,8 @@ func TestAggregateOfAListASingleValueAndAJig(t *testing.T) {
 // so element changes can come from any code that takes one.
 func TestAggregateElementsAreContainerDies(t *testing.T) {
 	deploy := deployment()
-	w, _ := jigsv1.WorkloadJig.Of(deploy)
-	var c *diecorev1.ContainerDie = w.Containers().At("migrate")
+	w, _ := jigsv1.WorkloadJig.OfMut(deploy)
+	var c *diecorev1.ContainerDieMut = w.Containers().At("migrate")
 	c.DieStamp(func(r *corev1.Container) { r.Args = []string{"--dry-run"} })
 	if got := deploy.Spec().Template().Spec().InitContainers().At("migrate").Args().Get(); !reflect.DeepEqual(got, []string{"--dry-run"}) {
 		t.Errorf("args %v", got)
@@ -157,11 +157,13 @@ func TestAggregateElementsAreContainerDies(t *testing.T) {
 }
 
 func TestAggregateOfAnAtomicList(t *testing.T) {
-	batch := jigsv1.BatchBlank.DieFeed(jigsv1.Batch{
-		Containers: []corev1.Container{{Name: "extract", Image: "extract:1"}, {Name: "load", Image: "load:1"}},
-		Init:       &corev1.Container{Name: "prepare"},
-	}).DieImmutable(false)
-	w, _ := jigsv1.WorkloadJig.Of(batch)
+	batch := jigsv1.BatchBlank.DieWith(func(d *jigsv1.BatchDieMut) {
+		d.DieFeed(jigsv1.Batch{
+			Containers: []corev1.Container{{Name: "extract", Image: "extract:1"}, {Name: "load", Image: "load:1"}},
+			Init:       &corev1.Container{Name: "prepare"},
+		})
+	}).DieMutable()
+	w, _ := jigsv1.WorkloadJig.OfMut(batch)
 
 	if got := w.Containers().Keys(); !reflect.DeepEqual(got, []string{"extract", "load", "prepare"}) {
 		t.Errorf("containers %v", got)
@@ -195,10 +197,12 @@ func TestAggregateOfAnAtomicList(t *testing.T) {
 // Operations by key never pick the first match: a key that is not unique is
 // ambiguous, whether it repeats within one source or across sources.
 func TestAggregateKeysMustBeUnique(t *testing.T) {
-	batch := jigsv1.BatchBlank.DieFeed(jigsv1.Batch{
-		Containers: []corev1.Container{{Name: "work"}, {Name: "work"}},
-	}).DieImmutable(false)
-	w, _ := jigsv1.WorkloadJig.Of(batch)
+	batch := jigsv1.BatchBlank.DieWith(func(d *jigsv1.BatchDieMut) {
+		d.DieFeed(jigsv1.Batch{
+			Containers: []corev1.Container{{Name: "work"}, {Name: "work"}},
+		})
+	}).DieMutable()
+	w, _ := jigsv1.WorkloadJig.OfMut(batch)
 	assertPanicsWith(t, "it is in .containers and .containers", func() {
 		w.Containers().At("work").Image().Set("x")
 	})
@@ -209,11 +213,13 @@ func TestAggregateKeysMustBeUnique(t *testing.T) {
 		t.Errorf("containers changed: %+v", got)
 	}
 
-	batch = jigsv1.BatchBlank.DieFeed(jigsv1.Batch{
-		Containers: []corev1.Container{{Name: "work"}},
-		Init:       &corev1.Container{Name: "work"},
-	}).DieImmutable(false)
-	w, _ = jigsv1.WorkloadJig.Of(batch)
+	batch = jigsv1.BatchBlank.DieWith(func(d *jigsv1.BatchDieMut) {
+		d.DieFeed(jigsv1.Batch{
+			Containers: []corev1.Container{{Name: "work"}},
+			Init:       &corev1.Container{Name: "work"},
+		})
+	}).DieMutable()
+	w, _ = jigsv1.WorkloadJig.OfMut(batch)
 	assertPanicsWith(t, "it is in .containers and .init", func() {
 		w.Containers().At("work").Image().Get()
 	})

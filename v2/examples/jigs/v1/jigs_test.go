@@ -47,25 +47,25 @@ func assertJSON(t *testing.T, got []byte, err error, want string) {
 
 // injectSidecar is written once against the jig, and works for every
 // workload the jig knows.
-func injectSidecar(ps *jigsv1.PodSpecableDie) {
+func injectSidecar(ps *jigsv1.PodSpecableDieMut) {
 	ps.Template().Spec().Containers().At("sidecar").Image().Set("proxy:1")
 	ps.Template().Metadata().Annotations().Set("sidecar.example.dev/injected", "true")
 }
 
 func TestJigWritesThroughToEachSource(t *testing.T) {
-	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Name().Set("web")
 		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
-	}).DieCommit().DieImmutable(false)
-	cron := diebatchv1.CronJobBlank.DieWith(func(d *diebatchv1.CronJobDie) {
+	}).DieCommit().DieMutable()
+	cron := diebatchv1.CronJobBlank.DieWith(func(d *diebatchv1.CronJobDieMut) {
 		d.Metadata().Name().Set("nightly")
-	}).DieCommit().DieImmutable(false)
-	pod := diecorev1.PodBlank.DieWith(func(d *diecorev1.PodDie) {
+	}).DieCommit().DieMutable()
+	pod := diecorev1.PodBlank.DieWith(func(d *diecorev1.PodDieMut) {
 		d.Metadata().Name().Set("debug")
-	}).DieCommit().DieImmutable(false)
+	}).DieCommit().DieMutable()
 
-	for _, source := range []die.Die{deploy, cron, pod} {
-		ps, ok := jigsv1.PodSpecableJig.Of(source)
+	for _, source := range []die.MutableDie{deploy, cron, pod} {
+		ps, ok := jigsv1.PodSpecableJig.OfMut(source)
 		if !ok {
 			t.Fatalf("no jig of %T", source)
 		}
@@ -104,7 +104,7 @@ func TestJigWritesThroughToEachSource(t *testing.T) {
 }
 
 func TestJigReads(t *testing.T) {
-	pod := diecorev1.PodBlank.DieWith(func(d *diecorev1.PodDie) {
+	pod := diecorev1.PodBlank.DieWith(func(d *diecorev1.PodDieMut) {
 		d.Metadata().Name().Set("debug")
 		d.Spec().Containers().At("app").Image().Set("app:1")
 	})
@@ -121,17 +121,20 @@ func TestJigReads(t *testing.T) {
 	}
 }
 
-func TestJigOfAnImmutableDieIsReadOnly(t *testing.T) {
+// The jig of an immutable die is immutable, and of a mutable die mutable:
+// a read-only jig of a mutable die would see its writes.
+func TestJigOfAnImmutableDieIsImmutable(t *testing.T) {
 	ps, _ := jigsv1.PodSpecableJig.Of(dieappsv1.DeploymentBlank)
 	if ps.Template().Spec().Containers().Len() != 0 {
 		t.Errorf("expected no containers")
 	}
-	defer func() {
-		if recover() == nil {
-			t.Errorf("expected a write to a read-only jig to panic")
-		}
-	}()
-	ps.Template().Spec().Containers().At("app").Image().Set("x")
+	// DieWith on the jig works on a copy, which is not linked to the source
+	written := ps.DieWith(func(ps *jigsv1.PodSpecableDieMut) {
+		ps.Template().Spec().Containers().At("app").Image().Set("x")
+	})
+	if written.Template().Spec().Containers().At("app").Image().Get() != "x" || dieappsv1.DeploymentBlank.Spec().Template().Spec().Containers().Len() != 0 {
+		t.Errorf("written %s", written.DieReleaseJSON())
+	}
 }
 
 func TestJigOfAnUnknownType(t *testing.T) {
@@ -142,8 +145,8 @@ func TestJigOfAnUnknownType(t *testing.T) {
 }
 
 func TestStampThroughAJig(t *testing.T) {
-	deploy := dieappsv1.DeploymentBlank.DieImmutable(false)
-	ps, _ := jigsv1.PodSpecableJig.Of(deploy)
+	deploy := dieappsv1.DeploymentBlank.DieMutable()
+	ps, _ := jigsv1.PodSpecableJig.OfMut(deploy)
 	ps.Template().DieStamp(func(r *diecorev1.PodTemplateSpec) {
 		r.Labels = map[string]string{"app": "web"}
 	})
@@ -156,8 +159,8 @@ func TestStampThroughAJig(t *testing.T) {
 // location read the same value, so a write through one is visible through
 // the other at once, including through dies and handles obtained earlier.
 func TestOverlappingBindingsShareTheSource(t *testing.T) {
-	pod := diecorev1.PodBlank.DieImmutable(false)
-	ps, _ := jigsv1.PodSpecableJig.Of(pod)
+	pod := diecorev1.PodBlank.DieMutable()
+	ps, _ := jigsv1.PodSpecableJig.OfMut(pod)
 
 	// obtained before any write
 	templateLabels := ps.Template().Metadata().Labels()
@@ -186,10 +189,10 @@ func TestOverlappingBindingsShareTheSource(t *testing.T) {
 // A copy of a jig is unlinked from its source: it reads what the jig did,
 // and writes to it stay in the copy.
 func TestJigCopyIsUnlinked(t *testing.T) {
-	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
-	}).DieCommit().DieImmutable(false)
-	ps, _ := jigsv1.PodSpecableJig.Of(deploy)
+	}).DieCommit().DieMutable()
+	ps, _ := jigsv1.PodSpecableJig.OfMut(deploy)
 
 	copied := ps.DeepCopy()
 	copied.Template().Spec().Containers().At("app").Image().Set("app:2")

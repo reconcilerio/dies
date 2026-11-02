@@ -31,7 +31,7 @@ var (
 )
 
 func TestBlankLocations(t *testing.T) {
-	d := DeploymentBlank.DieWith(func(d *DeploymentDie) {
+	d := DeploymentBlank.DieWith(func(d *DeploymentDieMut) {
 		d.Metadata().Name().Set("my-app")
 		d.Spec().Replicas().Set(2)
 		d.Spec().Paused().Set(true)

@@ -30,17 +30,32 @@ import (
 )
 
 // ImageReview checks if the set of images in a pod are allowed.
+//
+// ImageReviewDie is immutable: it reads.
+// ImageReviewDieMut, its mutable die, also writes, as DieWith passes it.
 type ImageReviewDie struct {
-	diebase.DieObjectBase[ImageReview, *ImageReviewDie]
+	diebase.DieObjectBase[ImageReview, *ImageReviewDie, *ImageReviewDieMut]
 }
 
-func (*ImageReviewDie) DieFrom(b diebase.DieBase[ImageReview, *ImageReviewDie]) *ImageReviewDie {
+// ImageReviewDieMut is the mutable die of ImageReview: see ImageReviewDie.
+type ImageReviewDieMut struct {
+	diebase.DieObjectMutBase[ImageReview, *ImageReviewDie, *ImageReviewDieMut]
+}
+
+func (*ImageReviewDie) DieFrom(b diebase.DieBase[ImageReview, *ImageReviewDie, *ImageReviewDieMut]) *ImageReviewDie {
 	return &ImageReviewDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[ImageReview, *ImageReviewDie] = (*ImageReviewDie)(nil)
+func (*ImageReviewDieMut) DieFrom(b diebase.DieMutBase[ImageReview, *ImageReviewDie, *ImageReviewDieMut]) *ImageReviewDieMut {
+	return &ImageReviewDieMut{diebase.AsObjectMut(b)}
+}
 
-var ImageReviewBlank = diebase.BlankOf[ImageReview, *ImageReviewDie](ImageReview{TypeMeta: metav1.TypeMeta{APIVersion: "imagepolicy.k8s.io/v1alpha1", Kind: "ImageReview"}})
+var (
+	_ dieobjects.DieObjectOf[ImageReview, *ImageReviewDie, *ImageReviewDieMut]    = (*ImageReviewDie)(nil)
+	_ dieobjects.DieObjectMutOf[ImageReview, *ImageReviewDie, *ImageReviewDieMut] = (*ImageReviewDieMut)(nil)
+)
+
+var ImageReviewBlank = diebase.BlankOf[ImageReview, *ImageReviewDie, *ImageReviewDieMut](ImageReview{TypeMeta: metav1.TypeMeta{APIVersion: "imagepolicy.k8s.io/v1alpha1", Kind: "ImageReview"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -49,52 +64,65 @@ func (d *ImageReviewDie) DieReleaseApplyConfiguration() *ImageReviewApplyConfigu
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ImageReviewDie) DieFeedApplyConfiguration(ac *ImageReviewApplyConfiguration) *ImageReviewDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ImageReviewDie) DieStampApplyConfiguration(fn func(ac *ImageReviewApplyConfiguration)) *ImageReviewDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ImageReviewDie) DieReleaseApplyConfigurationE() (*ImageReviewApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ImageReviewApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ImageReviewDieMut) DieReleaseApplyConfiguration() *ImageReviewApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ImageReviewApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ImageReviewDieMut) DieReleaseApplyConfigurationE() (*ImageReviewApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ImageReviewApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ImageReviewDieMut) DieFeedApplyConfiguration(ac *ImageReviewApplyConfiguration) *ImageReviewDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ImageReviewDieMut) DieStampApplyConfiguration(fn func(ac *ImageReviewApplyConfiguration)) *ImageReviewDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ImageReviewDie) DieFeedApplyConfigurationE(ac *ImageReviewApplyConfiguration) (*ImageReviewDie, error) {
+func (d *ImageReviewDieMut) DieFeedApplyConfigurationE(ac *ImageReviewApplyConfiguration) (*ImageReviewDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ImageReviewDie) DieStampApplyConfigurationE(fn func(ac *ImageReviewApplyConfiguration)) (*ImageReviewDie, error) {
+func (d *ImageReviewDieMut) DieStampApplyConfigurationE(fn func(ac *ImageReviewApplyConfiguration)) (*ImageReviewDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type imageReviewFieldsTable struct {
 	Kind       diefields.Field[ImageReview, string]
 	APIVersion diefields.Field[ImageReview, string]
-	Metadata   diefields.Struct[ImageReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[ImageReview, ImageReviewSpec, *ImageReviewSpecDie]
-	Status     diefields.Struct[ImageReview, ImageReviewStatus, *ImageReviewStatusDie]
+	Metadata   diefields.Struct[ImageReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[ImageReview, ImageReviewSpec, *ImageReviewSpecDie, *ImageReviewSpecDieMut]
+	Status     diefields.Struct[ImageReview, ImageReviewStatus, *ImageReviewStatusDie, *ImageReviewStatusDieMut]
 }
 
 var imageReviewFields = &diefields.Table[imageReviewFieldsTable]{Build: func() (f imageReviewFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[ImageReview, string]("kind")
 	f.APIVersion = diefields.NewField[ImageReview, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[ImageReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[ImageReview, ImageReviewSpec, *ImageReviewSpecDie]("spec")
-	f.Status = diefields.NewStruct[ImageReview, ImageReviewStatus, *ImageReviewStatusDie]("status")
+	f.Metadata = diefields.NewStruct[ImageReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[ImageReview, ImageReviewSpec, *ImageReviewSpecDie, *ImageReviewSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[ImageReview, ImageReviewStatus, *ImageReviewStatusDie, *ImageReviewStatusDieMut]("status")
 	return
 }}
 
@@ -103,7 +131,7 @@ var imageReviewFields = &diefields.Table[imageReviewFieldsTable]{Build: func() (
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *ImageReviewDie) Kind() diefields.Value[string, *ImageReviewDie] {
+func (d *ImageReviewDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, imageReviewFields.Get().Kind)
 }
 
@@ -111,7 +139,7 @@ func (d *ImageReviewDie) Kind() diefields.Value[string, *ImageReviewDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *ImageReviewDie) APIVersion() diefields.Value[string, *ImageReviewDie] {
+func (d *ImageReviewDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, imageReviewFields.Get().APIVersion)
 }
 
@@ -131,18 +159,66 @@ func (d *ImageReviewDie) Status() *ImageReviewStatusDie {
 	return diefields.Child(d, imageReviewFields.Get().Status)
 }
 
-// ImageReviewContainerSpec is a description of a container within the pod creation request.
-type ImageReviewContainerSpecDie struct {
-	diebase.DieBase[ImageReviewContainerSpec, *ImageReviewContainerSpecDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ImageReviewDieMut) Kind() diefields.ValueMut[string, *ImageReviewDieMut] {
+	return diefields.ValueMutOf(d, imageReviewFields.Get().Kind)
 }
 
-func (*ImageReviewContainerSpecDie) DieFrom(b diebase.DieBase[ImageReviewContainerSpec, *ImageReviewContainerSpecDie]) *ImageReviewContainerSpecDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *ImageReviewDieMut) APIVersion() diefields.ValueMut[string, *ImageReviewDieMut] {
+	return diefields.ValueMutOf(d, imageReviewFields.Get().APIVersion)
+}
+
+// metadata is the standard object's metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *ImageReviewDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, imageReviewFields.Get().Metadata)
+}
+
+// spec holds information about the pod being evaluated
+func (d *ImageReviewDieMut) Spec() *ImageReviewSpecDieMut {
+	return diefields.ChildMut(d, imageReviewFields.Get().Spec)
+}
+
+// status is filled in by the backend and indicates whether the pod should be allowed.
+func (d *ImageReviewDieMut) Status() *ImageReviewStatusDieMut {
+	return diefields.ChildMut(d, imageReviewFields.Get().Status)
+}
+
+// ImageReviewContainerSpec is a description of a container within the pod creation request.
+//
+// ImageReviewContainerSpecDie is immutable: it reads.
+// ImageReviewContainerSpecDieMut, its mutable die, also writes, as DieWith passes it.
+type ImageReviewContainerSpecDie struct {
+	diebase.DieBase[ImageReviewContainerSpec, *ImageReviewContainerSpecDie, *ImageReviewContainerSpecDieMut]
+}
+
+// ImageReviewContainerSpecDieMut is the mutable die of ImageReviewContainerSpec: see ImageReviewContainerSpecDie.
+type ImageReviewContainerSpecDieMut struct {
+	diebase.DieMutBase[ImageReviewContainerSpec, *ImageReviewContainerSpecDie, *ImageReviewContainerSpecDieMut]
+}
+
+func (*ImageReviewContainerSpecDie) DieFrom(b diebase.DieBase[ImageReviewContainerSpec, *ImageReviewContainerSpecDie, *ImageReviewContainerSpecDieMut]) *ImageReviewContainerSpecDie {
 	return &ImageReviewContainerSpecDie{b}
 }
 
-var _ diebase.DieOf[ImageReviewContainerSpec, *ImageReviewContainerSpecDie] = (*ImageReviewContainerSpecDie)(nil)
+func (*ImageReviewContainerSpecDieMut) DieFrom(b diebase.DieMutBase[ImageReviewContainerSpec, *ImageReviewContainerSpecDie, *ImageReviewContainerSpecDieMut]) *ImageReviewContainerSpecDieMut {
+	return &ImageReviewContainerSpecDieMut{b}
+}
 
-var ImageReviewContainerSpecBlank = diebase.Blank[ImageReviewContainerSpec, *ImageReviewContainerSpecDie]()
+var (
+	_ diebase.DieOf[ImageReviewContainerSpec, *ImageReviewContainerSpecDie, *ImageReviewContainerSpecDieMut]    = (*ImageReviewContainerSpecDie)(nil)
+	_ diebase.DieMutOf[ImageReviewContainerSpec, *ImageReviewContainerSpecDie, *ImageReviewContainerSpecDieMut] = (*ImageReviewContainerSpecDieMut)(nil)
+)
+
+var ImageReviewContainerSpecBlank = diebase.Blank[ImageReviewContainerSpec, *ImageReviewContainerSpecDie, *ImageReviewContainerSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -151,34 +227,47 @@ func (d *ImageReviewContainerSpecDie) DieReleaseApplyConfiguration() *ImageRevie
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewContainerSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ImageReviewContainerSpecDie) DieFeedApplyConfiguration(ac *ImageReviewContainerSpecApplyConfiguration) *ImageReviewContainerSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ImageReviewContainerSpecDie) DieStampApplyConfiguration(fn func(ac *ImageReviewContainerSpecApplyConfiguration)) *ImageReviewContainerSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ImageReviewContainerSpecDie) DieReleaseApplyConfigurationE() (*ImageReviewContainerSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ImageReviewContainerSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ImageReviewContainerSpecDieMut) DieReleaseApplyConfiguration() *ImageReviewContainerSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ImageReviewContainerSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ImageReviewContainerSpecDieMut) DieReleaseApplyConfigurationE() (*ImageReviewContainerSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ImageReviewContainerSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ImageReviewContainerSpecDieMut) DieFeedApplyConfiguration(ac *ImageReviewContainerSpecApplyConfiguration) *ImageReviewContainerSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ImageReviewContainerSpecDieMut) DieStampApplyConfiguration(fn func(ac *ImageReviewContainerSpecApplyConfiguration)) *ImageReviewContainerSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ImageReviewContainerSpecDie) DieFeedApplyConfigurationE(ac *ImageReviewContainerSpecApplyConfiguration) (*ImageReviewContainerSpecDie, error) {
+func (d *ImageReviewContainerSpecDieMut) DieFeedApplyConfigurationE(ac *ImageReviewContainerSpecApplyConfiguration) (*ImageReviewContainerSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ImageReviewContainerSpecDie) DieStampApplyConfigurationE(fn func(ac *ImageReviewContainerSpecApplyConfiguration)) (*ImageReviewContainerSpecDie, error) {
+func (d *ImageReviewContainerSpecDieMut) DieStampApplyConfigurationE(fn func(ac *ImageReviewContainerSpecApplyConfiguration)) (*ImageReviewContainerSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -193,22 +282,42 @@ var imageReviewContainerSpecFields = &diefields.Table[imageReviewContainerSpecFi
 }}
 
 // image can be in the form image:tag or image@SHA:012345679abcdef.
-func (d *ImageReviewContainerSpecDie) Image() diefields.Value[string, *ImageReviewContainerSpecDie] {
+func (d *ImageReviewContainerSpecDie) Image() diefields.Value[string] {
 	return diefields.ValueOf(d, imageReviewContainerSpecFields.Get().Image)
 }
 
-// ImageReviewSpec is a description of the pod creation request.
-type ImageReviewSpecDie struct {
-	diebase.DieBase[ImageReviewSpec, *ImageReviewSpecDie]
+// image can be in the form image:tag or image@SHA:012345679abcdef.
+func (d *ImageReviewContainerSpecDieMut) Image() diefields.ValueMut[string, *ImageReviewContainerSpecDieMut] {
+	return diefields.ValueMutOf(d, imageReviewContainerSpecFields.Get().Image)
 }
 
-func (*ImageReviewSpecDie) DieFrom(b diebase.DieBase[ImageReviewSpec, *ImageReviewSpecDie]) *ImageReviewSpecDie {
+// ImageReviewSpec is a description of the pod creation request.
+//
+// ImageReviewSpecDie is immutable: it reads.
+// ImageReviewSpecDieMut, its mutable die, also writes, as DieWith passes it.
+type ImageReviewSpecDie struct {
+	diebase.DieBase[ImageReviewSpec, *ImageReviewSpecDie, *ImageReviewSpecDieMut]
+}
+
+// ImageReviewSpecDieMut is the mutable die of ImageReviewSpec: see ImageReviewSpecDie.
+type ImageReviewSpecDieMut struct {
+	diebase.DieMutBase[ImageReviewSpec, *ImageReviewSpecDie, *ImageReviewSpecDieMut]
+}
+
+func (*ImageReviewSpecDie) DieFrom(b diebase.DieBase[ImageReviewSpec, *ImageReviewSpecDie, *ImageReviewSpecDieMut]) *ImageReviewSpecDie {
 	return &ImageReviewSpecDie{b}
 }
 
-var _ diebase.DieOf[ImageReviewSpec, *ImageReviewSpecDie] = (*ImageReviewSpecDie)(nil)
+func (*ImageReviewSpecDieMut) DieFrom(b diebase.DieMutBase[ImageReviewSpec, *ImageReviewSpecDie, *ImageReviewSpecDieMut]) *ImageReviewSpecDieMut {
+	return &ImageReviewSpecDieMut{b}
+}
 
-var ImageReviewSpecBlank = diebase.Blank[ImageReviewSpec, *ImageReviewSpecDie]()
+var (
+	_ diebase.DieOf[ImageReviewSpec, *ImageReviewSpecDie, *ImageReviewSpecDieMut]    = (*ImageReviewSpecDie)(nil)
+	_ diebase.DieMutOf[ImageReviewSpec, *ImageReviewSpecDie, *ImageReviewSpecDieMut] = (*ImageReviewSpecDieMut)(nil)
+)
+
+var ImageReviewSpecBlank = diebase.Blank[ImageReviewSpec, *ImageReviewSpecDie, *ImageReviewSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -217,34 +326,47 @@ func (d *ImageReviewSpecDie) DieReleaseApplyConfiguration() *ImageReviewSpecAppl
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ImageReviewSpecDie) DieFeedApplyConfiguration(ac *ImageReviewSpecApplyConfiguration) *ImageReviewSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ImageReviewSpecDie) DieStampApplyConfiguration(fn func(ac *ImageReviewSpecApplyConfiguration)) *ImageReviewSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ImageReviewSpecDie) DieReleaseApplyConfigurationE() (*ImageReviewSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ImageReviewSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ImageReviewSpecDieMut) DieReleaseApplyConfiguration() *ImageReviewSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ImageReviewSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ImageReviewSpecDieMut) DieReleaseApplyConfigurationE() (*ImageReviewSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ImageReviewSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ImageReviewSpecDieMut) DieFeedApplyConfiguration(ac *ImageReviewSpecApplyConfiguration) *ImageReviewSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ImageReviewSpecDieMut) DieStampApplyConfiguration(fn func(ac *ImageReviewSpecApplyConfiguration)) *ImageReviewSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ImageReviewSpecDie) DieFeedApplyConfigurationE(ac *ImageReviewSpecApplyConfiguration) (*ImageReviewSpecDie, error) {
+func (d *ImageReviewSpecDieMut) DieFeedApplyConfigurationE(ac *ImageReviewSpecApplyConfiguration) (*ImageReviewSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ImageReviewSpecDie) DieStampApplyConfigurationE(fn func(ac *ImageReviewSpecApplyConfiguration)) (*ImageReviewSpecDie, error) {
+func (d *ImageReviewSpecDieMut) DieStampApplyConfigurationE(fn func(ac *ImageReviewSpecApplyConfiguration)) (*ImageReviewSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -263,7 +385,7 @@ var imageReviewSpecFields = &diefields.Table[imageReviewSpecFieldsTable]{Build: 
 }}
 
 // containers is a list of a subset of the information in each container of the Pod being created.
-func (d *ImageReviewSpecDie) Containers() diefields.Value[[]ImageReviewContainerSpec, *ImageReviewSpecDie] {
+func (d *ImageReviewSpecDie) Containers() diefields.Value[[]ImageReviewContainerSpec] {
 	return diefields.ValueOf(d, imageReviewSpecFields.Get().Containers)
 }
 
@@ -275,22 +397,54 @@ func (d *ImageReviewSpecDie) Annotations() *diefields.Map[string, string] {
 }
 
 // namespace is the namespace the pod is being created in.
-func (d *ImageReviewSpecDie) Namespace() diefields.Value[string, *ImageReviewSpecDie] {
+func (d *ImageReviewSpecDie) Namespace() diefields.Value[string] {
 	return diefields.ValueOf(d, imageReviewSpecFields.Get().Namespace)
 }
 
-// ImageReviewStatus is the result of the review for the pod creation request.
-type ImageReviewStatusDie struct {
-	diebase.DieBase[ImageReviewStatus, *ImageReviewStatusDie]
+// containers is a list of a subset of the information in each container of the Pod being created.
+func (d *ImageReviewSpecDieMut) Containers() diefields.ValueMut[[]ImageReviewContainerSpec, *ImageReviewSpecDieMut] {
+	return diefields.ValueMutOf(d, imageReviewSpecFields.Get().Containers)
 }
 
-func (*ImageReviewStatusDie) DieFrom(b diebase.DieBase[ImageReviewStatus, *ImageReviewStatusDie]) *ImageReviewStatusDie {
+// annotations is a list of key-value pairs extracted from the Pod's annotations.
+// It only includes keys which match the pattern `*.image-policy.k8s.io/*`.
+// It is up to each webhook backend to determine how to interpret these annotations, if at all.
+func (d *ImageReviewSpecDieMut) Annotations() *diefields.MapMut[string, string] {
+	return diefields.MapMutOf(d, imageReviewSpecFields.Get().Annotations)
+}
+
+// namespace is the namespace the pod is being created in.
+func (d *ImageReviewSpecDieMut) Namespace() diefields.ValueMut[string, *ImageReviewSpecDieMut] {
+	return diefields.ValueMutOf(d, imageReviewSpecFields.Get().Namespace)
+}
+
+// ImageReviewStatus is the result of the review for the pod creation request.
+//
+// ImageReviewStatusDie is immutable: it reads.
+// ImageReviewStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type ImageReviewStatusDie struct {
+	diebase.DieBase[ImageReviewStatus, *ImageReviewStatusDie, *ImageReviewStatusDieMut]
+}
+
+// ImageReviewStatusDieMut is the mutable die of ImageReviewStatus: see ImageReviewStatusDie.
+type ImageReviewStatusDieMut struct {
+	diebase.DieMutBase[ImageReviewStatus, *ImageReviewStatusDie, *ImageReviewStatusDieMut]
+}
+
+func (*ImageReviewStatusDie) DieFrom(b diebase.DieBase[ImageReviewStatus, *ImageReviewStatusDie, *ImageReviewStatusDieMut]) *ImageReviewStatusDie {
 	return &ImageReviewStatusDie{b}
 }
 
-var _ diebase.DieOf[ImageReviewStatus, *ImageReviewStatusDie] = (*ImageReviewStatusDie)(nil)
+func (*ImageReviewStatusDieMut) DieFrom(b diebase.DieMutBase[ImageReviewStatus, *ImageReviewStatusDie, *ImageReviewStatusDieMut]) *ImageReviewStatusDieMut {
+	return &ImageReviewStatusDieMut{b}
+}
 
-var ImageReviewStatusBlank = diebase.Blank[ImageReviewStatus, *ImageReviewStatusDie]()
+var (
+	_ diebase.DieOf[ImageReviewStatus, *ImageReviewStatusDie, *ImageReviewStatusDieMut]    = (*ImageReviewStatusDie)(nil)
+	_ diebase.DieMutOf[ImageReviewStatus, *ImageReviewStatusDie, *ImageReviewStatusDieMut] = (*ImageReviewStatusDieMut)(nil)
+)
+
+var ImageReviewStatusBlank = diebase.Blank[ImageReviewStatus, *ImageReviewStatusDie, *ImageReviewStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -299,34 +453,47 @@ func (d *ImageReviewStatusDie) DieReleaseApplyConfiguration() *ImageReviewStatus
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ImageReviewStatusDie) DieFeedApplyConfiguration(ac *ImageReviewStatusApplyConfiguration) *ImageReviewStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ImageReviewStatusDie) DieStampApplyConfiguration(fn func(ac *ImageReviewStatusApplyConfiguration)) *ImageReviewStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ImageReviewStatusDie) DieReleaseApplyConfigurationE() (*ImageReviewStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ImageReviewStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ImageReviewStatusDieMut) DieReleaseApplyConfiguration() *ImageReviewStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ImageReviewStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ImageReviewStatusDieMut) DieReleaseApplyConfigurationE() (*ImageReviewStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ImageReviewStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ImageReviewStatusDieMut) DieFeedApplyConfiguration(ac *ImageReviewStatusApplyConfiguration) *ImageReviewStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ImageReviewStatusDieMut) DieStampApplyConfiguration(fn func(ac *ImageReviewStatusApplyConfiguration)) *ImageReviewStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ImageReviewStatusDie) DieFeedApplyConfigurationE(ac *ImageReviewStatusApplyConfiguration) (*ImageReviewStatusDie, error) {
+func (d *ImageReviewStatusDieMut) DieFeedApplyConfigurationE(ac *ImageReviewStatusApplyConfiguration) (*ImageReviewStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ImageReviewStatusDie) DieStampApplyConfigurationE(fn func(ac *ImageReviewStatusApplyConfiguration)) (*ImageReviewStatusDie, error) {
+func (d *ImageReviewStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ImageReviewStatusApplyConfiguration)) (*ImageReviewStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -345,14 +512,14 @@ var imageReviewStatusFields = &diefields.Table[imageReviewStatusFieldsTable]{Bui
 }}
 
 // allowed indicates that all images were allowed to be run.
-func (d *ImageReviewStatusDie) Allowed() diefields.Value[bool, *ImageReviewStatusDie] {
+func (d *ImageReviewStatusDie) Allowed() diefields.Value[bool] {
 	return diefields.ValueOf(d, imageReviewStatusFields.Get().Allowed)
 }
 
 // reason should be empty unless Allowed is false in which case it
 // may contain a short description of what is wrong.  Kubernetes
 // may truncate excessively long errors when displaying to the user.
-func (d *ImageReviewStatusDie) Reason() diefields.Value[string, *ImageReviewStatusDie] {
+func (d *ImageReviewStatusDie) Reason() diefields.Value[string] {
 	return diefields.ValueOf(d, imageReviewStatusFields.Get().Reason)
 }
 
@@ -364,18 +531,38 @@ func (d *ImageReviewStatusDie) AuditAnnotations() *diefields.Map[string, string]
 	return diefields.MapOf(d, imageReviewStatusFields.Get().AuditAnnotations)
 }
 
+// allowed indicates that all images were allowed to be run.
+func (d *ImageReviewStatusDieMut) Allowed() diefields.ValueMut[bool, *ImageReviewStatusDieMut] {
+	return diefields.ValueMutOf(d, imageReviewStatusFields.Get().Allowed)
+}
+
+// reason should be empty unless Allowed is false in which case it
+// may contain a short description of what is wrong.  Kubernetes
+// may truncate excessively long errors when displaying to the user.
+func (d *ImageReviewStatusDieMut) Reason() diefields.ValueMut[string, *ImageReviewStatusDieMut] {
+	return diefields.ValueMutOf(d, imageReviewStatusFields.Get().Reason)
+}
+
+// auditAnnotations will be added to the attributes object of the
+// admission controller request using 'AddAnnotation'.  The keys should
+// be prefix-less (i.e., the admission controller will add an
+// appropriate prefix).
+func (d *ImageReviewStatusDieMut) AuditAnnotations() *diefields.MapMut[string, string] {
+	return diefields.MapMutOf(d, imageReviewStatusFields.Get().AuditAnnotations)
+}
+
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "imagepolicy.k8s.io", Version: "v1alpha1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ImageReview"), &ImageReviewDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ImageReview"), &ImageReviewDieMut{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }

@@ -68,13 +68,32 @@ func FindE(d base.Die, expr string) ([]base.Path, error) {
 	return core.ResolveJSONPath(h, at, expr)
 }
 
-// Dies returns the matches of an expression as dies of type CD, such as
-// *ContainerDie, each a die within d. It fails if a match isn't a value of
-// CD's type. An unstructured die is a die for any unstructured value.
-func Dies[CD any](d base.Die, expr string) []CD { return core.Must(DiesE[CD](d, expr)) }
+// Dies returns the matches of an expression within an immutable die as
+// immutable dies of type CD, such as *ContainerDie, each a die within d. It
+// fails if a match isn't a value of CD's type. An unstructured die is a die
+// for any unstructured value.
+func Dies[CD base.ImmutableDie](d base.ImmutableDie, expr string) []CD {
+	return core.Must(DiesE[CD](d, expr))
+}
 
 // DiesE is Dies, returning an error rather than panicking.
-func DiesE[CD any](d base.Die, expr string) ([]CD, error) {
+func DiesE[CD base.ImmutableDie](d base.ImmutableDie, expr string) ([]CD, error) {
+	return matches[CD](d, expr)
+}
+
+// DiesMut returns the matches of an expression within a mutable die as
+// mutable dies of type CDM, such as *ContainerDieMut, whose writes are writes
+// to d.
+func DiesMut[CDM base.MutableDie](d base.MutableDie, expr string) []CDM {
+	return core.Must(DiesMutE[CDM](d, expr))
+}
+
+// DiesMutE is DiesMut, returning an error rather than panicking.
+func DiesMutE[CDM base.MutableDie](d base.MutableDie, expr string) ([]CDM, error) {
+	return matches[CDM](d, expr)
+}
+
+func matches[CD base.Die](d base.Die, expr string) ([]CD, error) {
 	h, at, ok := core.StateOf(d)
 	if !ok {
 		return nil, core.Errorf("die: %T is not a die", d)
@@ -96,13 +115,49 @@ func DiesE[CD any](d base.Die, expr string) ([]CD, error) {
 }
 
 // Values returns the matches of an expression as handles to values of type
-// V on d. It fails if a match isn't a V.
-func Values[V any, D base.Die](d D, expr string) []fields.Value[V, D] {
+// V within d. It fails if a match isn't a V.
+func Values[V any](d base.Die, expr string) []fields.Value[V] {
 	return core.Must(ValuesE[V](d, expr))
 }
 
 // ValuesE is Values, returning an error rather than panicking.
-func ValuesE[V any, D base.Die](d D, expr string) ([]fields.Value[V, D], error) {
+func ValuesE[V any](d base.Die, expr string) ([]fields.Value[V], error) {
+	paths, err := valuePaths[V](d, expr)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]fields.Value[V], len(paths))
+	for i, p := range paths {
+		if out[i], err = fields.ValueAtE[V](d, p); err != nil {
+			return nil, err
+		}
+	}
+	return out, nil
+}
+
+// ValuesMut returns the matches of an expression as handles to values of
+// type V within a mutable die, whose writes return d. It fails if a match
+// isn't a V.
+func ValuesMut[V any, M base.MutableDie](d M, expr string) []fields.ValueMut[V, M] {
+	return core.Must(ValuesMutE[V](d, expr))
+}
+
+// ValuesMutE is ValuesMut, returning an error rather than panicking.
+func ValuesMutE[V any, M base.MutableDie](d M, expr string) ([]fields.ValueMut[V, M], error) {
+	paths, err := valuePaths[V](d, expr)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]fields.ValueMut[V, M], len(paths))
+	for i, p := range paths {
+		if out[i], err = fields.ValueMutAtE[V](d, p); err != nil {
+			return nil, err
+		}
+	}
+	return out, nil
+}
+
+func valuePaths[V any](d base.Die, expr string) ([]base.Path, error) {
 	h, at, ok := core.StateOf(d)
 	if !ok {
 		return nil, core.Errorf("die: %T is not a die", d)
@@ -111,14 +166,10 @@ func ValuesE[V any, D base.Die](d D, expr string) ([]fields.Value[V, D], error) 
 	if err != nil {
 		return nil, err
 	}
-	out := make([]fields.Value[V, D], len(paths))
-	for i, p := range paths {
+	for _, p := range paths {
 		if t := core.TypeAt(h.Base.Type(), p); t != reflect.TypeFor[V]() {
 			return nil, core.Errorf("die: JSONPath %q: the value at %s is a %s, not a %s", expr, p, t, reflect.TypeFor[V]())
 		}
-		if out[i], err = fields.ValueAtE[V](d, p); err != nil {
-			return nil, err
-		}
 	}
-	return out, nil
+	return paths, nil
 }

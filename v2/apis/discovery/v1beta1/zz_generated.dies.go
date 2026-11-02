@@ -32,17 +32,32 @@ import (
 )
 
 // Endpoint represents a single logical "backend" implementing a service.
+//
+// EndpointDie is immutable: it reads.
+// EndpointDieMut, its mutable die, also writes, as DieWith passes it.
 type EndpointDie struct {
-	diebase.DieBase[Endpoint, *EndpointDie]
+	diebase.DieBase[Endpoint, *EndpointDie, *EndpointDieMut]
 }
 
-func (*EndpointDie) DieFrom(b diebase.DieBase[Endpoint, *EndpointDie]) *EndpointDie {
+// EndpointDieMut is the mutable die of Endpoint: see EndpointDie.
+type EndpointDieMut struct {
+	diebase.DieMutBase[Endpoint, *EndpointDie, *EndpointDieMut]
+}
+
+func (*EndpointDie) DieFrom(b diebase.DieBase[Endpoint, *EndpointDie, *EndpointDieMut]) *EndpointDie {
 	return &EndpointDie{b}
 }
 
-var _ diebase.DieOf[Endpoint, *EndpointDie] = (*EndpointDie)(nil)
+func (*EndpointDieMut) DieFrom(b diebase.DieMutBase[Endpoint, *EndpointDie, *EndpointDieMut]) *EndpointDieMut {
+	return &EndpointDieMut{b}
+}
 
-var EndpointBlank = diebase.Blank[Endpoint, *EndpointDie]()
+var (
+	_ diebase.DieOf[Endpoint, *EndpointDie, *EndpointDieMut]    = (*EndpointDie)(nil)
+	_ diebase.DieMutOf[Endpoint, *EndpointDie, *EndpointDieMut] = (*EndpointDieMut)(nil)
+)
+
+var EndpointBlank = diebase.Blank[Endpoint, *EndpointDie, *EndpointDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -51,56 +66,69 @@ func (d *EndpointDie) DieReleaseApplyConfiguration() *EndpointApplyConfiguration
 	return diecodegen.ReleaseApplyConfiguration[EndpointApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *EndpointDie) DieFeedApplyConfiguration(ac *EndpointApplyConfiguration) *EndpointDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *EndpointDie) DieStampApplyConfiguration(fn func(ac *EndpointApplyConfiguration)) *EndpointDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *EndpointDie) DieReleaseApplyConfigurationE() (*EndpointApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EndpointApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *EndpointDieMut) DieReleaseApplyConfiguration() *EndpointApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[EndpointApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *EndpointDieMut) DieReleaseApplyConfigurationE() (*EndpointApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[EndpointApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *EndpointDieMut) DieFeedApplyConfiguration(ac *EndpointApplyConfiguration) *EndpointDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *EndpointDieMut) DieStampApplyConfiguration(fn func(ac *EndpointApplyConfiguration)) *EndpointDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *EndpointDie) DieFeedApplyConfigurationE(ac *EndpointApplyConfiguration) (*EndpointDie, error) {
+func (d *EndpointDieMut) DieFeedApplyConfigurationE(ac *EndpointApplyConfiguration) (*EndpointDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *EndpointDie) DieStampApplyConfigurationE(fn func(ac *EndpointApplyConfiguration)) (*EndpointDie, error) {
+func (d *EndpointDieMut) DieStampApplyConfigurationE(fn func(ac *EndpointApplyConfiguration)) (*EndpointDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type endpointFieldsTable struct {
 	Addresses  diefields.Field[Endpoint, []string]
-	Conditions diefields.Struct[Endpoint, EndpointConditions, *EndpointConditionsDie]
+	Conditions diefields.Struct[Endpoint, EndpointConditions, *EndpointConditionsDie, *EndpointConditionsDieMut]
 	Hostname   diefields.Field[Endpoint, *string]
-	TargetRef  diefields.Struct[Endpoint, diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie]
+	TargetRef  diefields.Struct[Endpoint, diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie, *diecorev1.ObjectReferenceDieMut]
 	Topology   diefields.MapField[Endpoint, string, string]
 	NodeName   diefields.Field[Endpoint, *string]
-	Hints      diefields.Struct[Endpoint, EndpointHints, *EndpointHintsDie]
+	Hints      diefields.Struct[Endpoint, EndpointHints, *EndpointHintsDie, *EndpointHintsDieMut]
 }
 
 var endpointFields = &diefields.Table[endpointFieldsTable]{Build: func() (f endpointFieldsTable) {
 	_ = annotated
 	f.Addresses = diefields.NewField[Endpoint, []string]("addresses")
-	f.Conditions = diefields.NewStruct[Endpoint, EndpointConditions, *EndpointConditionsDie]("conditions")
+	f.Conditions = diefields.NewStruct[Endpoint, EndpointConditions, *EndpointConditionsDie, *EndpointConditionsDieMut]("conditions")
 	f.Hostname = diefields.NewField[Endpoint, *string]("hostname")
-	f.TargetRef = diefields.NewStruct[Endpoint, diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie]("targetRef")
+	f.TargetRef = diefields.NewStruct[Endpoint, diecorev1.ObjectReference, *diecorev1.ObjectReferenceDie, *diecorev1.ObjectReferenceDieMut]("targetRef")
 	f.Topology = diefields.NewMap[Endpoint, string, string]("topology")
 	f.NodeName = diefields.NewField[Endpoint, *string]("nodeName")
-	f.Hints = diefields.NewStruct[Endpoint, EndpointHints, *EndpointHintsDie]("hints")
+	f.Hints = diefields.NewStruct[Endpoint, EndpointHints, *EndpointHintsDie, *EndpointHintsDieMut]("hints")
 	return
 }}
 
@@ -110,7 +138,7 @@ var endpointFields = &diefields.Table[endpointFieldsTable]{Build: func() (f endp
 // capabilities. This must contain at least one address but no more than
 // 100. These are all assumed to be fungible and clients may choose to only
 // use the first element. Refer to: https://issue.k8s.io/106267
-func (d *EndpointDie) Addresses() diefields.Value[[]string, *EndpointDie] {
+func (d *EndpointDie) Addresses() diefields.Value[[]string] {
 	return diefields.ValueOf(d, endpointFields.Get().Addresses)
 }
 
@@ -124,7 +152,7 @@ func (d *EndpointDie) Conditions() *EndpointConditionsDie {
 // Multiple endpoints which use the same hostname should be considered
 // fungible (e.g. multiple A values in DNS). Must be lowercase and pass DNS
 // Label (RFC 1123) validation.
-func (d *EndpointDie) Hostname() diefields.Optional[string, *EndpointDie] {
+func (d *EndpointDie) Hostname() diefields.Optional[string] {
 	return diefields.OptionalOf(d, endpointFields.Get().Hostname)
 }
 
@@ -154,7 +182,7 @@ func (d *EndpointDie) Topology() *diefields.Map[string, string] {
 
 // nodeName represents the name of the Node hosting this endpoint. This can
 // be used to determine endpoints local to a Node.
-func (d *EndpointDie) NodeName() diefields.Optional[string, *EndpointDie] {
+func (d *EndpointDie) NodeName() diefields.Optional[string] {
 	return diefields.OptionalOf(d, endpointFields.Get().NodeName)
 }
 
@@ -164,18 +192,93 @@ func (d *EndpointDie) Hints() *EndpointHintsDie {
 	return diefields.Child(d, endpointFields.Get().Hints)
 }
 
-// EndpointConditions represents the current condition of an endpoint.
-type EndpointConditionsDie struct {
-	diebase.DieBase[EndpointConditions, *EndpointConditionsDie]
+// addresses of this endpoint. The contents of this field are interpreted
+// according to the corresponding EndpointSlice addressType field. Consumers
+// must handle different types of addresses in the context of their own
+// capabilities. This must contain at least one address but no more than
+// 100. These are all assumed to be fungible and clients may choose to only
+// use the first element. Refer to: https://issue.k8s.io/106267
+func (d *EndpointDieMut) Addresses() diefields.ValueMut[[]string, *EndpointDieMut] {
+	return diefields.ValueMutOf(d, endpointFields.Get().Addresses)
 }
 
-func (*EndpointConditionsDie) DieFrom(b diebase.DieBase[EndpointConditions, *EndpointConditionsDie]) *EndpointConditionsDie {
+// conditions contains information about the current status of the endpoint.
+func (d *EndpointDieMut) Conditions() *EndpointConditionsDieMut {
+	return diefields.ChildMut(d, endpointFields.Get().Conditions)
+}
+
+// hostname of this endpoint. This field may be used by consumers of
+// endpoints to distinguish endpoints from each other (e.g. in DNS names).
+// Multiple endpoints which use the same hostname should be considered
+// fungible (e.g. multiple A values in DNS). Must be lowercase and pass DNS
+// Label (RFC 1123) validation.
+func (d *EndpointDieMut) Hostname() diefields.OptionalMut[string, *EndpointDieMut] {
+	return diefields.OptionalMutOf(d, endpointFields.Get().Hostname)
+}
+
+// targetRef is a reference to a Kubernetes object that represents this
+// endpoint.
+func (d *EndpointDieMut) TargetRef() *diecorev1.ObjectReferenceDieMut {
+	return diefields.ChildMut(d, endpointFields.Get().TargetRef)
+}
+
+// topology contains arbitrary topology information associated with the
+// endpoint. These key/value pairs must conform with the label format.
+// https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
+// Topology may include a maximum of 16 key/value pairs. This includes, but
+// is not limited to the following well known keys:
+//   - kubernetes.io/hostname: the value indicates the hostname of the node
+//     where the endpoint is located. This should match the corresponding
+//     node label.
+//   - topology.kubernetes.io/zone: the value indicates the zone where the
+//     endpoint is located. This should match the corresponding node label.
+//   - topology.kubernetes.io/region: the value indicates the region where the
+//     endpoint is located. This should match the corresponding node label.
+//
+// This field is deprecated and will be removed in future api versions.
+func (d *EndpointDieMut) Topology() *diefields.MapMut[string, string] {
+	return diefields.MapMutOf(d, endpointFields.Get().Topology)
+}
+
+// nodeName represents the name of the Node hosting this endpoint. This can
+// be used to determine endpoints local to a Node.
+func (d *EndpointDieMut) NodeName() diefields.OptionalMut[string, *EndpointDieMut] {
+	return diefields.OptionalMutOf(d, endpointFields.Get().NodeName)
+}
+
+// hints contains information associated with how an endpoint should be
+// consumed.
+func (d *EndpointDieMut) Hints() *EndpointHintsDieMut {
+	return diefields.ChildMut(d, endpointFields.Get().Hints)
+}
+
+// EndpointConditions represents the current condition of an endpoint.
+//
+// EndpointConditionsDie is immutable: it reads.
+// EndpointConditionsDieMut, its mutable die, also writes, as DieWith passes it.
+type EndpointConditionsDie struct {
+	diebase.DieBase[EndpointConditions, *EndpointConditionsDie, *EndpointConditionsDieMut]
+}
+
+// EndpointConditionsDieMut is the mutable die of EndpointConditions: see EndpointConditionsDie.
+type EndpointConditionsDieMut struct {
+	diebase.DieMutBase[EndpointConditions, *EndpointConditionsDie, *EndpointConditionsDieMut]
+}
+
+func (*EndpointConditionsDie) DieFrom(b diebase.DieBase[EndpointConditions, *EndpointConditionsDie, *EndpointConditionsDieMut]) *EndpointConditionsDie {
 	return &EndpointConditionsDie{b}
 }
 
-var _ diebase.DieOf[EndpointConditions, *EndpointConditionsDie] = (*EndpointConditionsDie)(nil)
+func (*EndpointConditionsDieMut) DieFrom(b diebase.DieMutBase[EndpointConditions, *EndpointConditionsDie, *EndpointConditionsDieMut]) *EndpointConditionsDieMut {
+	return &EndpointConditionsDieMut{b}
+}
 
-var EndpointConditionsBlank = diebase.Blank[EndpointConditions, *EndpointConditionsDie]()
+var (
+	_ diebase.DieOf[EndpointConditions, *EndpointConditionsDie, *EndpointConditionsDieMut]    = (*EndpointConditionsDie)(nil)
+	_ diebase.DieMutOf[EndpointConditions, *EndpointConditionsDie, *EndpointConditionsDieMut] = (*EndpointConditionsDieMut)(nil)
+)
+
+var EndpointConditionsBlank = diebase.Blank[EndpointConditions, *EndpointConditionsDie, *EndpointConditionsDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -184,34 +287,47 @@ func (d *EndpointConditionsDie) DieReleaseApplyConfiguration() *EndpointConditio
 	return diecodegen.ReleaseApplyConfiguration[EndpointConditionsApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *EndpointConditionsDie) DieFeedApplyConfiguration(ac *EndpointConditionsApplyConfiguration) *EndpointConditionsDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *EndpointConditionsDie) DieStampApplyConfiguration(fn func(ac *EndpointConditionsApplyConfiguration)) *EndpointConditionsDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *EndpointConditionsDie) DieReleaseApplyConfigurationE() (*EndpointConditionsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EndpointConditionsApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *EndpointConditionsDieMut) DieReleaseApplyConfiguration() *EndpointConditionsApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[EndpointConditionsApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *EndpointConditionsDieMut) DieReleaseApplyConfigurationE() (*EndpointConditionsApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[EndpointConditionsApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *EndpointConditionsDieMut) DieFeedApplyConfiguration(ac *EndpointConditionsApplyConfiguration) *EndpointConditionsDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *EndpointConditionsDieMut) DieStampApplyConfiguration(fn func(ac *EndpointConditionsApplyConfiguration)) *EndpointConditionsDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *EndpointConditionsDie) DieFeedApplyConfigurationE(ac *EndpointConditionsApplyConfiguration) (*EndpointConditionsDie, error) {
+func (d *EndpointConditionsDieMut) DieFeedApplyConfigurationE(ac *EndpointConditionsApplyConfiguration) (*EndpointConditionsDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *EndpointConditionsDie) DieStampApplyConfigurationE(fn func(ac *EndpointConditionsApplyConfiguration)) (*EndpointConditionsDie, error) {
+func (d *EndpointConditionsDieMut) DieStampApplyConfigurationE(fn func(ac *EndpointConditionsApplyConfiguration)) (*EndpointConditionsDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -234,7 +350,7 @@ var endpointConditionsFields = &diefields.Table[endpointConditionsFieldsTable]{B
 // indicates an unknown state. In most cases consumers should interpret this
 // unknown state as ready. For compatibility reasons, ready should never be
 // "true" for terminating endpoints.
-func (d *EndpointConditionsDie) Ready() diefields.Optional[bool, *EndpointConditionsDie] {
+func (d *EndpointConditionsDie) Ready() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, endpointConditionsFields.Get().Ready)
 }
 
@@ -242,29 +358,68 @@ func (d *EndpointConditionsDie) Ready() diefields.Optional[bool, *EndpointCondit
 // terminating state of endpoints. This condition should be set to true for
 // a ready endpoint that is terminating. If nil, consumers should defer to
 // the ready condition.
-func (d *EndpointConditionsDie) Serving() diefields.Optional[bool, *EndpointConditionsDie] {
+func (d *EndpointConditionsDie) Serving() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, endpointConditionsFields.Get().Serving)
 }
 
 // terminating indicates that this endpoint is terminating. A nil value
 // indicates an unknown state. Consumers should interpret this unknown state
 // to mean that the endpoint is not terminating.
-func (d *EndpointConditionsDie) Terminating() diefields.Optional[bool, *EndpointConditionsDie] {
+func (d *EndpointConditionsDie) Terminating() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, endpointConditionsFields.Get().Terminating)
 }
 
-// EndpointHints provides hints describing how an endpoint should be consumed.
-type EndpointHintsDie struct {
-	diebase.DieBase[EndpointHints, *EndpointHintsDie]
+// ready indicates that this endpoint is prepared to receive traffic,
+// according to whatever system is managing the endpoint. A nil value
+// indicates an unknown state. In most cases consumers should interpret this
+// unknown state as ready. For compatibility reasons, ready should never be
+// "true" for terminating endpoints.
+func (d *EndpointConditionsDieMut) Ready() diefields.OptionalMut[bool, *EndpointConditionsDieMut] {
+	return diefields.OptionalMutOf(d, endpointConditionsFields.Get().Ready)
 }
 
-func (*EndpointHintsDie) DieFrom(b diebase.DieBase[EndpointHints, *EndpointHintsDie]) *EndpointHintsDie {
+// serving is identical to ready except that it is set regardless of the
+// terminating state of endpoints. This condition should be set to true for
+// a ready endpoint that is terminating. If nil, consumers should defer to
+// the ready condition.
+func (d *EndpointConditionsDieMut) Serving() diefields.OptionalMut[bool, *EndpointConditionsDieMut] {
+	return diefields.OptionalMutOf(d, endpointConditionsFields.Get().Serving)
+}
+
+// terminating indicates that this endpoint is terminating. A nil value
+// indicates an unknown state. Consumers should interpret this unknown state
+// to mean that the endpoint is not terminating.
+func (d *EndpointConditionsDieMut) Terminating() diefields.OptionalMut[bool, *EndpointConditionsDieMut] {
+	return diefields.OptionalMutOf(d, endpointConditionsFields.Get().Terminating)
+}
+
+// EndpointHints provides hints describing how an endpoint should be consumed.
+//
+// EndpointHintsDie is immutable: it reads.
+// EndpointHintsDieMut, its mutable die, also writes, as DieWith passes it.
+type EndpointHintsDie struct {
+	diebase.DieBase[EndpointHints, *EndpointHintsDie, *EndpointHintsDieMut]
+}
+
+// EndpointHintsDieMut is the mutable die of EndpointHints: see EndpointHintsDie.
+type EndpointHintsDieMut struct {
+	diebase.DieMutBase[EndpointHints, *EndpointHintsDie, *EndpointHintsDieMut]
+}
+
+func (*EndpointHintsDie) DieFrom(b diebase.DieBase[EndpointHints, *EndpointHintsDie, *EndpointHintsDieMut]) *EndpointHintsDie {
 	return &EndpointHintsDie{b}
 }
 
-var _ diebase.DieOf[EndpointHints, *EndpointHintsDie] = (*EndpointHintsDie)(nil)
+func (*EndpointHintsDieMut) DieFrom(b diebase.DieMutBase[EndpointHints, *EndpointHintsDie, *EndpointHintsDieMut]) *EndpointHintsDieMut {
+	return &EndpointHintsDieMut{b}
+}
 
-var EndpointHintsBlank = diebase.Blank[EndpointHints, *EndpointHintsDie]()
+var (
+	_ diebase.DieOf[EndpointHints, *EndpointHintsDie, *EndpointHintsDieMut]    = (*EndpointHintsDie)(nil)
+	_ diebase.DieMutOf[EndpointHints, *EndpointHintsDie, *EndpointHintsDieMut] = (*EndpointHintsDieMut)(nil)
+)
+
+var EndpointHintsBlank = diebase.Blank[EndpointHints, *EndpointHintsDie, *EndpointHintsDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -273,34 +428,47 @@ func (d *EndpointHintsDie) DieReleaseApplyConfiguration() *EndpointHintsApplyCon
 	return diecodegen.ReleaseApplyConfiguration[EndpointHintsApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *EndpointHintsDie) DieFeedApplyConfiguration(ac *EndpointHintsApplyConfiguration) *EndpointHintsDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *EndpointHintsDie) DieStampApplyConfiguration(fn func(ac *EndpointHintsApplyConfiguration)) *EndpointHintsDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *EndpointHintsDie) DieReleaseApplyConfigurationE() (*EndpointHintsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EndpointHintsApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *EndpointHintsDieMut) DieReleaseApplyConfiguration() *EndpointHintsApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[EndpointHintsApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *EndpointHintsDieMut) DieReleaseApplyConfigurationE() (*EndpointHintsApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[EndpointHintsApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *EndpointHintsDieMut) DieFeedApplyConfiguration(ac *EndpointHintsApplyConfiguration) *EndpointHintsDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *EndpointHintsDieMut) DieStampApplyConfiguration(fn func(ac *EndpointHintsApplyConfiguration)) *EndpointHintsDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *EndpointHintsDie) DieFeedApplyConfigurationE(ac *EndpointHintsApplyConfiguration) (*EndpointHintsDie, error) {
+func (d *EndpointHintsDieMut) DieFeedApplyConfigurationE(ac *EndpointHintsApplyConfiguration) (*EndpointHintsDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *EndpointHintsDie) DieStampApplyConfigurationE(fn func(ac *EndpointHintsApplyConfiguration)) (*EndpointHintsDie, error) {
+func (d *EndpointHintsDieMut) DieStampApplyConfigurationE(fn func(ac *EndpointHintsApplyConfiguration)) (*EndpointHintsDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -318,28 +486,55 @@ var endpointHintsFields = &diefields.Table[endpointHintsFieldsTable]{Build: func
 
 // forZones indicates the zone(s) this endpoint should be consumed by to
 // enable topology aware routing. May contain a maximum of 8 entries.
-func (d *EndpointHintsDie) ForZones() diefields.Value[[]ForZone, *EndpointHintsDie] {
+func (d *EndpointHintsDie) ForZones() diefields.Value[[]ForZone] {
 	return diefields.ValueOf(d, endpointHintsFields.Get().ForZones)
 }
 
 // forNodes indicates the node(s) this endpoint should be consumed by when
 // using topology aware routing. May contain a maximum of 8 entries.
-func (d *EndpointHintsDie) ForNodes() diefields.Value[[]ForNode, *EndpointHintsDie] {
+func (d *EndpointHintsDie) ForNodes() diefields.Value[[]ForNode] {
 	return diefields.ValueOf(d, endpointHintsFields.Get().ForNodes)
 }
 
-// EndpointPort represents a Port used by an EndpointSlice
-type EndpointPortDie struct {
-	diebase.DieBase[EndpointPort, *EndpointPortDie]
+// forZones indicates the zone(s) this endpoint should be consumed by to
+// enable topology aware routing. May contain a maximum of 8 entries.
+func (d *EndpointHintsDieMut) ForZones() diefields.ValueMut[[]ForZone, *EndpointHintsDieMut] {
+	return diefields.ValueMutOf(d, endpointHintsFields.Get().ForZones)
 }
 
-func (*EndpointPortDie) DieFrom(b diebase.DieBase[EndpointPort, *EndpointPortDie]) *EndpointPortDie {
+// forNodes indicates the node(s) this endpoint should be consumed by when
+// using topology aware routing. May contain a maximum of 8 entries.
+func (d *EndpointHintsDieMut) ForNodes() diefields.ValueMut[[]ForNode, *EndpointHintsDieMut] {
+	return diefields.ValueMutOf(d, endpointHintsFields.Get().ForNodes)
+}
+
+// EndpointPort represents a Port used by an EndpointSlice
+//
+// EndpointPortDie is immutable: it reads.
+// EndpointPortDieMut, its mutable die, also writes, as DieWith passes it.
+type EndpointPortDie struct {
+	diebase.DieBase[EndpointPort, *EndpointPortDie, *EndpointPortDieMut]
+}
+
+// EndpointPortDieMut is the mutable die of EndpointPort: see EndpointPortDie.
+type EndpointPortDieMut struct {
+	diebase.DieMutBase[EndpointPort, *EndpointPortDie, *EndpointPortDieMut]
+}
+
+func (*EndpointPortDie) DieFrom(b diebase.DieBase[EndpointPort, *EndpointPortDie, *EndpointPortDieMut]) *EndpointPortDie {
 	return &EndpointPortDie{b}
 }
 
-var _ diebase.DieOf[EndpointPort, *EndpointPortDie] = (*EndpointPortDie)(nil)
+func (*EndpointPortDieMut) DieFrom(b diebase.DieMutBase[EndpointPort, *EndpointPortDie, *EndpointPortDieMut]) *EndpointPortDieMut {
+	return &EndpointPortDieMut{b}
+}
 
-var EndpointPortBlank = diebase.Blank[EndpointPort, *EndpointPortDie]()
+var (
+	_ diebase.DieOf[EndpointPort, *EndpointPortDie, *EndpointPortDieMut]    = (*EndpointPortDie)(nil)
+	_ diebase.DieMutOf[EndpointPort, *EndpointPortDie, *EndpointPortDieMut] = (*EndpointPortDieMut)(nil)
+)
+
+var EndpointPortBlank = diebase.Blank[EndpointPort, *EndpointPortDie, *EndpointPortDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -348,34 +543,47 @@ func (d *EndpointPortDie) DieReleaseApplyConfiguration() *EndpointPortApplyConfi
 	return diecodegen.ReleaseApplyConfiguration[EndpointPortApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *EndpointPortDie) DieFeedApplyConfiguration(ac *EndpointPortApplyConfiguration) *EndpointPortDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *EndpointPortDie) DieStampApplyConfiguration(fn func(ac *EndpointPortApplyConfiguration)) *EndpointPortDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *EndpointPortDie) DieReleaseApplyConfigurationE() (*EndpointPortApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EndpointPortApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *EndpointPortDieMut) DieReleaseApplyConfiguration() *EndpointPortApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[EndpointPortApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *EndpointPortDieMut) DieReleaseApplyConfigurationE() (*EndpointPortApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[EndpointPortApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *EndpointPortDieMut) DieFeedApplyConfiguration(ac *EndpointPortApplyConfiguration) *EndpointPortDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *EndpointPortDieMut) DieStampApplyConfiguration(fn func(ac *EndpointPortApplyConfiguration)) *EndpointPortDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *EndpointPortDie) DieFeedApplyConfigurationE(ac *EndpointPortApplyConfiguration) (*EndpointPortDie, error) {
+func (d *EndpointPortDieMut) DieFeedApplyConfigurationE(ac *EndpointPortApplyConfiguration) (*EndpointPortDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *EndpointPortDie) DieStampApplyConfigurationE(fn func(ac *EndpointPortApplyConfiguration)) (*EndpointPortDie, error) {
+func (d *EndpointPortDieMut) DieStampApplyConfigurationE(fn func(ac *EndpointPortApplyConfiguration)) (*EndpointPortDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -402,21 +610,21 @@ var endpointPortFields = &diefields.Table[endpointPortFieldsTable]{Build: func()
 // * must consist of lower case alphanumeric characters or '-'.
 // * must start and end with an alphanumeric character.
 // Default is empty string.
-func (d *EndpointPortDie) Name() diefields.Optional[string, *EndpointPortDie] {
+func (d *EndpointPortDie) Name() diefields.Optional[string] {
 	return diefields.OptionalOf(d, endpointPortFields.Get().Name)
 }
 
 // protocol represents the IP protocol for this port.
 // Must be UDP, TCP, or SCTP.
 // Default is TCP.
-func (d *EndpointPortDie) Protocol() diefields.Optional[diecorev1.Protocol, *EndpointPortDie] {
+func (d *EndpointPortDie) Protocol() diefields.Optional[diecorev1.Protocol] {
 	return diefields.OptionalOf(d, endpointPortFields.Get().Protocol)
 }
 
 // port represents the port number of the endpoint.
 // If this is not specified, ports are not restricted and must be
 // interpreted in the context of the specific consumer.
-func (d *EndpointPortDie) Port() diefields.Optional[int32, *EndpointPortDie] {
+func (d *EndpointPortDie) Port() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, endpointPortFields.Get().Port)
 }
 
@@ -426,24 +634,74 @@ func (d *EndpointPortDie) Port() diefields.Optional[int32, *EndpointPortDie] {
 // RFC-6335 and https://www.iana.org/assignments/service-names).
 // Non-standard protocols should use prefixed names such as
 // mycompany.com/my-custom-protocol.
-func (d *EndpointPortDie) AppProtocol() diefields.Optional[string, *EndpointPortDie] {
+func (d *EndpointPortDie) AppProtocol() diefields.Optional[string] {
 	return diefields.OptionalOf(d, endpointPortFields.Get().AppProtocol)
+}
+
+// name represents the name of this port. All ports in an EndpointSlice must have a unique name.
+// If the EndpointSlice is derived from a Kubernetes service, this corresponds to the Service.ports[].name.
+// Name must either be an empty string or pass DNS_LABEL validation:
+// * must be no more than 63 characters long.
+// * must consist of lower case alphanumeric characters or '-'.
+// * must start and end with an alphanumeric character.
+// Default is empty string.
+func (d *EndpointPortDieMut) Name() diefields.OptionalMut[string, *EndpointPortDieMut] {
+	return diefields.OptionalMutOf(d, endpointPortFields.Get().Name)
+}
+
+// protocol represents the IP protocol for this port.
+// Must be UDP, TCP, or SCTP.
+// Default is TCP.
+func (d *EndpointPortDieMut) Protocol() diefields.OptionalMut[diecorev1.Protocol, *EndpointPortDieMut] {
+	return diefields.OptionalMutOf(d, endpointPortFields.Get().Protocol)
+}
+
+// port represents the port number of the endpoint.
+// If this is not specified, ports are not restricted and must be
+// interpreted in the context of the specific consumer.
+func (d *EndpointPortDieMut) Port() diefields.OptionalMut[int32, *EndpointPortDieMut] {
+	return diefields.OptionalMutOf(d, endpointPortFields.Get().Port)
+}
+
+// appProtocol represents the application protocol for this port.
+// This field follows standard Kubernetes label syntax.
+// Un-prefixed names are reserved for IANA standard service names (as per
+// RFC-6335 and https://www.iana.org/assignments/service-names).
+// Non-standard protocols should use prefixed names such as
+// mycompany.com/my-custom-protocol.
+func (d *EndpointPortDieMut) AppProtocol() diefields.OptionalMut[string, *EndpointPortDieMut] {
+	return diefields.OptionalMutOf(d, endpointPortFields.Get().AppProtocol)
 }
 
 // EndpointSlice represents a subset of the endpoints that implement a service.
 // For a given service there may be multiple EndpointSlice objects, selected by
 // labels, which must be joined to produce the full set of endpoints.
+//
+// EndpointSliceDie is immutable: it reads.
+// EndpointSliceDieMut, its mutable die, also writes, as DieWith passes it.
 type EndpointSliceDie struct {
-	diebase.DieObjectBase[EndpointSlice, *EndpointSliceDie]
+	diebase.DieObjectBase[EndpointSlice, *EndpointSliceDie, *EndpointSliceDieMut]
 }
 
-func (*EndpointSliceDie) DieFrom(b diebase.DieBase[EndpointSlice, *EndpointSliceDie]) *EndpointSliceDie {
+// EndpointSliceDieMut is the mutable die of EndpointSlice: see EndpointSliceDie.
+type EndpointSliceDieMut struct {
+	diebase.DieObjectMutBase[EndpointSlice, *EndpointSliceDie, *EndpointSliceDieMut]
+}
+
+func (*EndpointSliceDie) DieFrom(b diebase.DieBase[EndpointSlice, *EndpointSliceDie, *EndpointSliceDieMut]) *EndpointSliceDie {
 	return &EndpointSliceDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[EndpointSlice, *EndpointSliceDie] = (*EndpointSliceDie)(nil)
+func (*EndpointSliceDieMut) DieFrom(b diebase.DieMutBase[EndpointSlice, *EndpointSliceDie, *EndpointSliceDieMut]) *EndpointSliceDieMut {
+	return &EndpointSliceDieMut{diebase.AsObjectMut(b)}
+}
 
-var EndpointSliceBlank = diebase.BlankOf[EndpointSlice, *EndpointSliceDie](EndpointSlice{TypeMeta: metav1.TypeMeta{APIVersion: "discovery.k8s.io/v1beta1", Kind: "EndpointSlice"}})
+var (
+	_ dieobjects.DieObjectOf[EndpointSlice, *EndpointSliceDie, *EndpointSliceDieMut]    = (*EndpointSliceDie)(nil)
+	_ dieobjects.DieObjectMutOf[EndpointSlice, *EndpointSliceDie, *EndpointSliceDieMut] = (*EndpointSliceDieMut)(nil)
+)
+
+var EndpointSliceBlank = diebase.BlankOf[EndpointSlice, *EndpointSliceDie, *EndpointSliceDieMut](EndpointSlice{TypeMeta: metav1.TypeMeta{APIVersion: "discovery.k8s.io/v1beta1", Kind: "EndpointSlice"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -452,41 +710,54 @@ func (d *EndpointSliceDie) DieReleaseApplyConfiguration() *EndpointSliceApplyCon
 	return diecodegen.ReleaseApplyConfiguration[EndpointSliceApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *EndpointSliceDie) DieFeedApplyConfiguration(ac *EndpointSliceApplyConfiguration) *EndpointSliceDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *EndpointSliceDie) DieStampApplyConfiguration(fn func(ac *EndpointSliceApplyConfiguration)) *EndpointSliceDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *EndpointSliceDie) DieReleaseApplyConfigurationE() (*EndpointSliceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EndpointSliceApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *EndpointSliceDieMut) DieReleaseApplyConfiguration() *EndpointSliceApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[EndpointSliceApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *EndpointSliceDieMut) DieReleaseApplyConfigurationE() (*EndpointSliceApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[EndpointSliceApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *EndpointSliceDieMut) DieFeedApplyConfiguration(ac *EndpointSliceApplyConfiguration) *EndpointSliceDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *EndpointSliceDieMut) DieStampApplyConfiguration(fn func(ac *EndpointSliceApplyConfiguration)) *EndpointSliceDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *EndpointSliceDie) DieFeedApplyConfigurationE(ac *EndpointSliceApplyConfiguration) (*EndpointSliceDie, error) {
+func (d *EndpointSliceDieMut) DieFeedApplyConfigurationE(ac *EndpointSliceApplyConfiguration) (*EndpointSliceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *EndpointSliceDie) DieStampApplyConfigurationE(fn func(ac *EndpointSliceApplyConfiguration)) (*EndpointSliceDie, error) {
+func (d *EndpointSliceDieMut) DieStampApplyConfigurationE(fn func(ac *EndpointSliceApplyConfiguration)) (*EndpointSliceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type endpointSliceFieldsTable struct {
 	Kind        diefields.Field[EndpointSlice, string]
 	APIVersion  diefields.Field[EndpointSlice, string]
-	Metadata    diefields.Struct[EndpointSlice, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
+	Metadata    diefields.Struct[EndpointSlice, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
 	AddressType diefields.Field[EndpointSlice, AddressType]
 	Endpoints   diefields.Field[EndpointSlice, []Endpoint]
 	Ports       diefields.Field[EndpointSlice, []EndpointPort]
@@ -496,7 +767,7 @@ var endpointSliceFields = &diefields.Table[endpointSliceFieldsTable]{Build: func
 	_ = annotated
 	f.Kind = diefields.NewField[EndpointSlice, string]("kind")
 	f.APIVersion = diefields.NewField[EndpointSlice, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[EndpointSlice, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
+	f.Metadata = diefields.NewStruct[EndpointSlice, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
 	f.AddressType = diefields.NewField[EndpointSlice, AddressType]("addressType")
 	f.Endpoints = diefields.NewField[EndpointSlice, []Endpoint]("endpoints")
 	f.Ports = diefields.NewField[EndpointSlice, []EndpointPort]("ports")
@@ -508,7 +779,7 @@ var endpointSliceFields = &diefields.Table[endpointSliceFieldsTable]{Build: func
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *EndpointSliceDie) Kind() diefields.Value[string, *EndpointSliceDie] {
+func (d *EndpointSliceDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, endpointSliceFields.Get().Kind)
 }
 
@@ -516,7 +787,7 @@ func (d *EndpointSliceDie) Kind() diefields.Value[string, *EndpointSliceDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *EndpointSliceDie) APIVersion() diefields.Value[string, *EndpointSliceDie] {
+func (d *EndpointSliceDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, endpointSliceFields.Get().APIVersion)
 }
 
@@ -532,13 +803,13 @@ func (d *EndpointSliceDie) Metadata() *diemetav1.ObjectMetaDie {
 // * IPv4: Represents an IPv4 Address.
 // * IPv6: Represents an IPv6 Address.
 // * FQDN: Represents a Fully Qualified Domain Name.
-func (d *EndpointSliceDie) AddressType() diefields.Value[AddressType, *EndpointSliceDie] {
+func (d *EndpointSliceDie) AddressType() diefields.Value[AddressType] {
 	return diefields.ValueOf(d, endpointSliceFields.Get().AddressType)
 }
 
 // endpoints is a list of unique endpoints in this slice. Each slice may
 // include a maximum of 1000 endpoints.
-func (d *EndpointSliceDie) Endpoints() diefields.Value[[]Endpoint, *EndpointSliceDie] {
+func (d *EndpointSliceDie) Endpoints() diefields.Value[[]Endpoint] {
 	return diefields.ValueOf(d, endpointSliceFields.Get().Endpoints)
 }
 
@@ -547,19 +818,67 @@ func (d *EndpointSliceDie) Endpoints() diefields.Value[[]Endpoint, *EndpointSlic
 // indicates that there are no defined ports. When a port is defined with a
 // nil port value, it indicates "all ports". Each slice may include a
 // maximum of 100 ports.
-func (d *EndpointSliceDie) Ports() diefields.Value[[]EndpointPort, *EndpointSliceDie] {
+func (d *EndpointSliceDie) Ports() diefields.Value[[]EndpointPort] {
 	return diefields.ValueOf(d, endpointSliceFields.Get().Ports)
+}
+
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *EndpointSliceDieMut) Kind() diefields.ValueMut[string, *EndpointSliceDieMut] {
+	return diefields.ValueMutOf(d, endpointSliceFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *EndpointSliceDieMut) APIVersion() diefields.ValueMut[string, *EndpointSliceDieMut] {
+	return diefields.ValueMutOf(d, endpointSliceFields.Get().APIVersion)
+}
+
+// Standard object's metadata.
+func (d *EndpointSliceDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, endpointSliceFields.Get().Metadata)
+}
+
+// addressType specifies the type of address carried by this EndpointSlice.
+// All addresses in this slice must be the same type. This field is
+// immutable after creation. The following address types are currently
+// supported:
+// * IPv4: Represents an IPv4 Address.
+// * IPv6: Represents an IPv6 Address.
+// * FQDN: Represents a Fully Qualified Domain Name.
+func (d *EndpointSliceDieMut) AddressType() diefields.ValueMut[AddressType, *EndpointSliceDieMut] {
+	return diefields.ValueMutOf(d, endpointSliceFields.Get().AddressType)
+}
+
+// endpoints is a list of unique endpoints in this slice. Each slice may
+// include a maximum of 1000 endpoints.
+func (d *EndpointSliceDieMut) Endpoints() diefields.ValueMut[[]Endpoint, *EndpointSliceDieMut] {
+	return diefields.ValueMutOf(d, endpointSliceFields.Get().Endpoints)
+}
+
+// ports specifies the list of network ports exposed by each endpoint in
+// this slice. Each port must have a unique name. When ports is empty, it
+// indicates that there are no defined ports. When a port is defined with a
+// nil port value, it indicates "all ports". Each slice may include a
+// maximum of 100 ports.
+func (d *EndpointSliceDieMut) Ports() diefields.ValueMut[[]EndpointPort, *EndpointSliceDieMut] {
+	return diefields.ValueMutOf(d, endpointSliceFields.Get().Ports)
 }
 
 // EndpointSliceList represents a list of endpoint slices
 type EndpointSliceListDie struct {
-	dielists.List[*EndpointSliceDie]
+	dielists.List[*EndpointSliceDieMut]
 }
 
-var _ dielists.DieListOf[*EndpointSliceDie] = (*EndpointSliceListDie)(nil)
+var _ dielists.DieListOf[*EndpointSliceDieMut] = (*EndpointSliceListDie)(nil)
 
 // NewEndpointSliceList returns a list with items.
-func NewEndpointSliceList(items ...*EndpointSliceDie) *EndpointSliceListDie {
+func NewEndpointSliceList(items ...*EndpointSliceDieMut) *EndpointSliceListDie {
 	return &EndpointSliceListDie{dielists.NewList("discovery.k8s.io/v1beta1", "EndpointSliceList", items...)}
 }
 
@@ -571,17 +890,32 @@ func (l *EndpointSliceListDie) DeepCopy() *EndpointSliceListDie {
 func (l *EndpointSliceListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // ForNode provides information about which nodes should consume this endpoint.
+//
+// ForNodeDie is immutable: it reads.
+// ForNodeDieMut, its mutable die, also writes, as DieWith passes it.
 type ForNodeDie struct {
-	diebase.DieBase[ForNode, *ForNodeDie]
+	diebase.DieBase[ForNode, *ForNodeDie, *ForNodeDieMut]
 }
 
-func (*ForNodeDie) DieFrom(b diebase.DieBase[ForNode, *ForNodeDie]) *ForNodeDie {
+// ForNodeDieMut is the mutable die of ForNode: see ForNodeDie.
+type ForNodeDieMut struct {
+	diebase.DieMutBase[ForNode, *ForNodeDie, *ForNodeDieMut]
+}
+
+func (*ForNodeDie) DieFrom(b diebase.DieBase[ForNode, *ForNodeDie, *ForNodeDieMut]) *ForNodeDie {
 	return &ForNodeDie{b}
 }
 
-var _ diebase.DieOf[ForNode, *ForNodeDie] = (*ForNodeDie)(nil)
+func (*ForNodeDieMut) DieFrom(b diebase.DieMutBase[ForNode, *ForNodeDie, *ForNodeDieMut]) *ForNodeDieMut {
+	return &ForNodeDieMut{b}
+}
 
-var ForNodeBlank = diebase.Blank[ForNode, *ForNodeDie]()
+var (
+	_ diebase.DieOf[ForNode, *ForNodeDie, *ForNodeDieMut]    = (*ForNodeDie)(nil)
+	_ diebase.DieMutOf[ForNode, *ForNodeDie, *ForNodeDieMut] = (*ForNodeDieMut)(nil)
+)
+
+var ForNodeBlank = diebase.Blank[ForNode, *ForNodeDie, *ForNodeDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -590,34 +924,47 @@ func (d *ForNodeDie) DieReleaseApplyConfiguration() *ForNodeApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[ForNodeApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ForNodeDie) DieFeedApplyConfiguration(ac *ForNodeApplyConfiguration) *ForNodeDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ForNodeDie) DieStampApplyConfiguration(fn func(ac *ForNodeApplyConfiguration)) *ForNodeDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ForNodeDie) DieReleaseApplyConfigurationE() (*ForNodeApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ForNodeApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ForNodeDieMut) DieReleaseApplyConfiguration() *ForNodeApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ForNodeApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ForNodeDieMut) DieReleaseApplyConfigurationE() (*ForNodeApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ForNodeApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ForNodeDieMut) DieFeedApplyConfiguration(ac *ForNodeApplyConfiguration) *ForNodeDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ForNodeDieMut) DieStampApplyConfiguration(fn func(ac *ForNodeApplyConfiguration)) *ForNodeDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ForNodeDie) DieFeedApplyConfigurationE(ac *ForNodeApplyConfiguration) (*ForNodeDie, error) {
+func (d *ForNodeDieMut) DieFeedApplyConfigurationE(ac *ForNodeApplyConfiguration) (*ForNodeDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ForNodeDie) DieStampApplyConfigurationE(fn func(ac *ForNodeApplyConfiguration)) (*ForNodeDie, error) {
+func (d *ForNodeDieMut) DieStampApplyConfigurationE(fn func(ac *ForNodeApplyConfiguration)) (*ForNodeDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -632,22 +979,42 @@ var forNodeFields = &diefields.Table[forNodeFieldsTable]{Build: func() (f forNod
 }}
 
 // name represents the name of the node.
-func (d *ForNodeDie) Name() diefields.Value[string, *ForNodeDie] {
+func (d *ForNodeDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, forNodeFields.Get().Name)
 }
 
-// ForZone provides information about which zones should consume this endpoint.
-type ForZoneDie struct {
-	diebase.DieBase[ForZone, *ForZoneDie]
+// name represents the name of the node.
+func (d *ForNodeDieMut) Name() diefields.ValueMut[string, *ForNodeDieMut] {
+	return diefields.ValueMutOf(d, forNodeFields.Get().Name)
 }
 
-func (*ForZoneDie) DieFrom(b diebase.DieBase[ForZone, *ForZoneDie]) *ForZoneDie {
+// ForZone provides information about which zones should consume this endpoint.
+//
+// ForZoneDie is immutable: it reads.
+// ForZoneDieMut, its mutable die, also writes, as DieWith passes it.
+type ForZoneDie struct {
+	diebase.DieBase[ForZone, *ForZoneDie, *ForZoneDieMut]
+}
+
+// ForZoneDieMut is the mutable die of ForZone: see ForZoneDie.
+type ForZoneDieMut struct {
+	diebase.DieMutBase[ForZone, *ForZoneDie, *ForZoneDieMut]
+}
+
+func (*ForZoneDie) DieFrom(b diebase.DieBase[ForZone, *ForZoneDie, *ForZoneDieMut]) *ForZoneDie {
 	return &ForZoneDie{b}
 }
 
-var _ diebase.DieOf[ForZone, *ForZoneDie] = (*ForZoneDie)(nil)
+func (*ForZoneDieMut) DieFrom(b diebase.DieMutBase[ForZone, *ForZoneDie, *ForZoneDieMut]) *ForZoneDieMut {
+	return &ForZoneDieMut{b}
+}
 
-var ForZoneBlank = diebase.Blank[ForZone, *ForZoneDie]()
+var (
+	_ diebase.DieOf[ForZone, *ForZoneDie, *ForZoneDieMut]    = (*ForZoneDie)(nil)
+	_ diebase.DieMutOf[ForZone, *ForZoneDie, *ForZoneDieMut] = (*ForZoneDieMut)(nil)
+)
+
+var ForZoneBlank = diebase.Blank[ForZone, *ForZoneDie, *ForZoneDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -656,34 +1023,47 @@ func (d *ForZoneDie) DieReleaseApplyConfiguration() *ForZoneApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[ForZoneApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ForZoneDie) DieFeedApplyConfiguration(ac *ForZoneApplyConfiguration) *ForZoneDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ForZoneDie) DieStampApplyConfiguration(fn func(ac *ForZoneApplyConfiguration)) *ForZoneDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ForZoneDie) DieReleaseApplyConfigurationE() (*ForZoneApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ForZoneApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ForZoneDieMut) DieReleaseApplyConfiguration() *ForZoneApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ForZoneApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ForZoneDieMut) DieReleaseApplyConfigurationE() (*ForZoneApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ForZoneApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ForZoneDieMut) DieFeedApplyConfiguration(ac *ForZoneApplyConfiguration) *ForZoneDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ForZoneDieMut) DieStampApplyConfiguration(fn func(ac *ForZoneApplyConfiguration)) *ForZoneDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ForZoneDie) DieFeedApplyConfigurationE(ac *ForZoneApplyConfiguration) (*ForZoneDie, error) {
+func (d *ForZoneDieMut) DieFeedApplyConfigurationE(ac *ForZoneApplyConfiguration) (*ForZoneDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ForZoneDie) DieStampApplyConfigurationE(fn func(ac *ForZoneApplyConfiguration)) (*ForZoneDie, error) {
+func (d *ForZoneDieMut) DieStampApplyConfigurationE(fn func(ac *ForZoneApplyConfiguration)) (*ForZoneDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -698,22 +1078,27 @@ var forZoneFields = &diefields.Table[forZoneFieldsTable]{Build: func() (f forZon
 }}
 
 // name represents the name of the zone.
-func (d *ForZoneDie) Name() diefields.Value[string, *ForZoneDie] {
+func (d *ForZoneDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, forZoneFields.Get().Name)
+}
+
+// name represents the name of the zone.
+func (d *ForZoneDieMut) Name() diefields.ValueMut[string, *ForZoneDieMut] {
+	return diefields.ValueMutOf(d, forZoneFields.Get().Name)
 }
 
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "discovery.k8s.io", Version: "v1beta1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("EndpointSlice"), &EndpointSliceDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("EndpointSlice"), &EndpointSliceDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("EndpointSliceList"), &EndpointSliceListDie{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

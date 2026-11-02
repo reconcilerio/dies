@@ -25,14 +25,22 @@ import (
 // ObjectMeta
 
 type ObjectMetaDie struct {
-	base.DieBase[ObjectMeta, *ObjectMetaDie]
+	base.DieBase[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]
 }
 
-func (*ObjectMetaDie) DieFrom(b base.DieBase[ObjectMeta, *ObjectMetaDie]) *ObjectMetaDie {
+type ObjectMetaDieMut struct {
+	base.DieMutBase[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]
+}
+
+func (*ObjectMetaDie) DieFrom(b base.DieBase[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]) *ObjectMetaDie {
 	return &ObjectMetaDie{b}
 }
 
-var ObjectMetaBlank = base.Blank[ObjectMeta, *ObjectMetaDie]()
+func (*ObjectMetaDieMut) DieFrom(b base.DieMutBase[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]) *ObjectMetaDieMut {
+	return &ObjectMetaDieMut{b}
+}
+
+var ObjectMetaBlank = base.Blank[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]()
 
 var objectMetaFields = struct {
 	Name        fields.Field[ObjectMeta, string]
@@ -48,37 +56,65 @@ var objectMetaFields = struct {
 	Annotations: fields.NewMap[ObjectMeta, string, string]("annotations"),
 }
 
-func (d *ObjectMetaDie) Name() die.Value[string, *ObjectMetaDie] {
+func (d *ObjectMetaDie) Name() die.Value[string] {
 	return fields.ValueOf(d, objectMetaFields.Name)
 }
 
-func (d *ObjectMetaDie) Namespace() die.Value[string, *ObjectMetaDie] {
+func (d *ObjectMetaDieMut) Name() die.ValueMut[string, *ObjectMetaDieMut] {
+	return fields.ValueMutOf(d, objectMetaFields.Name)
+}
+
+func (d *ObjectMetaDie) Namespace() die.Value[string] {
 	return fields.ValueOf(d, objectMetaFields.Namespace)
 }
 
-func (d *ObjectMetaDie) Generation() die.Value[int64, *ObjectMetaDie] {
+func (d *ObjectMetaDieMut) Namespace() die.ValueMut[string, *ObjectMetaDieMut] {
+	return fields.ValueMutOf(d, objectMetaFields.Namespace)
+}
+
+func (d *ObjectMetaDie) Generation() die.Value[int64] {
 	return fields.ValueOf(d, objectMetaFields.Generation)
+}
+
+func (d *ObjectMetaDieMut) Generation() die.ValueMut[int64, *ObjectMetaDieMut] {
+	return fields.ValueMutOf(d, objectMetaFields.Generation)
 }
 
 func (d *ObjectMetaDie) Labels() *die.Map[string, string] {
 	return fields.MapOf(d, objectMetaFields.Labels)
 }
 
+func (d *ObjectMetaDieMut) Labels() *die.MapMut[string, string] {
+	return fields.MapMutOf(d, objectMetaFields.Labels)
+}
+
 func (d *ObjectMetaDie) Annotations() *die.Map[string, string] {
 	return fields.MapOf(d, objectMetaFields.Annotations)
+}
+
+func (d *ObjectMetaDieMut) Annotations() *die.MapMut[string, string] {
+	return fields.MapMutOf(d, objectMetaFields.Annotations)
 }
 
 // Condition
 
 type ConditionDie struct {
-	base.DieBase[Condition, *ConditionDie]
+	base.DieBase[Condition, *ConditionDie, *ConditionDieMut]
 }
 
-func (*ConditionDie) DieFrom(b base.DieBase[Condition, *ConditionDie]) *ConditionDie {
+type ConditionDieMut struct {
+	base.DieMutBase[Condition, *ConditionDie, *ConditionDieMut]
+}
+
+func (*ConditionDie) DieFrom(b base.DieBase[Condition, *ConditionDie, *ConditionDieMut]) *ConditionDie {
 	return &ConditionDie{b}
 }
 
-var ConditionBlank = base.Blank[Condition, *ConditionDie]()
+func (*ConditionDieMut) DieFrom(b base.DieMutBase[Condition, *ConditionDie, *ConditionDieMut]) *ConditionDieMut {
+	return &ConditionDieMut{b}
+}
+
+var ConditionBlank = base.Blank[Condition, *ConditionDie, *ConditionDieMut]()
 
 var conditionFields = struct {
 	Type               fields.Field[Condition, string]
@@ -94,27 +130,47 @@ var conditionFields = struct {
 	Message:            fields.NewField[Condition, string]("message"),
 }
 
-func (d *ConditionDie) Type() die.Value[string, *ConditionDie] {
+func (d *ConditionDie) Type() die.Value[string] {
 	return fields.ValueOf(d, conditionFields.Type)
 }
 
-func (d *ConditionDie) Status() die.Value[string, *ConditionDie] {
+func (d *ConditionDieMut) Type() die.ValueMut[string, *ConditionDieMut] {
+	return fields.ValueMutOf(d, conditionFields.Type)
+}
+
+func (d *ConditionDie) Status() die.Value[string] {
 	return fields.ValueOf(d, conditionFields.Status)
 }
 
-func (d *ConditionDie) ObservedGeneration() die.Value[int64, *ConditionDie] {
+func (d *ConditionDieMut) Status() die.ValueMut[string, *ConditionDieMut] {
+	return fields.ValueMutOf(d, conditionFields.Status)
+}
+
+func (d *ConditionDie) ObservedGeneration() die.Value[int64] {
 	return fields.ValueOf(d, conditionFields.ObservedGeneration)
 }
 
-func (d *ConditionDie) Reason() die.Value[string, *ConditionDie] {
+func (d *ConditionDieMut) ObservedGeneration() die.ValueMut[int64, *ConditionDieMut] {
+	return fields.ValueMutOf(d, conditionFields.ObservedGeneration)
+}
+
+func (d *ConditionDie) Reason() die.Value[string] {
 	return fields.ValueOf(d, conditionFields.Reason)
 }
 
-func (d *ConditionDie) Message() die.Value[string, *ConditionDie] {
+func (d *ConditionDieMut) Reason() die.ValueMut[string, *ConditionDieMut] {
+	return fields.ValueMutOf(d, conditionFields.Reason)
+}
+
+func (d *ConditionDie) Message() die.Value[string] {
 	return fields.ValueOf(d, conditionFields.Message)
 }
 
+func (d *ConditionDieMut) Message() die.ValueMut[string, *ConditionDieMut] {
+	return fields.ValueMutOf(d, conditionFields.Message)
+}
+
 // True sets the condition to "True" with a reason.
-func (d *ConditionDie) True(reason string) *ConditionDie {
+func (d *ConditionDieMut) True(reason string) *ConditionDieMut {
 	return d.Status().Set("True").Reason().Set(reason)
 }

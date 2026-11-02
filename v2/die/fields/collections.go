@@ -23,19 +23,27 @@ import (
 
 	"reconciler.io/dies/v2/die/base"
 	"reconciler.io/dies/v2/die/internal/core"
-	"reconciler.io/dies/v2/die/internal/dies"
 )
 
-// Collection dies are always attached to a parent. Writing through them
-// requires a mutable root.
+// Collections are always attached to a die. An immutable die's read, and
+// return immutable dies of their elements; a mutable die's, ListMapMut and
+// MapMut, embed them and also write, in place.
 
-// ListMap is a list of C elements, each identified by a key K.
-type ListMap[C any, CD base.DieOf[C, CD], K any] struct {
+// ListMap is a list of C elements, each identified by a key K, whose dies
+// are CD.
+type ListMap[C, CD, K any] struct {
 	h     *core.Holder
 	at    base.Path
 	keys  []string
 	key   func(K) []any
 	keyOf func(C) K
+	wrap  func(*core.Holder, core.Path) CD
+}
+
+// ListMapMut is the list map of a mutable die, whose element dies, CDM, are
+// mutable.
+type ListMapMut[C, CDM, K any] struct {
+	ListMap[C, CDM, K]
 }
 
 func (l *ListMap[C, CD, K]) DiePath() base.Path { return l.at }
@@ -57,7 +65,7 @@ func (l *ListMap[C, CD, K]) step(k K) core.Step {
 // At returns the element with key k. Reading a missing element returns zero
 // values; the first write creates it with its key fields set.
 func (l *ListMap[C, CD, K]) At(k K) CD {
-	return dies.WrapDie[C, CD](l.h, core.ChildPath(l.at, l.step(k)))
+	return l.wrap(l.h, core.ChildPath(l.at, l.step(k)))
 }
 
 // Has reports whether an element with key k exists.
@@ -74,7 +82,7 @@ func (l *ListMap[C, CD, K]) HasE(k K) (bool, error) {
 }
 
 // write writes through the list, returning it.
-func (l *ListMap[C, CD, K]) write(rel base.Path, o core.Op, union bool) (*ListMap[C, CD, K], error) {
+func (l *ListMapMut[C, CDM, K]) write(rel base.Path, o core.Op, union bool) (*ListMapMut[C, CDM, K], error) {
 	if _, err := l.h.Write(l.at, rel, core.SetOp(o, reflect.Value{}), union); err != nil {
 		return nil, err
 	}
@@ -82,26 +90,26 @@ func (l *ListMap[C, CD, K]) write(rel base.Path, o core.Op, union bool) (*ListMa
 }
 
 // Remove removes the element with key k.
-func (l *ListMap[C, CD, K]) Remove(k K) *ListMap[C, CD, K] { return core.Must(l.RemoveE(k)) }
+func (l *ListMapMut[C, CDM, K]) Remove(k K) *ListMapMut[C, CDM, K] { return core.Must(l.RemoveE(k)) }
 
 // RemoveE is Remove, returning an error rather than panicking.
-func (l *ListMap[C, CD, K]) RemoveE(k K) (*ListMap[C, CD, K], error) {
+func (l *ListMapMut[C, CDM, K]) RemoveE(k K) (*ListMapMut[C, CDM, K], error) {
 	return l.write(base.Path{l.step(k)}, core.OpClear, false)
 }
 
 // Clear removes the list: null in patches.
-func (l *ListMap[C, CD, K]) Clear() *ListMap[C, CD, K] { return core.Must(l.ClearE()) }
+func (l *ListMapMut[C, CDM, K]) Clear() *ListMapMut[C, CDM, K] { return core.Must(l.ClearE()) }
 
 // ClearE is Clear, returning an error rather than panicking.
-func (l *ListMap[C, CD, K]) ClearE() (*ListMap[C, CD, K], error) {
+func (l *ListMapMut[C, CDM, K]) ClearE() (*ListMapMut[C, CDM, K], error) {
 	return l.write(nil, core.OpClear, false)
 }
 
 // Empty sets the list to present and empty: [] in patches.
-func (l *ListMap[C, CD, K]) Empty() *ListMap[C, CD, K] { return core.Must(l.EmptyE()) }
+func (l *ListMapMut[C, CDM, K]) Empty() *ListMapMut[C, CDM, K] { return core.Must(l.EmptyE()) }
 
 // EmptyE is Empty, returning an error rather than panicking.
-func (l *ListMap[C, CD, K]) EmptyE() (*ListMap[C, CD, K], error) {
+func (l *ListMapMut[C, CDM, K]) EmptyE() (*ListMapMut[C, CDM, K], error) {
 	return l.write(nil, core.OpEmpty, true)
 }
 
@@ -152,6 +160,11 @@ type Map[K ~string, V any] struct {
 	at base.Path
 }
 
+// MapMut is the map of a mutable die.
+type MapMut[K ~string, V any] struct {
+	Map[K, V]
+}
+
 func (m *Map[K, V]) DiePath() base.Path { return m.at }
 
 // DieRoot returns the root die this is within: see base.DieBase.DieRoot.
@@ -182,7 +195,7 @@ func (m *Map[K, V]) Has(k K) bool { return core.Must(m.HasE(k)) }
 func (m *Map[K, V]) HasE(k K) (bool, error) { return m.h.Has(m.entry(k)) }
 
 // write writes through the map, returning it.
-func (m *Map[K, V]) write(rel base.Path, o core.Op, v reflect.Value, union bool) (*Map[K, V], error) {
+func (m *MapMut[K, V]) write(rel base.Path, o core.Op, v reflect.Value, union bool) (*MapMut[K, V], error) {
 	if _, err := m.h.Write(m.at, rel, core.SetOp(o, v), union); err != nil {
 		return nil, err
 	}
@@ -190,34 +203,34 @@ func (m *Map[K, V]) write(rel base.Path, o core.Op, v reflect.Value, union bool)
 }
 
 // Set sets the value for key k.
-func (m *Map[K, V]) Set(k K, v V) *Map[K, V] { return core.Must(m.SetE(k, v)) }
+func (m *MapMut[K, V]) Set(k K, v V) *MapMut[K, V] { return core.Must(m.SetE(k, v)) }
 
 // SetE is Set, returning an error rather than panicking.
-func (m *Map[K, V]) SetE(k K, v V) (*Map[K, V], error) {
+func (m *MapMut[K, V]) SetE(k K, v V) (*MapMut[K, V], error) {
 	return m.write(base.Path{core.MapKeyStep(string(k))}, core.OpSet, core.DeepCopy(reflect.ValueOf(&v).Elem()), true)
 }
 
 // Remove removes key k.
-func (m *Map[K, V]) Remove(k K) *Map[K, V] { return core.Must(m.RemoveE(k)) }
+func (m *MapMut[K, V]) Remove(k K) *MapMut[K, V] { return core.Must(m.RemoveE(k)) }
 
 // RemoveE is Remove, returning an error rather than panicking.
-func (m *Map[K, V]) RemoveE(k K) (*Map[K, V], error) {
+func (m *MapMut[K, V]) RemoveE(k K) (*MapMut[K, V], error) {
 	return m.write(base.Path{core.MapKeyStep(string(k))}, core.OpClear, reflect.Value{}, false)
 }
 
 // Clear removes the map: null in patches.
-func (m *Map[K, V]) Clear() *Map[K, V] { return core.Must(m.ClearE()) }
+func (m *MapMut[K, V]) Clear() *MapMut[K, V] { return core.Must(m.ClearE()) }
 
 // ClearE is Clear, returning an error rather than panicking.
-func (m *Map[K, V]) ClearE() (*Map[K, V], error) {
+func (m *MapMut[K, V]) ClearE() (*MapMut[K, V], error) {
 	return m.write(nil, core.OpClear, reflect.Value{}, false)
 }
 
 // Empty sets the map to present and empty: {} in patches.
-func (m *Map[K, V]) Empty() *Map[K, V] { return core.Must(m.EmptyE()) }
+func (m *MapMut[K, V]) Empty() *MapMut[K, V] { return core.Must(m.EmptyE()) }
 
 // EmptyE is Empty, returning an error rather than panicking.
-func (m *Map[K, V]) EmptyE() (*Map[K, V], error) {
+func (m *MapMut[K, V]) EmptyE() (*MapMut[K, V], error) {
 	return m.write(nil, core.OpEmpty, reflect.Value{}, true)
 }
 

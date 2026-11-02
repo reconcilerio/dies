@@ -25,6 +25,8 @@ import (
 type ObjectKind struct {
 	H  *Holder
 	At Path
+	// ReadOnly is set for the kind of an immutable die.
+	ReadOnly bool
 }
 
 // GroupVersionKind implements schema.ObjectKind, which can't return an
@@ -54,6 +56,9 @@ func (k *ObjectKind) SetGroupVersionKind(gvk schema.GroupVersionKind) {
 
 func (k *ObjectKind) setGroupVersionKind(gvk schema.GroupVersionKind) error {
 	h := k.H
+	if k.ReadOnly {
+		return Errorf("die: SetGroupVersionKind: %w", ErrImmutable)
+	}
 	if !h.Mutable {
 		return Errorf("die: SetGroupVersionKind on an immutable die, which would lose the change; use a mutable die, such as within DieWith")
 	}

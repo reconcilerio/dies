@@ -39,33 +39,48 @@ import (
 // The "latest created" revision's name is available under status, as is the
 // "latest ready" revision's name.
 // See also: https://github.com/knative/serving/blob/main/docs/spec/overview.md#configuration
+//
+// ConfigurationDie is immutable: it reads.
+// ConfigurationDieMut, its mutable die, also writes, as DieWith passes it.
 type ConfigurationDie struct {
-	diebase.DieObjectBase[Configuration, *ConfigurationDie]
+	diebase.DieObjectBase[Configuration, *ConfigurationDie, *ConfigurationDieMut]
 }
 
-func (*ConfigurationDie) DieFrom(b diebase.DieBase[Configuration, *ConfigurationDie]) *ConfigurationDie {
+// ConfigurationDieMut is the mutable die of Configuration: see ConfigurationDie.
+type ConfigurationDieMut struct {
+	diebase.DieObjectMutBase[Configuration, *ConfigurationDie, *ConfigurationDieMut]
+}
+
+func (*ConfigurationDie) DieFrom(b diebase.DieBase[Configuration, *ConfigurationDie, *ConfigurationDieMut]) *ConfigurationDie {
 	return &ConfigurationDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[Configuration, *ConfigurationDie] = (*ConfigurationDie)(nil)
+func (*ConfigurationDieMut) DieFrom(b diebase.DieMutBase[Configuration, *ConfigurationDie, *ConfigurationDieMut]) *ConfigurationDieMut {
+	return &ConfigurationDieMut{diebase.AsObjectMut(b)}
+}
 
-var ConfigurationBlank = diebase.BlankOf[Configuration, *ConfigurationDie](Configuration{TypeMeta: metav1.TypeMeta{APIVersion: "serving.knative.dev/v1", Kind: "Configuration"}})
+var (
+	_ dieobjects.DieObjectOf[Configuration, *ConfigurationDie, *ConfigurationDieMut]    = (*ConfigurationDie)(nil)
+	_ dieobjects.DieObjectMutOf[Configuration, *ConfigurationDie, *ConfigurationDieMut] = (*ConfigurationDieMut)(nil)
+)
+
+var ConfigurationBlank = diebase.BlankOf[Configuration, *ConfigurationDie, *ConfigurationDieMut](Configuration{TypeMeta: metav1.TypeMeta{APIVersion: "serving.knative.dev/v1", Kind: "Configuration"}})
 
 type configurationFieldsTable struct {
 	Kind       diefields.Field[Configuration, string]
 	APIVersion diefields.Field[Configuration, string]
-	Metadata   diefields.Struct[Configuration, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[Configuration, ConfigurationSpec, *ConfigurationSpecDie]
-	Status     diefields.Struct[Configuration, ConfigurationStatus, *ConfigurationStatusDie]
+	Metadata   diefields.Struct[Configuration, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[Configuration, ConfigurationSpec, *ConfigurationSpecDie, *ConfigurationSpecDieMut]
+	Status     diefields.Struct[Configuration, ConfigurationStatus, *ConfigurationStatusDie, *ConfigurationStatusDieMut]
 }
 
 var configurationFields = &diefields.Table[configurationFieldsTable]{Build: func() (f configurationFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[Configuration, string]("kind")
 	f.APIVersion = diefields.NewField[Configuration, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[Configuration, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[Configuration, ConfigurationSpec, *ConfigurationSpecDie]("spec")
-	f.Status = diefields.NewStruct[Configuration, ConfigurationStatus, *ConfigurationStatusDie]("status")
+	f.Metadata = diefields.NewStruct[Configuration, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[Configuration, ConfigurationSpec, *ConfigurationSpecDie, *ConfigurationSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[Configuration, ConfigurationStatus, *ConfigurationStatusDie, *ConfigurationStatusDieMut]("status")
 	return
 }}
 
@@ -74,7 +89,7 @@ var configurationFields = &diefields.Table[configurationFieldsTable]{Build: func
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *ConfigurationDie) Kind() diefields.Value[string, *ConfigurationDie] {
+func (d *ConfigurationDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, configurationFields.Get().Kind)
 }
 
@@ -82,7 +97,7 @@ func (d *ConfigurationDie) Kind() diefields.Value[string, *ConfigurationDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *ConfigurationDie) APIVersion() diefields.Value[string, *ConfigurationDie] {
+func (d *ConfigurationDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, configurationFields.Get().APIVersion)
 }
 
@@ -98,15 +113,44 @@ func (d *ConfigurationDie) Status() *ConfigurationStatusDie {
 	return diefields.Child(d, configurationFields.Get().Status)
 }
 
-// ConfigurationList is a list of Configuration resources
-type ConfigurationListDie struct {
-	dielists.List[*ConfigurationDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ConfigurationDieMut) Kind() diefields.ValueMut[string, *ConfigurationDieMut] {
+	return diefields.ValueMutOf(d, configurationFields.Get().Kind)
 }
 
-var _ dielists.DieListOf[*ConfigurationDie] = (*ConfigurationListDie)(nil)
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *ConfigurationDieMut) APIVersion() diefields.ValueMut[string, *ConfigurationDieMut] {
+	return diefields.ValueMutOf(d, configurationFields.Get().APIVersion)
+}
+
+func (d *ConfigurationDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, configurationFields.Get().Metadata)
+}
+
+func (d *ConfigurationDieMut) Spec() *ConfigurationSpecDieMut {
+	return diefields.ChildMut(d, configurationFields.Get().Spec)
+}
+
+func (d *ConfigurationDieMut) Status() *ConfigurationStatusDieMut {
+	return diefields.ChildMut(d, configurationFields.Get().Status)
+}
+
+// ConfigurationList is a list of Configuration resources
+type ConfigurationListDie struct {
+	dielists.List[*ConfigurationDieMut]
+}
+
+var _ dielists.DieListOf[*ConfigurationDieMut] = (*ConfigurationListDie)(nil)
 
 // NewConfigurationList returns a list with items.
-func NewConfigurationList(items ...*ConfigurationDie) *ConfigurationListDie {
+func NewConfigurationList(items ...*ConfigurationDieMut) *ConfigurationListDie {
 	return &ConfigurationListDie{dielists.NewList("serving.knative.dev/v1", "ConfigurationList", items...)}
 }
 
@@ -118,25 +162,40 @@ func (l *ConfigurationListDie) DeepCopy() *ConfigurationListDie {
 func (l *ConfigurationListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // ConfigurationSpec holds the desired state of the Configuration (from the client).
+//
+// ConfigurationSpecDie is immutable: it reads.
+// ConfigurationSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type ConfigurationSpecDie struct {
-	diebase.DieBase[ConfigurationSpec, *ConfigurationSpecDie]
+	diebase.DieBase[ConfigurationSpec, *ConfigurationSpecDie, *ConfigurationSpecDieMut]
 }
 
-func (*ConfigurationSpecDie) DieFrom(b diebase.DieBase[ConfigurationSpec, *ConfigurationSpecDie]) *ConfigurationSpecDie {
+// ConfigurationSpecDieMut is the mutable die of ConfigurationSpec: see ConfigurationSpecDie.
+type ConfigurationSpecDieMut struct {
+	diebase.DieMutBase[ConfigurationSpec, *ConfigurationSpecDie, *ConfigurationSpecDieMut]
+}
+
+func (*ConfigurationSpecDie) DieFrom(b diebase.DieBase[ConfigurationSpec, *ConfigurationSpecDie, *ConfigurationSpecDieMut]) *ConfigurationSpecDie {
 	return &ConfigurationSpecDie{b}
 }
 
-var _ diebase.DieOf[ConfigurationSpec, *ConfigurationSpecDie] = (*ConfigurationSpecDie)(nil)
+func (*ConfigurationSpecDieMut) DieFrom(b diebase.DieMutBase[ConfigurationSpec, *ConfigurationSpecDie, *ConfigurationSpecDieMut]) *ConfigurationSpecDieMut {
+	return &ConfigurationSpecDieMut{b}
+}
 
-var ConfigurationSpecBlank = diebase.Blank[ConfigurationSpec, *ConfigurationSpecDie]()
+var (
+	_ diebase.DieOf[ConfigurationSpec, *ConfigurationSpecDie, *ConfigurationSpecDieMut]    = (*ConfigurationSpecDie)(nil)
+	_ diebase.DieMutOf[ConfigurationSpec, *ConfigurationSpecDie, *ConfigurationSpecDieMut] = (*ConfigurationSpecDieMut)(nil)
+)
+
+var ConfigurationSpecBlank = diebase.Blank[ConfigurationSpec, *ConfigurationSpecDie, *ConfigurationSpecDieMut]()
 
 type configurationSpecFieldsTable struct {
-	Template diefields.Struct[ConfigurationSpec, RevisionTemplateSpec, *RevisionTemplateSpecDie]
+	Template diefields.Struct[ConfigurationSpec, RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut]
 }
 
 var configurationSpecFields = &diefields.Table[configurationSpecFieldsTable]{Build: func() (f configurationSpecFieldsTable) {
 	_ = annotated
-	f.Template = diefields.NewStruct[ConfigurationSpec, RevisionTemplateSpec, *RevisionTemplateSpecDie]("template")
+	f.Template = diefields.NewStruct[ConfigurationSpec, RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut]("template")
 	return
 }}
 
@@ -145,18 +204,38 @@ func (d *ConfigurationSpecDie) Template() *RevisionTemplateSpecDie {
 	return diefields.Child(d, configurationSpecFields.Get().Template)
 }
 
-// ConfigurationStatus communicates the observed state of the Configuration (from the controller).
-type ConfigurationStatusDie struct {
-	diebase.DieBase[ConfigurationStatus, *ConfigurationStatusDie]
+// Template holds the latest specification for the Revision to be stamped out.
+func (d *ConfigurationSpecDieMut) Template() *RevisionTemplateSpecDieMut {
+	return diefields.ChildMut(d, configurationSpecFields.Get().Template)
 }
 
-func (*ConfigurationStatusDie) DieFrom(b diebase.DieBase[ConfigurationStatus, *ConfigurationStatusDie]) *ConfigurationStatusDie {
+// ConfigurationStatus communicates the observed state of the Configuration (from the controller).
+//
+// ConfigurationStatusDie is immutable: it reads.
+// ConfigurationStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type ConfigurationStatusDie struct {
+	diebase.DieBase[ConfigurationStatus, *ConfigurationStatusDie, *ConfigurationStatusDieMut]
+}
+
+// ConfigurationStatusDieMut is the mutable die of ConfigurationStatus: see ConfigurationStatusDie.
+type ConfigurationStatusDieMut struct {
+	diebase.DieMutBase[ConfigurationStatus, *ConfigurationStatusDie, *ConfigurationStatusDieMut]
+}
+
+func (*ConfigurationStatusDie) DieFrom(b diebase.DieBase[ConfigurationStatus, *ConfigurationStatusDie, *ConfigurationStatusDieMut]) *ConfigurationStatusDie {
 	return &ConfigurationStatusDie{b}
 }
 
-var _ diebase.DieOf[ConfigurationStatus, *ConfigurationStatusDie] = (*ConfigurationStatusDie)(nil)
+func (*ConfigurationStatusDieMut) DieFrom(b diebase.DieMutBase[ConfigurationStatus, *ConfigurationStatusDie, *ConfigurationStatusDieMut]) *ConfigurationStatusDieMut {
+	return &ConfigurationStatusDieMut{b}
+}
 
-var ConfigurationStatusBlank = diebase.Blank[ConfigurationStatus, *ConfigurationStatusDie]()
+var (
+	_ diebase.DieOf[ConfigurationStatus, *ConfigurationStatusDie, *ConfigurationStatusDieMut]    = (*ConfigurationStatusDie)(nil)
+	_ diebase.DieMutOf[ConfigurationStatus, *ConfigurationStatusDie, *ConfigurationStatusDieMut] = (*ConfigurationStatusDieMut)(nil)
+)
+
+var ConfigurationStatusBlank = diebase.Blank[ConfigurationStatus, *ConfigurationStatusDie, *ConfigurationStatusDieMut]()
 
 type configurationStatusFieldsTable struct {
 	ObservedGeneration        diefields.Field[ConfigurationStatus, int64]
@@ -178,12 +257,12 @@ var configurationStatusFields = &diefields.Table[configurationStatusFieldsTable]
 
 // ObservedGeneration is the 'Generation' of the Service that
 // was last processed by the controller.
-func (d *ConfigurationStatusDie) ObservedGeneration() diefields.Value[int64, *ConfigurationStatusDie] {
+func (d *ConfigurationStatusDie) ObservedGeneration() diefields.Value[int64] {
 	return diefields.ValueOf(d, configurationStatusFields.Get().ObservedGeneration)
 }
 
 // Conditions the latest available observations of a resource's current state.
-func (d *ConfigurationStatusDie) Conditions() diefields.Value[duckv1.Conditions, *ConfigurationStatusDie] {
+func (d *ConfigurationStatusDie) Conditions() diefields.Value[duckv1.Conditions] {
 	return diefields.ValueOf(d, configurationStatusFields.Get().Conditions)
 }
 
@@ -197,30 +276,76 @@ func (d *ConfigurationStatusDie) Annotations() *diefields.Map[string, string] {
 
 // LatestReadyRevisionName holds the name of the latest Revision stamped out
 // from this Configuration that has had its "Ready" condition become "True".
-func (d *ConfigurationStatusDie) LatestReadyRevisionName() diefields.Value[string, *ConfigurationStatusDie] {
+func (d *ConfigurationStatusDie) LatestReadyRevisionName() diefields.Value[string] {
 	return diefields.ValueOf(d, configurationStatusFields.Get().LatestReadyRevisionName)
 }
 
 // LatestCreatedRevisionName is the last revision that was created from this
 // Configuration. It might not be ready yet, for that use LatestReadyRevisionName.
-func (d *ConfigurationStatusDie) LatestCreatedRevisionName() diefields.Value[string, *ConfigurationStatusDie] {
+func (d *ConfigurationStatusDie) LatestCreatedRevisionName() diefields.Value[string] {
 	return diefields.ValueOf(d, configurationStatusFields.Get().LatestCreatedRevisionName)
+}
+
+// ObservedGeneration is the 'Generation' of the Service that
+// was last processed by the controller.
+func (d *ConfigurationStatusDieMut) ObservedGeneration() diefields.ValueMut[int64, *ConfigurationStatusDieMut] {
+	return diefields.ValueMutOf(d, configurationStatusFields.Get().ObservedGeneration)
+}
+
+// Conditions the latest available observations of a resource's current state.
+func (d *ConfigurationStatusDieMut) Conditions() diefields.ValueMut[duckv1.Conditions, *ConfigurationStatusDieMut] {
+	return diefields.ValueMutOf(d, configurationStatusFields.Get().Conditions)
+}
+
+// Annotations is additional Status fields for the Resource to save some
+// additional State as well as convey more information to the user. This is
+// roughly akin to Annotations on any k8s resource, just the reconciler conveying
+// richer information outwards.
+func (d *ConfigurationStatusDieMut) Annotations() *diefields.MapMut[string, string] {
+	return diefields.MapMutOf(d, configurationStatusFields.Get().Annotations)
+}
+
+// LatestReadyRevisionName holds the name of the latest Revision stamped out
+// from this Configuration that has had its "Ready" condition become "True".
+func (d *ConfigurationStatusDieMut) LatestReadyRevisionName() diefields.ValueMut[string, *ConfigurationStatusDieMut] {
+	return diefields.ValueMutOf(d, configurationStatusFields.Get().LatestReadyRevisionName)
+}
+
+// LatestCreatedRevisionName is the last revision that was created from this
+// Configuration. It might not be ready yet, for that use LatestReadyRevisionName.
+func (d *ConfigurationStatusDieMut) LatestCreatedRevisionName() diefields.ValueMut[string, *ConfigurationStatusDieMut] {
+	return diefields.ValueMutOf(d, configurationStatusFields.Get().LatestCreatedRevisionName)
 }
 
 // ConfigurationStatusFields holds the fields of Configuration's status that
 // are not generally shared.  This is defined separately and inlined so that
 // other types can readily consume these fields via duck typing.
+//
+// ConfigurationStatusFieldsDie is immutable: it reads.
+// ConfigurationStatusFieldsDieMut, its mutable die, also writes, as DieWith passes it.
 type ConfigurationStatusFieldsDie struct {
-	diebase.DieBase[ConfigurationStatusFields, *ConfigurationStatusFieldsDie]
+	diebase.DieBase[ConfigurationStatusFields, *ConfigurationStatusFieldsDie, *ConfigurationStatusFieldsDieMut]
 }
 
-func (*ConfigurationStatusFieldsDie) DieFrom(b diebase.DieBase[ConfigurationStatusFields, *ConfigurationStatusFieldsDie]) *ConfigurationStatusFieldsDie {
+// ConfigurationStatusFieldsDieMut is the mutable die of ConfigurationStatusFields: see ConfigurationStatusFieldsDie.
+type ConfigurationStatusFieldsDieMut struct {
+	diebase.DieMutBase[ConfigurationStatusFields, *ConfigurationStatusFieldsDie, *ConfigurationStatusFieldsDieMut]
+}
+
+func (*ConfigurationStatusFieldsDie) DieFrom(b diebase.DieBase[ConfigurationStatusFields, *ConfigurationStatusFieldsDie, *ConfigurationStatusFieldsDieMut]) *ConfigurationStatusFieldsDie {
 	return &ConfigurationStatusFieldsDie{b}
 }
 
-var _ diebase.DieOf[ConfigurationStatusFields, *ConfigurationStatusFieldsDie] = (*ConfigurationStatusFieldsDie)(nil)
+func (*ConfigurationStatusFieldsDieMut) DieFrom(b diebase.DieMutBase[ConfigurationStatusFields, *ConfigurationStatusFieldsDie, *ConfigurationStatusFieldsDieMut]) *ConfigurationStatusFieldsDieMut {
+	return &ConfigurationStatusFieldsDieMut{b}
+}
 
-var ConfigurationStatusFieldsBlank = diebase.Blank[ConfigurationStatusFields, *ConfigurationStatusFieldsDie]()
+var (
+	_ diebase.DieOf[ConfigurationStatusFields, *ConfigurationStatusFieldsDie, *ConfigurationStatusFieldsDieMut]    = (*ConfigurationStatusFieldsDie)(nil)
+	_ diebase.DieMutOf[ConfigurationStatusFields, *ConfigurationStatusFieldsDie, *ConfigurationStatusFieldsDieMut] = (*ConfigurationStatusFieldsDieMut)(nil)
+)
+
+var ConfigurationStatusFieldsBlank = diebase.Blank[ConfigurationStatusFields, *ConfigurationStatusFieldsDie, *ConfigurationStatusFieldsDieMut]()
 
 type configurationStatusFieldsFieldsTable struct {
 	LatestReadyRevisionName   diefields.Field[ConfigurationStatusFields, string]
@@ -236,28 +361,55 @@ var configurationStatusFieldsFields = &diefields.Table[configurationStatusFields
 
 // LatestReadyRevisionName holds the name of the latest Revision stamped out
 // from this Configuration that has had its "Ready" condition become "True".
-func (d *ConfigurationStatusFieldsDie) LatestReadyRevisionName() diefields.Value[string, *ConfigurationStatusFieldsDie] {
+func (d *ConfigurationStatusFieldsDie) LatestReadyRevisionName() diefields.Value[string] {
 	return diefields.ValueOf(d, configurationStatusFieldsFields.Get().LatestReadyRevisionName)
 }
 
 // LatestCreatedRevisionName is the last revision that was created from this
 // Configuration. It might not be ready yet, for that use LatestReadyRevisionName.
-func (d *ConfigurationStatusFieldsDie) LatestCreatedRevisionName() diefields.Value[string, *ConfigurationStatusFieldsDie] {
+func (d *ConfigurationStatusFieldsDie) LatestCreatedRevisionName() diefields.Value[string] {
 	return diefields.ValueOf(d, configurationStatusFieldsFields.Get().LatestCreatedRevisionName)
 }
 
-// ContainerStatus holds the information of container name and image digest value
-type ContainerStatusDie struct {
-	diebase.DieBase[ContainerStatus, *ContainerStatusDie]
+// LatestReadyRevisionName holds the name of the latest Revision stamped out
+// from this Configuration that has had its "Ready" condition become "True".
+func (d *ConfigurationStatusFieldsDieMut) LatestReadyRevisionName() diefields.ValueMut[string, *ConfigurationStatusFieldsDieMut] {
+	return diefields.ValueMutOf(d, configurationStatusFieldsFields.Get().LatestReadyRevisionName)
 }
 
-func (*ContainerStatusDie) DieFrom(b diebase.DieBase[ContainerStatus, *ContainerStatusDie]) *ContainerStatusDie {
+// LatestCreatedRevisionName is the last revision that was created from this
+// Configuration. It might not be ready yet, for that use LatestReadyRevisionName.
+func (d *ConfigurationStatusFieldsDieMut) LatestCreatedRevisionName() diefields.ValueMut[string, *ConfigurationStatusFieldsDieMut] {
+	return diefields.ValueMutOf(d, configurationStatusFieldsFields.Get().LatestCreatedRevisionName)
+}
+
+// ContainerStatus holds the information of container name and image digest value
+//
+// ContainerStatusDie is immutable: it reads.
+// ContainerStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type ContainerStatusDie struct {
+	diebase.DieBase[ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]
+}
+
+// ContainerStatusDieMut is the mutable die of ContainerStatus: see ContainerStatusDie.
+type ContainerStatusDieMut struct {
+	diebase.DieMutBase[ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]
+}
+
+func (*ContainerStatusDie) DieFrom(b diebase.DieBase[ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]) *ContainerStatusDie {
 	return &ContainerStatusDie{b}
 }
 
-var _ diebase.DieOf[ContainerStatus, *ContainerStatusDie] = (*ContainerStatusDie)(nil)
+func (*ContainerStatusDieMut) DieFrom(b diebase.DieMutBase[ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]) *ContainerStatusDieMut {
+	return &ContainerStatusDieMut{b}
+}
 
-var ContainerStatusBlank = diebase.Blank[ContainerStatus, *ContainerStatusDie]()
+var (
+	_ diebase.DieOf[ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]    = (*ContainerStatusDie)(nil)
+	_ diebase.DieMutOf[ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut] = (*ContainerStatusDieMut)(nil)
+)
+
+var ContainerStatusBlank = diebase.Blank[ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]()
 
 type containerStatusFieldsTable struct {
 	Name        diefields.Field[ContainerStatus, string]
@@ -271,12 +423,20 @@ var containerStatusFields = &diefields.Table[containerStatusFieldsTable]{Build: 
 	return
 }}
 
-func (d *ContainerStatusDie) Name() diefields.Value[string, *ContainerStatusDie] {
+func (d *ContainerStatusDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, containerStatusFields.Get().Name)
 }
 
-func (d *ContainerStatusDie) ImageDigest() diefields.Value[string, *ContainerStatusDie] {
+func (d *ContainerStatusDie) ImageDigest() diefields.Value[string] {
 	return diefields.ValueOf(d, containerStatusFields.Get().ImageDigest)
+}
+
+func (d *ContainerStatusDieMut) Name() diefields.ValueMut[string, *ContainerStatusDieMut] {
+	return diefields.ValueMutOf(d, containerStatusFields.Get().Name)
+}
+
+func (d *ContainerStatusDieMut) ImageDigest() diefields.ValueMut[string, *ContainerStatusDieMut] {
+	return diefields.ValueMutOf(d, containerStatusFields.Get().ImageDigest)
 }
 
 // Revision is an immutable snapshot of code and configuration.  A revision
@@ -284,33 +444,48 @@ func (d *ContainerStatusDie) ImageDigest() diefields.Value[string, *ContainerSta
 // Configuration.
 //
 // See also: https://github.com/knative/serving/blob/main/docs/spec/overview.md#revision
+//
+// RevisionDie is immutable: it reads.
+// RevisionDieMut, its mutable die, also writes, as DieWith passes it.
 type RevisionDie struct {
-	diebase.DieObjectBase[Revision, *RevisionDie]
+	diebase.DieObjectBase[Revision, *RevisionDie, *RevisionDieMut]
 }
 
-func (*RevisionDie) DieFrom(b diebase.DieBase[Revision, *RevisionDie]) *RevisionDie {
+// RevisionDieMut is the mutable die of Revision: see RevisionDie.
+type RevisionDieMut struct {
+	diebase.DieObjectMutBase[Revision, *RevisionDie, *RevisionDieMut]
+}
+
+func (*RevisionDie) DieFrom(b diebase.DieBase[Revision, *RevisionDie, *RevisionDieMut]) *RevisionDie {
 	return &RevisionDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[Revision, *RevisionDie] = (*RevisionDie)(nil)
+func (*RevisionDieMut) DieFrom(b diebase.DieMutBase[Revision, *RevisionDie, *RevisionDieMut]) *RevisionDieMut {
+	return &RevisionDieMut{diebase.AsObjectMut(b)}
+}
 
-var RevisionBlank = diebase.BlankOf[Revision, *RevisionDie](Revision{TypeMeta: metav1.TypeMeta{APIVersion: "serving.knative.dev/v1", Kind: "Revision"}})
+var (
+	_ dieobjects.DieObjectOf[Revision, *RevisionDie, *RevisionDieMut]    = (*RevisionDie)(nil)
+	_ dieobjects.DieObjectMutOf[Revision, *RevisionDie, *RevisionDieMut] = (*RevisionDieMut)(nil)
+)
+
+var RevisionBlank = diebase.BlankOf[Revision, *RevisionDie, *RevisionDieMut](Revision{TypeMeta: metav1.TypeMeta{APIVersion: "serving.knative.dev/v1", Kind: "Revision"}})
 
 type revisionFieldsTable struct {
 	Kind       diefields.Field[Revision, string]
 	APIVersion diefields.Field[Revision, string]
-	Metadata   diefields.Struct[Revision, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[Revision, RevisionSpec, *RevisionSpecDie]
-	Status     diefields.Struct[Revision, RevisionStatus, *RevisionStatusDie]
+	Metadata   diefields.Struct[Revision, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[Revision, RevisionSpec, *RevisionSpecDie, *RevisionSpecDieMut]
+	Status     diefields.Struct[Revision, RevisionStatus, *RevisionStatusDie, *RevisionStatusDieMut]
 }
 
 var revisionFields = &diefields.Table[revisionFieldsTable]{Build: func() (f revisionFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[Revision, string]("kind")
 	f.APIVersion = diefields.NewField[Revision, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[Revision, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[Revision, RevisionSpec, *RevisionSpecDie]("spec")
-	f.Status = diefields.NewStruct[Revision, RevisionStatus, *RevisionStatusDie]("status")
+	f.Metadata = diefields.NewStruct[Revision, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[Revision, RevisionSpec, *RevisionSpecDie, *RevisionSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[Revision, RevisionStatus, *RevisionStatusDie, *RevisionStatusDieMut]("status")
 	return
 }}
 
@@ -319,7 +494,7 @@ var revisionFields = &diefields.Table[revisionFieldsTable]{Build: func() (f revi
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *RevisionDie) Kind() diefields.Value[string, *RevisionDie] {
+func (d *RevisionDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, revisionFields.Get().Kind)
 }
 
@@ -327,7 +502,7 @@ func (d *RevisionDie) Kind() diefields.Value[string, *RevisionDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *RevisionDie) APIVersion() diefields.Value[string, *RevisionDie] {
+func (d *RevisionDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, revisionFields.Get().APIVersion)
 }
 
@@ -341,15 +516,44 @@ func (d *RevisionDie) Status() *RevisionStatusDie {
 	return diefields.Child(d, revisionFields.Get().Status)
 }
 
-// RevisionList is a list of Revision resources
-type RevisionListDie struct {
-	dielists.List[*RevisionDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *RevisionDieMut) Kind() diefields.ValueMut[string, *RevisionDieMut] {
+	return diefields.ValueMutOf(d, revisionFields.Get().Kind)
 }
 
-var _ dielists.DieListOf[*RevisionDie] = (*RevisionListDie)(nil)
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *RevisionDieMut) APIVersion() diefields.ValueMut[string, *RevisionDieMut] {
+	return diefields.ValueMutOf(d, revisionFields.Get().APIVersion)
+}
+
+func (d *RevisionDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, revisionFields.Get().Metadata)
+}
+
+func (d *RevisionDieMut) Spec() *RevisionSpecDieMut {
+	return diefields.ChildMut(d, revisionFields.Get().Spec)
+}
+
+func (d *RevisionDieMut) Status() *RevisionStatusDieMut {
+	return diefields.ChildMut(d, revisionFields.Get().Status)
+}
+
+// RevisionList is a list of Revision resources
+type RevisionListDie struct {
+	dielists.List[*RevisionDieMut]
+}
+
+var _ dielists.DieListOf[*RevisionDieMut] = (*RevisionListDie)(nil)
 
 // NewRevisionList returns a list with items.
-func NewRevisionList(items ...*RevisionDie) *RevisionListDie {
+func NewRevisionList(items ...*RevisionDieMut) *RevisionListDie {
 	return &RevisionListDie{dielists.NewList("serving.knative.dev/v1", "RevisionList", items...)}
 }
 
@@ -359,23 +563,38 @@ func (l *RevisionListDie) DeepCopy() *RevisionListDie { return &RevisionListDie{
 func (l *RevisionListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // RevisionSpec holds the desired state of the Revision (from the client).
+//
+// RevisionSpecDie is immutable: it reads.
+// RevisionSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type RevisionSpecDie struct {
-	diebase.DieBase[RevisionSpec, *RevisionSpecDie]
+	diebase.DieBase[RevisionSpec, *RevisionSpecDie, *RevisionSpecDieMut]
 }
 
-func (*RevisionSpecDie) DieFrom(b diebase.DieBase[RevisionSpec, *RevisionSpecDie]) *RevisionSpecDie {
+// RevisionSpecDieMut is the mutable die of RevisionSpec: see RevisionSpecDie.
+type RevisionSpecDieMut struct {
+	diebase.DieMutBase[RevisionSpec, *RevisionSpecDie, *RevisionSpecDieMut]
+}
+
+func (*RevisionSpecDie) DieFrom(b diebase.DieBase[RevisionSpec, *RevisionSpecDie, *RevisionSpecDieMut]) *RevisionSpecDie {
 	return &RevisionSpecDie{b}
 }
 
-var _ diebase.DieOf[RevisionSpec, *RevisionSpecDie] = (*RevisionSpecDie)(nil)
+func (*RevisionSpecDieMut) DieFrom(b diebase.DieMutBase[RevisionSpec, *RevisionSpecDie, *RevisionSpecDieMut]) *RevisionSpecDieMut {
+	return &RevisionSpecDieMut{b}
+}
 
-var RevisionSpecBlank = diebase.Blank[RevisionSpec, *RevisionSpecDie]()
+var (
+	_ diebase.DieOf[RevisionSpec, *RevisionSpecDie, *RevisionSpecDieMut]    = (*RevisionSpecDie)(nil)
+	_ diebase.DieMutOf[RevisionSpec, *RevisionSpecDie, *RevisionSpecDieMut] = (*RevisionSpecDieMut)(nil)
+)
+
+var RevisionSpecBlank = diebase.Blank[RevisionSpec, *RevisionSpecDie, *RevisionSpecDieMut]()
 
 type revisionSpecFieldsTable struct {
-	Volumes                       diefields.ListMapField[RevisionSpec, diecorev1.Volume, *diecorev1.VolumeDie, string]
-	InitContainers                diefields.ListMapField[RevisionSpec, diecorev1.Container, *diecorev1.ContainerDie, string]
-	Containers                    diefields.ListMapField[RevisionSpec, diecorev1.Container, *diecorev1.ContainerDie, string]
-	EphemeralContainers           diefields.ListMapField[RevisionSpec, diecorev1.EphemeralContainer, *diecorev1.EphemeralContainerDie, string]
+	Volumes                       diefields.ListMapField[RevisionSpec, diecorev1.Volume, *diecorev1.VolumeDie, *diecorev1.VolumeDieMut, string]
+	InitContainers                diefields.ListMapField[RevisionSpec, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut, string]
+	Containers                    diefields.ListMapField[RevisionSpec, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut, string]
+	EphemeralContainers           diefields.ListMapField[RevisionSpec, diecorev1.EphemeralContainer, *diecorev1.EphemeralContainerDie, *diecorev1.EphemeralContainerDieMut, string]
 	RestartPolicy                 diefields.Field[RevisionSpec, diecorev1.RestartPolicy]
 	TerminationGracePeriodSeconds diefields.Field[RevisionSpec, *int64]
 	ActiveDeadlineSeconds         diefields.Field[RevisionSpec, *int64]
@@ -389,32 +608,32 @@ type revisionSpecFieldsTable struct {
 	HostPID                       diefields.Field[RevisionSpec, bool]
 	HostIPC                       diefields.Field[RevisionSpec, bool]
 	ShareProcessNamespace         diefields.Field[RevisionSpec, *bool]
-	SecurityContext               diefields.Struct[RevisionSpec, diecorev1.PodSecurityContext, *diecorev1.PodSecurityContextDie]
-	ImagePullSecrets              diefields.ListMapField[RevisionSpec, diecorev1.LocalObjectReference, *diecorev1.LocalObjectReferenceDie, string]
+	SecurityContext               diefields.Struct[RevisionSpec, diecorev1.PodSecurityContext, *diecorev1.PodSecurityContextDie, *diecorev1.PodSecurityContextDieMut]
+	ImagePullSecrets              diefields.ListMapField[RevisionSpec, diecorev1.LocalObjectReference, *diecorev1.LocalObjectReferenceDie, *diecorev1.LocalObjectReferenceDieMut, string]
 	Hostname                      diefields.Field[RevisionSpec, string]
 	Subdomain                     diefields.Field[RevisionSpec, string]
-	Affinity                      diefields.Struct[RevisionSpec, diecorev1.Affinity, *diecorev1.AffinityDie]
+	Affinity                      diefields.Struct[RevisionSpec, diecorev1.Affinity, *diecorev1.AffinityDie, *diecorev1.AffinityDieMut]
 	SchedulerName                 diefields.Field[RevisionSpec, string]
 	Tolerations                   diefields.Field[RevisionSpec, []diecorev1.Toleration]
-	HostAliases                   diefields.ListMapField[RevisionSpec, diecorev1.HostAlias, *diecorev1.HostAliasDie, string]
+	HostAliases                   diefields.ListMapField[RevisionSpec, diecorev1.HostAlias, *diecorev1.HostAliasDie, *diecorev1.HostAliasDieMut, string]
 	PriorityClassName             diefields.Field[RevisionSpec, string]
 	Priority                      diefields.Field[RevisionSpec, *int32]
-	DNSConfig                     diefields.Struct[RevisionSpec, diecorev1.PodDNSConfig, *diecorev1.PodDNSConfigDie]
+	DNSConfig                     diefields.Struct[RevisionSpec, diecorev1.PodDNSConfig, *diecorev1.PodDNSConfigDie, *diecorev1.PodDNSConfigDieMut]
 	ReadinessGates                diefields.Field[RevisionSpec, []diecorev1.PodReadinessGate]
 	RuntimeClassName              diefields.Field[RevisionSpec, *string]
 	EnableServiceLinks            diefields.Field[RevisionSpec, *bool]
 	PreemptionPolicy              diefields.Field[RevisionSpec, *diecorev1.PreemptionPolicy]
 	Overhead                      diefields.MapField[RevisionSpec, diecorev1.ResourceName, resource.Quantity]
-	TopologySpreadConstraints     diefields.ListMapField[RevisionSpec, diecorev1.TopologySpreadConstraint, *diecorev1.TopologySpreadConstraintDie, TopologySpreadConstraintKey]
+	TopologySpreadConstraints     diefields.ListMapField[RevisionSpec, diecorev1.TopologySpreadConstraint, *diecorev1.TopologySpreadConstraintDie, *diecorev1.TopologySpreadConstraintDieMut, TopologySpreadConstraintKey]
 	SetHostnameAsFQDN             diefields.Field[RevisionSpec, *bool]
-	OS                            diefields.Struct[RevisionSpec, diecorev1.PodOS, *diecorev1.PodOSDie]
+	OS                            diefields.Struct[RevisionSpec, diecorev1.PodOS, *diecorev1.PodOSDie, *diecorev1.PodOSDieMut]
 	HostUsers                     diefields.Field[RevisionSpec, *bool]
-	SchedulingGates               diefields.ListMapField[RevisionSpec, diecorev1.PodSchedulingGate, *diecorev1.PodSchedulingGateDie, string]
-	ResourceClaims                diefields.ListMapField[RevisionSpec, diecorev1.PodResourceClaim, *diecorev1.PodResourceClaimDie, string]
-	Resources                     diefields.Struct[RevisionSpec, diecorev1.ResourceRequirements, *diecorev1.ResourceRequirementsDie]
+	SchedulingGates               diefields.ListMapField[RevisionSpec, diecorev1.PodSchedulingGate, *diecorev1.PodSchedulingGateDie, *diecorev1.PodSchedulingGateDieMut, string]
+	ResourceClaims                diefields.ListMapField[RevisionSpec, diecorev1.PodResourceClaim, *diecorev1.PodResourceClaimDie, *diecorev1.PodResourceClaimDieMut, string]
+	Resources                     diefields.Struct[RevisionSpec, diecorev1.ResourceRequirements, *diecorev1.ResourceRequirementsDie, *diecorev1.ResourceRequirementsDieMut]
 	HostnameOverride              diefields.Field[RevisionSpec, *string]
-	SchedulingGroup               diefields.Struct[RevisionSpec, diecorev1.PodSchedulingGroup, *diecorev1.PodSchedulingGroupDie]
-	EvictionResponders            diefields.ListMapField[RevisionSpec, diecorev1.EvictionResponder, *diecorev1.EvictionResponderDie, string]
+	SchedulingGroup               diefields.Struct[RevisionSpec, diecorev1.PodSchedulingGroup, *diecorev1.PodSchedulingGroupDie, *diecorev1.PodSchedulingGroupDieMut]
+	EvictionResponders            diefields.ListMapField[RevisionSpec, diecorev1.EvictionResponder, *diecorev1.EvictionResponderDie, *diecorev1.EvictionResponderDieMut, string]
 	ContainerConcurrency          diefields.Field[RevisionSpec, *int64]
 	TimeoutSeconds                diefields.Field[RevisionSpec, *int64]
 	ResponseStartTimeoutSeconds   diefields.Field[RevisionSpec, *int64]
@@ -423,10 +642,10 @@ type revisionSpecFieldsTable struct {
 
 var revisionSpecFields = &diefields.Table[revisionSpecFieldsTable]{Build: func() (f revisionSpecFieldsTable) {
 	_ = annotated
-	f.Volumes = diefields.NewListMap[RevisionSpec, diecorev1.Volume, *diecorev1.VolumeDie]("volumes", func(k string) []any { return []any{k} }, func(e diecorev1.Volume) string { return e.Name })
-	f.InitContainers = diefields.NewListMap[RevisionSpec, diecorev1.Container, *diecorev1.ContainerDie]("initContainers", func(k string) []any { return []any{k} }, func(e diecorev1.Container) string { return e.Name })
-	f.Containers = diefields.NewListMap[RevisionSpec, diecorev1.Container, *diecorev1.ContainerDie]("containers", func(k string) []any { return []any{k} }, func(e diecorev1.Container) string { return e.Name })
-	f.EphemeralContainers = diefields.NewListMap[RevisionSpec, diecorev1.EphemeralContainer, *diecorev1.EphemeralContainerDie]("ephemeralContainers", func(k string) []any { return []any{k} }, func(e diecorev1.EphemeralContainer) string { return e.Name })
+	f.Volumes = diefields.NewListMap[RevisionSpec, diecorev1.Volume, *diecorev1.VolumeDie, *diecorev1.VolumeDieMut]("volumes", func(k string) []any { return []any{k} }, func(e diecorev1.Volume) string { return e.Name })
+	f.InitContainers = diefields.NewListMap[RevisionSpec, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut]("initContainers", func(k string) []any { return []any{k} }, func(e diecorev1.Container) string { return e.Name })
+	f.Containers = diefields.NewListMap[RevisionSpec, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut]("containers", func(k string) []any { return []any{k} }, func(e diecorev1.Container) string { return e.Name })
+	f.EphemeralContainers = diefields.NewListMap[RevisionSpec, diecorev1.EphemeralContainer, *diecorev1.EphemeralContainerDie, *diecorev1.EphemeralContainerDieMut]("ephemeralContainers", func(k string) []any { return []any{k} }, func(e diecorev1.EphemeralContainer) string { return e.Name })
 	f.RestartPolicy = diefields.NewField[RevisionSpec, diecorev1.RestartPolicy]("restartPolicy")
 	f.TerminationGracePeriodSeconds = diefields.NewField[RevisionSpec, *int64]("terminationGracePeriodSeconds")
 	f.ActiveDeadlineSeconds = diefields.NewField[RevisionSpec, *int64]("activeDeadlineSeconds")
@@ -440,34 +659,34 @@ var revisionSpecFields = &diefields.Table[revisionSpecFieldsTable]{Build: func()
 	f.HostPID = diefields.NewField[RevisionSpec, bool]("hostPID")
 	f.HostIPC = diefields.NewField[RevisionSpec, bool]("hostIPC")
 	f.ShareProcessNamespace = diefields.NewField[RevisionSpec, *bool]("shareProcessNamespace")
-	f.SecurityContext = diefields.NewStruct[RevisionSpec, diecorev1.PodSecurityContext, *diecorev1.PodSecurityContextDie]("securityContext")
-	f.ImagePullSecrets = diefields.NewListMap[RevisionSpec, diecorev1.LocalObjectReference, *diecorev1.LocalObjectReferenceDie]("imagePullSecrets", func(k string) []any { return []any{k} }, func(e diecorev1.LocalObjectReference) string { return e.Name })
+	f.SecurityContext = diefields.NewStruct[RevisionSpec, diecorev1.PodSecurityContext, *diecorev1.PodSecurityContextDie, *diecorev1.PodSecurityContextDieMut]("securityContext")
+	f.ImagePullSecrets = diefields.NewListMap[RevisionSpec, diecorev1.LocalObjectReference, *diecorev1.LocalObjectReferenceDie, *diecorev1.LocalObjectReferenceDieMut]("imagePullSecrets", func(k string) []any { return []any{k} }, func(e diecorev1.LocalObjectReference) string { return e.Name })
 	f.Hostname = diefields.NewField[RevisionSpec, string]("hostname")
 	f.Subdomain = diefields.NewField[RevisionSpec, string]("subdomain")
-	f.Affinity = diefields.NewStruct[RevisionSpec, diecorev1.Affinity, *diecorev1.AffinityDie]("affinity")
+	f.Affinity = diefields.NewStruct[RevisionSpec, diecorev1.Affinity, *diecorev1.AffinityDie, *diecorev1.AffinityDieMut]("affinity")
 	f.SchedulerName = diefields.NewField[RevisionSpec, string]("schedulerName")
 	f.Tolerations = diefields.NewField[RevisionSpec, []diecorev1.Toleration]("tolerations")
-	f.HostAliases = diefields.NewListMap[RevisionSpec, diecorev1.HostAlias, *diecorev1.HostAliasDie]("hostAliases", func(k string) []any { return []any{k} }, func(e diecorev1.HostAlias) string { return e.IP })
+	f.HostAliases = diefields.NewListMap[RevisionSpec, diecorev1.HostAlias, *diecorev1.HostAliasDie, *diecorev1.HostAliasDieMut]("hostAliases", func(k string) []any { return []any{k} }, func(e diecorev1.HostAlias) string { return e.IP })
 	f.PriorityClassName = diefields.NewField[RevisionSpec, string]("priorityClassName")
 	f.Priority = diefields.NewField[RevisionSpec, *int32]("priority")
-	f.DNSConfig = diefields.NewStruct[RevisionSpec, diecorev1.PodDNSConfig, *diecorev1.PodDNSConfigDie]("dnsConfig")
+	f.DNSConfig = diefields.NewStruct[RevisionSpec, diecorev1.PodDNSConfig, *diecorev1.PodDNSConfigDie, *diecorev1.PodDNSConfigDieMut]("dnsConfig")
 	f.ReadinessGates = diefields.NewField[RevisionSpec, []diecorev1.PodReadinessGate]("readinessGates")
 	f.RuntimeClassName = diefields.NewField[RevisionSpec, *string]("runtimeClassName")
 	f.EnableServiceLinks = diefields.NewField[RevisionSpec, *bool]("enableServiceLinks")
 	f.PreemptionPolicy = diefields.NewField[RevisionSpec, *diecorev1.PreemptionPolicy]("preemptionPolicy")
 	f.Overhead = diefields.NewMap[RevisionSpec, diecorev1.ResourceName, resource.Quantity]("overhead")
-	f.TopologySpreadConstraints = diefields.NewListMap[RevisionSpec, diecorev1.TopologySpreadConstraint, *diecorev1.TopologySpreadConstraintDie]("topologySpreadConstraints", func(k TopologySpreadConstraintKey) []any { return []any{k.TopologyKey, k.WhenUnsatisfiable} }, func(e diecorev1.TopologySpreadConstraint) TopologySpreadConstraintKey {
+	f.TopologySpreadConstraints = diefields.NewListMap[RevisionSpec, diecorev1.TopologySpreadConstraint, *diecorev1.TopologySpreadConstraintDie, *diecorev1.TopologySpreadConstraintDieMut]("topologySpreadConstraints", func(k TopologySpreadConstraintKey) []any { return []any{k.TopologyKey, k.WhenUnsatisfiable} }, func(e diecorev1.TopologySpreadConstraint) TopologySpreadConstraintKey {
 		return TopologySpreadConstraintKey{TopologyKey: e.TopologyKey, WhenUnsatisfiable: e.WhenUnsatisfiable}
 	})
 	f.SetHostnameAsFQDN = diefields.NewField[RevisionSpec, *bool]("setHostnameAsFQDN")
-	f.OS = diefields.NewStruct[RevisionSpec, diecorev1.PodOS, *diecorev1.PodOSDie]("os")
+	f.OS = diefields.NewStruct[RevisionSpec, diecorev1.PodOS, *diecorev1.PodOSDie, *diecorev1.PodOSDieMut]("os")
 	f.HostUsers = diefields.NewField[RevisionSpec, *bool]("hostUsers")
-	f.SchedulingGates = diefields.NewListMap[RevisionSpec, diecorev1.PodSchedulingGate, *diecorev1.PodSchedulingGateDie]("schedulingGates", func(k string) []any { return []any{k} }, func(e diecorev1.PodSchedulingGate) string { return e.Name })
-	f.ResourceClaims = diefields.NewListMap[RevisionSpec, diecorev1.PodResourceClaim, *diecorev1.PodResourceClaimDie]("resourceClaims", func(k string) []any { return []any{k} }, func(e diecorev1.PodResourceClaim) string { return e.Name })
-	f.Resources = diefields.NewStruct[RevisionSpec, diecorev1.ResourceRequirements, *diecorev1.ResourceRequirementsDie]("resources")
+	f.SchedulingGates = diefields.NewListMap[RevisionSpec, diecorev1.PodSchedulingGate, *diecorev1.PodSchedulingGateDie, *diecorev1.PodSchedulingGateDieMut]("schedulingGates", func(k string) []any { return []any{k} }, func(e diecorev1.PodSchedulingGate) string { return e.Name })
+	f.ResourceClaims = diefields.NewListMap[RevisionSpec, diecorev1.PodResourceClaim, *diecorev1.PodResourceClaimDie, *diecorev1.PodResourceClaimDieMut]("resourceClaims", func(k string) []any { return []any{k} }, func(e diecorev1.PodResourceClaim) string { return e.Name })
+	f.Resources = diefields.NewStruct[RevisionSpec, diecorev1.ResourceRequirements, *diecorev1.ResourceRequirementsDie, *diecorev1.ResourceRequirementsDieMut]("resources")
 	f.HostnameOverride = diefields.NewField[RevisionSpec, *string]("hostnameOverride")
-	f.SchedulingGroup = diefields.NewStruct[RevisionSpec, diecorev1.PodSchedulingGroup, *diecorev1.PodSchedulingGroupDie]("schedulingGroup")
-	f.EvictionResponders = diefields.NewListMap[RevisionSpec, diecorev1.EvictionResponder, *diecorev1.EvictionResponderDie]("evictionResponders", func(k string) []any { return []any{k} }, func(e diecorev1.EvictionResponder) string { return e.Name })
+	f.SchedulingGroup = diefields.NewStruct[RevisionSpec, diecorev1.PodSchedulingGroup, *diecorev1.PodSchedulingGroupDie, *diecorev1.PodSchedulingGroupDieMut]("schedulingGroup")
+	f.EvictionResponders = diefields.NewListMap[RevisionSpec, diecorev1.EvictionResponder, *diecorev1.EvictionResponderDie, *diecorev1.EvictionResponderDieMut]("evictionResponders", func(k string) []any { return []any{k} }, func(e diecorev1.EvictionResponder) string { return e.Name })
 	f.ContainerConcurrency = diefields.NewField[RevisionSpec, *int64]("containerConcurrency")
 	f.TimeoutSeconds = diefields.NewField[RevisionSpec, *int64]("timeoutSeconds")
 	f.ResponseStartTimeoutSeconds = diefields.NewField[RevisionSpec, *int64]("responseStartTimeoutSeconds")
@@ -518,7 +737,7 @@ func (d *RevisionSpecDie) EphemeralContainers() *diefields.ListMap[diecorev1.Eph
 // One of Always, OnFailure, Never. In some contexts, only a subset of those values may be permitted.
 // Default to Always.
 // More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy
-func (d *RevisionSpecDie) RestartPolicy() diefields.Value[diecorev1.RestartPolicy, *RevisionSpecDie] {
+func (d *RevisionSpecDie) RestartPolicy() diefields.Value[diecorev1.RestartPolicy] {
 	return diefields.ValueOf(d, revisionSpecFields.Get().RestartPolicy)
 }
 
@@ -530,14 +749,14 @@ func (d *RevisionSpecDie) RestartPolicy() diefields.Value[diecorev1.RestartPolic
 // a termination signal and the time when the processes are forcibly halted with a kill signal.
 // Set this value longer than the expected cleanup time for your process.
 // Defaults to 30 seconds.
-func (d *RevisionSpecDie) TerminationGracePeriodSeconds() diefields.Optional[int64, *RevisionSpecDie] {
+func (d *RevisionSpecDie) TerminationGracePeriodSeconds() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, revisionSpecFields.Get().TerminationGracePeriodSeconds)
 }
 
 // Optional duration in seconds the pod may be active on the node relative to
 // StartTime before the system will actively try to mark it failed and kill associated containers.
 // Value must be a positive integer.
-func (d *RevisionSpecDie) ActiveDeadlineSeconds() diefields.Optional[int64, *RevisionSpecDie] {
+func (d *RevisionSpecDie) ActiveDeadlineSeconds() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, revisionSpecFields.Get().ActiveDeadlineSeconds)
 }
 
@@ -547,31 +766,31 @@ func (d *RevisionSpecDie) ActiveDeadlineSeconds() diefields.Optional[int64, *Rev
 // DNS parameters given in DNSConfig will be merged with the policy selected with DNSPolicy.
 // To have DNS options set along with hostNetwork, you have to specify DNS policy
 // explicitly to 'ClusterFirstWithHostNet'.
-func (d *RevisionSpecDie) DNSPolicy() diefields.Value[diecorev1.DNSPolicy, *RevisionSpecDie] {
+func (d *RevisionSpecDie) DNSPolicy() diefields.Value[diecorev1.DNSPolicy] {
 	return diefields.ValueOf(d, revisionSpecFields.Get().DNSPolicy)
 }
 
 // NodeSelector is a selector which must be true for the pod to fit on a node.
 // Selector which must match a node's labels for the pod to be scheduled on that node.
 // More info: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
-func (d *RevisionSpecDie) NodeSelector() diefields.Value[map[string]string, *RevisionSpecDie] {
+func (d *RevisionSpecDie) NodeSelector() diefields.Value[map[string]string] {
 	return diefields.ValueOf(d, revisionSpecFields.Get().NodeSelector)
 }
 
 // ServiceAccountName is the name of the ServiceAccount to use to run this pod.
 // More info: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
-func (d *RevisionSpecDie) ServiceAccountName() diefields.Value[string, *RevisionSpecDie] {
+func (d *RevisionSpecDie) ServiceAccountName() diefields.Value[string] {
 	return diefields.ValueOf(d, revisionSpecFields.Get().ServiceAccountName)
 }
 
 // DeprecatedServiceAccount is a deprecated alias for ServiceAccountName.
 // Deprecated: Use serviceAccountName instead.
-func (d *RevisionSpecDie) DeprecatedServiceAccount() diefields.Value[string, *RevisionSpecDie] {
+func (d *RevisionSpecDie) DeprecatedServiceAccount() diefields.Value[string] {
 	return diefields.ValueOf(d, revisionSpecFields.Get().DeprecatedServiceAccount)
 }
 
 // AutomountServiceAccountToken indicates whether a service account token should be automatically mounted.
-func (d *RevisionSpecDie) AutomountServiceAccountToken() diefields.Optional[bool, *RevisionSpecDie] {
+func (d *RevisionSpecDie) AutomountServiceAccountToken() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, revisionSpecFields.Get().AutomountServiceAccountToken)
 }
 
@@ -580,7 +799,7 @@ func (d *RevisionSpecDie) AutomountServiceAccountToken() diefields.Optional[bool
 // Once this field is set, the kubelet for this node becomes responsible for the lifecycle of this pod.
 // This field should not be used to express a desire for the pod to be scheduled on a specific node.
 // https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodename
-func (d *RevisionSpecDie) NodeName() diefields.Value[string, *RevisionSpecDie] {
+func (d *RevisionSpecDie) NodeName() diefields.Value[string] {
 	return diefields.ValueOf(d, revisionSpecFields.Get().NodeName)
 }
 
@@ -589,19 +808,19 @@ func (d *RevisionSpecDie) NodeName() diefields.Value[string, *RevisionSpecDie] {
 // When `hostNetwork` is true, specified `hostPort` fields in port definitions must match `containerPort`,
 // and unspecified `hostPort` fields in port definitions are defaulted to match `containerPort`.
 // Default to false.
-func (d *RevisionSpecDie) HostNetwork() diefields.Value[bool, *RevisionSpecDie] {
+func (d *RevisionSpecDie) HostNetwork() diefields.Value[bool] {
 	return diefields.ValueOf(d, revisionSpecFields.Get().HostNetwork)
 }
 
 // Use the host's pid namespace.
 // Optional: Default to false.
-func (d *RevisionSpecDie) HostPID() diefields.Value[bool, *RevisionSpecDie] {
+func (d *RevisionSpecDie) HostPID() diefields.Value[bool] {
 	return diefields.ValueOf(d, revisionSpecFields.Get().HostPID)
 }
 
 // Use the host's ipc namespace.
 // Optional: Default to false.
-func (d *RevisionSpecDie) HostIPC() diefields.Value[bool, *RevisionSpecDie] {
+func (d *RevisionSpecDie) HostIPC() diefields.Value[bool] {
 	return diefields.ValueOf(d, revisionSpecFields.Get().HostIPC)
 }
 
@@ -610,7 +829,7 @@ func (d *RevisionSpecDie) HostIPC() diefields.Value[bool, *RevisionSpecDie] {
 // in the same pod, and the first process in each container will not be assigned PID 1.
 // HostPID and ShareProcessNamespace cannot both be set.
 // Optional: Default to false.
-func (d *RevisionSpecDie) ShareProcessNamespace() diefields.Optional[bool, *RevisionSpecDie] {
+func (d *RevisionSpecDie) ShareProcessNamespace() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, revisionSpecFields.Get().ShareProcessNamespace)
 }
 
@@ -629,13 +848,13 @@ func (d *RevisionSpecDie) ImagePullSecrets() *diefields.ListMap[diecorev1.LocalO
 
 // Specifies the hostname of the Pod
 // If not specified, the pod's hostname will be set to a system-defined value.
-func (d *RevisionSpecDie) Hostname() diefields.Value[string, *RevisionSpecDie] {
+func (d *RevisionSpecDie) Hostname() diefields.Value[string] {
 	return diefields.ValueOf(d, revisionSpecFields.Get().Hostname)
 }
 
 // If specified, the fully qualified Pod hostname will be "<hostname>.<subdomain>.<pod namespace>.svc.<cluster domain>".
 // If not specified, the pod will not have a domainname at all.
-func (d *RevisionSpecDie) Subdomain() diefields.Value[string, *RevisionSpecDie] {
+func (d *RevisionSpecDie) Subdomain() diefields.Value[string] {
 	return diefields.ValueOf(d, revisionSpecFields.Get().Subdomain)
 }
 
@@ -646,12 +865,12 @@ func (d *RevisionSpecDie) Affinity() *diecorev1.AffinityDie {
 
 // If specified, the pod will be dispatched by specified scheduler.
 // If not specified, the pod will be dispatched by default scheduler.
-func (d *RevisionSpecDie) SchedulerName() diefields.Value[string, *RevisionSpecDie] {
+func (d *RevisionSpecDie) SchedulerName() diefields.Value[string] {
 	return diefields.ValueOf(d, revisionSpecFields.Get().SchedulerName)
 }
 
 // If specified, the pod's tolerations.
-func (d *RevisionSpecDie) Tolerations() diefields.Value[[]diecorev1.Toleration, *RevisionSpecDie] {
+func (d *RevisionSpecDie) Tolerations() diefields.Value[[]diecorev1.Toleration] {
 	return diefields.ValueOf(d, revisionSpecFields.Get().Tolerations)
 }
 
@@ -667,7 +886,7 @@ func (d *RevisionSpecDie) HostAliases() *diefields.ListMap[diecorev1.HostAlias, 
 // name must be defined by creating a PriorityClass object with that name.
 // If not specified, the pod priority will be default or zero if there is no
 // default.
-func (d *RevisionSpecDie) PriorityClassName() diefields.Value[string, *RevisionSpecDie] {
+func (d *RevisionSpecDie) PriorityClassName() diefields.Value[string] {
 	return diefields.ValueOf(d, revisionSpecFields.Get().PriorityClassName)
 }
 
@@ -676,7 +895,7 @@ func (d *RevisionSpecDie) PriorityClassName() diefields.Value[string, *RevisionS
 // prevents users from setting this field. The admission controller populates
 // this field from PriorityClassName.
 // The higher the value, the higher the priority.
-func (d *RevisionSpecDie) Priority() diefields.Optional[int32, *RevisionSpecDie] {
+func (d *RevisionSpecDie) Priority() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, revisionSpecFields.Get().Priority)
 }
 
@@ -691,7 +910,7 @@ func (d *RevisionSpecDie) DNSConfig() *diecorev1.PodDNSConfigDie {
 // A pod is ready when all its containers are ready AND
 // all conditions specified in the readiness gates have status equal to "True"
 // More info: https://git.k8s.io/enhancements/keps/sig-network/580-pod-readiness-gates
-func (d *RevisionSpecDie) ReadinessGates() diefields.Value[[]diecorev1.PodReadinessGate, *RevisionSpecDie] {
+func (d *RevisionSpecDie) ReadinessGates() diefields.Value[[]diecorev1.PodReadinessGate] {
 	return diefields.ValueOf(d, revisionSpecFields.Get().ReadinessGates)
 }
 
@@ -700,14 +919,14 @@ func (d *RevisionSpecDie) ReadinessGates() diefields.Value[[]diecorev1.PodReadin
 // If unset or empty, the "legacy" RuntimeClass will be used, which is an implicit class with an
 // empty definition that uses the default runtime handler.
 // More info: https://git.k8s.io/enhancements/keps/sig-node/585-runtime-class
-func (d *RevisionSpecDie) RuntimeClassName() diefields.Optional[string, *RevisionSpecDie] {
+func (d *RevisionSpecDie) RuntimeClassName() diefields.Optional[string] {
 	return diefields.OptionalOf(d, revisionSpecFields.Get().RuntimeClassName)
 }
 
 // EnableServiceLinks indicates whether information about services should be injected into pod's
 // environment variables, matching the syntax of Docker links.
 // Optional: Defaults to true.
-func (d *RevisionSpecDie) EnableServiceLinks() diefields.Optional[bool, *RevisionSpecDie] {
+func (d *RevisionSpecDie) EnableServiceLinks() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, revisionSpecFields.Get().EnableServiceLinks)
 }
 
@@ -716,7 +935,7 @@ func (d *RevisionSpecDie) EnableServiceLinks() diefields.Optional[bool, *Revisio
 // When Priority Admission Controller is enabled, it prevents users from setting
 // this field. The admission controller populates this field from PriorityClassName.
 // Defaults to PreemptLowerPriority if unset.
-func (d *RevisionSpecDie) PreemptionPolicy() diefields.Optional[diecorev1.PreemptionPolicy, *RevisionSpecDie] {
+func (d *RevisionSpecDie) PreemptionPolicy() diefields.Optional[diecorev1.PreemptionPolicy] {
 	return diefields.OptionalOf(d, revisionSpecFields.Get().PreemptionPolicy)
 }
 
@@ -743,7 +962,7 @@ func (d *RevisionSpecDie) TopologySpreadConstraints() *diefields.ListMap[diecore
 // In Windows containers, this means setting the registry value of hostname for the registry key HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters to FQDN.
 // If a pod does not have FQDN, this has no effect.
 // Default to false.
-func (d *RevisionSpecDie) SetHostnameAsFQDN() diefields.Optional[bool, *RevisionSpecDie] {
+func (d *RevisionSpecDie) SetHostnameAsFQDN() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, revisionSpecFields.Get().SetHostnameAsFQDN)
 }
 
@@ -791,7 +1010,7 @@ func (d *RevisionSpecDie) OS() *diecorev1.PodOSDie {
 // When set to false, a new userns is created for the pod. Setting false is useful for
 // mitigating container breakout vulnerabilities even allowing users to run their
 // containers as root without actually having root privileges on the host.
-func (d *RevisionSpecDie) HostUsers() diefields.Optional[bool, *RevisionSpecDie] {
+func (d *RevisionSpecDie) HostUsers() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, revisionSpecFields.Get().HostUsers)
 }
 
@@ -840,7 +1059,7 @@ func (d *RevisionSpecDie) Resources() *diecorev1.ResourceRequirementsDie {
 // - `hostNetwork` must be set to false.
 //
 // This field must be a valid DNS subdomain as defined in RFC 1123 and contain at most 64 characters.
-func (d *RevisionSpecDie) HostnameOverride() diefields.Optional[string, *RevisionSpecDie] {
+func (d *RevisionSpecDie) HostnameOverride() diefields.Optional[string] {
 	return diefields.OptionalOf(d, revisionSpecFields.Get().HostnameOverride)
 }
 
@@ -883,43 +1102,491 @@ func (d *RevisionSpecDie) EvictionResponders() *diefields.ListMap[diecorev1.Evic
 // requests per container of the Revision.  Defaults to `0` which means
 // concurrency to the application is not limited, and the system decides the
 // target concurrency for the autoscaler.
-func (d *RevisionSpecDie) ContainerConcurrency() diefields.Optional[int64, *RevisionSpecDie] {
+func (d *RevisionSpecDie) ContainerConcurrency() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, revisionSpecFields.Get().ContainerConcurrency)
 }
 
 // TimeoutSeconds is the maximum duration in seconds that the request instance
 // is allowed to respond to a request. If unspecified, a system default will
 // be provided.
-func (d *RevisionSpecDie) TimeoutSeconds() diefields.Optional[int64, *RevisionSpecDie] {
+func (d *RevisionSpecDie) TimeoutSeconds() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, revisionSpecFields.Get().TimeoutSeconds)
 }
 
 // ResponseStartTimeoutSeconds is the maximum duration in seconds that the request
 // routing layer will wait for a request delivered to a container to begin
 // sending any network traffic.
-func (d *RevisionSpecDie) ResponseStartTimeoutSeconds() diefields.Optional[int64, *RevisionSpecDie] {
+func (d *RevisionSpecDie) ResponseStartTimeoutSeconds() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, revisionSpecFields.Get().ResponseStartTimeoutSeconds)
 }
 
 // IdleTimeoutSeconds is the maximum duration in seconds a request will be allowed
 // to stay open while not receiving any bytes from the user's application. If
 // unspecified, a system default will be provided.
-func (d *RevisionSpecDie) IdleTimeoutSeconds() diefields.Optional[int64, *RevisionSpecDie] {
+func (d *RevisionSpecDie) IdleTimeoutSeconds() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, revisionSpecFields.Get().IdleTimeoutSeconds)
 }
 
-// RevisionStatus communicates the observed state of the Revision (from the controller).
-type RevisionStatusDie struct {
-	diebase.DieBase[RevisionStatus, *RevisionStatusDie]
+// List of volumes that can be mounted by containers belonging to the pod.
+// More info: https://kubernetes.io/docs/concepts/storage/volumes
+func (d *RevisionSpecDieMut) Volumes() *diefields.ListMapMut[diecorev1.Volume, *diecorev1.VolumeDieMut, string] {
+	return diefields.ListMapMutOf(d, revisionSpecFields.Get().Volumes)
 }
 
-func (*RevisionStatusDie) DieFrom(b diebase.DieBase[RevisionStatus, *RevisionStatusDie]) *RevisionStatusDie {
+// List of initialization containers belonging to the pod.
+// Init containers are executed in order prior to containers being started. If any
+// init container fails, the pod is considered to have failed and is handled according
+// to its restartPolicy. The name for an init container or normal container must be
+// unique among all containers.
+// Init containers may not have Lifecycle actions, Readiness probes, Liveness probes, or Startup probes.
+// The resourceRequirements of an init container are taken into account during scheduling
+// by finding the highest request/limit for each resource type, and then using the max of
+// that value or the sum of the normal containers. Limits are applied to init containers
+// in a similar fashion.
+// Init containers cannot currently be added or removed.
+// Cannot be updated.
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+func (d *RevisionSpecDieMut) InitContainers() *diefields.ListMapMut[diecorev1.Container, *diecorev1.ContainerDieMut, string] {
+	return diefields.ListMapMutOf(d, revisionSpecFields.Get().InitContainers)
+}
+
+// List of containers belonging to the pod.
+// Containers cannot currently be added or removed.
+// There must be at least one container in a Pod.
+// Cannot be updated.
+func (d *RevisionSpecDieMut) Containers() *diefields.ListMapMut[diecorev1.Container, *diecorev1.ContainerDieMut, string] {
+	return diefields.ListMapMutOf(d, revisionSpecFields.Get().Containers)
+}
+
+// List of ephemeral containers run in this pod. Ephemeral containers may be run in an existing
+// pod to perform user-initiated actions such as debugging. This list cannot be specified when
+// creating a pod, and it cannot be modified by updating the pod spec. In order to add an
+// ephemeral container to an existing pod, use the pod's ephemeralcontainers subresource.
+func (d *RevisionSpecDieMut) EphemeralContainers() *diefields.ListMapMut[diecorev1.EphemeralContainer, *diecorev1.EphemeralContainerDieMut, string] {
+	return diefields.ListMapMutOf(d, revisionSpecFields.Get().EphemeralContainers)
+}
+
+// Restart policy for all containers within the pod.
+// One of Always, OnFailure, Never. In some contexts, only a subset of those values may be permitted.
+// Default to Always.
+// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy
+func (d *RevisionSpecDieMut) RestartPolicy() diefields.ValueMut[diecorev1.RestartPolicy, *RevisionSpecDieMut] {
+	return diefields.ValueMutOf(d, revisionSpecFields.Get().RestartPolicy)
+}
+
+// Optional duration in seconds the pod needs to terminate gracefully. May be decreased in delete request.
+// Value must be non-negative integer. The value zero indicates stop immediately via
+// the kill signal (no opportunity to shut down).
+// If this value is nil, the default grace period will be used instead.
+// The grace period is the duration in seconds after the processes running in the pod are sent
+// a termination signal and the time when the processes are forcibly halted with a kill signal.
+// Set this value longer than the expected cleanup time for your process.
+// Defaults to 30 seconds.
+func (d *RevisionSpecDieMut) TerminationGracePeriodSeconds() diefields.OptionalMut[int64, *RevisionSpecDieMut] {
+	return diefields.OptionalMutOf(d, revisionSpecFields.Get().TerminationGracePeriodSeconds)
+}
+
+// Optional duration in seconds the pod may be active on the node relative to
+// StartTime before the system will actively try to mark it failed and kill associated containers.
+// Value must be a positive integer.
+func (d *RevisionSpecDieMut) ActiveDeadlineSeconds() diefields.OptionalMut[int64, *RevisionSpecDieMut] {
+	return diefields.OptionalMutOf(d, revisionSpecFields.Get().ActiveDeadlineSeconds)
+}
+
+// Set DNS policy for the pod.
+// Defaults to "ClusterFirst".
+// Valid values are 'ClusterFirstWithHostNet', 'ClusterFirst', 'Default' or 'None'.
+// DNS parameters given in DNSConfig will be merged with the policy selected with DNSPolicy.
+// To have DNS options set along with hostNetwork, you have to specify DNS policy
+// explicitly to 'ClusterFirstWithHostNet'.
+func (d *RevisionSpecDieMut) DNSPolicy() diefields.ValueMut[diecorev1.DNSPolicy, *RevisionSpecDieMut] {
+	return diefields.ValueMutOf(d, revisionSpecFields.Get().DNSPolicy)
+}
+
+// NodeSelector is a selector which must be true for the pod to fit on a node.
+// Selector which must match a node's labels for the pod to be scheduled on that node.
+// More info: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+func (d *RevisionSpecDieMut) NodeSelector() diefields.ValueMut[map[string]string, *RevisionSpecDieMut] {
+	return diefields.ValueMutOf(d, revisionSpecFields.Get().NodeSelector)
+}
+
+// ServiceAccountName is the name of the ServiceAccount to use to run this pod.
+// More info: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+func (d *RevisionSpecDieMut) ServiceAccountName() diefields.ValueMut[string, *RevisionSpecDieMut] {
+	return diefields.ValueMutOf(d, revisionSpecFields.Get().ServiceAccountName)
+}
+
+// DeprecatedServiceAccount is a deprecated alias for ServiceAccountName.
+// Deprecated: Use serviceAccountName instead.
+func (d *RevisionSpecDieMut) DeprecatedServiceAccount() diefields.ValueMut[string, *RevisionSpecDieMut] {
+	return diefields.ValueMutOf(d, revisionSpecFields.Get().DeprecatedServiceAccount)
+}
+
+// AutomountServiceAccountToken indicates whether a service account token should be automatically mounted.
+func (d *RevisionSpecDieMut) AutomountServiceAccountToken() diefields.OptionalMut[bool, *RevisionSpecDieMut] {
+	return diefields.OptionalMutOf(d, revisionSpecFields.Get().AutomountServiceAccountToken)
+}
+
+// NodeName indicates in which node this pod is scheduled.
+// If empty, this pod is a candidate for scheduling by the scheduler defined in schedulerName.
+// Once this field is set, the kubelet for this node becomes responsible for the lifecycle of this pod.
+// This field should not be used to express a desire for the pod to be scheduled on a specific node.
+// https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodename
+func (d *RevisionSpecDieMut) NodeName() diefields.ValueMut[string, *RevisionSpecDieMut] {
+	return diefields.ValueMutOf(d, revisionSpecFields.Get().NodeName)
+}
+
+// Host networking requested for this pod. Use the host's network namespace.
+// When using HostNetwork you should specify ports so the scheduler is aware.
+// When `hostNetwork` is true, specified `hostPort` fields in port definitions must match `containerPort`,
+// and unspecified `hostPort` fields in port definitions are defaulted to match `containerPort`.
+// Default to false.
+func (d *RevisionSpecDieMut) HostNetwork() diefields.ValueMut[bool, *RevisionSpecDieMut] {
+	return diefields.ValueMutOf(d, revisionSpecFields.Get().HostNetwork)
+}
+
+// Use the host's pid namespace.
+// Optional: Default to false.
+func (d *RevisionSpecDieMut) HostPID() diefields.ValueMut[bool, *RevisionSpecDieMut] {
+	return diefields.ValueMutOf(d, revisionSpecFields.Get().HostPID)
+}
+
+// Use the host's ipc namespace.
+// Optional: Default to false.
+func (d *RevisionSpecDieMut) HostIPC() diefields.ValueMut[bool, *RevisionSpecDieMut] {
+	return diefields.ValueMutOf(d, revisionSpecFields.Get().HostIPC)
+}
+
+// Share a single process namespace between all of the containers in a pod.
+// When this is set containers will be able to view and signal processes from other containers
+// in the same pod, and the first process in each container will not be assigned PID 1.
+// HostPID and ShareProcessNamespace cannot both be set.
+// Optional: Default to false.
+func (d *RevisionSpecDieMut) ShareProcessNamespace() diefields.OptionalMut[bool, *RevisionSpecDieMut] {
+	return diefields.OptionalMutOf(d, revisionSpecFields.Get().ShareProcessNamespace)
+}
+
+// SecurityContext holds pod-level security attributes and common container settings.
+// Optional: Defaults to empty.  See type description for default values of each field.
+func (d *RevisionSpecDieMut) SecurityContext() *diecorev1.PodSecurityContextDieMut {
+	return diefields.ChildMut(d, revisionSpecFields.Get().SecurityContext)
+}
+
+// ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec.
+// If specified, these secrets will be passed to individual puller implementations for them to use.
+// More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod
+func (d *RevisionSpecDieMut) ImagePullSecrets() *diefields.ListMapMut[diecorev1.LocalObjectReference, *diecorev1.LocalObjectReferenceDieMut, string] {
+	return diefields.ListMapMutOf(d, revisionSpecFields.Get().ImagePullSecrets)
+}
+
+// Specifies the hostname of the Pod
+// If not specified, the pod's hostname will be set to a system-defined value.
+func (d *RevisionSpecDieMut) Hostname() diefields.ValueMut[string, *RevisionSpecDieMut] {
+	return diefields.ValueMutOf(d, revisionSpecFields.Get().Hostname)
+}
+
+// If specified, the fully qualified Pod hostname will be "<hostname>.<subdomain>.<pod namespace>.svc.<cluster domain>".
+// If not specified, the pod will not have a domainname at all.
+func (d *RevisionSpecDieMut) Subdomain() diefields.ValueMut[string, *RevisionSpecDieMut] {
+	return diefields.ValueMutOf(d, revisionSpecFields.Get().Subdomain)
+}
+
+// If specified, the pod's scheduling constraints
+func (d *RevisionSpecDieMut) Affinity() *diecorev1.AffinityDieMut {
+	return diefields.ChildMut(d, revisionSpecFields.Get().Affinity)
+}
+
+// If specified, the pod will be dispatched by specified scheduler.
+// If not specified, the pod will be dispatched by default scheduler.
+func (d *RevisionSpecDieMut) SchedulerName() diefields.ValueMut[string, *RevisionSpecDieMut] {
+	return diefields.ValueMutOf(d, revisionSpecFields.Get().SchedulerName)
+}
+
+// If specified, the pod's tolerations.
+func (d *RevisionSpecDieMut) Tolerations() diefields.ValueMut[[]diecorev1.Toleration, *RevisionSpecDieMut] {
+	return diefields.ValueMutOf(d, revisionSpecFields.Get().Tolerations)
+}
+
+// HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts
+// file if specified.
+func (d *RevisionSpecDieMut) HostAliases() *diefields.ListMapMut[diecorev1.HostAlias, *diecorev1.HostAliasDieMut, string] {
+	return diefields.ListMapMutOf(d, revisionSpecFields.Get().HostAliases)
+}
+
+// If specified, indicates the pod's priority. "system-node-critical" and
+// "system-cluster-critical" are two special keywords which indicate the
+// highest priorities with the former being the highest priority. Any other
+// name must be defined by creating a PriorityClass object with that name.
+// If not specified, the pod priority will be default or zero if there is no
+// default.
+func (d *RevisionSpecDieMut) PriorityClassName() diefields.ValueMut[string, *RevisionSpecDieMut] {
+	return diefields.ValueMutOf(d, revisionSpecFields.Get().PriorityClassName)
+}
+
+// The priority value. Various system components use this field to find the
+// priority of the pod. When Priority Admission Controller is enabled, it
+// prevents users from setting this field. The admission controller populates
+// this field from PriorityClassName.
+// The higher the value, the higher the priority.
+func (d *RevisionSpecDieMut) Priority() diefields.OptionalMut[int32, *RevisionSpecDieMut] {
+	return diefields.OptionalMutOf(d, revisionSpecFields.Get().Priority)
+}
+
+// Specifies the DNS parameters of a pod.
+// Parameters specified here will be merged to the generated DNS
+// configuration based on DNSPolicy.
+func (d *RevisionSpecDieMut) DNSConfig() *diecorev1.PodDNSConfigDieMut {
+	return diefields.ChildMut(d, revisionSpecFields.Get().DNSConfig)
+}
+
+// If specified, all readiness gates will be evaluated for pod readiness.
+// A pod is ready when all its containers are ready AND
+// all conditions specified in the readiness gates have status equal to "True"
+// More info: https://git.k8s.io/enhancements/keps/sig-network/580-pod-readiness-gates
+func (d *RevisionSpecDieMut) ReadinessGates() diefields.ValueMut[[]diecorev1.PodReadinessGate, *RevisionSpecDieMut] {
+	return diefields.ValueMutOf(d, revisionSpecFields.Get().ReadinessGates)
+}
+
+// RuntimeClassName refers to a RuntimeClass object in the node.k8s.io group, which should be used
+// to run this pod.  If no RuntimeClass resource matches the named class, the pod will not be run.
+// If unset or empty, the "legacy" RuntimeClass will be used, which is an implicit class with an
+// empty definition that uses the default runtime handler.
+// More info: https://git.k8s.io/enhancements/keps/sig-node/585-runtime-class
+func (d *RevisionSpecDieMut) RuntimeClassName() diefields.OptionalMut[string, *RevisionSpecDieMut] {
+	return diefields.OptionalMutOf(d, revisionSpecFields.Get().RuntimeClassName)
+}
+
+// EnableServiceLinks indicates whether information about services should be injected into pod's
+// environment variables, matching the syntax of Docker links.
+// Optional: Defaults to true.
+func (d *RevisionSpecDieMut) EnableServiceLinks() diefields.OptionalMut[bool, *RevisionSpecDieMut] {
+	return diefields.OptionalMutOf(d, revisionSpecFields.Get().EnableServiceLinks)
+}
+
+// PreemptionPolicy is the Policy for preempting pods with lower priority.
+// One of Never, PreemptLowerPriority.
+// When Priority Admission Controller is enabled, it prevents users from setting
+// this field. The admission controller populates this field from PriorityClassName.
+// Defaults to PreemptLowerPriority if unset.
+func (d *RevisionSpecDieMut) PreemptionPolicy() diefields.OptionalMut[diecorev1.PreemptionPolicy, *RevisionSpecDieMut] {
+	return diefields.OptionalMutOf(d, revisionSpecFields.Get().PreemptionPolicy)
+}
+
+// Overhead represents the resource overhead associated with running a pod for a given RuntimeClass.
+// This field will be autopopulated at admission time by the RuntimeClass admission controller. If
+// the RuntimeClass admission controller is enabled, overhead must not be set in Pod create requests.
+// The RuntimeClass admission controller will reject Pod create requests which have the overhead already
+// set. If RuntimeClass is configured and selected in the PodSpec, Overhead will be set to the value
+// defined in the corresponding RuntimeClass, otherwise it will remain unset and treated as zero.
+// More info: https://git.k8s.io/enhancements/keps/sig-node/688-pod-overhead/README.md
+func (d *RevisionSpecDieMut) Overhead() *diefields.MapMut[diecorev1.ResourceName, resource.Quantity] {
+	return diefields.MapMutOf(d, revisionSpecFields.Get().Overhead)
+}
+
+// TopologySpreadConstraints describes how a group of pods ought to spread across topology
+// domains. Scheduler will schedule pods in a way which abides by the constraints.
+// All topologySpreadConstraints are ANDed.
+func (d *RevisionSpecDieMut) TopologySpreadConstraints() *diefields.ListMapMut[diecorev1.TopologySpreadConstraint, *diecorev1.TopologySpreadConstraintDieMut, TopologySpreadConstraintKey] {
+	return diefields.ListMapMutOf(d, revisionSpecFields.Get().TopologySpreadConstraints)
+}
+
+// If true the pod's hostname will be configured as the pod's FQDN, rather than the leaf name (the default).
+// In Linux containers, this means setting the FQDN in the hostname field of the kernel (the nodename field of struct utsname).
+// In Windows containers, this means setting the registry value of hostname for the registry key HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters to FQDN.
+// If a pod does not have FQDN, this has no effect.
+// Default to false.
+func (d *RevisionSpecDieMut) SetHostnameAsFQDN() diefields.OptionalMut[bool, *RevisionSpecDieMut] {
+	return diefields.OptionalMutOf(d, revisionSpecFields.Get().SetHostnameAsFQDN)
+}
+
+// Specifies the OS of the containers in the pod.
+// Some pod and container fields are restricted if this is set.
+//
+// If the OS field is set to linux, the following fields must be unset:
+// -securityContext.windowsOptions
+//
+// If the OS field is set to windows, following fields must be unset:
+// - spec.hostPID
+// - spec.hostIPC
+// - spec.hostUsers
+// - spec.resources
+// - spec.securityContext.appArmorProfile
+// - spec.securityContext.seLinuxOptions
+// - spec.securityContext.seccompProfile
+// - spec.securityContext.fsGroup
+// - spec.securityContext.fsGroupChangePolicy
+// - spec.securityContext.sysctls
+// - spec.shareProcessNamespace
+// - spec.securityContext.runAsUser
+// - spec.securityContext.runAsGroup
+// - spec.securityContext.supplementalGroups
+// - spec.securityContext.supplementalGroupsPolicy
+// - spec.containers[*].securityContext.appArmorProfile
+// - spec.containers[*].securityContext.seLinuxOptions
+// - spec.containers[*].securityContext.seccompProfile
+// - spec.containers[*].securityContext.capabilities
+// - spec.containers[*].securityContext.readOnlyRootFilesystem
+// - spec.containers[*].securityContext.privileged
+// - spec.containers[*].securityContext.allowPrivilegeEscalation
+// - spec.containers[*].securityContext.procMount
+// - spec.containers[*].securityContext.runAsUser
+// - spec.containers[*].securityContext.runAsGroup
+func (d *RevisionSpecDieMut) OS() *diecorev1.PodOSDieMut {
+	return diefields.ChildMut(d, revisionSpecFields.Get().OS)
+}
+
+// Use the host's user namespace.
+// Optional: Default to true.
+// If set to true or not present, the pod will be run in the host user namespace, useful
+// for when the pod needs a feature only available to the host user namespace, such as
+// loading a kernel module with CAP_SYS_MODULE.
+// When set to false, a new userns is created for the pod. Setting false is useful for
+// mitigating container breakout vulnerabilities even allowing users to run their
+// containers as root without actually having root privileges on the host.
+func (d *RevisionSpecDieMut) HostUsers() diefields.OptionalMut[bool, *RevisionSpecDieMut] {
+	return diefields.OptionalMutOf(d, revisionSpecFields.Get().HostUsers)
+}
+
+// SchedulingGates is an opaque list of values that if specified will block scheduling the pod.
+// If schedulingGates is not empty, the pod will stay in the SchedulingGated state and the
+// scheduler will not attempt to schedule the pod.
+//
+// SchedulingGates can only be set at pod creation time, and be removed only afterwards.
+func (d *RevisionSpecDieMut) SchedulingGates() *diefields.ListMapMut[diecorev1.PodSchedulingGate, *diecorev1.PodSchedulingGateDieMut, string] {
+	return diefields.ListMapMutOf(d, revisionSpecFields.Get().SchedulingGates)
+}
+
+// ResourceClaims defines which ResourceClaims must be allocated
+// and reserved before the Pod is allowed to start. The resources
+// will be made available to those containers which consume them
+// by name.
+//
+// This is a stable field but requires that the
+// DynamicResourceAllocation feature gate is enabled.
+//
+// This field is immutable.
+func (d *RevisionSpecDieMut) ResourceClaims() *diefields.ListMapMut[diecorev1.PodResourceClaim, *diecorev1.PodResourceClaimDieMut, string] {
+	return diefields.ListMapMutOf(d, revisionSpecFields.Get().ResourceClaims)
+}
+
+// Resources is the total amount of CPU and Memory resources required by all
+// containers in the pod. It supports specifying Requests and Limits for
+// "cpu", "memory" and "hugepages-" resource names only. ResourceClaims are not supported.
+//
+// This field enables fine-grained control over resource allocation for the
+// entire pod, allowing resource sharing among containers in a pod.
+// TODO: For beta graduation, expand this comment with a detailed explanation.
+//
+// This is an alpha field and requires enabling the PodLevelResources feature
+// gate.
+func (d *RevisionSpecDieMut) Resources() *diecorev1.ResourceRequirementsDieMut {
+	return diefields.ChildMut(d, revisionSpecFields.Get().Resources)
+}
+
+// HostnameOverride specifies an explicit override for the pod's hostname as perceived by the pod.
+// This field only specifies the pod's hostname and does not affect its DNS records.
+// When this field is set to a non-empty string:
+// - It takes precedence over the values set in `hostname` and `subdomain`.
+// - The Pod's hostname will be set to this value.
+// - `setHostnameAsFQDN` must be nil or set to false.
+// - `hostNetwork` must be set to false.
+//
+// This field must be a valid DNS subdomain as defined in RFC 1123 and contain at most 64 characters.
+func (d *RevisionSpecDieMut) HostnameOverride() diefields.OptionalMut[string, *RevisionSpecDieMut] {
+	return diefields.OptionalMutOf(d, revisionSpecFields.Get().HostnameOverride)
+}
+
+// SchedulingGroup provides a reference to the immediate scheduling runtime
+// grouping object that this Pod belongs to.
+// This field is used by the scheduler to identify the group and apply the
+// correct group scheduling policies. The association with a group also
+// impacts other lifecycle aspects of a Pod that are relevant in a wider context
+// of scheduling like preemption, resource attachment, etc. If not specified,
+// the Pod is treated as a single unit in all of these aspects.
+// The group object referenced by this field may not exist at the time the
+// Pod is created.
+// This field is immutable, but a group object with the same name may be
+// recreated with different policies. Doing this during pod scheduling
+// may result in the placement not conforming to the expected policies.
+func (d *RevisionSpecDieMut) SchedulingGroup() *diecorev1.PodSchedulingGroupDieMut {
+	return diefields.ChildMut(d, revisionSpecFields.Get().SchedulingGroup)
+}
+
+// evictionResponders reference responders that react to Evictions based on EvictionRequests.
+// Responders should observe and communicate through the Eviction Resource API to help with
+// the graceful termination of a pod. The responders are selected sequentially, according to
+// their specified priority.
+//
+// Responders should periodically report on an eviction progress by updating the
+// .status.responders[].heartbeatTime field of the Eviction object. If this field is not updated
+// within the heartbeat deadline defined by the Eviction API (currently 20 minutes), the eviction
+// is passed over to the next responder with a lower priority. If there is no other responder,
+// the last default imperative-eviction.k8s.io/evictor responder with a priority of 100 will
+// evict the pod using the imperative Eviction API (pods/<name>/eviction subresource).
+//
+// The maximum length of the responders list is 10.
+// Responders are not supported when the pod is part of a PodGroup (.spec.schedulingGroup is set).
+// This field can only be set on creation and is immutable afterwards.
+func (d *RevisionSpecDieMut) EvictionResponders() *diefields.ListMapMut[diecorev1.EvictionResponder, *diecorev1.EvictionResponderDieMut, string] {
+	return diefields.ListMapMutOf(d, revisionSpecFields.Get().EvictionResponders)
+}
+
+// ContainerConcurrency specifies the maximum allowed in-flight (concurrent)
+// requests per container of the Revision.  Defaults to `0` which means
+// concurrency to the application is not limited, and the system decides the
+// target concurrency for the autoscaler.
+func (d *RevisionSpecDieMut) ContainerConcurrency() diefields.OptionalMut[int64, *RevisionSpecDieMut] {
+	return diefields.OptionalMutOf(d, revisionSpecFields.Get().ContainerConcurrency)
+}
+
+// TimeoutSeconds is the maximum duration in seconds that the request instance
+// is allowed to respond to a request. If unspecified, a system default will
+// be provided.
+func (d *RevisionSpecDieMut) TimeoutSeconds() diefields.OptionalMut[int64, *RevisionSpecDieMut] {
+	return diefields.OptionalMutOf(d, revisionSpecFields.Get().TimeoutSeconds)
+}
+
+// ResponseStartTimeoutSeconds is the maximum duration in seconds that the request
+// routing layer will wait for a request delivered to a container to begin
+// sending any network traffic.
+func (d *RevisionSpecDieMut) ResponseStartTimeoutSeconds() diefields.OptionalMut[int64, *RevisionSpecDieMut] {
+	return diefields.OptionalMutOf(d, revisionSpecFields.Get().ResponseStartTimeoutSeconds)
+}
+
+// IdleTimeoutSeconds is the maximum duration in seconds a request will be allowed
+// to stay open while not receiving any bytes from the user's application. If
+// unspecified, a system default will be provided.
+func (d *RevisionSpecDieMut) IdleTimeoutSeconds() diefields.OptionalMut[int64, *RevisionSpecDieMut] {
+	return diefields.OptionalMutOf(d, revisionSpecFields.Get().IdleTimeoutSeconds)
+}
+
+// RevisionStatus communicates the observed state of the Revision (from the controller).
+//
+// RevisionStatusDie is immutable: it reads.
+// RevisionStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type RevisionStatusDie struct {
+	diebase.DieBase[RevisionStatus, *RevisionStatusDie, *RevisionStatusDieMut]
+}
+
+// RevisionStatusDieMut is the mutable die of RevisionStatus: see RevisionStatusDie.
+type RevisionStatusDieMut struct {
+	diebase.DieMutBase[RevisionStatus, *RevisionStatusDie, *RevisionStatusDieMut]
+}
+
+func (*RevisionStatusDie) DieFrom(b diebase.DieBase[RevisionStatus, *RevisionStatusDie, *RevisionStatusDieMut]) *RevisionStatusDie {
 	return &RevisionStatusDie{b}
 }
 
-var _ diebase.DieOf[RevisionStatus, *RevisionStatusDie] = (*RevisionStatusDie)(nil)
+func (*RevisionStatusDieMut) DieFrom(b diebase.DieMutBase[RevisionStatus, *RevisionStatusDie, *RevisionStatusDieMut]) *RevisionStatusDieMut {
+	return &RevisionStatusDieMut{b}
+}
 
-var RevisionStatusBlank = diebase.Blank[RevisionStatus, *RevisionStatusDie]()
+var (
+	_ diebase.DieOf[RevisionStatus, *RevisionStatusDie, *RevisionStatusDieMut]    = (*RevisionStatusDie)(nil)
+	_ diebase.DieMutOf[RevisionStatus, *RevisionStatusDie, *RevisionStatusDieMut] = (*RevisionStatusDieMut)(nil)
+)
+
+var RevisionStatusBlank = diebase.Blank[RevisionStatus, *RevisionStatusDie, *RevisionStatusDieMut]()
 
 type revisionStatusFieldsTable struct {
 	ObservedGeneration    diefields.Field[RevisionStatus, int64]
@@ -947,12 +1614,12 @@ var revisionStatusFields = &diefields.Table[revisionStatusFieldsTable]{Build: fu
 
 // ObservedGeneration is the 'Generation' of the Service that
 // was last processed by the controller.
-func (d *RevisionStatusDie) ObservedGeneration() diefields.Value[int64, *RevisionStatusDie] {
+func (d *RevisionStatusDie) ObservedGeneration() diefields.Value[int64] {
 	return diefields.ValueOf(d, revisionStatusFields.Get().ObservedGeneration)
 }
 
 // Conditions the latest available observations of a resource's current state.
-func (d *RevisionStatusDie) Conditions() diefields.Value[duckv1.Conditions, *RevisionStatusDie] {
+func (d *RevisionStatusDie) Conditions() diefields.Value[duckv1.Conditions] {
 	return diefields.ValueOf(d, revisionStatusFields.Get().Conditions)
 }
 
@@ -966,7 +1633,7 @@ func (d *RevisionStatusDie) Annotations() *diefields.Map[string, string] {
 
 // LogURL specifies the generated logging url for this particular revision
 // based on the revision url template specified in the controller's config.
-func (d *RevisionStatusDie) LogURL() diefields.Value[string, *RevisionStatusDie] {
+func (d *RevisionStatusDie) LogURL() diefields.Value[string] {
 	return diefields.ValueOf(d, revisionStatusFields.Get().LogURL)
 }
 
@@ -976,7 +1643,7 @@ func (d *RevisionStatusDie) LogURL() diefields.Value[string, *RevisionStatusDie]
 // ContainerStatuses holds the container name and image digests
 // for both serving and non serving containers.
 // ref: https://bit.ly/image-digests
-func (d *RevisionStatusDie) ContainerStatuses() diefields.Value[[]ContainerStatus, *RevisionStatusDie] {
+func (d *RevisionStatusDie) ContainerStatuses() diefields.Value[[]ContainerStatus] {
 	return diefields.ValueOf(d, revisionStatusFields.Get().ContainerStatuses)
 }
 
@@ -986,43 +1653,113 @@ func (d *RevisionStatusDie) ContainerStatuses() diefields.Value[[]ContainerStatu
 // ContainerStatuses holds the container name and image digests
 // for both serving and non serving containers.
 // ref: https://bit.ly/image-digests
-func (d *RevisionStatusDie) InitContainerStatuses() diefields.Value[[]ContainerStatus, *RevisionStatusDie] {
+func (d *RevisionStatusDie) InitContainerStatuses() diefields.Value[[]ContainerStatus] {
 	return diefields.ValueOf(d, revisionStatusFields.Get().InitContainerStatuses)
 }
 
 // ActualReplicas reflects the amount of ready pods running this revision.
-func (d *RevisionStatusDie) ActualReplicas() diefields.Optional[int32, *RevisionStatusDie] {
+func (d *RevisionStatusDie) ActualReplicas() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, revisionStatusFields.Get().ActualReplicas)
 }
 
 // DesiredReplicas reflects the desired amount of pods running this revision.
-func (d *RevisionStatusDie) DesiredReplicas() diefields.Optional[int32, *RevisionStatusDie] {
+func (d *RevisionStatusDie) DesiredReplicas() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, revisionStatusFields.Get().DesiredReplicas)
+}
+
+// ObservedGeneration is the 'Generation' of the Service that
+// was last processed by the controller.
+func (d *RevisionStatusDieMut) ObservedGeneration() diefields.ValueMut[int64, *RevisionStatusDieMut] {
+	return diefields.ValueMutOf(d, revisionStatusFields.Get().ObservedGeneration)
+}
+
+// Conditions the latest available observations of a resource's current state.
+func (d *RevisionStatusDieMut) Conditions() diefields.ValueMut[duckv1.Conditions, *RevisionStatusDieMut] {
+	return diefields.ValueMutOf(d, revisionStatusFields.Get().Conditions)
+}
+
+// Annotations is additional Status fields for the Resource to save some
+// additional State as well as convey more information to the user. This is
+// roughly akin to Annotations on any k8s resource, just the reconciler conveying
+// richer information outwards.
+func (d *RevisionStatusDieMut) Annotations() *diefields.MapMut[string, string] {
+	return diefields.MapMutOf(d, revisionStatusFields.Get().Annotations)
+}
+
+// LogURL specifies the generated logging url for this particular revision
+// based on the revision url template specified in the controller's config.
+func (d *RevisionStatusDieMut) LogURL() diefields.ValueMut[string, *RevisionStatusDieMut] {
+	return diefields.ValueMutOf(d, revisionStatusFields.Get().LogURL)
+}
+
+// ContainerStatuses is a slice of images present in .Spec.Container[*].Image
+// to their respective digests and their container name.
+// The digests are resolved during the creation of Revision.
+// ContainerStatuses holds the container name and image digests
+// for both serving and non serving containers.
+// ref: https://bit.ly/image-digests
+func (d *RevisionStatusDieMut) ContainerStatuses() diefields.ValueMut[[]ContainerStatus, *RevisionStatusDieMut] {
+	return diefields.ValueMutOf(d, revisionStatusFields.Get().ContainerStatuses)
+}
+
+// InitContainerStatuses is a slice of images present in .Spec.InitContainer[*].Image
+// to their respective digests and their container name.
+// The digests are resolved during the creation of Revision.
+// ContainerStatuses holds the container name and image digests
+// for both serving and non serving containers.
+// ref: https://bit.ly/image-digests
+func (d *RevisionStatusDieMut) InitContainerStatuses() diefields.ValueMut[[]ContainerStatus, *RevisionStatusDieMut] {
+	return diefields.ValueMutOf(d, revisionStatusFields.Get().InitContainerStatuses)
+}
+
+// ActualReplicas reflects the amount of ready pods running this revision.
+func (d *RevisionStatusDieMut) ActualReplicas() diefields.OptionalMut[int32, *RevisionStatusDieMut] {
+	return diefields.OptionalMutOf(d, revisionStatusFields.Get().ActualReplicas)
+}
+
+// DesiredReplicas reflects the desired amount of pods running this revision.
+func (d *RevisionStatusDieMut) DesiredReplicas() diefields.OptionalMut[int32, *RevisionStatusDieMut] {
+	return diefields.OptionalMutOf(d, revisionStatusFields.Get().DesiredReplicas)
 }
 
 // RevisionTemplateSpec describes the data a revision should have when created from a template.
 // Based on: https://github.com/kubernetes/api/blob/e771f807/core/v1/types.go#L3179-L3190
+//
+// RevisionTemplateSpecDie is immutable: it reads.
+// RevisionTemplateSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type RevisionTemplateSpecDie struct {
-	diebase.DieBase[RevisionTemplateSpec, *RevisionTemplateSpecDie]
+	diebase.DieBase[RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut]
 }
 
-func (*RevisionTemplateSpecDie) DieFrom(b diebase.DieBase[RevisionTemplateSpec, *RevisionTemplateSpecDie]) *RevisionTemplateSpecDie {
+// RevisionTemplateSpecDieMut is the mutable die of RevisionTemplateSpec: see RevisionTemplateSpecDie.
+type RevisionTemplateSpecDieMut struct {
+	diebase.DieMutBase[RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut]
+}
+
+func (*RevisionTemplateSpecDie) DieFrom(b diebase.DieBase[RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut]) *RevisionTemplateSpecDie {
 	return &RevisionTemplateSpecDie{b}
 }
 
-var _ diebase.DieOf[RevisionTemplateSpec, *RevisionTemplateSpecDie] = (*RevisionTemplateSpecDie)(nil)
+func (*RevisionTemplateSpecDieMut) DieFrom(b diebase.DieMutBase[RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut]) *RevisionTemplateSpecDieMut {
+	return &RevisionTemplateSpecDieMut{b}
+}
 
-var RevisionTemplateSpecBlank = diebase.Blank[RevisionTemplateSpec, *RevisionTemplateSpecDie]()
+var (
+	_ diebase.DieOf[RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut]    = (*RevisionTemplateSpecDie)(nil)
+	_ diebase.DieMutOf[RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut] = (*RevisionTemplateSpecDieMut)(nil)
+)
+
+var RevisionTemplateSpecBlank = diebase.Blank[RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut]()
 
 type revisionTemplateSpecFieldsTable struct {
-	Metadata diefields.Struct[RevisionTemplateSpec, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec     diefields.Struct[RevisionTemplateSpec, RevisionSpec, *RevisionSpecDie]
+	Metadata diefields.Struct[RevisionTemplateSpec, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec     diefields.Struct[RevisionTemplateSpec, RevisionSpec, *RevisionSpecDie, *RevisionSpecDieMut]
 }
 
 var revisionTemplateSpecFields = &diefields.Table[revisionTemplateSpecFieldsTable]{Build: func() (f revisionTemplateSpecFieldsTable) {
 	_ = annotated
-	f.Metadata = diefields.NewStruct[RevisionTemplateSpec, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[RevisionTemplateSpec, RevisionSpec, *RevisionSpecDie]("spec")
+	f.Metadata = diefields.NewStruct[RevisionTemplateSpec, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[RevisionTemplateSpec, RevisionSpec, *RevisionSpecDie, *RevisionSpecDieMut]("spec")
 	return
 }}
 
@@ -1034,39 +1771,62 @@ func (d *RevisionTemplateSpecDie) Spec() *RevisionSpecDie {
 	return diefields.Child(d, revisionTemplateSpecFields.Get().Spec)
 }
 
+func (d *RevisionTemplateSpecDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, revisionTemplateSpecFields.Get().Metadata)
+}
+
+func (d *RevisionTemplateSpecDieMut) Spec() *RevisionSpecDieMut {
+	return diefields.ChildMut(d, revisionTemplateSpecFields.Get().Spec)
+}
+
 // Route is responsible for configuring ingress over a collection of Revisions.
 // Some of the Revisions a Route distributes traffic over may be specified by
 // referencing the Configuration responsible for creating them; in these cases
 // the Route is additionally responsible for monitoring the Configuration for
 // "latest ready revision" changes, and smoothly rolling out latest revisions.
 // See also: https://github.com/knative/serving/blob/main/docs/spec/overview.md#route
+//
+// RouteDie is immutable: it reads.
+// RouteDieMut, its mutable die, also writes, as DieWith passes it.
 type RouteDie struct {
-	diebase.DieObjectBase[Route, *RouteDie]
+	diebase.DieObjectBase[Route, *RouteDie, *RouteDieMut]
 }
 
-func (*RouteDie) DieFrom(b diebase.DieBase[Route, *RouteDie]) *RouteDie {
+// RouteDieMut is the mutable die of Route: see RouteDie.
+type RouteDieMut struct {
+	diebase.DieObjectMutBase[Route, *RouteDie, *RouteDieMut]
+}
+
+func (*RouteDie) DieFrom(b diebase.DieBase[Route, *RouteDie, *RouteDieMut]) *RouteDie {
 	return &RouteDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[Route, *RouteDie] = (*RouteDie)(nil)
+func (*RouteDieMut) DieFrom(b diebase.DieMutBase[Route, *RouteDie, *RouteDieMut]) *RouteDieMut {
+	return &RouteDieMut{diebase.AsObjectMut(b)}
+}
 
-var RouteBlank = diebase.BlankOf[Route, *RouteDie](Route{TypeMeta: metav1.TypeMeta{APIVersion: "serving.knative.dev/v1", Kind: "Route"}})
+var (
+	_ dieobjects.DieObjectOf[Route, *RouteDie, *RouteDieMut]    = (*RouteDie)(nil)
+	_ dieobjects.DieObjectMutOf[Route, *RouteDie, *RouteDieMut] = (*RouteDieMut)(nil)
+)
+
+var RouteBlank = diebase.BlankOf[Route, *RouteDie, *RouteDieMut](Route{TypeMeta: metav1.TypeMeta{APIVersion: "serving.knative.dev/v1", Kind: "Route"}})
 
 type routeFieldsTable struct {
 	Kind       diefields.Field[Route, string]
 	APIVersion diefields.Field[Route, string]
-	Metadata   diefields.Struct[Route, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[Route, RouteSpec, *RouteSpecDie]
-	Status     diefields.Struct[Route, RouteStatus, *RouteStatusDie]
+	Metadata   diefields.Struct[Route, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[Route, RouteSpec, *RouteSpecDie, *RouteSpecDieMut]
+	Status     diefields.Struct[Route, RouteStatus, *RouteStatusDie, *RouteStatusDieMut]
 }
 
 var routeFields = &diefields.Table[routeFieldsTable]{Build: func() (f routeFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[Route, string]("kind")
 	f.APIVersion = diefields.NewField[Route, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[Route, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[Route, RouteSpec, *RouteSpecDie]("spec")
-	f.Status = diefields.NewStruct[Route, RouteStatus, *RouteStatusDie]("status")
+	f.Metadata = diefields.NewStruct[Route, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[Route, RouteSpec, *RouteSpecDie, *RouteSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[Route, RouteStatus, *RouteStatusDie, *RouteStatusDieMut]("status")
 	return
 }}
 
@@ -1075,7 +1835,7 @@ var routeFields = &diefields.Table[routeFieldsTable]{Build: func() (f routeField
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *RouteDie) Kind() diefields.Value[string, *RouteDie] {
+func (d *RouteDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, routeFields.Get().Kind)
 }
 
@@ -1083,7 +1843,7 @@ func (d *RouteDie) Kind() diefields.Value[string, *RouteDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *RouteDie) APIVersion() diefields.Value[string, *RouteDie] {
+func (d *RouteDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, routeFields.Get().APIVersion)
 }
 
@@ -1097,15 +1857,44 @@ func (d *RouteDie) Spec() *RouteSpecDie { return diefields.Child(d, routeFields.
 // Status communicates the observed state of the Route (from the controller).
 func (d *RouteDie) Status() *RouteStatusDie { return diefields.Child(d, routeFields.Get().Status) }
 
-// RouteList is a list of Route resources
-type RouteListDie struct {
-	dielists.List[*RouteDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *RouteDieMut) Kind() diefields.ValueMut[string, *RouteDieMut] {
+	return diefields.ValueMutOf(d, routeFields.Get().Kind)
 }
 
-var _ dielists.DieListOf[*RouteDie] = (*RouteListDie)(nil)
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *RouteDieMut) APIVersion() diefields.ValueMut[string, *RouteDieMut] {
+	return diefields.ValueMutOf(d, routeFields.Get().APIVersion)
+}
+
+func (d *RouteDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, routeFields.Get().Metadata)
+}
+
+// Spec holds the desired state of the Route (from the client).
+func (d *RouteDieMut) Spec() *RouteSpecDieMut { return diefields.ChildMut(d, routeFields.Get().Spec) }
+
+// Status communicates the observed state of the Route (from the controller).
+func (d *RouteDieMut) Status() *RouteStatusDieMut {
+	return diefields.ChildMut(d, routeFields.Get().Status)
+}
+
+// RouteList is a list of Route resources
+type RouteListDie struct {
+	dielists.List[*RouteDieMut]
+}
+
+var _ dielists.DieListOf[*RouteDieMut] = (*RouteListDie)(nil)
 
 // NewRouteList returns a list with items.
-func NewRouteList(items ...*RouteDie) *RouteListDie {
+func NewRouteList(items ...*RouteDieMut) *RouteListDie {
 	return &RouteListDie{dielists.NewList("serving.knative.dev/v1", "RouteList", items...)}
 }
 
@@ -1115,17 +1904,32 @@ func (l *RouteListDie) DeepCopy() *RouteListDie { return &RouteListDie{l.DieCopy
 func (l *RouteListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // RouteSpec holds the desired state of the Route (from the client).
+//
+// RouteSpecDie is immutable: it reads.
+// RouteSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type RouteSpecDie struct {
-	diebase.DieBase[RouteSpec, *RouteSpecDie]
+	diebase.DieBase[RouteSpec, *RouteSpecDie, *RouteSpecDieMut]
 }
 
-func (*RouteSpecDie) DieFrom(b diebase.DieBase[RouteSpec, *RouteSpecDie]) *RouteSpecDie {
+// RouteSpecDieMut is the mutable die of RouteSpec: see RouteSpecDie.
+type RouteSpecDieMut struct {
+	diebase.DieMutBase[RouteSpec, *RouteSpecDie, *RouteSpecDieMut]
+}
+
+func (*RouteSpecDie) DieFrom(b diebase.DieBase[RouteSpec, *RouteSpecDie, *RouteSpecDieMut]) *RouteSpecDie {
 	return &RouteSpecDie{b}
 }
 
-var _ diebase.DieOf[RouteSpec, *RouteSpecDie] = (*RouteSpecDie)(nil)
+func (*RouteSpecDieMut) DieFrom(b diebase.DieMutBase[RouteSpec, *RouteSpecDie, *RouteSpecDieMut]) *RouteSpecDieMut {
+	return &RouteSpecDieMut{b}
+}
 
-var RouteSpecBlank = diebase.Blank[RouteSpec, *RouteSpecDie]()
+var (
+	_ diebase.DieOf[RouteSpec, *RouteSpecDie, *RouteSpecDieMut]    = (*RouteSpecDie)(nil)
+	_ diebase.DieMutOf[RouteSpec, *RouteSpecDie, *RouteSpecDieMut] = (*RouteSpecDieMut)(nil)
+)
+
+var RouteSpecBlank = diebase.Blank[RouteSpec, *RouteSpecDie, *RouteSpecDieMut]()
 
 type routeSpecFieldsTable struct {
 	Traffic diefields.Field[RouteSpec, []TrafficTarget]
@@ -1139,29 +1943,50 @@ var routeSpecFields = &diefields.Table[routeSpecFieldsTable]{Build: func() (f ro
 
 // Traffic specifies how to distribute traffic over a collection of
 // revisions and configurations.
-func (d *RouteSpecDie) Traffic() diefields.Value[[]TrafficTarget, *RouteSpecDie] {
+func (d *RouteSpecDie) Traffic() diefields.Value[[]TrafficTarget] {
 	return diefields.ValueOf(d, routeSpecFields.Get().Traffic)
 }
 
-// RouteStatus communicates the observed state of the Route (from the controller).
-type RouteStatusDie struct {
-	diebase.DieBase[RouteStatus, *RouteStatusDie]
+// Traffic specifies how to distribute traffic over a collection of
+// revisions and configurations.
+func (d *RouteSpecDieMut) Traffic() diefields.ValueMut[[]TrafficTarget, *RouteSpecDieMut] {
+	return diefields.ValueMutOf(d, routeSpecFields.Get().Traffic)
 }
 
-func (*RouteStatusDie) DieFrom(b diebase.DieBase[RouteStatus, *RouteStatusDie]) *RouteStatusDie {
+// RouteStatus communicates the observed state of the Route (from the controller).
+//
+// RouteStatusDie is immutable: it reads.
+// RouteStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type RouteStatusDie struct {
+	diebase.DieBase[RouteStatus, *RouteStatusDie, *RouteStatusDieMut]
+}
+
+// RouteStatusDieMut is the mutable die of RouteStatus: see RouteStatusDie.
+type RouteStatusDieMut struct {
+	diebase.DieMutBase[RouteStatus, *RouteStatusDie, *RouteStatusDieMut]
+}
+
+func (*RouteStatusDie) DieFrom(b diebase.DieBase[RouteStatus, *RouteStatusDie, *RouteStatusDieMut]) *RouteStatusDie {
 	return &RouteStatusDie{b}
 }
 
-var _ diebase.DieOf[RouteStatus, *RouteStatusDie] = (*RouteStatusDie)(nil)
+func (*RouteStatusDieMut) DieFrom(b diebase.DieMutBase[RouteStatus, *RouteStatusDie, *RouteStatusDieMut]) *RouteStatusDieMut {
+	return &RouteStatusDieMut{b}
+}
 
-var RouteStatusBlank = diebase.Blank[RouteStatus, *RouteStatusDie]()
+var (
+	_ diebase.DieOf[RouteStatus, *RouteStatusDie, *RouteStatusDieMut]    = (*RouteStatusDie)(nil)
+	_ diebase.DieMutOf[RouteStatus, *RouteStatusDie, *RouteStatusDieMut] = (*RouteStatusDieMut)(nil)
+)
+
+var RouteStatusBlank = diebase.Blank[RouteStatus, *RouteStatusDie, *RouteStatusDieMut]()
 
 type routeStatusFieldsTable struct {
 	ObservedGeneration diefields.Field[RouteStatus, int64]
 	Conditions         diefields.Field[RouteStatus, duckv1.Conditions]
 	Annotations        diefields.MapField[RouteStatus, string, string]
 	URL                diefields.Field[RouteStatus, *apis.URL]
-	Address            diefields.Struct[RouteStatus, duckv1.Addressable, *duckv1.AddressableDie]
+	Address            diefields.Struct[RouteStatus, duckv1.Addressable, *duckv1.AddressableDie, *duckv1.AddressableDieMut]
 	Traffic            diefields.Field[RouteStatus, []TrafficTarget]
 }
 
@@ -1171,19 +1996,19 @@ var routeStatusFields = &diefields.Table[routeStatusFieldsTable]{Build: func() (
 	f.Conditions = diefields.NewField[RouteStatus, duckv1.Conditions]("conditions")
 	f.Annotations = diefields.NewMap[RouteStatus, string, string]("annotations")
 	f.URL = diefields.NewField[RouteStatus, *apis.URL]("url")
-	f.Address = diefields.NewStruct[RouteStatus, duckv1.Addressable, *duckv1.AddressableDie]("address")
+	f.Address = diefields.NewStruct[RouteStatus, duckv1.Addressable, *duckv1.AddressableDie, *duckv1.AddressableDieMut]("address")
 	f.Traffic = diefields.NewField[RouteStatus, []TrafficTarget]("traffic")
 	return
 }}
 
 // ObservedGeneration is the 'Generation' of the Service that
 // was last processed by the controller.
-func (d *RouteStatusDie) ObservedGeneration() diefields.Value[int64, *RouteStatusDie] {
+func (d *RouteStatusDie) ObservedGeneration() diefields.Value[int64] {
 	return diefields.ValueOf(d, routeStatusFields.Get().ObservedGeneration)
 }
 
 // Conditions the latest available observations of a resource's current state.
-func (d *RouteStatusDie) Conditions() diefields.Value[duckv1.Conditions, *RouteStatusDie] {
+func (d *RouteStatusDie) Conditions() diefields.Value[duckv1.Conditions] {
 	return diefields.ValueOf(d, routeStatusFields.Get().Conditions)
 }
 
@@ -1197,7 +2022,7 @@ func (d *RouteStatusDie) Annotations() *diefields.Map[string, string] {
 
 // URL holds the url that will distribute traffic over the provided traffic targets.
 // It generally has the form http[s]://{route-name}.{route-namespace}.{cluster-level-suffix}
-func (d *RouteStatusDie) URL() diefields.Optional[apis.URL, *RouteStatusDie] {
+func (d *RouteStatusDie) URL() diefields.Optional[apis.URL] {
 	return diefields.OptionalOf(d, routeStatusFields.Get().URL)
 }
 
@@ -1210,42 +2035,95 @@ func (d *RouteStatusDie) Address() *duckv1.AddressableDie {
 // These entries will always contain RevisionName references.
 // When ConfigurationName appears in the spec, this will hold the
 // LatestReadyRevisionName that we last observed.
-func (d *RouteStatusDie) Traffic() diefields.Value[[]TrafficTarget, *RouteStatusDie] {
+func (d *RouteStatusDie) Traffic() diefields.Value[[]TrafficTarget] {
 	return diefields.ValueOf(d, routeStatusFields.Get().Traffic)
+}
+
+// ObservedGeneration is the 'Generation' of the Service that
+// was last processed by the controller.
+func (d *RouteStatusDieMut) ObservedGeneration() diefields.ValueMut[int64, *RouteStatusDieMut] {
+	return diefields.ValueMutOf(d, routeStatusFields.Get().ObservedGeneration)
+}
+
+// Conditions the latest available observations of a resource's current state.
+func (d *RouteStatusDieMut) Conditions() diefields.ValueMut[duckv1.Conditions, *RouteStatusDieMut] {
+	return diefields.ValueMutOf(d, routeStatusFields.Get().Conditions)
+}
+
+// Annotations is additional Status fields for the Resource to save some
+// additional State as well as convey more information to the user. This is
+// roughly akin to Annotations on any k8s resource, just the reconciler conveying
+// richer information outwards.
+func (d *RouteStatusDieMut) Annotations() *diefields.MapMut[string, string] {
+	return diefields.MapMutOf(d, routeStatusFields.Get().Annotations)
+}
+
+// URL holds the url that will distribute traffic over the provided traffic targets.
+// It generally has the form http[s]://{route-name}.{route-namespace}.{cluster-level-suffix}
+func (d *RouteStatusDieMut) URL() diefields.OptionalMut[apis.URL, *RouteStatusDieMut] {
+	return diefields.OptionalMutOf(d, routeStatusFields.Get().URL)
+}
+
+// Address holds the information needed for a Route to be the target of an event.
+func (d *RouteStatusDieMut) Address() *duckv1.AddressableDieMut {
+	return diefields.ChildMut(d, routeStatusFields.Get().Address)
+}
+
+// Traffic holds the configured traffic distribution.
+// These entries will always contain RevisionName references.
+// When ConfigurationName appears in the spec, this will hold the
+// LatestReadyRevisionName that we last observed.
+func (d *RouteStatusDieMut) Traffic() diefields.ValueMut[[]TrafficTarget, *RouteStatusDieMut] {
+	return diefields.ValueMutOf(d, routeStatusFields.Get().Traffic)
 }
 
 // RouteStatusFields holds the fields of Route's status that
 // are not generally shared.  This is defined separately and inlined so that
 // other types can readily consume these fields via duck typing.
+//
+// RouteStatusFieldsDie is immutable: it reads.
+// RouteStatusFieldsDieMut, its mutable die, also writes, as DieWith passes it.
 type RouteStatusFieldsDie struct {
-	diebase.DieBase[RouteStatusFields, *RouteStatusFieldsDie]
+	diebase.DieBase[RouteStatusFields, *RouteStatusFieldsDie, *RouteStatusFieldsDieMut]
 }
 
-func (*RouteStatusFieldsDie) DieFrom(b diebase.DieBase[RouteStatusFields, *RouteStatusFieldsDie]) *RouteStatusFieldsDie {
+// RouteStatusFieldsDieMut is the mutable die of RouteStatusFields: see RouteStatusFieldsDie.
+type RouteStatusFieldsDieMut struct {
+	diebase.DieMutBase[RouteStatusFields, *RouteStatusFieldsDie, *RouteStatusFieldsDieMut]
+}
+
+func (*RouteStatusFieldsDie) DieFrom(b diebase.DieBase[RouteStatusFields, *RouteStatusFieldsDie, *RouteStatusFieldsDieMut]) *RouteStatusFieldsDie {
 	return &RouteStatusFieldsDie{b}
 }
 
-var _ diebase.DieOf[RouteStatusFields, *RouteStatusFieldsDie] = (*RouteStatusFieldsDie)(nil)
+func (*RouteStatusFieldsDieMut) DieFrom(b diebase.DieMutBase[RouteStatusFields, *RouteStatusFieldsDie, *RouteStatusFieldsDieMut]) *RouteStatusFieldsDieMut {
+	return &RouteStatusFieldsDieMut{b}
+}
 
-var RouteStatusFieldsBlank = diebase.Blank[RouteStatusFields, *RouteStatusFieldsDie]()
+var (
+	_ diebase.DieOf[RouteStatusFields, *RouteStatusFieldsDie, *RouteStatusFieldsDieMut]    = (*RouteStatusFieldsDie)(nil)
+	_ diebase.DieMutOf[RouteStatusFields, *RouteStatusFieldsDie, *RouteStatusFieldsDieMut] = (*RouteStatusFieldsDieMut)(nil)
+)
+
+var RouteStatusFieldsBlank = diebase.Blank[RouteStatusFields, *RouteStatusFieldsDie, *RouteStatusFieldsDieMut]()
 
 type routeStatusFieldsFieldsTable struct {
 	URL     diefields.Field[RouteStatusFields, *apis.URL]
-	Address diefields.Struct[RouteStatusFields, duckv1.Addressable, *duckv1.AddressableDie]
+	Address diefields.Struct[RouteStatusFields, duckv1.Addressable, *duckv1.AddressableDie, *duckv1.AddressableDieMut]
 	Traffic diefields.Field[RouteStatusFields, []TrafficTarget]
 }
 
 var routeStatusFieldsFields = &diefields.Table[routeStatusFieldsFieldsTable]{Build: func() (f routeStatusFieldsFieldsTable) {
 	_ = annotated
 	f.URL = diefields.NewField[RouteStatusFields, *apis.URL]("url")
-	f.Address = diefields.NewStruct[RouteStatusFields, duckv1.Addressable, *duckv1.AddressableDie]("address")
+	f.Address = diefields.NewStruct[RouteStatusFields, duckv1.Addressable, *duckv1.AddressableDie, *duckv1.AddressableDieMut]("address")
 	f.Traffic = diefields.NewField[RouteStatusFields, []TrafficTarget]("traffic")
 	return
 }}
 
 // URL holds the url that will distribute traffic over the provided traffic targets.
 // It generally has the form http[s]://{route-name}.{route-namespace}.{cluster-level-suffix}
-func (d *RouteStatusFieldsDie) URL() diefields.Optional[apis.URL, *RouteStatusFieldsDie] {
+func (d *RouteStatusFieldsDie) URL() diefields.Optional[apis.URL] {
 	return diefields.OptionalOf(d, routeStatusFieldsFields.Get().URL)
 }
 
@@ -1258,8 +2136,27 @@ func (d *RouteStatusFieldsDie) Address() *duckv1.AddressableDie {
 // These entries will always contain RevisionName references.
 // When ConfigurationName appears in the spec, this will hold the
 // LatestReadyRevisionName that we last observed.
-func (d *RouteStatusFieldsDie) Traffic() diefields.Value[[]TrafficTarget, *RouteStatusFieldsDie] {
+func (d *RouteStatusFieldsDie) Traffic() diefields.Value[[]TrafficTarget] {
 	return diefields.ValueOf(d, routeStatusFieldsFields.Get().Traffic)
+}
+
+// URL holds the url that will distribute traffic over the provided traffic targets.
+// It generally has the form http[s]://{route-name}.{route-namespace}.{cluster-level-suffix}
+func (d *RouteStatusFieldsDieMut) URL() diefields.OptionalMut[apis.URL, *RouteStatusFieldsDieMut] {
+	return diefields.OptionalMutOf(d, routeStatusFieldsFields.Get().URL)
+}
+
+// Address holds the information needed for a Route to be the target of an event.
+func (d *RouteStatusFieldsDieMut) Address() *duckv1.AddressableDieMut {
+	return diefields.ChildMut(d, routeStatusFieldsFields.Get().Address)
+}
+
+// Traffic holds the configured traffic distribution.
+// These entries will always contain RevisionName references.
+// When ConfigurationName appears in the spec, this will hold the
+// LatestReadyRevisionName that we last observed.
+func (d *RouteStatusFieldsDieMut) Traffic() diefields.ValueMut[[]TrafficTarget, *RouteStatusFieldsDieMut] {
+	return diefields.ValueMutOf(d, routeStatusFieldsFields.Get().Traffic)
 }
 
 // Service acts as a top-level container that manages a Route and Configuration
@@ -1274,33 +2171,48 @@ func (d *RouteStatusFieldsDie) Traffic() diefields.Value[[]TrafficTarget, *Route
 // and Route, reflecting their statuses and conditions as its own.
 //
 // See also: https://github.com/knative/serving/blob/main/docs/spec/overview.md#service
+//
+// ServiceDie is immutable: it reads.
+// ServiceDieMut, its mutable die, also writes, as DieWith passes it.
 type ServiceDie struct {
-	diebase.DieObjectBase[Service, *ServiceDie]
+	diebase.DieObjectBase[Service, *ServiceDie, *ServiceDieMut]
 }
 
-func (*ServiceDie) DieFrom(b diebase.DieBase[Service, *ServiceDie]) *ServiceDie {
+// ServiceDieMut is the mutable die of Service: see ServiceDie.
+type ServiceDieMut struct {
+	diebase.DieObjectMutBase[Service, *ServiceDie, *ServiceDieMut]
+}
+
+func (*ServiceDie) DieFrom(b diebase.DieBase[Service, *ServiceDie, *ServiceDieMut]) *ServiceDie {
 	return &ServiceDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[Service, *ServiceDie] = (*ServiceDie)(nil)
+func (*ServiceDieMut) DieFrom(b diebase.DieMutBase[Service, *ServiceDie, *ServiceDieMut]) *ServiceDieMut {
+	return &ServiceDieMut{diebase.AsObjectMut(b)}
+}
 
-var ServiceBlank = diebase.BlankOf[Service, *ServiceDie](Service{TypeMeta: metav1.TypeMeta{APIVersion: "serving.knative.dev/v1", Kind: "Service"}})
+var (
+	_ dieobjects.DieObjectOf[Service, *ServiceDie, *ServiceDieMut]    = (*ServiceDie)(nil)
+	_ dieobjects.DieObjectMutOf[Service, *ServiceDie, *ServiceDieMut] = (*ServiceDieMut)(nil)
+)
+
+var ServiceBlank = diebase.BlankOf[Service, *ServiceDie, *ServiceDieMut](Service{TypeMeta: metav1.TypeMeta{APIVersion: "serving.knative.dev/v1", Kind: "Service"}})
 
 type serviceFieldsTable struct {
 	Kind       diefields.Field[Service, string]
 	APIVersion diefields.Field[Service, string]
-	Metadata   diefields.Struct[Service, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[Service, ServiceSpec, *ServiceSpecDie]
-	Status     diefields.Struct[Service, ServiceStatus, *ServiceStatusDie]
+	Metadata   diefields.Struct[Service, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[Service, ServiceSpec, *ServiceSpecDie, *ServiceSpecDieMut]
+	Status     diefields.Struct[Service, ServiceStatus, *ServiceStatusDie, *ServiceStatusDieMut]
 }
 
 var serviceFields = &diefields.Table[serviceFieldsTable]{Build: func() (f serviceFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[Service, string]("kind")
 	f.APIVersion = diefields.NewField[Service, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[Service, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[Service, ServiceSpec, *ServiceSpecDie]("spec")
-	f.Status = diefields.NewStruct[Service, ServiceStatus, *ServiceStatusDie]("status")
+	f.Metadata = diefields.NewStruct[Service, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[Service, ServiceSpec, *ServiceSpecDie, *ServiceSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[Service, ServiceStatus, *ServiceStatusDie, *ServiceStatusDieMut]("status")
 	return
 }}
 
@@ -1309,7 +2221,7 @@ var serviceFields = &diefields.Table[serviceFieldsTable]{Build: func() (f servic
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *ServiceDie) Kind() diefields.Value[string, *ServiceDie] {
+func (d *ServiceDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, serviceFields.Get().Kind)
 }
 
@@ -1317,7 +2229,7 @@ func (d *ServiceDie) Kind() diefields.Value[string, *ServiceDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *ServiceDie) APIVersion() diefields.Value[string, *ServiceDie] {
+func (d *ServiceDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, serviceFields.Get().APIVersion)
 }
 
@@ -1331,15 +2243,44 @@ func (d *ServiceDie) Status() *ServiceStatusDie {
 	return diefields.Child(d, serviceFields.Get().Status)
 }
 
-// ServiceList is a list of Service resources
-type ServiceListDie struct {
-	dielists.List[*ServiceDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ServiceDieMut) Kind() diefields.ValueMut[string, *ServiceDieMut] {
+	return diefields.ValueMutOf(d, serviceFields.Get().Kind)
 }
 
-var _ dielists.DieListOf[*ServiceDie] = (*ServiceListDie)(nil)
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *ServiceDieMut) APIVersion() diefields.ValueMut[string, *ServiceDieMut] {
+	return diefields.ValueMutOf(d, serviceFields.Get().APIVersion)
+}
+
+func (d *ServiceDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, serviceFields.Get().Metadata)
+}
+
+func (d *ServiceDieMut) Spec() *ServiceSpecDieMut {
+	return diefields.ChildMut(d, serviceFields.Get().Spec)
+}
+
+func (d *ServiceDieMut) Status() *ServiceStatusDieMut {
+	return diefields.ChildMut(d, serviceFields.Get().Status)
+}
+
+// ServiceList is a list of Service resources
+type ServiceListDie struct {
+	dielists.List[*ServiceDieMut]
+}
+
+var _ dielists.DieListOf[*ServiceDieMut] = (*ServiceListDie)(nil)
 
 // NewServiceList returns a list with items.
-func NewServiceList(items ...*ServiceDie) *ServiceListDie {
+func NewServiceList(items ...*ServiceDieMut) *ServiceListDie {
 	return &ServiceListDie{dielists.NewList("serving.knative.dev/v1", "ServiceList", items...)}
 }
 
@@ -1355,26 +2296,41 @@ func (l *ServiceListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 // however, these limitations also enable friendlier defaulting,
 // e.g. Route never needs a Configuration name, and may be defaulted to
 // the appropriate "run latest" spec.
+//
+// ServiceSpecDie is immutable: it reads.
+// ServiceSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type ServiceSpecDie struct {
-	diebase.DieBase[ServiceSpec, *ServiceSpecDie]
+	diebase.DieBase[ServiceSpec, *ServiceSpecDie, *ServiceSpecDieMut]
 }
 
-func (*ServiceSpecDie) DieFrom(b diebase.DieBase[ServiceSpec, *ServiceSpecDie]) *ServiceSpecDie {
+// ServiceSpecDieMut is the mutable die of ServiceSpec: see ServiceSpecDie.
+type ServiceSpecDieMut struct {
+	diebase.DieMutBase[ServiceSpec, *ServiceSpecDie, *ServiceSpecDieMut]
+}
+
+func (*ServiceSpecDie) DieFrom(b diebase.DieBase[ServiceSpec, *ServiceSpecDie, *ServiceSpecDieMut]) *ServiceSpecDie {
 	return &ServiceSpecDie{b}
 }
 
-var _ diebase.DieOf[ServiceSpec, *ServiceSpecDie] = (*ServiceSpecDie)(nil)
+func (*ServiceSpecDieMut) DieFrom(b diebase.DieMutBase[ServiceSpec, *ServiceSpecDie, *ServiceSpecDieMut]) *ServiceSpecDieMut {
+	return &ServiceSpecDieMut{b}
+}
 
-var ServiceSpecBlank = diebase.Blank[ServiceSpec, *ServiceSpecDie]()
+var (
+	_ diebase.DieOf[ServiceSpec, *ServiceSpecDie, *ServiceSpecDieMut]    = (*ServiceSpecDie)(nil)
+	_ diebase.DieMutOf[ServiceSpec, *ServiceSpecDie, *ServiceSpecDieMut] = (*ServiceSpecDieMut)(nil)
+)
+
+var ServiceSpecBlank = diebase.Blank[ServiceSpec, *ServiceSpecDie, *ServiceSpecDieMut]()
 
 type serviceSpecFieldsTable struct {
-	Template diefields.Struct[ServiceSpec, RevisionTemplateSpec, *RevisionTemplateSpecDie]
+	Template diefields.Struct[ServiceSpec, RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut]
 	Traffic  diefields.Field[ServiceSpec, []TrafficTarget]
 }
 
 var serviceSpecFields = &diefields.Table[serviceSpecFieldsTable]{Build: func() (f serviceSpecFieldsTable) {
 	_ = annotated
-	f.Template = diefields.NewStruct[ServiceSpec, RevisionTemplateSpec, *RevisionTemplateSpecDie]("template")
+	f.Template = diefields.NewStruct[ServiceSpec, RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut]("template")
 	f.Traffic = diefields.NewField[ServiceSpec, []TrafficTarget]("traffic")
 	return
 }}
@@ -1386,22 +2342,48 @@ func (d *ServiceSpecDie) Template() *RevisionTemplateSpecDie {
 
 // Traffic specifies how to distribute traffic over a collection of
 // revisions and configurations.
-func (d *ServiceSpecDie) Traffic() diefields.Value[[]TrafficTarget, *ServiceSpecDie] {
+func (d *ServiceSpecDie) Traffic() diefields.Value[[]TrafficTarget] {
 	return diefields.ValueOf(d, serviceSpecFields.Get().Traffic)
 }
 
-// ServiceStatus represents the Status stanza of the Service resource.
-type ServiceStatusDie struct {
-	diebase.DieBase[ServiceStatus, *ServiceStatusDie]
+// Template holds the latest specification for the Revision to be stamped out.
+func (d *ServiceSpecDieMut) Template() *RevisionTemplateSpecDieMut {
+	return diefields.ChildMut(d, serviceSpecFields.Get().Template)
 }
 
-func (*ServiceStatusDie) DieFrom(b diebase.DieBase[ServiceStatus, *ServiceStatusDie]) *ServiceStatusDie {
+// Traffic specifies how to distribute traffic over a collection of
+// revisions and configurations.
+func (d *ServiceSpecDieMut) Traffic() diefields.ValueMut[[]TrafficTarget, *ServiceSpecDieMut] {
+	return diefields.ValueMutOf(d, serviceSpecFields.Get().Traffic)
+}
+
+// ServiceStatus represents the Status stanza of the Service resource.
+//
+// ServiceStatusDie is immutable: it reads.
+// ServiceStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type ServiceStatusDie struct {
+	diebase.DieBase[ServiceStatus, *ServiceStatusDie, *ServiceStatusDieMut]
+}
+
+// ServiceStatusDieMut is the mutable die of ServiceStatus: see ServiceStatusDie.
+type ServiceStatusDieMut struct {
+	diebase.DieMutBase[ServiceStatus, *ServiceStatusDie, *ServiceStatusDieMut]
+}
+
+func (*ServiceStatusDie) DieFrom(b diebase.DieBase[ServiceStatus, *ServiceStatusDie, *ServiceStatusDieMut]) *ServiceStatusDie {
 	return &ServiceStatusDie{b}
 }
 
-var _ diebase.DieOf[ServiceStatus, *ServiceStatusDie] = (*ServiceStatusDie)(nil)
+func (*ServiceStatusDieMut) DieFrom(b diebase.DieMutBase[ServiceStatus, *ServiceStatusDie, *ServiceStatusDieMut]) *ServiceStatusDieMut {
+	return &ServiceStatusDieMut{b}
+}
 
-var ServiceStatusBlank = diebase.Blank[ServiceStatus, *ServiceStatusDie]()
+var (
+	_ diebase.DieOf[ServiceStatus, *ServiceStatusDie, *ServiceStatusDieMut]    = (*ServiceStatusDie)(nil)
+	_ diebase.DieMutOf[ServiceStatus, *ServiceStatusDie, *ServiceStatusDieMut] = (*ServiceStatusDieMut)(nil)
+)
+
+var ServiceStatusBlank = diebase.Blank[ServiceStatus, *ServiceStatusDie, *ServiceStatusDieMut]()
 
 type serviceStatusFieldsTable struct {
 	ObservedGeneration        diefields.Field[ServiceStatus, int64]
@@ -1410,7 +2392,7 @@ type serviceStatusFieldsTable struct {
 	LatestReadyRevisionName   diefields.Field[ServiceStatus, string]
 	LatestCreatedRevisionName diefields.Field[ServiceStatus, string]
 	URL                       diefields.Field[ServiceStatus, *apis.URL]
-	Address                   diefields.Struct[ServiceStatus, duckv1.Addressable, *duckv1.AddressableDie]
+	Address                   diefields.Struct[ServiceStatus, duckv1.Addressable, *duckv1.AddressableDie, *duckv1.AddressableDieMut]
 	Traffic                   diefields.Field[ServiceStatus, []TrafficTarget]
 }
 
@@ -1422,19 +2404,19 @@ var serviceStatusFields = &diefields.Table[serviceStatusFieldsTable]{Build: func
 	f.LatestReadyRevisionName = diefields.NewField[ServiceStatus, string]("latestReadyRevisionName")
 	f.LatestCreatedRevisionName = diefields.NewField[ServiceStatus, string]("latestCreatedRevisionName")
 	f.URL = diefields.NewField[ServiceStatus, *apis.URL]("url")
-	f.Address = diefields.NewStruct[ServiceStatus, duckv1.Addressable, *duckv1.AddressableDie]("address")
+	f.Address = diefields.NewStruct[ServiceStatus, duckv1.Addressable, *duckv1.AddressableDie, *duckv1.AddressableDieMut]("address")
 	f.Traffic = diefields.NewField[ServiceStatus, []TrafficTarget]("traffic")
 	return
 }}
 
 // ObservedGeneration is the 'Generation' of the Service that
 // was last processed by the controller.
-func (d *ServiceStatusDie) ObservedGeneration() diefields.Value[int64, *ServiceStatusDie] {
+func (d *ServiceStatusDie) ObservedGeneration() diefields.Value[int64] {
 	return diefields.ValueOf(d, serviceStatusFields.Get().ObservedGeneration)
 }
 
 // Conditions the latest available observations of a resource's current state.
-func (d *ServiceStatusDie) Conditions() diefields.Value[duckv1.Conditions, *ServiceStatusDie] {
+func (d *ServiceStatusDie) Conditions() diefields.Value[duckv1.Conditions] {
 	return diefields.ValueOf(d, serviceStatusFields.Get().Conditions)
 }
 
@@ -1448,19 +2430,19 @@ func (d *ServiceStatusDie) Annotations() *diefields.Map[string, string] {
 
 // LatestReadyRevisionName holds the name of the latest Revision stamped out
 // from this Configuration that has had its "Ready" condition become "True".
-func (d *ServiceStatusDie) LatestReadyRevisionName() diefields.Value[string, *ServiceStatusDie] {
+func (d *ServiceStatusDie) LatestReadyRevisionName() diefields.Value[string] {
 	return diefields.ValueOf(d, serviceStatusFields.Get().LatestReadyRevisionName)
 }
 
 // LatestCreatedRevisionName is the last revision that was created from this
 // Configuration. It might not be ready yet, for that use LatestReadyRevisionName.
-func (d *ServiceStatusDie) LatestCreatedRevisionName() diefields.Value[string, *ServiceStatusDie] {
+func (d *ServiceStatusDie) LatestCreatedRevisionName() diefields.Value[string] {
 	return diefields.ValueOf(d, serviceStatusFields.Get().LatestCreatedRevisionName)
 }
 
 // URL holds the url that will distribute traffic over the provided traffic targets.
 // It generally has the form http[s]://{route-name}.{route-namespace}.{cluster-level-suffix}
-func (d *ServiceStatusDie) URL() diefields.Optional[apis.URL, *ServiceStatusDie] {
+func (d *ServiceStatusDie) URL() diefields.Optional[apis.URL] {
 	return diefields.OptionalOf(d, serviceStatusFields.Get().URL)
 }
 
@@ -1473,22 +2455,87 @@ func (d *ServiceStatusDie) Address() *duckv1.AddressableDie {
 // These entries will always contain RevisionName references.
 // When ConfigurationName appears in the spec, this will hold the
 // LatestReadyRevisionName that we last observed.
-func (d *ServiceStatusDie) Traffic() diefields.Value[[]TrafficTarget, *ServiceStatusDie] {
+func (d *ServiceStatusDie) Traffic() diefields.Value[[]TrafficTarget] {
 	return diefields.ValueOf(d, serviceStatusFields.Get().Traffic)
 }
 
-// TrafficTarget holds a single entry of the routing table for a Route.
-type TrafficTargetDie struct {
-	diebase.DieBase[TrafficTarget, *TrafficTargetDie]
+// ObservedGeneration is the 'Generation' of the Service that
+// was last processed by the controller.
+func (d *ServiceStatusDieMut) ObservedGeneration() diefields.ValueMut[int64, *ServiceStatusDieMut] {
+	return diefields.ValueMutOf(d, serviceStatusFields.Get().ObservedGeneration)
 }
 
-func (*TrafficTargetDie) DieFrom(b diebase.DieBase[TrafficTarget, *TrafficTargetDie]) *TrafficTargetDie {
+// Conditions the latest available observations of a resource's current state.
+func (d *ServiceStatusDieMut) Conditions() diefields.ValueMut[duckv1.Conditions, *ServiceStatusDieMut] {
+	return diefields.ValueMutOf(d, serviceStatusFields.Get().Conditions)
+}
+
+// Annotations is additional Status fields for the Resource to save some
+// additional State as well as convey more information to the user. This is
+// roughly akin to Annotations on any k8s resource, just the reconciler conveying
+// richer information outwards.
+func (d *ServiceStatusDieMut) Annotations() *diefields.MapMut[string, string] {
+	return diefields.MapMutOf(d, serviceStatusFields.Get().Annotations)
+}
+
+// LatestReadyRevisionName holds the name of the latest Revision stamped out
+// from this Configuration that has had its "Ready" condition become "True".
+func (d *ServiceStatusDieMut) LatestReadyRevisionName() diefields.ValueMut[string, *ServiceStatusDieMut] {
+	return diefields.ValueMutOf(d, serviceStatusFields.Get().LatestReadyRevisionName)
+}
+
+// LatestCreatedRevisionName is the last revision that was created from this
+// Configuration. It might not be ready yet, for that use LatestReadyRevisionName.
+func (d *ServiceStatusDieMut) LatestCreatedRevisionName() diefields.ValueMut[string, *ServiceStatusDieMut] {
+	return diefields.ValueMutOf(d, serviceStatusFields.Get().LatestCreatedRevisionName)
+}
+
+// URL holds the url that will distribute traffic over the provided traffic targets.
+// It generally has the form http[s]://{route-name}.{route-namespace}.{cluster-level-suffix}
+func (d *ServiceStatusDieMut) URL() diefields.OptionalMut[apis.URL, *ServiceStatusDieMut] {
+	return diefields.OptionalMutOf(d, serviceStatusFields.Get().URL)
+}
+
+// Address holds the information needed for a Route to be the target of an event.
+func (d *ServiceStatusDieMut) Address() *duckv1.AddressableDieMut {
+	return diefields.ChildMut(d, serviceStatusFields.Get().Address)
+}
+
+// Traffic holds the configured traffic distribution.
+// These entries will always contain RevisionName references.
+// When ConfigurationName appears in the spec, this will hold the
+// LatestReadyRevisionName that we last observed.
+func (d *ServiceStatusDieMut) Traffic() diefields.ValueMut[[]TrafficTarget, *ServiceStatusDieMut] {
+	return diefields.ValueMutOf(d, serviceStatusFields.Get().Traffic)
+}
+
+// TrafficTarget holds a single entry of the routing table for a Route.
+//
+// TrafficTargetDie is immutable: it reads.
+// TrafficTargetDieMut, its mutable die, also writes, as DieWith passes it.
+type TrafficTargetDie struct {
+	diebase.DieBase[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]
+}
+
+// TrafficTargetDieMut is the mutable die of TrafficTarget: see TrafficTargetDie.
+type TrafficTargetDieMut struct {
+	diebase.DieMutBase[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]
+}
+
+func (*TrafficTargetDie) DieFrom(b diebase.DieBase[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]) *TrafficTargetDie {
 	return &TrafficTargetDie{b}
 }
 
-var _ diebase.DieOf[TrafficTarget, *TrafficTargetDie] = (*TrafficTargetDie)(nil)
+func (*TrafficTargetDieMut) DieFrom(b diebase.DieMutBase[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]) *TrafficTargetDieMut {
+	return &TrafficTargetDieMut{b}
+}
 
-var TrafficTargetBlank = diebase.Blank[TrafficTarget, *TrafficTargetDie]()
+var (
+	_ diebase.DieOf[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]    = (*TrafficTargetDie)(nil)
+	_ diebase.DieMutOf[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut] = (*TrafficTargetDieMut)(nil)
+)
+
+var TrafficTargetBlank = diebase.Blank[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]()
 
 type trafficTargetFieldsTable struct {
 	Tag               diefields.Field[TrafficTarget, string]
@@ -1512,13 +2559,13 @@ var trafficTargetFields = &diefields.Table[trafficTargetFieldsTable]{Build: func
 
 // Tag is optionally used to expose a dedicated url for referencing
 // this target exclusively.
-func (d *TrafficTargetDie) Tag() diefields.Value[string, *TrafficTargetDie] {
+func (d *TrafficTargetDie) Tag() diefields.Value[string] {
 	return diefields.ValueOf(d, trafficTargetFields.Get().Tag)
 }
 
 // RevisionName of a specific revision to which to send this portion of
 // traffic.  This is mutually exclusive with ConfigurationName.
-func (d *TrafficTargetDie) RevisionName() diefields.Value[string, *TrafficTargetDie] {
+func (d *TrafficTargetDie) RevisionName() diefields.Value[string] {
 	return diefields.ValueOf(d, trafficTargetFields.Get().RevisionName)
 }
 
@@ -1528,7 +2575,7 @@ func (d *TrafficTargetDie) RevisionName() diefields.Value[string, *TrafficTarget
 // from the prior "latest ready" revision to the new one.  This field is never
 // set in Route's status, only its spec.  This is mutually exclusive with
 // RevisionName.
-func (d *TrafficTargetDie) ConfigurationName() diefields.Value[string, *TrafficTargetDie] {
+func (d *TrafficTargetDie) ConfigurationName() diefields.Value[string] {
 	return diefields.ValueOf(d, trafficTargetFields.Get().ConfigurationName)
 }
 
@@ -1536,7 +2583,7 @@ func (d *TrafficTargetDie) ConfigurationName() diefields.Value[string, *TrafficT
 // ready Revision of the Configuration should be used for this traffic
 // target.  When provided LatestRevision must be true if RevisionName is
 // empty; it must be false when RevisionName is non-empty.
-func (d *TrafficTargetDie) LatestRevision() diefields.Optional[bool, *TrafficTargetDie] {
+func (d *TrafficTargetDie) LatestRevision() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, trafficTargetFields.Get().LatestRevision)
 }
 
@@ -1548,35 +2595,84 @@ func (d *TrafficTargetDie) LatestRevision() diefields.Optional[bool, *TrafficTar
 //   - the sum of all percent values must equal 100
 //   - when not specified, the implied value for `percent` is zero for
 //     that particular Revision or Configuration
-func (d *TrafficTargetDie) Percent() diefields.Optional[int64, *TrafficTargetDie] {
+func (d *TrafficTargetDie) Percent() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, trafficTargetFields.Get().Percent)
 }
 
 // URL displays the URL for accessing named traffic targets. URL is displayed in
 // status, and is disallowed on spec. URL must contain a scheme (e.g. http://) and
 // a hostname, but may not contain anything else (e.g. basic auth, url path, etc.)
-func (d *TrafficTargetDie) URL() diefields.Optional[apis.URL, *TrafficTargetDie] {
+func (d *TrafficTargetDie) URL() diefields.Optional[apis.URL] {
 	return diefields.OptionalOf(d, trafficTargetFields.Get().URL)
+}
+
+// Tag is optionally used to expose a dedicated url for referencing
+// this target exclusively.
+func (d *TrafficTargetDieMut) Tag() diefields.ValueMut[string, *TrafficTargetDieMut] {
+	return diefields.ValueMutOf(d, trafficTargetFields.Get().Tag)
+}
+
+// RevisionName of a specific revision to which to send this portion of
+// traffic.  This is mutually exclusive with ConfigurationName.
+func (d *TrafficTargetDieMut) RevisionName() diefields.ValueMut[string, *TrafficTargetDieMut] {
+	return diefields.ValueMutOf(d, trafficTargetFields.Get().RevisionName)
+}
+
+// ConfigurationName of a configuration to whose latest revision we will send
+// this portion of traffic. When the "status.latestReadyRevisionName" of the
+// referenced configuration changes, we will automatically migrate traffic
+// from the prior "latest ready" revision to the new one.  This field is never
+// set in Route's status, only its spec.  This is mutually exclusive with
+// RevisionName.
+func (d *TrafficTargetDieMut) ConfigurationName() diefields.ValueMut[string, *TrafficTargetDieMut] {
+	return diefields.ValueMutOf(d, trafficTargetFields.Get().ConfigurationName)
+}
+
+// LatestRevision may be optionally provided to indicate that the latest
+// ready Revision of the Configuration should be used for this traffic
+// target.  When provided LatestRevision must be true if RevisionName is
+// empty; it must be false when RevisionName is non-empty.
+func (d *TrafficTargetDieMut) LatestRevision() diefields.OptionalMut[bool, *TrafficTargetDieMut] {
+	return diefields.OptionalMutOf(d, trafficTargetFields.Get().LatestRevision)
+}
+
+// Percent indicates that percentage based routing should be used and
+// the value indicates the percent of traffic that is be routed to this
+// Revision or Configuration. `0` (zero) mean no traffic, `100` means all
+// traffic.
+// When percentage based routing is being used the follow rules apply:
+//   - the sum of all percent values must equal 100
+//   - when not specified, the implied value for `percent` is zero for
+//     that particular Revision or Configuration
+func (d *TrafficTargetDieMut) Percent() diefields.OptionalMut[int64, *TrafficTargetDieMut] {
+	return diefields.OptionalMutOf(d, trafficTargetFields.Get().Percent)
+}
+
+// URL displays the URL for accessing named traffic targets. URL is displayed in
+// status, and is disallowed on spec. URL must contain a scheme (e.g. http://) and
+// a hostname, but may not contain anything else (e.g. basic auth, url path, etc.)
+func (d *TrafficTargetDieMut) URL() diefields.OptionalMut[apis.URL, *TrafficTargetDieMut] {
+	return diefields.OptionalMutOf(d, trafficTargetFields.Get().URL)
 }
 
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "serving.knative.dev", Version: "v1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Configuration"), &ConfigurationDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Configuration"), &ConfigurationDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ConfigurationList"), &ConfigurationListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Revision"), &RevisionDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Revision"), &RevisionDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("RevisionList"), &RevisionListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Route"), &RouteDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Route"), &RouteDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("RouteList"), &RouteListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Service"), &ServiceDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Service"), &ServiceDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ServiceList"), &ServiceListDie{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

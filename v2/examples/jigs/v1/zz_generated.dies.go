@@ -29,65 +29,104 @@ import (
 
 // Batch keeps its containers in an atomic list, whose elements have no keys
 // of their own, and has an optional init container.
+//
+// BatchDie is immutable: it reads.
+// BatchDieMut, its mutable die, also writes, as DieWith passes it.
 type BatchDie struct {
-	diebase.DieBase[Batch, *BatchDie]
+	diebase.DieBase[Batch, *BatchDie, *BatchDieMut]
 }
 
-func (*BatchDie) DieFrom(b diebase.DieBase[Batch, *BatchDie]) *BatchDie { return &BatchDie{b} }
+// BatchDieMut is the mutable die of Batch: see BatchDie.
+type BatchDieMut struct {
+	diebase.DieMutBase[Batch, *BatchDie, *BatchDieMut]
+}
 
-var _ diebase.DieOf[Batch, *BatchDie] = (*BatchDie)(nil)
+func (*BatchDie) DieFrom(b diebase.DieBase[Batch, *BatchDie, *BatchDieMut]) *BatchDie {
+	return &BatchDie{b}
+}
 
-var BatchBlank = diebase.Blank[Batch, *BatchDie]()
+func (*BatchDieMut) DieFrom(b diebase.DieMutBase[Batch, *BatchDie, *BatchDieMut]) *BatchDieMut {
+	return &BatchDieMut{b}
+}
+
+var (
+	_ diebase.DieOf[Batch, *BatchDie, *BatchDieMut]    = (*BatchDie)(nil)
+	_ diebase.DieMutOf[Batch, *BatchDie, *BatchDieMut] = (*BatchDieMut)(nil)
+)
+
+var BatchBlank = diebase.Blank[Batch, *BatchDie, *BatchDieMut]()
 
 type batchFieldsTable struct {
 	Containers diefields.Field[Batch, []diecorev1.Container]
-	Init       diefields.Struct[Batch, diecorev1.Container, *diecorev1.ContainerDie]
+	Init       diefields.Struct[Batch, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut]
 }
 
 var batchFields = &diefields.Table[batchFieldsTable]{Build: func() (f batchFieldsTable) {
 	_ = annotated
 	f.Containers = diefields.NewField[Batch, []diecorev1.Container]("containers")
-	f.Init = diefields.NewStruct[Batch, diecorev1.Container, *diecorev1.ContainerDie]("init")
+	f.Init = diefields.NewStruct[Batch, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut]("init")
 	return
 }}
 
-func (d *BatchDie) Containers() diefields.Value[[]diecorev1.Container, *BatchDie] {
+func (d *BatchDie) Containers() diefields.Value[[]diecorev1.Container] {
 	return diefields.ValueOf(d, batchFields.Get().Containers)
 }
 
 func (d *BatchDie) Init() *diecorev1.ContainerDie { return diefields.Child(d, batchFields.Get().Init) }
 
-type BuilderDie struct {
-	diebase.DieBase[Builder, *BuilderDie]
+func (d *BatchDieMut) Containers() diefields.ValueMut[[]diecorev1.Container, *BatchDieMut] {
+	return diefields.ValueMutOf(d, batchFields.Get().Containers)
 }
 
-func (*BuilderDie) DieFrom(b diebase.DieBase[Builder, *BuilderDie]) *BuilderDie {
+func (d *BatchDieMut) Init() *diecorev1.ContainerDieMut {
+	return diefields.ChildMut(d, batchFields.Get().Init)
+}
+
+// BuilderDie is immutable: it reads.
+// BuilderDieMut, its mutable die, also writes, as DieWith passes it.
+type BuilderDie struct {
+	diebase.DieBase[Builder, *BuilderDie, *BuilderDieMut]
+}
+
+// BuilderDieMut is the mutable die of Builder: see BuilderDie.
+type BuilderDieMut struct {
+	diebase.DieMutBase[Builder, *BuilderDie, *BuilderDieMut]
+}
+
+func (*BuilderDie) DieFrom(b diebase.DieBase[Builder, *BuilderDie, *BuilderDieMut]) *BuilderDie {
 	return &BuilderDie{b}
 }
 
-var _ diebase.DieOf[Builder, *BuilderDie] = (*BuilderDie)(nil)
+func (*BuilderDieMut) DieFrom(b diebase.DieMutBase[Builder, *BuilderDie, *BuilderDieMut]) *BuilderDieMut {
+	return &BuilderDieMut{b}
+}
 
-var BuilderBlank = diebase.Blank[Builder, *BuilderDie]()
+var (
+	_ diebase.DieOf[Builder, *BuilderDie, *BuilderDieMut]    = (*BuilderDie)(nil)
+	_ diebase.DieMutOf[Builder, *BuilderDie, *BuilderDieMut] = (*BuilderDieMut)(nil)
+)
+
+var BuilderBlank = diebase.Blank[Builder, *BuilderDie, *BuilderDieMut]()
 
 type builderFieldsTable struct {
 	Name  diefields.Field[Builder, string]
 	Image diefields.Field[Builder, string]
-	Env   diefields.ListMapField[Builder, diecorev1.EnvVar, *diecorev1.EnvVarDie, string]
+	Env   diefields.ListMapField[Builder, diecorev1.EnvVar, *diecorev1.EnvVarDie, *diecorev1.EnvVarDieMut, string]
 }
 
 var builderFields = &diefields.Table[builderFieldsTable]{Build: func() (f builderFieldsTable) {
 	_ = annotated
 	f.Name = diefields.NewField[Builder, string]("name")
 	f.Image = diefields.NewField[Builder, string]("image")
-	f.Env = diefields.NewListMap[Builder, diecorev1.EnvVar, *diecorev1.EnvVarDie]("env", func(k string) []any { return []any{k} }, func(e diecorev1.EnvVar) string { return e.Name })
+	f.Env = diefields.NewListMap[Builder, diecorev1.EnvVar, *diecorev1.EnvVarDie, *diecorev1.EnvVarDieMut]("env", func(k string) []any { return []any{k} }, func(e diecorev1.EnvVar) string { return e.Name })
 	return
 }}
 
-func (d *BuilderDie) Name() diefields.Value[string, *BuilderDie] {
+func (d *BuilderDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, builderFields.Get().Name)
 }
 
-func (d *BuilderDie) Image() diefields.Value[string, *BuilderDie] {
+func (d *BuilderDie) Image() diefields.Value[string] {
 	return diefields.ValueOf(d, builderFields.Get().Image)
 }
 
@@ -95,26 +134,53 @@ func (d *BuilderDie) Env() *diefields.ListMap[diecorev1.EnvVar, *diecorev1.EnvVa
 	return diefields.ListMapOf(d, builderFields.Get().Env)
 }
 
-// Conditioned presents the conditions of a status in their harmonized form.
-type ConditionedDie struct {
-	diebase.DieBase[Conditioned, *ConditionedDie]
+func (d *BuilderDieMut) Name() diefields.ValueMut[string, *BuilderDieMut] {
+	return diefields.ValueMutOf(d, builderFields.Get().Name)
 }
 
-func (*ConditionedDie) DieFrom(b diebase.DieBase[Conditioned, *ConditionedDie]) *ConditionedDie {
+func (d *BuilderDieMut) Image() diefields.ValueMut[string, *BuilderDieMut] {
+	return diefields.ValueMutOf(d, builderFields.Get().Image)
+}
+
+func (d *BuilderDieMut) Env() *diefields.ListMapMut[diecorev1.EnvVar, *diecorev1.EnvVarDieMut, string] {
+	return diefields.ListMapMutOf(d, builderFields.Get().Env)
+}
+
+// Conditioned presents the conditions of a status in their harmonized form.
+//
+// ConditionedDie is immutable: it reads.
+// ConditionedDieMut, its mutable die, also writes, as DieWith passes it.
+type ConditionedDie struct {
+	diebase.DieBase[Conditioned, *ConditionedDie, *ConditionedDieMut]
+}
+
+// ConditionedDieMut is the mutable die of Conditioned: see ConditionedDie.
+type ConditionedDieMut struct {
+	diebase.DieMutBase[Conditioned, *ConditionedDie, *ConditionedDieMut]
+}
+
+func (*ConditionedDie) DieFrom(b diebase.DieBase[Conditioned, *ConditionedDie, *ConditionedDieMut]) *ConditionedDie {
 	return &ConditionedDie{b}
 }
 
-var _ diebase.DieOf[Conditioned, *ConditionedDie] = (*ConditionedDie)(nil)
+func (*ConditionedDieMut) DieFrom(b diebase.DieMutBase[Conditioned, *ConditionedDie, *ConditionedDieMut]) *ConditionedDieMut {
+	return &ConditionedDieMut{b}
+}
 
-var ConditionedBlank = diebase.Blank[Conditioned, *ConditionedDie]()
+var (
+	_ diebase.DieOf[Conditioned, *ConditionedDie, *ConditionedDieMut]    = (*ConditionedDie)(nil)
+	_ diebase.DieMutOf[Conditioned, *ConditionedDie, *ConditionedDieMut] = (*ConditionedDieMut)(nil)
+)
+
+var ConditionedBlank = diebase.Blank[Conditioned, *ConditionedDie, *ConditionedDieMut]()
 
 type conditionedFieldsTable struct {
-	Conditions diefields.ListMapField[Conditioned, diemetav1.Condition, *diemetav1.ConditionDie, string]
+	Conditions diefields.ListMapField[Conditioned, diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string]
 }
 
 var conditionedFields = &diefields.Table[conditionedFieldsTable]{Build: func() (f conditionedFieldsTable) {
 	_ = annotated
-	f.Conditions = diefields.NewListMap[Conditioned, diemetav1.Condition, *diemetav1.ConditionDie]("conditions", func(k string) []any { return []any{k} }, func(e diemetav1.Condition) string { return e.Type })
+	f.Conditions = diefields.NewListMap[Conditioned, diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut]("conditions", func(k string) []any { return []any{k} }, func(e diemetav1.Condition) string { return e.Type })
 	return
 }}
 
@@ -122,32 +188,51 @@ func (d *ConditionedDie) Conditions() *diefields.ListMap[diemetav1.Condition, *d
 	return diefields.ListMapOf(d, conditionedFields.Get().Conditions)
 }
 
-// ContainerImage presents a container's image as its parts.
-type ContainerImageDie struct {
-	diebase.DieBase[ContainerImage, *ContainerImageDie]
+func (d *ConditionedDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+	return diefields.ListMapMutOf(d, conditionedFields.Get().Conditions)
 }
 
-func (*ContainerImageDie) DieFrom(b diebase.DieBase[ContainerImage, *ContainerImageDie]) *ContainerImageDie {
+// ContainerImage presents a container's image as its parts.
+//
+// ContainerImageDie is immutable: it reads.
+// ContainerImageDieMut, its mutable die, also writes, as DieWith passes it.
+type ContainerImageDie struct {
+	diebase.DieBase[ContainerImage, *ContainerImageDie, *ContainerImageDieMut]
+}
+
+// ContainerImageDieMut is the mutable die of ContainerImage: see ContainerImageDie.
+type ContainerImageDieMut struct {
+	diebase.DieMutBase[ContainerImage, *ContainerImageDie, *ContainerImageDieMut]
+}
+
+func (*ContainerImageDie) DieFrom(b diebase.DieBase[ContainerImage, *ContainerImageDie, *ContainerImageDieMut]) *ContainerImageDie {
 	return &ContainerImageDie{b}
 }
 
-var _ diebase.DieOf[ContainerImage, *ContainerImageDie] = (*ContainerImageDie)(nil)
+func (*ContainerImageDieMut) DieFrom(b diebase.DieMutBase[ContainerImage, *ContainerImageDie, *ContainerImageDieMut]) *ContainerImageDieMut {
+	return &ContainerImageDieMut{b}
+}
 
-var ContainerImageBlank = diebase.Blank[ContainerImage, *ContainerImageDie]()
+var (
+	_ diebase.DieOf[ContainerImage, *ContainerImageDie, *ContainerImageDieMut]    = (*ContainerImageDie)(nil)
+	_ diebase.DieMutOf[ContainerImage, *ContainerImageDie, *ContainerImageDieMut] = (*ContainerImageDieMut)(nil)
+)
+
+var ContainerImageBlank = diebase.Blank[ContainerImage, *ContainerImageDie, *ContainerImageDieMut]()
 
 type containerImageFieldsTable struct {
 	Name  diefields.Field[ContainerImage, string]
-	Image diefields.Struct[ContainerImage, ImageReference, *ImageReferenceDie]
+	Image diefields.Struct[ContainerImage, ImageReference, *ImageReferenceDie, *ImageReferenceDieMut]
 }
 
 var containerImageFields = &diefields.Table[containerImageFieldsTable]{Build: func() (f containerImageFieldsTable) {
 	_ = annotated
 	f.Name = diefields.NewField[ContainerImage, string]("name")
-	f.Image = diefields.NewStruct[ContainerImage, ImageReference, *ImageReferenceDie]("image")
+	f.Image = diefields.NewStruct[ContainerImage, ImageReference, *ImageReferenceDie, *ImageReferenceDieMut]("image")
 	return
 }}
 
-func (d *ContainerImageDie) Name() diefields.Value[string, *ContainerImageDie] {
+func (d *ContainerImageDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, containerImageFields.Get().Name)
 }
 
@@ -155,19 +240,42 @@ func (d *ContainerImageDie) Image() *ImageReferenceDie {
 	return diefields.Child(d, containerImageFields.Get().Image)
 }
 
-// ImageReference is an image reference in parts: registry.example/repo:tag
-// or registry.example/repo@sha256:digest.
-type ImageReferenceDie struct {
-	diebase.DieBase[ImageReference, *ImageReferenceDie]
+func (d *ContainerImageDieMut) Name() diefields.ValueMut[string, *ContainerImageDieMut] {
+	return diefields.ValueMutOf(d, containerImageFields.Get().Name)
 }
 
-func (*ImageReferenceDie) DieFrom(b diebase.DieBase[ImageReference, *ImageReferenceDie]) *ImageReferenceDie {
+func (d *ContainerImageDieMut) Image() *ImageReferenceDieMut {
+	return diefields.ChildMut(d, containerImageFields.Get().Image)
+}
+
+// ImageReference is an image reference in parts: registry.example/repo:tag
+// or registry.example/repo@sha256:digest.
+//
+// ImageReferenceDie is immutable: it reads.
+// ImageReferenceDieMut, its mutable die, also writes, as DieWith passes it.
+type ImageReferenceDie struct {
+	diebase.DieBase[ImageReference, *ImageReferenceDie, *ImageReferenceDieMut]
+}
+
+// ImageReferenceDieMut is the mutable die of ImageReference: see ImageReferenceDie.
+type ImageReferenceDieMut struct {
+	diebase.DieMutBase[ImageReference, *ImageReferenceDie, *ImageReferenceDieMut]
+}
+
+func (*ImageReferenceDie) DieFrom(b diebase.DieBase[ImageReference, *ImageReferenceDie, *ImageReferenceDieMut]) *ImageReferenceDie {
 	return &ImageReferenceDie{b}
 }
 
-var _ diebase.DieOf[ImageReference, *ImageReferenceDie] = (*ImageReferenceDie)(nil)
+func (*ImageReferenceDieMut) DieFrom(b diebase.DieMutBase[ImageReference, *ImageReferenceDie, *ImageReferenceDieMut]) *ImageReferenceDieMut {
+	return &ImageReferenceDieMut{b}
+}
 
-var ImageReferenceBlank = diebase.Blank[ImageReference, *ImageReferenceDie]()
+var (
+	_ diebase.DieOf[ImageReference, *ImageReferenceDie, *ImageReferenceDieMut]    = (*ImageReferenceDie)(nil)
+	_ diebase.DieMutOf[ImageReference, *ImageReferenceDie, *ImageReferenceDieMut] = (*ImageReferenceDieMut)(nil)
+)
+
+var ImageReferenceBlank = diebase.Blank[ImageReference, *ImageReferenceDie, *ImageReferenceDieMut]()
 
 type imageReferenceFieldsTable struct {
 	Repository diefields.Field[ImageReference, string]
@@ -183,43 +291,70 @@ var imageReferenceFields = &diefields.Table[imageReferenceFieldsTable]{Build: fu
 	return
 }}
 
-func (d *ImageReferenceDie) Repository() diefields.Value[string, *ImageReferenceDie] {
+func (d *ImageReferenceDie) Repository() diefields.Value[string] {
 	return diefields.ValueOf(d, imageReferenceFields.Get().Repository)
 }
 
-func (d *ImageReferenceDie) Tag() diefields.Value[string, *ImageReferenceDie] {
+func (d *ImageReferenceDie) Tag() diefields.Value[string] {
 	return diefields.ValueOf(d, imageReferenceFields.Get().Tag)
 }
 
-func (d *ImageReferenceDie) Digest() diefields.Value[string, *ImageReferenceDie] {
+func (d *ImageReferenceDie) Digest() diefields.Value[string] {
 	return diefields.ValueOf(d, imageReferenceFields.Get().Digest)
+}
+
+func (d *ImageReferenceDieMut) Repository() diefields.ValueMut[string, *ImageReferenceDieMut] {
+	return diefields.ValueMutOf(d, imageReferenceFields.Get().Repository)
+}
+
+func (d *ImageReferenceDieMut) Tag() diefields.ValueMut[string, *ImageReferenceDieMut] {
+	return diefields.ValueMutOf(d, imageReferenceFields.Get().Tag)
+}
+
+func (d *ImageReferenceDieMut) Digest() diefields.ValueMut[string, *ImageReferenceDieMut] {
+	return diefields.ValueMutOf(d, imageReferenceFields.Get().Digest)
 }
 
 // Pipeline has containers in three shapes: a list of steps, an optional
 // sidecar, and a builder that isn't a container but can be presented as one.
+//
+// PipelineDie is immutable: it reads.
+// PipelineDieMut, its mutable die, also writes, as DieWith passes it.
 type PipelineDie struct {
-	diebase.DieBase[Pipeline, *PipelineDie]
+	diebase.DieBase[Pipeline, *PipelineDie, *PipelineDieMut]
 }
 
-func (*PipelineDie) DieFrom(b diebase.DieBase[Pipeline, *PipelineDie]) *PipelineDie {
+// PipelineDieMut is the mutable die of Pipeline: see PipelineDie.
+type PipelineDieMut struct {
+	diebase.DieMutBase[Pipeline, *PipelineDie, *PipelineDieMut]
+}
+
+func (*PipelineDie) DieFrom(b diebase.DieBase[Pipeline, *PipelineDie, *PipelineDieMut]) *PipelineDie {
 	return &PipelineDie{b}
 }
 
-var _ diebase.DieOf[Pipeline, *PipelineDie] = (*PipelineDie)(nil)
+func (*PipelineDieMut) DieFrom(b diebase.DieMutBase[Pipeline, *PipelineDie, *PipelineDieMut]) *PipelineDieMut {
+	return &PipelineDieMut{b}
+}
 
-var PipelineBlank = diebase.Blank[Pipeline, *PipelineDie]()
+var (
+	_ diebase.DieOf[Pipeline, *PipelineDie, *PipelineDieMut]    = (*PipelineDie)(nil)
+	_ diebase.DieMutOf[Pipeline, *PipelineDie, *PipelineDieMut] = (*PipelineDieMut)(nil)
+)
+
+var PipelineBlank = diebase.Blank[Pipeline, *PipelineDie, *PipelineDieMut]()
 
 type pipelineFieldsTable struct {
-	Steps   diefields.ListMapField[Pipeline, diecorev1.Container, *diecorev1.ContainerDie, string]
-	Sidecar diefields.Struct[Pipeline, diecorev1.Container, *diecorev1.ContainerDie]
-	Builder diefields.Struct[Pipeline, Builder, *BuilderDie]
+	Steps   diefields.ListMapField[Pipeline, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut, string]
+	Sidecar diefields.Struct[Pipeline, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut]
+	Builder diefields.Struct[Pipeline, Builder, *BuilderDie, *BuilderDieMut]
 }
 
 var pipelineFields = &diefields.Table[pipelineFieldsTable]{Build: func() (f pipelineFieldsTable) {
 	_ = annotated
-	f.Steps = diefields.NewListMap[Pipeline, diecorev1.Container, *diecorev1.ContainerDie]("steps", func(k string) []any { return []any{k} }, func(e diecorev1.Container) string { return e.Name })
-	f.Sidecar = diefields.NewStruct[Pipeline, diecorev1.Container, *diecorev1.ContainerDie]("sidecar")
-	f.Builder = diefields.NewStruct[Pipeline, Builder, *BuilderDie]("builder")
+	f.Steps = diefields.NewListMap[Pipeline, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut]("steps", func(k string) []any { return []any{k} }, func(e diecorev1.Container) string { return e.Name })
+	f.Sidecar = diefields.NewStruct[Pipeline, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut]("sidecar")
+	f.Builder = diefields.NewStruct[Pipeline, Builder, *BuilderDie, *BuilderDieMut]("builder")
 	return
 }}
 
@@ -233,28 +368,55 @@ func (d *PipelineDie) Sidecar() *diecorev1.ContainerDie {
 
 func (d *PipelineDie) Builder() *BuilderDie { return diefields.Child(d, pipelineFields.Get().Builder) }
 
-// PodSpecable is anything that runs pods: its metadata and its pod template.
-type PodSpecableDie struct {
-	diebase.DieBase[PodSpecable, *PodSpecableDie]
+func (d *PipelineDieMut) Steps() *diefields.ListMapMut[diecorev1.Container, *diecorev1.ContainerDieMut, string] {
+	return diefields.ListMapMutOf(d, pipelineFields.Get().Steps)
 }
 
-func (*PodSpecableDie) DieFrom(b diebase.DieBase[PodSpecable, *PodSpecableDie]) *PodSpecableDie {
+func (d *PipelineDieMut) Sidecar() *diecorev1.ContainerDieMut {
+	return diefields.ChildMut(d, pipelineFields.Get().Sidecar)
+}
+
+func (d *PipelineDieMut) Builder() *BuilderDieMut {
+	return diefields.ChildMut(d, pipelineFields.Get().Builder)
+}
+
+// PodSpecable is anything that runs pods: its metadata and its pod template.
+//
+// PodSpecableDie is immutable: it reads.
+// PodSpecableDieMut, its mutable die, also writes, as DieWith passes it.
+type PodSpecableDie struct {
+	diebase.DieBase[PodSpecable, *PodSpecableDie, *PodSpecableDieMut]
+}
+
+// PodSpecableDieMut is the mutable die of PodSpecable: see PodSpecableDie.
+type PodSpecableDieMut struct {
+	diebase.DieMutBase[PodSpecable, *PodSpecableDie, *PodSpecableDieMut]
+}
+
+func (*PodSpecableDie) DieFrom(b diebase.DieBase[PodSpecable, *PodSpecableDie, *PodSpecableDieMut]) *PodSpecableDie {
 	return &PodSpecableDie{b}
 }
 
-var _ diebase.DieOf[PodSpecable, *PodSpecableDie] = (*PodSpecableDie)(nil)
+func (*PodSpecableDieMut) DieFrom(b diebase.DieMutBase[PodSpecable, *PodSpecableDie, *PodSpecableDieMut]) *PodSpecableDieMut {
+	return &PodSpecableDieMut{b}
+}
 
-var PodSpecableBlank = diebase.Blank[PodSpecable, *PodSpecableDie]()
+var (
+	_ diebase.DieOf[PodSpecable, *PodSpecableDie, *PodSpecableDieMut]    = (*PodSpecableDie)(nil)
+	_ diebase.DieMutOf[PodSpecable, *PodSpecableDie, *PodSpecableDieMut] = (*PodSpecableDieMut)(nil)
+)
+
+var PodSpecableBlank = diebase.Blank[PodSpecable, *PodSpecableDie, *PodSpecableDieMut]()
 
 type podSpecableFieldsTable struct {
-	Metadata diefields.Struct[PodSpecable, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Template diefields.Struct[PodSpecable, diecorev1.PodTemplateSpec, *diecorev1.PodTemplateSpecDie]
+	Metadata diefields.Struct[PodSpecable, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Template diefields.Struct[PodSpecable, diecorev1.PodTemplateSpec, *diecorev1.PodTemplateSpecDie, *diecorev1.PodTemplateSpecDieMut]
 }
 
 var podSpecableFields = &diefields.Table[podSpecableFieldsTable]{Build: func() (f podSpecableFieldsTable) {
 	_ = annotated
-	f.Metadata = diefields.NewStruct[PodSpecable, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Template = diefields.NewStruct[PodSpecable, diecorev1.PodTemplateSpec, *diecorev1.PodTemplateSpecDie]("template")
+	f.Metadata = diefields.NewStruct[PodSpecable, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Template = diefields.NewStruct[PodSpecable, diecorev1.PodTemplateSpec, *diecorev1.PodTemplateSpecDie, *diecorev1.PodTemplateSpecDieMut]("template")
 	return
 }}
 
@@ -266,29 +428,52 @@ func (d *PodSpecableDie) Template() *diecorev1.PodTemplateSpecDie {
 	return diefields.Child(d, podSpecableFields.Get().Template)
 }
 
-// Workload presents what a ServiceBinding projects into a workload: every
-// container, wherever it is, and the volumes.
-type WorkloadDie struct {
-	diebase.DieBase[Workload, *WorkloadDie]
+func (d *PodSpecableDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, podSpecableFields.Get().Metadata)
 }
 
-func (*WorkloadDie) DieFrom(b diebase.DieBase[Workload, *WorkloadDie]) *WorkloadDie {
+func (d *PodSpecableDieMut) Template() *diecorev1.PodTemplateSpecDieMut {
+	return diefields.ChildMut(d, podSpecableFields.Get().Template)
+}
+
+// Workload presents what a ServiceBinding projects into a workload: every
+// container, wherever it is, and the volumes.
+//
+// WorkloadDie is immutable: it reads.
+// WorkloadDieMut, its mutable die, also writes, as DieWith passes it.
+type WorkloadDie struct {
+	diebase.DieBase[Workload, *WorkloadDie, *WorkloadDieMut]
+}
+
+// WorkloadDieMut is the mutable die of Workload: see WorkloadDie.
+type WorkloadDieMut struct {
+	diebase.DieMutBase[Workload, *WorkloadDie, *WorkloadDieMut]
+}
+
+func (*WorkloadDie) DieFrom(b diebase.DieBase[Workload, *WorkloadDie, *WorkloadDieMut]) *WorkloadDie {
 	return &WorkloadDie{b}
 }
 
-var _ diebase.DieOf[Workload, *WorkloadDie] = (*WorkloadDie)(nil)
+func (*WorkloadDieMut) DieFrom(b diebase.DieMutBase[Workload, *WorkloadDie, *WorkloadDieMut]) *WorkloadDieMut {
+	return &WorkloadDieMut{b}
+}
 
-var WorkloadBlank = diebase.Blank[Workload, *WorkloadDie]()
+var (
+	_ diebase.DieOf[Workload, *WorkloadDie, *WorkloadDieMut]    = (*WorkloadDie)(nil)
+	_ diebase.DieMutOf[Workload, *WorkloadDie, *WorkloadDieMut] = (*WorkloadDieMut)(nil)
+)
+
+var WorkloadBlank = diebase.Blank[Workload, *WorkloadDie, *WorkloadDieMut]()
 
 type workloadFieldsTable struct {
-	Containers diefields.ListMapField[Workload, diecorev1.Container, *diecorev1.ContainerDie, string]
-	Volumes    diefields.ListMapField[Workload, diecorev1.Volume, *diecorev1.VolumeDie, string]
+	Containers diefields.ListMapField[Workload, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut, string]
+	Volumes    diefields.ListMapField[Workload, diecorev1.Volume, *diecorev1.VolumeDie, *diecorev1.VolumeDieMut, string]
 }
 
 var workloadFields = &diefields.Table[workloadFieldsTable]{Build: func() (f workloadFieldsTable) {
 	_ = annotated
-	f.Containers = diefields.NewListMap[Workload, diecorev1.Container, *diecorev1.ContainerDie]("containers", func(k string) []any { return []any{k} }, func(e diecorev1.Container) string { return e.Name })
-	f.Volumes = diefields.NewListMap[Workload, diecorev1.Volume, *diecorev1.VolumeDie]("volumes", func(k string) []any { return []any{k} }, func(e diecorev1.Volume) string { return e.Name })
+	f.Containers = diefields.NewListMap[Workload, diecorev1.Container, *diecorev1.ContainerDie, *diecorev1.ContainerDieMut]("containers", func(k string) []any { return []any{k} }, func(e diecorev1.Container) string { return e.Name })
+	f.Volumes = diefields.NewListMap[Workload, diecorev1.Volume, *diecorev1.VolumeDie, *diecorev1.VolumeDieMut]("volumes", func(k string) []any { return []any{k} }, func(e diecorev1.Volume) string { return e.Name })
 	return
 }}
 
@@ -298,6 +483,14 @@ func (d *WorkloadDie) Containers() *diefields.ListMap[diecorev1.Container, *diec
 
 func (d *WorkloadDie) Volumes() *diefields.ListMap[diecorev1.Volume, *diecorev1.VolumeDie, string] {
 	return diefields.ListMapOf(d, workloadFields.Get().Volumes)
+}
+
+func (d *WorkloadDieMut) Containers() *diefields.ListMapMut[diecorev1.Container, *diecorev1.ContainerDieMut, string] {
+	return diefields.ListMapMutOf(d, workloadFields.Get().Containers)
+}
+
+func (d *WorkloadDieMut) Volumes() *diefields.ListMapMut[diecorev1.Volume, *diecorev1.VolumeDieMut, string] {
+	return diefields.ListMapMutOf(d, workloadFields.Get().Volumes)
 }
 
 // SchemeBuilder registers this package's object and list dies, of which

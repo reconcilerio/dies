@@ -73,7 +73,7 @@ func key() client.ObjectKey { return client.ObjectKey{Namespace: "default", Name
 // by the interface too.
 func TestClientReadsAnUnregisteredUnstructuredDie(t *testing.T) {
 	c := newClient(t, stored(t))
-	d := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieImmutable(false)
+	d := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieMutable()
 	if err := c.Get(context.Background(), key(), d); err != nil {
 		t.Fatal(err)
 	}
@@ -88,19 +88,19 @@ func TestClientReadsAnUnregisteredUnstructuredDie(t *testing.T) {
 func TestClientTakesARegisteredUnstructuredDie(t *testing.T) {
 	ctx := context.Background()
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypeWithName(workloadGVK, &dieunstructured.Object{})
+	scheme.AddKnownTypeWithName(workloadGVK, &dieunstructured.ObjectMut{})
 	mapper := meta.NewDefaultRESTMapper(nil)
 	mapper.Add(workloadGVK, meta.RESTScopeNamespace)
-	seed := dieunstructured.Blank.DieFeedUnstructured(stored(t)).DieImmutable(false)
+	seed := dieunstructured.Blank.DieMutable().DieFeedUnstructured(stored(t))
 	c := fake.NewClientBuilder().WithScheme(scheme).WithRESTMapper(mapper).WithObjects(seed).Build()
 
-	d := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieImmutable(false)
+	d := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieMutable()
 	if err := c.Get(ctx, key(), d); err != nil {
 		t.Fatal(err)
 	}
 
 	// change it through a typed jig, and write it back with an exact patch
-	ps, _ := jigsv1.PodSpecableJig.Of(d)
+	ps, _ := jigsv1.PodSpecableJig.OfMut(d)
 	ps.Template().Spec().Containers().At("app").Image().Set("app:2")
 	patch, err := d.DieReleaseMergePatchE()
 	if err != nil {
@@ -111,7 +111,7 @@ func TestClientTakesARegisteredUnstructuredDie(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	got := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieImmutable(false)
+	got := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieMutable()
 	if err := c.Get(ctx, key(), got); err != nil {
 		t.Fatal(err)
 	}
@@ -128,11 +128,11 @@ func TestClientTakesARegisteredUnstructuredDie(t *testing.T) {
 	if err := c.Update(ctx, got); err != nil {
 		t.Fatal(err)
 	}
-	created := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieWith(func(d *dieunstructured.Object) {
+	created := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieWith(func(d *dieunstructured.ObjectMut) {
 		d.SetNamespace("default")
 		d.SetName("api")
 		d.Node().Field("spec").Field("replicas").Set(1)
-	}).DieImmutable(false)
+	}).DieMutable()
 	if err := c.Create(ctx, created); err != nil {
 		t.Fatal(err)
 	}
@@ -165,7 +165,7 @@ func TestDuckClientTakesDies(t *testing.T) {
 	reader := duck.NewDuckAwareAPIReaderWrapper(c, c)
 
 	// a typed die for a type the scheme doesn't have
-	typed := dieappsv1.DeploymentBlank.DieImmutable(false)
+	typed := dieappsv1.DeploymentBlank.DieMutable()
 	if !duck.IsDuck(typed, c.Scheme()) {
 		t.Fatal("expected a duck")
 	}
@@ -178,7 +178,7 @@ func TestDuckClientTakesDies(t *testing.T) {
 
 	// an unstructured die isn't a duck: schemes know any runtime.Unstructured
 	// by its kind, so the wrapper passes it straight to the client
-	unstructuredDie := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieImmutable(false)
+	unstructuredDie := dieunstructured.BlankFor("acme.dev/v1", "Workload").DieMutable()
 	if duck.IsDuck(unstructuredDie, c.Scheme()) {
 		t.Fatal("did not expect a duck")
 	}
@@ -197,9 +197,9 @@ func TestDuckClientTakesDies(t *testing.T) {
 func TestClientListsIntoRegisteredListDies(t *testing.T) {
 	deployGVK := schema.GroupVersionKind{Group: "apps", Version: "v1", Kind: "Deployment"}
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypeWithName(workloadGVK, &dieunstructured.Object{})
+	scheme.AddKnownTypeWithName(workloadGVK, &dieunstructured.ObjectMut{})
 	scheme.AddKnownTypeWithName(workloadGVK.GroupVersion().WithKind("WorkloadList"), &dieunstructured.ObjectList{})
-	scheme.AddKnownTypeWithName(deployGVK, &dieappsv1.DeploymentDie{})
+	scheme.AddKnownTypeWithName(deployGVK, &dieappsv1.DeploymentDieMut{})
 	scheme.AddKnownTypeWithName(deployGVK.GroupVersion().WithKind("DeploymentList"), &dieappsv1.DeploymentListDie{})
 	mapper := meta.NewDefaultRESTMapper(nil)
 	mapper.Add(workloadGVK, meta.RESTScopeNamespace)
@@ -207,14 +207,14 @@ func TestClientListsIntoRegisteredListDies(t *testing.T) {
 
 	// the fake client keeps objects as they are given; seeded as unstructured
 	// objects, they would list as unstructured objects, which aren't dies
-	web := dieunstructured.Blank.DieFeedUnstructured(stored(t)).DieImmutable(false)
+	web := dieunstructured.Blank.DieMutable().DieFeedUnstructured(stored(t))
 	api := web.DeepCopy()
 	api.SetName("api")
-	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Namespace().Set("default")
 		d.Metadata().Name().Set("web")
 		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
-	}).DieCommit().DieImmutable(false)
+	}).DieCommit().DieMutable()
 	c := fake.NewClientBuilder().WithScheme(scheme).WithRESTMapper(mapper).WithObjects(web, api, deploy).Build()
 	ctx := context.Background()
 
@@ -247,7 +247,7 @@ func TestClientListsIntoRegisteredListDies(t *testing.T) {
 	if err := c.Update(ctx, item); err != nil {
 		t.Fatal(err)
 	}
-	reloaded := dieappsv1.DeploymentBlank.DieImmutable(false)
+	reloaded := dieappsv1.DeploymentBlank.DieMutable()
 	if err := c.Get(ctx, key(), reloaded); err != nil {
 		t.Fatal(err)
 	}

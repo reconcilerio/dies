@@ -23,6 +23,8 @@ import (
 	"reflect"
 )
 
+var ErrImmutable = Errorf("die: an immutable die can't be written; write within DieWith, or to a DieMutable copy")
+
 var ErrImmutableChild = Errorf("die: cannot mutate through a child of an immutable die, mutate inside DieWith instead")
 
 // holder is the state of a root object. Child dies share their root's holder

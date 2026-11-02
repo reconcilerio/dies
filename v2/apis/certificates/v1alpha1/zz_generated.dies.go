@@ -45,17 +45,32 @@ import (
 // multiple associated ClusterTrustBundles; each is an independent set of trust
 // anchors for that signer. Admission control is used to enforce that only users
 // with permissions on the signer can create or modify the corresponding bundle.
+//
+// ClusterTrustBundleDie is immutable: it reads.
+// ClusterTrustBundleDieMut, its mutable die, also writes, as DieWith passes it.
 type ClusterTrustBundleDie struct {
-	diebase.DieObjectBase[ClusterTrustBundle, *ClusterTrustBundleDie]
+	diebase.DieObjectBase[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]
 }
 
-func (*ClusterTrustBundleDie) DieFrom(b diebase.DieBase[ClusterTrustBundle, *ClusterTrustBundleDie]) *ClusterTrustBundleDie {
+// ClusterTrustBundleDieMut is the mutable die of ClusterTrustBundle: see ClusterTrustBundleDie.
+type ClusterTrustBundleDieMut struct {
+	diebase.DieObjectMutBase[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]
+}
+
+func (*ClusterTrustBundleDie) DieFrom(b diebase.DieBase[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]) *ClusterTrustBundleDie {
 	return &ClusterTrustBundleDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[ClusterTrustBundle, *ClusterTrustBundleDie] = (*ClusterTrustBundleDie)(nil)
+func (*ClusterTrustBundleDieMut) DieFrom(b diebase.DieMutBase[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]) *ClusterTrustBundleDieMut {
+	return &ClusterTrustBundleDieMut{diebase.AsObjectMut(b)}
+}
 
-var ClusterTrustBundleBlank = diebase.BlankOf[ClusterTrustBundle, *ClusterTrustBundleDie](ClusterTrustBundle{TypeMeta: metav1.TypeMeta{APIVersion: "certificates.k8s.io/v1alpha1", Kind: "ClusterTrustBundle"}})
+var (
+	_ dieobjects.DieObjectOf[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]    = (*ClusterTrustBundleDie)(nil)
+	_ dieobjects.DieObjectMutOf[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut] = (*ClusterTrustBundleDieMut)(nil)
+)
+
+var ClusterTrustBundleBlank = diebase.BlankOf[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut](ClusterTrustBundle{TypeMeta: metav1.TypeMeta{APIVersion: "certificates.k8s.io/v1alpha1", Kind: "ClusterTrustBundle"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -64,50 +79,63 @@ func (d *ClusterTrustBundleDie) DieReleaseApplyConfiguration() *ClusterTrustBund
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ClusterTrustBundleDie) DieFeedApplyConfiguration(ac *ClusterTrustBundleApplyConfiguration) *ClusterTrustBundleDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ClusterTrustBundleDie) DieStampApplyConfiguration(fn func(ac *ClusterTrustBundleApplyConfiguration)) *ClusterTrustBundleDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ClusterTrustBundleDie) DieReleaseApplyConfigurationE() (*ClusterTrustBundleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ClusterTrustBundleDieMut) DieReleaseApplyConfiguration() *ClusterTrustBundleApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ClusterTrustBundleDieMut) DieReleaseApplyConfigurationE() (*ClusterTrustBundleApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ClusterTrustBundleDieMut) DieFeedApplyConfiguration(ac *ClusterTrustBundleApplyConfiguration) *ClusterTrustBundleDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ClusterTrustBundleDieMut) DieStampApplyConfiguration(fn func(ac *ClusterTrustBundleApplyConfiguration)) *ClusterTrustBundleDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ClusterTrustBundleDie) DieFeedApplyConfigurationE(ac *ClusterTrustBundleApplyConfiguration) (*ClusterTrustBundleDie, error) {
+func (d *ClusterTrustBundleDieMut) DieFeedApplyConfigurationE(ac *ClusterTrustBundleApplyConfiguration) (*ClusterTrustBundleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ClusterTrustBundleDie) DieStampApplyConfigurationE(fn func(ac *ClusterTrustBundleApplyConfiguration)) (*ClusterTrustBundleDie, error) {
+func (d *ClusterTrustBundleDieMut) DieStampApplyConfigurationE(fn func(ac *ClusterTrustBundleApplyConfiguration)) (*ClusterTrustBundleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type clusterTrustBundleFieldsTable struct {
 	Kind       diefields.Field[ClusterTrustBundle, string]
 	APIVersion diefields.Field[ClusterTrustBundle, string]
-	Metadata   diefields.Struct[ClusterTrustBundle, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[ClusterTrustBundle, ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie]
+	Metadata   diefields.Struct[ClusterTrustBundle, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[ClusterTrustBundle, ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]
 }
 
 var clusterTrustBundleFields = &diefields.Table[clusterTrustBundleFieldsTable]{Build: func() (f clusterTrustBundleFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[ClusterTrustBundle, string]("kind")
 	f.APIVersion = diefields.NewField[ClusterTrustBundle, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[ClusterTrustBundle, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[ClusterTrustBundle, ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie]("spec")
+	f.Metadata = diefields.NewStruct[ClusterTrustBundle, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[ClusterTrustBundle, ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]("spec")
 	return
 }}
 
@@ -116,7 +144,7 @@ var clusterTrustBundleFields = &diefields.Table[clusterTrustBundleFieldsTable]{B
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *ClusterTrustBundleDie) Kind() diefields.Value[string, *ClusterTrustBundleDie] {
+func (d *ClusterTrustBundleDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, clusterTrustBundleFields.Get().Kind)
 }
 
@@ -124,7 +152,7 @@ func (d *ClusterTrustBundleDie) Kind() diefields.Value[string, *ClusterTrustBund
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *ClusterTrustBundleDie) APIVersion() diefields.Value[string, *ClusterTrustBundleDie] {
+func (d *ClusterTrustBundleDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, clusterTrustBundleFields.Get().APIVersion)
 }
 
@@ -138,15 +166,42 @@ func (d *ClusterTrustBundleDie) Spec() *ClusterTrustBundleSpecDie {
 	return diefields.Child(d, clusterTrustBundleFields.Get().Spec)
 }
 
-// ClusterTrustBundleList is a collection of ClusterTrustBundle objects
-type ClusterTrustBundleListDie struct {
-	dielists.List[*ClusterTrustBundleDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ClusterTrustBundleDieMut) Kind() diefields.ValueMut[string, *ClusterTrustBundleDieMut] {
+	return diefields.ValueMutOf(d, clusterTrustBundleFields.Get().Kind)
 }
 
-var _ dielists.DieListOf[*ClusterTrustBundleDie] = (*ClusterTrustBundleListDie)(nil)
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *ClusterTrustBundleDieMut) APIVersion() diefields.ValueMut[string, *ClusterTrustBundleDieMut] {
+	return diefields.ValueMutOf(d, clusterTrustBundleFields.Get().APIVersion)
+}
+
+// metadata contains the object metadata.
+func (d *ClusterTrustBundleDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, clusterTrustBundleFields.Get().Metadata)
+}
+
+// spec contains the signer (if any) and trust anchors.
+func (d *ClusterTrustBundleDieMut) Spec() *ClusterTrustBundleSpecDieMut {
+	return diefields.ChildMut(d, clusterTrustBundleFields.Get().Spec)
+}
+
+// ClusterTrustBundleList is a collection of ClusterTrustBundle objects
+type ClusterTrustBundleListDie struct {
+	dielists.List[*ClusterTrustBundleDieMut]
+}
+
+var _ dielists.DieListOf[*ClusterTrustBundleDieMut] = (*ClusterTrustBundleListDie)(nil)
 
 // NewClusterTrustBundleList returns a list with items.
-func NewClusterTrustBundleList(items ...*ClusterTrustBundleDie) *ClusterTrustBundleListDie {
+func NewClusterTrustBundleList(items ...*ClusterTrustBundleDieMut) *ClusterTrustBundleListDie {
 	return &ClusterTrustBundleListDie{dielists.NewList("certificates.k8s.io/v1alpha1", "ClusterTrustBundleList", items...)}
 }
 
@@ -158,17 +213,32 @@ func (l *ClusterTrustBundleListDie) DeepCopy() *ClusterTrustBundleListDie {
 func (l *ClusterTrustBundleListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // ClusterTrustBundleSpec contains the signer and trust anchors.
+//
+// ClusterTrustBundleSpecDie is immutable: it reads.
+// ClusterTrustBundleSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type ClusterTrustBundleSpecDie struct {
-	diebase.DieBase[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie]
+	diebase.DieBase[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]
 }
 
-func (*ClusterTrustBundleSpecDie) DieFrom(b diebase.DieBase[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie]) *ClusterTrustBundleSpecDie {
+// ClusterTrustBundleSpecDieMut is the mutable die of ClusterTrustBundleSpec: see ClusterTrustBundleSpecDie.
+type ClusterTrustBundleSpecDieMut struct {
+	diebase.DieMutBase[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]
+}
+
+func (*ClusterTrustBundleSpecDie) DieFrom(b diebase.DieBase[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]) *ClusterTrustBundleSpecDie {
 	return &ClusterTrustBundleSpecDie{b}
 }
 
-var _ diebase.DieOf[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie] = (*ClusterTrustBundleSpecDie)(nil)
+func (*ClusterTrustBundleSpecDieMut) DieFrom(b diebase.DieMutBase[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]) *ClusterTrustBundleSpecDieMut {
+	return &ClusterTrustBundleSpecDieMut{b}
+}
 
-var ClusterTrustBundleSpecBlank = diebase.Blank[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie]()
+var (
+	_ diebase.DieOf[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]    = (*ClusterTrustBundleSpecDie)(nil)
+	_ diebase.DieMutOf[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut] = (*ClusterTrustBundleSpecDieMut)(nil)
+)
+
+var ClusterTrustBundleSpecBlank = diebase.Blank[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -177,34 +247,47 @@ func (d *ClusterTrustBundleSpecDie) DieReleaseApplyConfiguration() *ClusterTrust
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ClusterTrustBundleSpecDie) DieFeedApplyConfiguration(ac *ClusterTrustBundleSpecApplyConfiguration) *ClusterTrustBundleSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ClusterTrustBundleSpecDie) DieStampApplyConfiguration(fn func(ac *ClusterTrustBundleSpecApplyConfiguration)) *ClusterTrustBundleSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ClusterTrustBundleSpecDie) DieReleaseApplyConfigurationE() (*ClusterTrustBundleSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ClusterTrustBundleSpecDieMut) DieReleaseApplyConfiguration() *ClusterTrustBundleSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ClusterTrustBundleSpecDieMut) DieReleaseApplyConfigurationE() (*ClusterTrustBundleSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ClusterTrustBundleSpecDieMut) DieFeedApplyConfiguration(ac *ClusterTrustBundleSpecApplyConfiguration) *ClusterTrustBundleSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ClusterTrustBundleSpecDieMut) DieStampApplyConfiguration(fn func(ac *ClusterTrustBundleSpecApplyConfiguration)) *ClusterTrustBundleSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ClusterTrustBundleSpecDie) DieFeedApplyConfigurationE(ac *ClusterTrustBundleSpecApplyConfiguration) (*ClusterTrustBundleSpecDie, error) {
+func (d *ClusterTrustBundleSpecDieMut) DieFeedApplyConfigurationE(ac *ClusterTrustBundleSpecApplyConfiguration) (*ClusterTrustBundleSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ClusterTrustBundleSpecDie) DieStampApplyConfigurationE(fn func(ac *ClusterTrustBundleSpecApplyConfiguration)) (*ClusterTrustBundleSpecDie, error) {
+func (d *ClusterTrustBundleSpecDieMut) DieStampApplyConfigurationE(fn func(ac *ClusterTrustBundleSpecApplyConfiguration)) (*ClusterTrustBundleSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -238,7 +321,7 @@ var clusterTrustBundleSpecFields = &diefields.Table[clusterTrustBundleSpecFields
 //
 // List/watch requests for ClusterTrustBundles can filter on this field
 // using a `spec.signerName=NAME` field selector.
-func (d *ClusterTrustBundleSpecDie) SignerName() diefields.Value[string, *ClusterTrustBundleSpecDie] {
+func (d *ClusterTrustBundleSpecDie) SignerName() diefields.Value[string] {
 	return diefields.ValueOf(d, clusterTrustBundleSpecFields.Get().SignerName)
 }
 
@@ -253,22 +336,59 @@ func (d *ClusterTrustBundleSpecDie) SignerName() diefields.Value[string, *Cluste
 // Users of ClusterTrustBundles, including Kubelet, are free to reorder and
 // deduplicate certificate blocks in this file according to their own logic,
 // as well as to drop PEM block headers and inter-block data.
-func (d *ClusterTrustBundleSpecDie) TrustBundle() diefields.Value[string, *ClusterTrustBundleSpecDie] {
+func (d *ClusterTrustBundleSpecDie) TrustBundle() diefields.Value[string] {
 	return diefields.ValueOf(d, clusterTrustBundleSpecFields.Get().TrustBundle)
+}
+
+// signerName indicates the associated signer, if any.
+//
+// In order to create or update a ClusterTrustBundle that sets signerName,
+// you must have the following cluster-scoped permission:
+// group=certificates.k8s.io resource=signers resourceName=<the signer name>
+// verb=attest.
+//
+// If signerName is not empty, then the ClusterTrustBundle object must be
+// named with the signer name as a prefix (translating slashes to colons).
+// For example, for the signer name `example.com/foo`, valid
+// ClusterTrustBundle object names include `example.com:foo:abc` and
+// `example.com:foo:v1`.
+//
+// If signerName is empty, then the ClusterTrustBundle object's name must
+// not have such a prefix.
+//
+// List/watch requests for ClusterTrustBundles can filter on this field
+// using a `spec.signerName=NAME` field selector.
+func (d *ClusterTrustBundleSpecDieMut) SignerName() diefields.ValueMut[string, *ClusterTrustBundleSpecDieMut] {
+	return diefields.ValueMutOf(d, clusterTrustBundleSpecFields.Get().SignerName)
+}
+
+// trustBundle contains the individual X.509 trust anchors for this
+// bundle, as PEM bundle of PEM-wrapped, DER-formatted X.509 certificates.
+//
+// The data must consist only of PEM certificate blocks that parse as valid
+// X.509 certificates.  Each certificate must include a basic constraints
+// extension with the CA bit set.  The API server will reject objects that
+// contain duplicate certificates, or that use PEM block headers.
+//
+// Users of ClusterTrustBundles, including Kubelet, are free to reorder and
+// deduplicate certificate blocks in this file according to their own logic,
+// as well as to drop PEM block headers and inter-block data.
+func (d *ClusterTrustBundleSpecDieMut) TrustBundle() diefields.ValueMut[string, *ClusterTrustBundleSpecDieMut] {
+	return diefields.ValueMutOf(d, clusterTrustBundleSpecFields.Get().TrustBundle)
 }
 
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "certificates.k8s.io", Version: "v1alpha1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ClusterTrustBundle"), &ClusterTrustBundleDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ClusterTrustBundle"), &ClusterTrustBundleDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ClusterTrustBundleList"), &ClusterTrustBundleListDie{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

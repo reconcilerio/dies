@@ -65,14 +65,14 @@ func TestLossyTransformIsRejected(t *testing.T) {
 // Jigs compose: the workload jig finds the containers, and the container
 // jig presents each image in parts. Setting a tag rewrites only the image.
 func TestRetagThroughJigs(t *testing.T) {
-	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Name().Set("web")
 		d.Spec().Template().Spec().Containers().At("app").Image().Set("registry.example:5000/team/app:v1@sha256:abc")
 		d.Spec().Template().Spec().Containers().At("proxy").Image().Set("proxy:1")
-	}).DieCommit().DieImmutable(false)
+	}).DieCommit().DieMutable()
 
-	ps, _ := jigsv1.PodSpecableJig.Of(deploy)
-	c, ok := jigsv1.ContainerImageJig.Of(ps.Template().Spec().Containers().At("app"))
+	ps, _ := jigsv1.PodSpecableJig.OfMut(deploy)
+	c, ok := jigsv1.ContainerImageJig.OfMut(ps.Template().Spec().Containers().At("app"))
 	if !ok {
 		t.Fatal("no container jig")
 	}
@@ -96,8 +96,8 @@ func TestRetagThroughJigs(t *testing.T) {
 // A jig value the source can't represent is refused, rather than written
 // and read back as something else.
 func TestTransformRefusesWhatTheSourceCannotHold(t *testing.T) {
-	container := diecorev1.ContainerBlank.DieImmutable(false)
-	c, _ := jigsv1.ContainerImageJig.Of(container)
+	container := diecorev1.ContainerBlank.DieMutable()
+	c, _ := jigsv1.ContainerImageJig.OfMut(container)
 	c.Image().Repository().Set("app")
 	defer func() {
 		if recover() == nil {

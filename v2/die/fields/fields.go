@@ -36,19 +36,20 @@ func NewField[T, V any](wire string) Field[T, V] {
 	return Field[T, V]{fd: lookup[T](wire, reflect.TypeFor[V]())}
 }
 
-// Struct is a struct field of T, held by value or pointer, whose die is CD.
-type Struct[T, C any, CD base.DieOf[C, CD]] struct{ fd *core.FieldDesc }
+// Struct is a struct field of T, held by value or pointer, whose dies are CD
+// and CDM.
+type Struct[T, C any, CD base.DieOf[C, CD, CDM], CDM base.DieMutOf[C, CD, CDM]] struct{ fd *core.FieldDesc }
 
-func NewStruct[T, C any, CD base.DieOf[C, CD]](wire string) Struct[T, C, CD] {
+func NewStruct[T, C any, CD base.DieOf[C, CD, CDM], CDM base.DieMutOf[C, CD, CDM]](wire string) Struct[T, C, CD, CDM] {
 	fd := lookup[T](wire, nil)
 	if core.Deref(fd.Typ) != reflect.TypeFor[C]() {
 		panic(core.Errorf("die: field %q of %s is %s, not %s", wire, reflect.TypeFor[T](), fd.Typ, reflect.TypeFor[C]()))
 	}
-	return Struct[T, C, CD]{fd: fd}
+	return Struct[T, C, CD, CDM]{fd: fd}
 }
 
 // ListMapField is a list-map field of T with elements C keyed by K.
-type ListMapField[T, C any, CD base.DieOf[C, CD], K any] struct {
+type ListMapField[T, C any, CD base.DieOf[C, CD, CDM], CDM base.DieMutOf[C, CD, CDM], K any] struct {
 	fd    *core.FieldDesc
 	key   func(K) []any
 	keyOf func(C) K
@@ -56,7 +57,7 @@ type ListMapField[T, C any, CD base.DieOf[C, CD], K any] struct {
 
 // NewListMap declares a list-map field. key returns the key values in the
 // order of the field's listMap keys; keyOf returns an element's key.
-func NewListMap[T, C any, CD base.DieOf[C, CD], K any](wire string, key func(K) []any, keyOf func(C) K) ListMapField[T, C, CD, K] {
+func NewListMap[T, C any, CD base.DieOf[C, CD, CDM], CDM base.DieMutOf[C, CD, CDM], K any](wire string, key func(K) []any, keyOf func(C) K) ListMapField[T, C, CD, CDM, K] {
 	// the list may be a named type, such as ValidationRules []ValidationRule
 	fd := lookup[T](wire, nil)
 	if fd.Typ.Kind() != reflect.Slice || fd.Typ.Elem() != reflect.TypeFor[C]() {
@@ -65,7 +66,7 @@ func NewListMap[T, C any, CD base.DieOf[C, CD], K any](wire string, key func(K) 
 	if fd.Kind != core.KindListMap {
 		panic(core.Errorf("die: field %q of %s is not a list map", wire, reflect.TypeFor[T]()))
 	}
-	return ListMapField[T, C, CD, K]{fd: fd, key: key, keyOf: keyOf}
+	return ListMapField[T, C, CD, CDM, K]{fd: fd, key: key, keyOf: keyOf}
 }
 
 // MapField is a granular map field of T with string-kinded keys K and values V.
@@ -90,20 +91,44 @@ func lookup[T any](wire string, want reflect.Type) *core.FieldDesc {
 	return fd
 }
 
-// Child returns the die for a struct field, attached to d.
-func Child[T any, D base.DieOf[T, D], C any, CD base.DieOf[C, CD]](d D, f Struct[T, C, CD]) CD {
+// Child returns the immutable die for a struct field of an immutable die,
+// attached to it.
+func Child[T, C any, CD base.DieOf[C, CD, CDM], CDM base.DieMutOf[C, CD, CDM]](d base.LocatedAs[T], f Struct[T, C, CD, CDM]) CD {
 	h, at := dies.MustStateOf(d)
 	return dies.WrapDie[C, CD](h, core.ChildPath(at, core.FieldStep(f.fd.Wire)))
 }
 
-// ListMapOf returns the collection die for a list-map field, attached to d.
-func ListMapOf[T any, D base.DieOf[T, D], C any, CD base.DieOf[C, CD], K any](d D, f ListMapField[T, C, CD, K]) *ListMap[C, CD, K] {
+// ChildMut returns the mutable die for a struct field of a mutable die,
+// attached to it.
+func ChildMut[T, C any, CD base.DieOf[C, CD, CDM], CDM base.DieMutOf[C, CD, CDM]](d base.LocatedAs[T], f Struct[T, C, CD, CDM]) CDM {
 	h, at := dies.MustStateOf(d)
-	return &ListMap[C, CD, K]{h: h, at: core.ChildPath(at, core.FieldStep(f.fd.Wire)), keys: f.fd.Keys, key: f.key, keyOf: f.keyOf}
+	return dies.WrapDieMut[C, CD](h, core.ChildPath(at, core.FieldStep(f.fd.Wire)))
 }
 
-// MapOf returns the collection die for a map field, attached to d.
-func MapOf[T any, D base.DieOf[T, D], K ~string, V any](d D, f MapField[T, K, V]) *Map[K, V] {
+// ListMapOf returns the collection for a list-map field of an immutable die,
+// attached to it.
+func ListMapOf[T, C any, CD base.DieOf[C, CD, CDM], CDM base.DieMutOf[C, CD, CDM], K any](d base.LocatedAs[T], f ListMapField[T, C, CD, CDM, K]) *ListMap[C, CD, K] {
+	h, at := dies.MustStateOf(d)
+	return &ListMap[C, CD, K]{h: h, at: core.ChildPath(at, core.FieldStep(f.fd.Wire)), keys: f.fd.Keys, key: f.key, keyOf: f.keyOf, wrap: dies.WrapDie[C, CD, CDM]}
+}
+
+// ListMapMutOf returns the collection for a list-map field of a mutable die,
+// attached to it.
+func ListMapMutOf[T, C any, CD base.DieOf[C, CD, CDM], CDM base.DieMutOf[C, CD, CDM], K any](d base.LocatedAs[T], f ListMapField[T, C, CD, CDM, K]) *ListMapMut[C, CDM, K] {
+	h, at := dies.MustStateOf(d)
+	return &ListMapMut[C, CDM, K]{ListMap[C, CDM, K]{h: h, at: core.ChildPath(at, core.FieldStep(f.fd.Wire)), keys: f.fd.Keys, key: f.key, keyOf: f.keyOf, wrap: dies.WrapDieMut[C, CD, CDM]}}
+}
+
+// MapOf returns the collection for a map field of an immutable die, attached
+// to it.
+func MapOf[T any, K ~string, V any](d base.LocatedAs[T], f MapField[T, K, V]) *Map[K, V] {
 	h, at := dies.MustStateOf(d)
 	return &Map[K, V]{h: h, at: core.ChildPath(at, core.FieldStep(f.fd.Wire))}
+}
+
+// MapMutOf returns the collection for a map field of a mutable die, attached
+// to it.
+func MapMutOf[T any, K ~string, V any](d base.LocatedAs[T], f MapField[T, K, V]) *MapMut[K, V] {
+	h, at := dies.MustStateOf(d)
+	return &MapMut[K, V]{Map[K, V]{h: h, at: core.ChildPath(at, core.FieldStep(f.fd.Wire))}}
 }

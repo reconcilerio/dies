@@ -23,9 +23,17 @@ limitations under the License.
 // along the path being read. Patches are encoded from the overlay, so they
 // contain exactly what was stamped.
 //
+// Every die type comes in two: an immutable die, such as DeploymentDie, which
+// only reads, and a mutable die, such as DeploymentDieMut, which also
+// writes, in place. Blanks are immutable; DieWith passes a mutable copy to
+// functions and returns an immutable die of the result. DieMutable and
+// DieImmutable convert, always by copying, so an immutable die never sees a
+// write.
+//
 // A child die returned by an accessor is attached to its root: it addresses
 // into the root by path, reads never create anything, and the first write
-// creates whatever the path needs.
+// creates whatever the path needs. The children of an immutable die are
+// immutable, and those of a mutable die mutable.
 package base
 
 import (
@@ -41,43 +49,31 @@ import (
 	"reconciler.io/dies/v2/die/internal/core"
 )
 
-// DieOf carries a die's types for generic code: T is the die's value type,
-// and D its own pointer type, so its methods return the concrete die. It has
-// every method of a die. Generic code constrains a die by it,
-// D DieOf[T, D]; code that takes a die of any type takes a Die.
-type DieOf[T any, D DieOf[T, D]] interface {
+// dieOf is what immutable and mutable dies of a T share: reading.
+type dieOf[T any] interface {
 	Die
 	LocatedAs[T]
-	DieEmbedded() *DieBase[T, D]
-	// DieFrom wraps state in a new die. It is called on a nil receiver.
-	DieFrom(DieBase[T, D]) D
 
-	DieClear() D
-	DieClearE() (D, error)
 	DieRelease() T
 	DieReleaseE() (T, error)
 	DieReleasePtr() *T
 	DieReleasePtrE() (*T, error)
-	DieFeed(r T) D
-	DieFeedE(r T) (D, error)
-	DieFeedPtr(r *T) D
-	DieFeedPtrE(r *T) (D, error)
-	DieFeedJSON(data []byte) D
-	DieFeedJSONE(data []byte) (D, error)
-	DieFeedYAML(data []byte) D
-	DieFeedYAMLE(data []byte) (D, error)
-	DieFeedRawExtension(raw runtime.RawExtension) D
-	DieFeedRawExtensionE(raw runtime.RawExtension) (D, error)
-	DieFeedApplyPatch(patch []byte) D
-	DieFeedApplyPatchE(patch []byte) (D, error)
-	DieFeedMergePatch(patch []byte) D
-	DieFeedMergePatchE(patch []byte) (D, error)
-	DieStamp(fn func(r *T)) D
-	DieStampE(fn func(r *T)) (D, error)
-	DieWith(fns ...func(d D)) D
-	DieWithE(fns ...func(d D) error) (D, error)
-	DieImmutable(immutable bool) D
-	DieImmutableE(immutable bool) (D, error)
+}
+
+// DieOf carries an immutable die's types for generic code: T is the die's
+// value type, D its own pointer type, so its methods return the concrete
+// die, and M the pointer type of its mutable counterpart. It has every method
+// of an immutable die. Generic code constrains a die by it,
+// D DieOf[T, D, M]; code that takes a die of any type takes a Die.
+type DieOf[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]] interface {
+	dieOf[T]
+	// DieFrom wraps state in a new die. It is called on a nil receiver.
+	DieFrom(DieBase[T, D, M]) D
+
+	DieWith(fns ...func(m M)) D
+	DieWithE(fns ...func(m M) error) (D, error)
+	DieMutable() M
+	DieMutableE() (M, error)
 	DeepCopy() D
 	DeepCopyE() (D, error)
 	DieCommit() D
@@ -94,9 +90,56 @@ type DieOf[T any, D DieOf[T, D]] interface {
 	EqualE(o D) (bool, error)
 }
 
-// Die is a die of any type: the methods every die has that don't name its
-// types, for functions that take any die. Handles, collections and nodes
-// have some of them, but aren't dies. DieOf has the rest, for generic code.
+// DieMutOf carries a mutable die's types for generic code, as DieOf does an
+// immutable die's. It has every method of a mutable die.
+type DieMutOf[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]] interface {
+	dieOf[T]
+	json.Unmarshaler
+	// DieFrom wraps state in a new die. It is called on a nil receiver.
+	DieFrom(DieMutBase[T, D, M]) M
+
+	DieClear() M
+	DieClearE() (M, error)
+	DieFeed(r T) M
+	DieFeedE(r T) (M, error)
+	DieFeedPtr(r *T) M
+	DieFeedPtrE(r *T) (M, error)
+	DieFeedJSON(data []byte) M
+	DieFeedJSONE(data []byte) (M, error)
+	DieFeedYAML(data []byte) M
+	DieFeedYAMLE(data []byte) (M, error)
+	DieFeedRawExtension(raw runtime.RawExtension) M
+	DieFeedRawExtensionE(raw runtime.RawExtension) (M, error)
+	DieFeedApplyPatch(patch []byte) M
+	DieFeedApplyPatchE(patch []byte) (M, error)
+	DieFeedMergePatch(patch []byte) M
+	DieFeedMergePatchE(patch []byte) (M, error)
+	DieStamp(fn func(r *T)) M
+	DieStampE(fn func(r *T)) (M, error)
+	DieWith(fns ...func(m M)) M
+	DieWithE(fns ...func(m M) error) (M, error)
+	DieImmutable() D
+	DieImmutableE() (D, error)
+	DeepCopy() M
+	DeepCopyE() (M, error)
+	DieCommit() M
+	DieCommitE() (M, error)
+	DieOnly(at ...Located) M
+	DieOnlyE(at ...Located) (M, error)
+	DieExcept(at ...Located) M
+	DieExceptE(at ...Located) (M, error)
+	DieSubresource(name string) M
+	DieSubresourceE(name string) (M, error)
+	DieMain() M
+	DieMainE() (M, error)
+	Equal(o M) bool
+	EqualE(o M) (bool, error)
+}
+
+// Die is a die of any type, immutable or mutable: the methods every die has
+// that don't name its types, for functions that take any die. Handles,
+// collections and nodes have some of them, but aren't dies. DieOf and
+// DieMutOf have the rest, for generic code.
 type Die interface {
 	// MarshalJSON encodes the die's value as its presence says.
 	json.Marshaler
@@ -104,7 +147,6 @@ type Die interface {
 	DiePath() Path
 	DieRootType() reflect.Type
 	DieRoot() Die
-	DieMutable() bool
 	DieIntent() string
 	DieFields() []FieldInfo
 	DieHas() bool
@@ -121,39 +163,82 @@ type Die interface {
 	DieReleaseMergePatchE() ([]byte, error)
 }
 
-// DieBase holds the state of a die and provides the methods shared by every die.
-// Dies embed it by value.
-//
-// The zero value is a mutable, empty die, so a die allocated by a decoder can
-// be unmarshaled into.
-type DieBase[T any, D DieOf[T, D]] struct {
+// ImmutableDie is an immutable die of any type, for functions that take
+// only immutable dies, such as jigs.Jig.Of. Only the dies of DieBase, and the
+// typed and object bases that embed it, are ImmutableDies.
+type ImmutableDie interface {
+	Die
+	dieImmutableMarker()
+}
+
+// MutableDie is a mutable die of any type, for functions that take only
+// mutable dies, such as jigs.Jig.OfMut. Only the dies of DieMutBase, and the
+// typed and object bases that embed it, are MutableDies.
+type MutableDie interface {
+	Die
+	dieMutableMarker()
+}
+
+// IsMutable reports whether a die is a mutable die.
+func IsMutable(d any) bool {
+	_, ok := d.(MutableDie)
+	return ok
+}
+
+// state is the state of a die, immutable or mutable, with the methods both
+// have, which read. DieBase and DieMutBase embed it, rather than one the
+// other, so that each has only its own methods: DieMutable only on an
+// immutable die, and DieImmutable only on a mutable one.
+type state[T any] struct {
 	h  *core.Holder
 	at Path
 }
 
-func wrap[T any, D DieOf[T, D]](h *core.Holder, at Path) D {
+// DieBase holds the state of an immutable die and provides its methods,
+// which read. Immutable dies embed it by value.
+type DieBase[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]] struct {
+	state[T]
+}
+
+// DieMutBase holds the state of a mutable die and provides its methods. Its
+// writes change the die in place, and return it, so they chain. Mutable dies
+// embed it by value.
+//
+// The zero value is a mutable, empty die, so a die allocated by a decoder can
+// be unmarshaled into.
+type DieMutBase[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]] struct {
+	state[T]
+}
+
+func wrap[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]](h *core.Holder, at Path) D {
 	if len(at) == 0 {
-		h.SetRoot(func(h *core.Holder) any { return wrap[T, D](h, nil) })
+		h.SetRoot(func(h *core.Holder) any { return wrap[T, D, M](h, nil) })
 	}
 	var d D
-	return d.DieFrom(DieBase[T, D]{h: h, at: at})
+	return d.DieFrom(DieBase[T, D, M]{state[T]{h: h, at: at}})
+}
+
+func wrapMut[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]](h *core.Holder, at Path) M {
+	if len(at) == 0 {
+		h.SetRoot(func(h *core.Holder) any { return wrapMut[T, D, M](h, nil) })
+	}
+	var m M
+	return m.DieFrom(DieMutBase[T, D, M]{state[T]{h: h, at: at}})
 }
 
 // BlankOf returns an immutable die of a value, such as an object with only
 // its type metadata, for a blank.
-func BlankOf[T any, D DieOf[T, D]](v T) D {
-	return wrap[T, D](&core.Holder{Base: reflect.ValueOf(v)}, nil)
+func BlankOf[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]](v T) D {
+	return wrap[T, D, M](&core.Holder{Base: reflect.ValueOf(v)}, nil)
 }
 
 // Blank returns an immutable, empty die.
-func Blank[T any, D DieOf[T, D]]() D {
-	return wrap[T, D](&core.Holder{Base: reflect.Zero(reflect.TypeFor[T]())}, nil)
+func Blank[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]]() D {
+	return wrap[T, D, M](&core.Holder{Base: reflect.Zero(reflect.TypeFor[T]())}, nil)
 }
 
-func (b *DieBase[T, D]) DieEmbedded() *DieBase[T, D] { return b }
-
 // DieValue marks a die as a location of a T, for LocatedAs. It does nothing.
-func (*DieBase[T, D]) DieValue(*T) {}
+func (*state[T]) DieValue(*T) {}
 
 // dieState is how the packages of handles, jigs and unstructured dies reach
 // a die's state, through the functions installed below.
@@ -164,11 +249,15 @@ type dieState interface {
 	dieValueType() reflect.Type
 }
 
-func (b *DieBase[T, D]) dieAt() Path { return b.at }
+func (b *state[T]) dieAt() Path { return b.at }
 
-func (b *DieBase[T, D]) setDieState(h *core.Holder, at Path) { b.h, b.at = h, at }
+func (b *state[T]) setDieState(h *core.Holder, at Path) { b.h, b.at = h, at }
 
-func (b *DieBase[T, D]) dieValueType() reflect.Type { return reflect.TypeFor[T]() }
+func (b *state[T]) dieValueType() reflect.Type { return reflect.TypeFor[T]() }
+
+func (*DieBase[T, D, M]) dieImmutableMarker() {}
+
+func (*DieMutBase[T, D, M]) dieMutableMarker() {}
 
 func init() {
 	core.StateOf = func(d any) (*core.Holder, Path, bool) {
@@ -191,9 +280,12 @@ func init() {
 		d.(dieState).setDieState(h, at)
 	}
 	core.ValueTypeOf = func(d any) reflect.Type { return d.(dieState).dieValueType() }
+	core.IsMutable = IsMutable
 }
 
-func (b *DieBase[T, D]) hold() *core.Holder {
+// hold returns the die's holder. A zero die's is made on first use, mutable,
+// for a decoder; an immutable die never writes to it.
+func (b *state[T]) hold() *core.Holder {
 	if b.h == nil {
 		var zero T
 		b.h = &core.Holder{Base: reflect.ValueOf(zero), Mutable: true}
@@ -201,15 +293,7 @@ func (b *DieBase[T, D]) hold() *core.Holder {
 	return b.h
 }
 
-func (b *DieBase[T, D]) self(h *core.Holder) D {
-	if h != b.h {
-		// a new root
-		return wrap[T, D](h, nil)
-	}
-	return wrap[T, D](h, b.at)
-}
-
-func (b *DieBase[T, D]) root(method string) (*core.Holder, error) {
+func (b *state[T]) root(method string) (*core.Holder, error) {
 	if len(b.at) > 0 {
 		return nil, core.Errorf("die: %s is only supported on a root die, not at %s", method, b.at)
 	}
@@ -219,17 +303,41 @@ func (b *DieBase[T, D]) root(method string) (*core.Holder, error) {
 	return b.hold(), nil
 }
 
-// DiePath returns the location of this die within its root.
-func (b *DieBase[T, D]) DiePath() Path { return b.at }
+// copyOf returns a new root holder with a copy of the die: a root's value
+// and intent, or the current value of a die within another or presented by a
+// jig, without intent, so the copy is unlinked from its source.
+func (b *state[T]) copyOf(mutable bool) (*core.Holder, error) {
+	h := b.hold()
+	if len(b.at) > 0 || h.View != nil {
+		r, err := b.DieReleaseE()
+		if err != nil {
+			return nil, err
+		}
+		return &core.Holder{Base: reflect.ValueOf(r), Mutable: mutable, Schema: h.Schema.At(b.at)}, nil
+	}
+	return &core.Holder{Base: h.Base, Ov: h.Ov, Wire: h.Wire, Mutable: mutable, Schema: h.Schema}, nil
+}
 
-// DieRoot returns the root die this die is within, sharing its state: writes
-// through it are writes to this die's tree. A root returns itself. Its type
-// is the root's die type, such as *DeploymentDie for a die within a
-// Deployment. Assert it as a type, or as metav1.Object for an object's
-// identity whatever its type: d.DieRoot().(metav1.Object).GetNamespace().
-func (b *DieBase[T, D]) DieRoot() Die {
+// DiePath returns the location of this die within its root.
+func (b *state[T]) DiePath() Path { return b.at }
+
+// DieRoot returns the root die this die is within, sharing its state. A root
+// returns itself. Its type is the root's die type, such as *DeploymentDie
+// for a die within an immutable Deployment, or *DeploymentDieMut within a
+// mutable one, whose writes are writes to this die's tree. Assert it as a
+// type, or as metav1.Object for an object's identity whatever its type:
+// d.DieRoot().(metav1.Object).GetNamespace().
+func (b *DieBase[T, D, M]) DieRoot() Die {
 	if len(b.at) == 0 {
-		return any(b.self(b.hold())).(Die)
+		return wrap[T, D, M](b.hold(), nil)
+	}
+	return RootOf(b.hold())
+}
+
+// DieRoot returns the root die this die is within: see DieBase.DieRoot.
+func (b *DieMutBase[T, D, M]) DieRoot() Die {
+	if len(b.at) == 0 {
+		return wrapMut[T, D, M](b.hold(), nil)
 	}
 	return RootOf(b.hold())
 }
@@ -241,49 +349,24 @@ func RootOf(h *core.Holder) Die {
 }
 
 // DieRootType returns the type of the root value this die is within.
-func (b *DieBase[T, D]) DieRootType() reflect.Type { return b.hold().Base.Type() }
-
-// DieMutable reports whether writes to the die change it in place.
-func (b *DieBase[T, D]) DieMutable() bool { return b.hold().Mutable }
+func (b *state[T]) DieRootType() reflect.Type { return b.hold().Base.Type() }
 
 // DieHas reports whether the value is present. A root is always present.
-func (b *DieBase[T, D]) DieHas() bool { return core.Must(b.DieHasE()) }
+func (b *state[T]) DieHas() bool { return core.Must(b.DieHasE()) }
 
 // DieHasE is DieHas, returning an error rather than panicking.
-func (b *DieBase[T, D]) DieHasE() (bool, error) {
+func (b *state[T]) DieHasE() (bool, error) {
 	if len(b.at) == 0 {
 		return true, nil
 	}
 	return b.hold().Has(b.at)
 }
 
-// DieClear records that the value is absent: null in patches, or a removed
-// element. On a root it resets to the zero value.
-func (b *DieBase[T, D]) DieClear() D { return core.Must(b.DieClearE()) }
-
-// DieClearE is DieClear, returning an error rather than panicking.
-func (b *DieBase[T, D]) DieClearE() (D, error) {
-	if len(b.at) == 0 {
-		var zero T
-		return b.DieFeedE(zero)
-	}
-	return b.write(b.hold().Write(b.at, nil, core.SetOp(core.OpClear, reflect.Value{}), false))
-}
-
-// write returns the die of the holder a write returned, or its error.
-func (b *DieBase[T, D]) write(h *core.Holder, err error) (D, error) {
-	if err != nil {
-		var zero D
-		return zero, err
-	}
-	return b.self(h), nil
-}
-
 // DieRelease returns a copy of the current value.
-func (b *DieBase[T, D]) DieRelease() T { return core.Must(b.DieReleaseE()) }
+func (b *state[T]) DieRelease() T { return core.Must(b.DieReleaseE()) }
 
 // DieReleaseE is DieRelease, returning an error rather than panicking.
-func (b *DieBase[T, D]) DieReleaseE() (T, error) {
+func (b *state[T]) DieReleaseE() (T, error) {
 	v, err := b.hold().ValueAt(b.at)
 	if err != nil {
 		var zero T
@@ -293,10 +376,10 @@ func (b *DieBase[T, D]) DieReleaseE() (T, error) {
 }
 
 // DieReleasePtr returns a pointer to a copy of the current value.
-func (b *DieBase[T, D]) DieReleasePtr() *T { return core.Must(b.DieReleasePtrE()) }
+func (b *state[T]) DieReleasePtr() *T { return core.Must(b.DieReleasePtrE()) }
 
 // DieReleasePtrE is DieReleasePtr, returning an error rather than panicking.
-func (b *DieBase[T, D]) DieReleasePtrE() (*T, error) {
+func (b *state[T]) DieReleasePtrE() (*T, error) {
 	r, err := b.DieReleaseE()
 	if err != nil {
 		return nil, err
@@ -304,74 +387,13 @@ func (b *DieBase[T, D]) DieReleasePtrE() (*T, error) {
 	return &r, nil
 }
 
-// DieFeed replaces the value. On a root die the value becomes the new base
-// and the intent is discarded. On a child die the value is set as intent.
-func (b *DieBase[T, D]) DieFeed(r T) D { return core.Must(b.DieFeedE(r)) }
-
-// DieFeedE is DieFeed, returning an error rather than panicking.
-func (b *DieBase[T, D]) DieFeedE(r T) (D, error) {
-	h := b.hold()
-	v := core.DeepCopy(reflect.ValueOf(&r).Elem())
-	if len(b.at) == 0 && h.View == nil {
-		if h.Mutable {
-			h.Base, h.Ov, h.Wire = v, nil, nil
-			return b.self(h), nil
-		}
-		return b.self(&core.Holder{Base: v, Schema: h.Schema}), nil
-	}
-	return b.write(h.Write(b.at, nil, core.SetOp(core.OpSet, fit(core.TypeAt(h.Base.Type(), b.at), v)), true))
-}
-
-// DieFeedPtr is DieFeed for a pointer; nil feeds the zero value.
-func (b *DieBase[T, D]) DieFeedPtr(r *T) D { return core.Must(b.DieFeedPtrE(r)) }
-
-// DieFeedPtrE is DieFeedPtr, returning an error rather than panicking.
-func (b *DieBase[T, D]) DieFeedPtrE(r *T) (D, error) {
-	if r == nil {
-		var zero T
-		return b.DieFeedE(zero)
-	}
-	return b.DieFeedE(*r)
-}
-
-// DieFeedJSON feeds a value decoded from JSON. On a root die, as decoding
-// does, the values the JSON has are present, zero or not, and fields T
-// doesn't have are kept, to be encoded again. Otherwise it is DieFeed: a root
-// die discards its intent and a die within another sets the value as intent.
-// It panics if the JSON doesn't decode as a T.
-func (b *DieBase[T, D]) DieFeedJSON(data []byte) D { return core.Must(b.DieFeedJSONE(data)) }
-
-// DieFeedJSONE is DieFeedJSON, returning an error rather than panicking.
-func (b *DieBase[T, D]) DieFeedJSONE(data []byte) (D, error) {
-	var zero D
-	var r T
-	// numbers in unstructured values are int64 where they can be, as
-	// apimachinery holds them; structs decode as encoding/json decodes them
-	if err := utiljson.Unmarshal(data, &r); err != nil {
-		return zero, core.Errorf("die: feeding %s from JSON: %w", reflect.TypeFor[T](), err)
-	}
-	h := b.hold()
-	if len(b.at) > 0 || h.View != nil {
-		return b.DieFeedE(r)
-	}
-	w, err := core.DecodeWire(reflect.TypeFor[T](), data)
-	if err != nil {
-		return zero, core.Errorf("die: feeding %s from JSON: %w", reflect.TypeFor[T](), err)
-	}
-	if h.Mutable {
-		h.Base, h.Ov, h.Wire = reflect.ValueOf(r), nil, w
-		return b.self(h), nil
-	}
-	return b.self(&core.Holder{Base: reflect.ValueOf(r), Wire: w, Schema: h.Schema}), nil
-}
-
 // DieReleaseJSON returns the current value as JSON, as MarshalJSON encodes
 // it. It panics if the value doesn't encode.
-func (b *DieBase[T, D]) DieReleaseJSON() []byte { return core.Must(b.DieReleaseJSONE()) }
+func (b *state[T]) DieReleaseJSON() []byte { return core.Must(b.DieReleaseJSONE()) }
 
 // DieReleaseJSONE is DieReleaseJSON, returning an error rather than
 // panicking.
-func (b *DieBase[T, D]) DieReleaseJSONE() ([]byte, error) {
+func (b *state[T]) DieReleaseJSONE() ([]byte, error) {
 	data, err := b.MarshalJSON()
 	if err != nil {
 		return nil, core.Errorf("die: encoding %s: %w", reflect.TypeFor[T](), err)
@@ -379,27 +401,13 @@ func (b *DieBase[T, D]) DieReleaseJSONE() ([]byte, error) {
 	return data, nil
 }
 
-// DieFeedYAML feeds a value decoded from YAML, as DieFeedJSON does. It panics
-// if the YAML doesn't decode as a T.
-func (b *DieBase[T, D]) DieFeedYAML(data []byte) D { return core.Must(b.DieFeedYAMLE(data)) }
-
-// DieFeedYAMLE is DieFeedYAML, returning an error rather than panicking.
-func (b *DieBase[T, D]) DieFeedYAMLE(data []byte) (D, error) {
-	j, err := yaml.YAMLToJSON(data)
-	if err != nil {
-		var zero D
-		return zero, core.Errorf("die: feeding %s from YAML: %w", reflect.TypeFor[T](), err)
-	}
-	return b.DieFeedJSONE(j)
-}
-
 // DieReleaseYAML returns the current value as YAML, encoded as
 // DieReleaseJSON encodes it.
-func (b *DieBase[T, D]) DieReleaseYAML() []byte { return core.Must(b.DieReleaseYAMLE()) }
+func (b *state[T]) DieReleaseYAML() []byte { return core.Must(b.DieReleaseYAMLE()) }
 
 // DieReleaseYAMLE is DieReleaseYAML, returning an error rather than
 // panicking.
-func (b *DieBase[T, D]) DieReleaseYAMLE() ([]byte, error) {
+func (b *state[T]) DieReleaseYAMLE() ([]byte, error) {
 	j, err := b.DieReleaseJSONE()
 	if err != nil {
 		return nil, err
@@ -411,216 +419,195 @@ func (b *DieBase[T, D]) DieReleaseYAMLE() ([]byte, error) {
 	return y, nil
 }
 
-// DieFeedRawExtension feeds the value of a raw extension, its object or its
-// raw JSON, as DieFeedJSON does.
-func (b *DieBase[T, D]) DieFeedRawExtension(raw runtime.RawExtension) D {
-	return core.Must(b.DieFeedRawExtensionE(raw))
-}
-
-// DieFeedRawExtensionE is DieFeedRawExtension, returning an error rather than
-// panicking.
-func (b *DieBase[T, D]) DieFeedRawExtensionE(raw runtime.RawExtension) (D, error) {
-	data, err := raw.MarshalJSON()
-	if err != nil {
-		var zero D
-		return zero, core.Errorf("die: feeding %s from a raw extension: %w", reflect.TypeFor[T](), err)
-	}
-	return b.DieFeedJSONE(data)
-}
-
 // DieReleaseRawExtension returns the current value as a raw extension holding
 // its JSON, encoded as DieReleaseJSON encodes it.
-func (b *DieBase[T, D]) DieReleaseRawExtension() runtime.RawExtension {
+func (b *state[T]) DieReleaseRawExtension() runtime.RawExtension {
 	return core.Must(b.DieReleaseRawExtensionE())
 }
 
 // DieReleaseRawExtensionE is DieReleaseRawExtension, returning an error
 // rather than panicking.
-func (b *DieBase[T, D]) DieReleaseRawExtensionE() (runtime.RawExtension, error) {
+func (b *state[T]) DieReleaseRawExtensionE() (runtime.RawExtension, error) {
 	data, err := b.DieReleaseJSONE()
 	return runtime.RawExtension{Raw: data}, err
 }
 
-// DieStamp passes a copy of the value to fn and records what fn changed as
-// intent.
-func (b *DieBase[T, D]) DieStamp(fn func(r *T)) D { return core.Must(b.DieStampE(fn)) }
-
-// DieStampE is DieStamp, returning an error rather than panicking.
-func (b *DieBase[T, D]) DieStampE(fn func(r *T)) (D, error) {
-	var zero D
-	h := b.hold()
-	before, err := b.DieReleaseE()
-	if err != nil {
-		return zero, err
-	}
-	after := as[T](core.DeepCopy(reflect.ValueOf(&before).Elem()))
-	fn(&after)
-	if !h.Mutable && len(b.at) > 0 {
-		return zero, core.ErrImmutableChild
-	}
-	if core.FirstIndex(b.at) >= 0 {
-		// within a list element found by its index, which a write sets whole
-		if reflect.DeepEqual(before, after) {
-			return b.self(h), nil
-		}
-		return b.write(h.Write(b.at, nil, core.SetOp(core.OpSet, reflect.ValueOf(after)), false))
-	}
-	ov, err := core.DiffInto(h.Ov, b.at, reflect.TypeFor[T](), reflect.ValueOf(before), reflect.ValueOf(after))
-	if err != nil {
-		return zero, err
-	}
-	return b.write(h.Replace(b.at, ov))
-}
-
-// DieWith passes a mutable die to each fn. For an immutable die, the
-// mutations are made on a copy that is returned as a new immutable die.
-func (b *DieBase[T, D]) DieWith(fns ...func(d D)) D {
-	efns := make([]func(D) error, len(fns))
-	for i, fn := range fns {
-		efns[i] = func(d D) error { fn(d); return nil }
-	}
-	return core.Must(b.DieWithE(efns...))
+// DieWith passes a mutable copy of the die to each fn, and returns an
+// immutable die of the result. The copy of a root has its intent; the copy
+// of a die within another, or presented by a jig, is a new root holding its
+// current value, as DeepCopy makes it.
+func (b *DieBase[T, D, M]) DieWith(fns ...func(m M)) D {
+	return core.Must(b.DieWithE(withE(fns)...))
 }
 
 // DieWithE is DieWith for functions that can fail, such as a client reading
-// into a die: it passes a mutable die to each fn, as DieWith does, until one
-// returns an error, and returns that error with the die, as the functions
-// left it. It returns an error, rather than panicking, where DieWith would,
-// on a die within an immutable one, or a jig of one. From an immutable die,
-// the functions run on a mutable copy, and the result is a new immutable die.
+// into a die: it passes a mutable copy to each fn, as DieWith does, until one
+// returns an error, and returns that error with an immutable die of the
+// copy, as the functions left it.
 //
-//	current, err := DeploymentBlank.DieWithE(func(d *DeploymentDie) error {
+//	current, err := DeploymentBlank.DieWithE(func(d *DeploymentDieMut) error {
 //		return c.Get(ctx, key, d)
 //	})
-func (b *DieBase[T, D]) DieWithE(fns ...func(d D) error) (D, error) {
-	h := b.hold()
-	run := func(d D) error {
-		for _, fn := range fns {
-			if err := fn(d); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-	if h.Mutable {
-		d := b.self(h)
-		err := run(d)
-		keepSchema(d, h)
-		return d, err
-	}
-	var zero D
-	if len(b.at) > 0 {
-		return zero, core.ErrImmutableChild
-	}
-	if h.View != nil {
-		return zero, core.ErrReadOnlyJig
-	}
-	d := wrap[T, D](&core.Holder{Base: h.Base, Ov: h.Ov, Wire: h.Wire, Mutable: true, Schema: h.Schema}, nil)
-	err := run(d)
-	// the result is what d holds now, which may not be the holder it was
-	// given: a client zeroes the object it decodes into, holder and all
-	keepSchema(d, h)
-	m := d.DieEmbedded().hold()
-	return wrap[T, D](&core.Holder{Base: m.Base, Ov: m.Ov, Wire: m.Wire, Schema: m.Schema}, nil), err
-}
-
-// keepSchema restores the schema of a die whose state was replaced while it
-// was passed to a function, as a client zeroes the object it decodes into.
-func keepSchema[T any, D DieOf[T, D]](d D, was *core.Holder) {
-	if m := d.DieEmbedded().hold(); m != was && m.Schema == nil {
-		m.Schema = was.Schema
-	}
-}
-
-// DieImmutable returns a copy of the die that is immutable or mutable.
-func (b *DieBase[T, D]) DieImmutable(immutable bool) D {
-	return core.Must(b.DieImmutableE(immutable))
-}
-
-// DieImmutableE is DieImmutable, returning an error rather than panicking.
-func (b *DieBase[T, D]) DieImmutableE(immutable bool) (D, error) {
-	h, err := b.root("DieImmutable")
+func (b *DieBase[T, D, M]) DieWithE(fns ...func(m M) error) (D, error) {
+	h, err := b.copyOf(true)
 	if err != nil {
 		var zero D
 		return zero, err
 	}
-	return wrap[T, D](&core.Holder{Base: h.Base, Ov: h.Ov, Wire: h.Wire, Mutable: !immutable, Schema: h.Schema}, nil), nil
+	m := wrapMut[T, D, M](h, nil)
+	err = runWith(m, fns)
+	// the result is what m holds now, which may not be the holder it was
+	// given: a client zeroes the object it decodes into, holder and all
+	r := held(m, h)
+	return wrap[T, D, M](&core.Holder{Base: r.Base, Ov: r.Ov, Wire: r.Wire, Schema: r.Schema}, nil), err
+}
+
+func withE[M any](fns []func(m M)) []func(M) error {
+	efns := make([]func(M) error, len(fns))
+	for i, fn := range fns {
+		efns[i] = func(m M) error { fn(m); return nil }
+	}
+	return efns
+}
+
+func runWith[M any](m M, fns []func(M) error) error {
+	for _, fn := range fns {
+		if err := fn(m); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// held returns the holder of a die passed to functions, restoring the schema
+// of the holder it was given if its state was replaced, as a client zeroes
+// the object it decodes into.
+func held(d any, was *core.Holder) *core.Holder {
+	m, _, _ := core.StateOf(d)
+	if m != was && m.Schema == nil {
+		m.Schema = was.Schema
+	}
+	return m
+}
+
+// DieMutable returns a mutable copy of the die: of a root, its value and
+// intent; of a die within another, or presented by a jig, a new root holding
+// its current value, as DeepCopy makes it. Writes to the copy never reach
+// the die.
+func (b *DieBase[T, D, M]) DieMutable() M { return core.Must(b.DieMutableE()) }
+
+// DieMutableE is DieMutable, returning an error rather than panicking.
+func (b *DieBase[T, D, M]) DieMutableE() (M, error) {
+	h, err := b.copyOf(true)
+	if err != nil {
+		var zero M
+		return zero, err
+	}
+	return wrapMut[T, D, M](h, nil), nil
 }
 
 // DeepCopy returns an independent copy. The base and overlay are shared, as
 // neither is ever mutated, so this is cheap. A child die, or a die presented
 // by another, such as a jig or a list item, is copied as a new root holding
-// its current value, without intent: the copy is unlinked, so writes to it no
-// longer reach the source.
-func (b *DieBase[T, D]) DeepCopy() D { return core.Must(b.DeepCopyE()) }
+// its current value, without intent: the copy is unlinked from its source.
+func (b *DieBase[T, D, M]) DeepCopy() D { return core.Must(b.DeepCopyE()) }
 
 // DeepCopyE is DeepCopy, returning an error rather than panicking.
-func (b *DieBase[T, D]) DeepCopyE() (D, error) {
-	h := b.hold()
-	if len(b.at) > 0 || h.View != nil {
-		r, err := b.DieReleaseE()
-		if err != nil {
-			var zero D
-			return zero, err
-		}
-		return wrap[T, D](&core.Holder{Base: reflect.ValueOf(r), Mutable: h.Mutable, Schema: h.Schema.At(b.at)}, nil), nil
+func (b *DieBase[T, D, M]) DeepCopyE() (D, error) {
+	h, err := b.copyOf(false)
+	if err != nil {
+		var zero D
+		return zero, err
 	}
-	return wrap[T, D](&core.Holder{Base: h.Base, Ov: h.Ov, Wire: h.Wire, Mutable: h.Mutable, Schema: h.Schema}, nil), nil
+	return wrap[T, D, M](h, nil), nil
 }
 
-// DieCommit folds the intent into the base, as after a successful write.
-func (b *DieBase[T, D]) DieCommit() D { return core.Must(b.DieCommitE()) }
+// DieCommit returns the die with its intent folded into its base, as after a
+// successful write.
+func (b *DieBase[T, D, M]) DieCommit() D { return core.Must(b.DieCommitE()) }
 
 // DieCommitE is DieCommit, returning an error rather than panicking.
-func (b *DieBase[T, D]) DieCommitE() (D, error) {
-	var zero D
+func (b *DieBase[T, D, M]) DieCommitE() (D, error) {
+	h, err := b.commit()
+	if err != nil {
+		var zero D
+		return zero, err
+	}
+	return wrap[T, D, M](h, nil), nil
+}
+
+// commit returns a new holder of the die's value with its intent folded in.
+func (b *state[T]) commit() (*core.Holder, error) {
 	h, err := b.root("DieCommit")
 	if err != nil {
-		return zero, err
+		return nil, err
 	}
 	v, err := h.Materialize()
 	if err != nil {
-		return zero, err
+		return nil, err
 	}
-	w := core.CommitWire(h.Wire, h.Ov)
-	if h.Mutable {
-		h.Base, h.Ov, h.Wire = v, nil, w
-		return b.self(h), nil
-	}
-	return b.self(&core.Holder{Base: v, Wire: w, Schema: h.Schema}), nil
+	return &core.Holder{Base: v, Wire: core.CommitWire(h.Wire, h.Ov), Mutable: h.Mutable, Schema: h.Schema}, nil
 }
 
-// DieOnly keeps only the intent at and below the locations, such as
-// d.DieOnly(d.Status()). The rest of the intent is folded into the base, so
-// the value is unchanged (identity included) but patches only carry the kept
-// intent.
-func (b *DieBase[T, D]) DieOnly(at ...Located) D { return core.Must(b.DieOnlyE(at...)) }
+// DieOnly returns the die keeping only the intent at and below the
+// locations, such as d.DieOnly(d.Status()). The rest of the intent is folded
+// into the base, so the value is unchanged (identity included) but patches
+// only carry the kept intent.
+func (b *DieBase[T, D, M]) DieOnly(at ...Located) D { return core.Must(b.DieOnlyE(at...)) }
 
 // DieOnlyE is DieOnly, returning an error rather than panicking.
-func (b *DieBase[T, D]) DieOnlyE(at ...Located) (D, error) {
-	return b.keep("DieOnly", at, true)
+func (b *DieBase[T, D, M]) DieOnlyE(at ...Located) (D, error) {
+	h, err := b.keep("DieOnly", at, true)
+	return wrapped(h, err, wrap[T, D, M])
 }
 
-// DieExcept drops the intent at and below the locations, folding it into the
-// base.
-func (b *DieBase[T, D]) DieExcept(at ...Located) D { return core.Must(b.DieExceptE(at...)) }
+// DieExcept returns the die with the intent at and below the locations
+// folded into its base.
+func (b *DieBase[T, D, M]) DieExcept(at ...Located) D { return core.Must(b.DieExceptE(at...)) }
 
 // DieExceptE is DieExcept, returning an error rather than panicking.
-func (b *DieBase[T, D]) DieExceptE(at ...Located) (D, error) {
-	return b.keep("DieExcept", at, false)
+func (b *DieBase[T, D, M]) DieExceptE(at ...Located) (D, error) {
+	h, err := b.keep("DieExcept", at, false)
+	return wrapped(h, err, wrap[T, D, M])
 }
 
-// keep keeps the intent at the locations, or all but it, and folds the rest
-// into the base.
-func (b *DieBase[T, D]) keep(method string, at []Located, only bool) (D, error) {
-	var zero D
+// DieSubresource returns the die keeping only the intent for a subresource,
+// such as "status".
+func (b *DieBase[T, D, M]) DieSubresource(name string) D { return core.Must(b.DieSubresourceE(name)) }
+
+// DieSubresourceE is DieSubresource, returning an error rather than
+// panicking.
+func (b *DieBase[T, D, M]) DieSubresourceE(name string) (D, error) {
+	return b.DieOnlyE(subresourcePaths[T](name)...)
+}
+
+// DieMain returns the die without the intent for any subresource, leaving
+// what is written through the main resource.
+func (b *DieBase[T, D, M]) DieMain() D { return core.Must(b.DieMainE()) }
+
+// DieMainE is DieMain, returning an error rather than panicking.
+func (b *DieBase[T, D, M]) DieMainE() (D, error) {
+	return b.DieExceptE(mainPaths[T]()...)
+}
+
+func wrapped[X any](h *core.Holder, err error, wrap func(*core.Holder, Path) X) (X, error) {
+	if err != nil {
+		var zero X
+		return zero, err
+	}
+	return wrap(h, nil), nil
+}
+
+// keep returns a new holder keeping the intent at the locations, or all but
+// it, with the rest folded into the base.
+func (b *state[T]) keep(method string, at []Located, only bool) (*core.Holder, error) {
 	h, err := b.root(method)
 	if err != nil {
-		return zero, err
+		return nil, err
 	}
 	paths, err := pathsOf(h.Base.Type(), at)
 	if err != nil {
-		return zero, err
+		return nil, err
 	}
 	keep, fold := core.Only(h.Ov, paths), core.Except(h.Ov, paths)
 	if !only {
@@ -628,30 +615,20 @@ func (b *DieBase[T, D]) keep(method string, at []Located, only bool) (D, error) 
 	}
 	base, err := (&core.Holder{Base: h.Base, Ov: fold}).Materialize()
 	if err != nil {
-		return zero, err
+		return nil, err
 	}
-	return wrap[T, D](&core.Holder{Base: base, Ov: keep, Wire: core.CommitWire(h.Wire, fold), Mutable: h.Mutable, Schema: h.Schema}, nil), nil
+	return &core.Holder{Base: base, Ov: keep, Wire: core.CommitWire(h.Wire, fold), Mutable: h.Mutable, Schema: h.Schema}, nil
 }
 
-// DieSubresource keeps only the intent for a subresource, such as "status".
-func (b *DieBase[T, D]) DieSubresource(name string) D { return core.Must(b.DieSubresourceE(name)) }
-
-// DieSubresourceE is DieSubresource, returning an error rather than
-// panicking.
-func (b *DieBase[T, D]) DieSubresourceE(name string) (D, error) {
-	return b.DieOnlyE(subresourcePaths(reflect.TypeFor[T](), func(s string) bool { return s == name })...)
+func subresourcePaths[T any](name string) []Located {
+	return subresourcesWhere(reflect.TypeFor[T](), func(s string) bool { return s == name })
 }
 
-// DieMain drops the intent for every subresource, leaving what is written
-// through the main resource.
-func (b *DieBase[T, D]) DieMain() D { return core.Must(b.DieMainE()) }
-
-// DieMainE is DieMain, returning an error rather than panicking.
-func (b *DieBase[T, D]) DieMainE() (D, error) {
-	return b.DieExceptE(subresourcePaths(reflect.TypeFor[T](), func(s string) bool { return s != "" })...)
+func mainPaths[T any]() []Located {
+	return subresourcesWhere(reflect.TypeFor[T](), func(s string) bool { return s != "" })
 }
 
-func subresourcePaths(t reflect.Type, match func(string) bool) []Located {
+func subresourcesWhere(t reflect.Type, match func(string) bool) []Located {
 	var paths []Located
 	for _, fd := range core.Describe(t).Fields {
 		if match(fd.Subresource) {
@@ -662,7 +639,7 @@ func subresourcePaths(t reflect.Type, match func(string) bool) []Located {
 }
 
 // DieIntent describes the recorded intent, one operation per line.
-func (b *DieBase[T, D]) DieIntent() string {
+func (b *state[T]) DieIntent() string {
 	var lines []string
 	describeIntent(core.NodeAt(b.hold().Ov, b.at), b.at, &lines)
 	return strings.Join(lines, "\n")
@@ -687,11 +664,13 @@ func describeIntent(n *core.Onode, p Path, lines *[]string) {
 }
 
 // DieReleaseApplyPatch encodes the intent as a server-side apply request.
-func (b *DieBase[T, D]) DieReleaseApplyPatch() []byte { return core.Must(b.DieReleaseApplyPatchE()) }
+func (b *state[T]) DieReleaseApplyPatch() []byte {
+	return core.Must(b.DieReleaseApplyPatchE())
+}
 
 // DieReleaseApplyPatchE is DieReleaseApplyPatch, returning an error rather
 // than panicking.
-func (b *DieBase[T, D]) DieReleaseApplyPatchE() ([]byte, error) {
+func (b *state[T]) DieReleaseApplyPatchE() ([]byte, error) {
 	h, err := b.root("DieReleaseApplyPatch")
 	if err != nil {
 		return nil, err
@@ -703,12 +682,15 @@ func (b *DieBase[T, D]) DieReleaseApplyPatchE() ([]byte, error) {
 	return patch, nil
 }
 
-// DieReleaseMergePatch encodes the intent as a JSON merge patch against the base.
-func (b *DieBase[T, D]) DieReleaseMergePatch() []byte { return core.Must(b.DieReleaseMergePatchE()) }
+// DieReleaseMergePatch encodes the intent as a JSON merge patch against the
+// base.
+func (b *state[T]) DieReleaseMergePatch() []byte {
+	return core.Must(b.DieReleaseMergePatchE())
+}
 
 // DieReleaseMergePatchE is DieReleaseMergePatch, returning an error rather
 // than panicking.
-func (b *DieBase[T, D]) DieReleaseMergePatchE() ([]byte, error) {
+func (b *state[T]) DieReleaseMergePatchE() ([]byte, error) {
 	h, err := b.root("DieReleaseMergePatch")
 	if err != nil {
 		return nil, err
@@ -720,6 +702,294 @@ func (b *DieBase[T, D]) DieReleaseMergePatchE() ([]byte, error) {
 	return patch, nil
 }
 
+// Equal compares current values. Intent is not compared.
+func (b *DieBase[T, D, M]) Equal(o D) bool { return core.Must(b.EqualE(o)) }
+
+// EqualE is Equal, returning an error rather than panicking.
+func (b *DieBase[T, D, M]) EqualE(o D) (bool, error) { return equal[T](b, o) }
+
+func equal[T any](a, b interface{ DieReleaseE() (T, error) }) (bool, error) {
+	mine, err := a.DieReleaseE()
+	if err != nil {
+		return false, err
+	}
+	theirs, err := b.DieReleaseE()
+	if err != nil {
+		return false, err
+	}
+	return reflect.DeepEqual(mine, theirs), nil
+}
+
+// MarshalJSON encodes the current value as its presence says: values that
+// were decoded as they were on the wire, fields its type doesn't have
+// included, and written values as Go has them, nil and omitempty zero values
+// omitted.
+func (b *state[T]) MarshalJSON() ([]byte, error) {
+	v, err := b.hold().EncodeAt(b.at)
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(v)
+}
+
+// UnmarshalJSON fails with ErrImmutable: an immutable die can't be decoded
+// into. Decode into its mutable die, such as within DieWithE.
+func (b *DieBase[T, D, M]) UnmarshalJSON([]byte) error {
+	return core.Errorf("die: decoding into an immutable %s die: %w", reflect.TypeFor[T](), core.ErrImmutable)
+}
+
+// The methods of mutable dies: those that write, which change the die in
+// place, and those of DieBase that return a die, returning a mutable one.
+
+// self returns the mutable die at this die's location.
+func (b *DieMutBase[T, D, M]) self() M { return wrapMut[T, D, M](b.hold(), b.at) }
+
+// write returns this die after a write, or the write's error.
+func (b *DieMutBase[T, D, M]) write(_ *core.Holder, err error) (M, error) {
+	if err != nil {
+		var zero M
+		return zero, err
+	}
+	return b.self(), nil
+}
+
+// DieClear records that the value is absent: null in patches, or a removed
+// element. On a root it resets to the zero value.
+func (b *DieMutBase[T, D, M]) DieClear() M { return core.Must(b.DieClearE()) }
+
+// DieClearE is DieClear, returning an error rather than panicking.
+func (b *DieMutBase[T, D, M]) DieClearE() (M, error) {
+	if len(b.at) == 0 {
+		var zero T
+		return b.DieFeedE(zero)
+	}
+	return b.write(b.hold().Write(b.at, nil, core.SetOp(core.OpClear, reflect.Value{}), false))
+}
+
+// DieFeed replaces the value. On a root die the value becomes the new base
+// and the intent is discarded. On a child die the value is set as intent.
+func (b *DieMutBase[T, D, M]) DieFeed(r T) M { return core.Must(b.DieFeedE(r)) }
+
+// DieFeedE is DieFeed, returning an error rather than panicking.
+func (b *DieMutBase[T, D, M]) DieFeedE(r T) (M, error) {
+	h := b.hold()
+	v := core.DeepCopy(reflect.ValueOf(&r).Elem())
+	if len(b.at) == 0 && h.View == nil {
+		h.Base, h.Ov, h.Wire = v, nil, nil
+		return b.self(), nil
+	}
+	return b.write(h.Write(b.at, nil, core.SetOp(core.OpSet, fit(core.TypeAt(h.Base.Type(), b.at), v)), true))
+}
+
+// DieFeedPtr is DieFeed for a pointer; nil feeds the zero value.
+func (b *DieMutBase[T, D, M]) DieFeedPtr(r *T) M { return core.Must(b.DieFeedPtrE(r)) }
+
+// DieFeedPtrE is DieFeedPtr, returning an error rather than panicking.
+func (b *DieMutBase[T, D, M]) DieFeedPtrE(r *T) (M, error) {
+	if r == nil {
+		var zero T
+		return b.DieFeedE(zero)
+	}
+	return b.DieFeedE(*r)
+}
+
+// DieFeedJSON feeds a value decoded from JSON. On a root die, as decoding
+// does, the values the JSON has are present, zero or not, and fields T
+// doesn't have are kept, to be encoded again. Otherwise it is DieFeed: a root
+// die discards its intent and a die within another sets the value as intent.
+// It panics if the JSON doesn't decode as a T.
+func (b *DieMutBase[T, D, M]) DieFeedJSON(data []byte) M { return core.Must(b.DieFeedJSONE(data)) }
+
+// DieFeedJSONE is DieFeedJSON, returning an error rather than panicking.
+func (b *DieMutBase[T, D, M]) DieFeedJSONE(data []byte) (M, error) {
+	var zero M
+	var r T
+	// numbers in unstructured values are int64 where they can be, as
+	// apimachinery holds them; structs decode as encoding/json decodes them
+	if err := utiljson.Unmarshal(data, &r); err != nil {
+		return zero, core.Errorf("die: feeding %s from JSON: %w", reflect.TypeFor[T](), err)
+	}
+	h := b.hold()
+	if len(b.at) > 0 || h.View != nil {
+		return b.DieFeedE(r)
+	}
+	w, err := core.DecodeWire(reflect.TypeFor[T](), data)
+	if err != nil {
+		return zero, core.Errorf("die: feeding %s from JSON: %w", reflect.TypeFor[T](), err)
+	}
+	h.Base, h.Ov, h.Wire = reflect.ValueOf(r), nil, w
+	return b.self(), nil
+}
+
+// DieFeedYAML feeds a value decoded from YAML, as DieFeedJSON does. It panics
+// if the YAML doesn't decode as a T.
+func (b *DieMutBase[T, D, M]) DieFeedYAML(data []byte) M { return core.Must(b.DieFeedYAMLE(data)) }
+
+// DieFeedYAMLE is DieFeedYAML, returning an error rather than panicking.
+func (b *DieMutBase[T, D, M]) DieFeedYAMLE(data []byte) (M, error) {
+	j, err := yaml.YAMLToJSON(data)
+	if err != nil {
+		var zero M
+		return zero, core.Errorf("die: feeding %s from YAML: %w", reflect.TypeFor[T](), err)
+	}
+	return b.DieFeedJSONE(j)
+}
+
+// DieFeedRawExtension feeds the value of a raw extension, its object or its
+// raw JSON, as DieFeedJSON does.
+func (b *DieMutBase[T, D, M]) DieFeedRawExtension(raw runtime.RawExtension) M {
+	return core.Must(b.DieFeedRawExtensionE(raw))
+}
+
+// DieFeedRawExtensionE is DieFeedRawExtension, returning an error rather than
+// panicking.
+func (b *DieMutBase[T, D, M]) DieFeedRawExtensionE(raw runtime.RawExtension) (M, error) {
+	data, err := raw.MarshalJSON()
+	if err != nil {
+		var zero M
+		return zero, core.Errorf("die: feeding %s from a raw extension: %w", reflect.TypeFor[T](), err)
+	}
+	return b.DieFeedJSONE(data)
+}
+
+// DieStamp passes a copy of the value to fn and records what fn changed as
+// intent.
+func (b *DieMutBase[T, D, M]) DieStamp(fn func(r *T)) M { return core.Must(b.DieStampE(fn)) }
+
+// DieStampE is DieStamp, returning an error rather than panicking.
+func (b *DieMutBase[T, D, M]) DieStampE(fn func(r *T)) (M, error) {
+	var zero M
+	h := b.hold()
+	before, err := b.DieReleaseE()
+	if err != nil {
+		return zero, err
+	}
+	after := as[T](core.DeepCopy(reflect.ValueOf(&before).Elem()))
+	fn(&after)
+	if core.FirstIndex(b.at) >= 0 {
+		// within a list element found by its index, which a write sets whole
+		if reflect.DeepEqual(before, after) {
+			return b.self(), nil
+		}
+		return b.write(h.Write(b.at, nil, core.SetOp(core.OpSet, reflect.ValueOf(after)), false))
+	}
+	ov, err := core.DiffInto(h.Ov, b.at, reflect.TypeFor[T](), reflect.ValueOf(before), reflect.ValueOf(after))
+	if err != nil {
+		return zero, err
+	}
+	return b.write(h.Replace(b.at, ov))
+}
+
+// DieWith passes the die itself to each fn, so their writes change it, and
+// returns it.
+func (b *DieMutBase[T, D, M]) DieWith(fns ...func(m M)) M {
+	return core.Must(b.DieWithE(withE(fns)...))
+}
+
+// DieWithE is DieWith for functions that can fail: it passes the die to each
+// fn until one returns an error, and returns that error with the die, as the
+// functions left it.
+func (b *DieMutBase[T, D, M]) DieWithE(fns ...func(m M) error) (M, error) {
+	h := b.hold()
+	m := b.self()
+	err := runWith(m, fns)
+	// a client zeroes the object it decodes into, holder and all: keep what
+	// it decoded in this die's holder, which its children share
+	if r := held(m, h); r != h {
+		h.Base, h.Ov, h.Wire = r.Base, r.Ov, r.Wire
+		core.SetState(m, h, b.at)
+	}
+	return m, err
+}
+
+// DieImmutable returns an immutable copy of the die: of a root, its value
+// and intent; of a die within another, or presented by a jig, a new root
+// holding its current value, as DeepCopy makes it. Later writes to the die
+// never reach the copy.
+func (b *DieMutBase[T, D, M]) DieImmutable() D { return core.Must(b.DieImmutableE()) }
+
+// DieImmutableE is DieImmutable, returning an error rather than panicking.
+func (b *DieMutBase[T, D, M]) DieImmutableE() (D, error) {
+	h, err := b.copyOf(false)
+	if err != nil {
+		var zero D
+		return zero, err
+	}
+	return wrap[T, D, M](h, nil), nil
+}
+
+// DeepCopy returns an independent, mutable copy: see DieBase.DeepCopy.
+func (b *DieMutBase[T, D, M]) DeepCopy() M { return core.Must(b.DeepCopyE()) }
+
+// DeepCopyE is DeepCopy, returning an error rather than panicking.
+func (b *DieMutBase[T, D, M]) DeepCopyE() (M, error) {
+	h, err := b.copyOf(true)
+	if err != nil {
+		var zero M
+		return zero, err
+	}
+	return wrapMut[T, D, M](h, nil), nil
+}
+
+// DieCommit folds the intent into the base, in place, as after a successful
+// write.
+func (b *DieMutBase[T, D, M]) DieCommit() M { return core.Must(b.DieCommitE()) }
+
+// DieCommitE is DieCommit, returning an error rather than panicking.
+func (b *DieMutBase[T, D, M]) DieCommitE() (M, error) {
+	return b.replace(b.commit())
+}
+
+// replace replaces the die's state with a holder's, in place.
+func (b *DieMutBase[T, D, M]) replace(h *core.Holder, err error) (M, error) {
+	if err != nil {
+		var zero M
+		return zero, err
+	}
+	m := b.hold()
+	m.Base, m.Ov, m.Wire = h.Base, h.Ov, h.Wire
+	return b.self(), nil
+}
+
+// DieOnly keeps only the intent at and below the locations, in place: see
+// DieBase.DieOnly.
+func (b *DieMutBase[T, D, M]) DieOnly(at ...Located) M { return core.Must(b.DieOnlyE(at...)) }
+
+// DieOnlyE is DieOnly, returning an error rather than panicking.
+func (b *DieMutBase[T, D, M]) DieOnlyE(at ...Located) (M, error) {
+	return b.replace(b.keep("DieOnly", at, true))
+}
+
+// DieExcept folds the intent at and below the locations into the base, in
+// place.
+func (b *DieMutBase[T, D, M]) DieExcept(at ...Located) M { return core.Must(b.DieExceptE(at...)) }
+
+// DieExceptE is DieExcept, returning an error rather than panicking.
+func (b *DieMutBase[T, D, M]) DieExceptE(at ...Located) (M, error) {
+	return b.replace(b.keep("DieExcept", at, false))
+}
+
+// DieSubresource keeps only the intent for a subresource, such as "status",
+// in place.
+func (b *DieMutBase[T, D, M]) DieSubresource(name string) M {
+	return core.Must(b.DieSubresourceE(name))
+}
+
+// DieSubresourceE is DieSubresource, returning an error rather than
+// panicking.
+func (b *DieMutBase[T, D, M]) DieSubresourceE(name string) (M, error) {
+	return b.DieOnlyE(subresourcePaths[T](name)...)
+}
+
+// DieMain drops the intent for every subresource, in place, leaving what is
+// written through the main resource.
+func (b *DieMutBase[T, D, M]) DieMain() M { return core.Must(b.DieMainE()) }
+
+// DieMainE is DieMain, returning an error rather than panicking.
+func (b *DieMutBase[T, D, M]) DieMainE() (M, error) {
+	return b.DieExceptE(mainPaths[T]()...)
+}
+
 // DieFeedApplyPatch feeds a server-side apply request as intent, over the
 // die's value, which is kept: each field it has is set, null clears a field,
 // [] and {} are an empty list or map, list-map elements are found by their
@@ -728,13 +998,13 @@ func (b *DieBase[T, D]) DieReleaseMergePatchE() ([]byte, error) {
 // have aren't fed. An unstructured die follows its mold, if it has one;
 // without, its lists are set whole. It panics if the request isn't a JSON
 // object.
-func (b *DieBase[T, D]) DieFeedApplyPatch(patch []byte) D {
+func (b *DieMutBase[T, D, M]) DieFeedApplyPatch(patch []byte) M {
 	return core.Must(b.DieFeedApplyPatchE(patch))
 }
 
 // DieFeedApplyPatchE is DieFeedApplyPatch, returning an error rather than
 // panicking.
-func (b *DieBase[T, D]) DieFeedApplyPatchE(patch []byte) (D, error) {
+func (b *DieMutBase[T, D, M]) DieFeedApplyPatchE(patch []byte) (M, error) {
 	return b.feedPatch("DieFeedApplyPatch", core.ApplyPatch, patch)
 }
 
@@ -744,18 +1014,18 @@ func (b *DieBase[T, D]) DieFeedApplyPatchE(patch []byte) (D, error) {
 // intent replaces the die's, so DieReleaseMergePatch sends the patch back,
 // but for what the patch sets that the value already has. Fields the die's
 // type doesn't have aren't fed. It panics if the patch isn't a JSON object.
-func (b *DieBase[T, D]) DieFeedMergePatch(patch []byte) D {
+func (b *DieMutBase[T, D, M]) DieFeedMergePatch(patch []byte) M {
 	return core.Must(b.DieFeedMergePatchE(patch))
 }
 
 // DieFeedMergePatchE is DieFeedMergePatch, returning an error rather than
 // panicking.
-func (b *DieBase[T, D]) DieFeedMergePatchE(patch []byte) (D, error) {
+func (b *DieMutBase[T, D, M]) DieFeedMergePatchE(patch []byte) (M, error) {
 	return b.feedPatch("DieFeedMergePatch", core.MergePatch, patch)
 }
 
-func (b *DieBase[T, D]) feedPatch(method string, kind core.PatchKind, patch []byte) (D, error) {
-	var zero D
+func (b *DieMutBase[T, D, M]) feedPatch(method string, kind core.PatchKind, patch []byte) (M, error) {
+	var zero M
 	h, err := b.root(method)
 	if err != nil {
 		return zero, err
@@ -769,39 +1039,17 @@ func (b *DieBase[T, D]) feedPatch(method string, kind core.PatchKind, patch []by
 }
 
 // Equal compares current values. Intent is not compared.
-func (b *DieBase[T, D]) Equal(o D) bool { return core.Must(b.EqualE(o)) }
+func (b *DieMutBase[T, D, M]) Equal(o M) bool { return core.Must(b.EqualE(o)) }
 
 // EqualE is Equal, returning an error rather than panicking.
-func (b *DieBase[T, D]) EqualE(o D) (bool, error) {
-	mine, err := b.DieReleaseE()
-	if err != nil {
-		return false, err
-	}
-	theirs, err := o.DieReleaseE()
-	if err != nil {
-		return false, err
-	}
-	return reflect.DeepEqual(mine, theirs), nil
-}
-
-// MarshalJSON encodes the current value as its presence says: values that
-// were decoded as they were on the wire, fields its type doesn't have
-// included, and written values as Go has them, nil and omitempty zero values
-// omitted.
-func (b *DieBase[T, D]) MarshalJSON() ([]byte, error) {
-	v, err := b.hold().EncodeAt(b.at)
-	if err != nil {
-		return nil, err
-	}
-	return json.Marshal(v)
-}
+func (b *DieMutBase[T, D, M]) EqualE(o M) (bool, error) { return equal[T](b, o) }
 
 // UnmarshalJSON replaces the base and keeps the intent, so the intent is
 // reapplied on top of the decoded value.
-func (b *DieBase[T, D]) UnmarshalJSON(data []byte) error {
+func (b *DieMutBase[T, D, M]) UnmarshalJSON(data []byte) error {
 	h := b.hold()
-	if !h.Mutable || len(b.at) > 0 || h.View != nil {
-		return core.Errorf("die: can only unmarshal into a mutable root die")
+	if len(b.at) > 0 || h.View != nil {
+		return core.Errorf("die: can only unmarshal into a root die")
 	}
 	var r T
 	// numbers in unstructured values are int64 where they can be, as
@@ -843,7 +1091,7 @@ func fit(t reflect.Type, v reflect.Value) reflect.Value {
 // returns one, and a fluent form, which panics with it: the fluent method for
 // content that is known, as in tests and fixtures, and the E variant
 // otherwise. Use errors.As to tell a die's error from another, and errors.Is
-// with ErrImmutableChild or ErrReadOnlyJig for those two.
+// with ErrImmutable, ErrImmutableChild or ErrReadOnlyJig for those.
 //
 // Methods that implement Kubernetes' and Go's interfaces, such as
 // metav1.Object's setters, can't return an error: they panic with one, such
@@ -851,6 +1099,10 @@ func fit(t reflect.Type, v reflect.Value) reflect.Value {
 type Error = core.Error
 
 var (
+	// ErrImmutable is the error of a write to an immutable die through an
+	// interface it implements, such as metav1.Object's setters: write
+	// within DieWith, or to a DieMutable copy.
+	ErrImmutable error = core.ErrImmutable
 	// ErrImmutableChild is the error of a write through a child of an
 	// immutable die, which would have nowhere to go: write within DieWith.
 	ErrImmutableChild error = core.ErrImmutableChild

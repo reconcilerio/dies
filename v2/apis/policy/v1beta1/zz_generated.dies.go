@@ -34,17 +34,32 @@ import (
 // Eviction evicts a pod from its node subject to certain policies and safety constraints.
 // This is a subresource of Pod.  A request to cause such an eviction is
 // created by POSTing to .../pods/<pod name>/evictions.
+//
+// EvictionDie is immutable: it reads.
+// EvictionDieMut, its mutable die, also writes, as DieWith passes it.
 type EvictionDie struct {
-	diebase.DieObjectBase[Eviction, *EvictionDie]
+	diebase.DieObjectBase[Eviction, *EvictionDie, *EvictionDieMut]
 }
 
-func (*EvictionDie) DieFrom(b diebase.DieBase[Eviction, *EvictionDie]) *EvictionDie {
+// EvictionDieMut is the mutable die of Eviction: see EvictionDie.
+type EvictionDieMut struct {
+	diebase.DieObjectMutBase[Eviction, *EvictionDie, *EvictionDieMut]
+}
+
+func (*EvictionDie) DieFrom(b diebase.DieBase[Eviction, *EvictionDie, *EvictionDieMut]) *EvictionDie {
 	return &EvictionDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[Eviction, *EvictionDie] = (*EvictionDie)(nil)
+func (*EvictionDieMut) DieFrom(b diebase.DieMutBase[Eviction, *EvictionDie, *EvictionDieMut]) *EvictionDieMut {
+	return &EvictionDieMut{diebase.AsObjectMut(b)}
+}
 
-var EvictionBlank = diebase.BlankOf[Eviction, *EvictionDie](Eviction{TypeMeta: metav1.TypeMeta{APIVersion: "policy/v1beta1", Kind: "Eviction"}})
+var (
+	_ dieobjects.DieObjectOf[Eviction, *EvictionDie, *EvictionDieMut]    = (*EvictionDie)(nil)
+	_ dieobjects.DieObjectMutOf[Eviction, *EvictionDie, *EvictionDieMut] = (*EvictionDieMut)(nil)
+)
+
+var EvictionBlank = diebase.BlankOf[Eviction, *EvictionDie, *EvictionDieMut](Eviction{TypeMeta: metav1.TypeMeta{APIVersion: "policy/v1beta1", Kind: "Eviction"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -53,50 +68,63 @@ func (d *EvictionDie) DieReleaseApplyConfiguration() *EvictionApplyConfiguration
 	return diecodegen.ReleaseApplyConfiguration[EvictionApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *EvictionDie) DieFeedApplyConfiguration(ac *EvictionApplyConfiguration) *EvictionDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *EvictionDie) DieStampApplyConfiguration(fn func(ac *EvictionApplyConfiguration)) *EvictionDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *EvictionDie) DieReleaseApplyConfigurationE() (*EvictionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *EvictionDieMut) DieReleaseApplyConfiguration() *EvictionApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[EvictionApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *EvictionDieMut) DieReleaseApplyConfigurationE() (*EvictionApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[EvictionApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *EvictionDieMut) DieFeedApplyConfiguration(ac *EvictionApplyConfiguration) *EvictionDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *EvictionDieMut) DieStampApplyConfiguration(fn func(ac *EvictionApplyConfiguration)) *EvictionDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *EvictionDie) DieFeedApplyConfigurationE(ac *EvictionApplyConfiguration) (*EvictionDie, error) {
+func (d *EvictionDieMut) DieFeedApplyConfigurationE(ac *EvictionApplyConfiguration) (*EvictionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *EvictionDie) DieStampApplyConfigurationE(fn func(ac *EvictionApplyConfiguration)) (*EvictionDie, error) {
+func (d *EvictionDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionApplyConfiguration)) (*EvictionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type evictionFieldsTable struct {
 	Kind          diefields.Field[Eviction, string]
 	APIVersion    diefields.Field[Eviction, string]
-	Metadata      diefields.Struct[Eviction, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	DeleteOptions diefields.Struct[Eviction, diemetav1.DeleteOptions, *diemetav1.DeleteOptionsDie]
+	Metadata      diefields.Struct[Eviction, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	DeleteOptions diefields.Struct[Eviction, diemetav1.DeleteOptions, *diemetav1.DeleteOptionsDie, *diemetav1.DeleteOptionsDieMut]
 }
 
 var evictionFields = &diefields.Table[evictionFieldsTable]{Build: func() (f evictionFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[Eviction, string]("kind")
 	f.APIVersion = diefields.NewField[Eviction, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[Eviction, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.DeleteOptions = diefields.NewStruct[Eviction, diemetav1.DeleteOptions, *diemetav1.DeleteOptionsDie]("deleteOptions")
+	f.Metadata = diefields.NewStruct[Eviction, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.DeleteOptions = diefields.NewStruct[Eviction, diemetav1.DeleteOptions, *diemetav1.DeleteOptionsDie, *diemetav1.DeleteOptionsDieMut]("deleteOptions")
 	return
 }}
 
@@ -105,7 +133,7 @@ var evictionFields = &diefields.Table[evictionFieldsTable]{Build: func() (f evic
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *EvictionDie) Kind() diefields.Value[string, *EvictionDie] {
+func (d *EvictionDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, evictionFields.Get().Kind)
 }
 
@@ -113,7 +141,7 @@ func (d *EvictionDie) Kind() diefields.Value[string, *EvictionDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *EvictionDie) APIVersion() diefields.Value[string, *EvictionDie] {
+func (d *EvictionDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, evictionFields.Get().APIVersion)
 }
 
@@ -127,18 +155,60 @@ func (d *EvictionDie) DeleteOptions() *diemetav1.DeleteOptionsDie {
 	return diefields.Child(d, evictionFields.Get().DeleteOptions)
 }
 
-// PodDisruptionBudget is an object to define the max disruption that can be caused to a collection of pods
-type PodDisruptionBudgetDie struct {
-	diebase.DieObjectBase[PodDisruptionBudget, *PodDisruptionBudgetDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *EvictionDieMut) Kind() diefields.ValueMut[string, *EvictionDieMut] {
+	return diefields.ValueMutOf(d, evictionFields.Get().Kind)
 }
 
-func (*PodDisruptionBudgetDie) DieFrom(b diebase.DieBase[PodDisruptionBudget, *PodDisruptionBudgetDie]) *PodDisruptionBudgetDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *EvictionDieMut) APIVersion() diefields.ValueMut[string, *EvictionDieMut] {
+	return diefields.ValueMutOf(d, evictionFields.Get().APIVersion)
+}
+
+// metadata describes the pod that is being evicted.
+func (d *EvictionDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, evictionFields.Get().Metadata)
+}
+
+// deleteOptions may be provided
+func (d *EvictionDieMut) DeleteOptions() *diemetav1.DeleteOptionsDieMut {
+	return diefields.ChildMut(d, evictionFields.Get().DeleteOptions)
+}
+
+// PodDisruptionBudget is an object to define the max disruption that can be caused to a collection of pods
+//
+// PodDisruptionBudgetDie is immutable: it reads.
+// PodDisruptionBudgetDieMut, its mutable die, also writes, as DieWith passes it.
+type PodDisruptionBudgetDie struct {
+	diebase.DieObjectBase[PodDisruptionBudget, *PodDisruptionBudgetDie, *PodDisruptionBudgetDieMut]
+}
+
+// PodDisruptionBudgetDieMut is the mutable die of PodDisruptionBudget: see PodDisruptionBudgetDie.
+type PodDisruptionBudgetDieMut struct {
+	diebase.DieObjectMutBase[PodDisruptionBudget, *PodDisruptionBudgetDie, *PodDisruptionBudgetDieMut]
+}
+
+func (*PodDisruptionBudgetDie) DieFrom(b diebase.DieBase[PodDisruptionBudget, *PodDisruptionBudgetDie, *PodDisruptionBudgetDieMut]) *PodDisruptionBudgetDie {
 	return &PodDisruptionBudgetDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[PodDisruptionBudget, *PodDisruptionBudgetDie] = (*PodDisruptionBudgetDie)(nil)
+func (*PodDisruptionBudgetDieMut) DieFrom(b diebase.DieMutBase[PodDisruptionBudget, *PodDisruptionBudgetDie, *PodDisruptionBudgetDieMut]) *PodDisruptionBudgetDieMut {
+	return &PodDisruptionBudgetDieMut{diebase.AsObjectMut(b)}
+}
 
-var PodDisruptionBudgetBlank = diebase.BlankOf[PodDisruptionBudget, *PodDisruptionBudgetDie](PodDisruptionBudget{TypeMeta: metav1.TypeMeta{APIVersion: "policy/v1beta1", Kind: "PodDisruptionBudget"}})
+var (
+	_ dieobjects.DieObjectOf[PodDisruptionBudget, *PodDisruptionBudgetDie, *PodDisruptionBudgetDieMut]    = (*PodDisruptionBudgetDie)(nil)
+	_ dieobjects.DieObjectMutOf[PodDisruptionBudget, *PodDisruptionBudgetDie, *PodDisruptionBudgetDieMut] = (*PodDisruptionBudgetDieMut)(nil)
+)
+
+var PodDisruptionBudgetBlank = diebase.BlankOf[PodDisruptionBudget, *PodDisruptionBudgetDie, *PodDisruptionBudgetDieMut](PodDisruptionBudget{TypeMeta: metav1.TypeMeta{APIVersion: "policy/v1beta1", Kind: "PodDisruptionBudget"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -147,52 +217,65 @@ func (d *PodDisruptionBudgetDie) DieReleaseApplyConfiguration() *PodDisruptionBu
 	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PodDisruptionBudgetDie) DieFeedApplyConfiguration(ac *PodDisruptionBudgetApplyConfiguration) *PodDisruptionBudgetDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PodDisruptionBudgetDie) DieStampApplyConfiguration(fn func(ac *PodDisruptionBudgetApplyConfiguration)) *PodDisruptionBudgetDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PodDisruptionBudgetDie) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PodDisruptionBudgetDieMut) DieReleaseApplyConfiguration() *PodDisruptionBudgetApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PodDisruptionBudgetDieMut) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PodDisruptionBudgetDieMut) DieFeedApplyConfiguration(ac *PodDisruptionBudgetApplyConfiguration) *PodDisruptionBudgetDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PodDisruptionBudgetDieMut) DieStampApplyConfiguration(fn func(ac *PodDisruptionBudgetApplyConfiguration)) *PodDisruptionBudgetDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodDisruptionBudgetDie) DieFeedApplyConfigurationE(ac *PodDisruptionBudgetApplyConfiguration) (*PodDisruptionBudgetDie, error) {
+func (d *PodDisruptionBudgetDieMut) DieFeedApplyConfigurationE(ac *PodDisruptionBudgetApplyConfiguration) (*PodDisruptionBudgetDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodDisruptionBudgetDie) DieStampApplyConfigurationE(fn func(ac *PodDisruptionBudgetApplyConfiguration)) (*PodDisruptionBudgetDie, error) {
+func (d *PodDisruptionBudgetDieMut) DieStampApplyConfigurationE(fn func(ac *PodDisruptionBudgetApplyConfiguration)) (*PodDisruptionBudgetDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type podDisruptionBudgetFieldsTable struct {
 	Kind       diefields.Field[PodDisruptionBudget, string]
 	APIVersion diefields.Field[PodDisruptionBudget, string]
-	Metadata   diefields.Struct[PodDisruptionBudget, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[PodDisruptionBudget, PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie]
-	Status     diefields.Struct[PodDisruptionBudget, PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie]
+	Metadata   diefields.Struct[PodDisruptionBudget, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[PodDisruptionBudget, PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie, *PodDisruptionBudgetSpecDieMut]
+	Status     diefields.Struct[PodDisruptionBudget, PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie, *PodDisruptionBudgetStatusDieMut]
 }
 
 var podDisruptionBudgetFields = &diefields.Table[podDisruptionBudgetFieldsTable]{Build: func() (f podDisruptionBudgetFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[PodDisruptionBudget, string]("kind")
 	f.APIVersion = diefields.NewField[PodDisruptionBudget, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[PodDisruptionBudget, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[PodDisruptionBudget, PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie]("spec")
-	f.Status = diefields.NewStruct[PodDisruptionBudget, PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie]("status")
+	f.Metadata = diefields.NewStruct[PodDisruptionBudget, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[PodDisruptionBudget, PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie, *PodDisruptionBudgetSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[PodDisruptionBudget, PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie, *PodDisruptionBudgetStatusDieMut]("status")
 	return
 }}
 
@@ -201,7 +284,7 @@ var podDisruptionBudgetFields = &diefields.Table[podDisruptionBudgetFieldsTable]
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *PodDisruptionBudgetDie) Kind() diefields.Value[string, *PodDisruptionBudgetDie] {
+func (d *PodDisruptionBudgetDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, podDisruptionBudgetFields.Get().Kind)
 }
 
@@ -209,7 +292,7 @@ func (d *PodDisruptionBudgetDie) Kind() diefields.Value[string, *PodDisruptionBu
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *PodDisruptionBudgetDie) APIVersion() diefields.Value[string, *PodDisruptionBudgetDie] {
+func (d *PodDisruptionBudgetDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, podDisruptionBudgetFields.Get().APIVersion)
 }
 
@@ -229,15 +312,48 @@ func (d *PodDisruptionBudgetDie) Status() *PodDisruptionBudgetStatusDie {
 	return diefields.Child(d, podDisruptionBudgetFields.Get().Status)
 }
 
-// PodDisruptionBudgetList is a collection of PodDisruptionBudgets.
-type PodDisruptionBudgetListDie struct {
-	dielists.List[*PodDisruptionBudgetDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *PodDisruptionBudgetDieMut) Kind() diefields.ValueMut[string, *PodDisruptionBudgetDieMut] {
+	return diefields.ValueMutOf(d, podDisruptionBudgetFields.Get().Kind)
 }
 
-var _ dielists.DieListOf[*PodDisruptionBudgetDie] = (*PodDisruptionBudgetListDie)(nil)
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *PodDisruptionBudgetDieMut) APIVersion() diefields.ValueMut[string, *PodDisruptionBudgetDieMut] {
+	return diefields.ValueMutOf(d, podDisruptionBudgetFields.Get().APIVersion)
+}
+
+// metadata is the standard object's metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *PodDisruptionBudgetDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, podDisruptionBudgetFields.Get().Metadata)
+}
+
+// spec is the specification of the desired behavior of the PodDisruptionBudget.
+func (d *PodDisruptionBudgetDieMut) Spec() *PodDisruptionBudgetSpecDieMut {
+	return diefields.ChildMut(d, podDisruptionBudgetFields.Get().Spec)
+}
+
+// status is the most recently observed status of the PodDisruptionBudget.
+func (d *PodDisruptionBudgetDieMut) Status() *PodDisruptionBudgetStatusDieMut {
+	return diefields.ChildMut(d, podDisruptionBudgetFields.Get().Status)
+}
+
+// PodDisruptionBudgetList is a collection of PodDisruptionBudgets.
+type PodDisruptionBudgetListDie struct {
+	dielists.List[*PodDisruptionBudgetDieMut]
+}
+
+var _ dielists.DieListOf[*PodDisruptionBudgetDieMut] = (*PodDisruptionBudgetListDie)(nil)
 
 // NewPodDisruptionBudgetList returns a list with items.
-func NewPodDisruptionBudgetList(items ...*PodDisruptionBudgetDie) *PodDisruptionBudgetListDie {
+func NewPodDisruptionBudgetList(items ...*PodDisruptionBudgetDieMut) *PodDisruptionBudgetListDie {
 	return &PodDisruptionBudgetListDie{dielists.NewList("policy/v1beta1", "PodDisruptionBudgetList", items...)}
 }
 
@@ -249,17 +365,32 @@ func (l *PodDisruptionBudgetListDie) DeepCopy() *PodDisruptionBudgetListDie {
 func (l *PodDisruptionBudgetListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // PodDisruptionBudgetSpec is a description of a PodDisruptionBudget.
+//
+// PodDisruptionBudgetSpecDie is immutable: it reads.
+// PodDisruptionBudgetSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type PodDisruptionBudgetSpecDie struct {
-	diebase.DieBase[PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie]
+	diebase.DieBase[PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie, *PodDisruptionBudgetSpecDieMut]
 }
 
-func (*PodDisruptionBudgetSpecDie) DieFrom(b diebase.DieBase[PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie]) *PodDisruptionBudgetSpecDie {
+// PodDisruptionBudgetSpecDieMut is the mutable die of PodDisruptionBudgetSpec: see PodDisruptionBudgetSpecDie.
+type PodDisruptionBudgetSpecDieMut struct {
+	diebase.DieMutBase[PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie, *PodDisruptionBudgetSpecDieMut]
+}
+
+func (*PodDisruptionBudgetSpecDie) DieFrom(b diebase.DieBase[PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie, *PodDisruptionBudgetSpecDieMut]) *PodDisruptionBudgetSpecDie {
 	return &PodDisruptionBudgetSpecDie{b}
 }
 
-var _ diebase.DieOf[PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie] = (*PodDisruptionBudgetSpecDie)(nil)
+func (*PodDisruptionBudgetSpecDieMut) DieFrom(b diebase.DieMutBase[PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie, *PodDisruptionBudgetSpecDieMut]) *PodDisruptionBudgetSpecDieMut {
+	return &PodDisruptionBudgetSpecDieMut{b}
+}
 
-var PodDisruptionBudgetSpecBlank = diebase.Blank[PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie]()
+var (
+	_ diebase.DieOf[PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie, *PodDisruptionBudgetSpecDieMut]    = (*PodDisruptionBudgetSpecDie)(nil)
+	_ diebase.DieMutOf[PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie, *PodDisruptionBudgetSpecDieMut] = (*PodDisruptionBudgetSpecDieMut)(nil)
+)
+
+var PodDisruptionBudgetSpecBlank = diebase.Blank[PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie, *PodDisruptionBudgetSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -268,40 +399,53 @@ func (d *PodDisruptionBudgetSpecDie) DieReleaseApplyConfiguration() *PodDisrupti
 	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PodDisruptionBudgetSpecDie) DieFeedApplyConfiguration(ac *PodDisruptionBudgetSpecApplyConfiguration) *PodDisruptionBudgetSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PodDisruptionBudgetSpecDie) DieStampApplyConfiguration(fn func(ac *PodDisruptionBudgetSpecApplyConfiguration)) *PodDisruptionBudgetSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PodDisruptionBudgetSpecDie) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PodDisruptionBudgetSpecDieMut) DieReleaseApplyConfiguration() *PodDisruptionBudgetSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PodDisruptionBudgetSpecDieMut) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PodDisruptionBudgetSpecDieMut) DieFeedApplyConfiguration(ac *PodDisruptionBudgetSpecApplyConfiguration) *PodDisruptionBudgetSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PodDisruptionBudgetSpecDieMut) DieStampApplyConfiguration(fn func(ac *PodDisruptionBudgetSpecApplyConfiguration)) *PodDisruptionBudgetSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodDisruptionBudgetSpecDie) DieFeedApplyConfigurationE(ac *PodDisruptionBudgetSpecApplyConfiguration) (*PodDisruptionBudgetSpecDie, error) {
+func (d *PodDisruptionBudgetSpecDieMut) DieFeedApplyConfigurationE(ac *PodDisruptionBudgetSpecApplyConfiguration) (*PodDisruptionBudgetSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodDisruptionBudgetSpecDie) DieStampApplyConfigurationE(fn func(ac *PodDisruptionBudgetSpecApplyConfiguration)) (*PodDisruptionBudgetSpecDie, error) {
+func (d *PodDisruptionBudgetSpecDieMut) DieStampApplyConfigurationE(fn func(ac *PodDisruptionBudgetSpecApplyConfiguration)) (*PodDisruptionBudgetSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type podDisruptionBudgetSpecFieldsTable struct {
 	MinAvailable               diefields.Field[PodDisruptionBudgetSpec, *intstr.IntOrString]
-	Selector                   diefields.Struct[PodDisruptionBudgetSpec, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]
+	Selector                   diefields.Struct[PodDisruptionBudgetSpec, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 	MaxUnavailable             diefields.Field[PodDisruptionBudgetSpec, *intstr.IntOrString]
 	UnhealthyPodEvictionPolicy diefields.Field[PodDisruptionBudgetSpec, *UnhealthyPodEvictionPolicyType]
 }
@@ -309,7 +453,7 @@ type podDisruptionBudgetSpecFieldsTable struct {
 var podDisruptionBudgetSpecFields = &diefields.Table[podDisruptionBudgetSpecFieldsTable]{Build: func() (f podDisruptionBudgetSpecFieldsTable) {
 	_ = annotated
 	f.MinAvailable = diefields.NewField[PodDisruptionBudgetSpec, *intstr.IntOrString]("minAvailable")
-	f.Selector = diefields.NewStruct[PodDisruptionBudgetSpec, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]("selector")
+	f.Selector = diefields.NewStruct[PodDisruptionBudgetSpec, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("selector")
 	f.MaxUnavailable = diefields.NewField[PodDisruptionBudgetSpec, *intstr.IntOrString]("maxUnavailable")
 	f.UnhealthyPodEvictionPolicy = diefields.NewField[PodDisruptionBudgetSpec, *UnhealthyPodEvictionPolicyType]("unhealthyPodEvictionPolicy")
 	return
@@ -319,7 +463,7 @@ var podDisruptionBudgetSpecFields = &diefields.Table[podDisruptionBudgetSpecFiel
 // "selector" will still be available after the eviction, i.e. even in the
 // absence of the evicted pod.  So for example you can prevent all voluntary
 // evictions by specifying "100%".
-func (d *PodDisruptionBudgetSpecDie) MinAvailable() diefields.Optional[intstr.IntOrString, *PodDisruptionBudgetSpecDie] {
+func (d *PodDisruptionBudgetSpecDie) MinAvailable() diefields.Optional[intstr.IntOrString] {
 	return diefields.OptionalOf(d, podDisruptionBudgetSpecFields.Get().MinAvailable)
 }
 
@@ -336,7 +480,7 @@ func (d *PodDisruptionBudgetSpecDie) Selector() *diemetav1.LabelSelectorDie {
 // "selector" are unavailable after the eviction, i.e. even in absence of
 // the evicted pod. For example, one can prevent all voluntary evictions
 // by specifying 0. This is a mutually exclusive setting with "minAvailable".
-func (d *PodDisruptionBudgetSpecDie) MaxUnavailable() diefields.Optional[intstr.IntOrString, *PodDisruptionBudgetSpecDie] {
+func (d *PodDisruptionBudgetSpecDie) MaxUnavailable() diefields.Optional[intstr.IntOrString] {
 	return diefields.OptionalOf(d, podDisruptionBudgetSpecFields.Get().MaxUnavailable)
 }
 
@@ -362,23 +506,89 @@ func (d *PodDisruptionBudgetSpecDie) MaxUnavailable() diefields.Optional[intstr.
 // Additional policies may be added in the future.
 // Clients making eviction decisions should disallow eviction of unhealthy pods
 // if they encounter an unrecognized policy in this field.
-func (d *PodDisruptionBudgetSpecDie) UnhealthyPodEvictionPolicy() diefields.Optional[UnhealthyPodEvictionPolicyType, *PodDisruptionBudgetSpecDie] {
+func (d *PodDisruptionBudgetSpecDie) UnhealthyPodEvictionPolicy() diefields.Optional[UnhealthyPodEvictionPolicyType] {
 	return diefields.OptionalOf(d, podDisruptionBudgetSpecFields.Get().UnhealthyPodEvictionPolicy)
+}
+
+// minAvailable indicates that an eviction is allowed if at least "minAvailable" pods selected by
+// "selector" will still be available after the eviction, i.e. even in the
+// absence of the evicted pod.  So for example you can prevent all voluntary
+// evictions by specifying "100%".
+func (d *PodDisruptionBudgetSpecDieMut) MinAvailable() diefields.OptionalMut[intstr.IntOrString, *PodDisruptionBudgetSpecDieMut] {
+	return diefields.OptionalMutOf(d, podDisruptionBudgetSpecFields.Get().MinAvailable)
+}
+
+// selector is a label query over pods whose evictions are managed by the disruption
+// budget.
+// A null selector selects no pods.
+// An empty selector ({}) also selects no pods, which differs from standard behavior of selecting all pods.
+// In policy/v1, an empty selector will select all pods in the namespace.
+func (d *PodDisruptionBudgetSpecDieMut) Selector() *diemetav1.LabelSelectorDieMut {
+	return diefields.ChildMut(d, podDisruptionBudgetSpecFields.Get().Selector)
+}
+
+// maxUnavailable indicates that an eviction is allowed if at most "maxUnavailable" pods selected by
+// "selector" are unavailable after the eviction, i.e. even in absence of
+// the evicted pod. For example, one can prevent all voluntary evictions
+// by specifying 0. This is a mutually exclusive setting with "minAvailable".
+func (d *PodDisruptionBudgetSpecDieMut) MaxUnavailable() diefields.OptionalMut[intstr.IntOrString, *PodDisruptionBudgetSpecDieMut] {
+	return diefields.OptionalMutOf(d, podDisruptionBudgetSpecFields.Get().MaxUnavailable)
+}
+
+// unhealthyPodEvictionPolicy defines the criteria for when unhealthy pods
+// should be considered for eviction. Current implementation considers healthy pods,
+// as pods that have status.conditions item with type="Ready",status="True".
+//
+// Valid policies are IfHealthyBudget and AlwaysAllow.
+// If no policy is specified, the default behavior will be used,
+// which corresponds to the IfHealthyBudget policy.
+//
+// IfHealthyBudget policy means that running pods (status.phase="Running"),
+// but not yet healthy can be evicted only if the guarded application is not
+// disrupted (status.currentHealthy is at least equal to status.desiredHealthy).
+// Healthy pods will be subject to the PDB for eviction.
+//
+// AlwaysAllow policy means that all running pods (status.phase="Running"),
+// but not yet healthy are considered disrupted and can be evicted regardless
+// of whether the criteria in a PDB is met. This means perspective running
+// pods of a disrupted application might not get a chance to become healthy.
+// Healthy pods will be subject to the PDB for eviction.
+//
+// Additional policies may be added in the future.
+// Clients making eviction decisions should disallow eviction of unhealthy pods
+// if they encounter an unrecognized policy in this field.
+func (d *PodDisruptionBudgetSpecDieMut) UnhealthyPodEvictionPolicy() diefields.OptionalMut[UnhealthyPodEvictionPolicyType, *PodDisruptionBudgetSpecDieMut] {
+	return diefields.OptionalMutOf(d, podDisruptionBudgetSpecFields.Get().UnhealthyPodEvictionPolicy)
 }
 
 // PodDisruptionBudgetStatus represents information about the status of a
 // PodDisruptionBudget. Status may trail the actual state of a system.
+//
+// PodDisruptionBudgetStatusDie is immutable: it reads.
+// PodDisruptionBudgetStatusDieMut, its mutable die, also writes, as DieWith passes it.
 type PodDisruptionBudgetStatusDie struct {
-	diebase.DieBase[PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie]
+	diebase.DieBase[PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie, *PodDisruptionBudgetStatusDieMut]
 }
 
-func (*PodDisruptionBudgetStatusDie) DieFrom(b diebase.DieBase[PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie]) *PodDisruptionBudgetStatusDie {
+// PodDisruptionBudgetStatusDieMut is the mutable die of PodDisruptionBudgetStatus: see PodDisruptionBudgetStatusDie.
+type PodDisruptionBudgetStatusDieMut struct {
+	diebase.DieMutBase[PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie, *PodDisruptionBudgetStatusDieMut]
+}
+
+func (*PodDisruptionBudgetStatusDie) DieFrom(b diebase.DieBase[PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie, *PodDisruptionBudgetStatusDieMut]) *PodDisruptionBudgetStatusDie {
 	return &PodDisruptionBudgetStatusDie{b}
 }
 
-var _ diebase.DieOf[PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie] = (*PodDisruptionBudgetStatusDie)(nil)
+func (*PodDisruptionBudgetStatusDieMut) DieFrom(b diebase.DieMutBase[PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie, *PodDisruptionBudgetStatusDieMut]) *PodDisruptionBudgetStatusDieMut {
+	return &PodDisruptionBudgetStatusDieMut{b}
+}
 
-var PodDisruptionBudgetStatusBlank = diebase.Blank[PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie]()
+var (
+	_ diebase.DieOf[PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie, *PodDisruptionBudgetStatusDieMut]    = (*PodDisruptionBudgetStatusDie)(nil)
+	_ diebase.DieMutOf[PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie, *PodDisruptionBudgetStatusDieMut] = (*PodDisruptionBudgetStatusDieMut)(nil)
+)
+
+var PodDisruptionBudgetStatusBlank = diebase.Blank[PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie, *PodDisruptionBudgetStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -387,34 +597,47 @@ func (d *PodDisruptionBudgetStatusDie) DieReleaseApplyConfiguration() *PodDisrup
 	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PodDisruptionBudgetStatusDie) DieFeedApplyConfiguration(ac *PodDisruptionBudgetStatusApplyConfiguration) *PodDisruptionBudgetStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PodDisruptionBudgetStatusDie) DieStampApplyConfiguration(fn func(ac *PodDisruptionBudgetStatusApplyConfiguration)) *PodDisruptionBudgetStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PodDisruptionBudgetStatusDie) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PodDisruptionBudgetStatusDieMut) DieReleaseApplyConfiguration() *PodDisruptionBudgetStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PodDisruptionBudgetStatusDieMut) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PodDisruptionBudgetStatusDieMut) DieFeedApplyConfiguration(ac *PodDisruptionBudgetStatusApplyConfiguration) *PodDisruptionBudgetStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PodDisruptionBudgetStatusDieMut) DieStampApplyConfiguration(fn func(ac *PodDisruptionBudgetStatusApplyConfiguration)) *PodDisruptionBudgetStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodDisruptionBudgetStatusDie) DieFeedApplyConfigurationE(ac *PodDisruptionBudgetStatusApplyConfiguration) (*PodDisruptionBudgetStatusDie, error) {
+func (d *PodDisruptionBudgetStatusDieMut) DieFeedApplyConfigurationE(ac *PodDisruptionBudgetStatusApplyConfiguration) (*PodDisruptionBudgetStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodDisruptionBudgetStatusDie) DieStampApplyConfigurationE(fn func(ac *PodDisruptionBudgetStatusApplyConfiguration)) (*PodDisruptionBudgetStatusDie, error) {
+func (d *PodDisruptionBudgetStatusDieMut) DieStampApplyConfigurationE(fn func(ac *PodDisruptionBudgetStatusApplyConfiguration)) (*PodDisruptionBudgetStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -425,7 +648,7 @@ type podDisruptionBudgetStatusFieldsTable struct {
 	CurrentHealthy     diefields.Field[PodDisruptionBudgetStatus, int32]
 	DesiredHealthy     diefields.Field[PodDisruptionBudgetStatus, int32]
 	ExpectedPods       diefields.Field[PodDisruptionBudgetStatus, int32]
-	Conditions         diefields.ListMapField[PodDisruptionBudgetStatus, diemetav1.Condition, *diemetav1.ConditionDie, string]
+	Conditions         diefields.ListMapField[PodDisruptionBudgetStatus, diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut, string]
 }
 
 var podDisruptionBudgetStatusFields = &diefields.Table[podDisruptionBudgetStatusFieldsTable]{Build: func() (f podDisruptionBudgetStatusFieldsTable) {
@@ -436,13 +659,13 @@ var podDisruptionBudgetStatusFields = &diefields.Table[podDisruptionBudgetStatus
 	f.CurrentHealthy = diefields.NewField[PodDisruptionBudgetStatus, int32]("currentHealthy")
 	f.DesiredHealthy = diefields.NewField[PodDisruptionBudgetStatus, int32]("desiredHealthy")
 	f.ExpectedPods = diefields.NewField[PodDisruptionBudgetStatus, int32]("expectedPods")
-	f.Conditions = diefields.NewListMap[PodDisruptionBudgetStatus, diemetav1.Condition, *diemetav1.ConditionDie]("conditions", func(k string) []any { return []any{k} }, func(e diemetav1.Condition) string { return e.Type })
+	f.Conditions = diefields.NewListMap[PodDisruptionBudgetStatus, diemetav1.Condition, *diemetav1.ConditionDie, *diemetav1.ConditionDieMut]("conditions", func(k string) []any { return []any{k} }, func(e diemetav1.Condition) string { return e.Type })
 	return
 }}
 
 // Most recent generation observed when updating this PDB status. DisruptionsAllowed and other
 // status information is valid only if observedGeneration equals to PDB's object generation.
-func (d *PodDisruptionBudgetStatusDie) ObservedGeneration() diefields.Value[int64, *PodDisruptionBudgetStatusDie] {
+func (d *PodDisruptionBudgetStatusDie) ObservedGeneration() diefields.Value[int64] {
 	return diefields.ValueOf(d, podDisruptionBudgetStatusFields.Get().ObservedGeneration)
 }
 
@@ -462,22 +685,22 @@ func (d *PodDisruptionBudgetStatusDie) DisruptedPods() *diefields.Map[string, di
 }
 
 // Number of pod disruptions that are currently allowed.
-func (d *PodDisruptionBudgetStatusDie) DisruptionsAllowed() diefields.Value[int32, *PodDisruptionBudgetStatusDie] {
+func (d *PodDisruptionBudgetStatusDie) DisruptionsAllowed() diefields.Value[int32] {
 	return diefields.ValueOf(d, podDisruptionBudgetStatusFields.Get().DisruptionsAllowed)
 }
 
 // current number of healthy pods
-func (d *PodDisruptionBudgetStatusDie) CurrentHealthy() diefields.Value[int32, *PodDisruptionBudgetStatusDie] {
+func (d *PodDisruptionBudgetStatusDie) CurrentHealthy() diefields.Value[int32] {
 	return diefields.ValueOf(d, podDisruptionBudgetStatusFields.Get().CurrentHealthy)
 }
 
 // minimum desired number of healthy pods
-func (d *PodDisruptionBudgetStatusDie) DesiredHealthy() diefields.Value[int32, *PodDisruptionBudgetStatusDie] {
+func (d *PodDisruptionBudgetStatusDie) DesiredHealthy() diefields.Value[int32] {
 	return diefields.ValueOf(d, podDisruptionBudgetStatusFields.Get().DesiredHealthy)
 }
 
 // total number of pods counted by this disruption budget
-func (d *PodDisruptionBudgetStatusDie) ExpectedPods() diefields.Value[int32, *PodDisruptionBudgetStatusDie] {
+func (d *PodDisruptionBudgetStatusDie) ExpectedPods() diefields.Value[int32] {
 	return diefields.ValueOf(d, podDisruptionBudgetStatusFields.Get().ExpectedPods)
 }
 
@@ -497,19 +720,76 @@ func (d *PodDisruptionBudgetStatusDie) Conditions() *diefields.ListMap[diemetav1
 	return diefields.ListMapOf(d, podDisruptionBudgetStatusFields.Get().Conditions)
 }
 
+// Most recent generation observed when updating this PDB status. DisruptionsAllowed and other
+// status information is valid only if observedGeneration equals to PDB's object generation.
+func (d *PodDisruptionBudgetStatusDieMut) ObservedGeneration() diefields.ValueMut[int64, *PodDisruptionBudgetStatusDieMut] {
+	return diefields.ValueMutOf(d, podDisruptionBudgetStatusFields.Get().ObservedGeneration)
+}
+
+// DisruptedPods contains information about pods whose eviction was
+// processed by the API server eviction subresource handler but has not
+// yet been observed by the PodDisruptionBudget controller.
+// A pod will be in this map from the time when the API server processed the
+// eviction request to the time when the pod is seen by PDB controller
+// as having been marked for deletion (or after a timeout). The key in the map is the name of the pod
+// and the value is the time when the API server processed the eviction request. If
+// the deletion didn't occur and a pod is still there it will be removed from
+// the list automatically by PodDisruptionBudget controller after some time.
+// If everything goes smooth this map should be empty for the most of the time.
+// Large number of entries in the map may indicate problems with pod deletions.
+func (d *PodDisruptionBudgetStatusDieMut) DisruptedPods() *diefields.MapMut[string, diemetav1.Time] {
+	return diefields.MapMutOf(d, podDisruptionBudgetStatusFields.Get().DisruptedPods)
+}
+
+// Number of pod disruptions that are currently allowed.
+func (d *PodDisruptionBudgetStatusDieMut) DisruptionsAllowed() diefields.ValueMut[int32, *PodDisruptionBudgetStatusDieMut] {
+	return diefields.ValueMutOf(d, podDisruptionBudgetStatusFields.Get().DisruptionsAllowed)
+}
+
+// current number of healthy pods
+func (d *PodDisruptionBudgetStatusDieMut) CurrentHealthy() diefields.ValueMut[int32, *PodDisruptionBudgetStatusDieMut] {
+	return diefields.ValueMutOf(d, podDisruptionBudgetStatusFields.Get().CurrentHealthy)
+}
+
+// minimum desired number of healthy pods
+func (d *PodDisruptionBudgetStatusDieMut) DesiredHealthy() diefields.ValueMut[int32, *PodDisruptionBudgetStatusDieMut] {
+	return diefields.ValueMutOf(d, podDisruptionBudgetStatusFields.Get().DesiredHealthy)
+}
+
+// total number of pods counted by this disruption budget
+func (d *PodDisruptionBudgetStatusDieMut) ExpectedPods() diefields.ValueMut[int32, *PodDisruptionBudgetStatusDieMut] {
+	return diefields.ValueMutOf(d, podDisruptionBudgetStatusFields.Get().ExpectedPods)
+}
+
+// Conditions contain conditions for PDB. The disruption controller sets the
+// DisruptionAllowed condition. The following are known values for the reason field
+// (additional reasons could be added in the future):
+//   - SyncFailed: The controller encountered an error and wasn't able to compute
+//     the number of allowed disruptions. Therefore no disruptions are
+//     allowed and the status of the condition will be False.
+//   - InsufficientPods: The number of pods are either at or below the number
+//     required by the PodDisruptionBudget. No disruptions are
+//     allowed and the status of the condition will be False.
+//   - SufficientPods: There are more pods than required by the PodDisruptionBudget.
+//     The condition will be True, and the number of allowed
+//     disruptions are provided by the disruptionsAllowed property.
+func (d *PodDisruptionBudgetStatusDieMut) Conditions() *diefields.ListMapMut[diemetav1.Condition, *diemetav1.ConditionDieMut, string] {
+	return diefields.ListMapMutOf(d, podDisruptionBudgetStatusFields.Get().Conditions)
+}
+
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "policy", Version: "v1beta1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Eviction"), &EvictionDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PodDisruptionBudget"), &PodDisruptionBudgetDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Eviction"), &EvictionDieMut{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PodDisruptionBudget"), &PodDisruptionBudgetDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PodDisruptionBudgetList"), &PodDisruptionBudgetListDie{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

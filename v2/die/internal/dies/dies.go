@@ -25,38 +25,35 @@ import (
 	"reconciler.io/dies/v2/die/internal/core"
 )
 
-// wrapDie returns a D die over state.
-func WrapDie[T any, D base.DieOf[T, D]](h *core.Holder, at core.Path) D {
+// WrapDie returns an immutable D die over state.
+func WrapDie[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]](h *core.Holder, at core.Path) D {
 	var d D
-	d = d.DieFrom(base.DieBase[T, D]{})
+	d = d.DieFrom(base.DieBase[T, D, M]{})
 	core.SetState(d, h, at)
 	return d
 }
 
-// Wrap returns a die of type D, which may be a die of any type, over state.
+// WrapDieMut returns a mutable M die over state.
+func WrapDieMut[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]](h *core.Holder, at core.Path) M {
+	var m M
+	m = m.DieFrom(base.DieMutBase[T, D, M]{})
+	core.SetState(m, h, at)
+	return m
+}
+
+// Wrap returns a die of type D, which may be a die of any type, immutable or
+// mutable, over state.
 func Wrap[D any](h *core.Holder, at core.Path) D {
 	d := reflect.New(reflect.TypeFor[D]().Elem()).Interface().(D)
 	core.SetState(d, h, at)
 	return d
 }
 
-// mustStateOf returns a die's state.
+// MustStateOf returns a die's state.
 func MustStateOf(d any) (*core.Holder, core.Path) {
 	h, at, ok := core.StateOf(d)
 	if !ok {
 		panic(core.Errorf("die: not a die"))
 	}
 	return h, at
-}
-
-// selfOf returns how a write through d returns a die: d's own location, or a
-// new root when an immutable root's write made one.
-func SelfOf[T any, D base.DieOf[T, D]](d D) func(*core.Holder) D {
-	dh, at := MustStateOf(d)
-	return func(h *core.Holder) D {
-		if h != dh {
-			return WrapDie[T, D](h, nil)
-		}
-		return WrapDie[T, D](h, at)
-	}
 }

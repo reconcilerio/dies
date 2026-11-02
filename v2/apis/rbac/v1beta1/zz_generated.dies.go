@@ -31,17 +31,32 @@ import (
 )
 
 // AggregationRule describes how to locate ClusterRoles to aggregate into the ClusterRole
+//
+// AggregationRuleDie is immutable: it reads.
+// AggregationRuleDieMut, its mutable die, also writes, as DieWith passes it.
 type AggregationRuleDie struct {
-	diebase.DieBase[AggregationRule, *AggregationRuleDie]
+	diebase.DieBase[AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut]
 }
 
-func (*AggregationRuleDie) DieFrom(b diebase.DieBase[AggregationRule, *AggregationRuleDie]) *AggregationRuleDie {
+// AggregationRuleDieMut is the mutable die of AggregationRule: see AggregationRuleDie.
+type AggregationRuleDieMut struct {
+	diebase.DieMutBase[AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut]
+}
+
+func (*AggregationRuleDie) DieFrom(b diebase.DieBase[AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut]) *AggregationRuleDie {
 	return &AggregationRuleDie{b}
 }
 
-var _ diebase.DieOf[AggregationRule, *AggregationRuleDie] = (*AggregationRuleDie)(nil)
+func (*AggregationRuleDieMut) DieFrom(b diebase.DieMutBase[AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut]) *AggregationRuleDieMut {
+	return &AggregationRuleDieMut{b}
+}
 
-var AggregationRuleBlank = diebase.Blank[AggregationRule, *AggregationRuleDie]()
+var (
+	_ diebase.DieOf[AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut]    = (*AggregationRuleDie)(nil)
+	_ diebase.DieMutOf[AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut] = (*AggregationRuleDieMut)(nil)
+)
+
+var AggregationRuleBlank = diebase.Blank[AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -50,34 +65,47 @@ func (d *AggregationRuleDie) DieReleaseApplyConfiguration() *AggregationRuleAppl
 	return diecodegen.ReleaseApplyConfiguration[AggregationRuleApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *AggregationRuleDie) DieFeedApplyConfiguration(ac *AggregationRuleApplyConfiguration) *AggregationRuleDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *AggregationRuleDie) DieStampApplyConfiguration(fn func(ac *AggregationRuleApplyConfiguration)) *AggregationRuleDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *AggregationRuleDie) DieReleaseApplyConfigurationE() (*AggregationRuleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[AggregationRuleApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *AggregationRuleDieMut) DieReleaseApplyConfiguration() *AggregationRuleApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[AggregationRuleApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *AggregationRuleDieMut) DieReleaseApplyConfigurationE() (*AggregationRuleApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[AggregationRuleApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *AggregationRuleDieMut) DieFeedApplyConfiguration(ac *AggregationRuleApplyConfiguration) *AggregationRuleDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *AggregationRuleDieMut) DieStampApplyConfiguration(fn func(ac *AggregationRuleApplyConfiguration)) *AggregationRuleDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *AggregationRuleDie) DieFeedApplyConfigurationE(ac *AggregationRuleApplyConfiguration) (*AggregationRuleDie, error) {
+func (d *AggregationRuleDieMut) DieFeedApplyConfigurationE(ac *AggregationRuleApplyConfiguration) (*AggregationRuleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *AggregationRuleDie) DieStampApplyConfigurationE(fn func(ac *AggregationRuleApplyConfiguration)) (*AggregationRuleDie, error) {
+func (d *AggregationRuleDieMut) DieStampApplyConfigurationE(fn func(ac *AggregationRuleApplyConfiguration)) (*AggregationRuleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -93,23 +121,44 @@ var aggregationRuleFields = &diefields.Table[aggregationRuleFieldsTable]{Build: 
 
 // clusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules.
 // If any of the selectors match, then the ClusterRole's permissions will be added
-func (d *AggregationRuleDie) ClusterRoleSelectors() diefields.Value[[]diemetav1.LabelSelector, *AggregationRuleDie] {
+func (d *AggregationRuleDie) ClusterRoleSelectors() diefields.Value[[]diemetav1.LabelSelector] {
 	return diefields.ValueOf(d, aggregationRuleFields.Get().ClusterRoleSelectors)
+}
+
+// clusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules.
+// If any of the selectors match, then the ClusterRole's permissions will be added
+func (d *AggregationRuleDieMut) ClusterRoleSelectors() diefields.ValueMut[[]diemetav1.LabelSelector, *AggregationRuleDieMut] {
+	return diefields.ValueMutOf(d, aggregationRuleFields.Get().ClusterRoleSelectors)
 }
 
 // ClusterRole is a cluster level, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding or ClusterRoleBinding.
 // Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 ClusterRole, and will no longer be served in v1.22.
+//
+// ClusterRoleDie is immutable: it reads.
+// ClusterRoleDieMut, its mutable die, also writes, as DieWith passes it.
 type ClusterRoleDie struct {
-	diebase.DieObjectBase[ClusterRole, *ClusterRoleDie]
+	diebase.DieObjectBase[ClusterRole, *ClusterRoleDie, *ClusterRoleDieMut]
 }
 
-func (*ClusterRoleDie) DieFrom(b diebase.DieBase[ClusterRole, *ClusterRoleDie]) *ClusterRoleDie {
+// ClusterRoleDieMut is the mutable die of ClusterRole: see ClusterRoleDie.
+type ClusterRoleDieMut struct {
+	diebase.DieObjectMutBase[ClusterRole, *ClusterRoleDie, *ClusterRoleDieMut]
+}
+
+func (*ClusterRoleDie) DieFrom(b diebase.DieBase[ClusterRole, *ClusterRoleDie, *ClusterRoleDieMut]) *ClusterRoleDie {
 	return &ClusterRoleDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[ClusterRole, *ClusterRoleDie] = (*ClusterRoleDie)(nil)
+func (*ClusterRoleDieMut) DieFrom(b diebase.DieMutBase[ClusterRole, *ClusterRoleDie, *ClusterRoleDieMut]) *ClusterRoleDieMut {
+	return &ClusterRoleDieMut{diebase.AsObjectMut(b)}
+}
 
-var ClusterRoleBlank = diebase.BlankOf[ClusterRole, *ClusterRoleDie](ClusterRole{TypeMeta: metav1.TypeMeta{APIVersion: "rbac.authorization.k8s.io/v1beta1", Kind: "ClusterRole"}})
+var (
+	_ dieobjects.DieObjectOf[ClusterRole, *ClusterRoleDie, *ClusterRoleDieMut]    = (*ClusterRoleDie)(nil)
+	_ dieobjects.DieObjectMutOf[ClusterRole, *ClusterRoleDie, *ClusterRoleDieMut] = (*ClusterRoleDieMut)(nil)
+)
+
+var ClusterRoleBlank = diebase.BlankOf[ClusterRole, *ClusterRoleDie, *ClusterRoleDieMut](ClusterRole{TypeMeta: metav1.TypeMeta{APIVersion: "rbac.authorization.k8s.io/v1beta1", Kind: "ClusterRole"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -118,52 +167,65 @@ func (d *ClusterRoleDie) DieReleaseApplyConfiguration() *ClusterRoleApplyConfigu
 	return diecodegen.ReleaseApplyConfiguration[ClusterRoleApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ClusterRoleDie) DieFeedApplyConfiguration(ac *ClusterRoleApplyConfiguration) *ClusterRoleDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ClusterRoleDie) DieStampApplyConfiguration(fn func(ac *ClusterRoleApplyConfiguration)) *ClusterRoleDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ClusterRoleDie) DieReleaseApplyConfigurationE() (*ClusterRoleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterRoleApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ClusterRoleDieMut) DieReleaseApplyConfiguration() *ClusterRoleApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ClusterRoleApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ClusterRoleDieMut) DieReleaseApplyConfigurationE() (*ClusterRoleApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ClusterRoleApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ClusterRoleDieMut) DieFeedApplyConfiguration(ac *ClusterRoleApplyConfiguration) *ClusterRoleDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ClusterRoleDieMut) DieStampApplyConfiguration(fn func(ac *ClusterRoleApplyConfiguration)) *ClusterRoleDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ClusterRoleDie) DieFeedApplyConfigurationE(ac *ClusterRoleApplyConfiguration) (*ClusterRoleDie, error) {
+func (d *ClusterRoleDieMut) DieFeedApplyConfigurationE(ac *ClusterRoleApplyConfiguration) (*ClusterRoleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ClusterRoleDie) DieStampApplyConfigurationE(fn func(ac *ClusterRoleApplyConfiguration)) (*ClusterRoleDie, error) {
+func (d *ClusterRoleDieMut) DieStampApplyConfigurationE(fn func(ac *ClusterRoleApplyConfiguration)) (*ClusterRoleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type clusterRoleFieldsTable struct {
 	Kind            diefields.Field[ClusterRole, string]
 	APIVersion      diefields.Field[ClusterRole, string]
-	Metadata        diefields.Struct[ClusterRole, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
+	Metadata        diefields.Struct[ClusterRole, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
 	Rules           diefields.Field[ClusterRole, []PolicyRule]
-	AggregationRule diefields.Struct[ClusterRole, AggregationRule, *AggregationRuleDie]
+	AggregationRule diefields.Struct[ClusterRole, AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut]
 }
 
 var clusterRoleFields = &diefields.Table[clusterRoleFieldsTable]{Build: func() (f clusterRoleFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[ClusterRole, string]("kind")
 	f.APIVersion = diefields.NewField[ClusterRole, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[ClusterRole, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
+	f.Metadata = diefields.NewStruct[ClusterRole, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
 	f.Rules = diefields.NewField[ClusterRole, []PolicyRule]("rules")
-	f.AggregationRule = diefields.NewStruct[ClusterRole, AggregationRule, *AggregationRuleDie]("aggregationRule")
+	f.AggregationRule = diefields.NewStruct[ClusterRole, AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut]("aggregationRule")
 	return
 }}
 
@@ -172,7 +234,7 @@ var clusterRoleFields = &diefields.Table[clusterRoleFieldsTable]{Build: func() (
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *ClusterRoleDie) Kind() diefields.Value[string, *ClusterRoleDie] {
+func (d *ClusterRoleDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, clusterRoleFields.Get().Kind)
 }
 
@@ -180,7 +242,7 @@ func (d *ClusterRoleDie) Kind() diefields.Value[string, *ClusterRoleDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *ClusterRoleDie) APIVersion() diefields.Value[string, *ClusterRoleDie] {
+func (d *ClusterRoleDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, clusterRoleFields.Get().APIVersion)
 }
 
@@ -190,7 +252,7 @@ func (d *ClusterRoleDie) Metadata() *diemetav1.ObjectMetaDie {
 }
 
 // rules holds all the PolicyRules for this ClusterRole
-func (d *ClusterRoleDie) Rules() diefields.Value[[]PolicyRule, *ClusterRoleDie] {
+func (d *ClusterRoleDie) Rules() diefields.Value[[]PolicyRule] {
 	return diefields.ValueOf(d, clusterRoleFields.Get().Rules)
 }
 
@@ -201,20 +263,69 @@ func (d *ClusterRoleDie) AggregationRule() *AggregationRuleDie {
 	return diefields.Child(d, clusterRoleFields.Get().AggregationRule)
 }
 
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ClusterRoleDieMut) Kind() diefields.ValueMut[string, *ClusterRoleDieMut] {
+	return diefields.ValueMutOf(d, clusterRoleFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *ClusterRoleDieMut) APIVersion() diefields.ValueMut[string, *ClusterRoleDieMut] {
+	return diefields.ValueMutOf(d, clusterRoleFields.Get().APIVersion)
+}
+
+// metadata is the standard object's metadata.
+func (d *ClusterRoleDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, clusterRoleFields.Get().Metadata)
+}
+
+// rules holds all the PolicyRules for this ClusterRole
+func (d *ClusterRoleDieMut) Rules() diefields.ValueMut[[]PolicyRule, *ClusterRoleDieMut] {
+	return diefields.ValueMutOf(d, clusterRoleFields.Get().Rules)
+}
+
+// aggregationRule is an optional field that describes how to build the Rules for this ClusterRole.
+// If AggregationRule is set, then the Rules are controller managed and direct changes to Rules will be
+// stomped by the controller.
+func (d *ClusterRoleDieMut) AggregationRule() *AggregationRuleDieMut {
+	return diefields.ChildMut(d, clusterRoleFields.Get().AggregationRule)
+}
+
 // ClusterRoleBinding references a ClusterRole, but not contain it.  It can reference a ClusterRole in the global namespace,
 // and adds who information via Subject.
 // Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 ClusterRoleBinding, and will no longer be served in v1.22.
+//
+// ClusterRoleBindingDie is immutable: it reads.
+// ClusterRoleBindingDieMut, its mutable die, also writes, as DieWith passes it.
 type ClusterRoleBindingDie struct {
-	diebase.DieObjectBase[ClusterRoleBinding, *ClusterRoleBindingDie]
+	diebase.DieObjectBase[ClusterRoleBinding, *ClusterRoleBindingDie, *ClusterRoleBindingDieMut]
 }
 
-func (*ClusterRoleBindingDie) DieFrom(b diebase.DieBase[ClusterRoleBinding, *ClusterRoleBindingDie]) *ClusterRoleBindingDie {
+// ClusterRoleBindingDieMut is the mutable die of ClusterRoleBinding: see ClusterRoleBindingDie.
+type ClusterRoleBindingDieMut struct {
+	diebase.DieObjectMutBase[ClusterRoleBinding, *ClusterRoleBindingDie, *ClusterRoleBindingDieMut]
+}
+
+func (*ClusterRoleBindingDie) DieFrom(b diebase.DieBase[ClusterRoleBinding, *ClusterRoleBindingDie, *ClusterRoleBindingDieMut]) *ClusterRoleBindingDie {
 	return &ClusterRoleBindingDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[ClusterRoleBinding, *ClusterRoleBindingDie] = (*ClusterRoleBindingDie)(nil)
+func (*ClusterRoleBindingDieMut) DieFrom(b diebase.DieMutBase[ClusterRoleBinding, *ClusterRoleBindingDie, *ClusterRoleBindingDieMut]) *ClusterRoleBindingDieMut {
+	return &ClusterRoleBindingDieMut{diebase.AsObjectMut(b)}
+}
 
-var ClusterRoleBindingBlank = diebase.BlankOf[ClusterRoleBinding, *ClusterRoleBindingDie](ClusterRoleBinding{TypeMeta: metav1.TypeMeta{APIVersion: "rbac.authorization.k8s.io/v1beta1", Kind: "ClusterRoleBinding"}})
+var (
+	_ dieobjects.DieObjectOf[ClusterRoleBinding, *ClusterRoleBindingDie, *ClusterRoleBindingDieMut]    = (*ClusterRoleBindingDie)(nil)
+	_ dieobjects.DieObjectMutOf[ClusterRoleBinding, *ClusterRoleBindingDie, *ClusterRoleBindingDieMut] = (*ClusterRoleBindingDieMut)(nil)
+)
+
+var ClusterRoleBindingBlank = diebase.BlankOf[ClusterRoleBinding, *ClusterRoleBindingDie, *ClusterRoleBindingDieMut](ClusterRoleBinding{TypeMeta: metav1.TypeMeta{APIVersion: "rbac.authorization.k8s.io/v1beta1", Kind: "ClusterRoleBinding"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -223,52 +334,65 @@ func (d *ClusterRoleBindingDie) DieReleaseApplyConfiguration() *ClusterRoleBindi
 	return diecodegen.ReleaseApplyConfiguration[ClusterRoleBindingApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ClusterRoleBindingDie) DieFeedApplyConfiguration(ac *ClusterRoleBindingApplyConfiguration) *ClusterRoleBindingDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ClusterRoleBindingDie) DieStampApplyConfiguration(fn func(ac *ClusterRoleBindingApplyConfiguration)) *ClusterRoleBindingDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ClusterRoleBindingDie) DieReleaseApplyConfigurationE() (*ClusterRoleBindingApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterRoleBindingApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ClusterRoleBindingDieMut) DieReleaseApplyConfiguration() *ClusterRoleBindingApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ClusterRoleBindingApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ClusterRoleBindingDieMut) DieReleaseApplyConfigurationE() (*ClusterRoleBindingApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ClusterRoleBindingApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ClusterRoleBindingDieMut) DieFeedApplyConfiguration(ac *ClusterRoleBindingApplyConfiguration) *ClusterRoleBindingDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ClusterRoleBindingDieMut) DieStampApplyConfiguration(fn func(ac *ClusterRoleBindingApplyConfiguration)) *ClusterRoleBindingDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ClusterRoleBindingDie) DieFeedApplyConfigurationE(ac *ClusterRoleBindingApplyConfiguration) (*ClusterRoleBindingDie, error) {
+func (d *ClusterRoleBindingDieMut) DieFeedApplyConfigurationE(ac *ClusterRoleBindingApplyConfiguration) (*ClusterRoleBindingDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ClusterRoleBindingDie) DieStampApplyConfigurationE(fn func(ac *ClusterRoleBindingApplyConfiguration)) (*ClusterRoleBindingDie, error) {
+func (d *ClusterRoleBindingDieMut) DieStampApplyConfigurationE(fn func(ac *ClusterRoleBindingApplyConfiguration)) (*ClusterRoleBindingDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type clusterRoleBindingFieldsTable struct {
 	Kind       diefields.Field[ClusterRoleBinding, string]
 	APIVersion diefields.Field[ClusterRoleBinding, string]
-	Metadata   diefields.Struct[ClusterRoleBinding, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
+	Metadata   diefields.Struct[ClusterRoleBinding, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
 	Subjects   diefields.Field[ClusterRoleBinding, []Subject]
-	RoleRef    diefields.Struct[ClusterRoleBinding, RoleRef, *RoleRefDie]
+	RoleRef    diefields.Struct[ClusterRoleBinding, RoleRef, *RoleRefDie, *RoleRefDieMut]
 }
 
 var clusterRoleBindingFields = &diefields.Table[clusterRoleBindingFieldsTable]{Build: func() (f clusterRoleBindingFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[ClusterRoleBinding, string]("kind")
 	f.APIVersion = diefields.NewField[ClusterRoleBinding, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[ClusterRoleBinding, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
+	f.Metadata = diefields.NewStruct[ClusterRoleBinding, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
 	f.Subjects = diefields.NewField[ClusterRoleBinding, []Subject]("subjects")
-	f.RoleRef = diefields.NewStruct[ClusterRoleBinding, RoleRef, *RoleRefDie]("roleRef")
+	f.RoleRef = diefields.NewStruct[ClusterRoleBinding, RoleRef, *RoleRefDie, *RoleRefDieMut]("roleRef")
 	return
 }}
 
@@ -277,7 +401,7 @@ var clusterRoleBindingFields = &diefields.Table[clusterRoleBindingFieldsTable]{B
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *ClusterRoleBindingDie) Kind() diefields.Value[string, *ClusterRoleBindingDie] {
+func (d *ClusterRoleBindingDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, clusterRoleBindingFields.Get().Kind)
 }
 
@@ -285,7 +409,7 @@ func (d *ClusterRoleBindingDie) Kind() diefields.Value[string, *ClusterRoleBindi
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *ClusterRoleBindingDie) APIVersion() diefields.Value[string, *ClusterRoleBindingDie] {
+func (d *ClusterRoleBindingDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, clusterRoleBindingFields.Get().APIVersion)
 }
 
@@ -295,7 +419,7 @@ func (d *ClusterRoleBindingDie) Metadata() *diemetav1.ObjectMetaDie {
 }
 
 // subjects holds references to the objects the role applies to.
-func (d *ClusterRoleBindingDie) Subjects() diefields.Value[[]Subject, *ClusterRoleBindingDie] {
+func (d *ClusterRoleBindingDie) Subjects() diefields.Value[[]Subject] {
 	return diefields.ValueOf(d, clusterRoleBindingFields.Get().Subjects)
 }
 
@@ -305,16 +429,49 @@ func (d *ClusterRoleBindingDie) RoleRef() *RoleRefDie {
 	return diefields.Child(d, clusterRoleBindingFields.Get().RoleRef)
 }
 
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ClusterRoleBindingDieMut) Kind() diefields.ValueMut[string, *ClusterRoleBindingDieMut] {
+	return diefields.ValueMutOf(d, clusterRoleBindingFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *ClusterRoleBindingDieMut) APIVersion() diefields.ValueMut[string, *ClusterRoleBindingDieMut] {
+	return diefields.ValueMutOf(d, clusterRoleBindingFields.Get().APIVersion)
+}
+
+// metadata is the standard object's metadata.
+func (d *ClusterRoleBindingDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, clusterRoleBindingFields.Get().Metadata)
+}
+
+// subjects holds references to the objects the role applies to.
+func (d *ClusterRoleBindingDieMut) Subjects() diefields.ValueMut[[]Subject, *ClusterRoleBindingDieMut] {
+	return diefields.ValueMutOf(d, clusterRoleBindingFields.Get().Subjects)
+}
+
+// roleRef can only reference a ClusterRole in the global namespace.
+// If the RoleRef cannot be resolved, the Authorizer must return an error.
+func (d *ClusterRoleBindingDieMut) RoleRef() *RoleRefDieMut {
+	return diefields.ChildMut(d, clusterRoleBindingFields.Get().RoleRef)
+}
+
 // ClusterRoleBindingList is a collection of ClusterRoleBindings.
 // Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 ClusterRoleBindingList, and will no longer be served in v1.22.
 type ClusterRoleBindingListDie struct {
-	dielists.List[*ClusterRoleBindingDie]
+	dielists.List[*ClusterRoleBindingDieMut]
 }
 
-var _ dielists.DieListOf[*ClusterRoleBindingDie] = (*ClusterRoleBindingListDie)(nil)
+var _ dielists.DieListOf[*ClusterRoleBindingDieMut] = (*ClusterRoleBindingListDie)(nil)
 
 // NewClusterRoleBindingList returns a list with items.
-func NewClusterRoleBindingList(items ...*ClusterRoleBindingDie) *ClusterRoleBindingListDie {
+func NewClusterRoleBindingList(items ...*ClusterRoleBindingDieMut) *ClusterRoleBindingListDie {
 	return &ClusterRoleBindingListDie{dielists.NewList("rbac.authorization.k8s.io/v1beta1", "ClusterRoleBindingList", items...)}
 }
 
@@ -328,13 +485,13 @@ func (l *ClusterRoleBindingListDie) DeepCopyObject() runtime.Object { return l.D
 // ClusterRoleList is a collection of ClusterRoles.
 // Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 ClusterRoles, and will no longer be served in v1.22.
 type ClusterRoleListDie struct {
-	dielists.List[*ClusterRoleDie]
+	dielists.List[*ClusterRoleDieMut]
 }
 
-var _ dielists.DieListOf[*ClusterRoleDie] = (*ClusterRoleListDie)(nil)
+var _ dielists.DieListOf[*ClusterRoleDieMut] = (*ClusterRoleListDie)(nil)
 
 // NewClusterRoleList returns a list with items.
-func NewClusterRoleList(items ...*ClusterRoleDie) *ClusterRoleListDie {
+func NewClusterRoleList(items ...*ClusterRoleDieMut) *ClusterRoleListDie {
 	return &ClusterRoleListDie{dielists.NewList("rbac.authorization.k8s.io/v1beta1", "ClusterRoleList", items...)}
 }
 
@@ -345,17 +502,32 @@ func (l *ClusterRoleListDie) DeepCopyObject() runtime.Object { return l.DeepCopy
 
 // PolicyRule holds information that describes a policy rule, but does not contain information
 // about who the rule applies to or which namespace the rule applies to.
+//
+// PolicyRuleDie is immutable: it reads.
+// PolicyRuleDieMut, its mutable die, also writes, as DieWith passes it.
 type PolicyRuleDie struct {
-	diebase.DieBase[PolicyRule, *PolicyRuleDie]
+	diebase.DieBase[PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]
 }
 
-func (*PolicyRuleDie) DieFrom(b diebase.DieBase[PolicyRule, *PolicyRuleDie]) *PolicyRuleDie {
+// PolicyRuleDieMut is the mutable die of PolicyRule: see PolicyRuleDie.
+type PolicyRuleDieMut struct {
+	diebase.DieMutBase[PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]
+}
+
+func (*PolicyRuleDie) DieFrom(b diebase.DieBase[PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]) *PolicyRuleDie {
 	return &PolicyRuleDie{b}
 }
 
-var _ diebase.DieOf[PolicyRule, *PolicyRuleDie] = (*PolicyRuleDie)(nil)
+func (*PolicyRuleDieMut) DieFrom(b diebase.DieMutBase[PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]) *PolicyRuleDieMut {
+	return &PolicyRuleDieMut{b}
+}
 
-var PolicyRuleBlank = diebase.Blank[PolicyRule, *PolicyRuleDie]()
+var (
+	_ diebase.DieOf[PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]    = (*PolicyRuleDie)(nil)
+	_ diebase.DieMutOf[PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut] = (*PolicyRuleDieMut)(nil)
+)
+
+var PolicyRuleBlank = diebase.Blank[PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -364,34 +536,47 @@ func (d *PolicyRuleDie) DieReleaseApplyConfiguration() *PolicyRuleApplyConfigura
 	return diecodegen.ReleaseApplyConfiguration[PolicyRuleApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PolicyRuleDie) DieFeedApplyConfiguration(ac *PolicyRuleApplyConfiguration) *PolicyRuleDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PolicyRuleDie) DieStampApplyConfiguration(fn func(ac *PolicyRuleApplyConfiguration)) *PolicyRuleDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PolicyRuleDie) DieReleaseApplyConfigurationE() (*PolicyRuleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PolicyRuleApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PolicyRuleDieMut) DieReleaseApplyConfiguration() *PolicyRuleApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PolicyRuleApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PolicyRuleDieMut) DieReleaseApplyConfigurationE() (*PolicyRuleApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PolicyRuleApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PolicyRuleDieMut) DieFeedApplyConfiguration(ac *PolicyRuleApplyConfiguration) *PolicyRuleDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PolicyRuleDieMut) DieStampApplyConfiguration(fn func(ac *PolicyRuleApplyConfiguration)) *PolicyRuleDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PolicyRuleDie) DieFeedApplyConfigurationE(ac *PolicyRuleApplyConfiguration) (*PolicyRuleDie, error) {
+func (d *PolicyRuleDieMut) DieFeedApplyConfigurationE(ac *PolicyRuleApplyConfiguration) (*PolicyRuleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PolicyRuleDie) DieStampApplyConfigurationE(fn func(ac *PolicyRuleApplyConfiguration)) (*PolicyRuleDie, error) {
+func (d *PolicyRuleDieMut) DieStampApplyConfigurationE(fn func(ac *PolicyRuleApplyConfiguration)) (*PolicyRuleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -414,47 +599,91 @@ var policyRuleFields = &diefields.Table[policyRuleFieldsTable]{Build: func() (f 
 }}
 
 // verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs.
-func (d *PolicyRuleDie) Verbs() diefields.Value[[]string, *PolicyRuleDie] {
+func (d *PolicyRuleDie) Verbs() diefields.Value[[]string] {
 	return diefields.ValueOf(d, policyRuleFields.Get().Verbs)
 }
 
 // apiGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
 // the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
-func (d *PolicyRuleDie) APIGroups() diefields.Value[[]string, *PolicyRuleDie] {
+func (d *PolicyRuleDie) APIGroups() diefields.Value[[]string] {
 	return diefields.ValueOf(d, policyRuleFields.Get().APIGroups)
 }
 
 // resources is a list of resources this rule applies to.  '*' represents all resources in the specified apiGroups.
 // '*/foo' represents the subresource 'foo' for all resources in the specified apiGroups.
-func (d *PolicyRuleDie) Resources() diefields.Value[[]string, *PolicyRuleDie] {
+func (d *PolicyRuleDie) Resources() diefields.Value[[]string] {
 	return diefields.ValueOf(d, policyRuleFields.Get().Resources)
 }
 
 // resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.
-func (d *PolicyRuleDie) ResourceNames() diefields.Value[[]string, *PolicyRuleDie] {
+func (d *PolicyRuleDie) ResourceNames() diefields.Value[[]string] {
 	return diefields.ValueOf(d, policyRuleFields.Get().ResourceNames)
 }
 
 // nonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
 // Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
 // Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
-func (d *PolicyRuleDie) NonResourceURLs() diefields.Value[[]string, *PolicyRuleDie] {
+func (d *PolicyRuleDie) NonResourceURLs() diefields.Value[[]string] {
 	return diefields.ValueOf(d, policyRuleFields.Get().NonResourceURLs)
+}
+
+// verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs.
+func (d *PolicyRuleDieMut) Verbs() diefields.ValueMut[[]string, *PolicyRuleDieMut] {
+	return diefields.ValueMutOf(d, policyRuleFields.Get().Verbs)
+}
+
+// apiGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
+// the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
+func (d *PolicyRuleDieMut) APIGroups() diefields.ValueMut[[]string, *PolicyRuleDieMut] {
+	return diefields.ValueMutOf(d, policyRuleFields.Get().APIGroups)
+}
+
+// resources is a list of resources this rule applies to.  '*' represents all resources in the specified apiGroups.
+// '*/foo' represents the subresource 'foo' for all resources in the specified apiGroups.
+func (d *PolicyRuleDieMut) Resources() diefields.ValueMut[[]string, *PolicyRuleDieMut] {
+	return diefields.ValueMutOf(d, policyRuleFields.Get().Resources)
+}
+
+// resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.
+func (d *PolicyRuleDieMut) ResourceNames() diefields.ValueMut[[]string, *PolicyRuleDieMut] {
+	return diefields.ValueMutOf(d, policyRuleFields.Get().ResourceNames)
+}
+
+// nonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
+// Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
+// Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
+func (d *PolicyRuleDieMut) NonResourceURLs() diefields.ValueMut[[]string, *PolicyRuleDieMut] {
+	return diefields.ValueMutOf(d, policyRuleFields.Get().NonResourceURLs)
 }
 
 // Role is a namespaced, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding.
 // Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 Role, and will no longer be served in v1.22.
+//
+// RoleDie is immutable: it reads.
+// RoleDieMut, its mutable die, also writes, as DieWith passes it.
 type RoleDie struct {
-	diebase.DieObjectBase[Role, *RoleDie]
+	diebase.DieObjectBase[Role, *RoleDie, *RoleDieMut]
 }
 
-func (*RoleDie) DieFrom(b diebase.DieBase[Role, *RoleDie]) *RoleDie {
+// RoleDieMut is the mutable die of Role: see RoleDie.
+type RoleDieMut struct {
+	diebase.DieObjectMutBase[Role, *RoleDie, *RoleDieMut]
+}
+
+func (*RoleDie) DieFrom(b diebase.DieBase[Role, *RoleDie, *RoleDieMut]) *RoleDie {
 	return &RoleDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[Role, *RoleDie] = (*RoleDie)(nil)
+func (*RoleDieMut) DieFrom(b diebase.DieMutBase[Role, *RoleDie, *RoleDieMut]) *RoleDieMut {
+	return &RoleDieMut{diebase.AsObjectMut(b)}
+}
 
-var RoleBlank = diebase.BlankOf[Role, *RoleDie](Role{TypeMeta: metav1.TypeMeta{APIVersion: "rbac.authorization.k8s.io/v1beta1", Kind: "Role"}})
+var (
+	_ dieobjects.DieObjectOf[Role, *RoleDie, *RoleDieMut]    = (*RoleDie)(nil)
+	_ dieobjects.DieObjectMutOf[Role, *RoleDie, *RoleDieMut] = (*RoleDieMut)(nil)
+)
+
+var RoleBlank = diebase.BlankOf[Role, *RoleDie, *RoleDieMut](Role{TypeMeta: metav1.TypeMeta{APIVersion: "rbac.authorization.k8s.io/v1beta1", Kind: "Role"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -463,41 +692,54 @@ func (d *RoleDie) DieReleaseApplyConfiguration() *RoleApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[RoleApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *RoleDie) DieFeedApplyConfiguration(ac *RoleApplyConfiguration) *RoleDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *RoleDie) DieStampApplyConfiguration(fn func(ac *RoleApplyConfiguration)) *RoleDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *RoleDie) DieReleaseApplyConfigurationE() (*RoleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[RoleApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *RoleDieMut) DieReleaseApplyConfiguration() *RoleApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[RoleApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *RoleDieMut) DieReleaseApplyConfigurationE() (*RoleApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[RoleApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *RoleDieMut) DieFeedApplyConfiguration(ac *RoleApplyConfiguration) *RoleDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *RoleDieMut) DieStampApplyConfiguration(fn func(ac *RoleApplyConfiguration)) *RoleDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *RoleDie) DieFeedApplyConfigurationE(ac *RoleApplyConfiguration) (*RoleDie, error) {
+func (d *RoleDieMut) DieFeedApplyConfigurationE(ac *RoleApplyConfiguration) (*RoleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *RoleDie) DieStampApplyConfigurationE(fn func(ac *RoleApplyConfiguration)) (*RoleDie, error) {
+func (d *RoleDieMut) DieStampApplyConfigurationE(fn func(ac *RoleApplyConfiguration)) (*RoleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type roleFieldsTable struct {
 	Kind       diefields.Field[Role, string]
 	APIVersion diefields.Field[Role, string]
-	Metadata   diefields.Struct[Role, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
+	Metadata   diefields.Struct[Role, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
 	Rules      diefields.Field[Role, []PolicyRule]
 }
 
@@ -505,7 +747,7 @@ var roleFields = &diefields.Table[roleFieldsTable]{Build: func() (f roleFieldsTa
 	_ = annotated
 	f.Kind = diefields.NewField[Role, string]("kind")
 	f.APIVersion = diefields.NewField[Role, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[Role, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
+	f.Metadata = diefields.NewStruct[Role, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
 	f.Rules = diefields.NewField[Role, []PolicyRule]("rules")
 	return
 }}
@@ -515,15 +757,13 @@ var roleFields = &diefields.Table[roleFieldsTable]{Build: func() (f roleFieldsTa
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *RoleDie) Kind() diefields.Value[string, *RoleDie] {
-	return diefields.ValueOf(d, roleFields.Get().Kind)
-}
+func (d *RoleDie) Kind() diefields.Value[string] { return diefields.ValueOf(d, roleFields.Get().Kind) }
 
 // APIVersion defines the versioned schema of this representation of an object.
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *RoleDie) APIVersion() diefields.Value[string, *RoleDie] {
+func (d *RoleDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, roleFields.Get().APIVersion)
 }
 
@@ -533,25 +773,67 @@ func (d *RoleDie) Metadata() *diemetav1.ObjectMetaDie {
 }
 
 // rules holds all the PolicyRules for this Role
-func (d *RoleDie) Rules() diefields.Value[[]PolicyRule, *RoleDie] {
+func (d *RoleDie) Rules() diefields.Value[[]PolicyRule] {
 	return diefields.ValueOf(d, roleFields.Get().Rules)
+}
+
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *RoleDieMut) Kind() diefields.ValueMut[string, *RoleDieMut] {
+	return diefields.ValueMutOf(d, roleFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *RoleDieMut) APIVersion() diefields.ValueMut[string, *RoleDieMut] {
+	return diefields.ValueMutOf(d, roleFields.Get().APIVersion)
+}
+
+// metadata is the standard object's metadata.
+func (d *RoleDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, roleFields.Get().Metadata)
+}
+
+// rules holds all the PolicyRules for this Role
+func (d *RoleDieMut) Rules() diefields.ValueMut[[]PolicyRule, *RoleDieMut] {
+	return diefields.ValueMutOf(d, roleFields.Get().Rules)
 }
 
 // RoleBinding references a role, but does not contain it.  It can reference a Role in the same namespace or a ClusterRole in the global namespace.
 // It adds who information via Subjects and namespace information by which namespace it exists in.  RoleBindings in a given
 // namespace only have effect in that namespace.
 // Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 RoleBinding, and will no longer be served in v1.22.
+//
+// RoleBindingDie is immutable: it reads.
+// RoleBindingDieMut, its mutable die, also writes, as DieWith passes it.
 type RoleBindingDie struct {
-	diebase.DieObjectBase[RoleBinding, *RoleBindingDie]
+	diebase.DieObjectBase[RoleBinding, *RoleBindingDie, *RoleBindingDieMut]
 }
 
-func (*RoleBindingDie) DieFrom(b diebase.DieBase[RoleBinding, *RoleBindingDie]) *RoleBindingDie {
+// RoleBindingDieMut is the mutable die of RoleBinding: see RoleBindingDie.
+type RoleBindingDieMut struct {
+	diebase.DieObjectMutBase[RoleBinding, *RoleBindingDie, *RoleBindingDieMut]
+}
+
+func (*RoleBindingDie) DieFrom(b diebase.DieBase[RoleBinding, *RoleBindingDie, *RoleBindingDieMut]) *RoleBindingDie {
 	return &RoleBindingDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[RoleBinding, *RoleBindingDie] = (*RoleBindingDie)(nil)
+func (*RoleBindingDieMut) DieFrom(b diebase.DieMutBase[RoleBinding, *RoleBindingDie, *RoleBindingDieMut]) *RoleBindingDieMut {
+	return &RoleBindingDieMut{diebase.AsObjectMut(b)}
+}
 
-var RoleBindingBlank = diebase.BlankOf[RoleBinding, *RoleBindingDie](RoleBinding{TypeMeta: metav1.TypeMeta{APIVersion: "rbac.authorization.k8s.io/v1beta1", Kind: "RoleBinding"}})
+var (
+	_ dieobjects.DieObjectOf[RoleBinding, *RoleBindingDie, *RoleBindingDieMut]    = (*RoleBindingDie)(nil)
+	_ dieobjects.DieObjectMutOf[RoleBinding, *RoleBindingDie, *RoleBindingDieMut] = (*RoleBindingDieMut)(nil)
+)
+
+var RoleBindingBlank = diebase.BlankOf[RoleBinding, *RoleBindingDie, *RoleBindingDieMut](RoleBinding{TypeMeta: metav1.TypeMeta{APIVersion: "rbac.authorization.k8s.io/v1beta1", Kind: "RoleBinding"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -560,52 +842,65 @@ func (d *RoleBindingDie) DieReleaseApplyConfiguration() *RoleBindingApplyConfigu
 	return diecodegen.ReleaseApplyConfiguration[RoleBindingApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *RoleBindingDie) DieFeedApplyConfiguration(ac *RoleBindingApplyConfiguration) *RoleBindingDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *RoleBindingDie) DieStampApplyConfiguration(fn func(ac *RoleBindingApplyConfiguration)) *RoleBindingDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *RoleBindingDie) DieReleaseApplyConfigurationE() (*RoleBindingApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[RoleBindingApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *RoleBindingDieMut) DieReleaseApplyConfiguration() *RoleBindingApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[RoleBindingApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *RoleBindingDieMut) DieReleaseApplyConfigurationE() (*RoleBindingApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[RoleBindingApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *RoleBindingDieMut) DieFeedApplyConfiguration(ac *RoleBindingApplyConfiguration) *RoleBindingDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *RoleBindingDieMut) DieStampApplyConfiguration(fn func(ac *RoleBindingApplyConfiguration)) *RoleBindingDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *RoleBindingDie) DieFeedApplyConfigurationE(ac *RoleBindingApplyConfiguration) (*RoleBindingDie, error) {
+func (d *RoleBindingDieMut) DieFeedApplyConfigurationE(ac *RoleBindingApplyConfiguration) (*RoleBindingDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *RoleBindingDie) DieStampApplyConfigurationE(fn func(ac *RoleBindingApplyConfiguration)) (*RoleBindingDie, error) {
+func (d *RoleBindingDieMut) DieStampApplyConfigurationE(fn func(ac *RoleBindingApplyConfiguration)) (*RoleBindingDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type roleBindingFieldsTable struct {
 	Kind       diefields.Field[RoleBinding, string]
 	APIVersion diefields.Field[RoleBinding, string]
-	Metadata   diefields.Struct[RoleBinding, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
+	Metadata   diefields.Struct[RoleBinding, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
 	Subjects   diefields.Field[RoleBinding, []Subject]
-	RoleRef    diefields.Struct[RoleBinding, RoleRef, *RoleRefDie]
+	RoleRef    diefields.Struct[RoleBinding, RoleRef, *RoleRefDie, *RoleRefDieMut]
 }
 
 var roleBindingFields = &diefields.Table[roleBindingFieldsTable]{Build: func() (f roleBindingFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[RoleBinding, string]("kind")
 	f.APIVersion = diefields.NewField[RoleBinding, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[RoleBinding, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
+	f.Metadata = diefields.NewStruct[RoleBinding, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
 	f.Subjects = diefields.NewField[RoleBinding, []Subject]("subjects")
-	f.RoleRef = diefields.NewStruct[RoleBinding, RoleRef, *RoleRefDie]("roleRef")
+	f.RoleRef = diefields.NewStruct[RoleBinding, RoleRef, *RoleRefDie, *RoleRefDieMut]("roleRef")
 	return
 }}
 
@@ -614,7 +909,7 @@ var roleBindingFields = &diefields.Table[roleBindingFieldsTable]{Build: func() (
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *RoleBindingDie) Kind() diefields.Value[string, *RoleBindingDie] {
+func (d *RoleBindingDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, roleBindingFields.Get().Kind)
 }
 
@@ -622,7 +917,7 @@ func (d *RoleBindingDie) Kind() diefields.Value[string, *RoleBindingDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *RoleBindingDie) APIVersion() diefields.Value[string, *RoleBindingDie] {
+func (d *RoleBindingDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, roleBindingFields.Get().APIVersion)
 }
 
@@ -632,7 +927,7 @@ func (d *RoleBindingDie) Metadata() *diemetav1.ObjectMetaDie {
 }
 
 // subjects holds references to the objects the role applies to.
-func (d *RoleBindingDie) Subjects() diefields.Value[[]Subject, *RoleBindingDie] {
+func (d *RoleBindingDie) Subjects() diefields.Value[[]Subject] {
 	return diefields.ValueOf(d, roleBindingFields.Get().Subjects)
 }
 
@@ -642,16 +937,49 @@ func (d *RoleBindingDie) RoleRef() *RoleRefDie {
 	return diefields.Child(d, roleBindingFields.Get().RoleRef)
 }
 
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *RoleBindingDieMut) Kind() diefields.ValueMut[string, *RoleBindingDieMut] {
+	return diefields.ValueMutOf(d, roleBindingFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *RoleBindingDieMut) APIVersion() diefields.ValueMut[string, *RoleBindingDieMut] {
+	return diefields.ValueMutOf(d, roleBindingFields.Get().APIVersion)
+}
+
+// metadata is the standard object's metadata.
+func (d *RoleBindingDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, roleBindingFields.Get().Metadata)
+}
+
+// subjects holds references to the objects the role applies to.
+func (d *RoleBindingDieMut) Subjects() diefields.ValueMut[[]Subject, *RoleBindingDieMut] {
+	return diefields.ValueMutOf(d, roleBindingFields.Get().Subjects)
+}
+
+// roleRef can reference a Role in the current namespace or a ClusterRole in the global namespace.
+// If the RoleRef cannot be resolved, the Authorizer must return an error.
+func (d *RoleBindingDieMut) RoleRef() *RoleRefDieMut {
+	return diefields.ChildMut(d, roleBindingFields.Get().RoleRef)
+}
+
 // RoleBindingList is a collection of RoleBindings
 // Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 RoleBindingList, and will no longer be served in v1.22.
 type RoleBindingListDie struct {
-	dielists.List[*RoleBindingDie]
+	dielists.List[*RoleBindingDieMut]
 }
 
-var _ dielists.DieListOf[*RoleBindingDie] = (*RoleBindingListDie)(nil)
+var _ dielists.DieListOf[*RoleBindingDieMut] = (*RoleBindingListDie)(nil)
 
 // NewRoleBindingList returns a list with items.
-func NewRoleBindingList(items ...*RoleBindingDie) *RoleBindingListDie {
+func NewRoleBindingList(items ...*RoleBindingDieMut) *RoleBindingListDie {
 	return &RoleBindingListDie{dielists.NewList("rbac.authorization.k8s.io/v1beta1", "RoleBindingList", items...)}
 }
 
@@ -663,13 +991,13 @@ func (l *RoleBindingListDie) DeepCopyObject() runtime.Object { return l.DeepCopy
 // RoleList is a collection of Roles
 // Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 RoleList, and will no longer be served in v1.22.
 type RoleListDie struct {
-	dielists.List[*RoleDie]
+	dielists.List[*RoleDieMut]
 }
 
-var _ dielists.DieListOf[*RoleDie] = (*RoleListDie)(nil)
+var _ dielists.DieListOf[*RoleDieMut] = (*RoleListDie)(nil)
 
 // NewRoleList returns a list with items.
-func NewRoleList(items ...*RoleDie) *RoleListDie {
+func NewRoleList(items ...*RoleDieMut) *RoleListDie {
 	return &RoleListDie{dielists.NewList("rbac.authorization.k8s.io/v1beta1", "RoleList", items...)}
 }
 
@@ -679,17 +1007,32 @@ func (l *RoleListDie) DeepCopy() *RoleListDie { return &RoleListDie{l.DieCopy()}
 func (l *RoleListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // RoleRef contains information that points to the role being used
+//
+// RoleRefDie is immutable: it reads.
+// RoleRefDieMut, its mutable die, also writes, as DieWith passes it.
 type RoleRefDie struct {
-	diebase.DieBase[RoleRef, *RoleRefDie]
+	diebase.DieBase[RoleRef, *RoleRefDie, *RoleRefDieMut]
 }
 
-func (*RoleRefDie) DieFrom(b diebase.DieBase[RoleRef, *RoleRefDie]) *RoleRefDie {
+// RoleRefDieMut is the mutable die of RoleRef: see RoleRefDie.
+type RoleRefDieMut struct {
+	diebase.DieMutBase[RoleRef, *RoleRefDie, *RoleRefDieMut]
+}
+
+func (*RoleRefDie) DieFrom(b diebase.DieBase[RoleRef, *RoleRefDie, *RoleRefDieMut]) *RoleRefDie {
 	return &RoleRefDie{b}
 }
 
-var _ diebase.DieOf[RoleRef, *RoleRefDie] = (*RoleRefDie)(nil)
+func (*RoleRefDieMut) DieFrom(b diebase.DieMutBase[RoleRef, *RoleRefDie, *RoleRefDieMut]) *RoleRefDieMut {
+	return &RoleRefDieMut{b}
+}
 
-var RoleRefBlank = diebase.Blank[RoleRef, *RoleRefDie]()
+var (
+	_ diebase.DieOf[RoleRef, *RoleRefDie, *RoleRefDieMut]    = (*RoleRefDie)(nil)
+	_ diebase.DieMutOf[RoleRef, *RoleRefDie, *RoleRefDieMut] = (*RoleRefDieMut)(nil)
+)
+
+var RoleRefBlank = diebase.Blank[RoleRef, *RoleRefDie, *RoleRefDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -698,34 +1041,47 @@ func (d *RoleRefDie) DieReleaseApplyConfiguration() *RoleRefApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[RoleRefApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *RoleRefDie) DieFeedApplyConfiguration(ac *RoleRefApplyConfiguration) *RoleRefDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *RoleRefDie) DieStampApplyConfiguration(fn func(ac *RoleRefApplyConfiguration)) *RoleRefDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *RoleRefDie) DieReleaseApplyConfigurationE() (*RoleRefApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[RoleRefApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *RoleRefDieMut) DieReleaseApplyConfiguration() *RoleRefApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[RoleRefApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *RoleRefDieMut) DieReleaseApplyConfigurationE() (*RoleRefApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[RoleRefApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *RoleRefDieMut) DieFeedApplyConfiguration(ac *RoleRefApplyConfiguration) *RoleRefDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *RoleRefDieMut) DieStampApplyConfiguration(fn func(ac *RoleRefApplyConfiguration)) *RoleRefDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *RoleRefDie) DieFeedApplyConfigurationE(ac *RoleRefApplyConfiguration) (*RoleRefDie, error) {
+func (d *RoleRefDieMut) DieFeedApplyConfigurationE(ac *RoleRefApplyConfiguration) (*RoleRefDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *RoleRefDie) DieStampApplyConfigurationE(fn func(ac *RoleRefApplyConfiguration)) (*RoleRefDie, error) {
+func (d *RoleRefDieMut) DieStampApplyConfigurationE(fn func(ac *RoleRefApplyConfiguration)) (*RoleRefDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -744,33 +1100,63 @@ var roleRefFields = &diefields.Table[roleRefFieldsTable]{Build: func() (f roleRe
 }}
 
 // apiGroup is the group for the resource being referenced
-func (d *RoleRefDie) APIGroup() diefields.Value[string, *RoleRefDie] {
+func (d *RoleRefDie) APIGroup() diefields.Value[string] {
 	return diefields.ValueOf(d, roleRefFields.Get().APIGroup)
 }
 
 // kind is the type of resource being referenced
-func (d *RoleRefDie) Kind() diefields.Value[string, *RoleRefDie] {
+func (d *RoleRefDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, roleRefFields.Get().Kind)
 }
 
 // name is the name of resource being referenced
-func (d *RoleRefDie) Name() diefields.Value[string, *RoleRefDie] {
+func (d *RoleRefDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, roleRefFields.Get().Name)
+}
+
+// apiGroup is the group for the resource being referenced
+func (d *RoleRefDieMut) APIGroup() diefields.ValueMut[string, *RoleRefDieMut] {
+	return diefields.ValueMutOf(d, roleRefFields.Get().APIGroup)
+}
+
+// kind is the type of resource being referenced
+func (d *RoleRefDieMut) Kind() diefields.ValueMut[string, *RoleRefDieMut] {
+	return diefields.ValueMutOf(d, roleRefFields.Get().Kind)
+}
+
+// name is the name of resource being referenced
+func (d *RoleRefDieMut) Name() diefields.ValueMut[string, *RoleRefDieMut] {
+	return diefields.ValueMutOf(d, roleRefFields.Get().Name)
 }
 
 // Subject contains a reference to the object or user identities a role binding applies to.  This can either hold a direct API object reference,
 // or a value for non-objects such as user and group names.
+//
+// SubjectDie is immutable: it reads.
+// SubjectDieMut, its mutable die, also writes, as DieWith passes it.
 type SubjectDie struct {
-	diebase.DieBase[Subject, *SubjectDie]
+	diebase.DieBase[Subject, *SubjectDie, *SubjectDieMut]
 }
 
-func (*SubjectDie) DieFrom(b diebase.DieBase[Subject, *SubjectDie]) *SubjectDie {
+// SubjectDieMut is the mutable die of Subject: see SubjectDie.
+type SubjectDieMut struct {
+	diebase.DieMutBase[Subject, *SubjectDie, *SubjectDieMut]
+}
+
+func (*SubjectDie) DieFrom(b diebase.DieBase[Subject, *SubjectDie, *SubjectDieMut]) *SubjectDie {
 	return &SubjectDie{b}
 }
 
-var _ diebase.DieOf[Subject, *SubjectDie] = (*SubjectDie)(nil)
+func (*SubjectDieMut) DieFrom(b diebase.DieMutBase[Subject, *SubjectDie, *SubjectDieMut]) *SubjectDieMut {
+	return &SubjectDieMut{b}
+}
 
-var SubjectBlank = diebase.Blank[Subject, *SubjectDie]()
+var (
+	_ diebase.DieOf[Subject, *SubjectDie, *SubjectDieMut]    = (*SubjectDie)(nil)
+	_ diebase.DieMutOf[Subject, *SubjectDie, *SubjectDieMut] = (*SubjectDieMut)(nil)
+)
+
+var SubjectBlank = diebase.Blank[Subject, *SubjectDie, *SubjectDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -779,34 +1165,47 @@ func (d *SubjectDie) DieReleaseApplyConfiguration() *SubjectApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[SubjectApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *SubjectDie) DieFeedApplyConfiguration(ac *SubjectApplyConfiguration) *SubjectDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *SubjectDie) DieStampApplyConfiguration(fn func(ac *SubjectApplyConfiguration)) *SubjectDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *SubjectDie) DieReleaseApplyConfigurationE() (*SubjectApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[SubjectApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *SubjectDieMut) DieReleaseApplyConfiguration() *SubjectApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[SubjectApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *SubjectDieMut) DieReleaseApplyConfigurationE() (*SubjectApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[SubjectApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *SubjectDieMut) DieFeedApplyConfiguration(ac *SubjectApplyConfiguration) *SubjectDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *SubjectDieMut) DieStampApplyConfiguration(fn func(ac *SubjectApplyConfiguration)) *SubjectDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *SubjectDie) DieFeedApplyConfigurationE(ac *SubjectApplyConfiguration) (*SubjectDie, error) {
+func (d *SubjectDieMut) DieFeedApplyConfigurationE(ac *SubjectApplyConfiguration) (*SubjectDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *SubjectDie) DieStampApplyConfigurationE(fn func(ac *SubjectApplyConfiguration)) (*SubjectDie, error) {
+func (d *SubjectDieMut) DieStampApplyConfigurationE(fn func(ac *SubjectApplyConfiguration)) (*SubjectDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -828,45 +1227,69 @@ var subjectFields = &diefields.Table[subjectFieldsTable]{Build: func() (f subjec
 
 // kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
 // If the Authorizer does not recognized the kind value, the Authorizer should report an error.
-func (d *SubjectDie) Kind() diefields.Value[string, *SubjectDie] {
+func (d *SubjectDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, subjectFields.Get().Kind)
 }
 
 // apiGroup holds the API group of the referenced subject.
 // Defaults to "" for ServiceAccount subjects.
 // Defaults to "rbac.authorization.k8s.io" for User and Group subjects.
-func (d *SubjectDie) APIGroup() diefields.Value[string, *SubjectDie] {
+func (d *SubjectDie) APIGroup() diefields.Value[string] {
 	return diefields.ValueOf(d, subjectFields.Get().APIGroup)
 }
 
 // name of the object being referenced.
-func (d *SubjectDie) Name() diefields.Value[string, *SubjectDie] {
+func (d *SubjectDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, subjectFields.Get().Name)
 }
 
 // namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty
 // the Authorizer should report an error.
-func (d *SubjectDie) Namespace() diefields.Value[string, *SubjectDie] {
+func (d *SubjectDie) Namespace() diefields.Value[string] {
 	return diefields.ValueOf(d, subjectFields.Get().Namespace)
+}
+
+// kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
+// If the Authorizer does not recognized the kind value, the Authorizer should report an error.
+func (d *SubjectDieMut) Kind() diefields.ValueMut[string, *SubjectDieMut] {
+	return diefields.ValueMutOf(d, subjectFields.Get().Kind)
+}
+
+// apiGroup holds the API group of the referenced subject.
+// Defaults to "" for ServiceAccount subjects.
+// Defaults to "rbac.authorization.k8s.io" for User and Group subjects.
+func (d *SubjectDieMut) APIGroup() diefields.ValueMut[string, *SubjectDieMut] {
+	return diefields.ValueMutOf(d, subjectFields.Get().APIGroup)
+}
+
+// name of the object being referenced.
+func (d *SubjectDieMut) Name() diefields.ValueMut[string, *SubjectDieMut] {
+	return diefields.ValueMutOf(d, subjectFields.Get().Name)
+}
+
+// namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty
+// the Authorizer should report an error.
+func (d *SubjectDieMut) Namespace() diefields.ValueMut[string, *SubjectDieMut] {
+	return diefields.ValueMutOf(d, subjectFields.Get().Namespace)
 }
 
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "rbac.authorization.k8s.io", Version: "v1beta1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ClusterRole"), &ClusterRoleDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ClusterRoleBinding"), &ClusterRoleBindingDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ClusterRole"), &ClusterRoleDieMut{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ClusterRoleBinding"), &ClusterRoleBindingDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ClusterRoleBindingList"), &ClusterRoleBindingListDie{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ClusterRoleList"), &ClusterRoleListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Role"), &RoleDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("RoleBinding"), &RoleBindingDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("Role"), &RoleDieMut{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("RoleBinding"), &RoleBindingDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("RoleBindingList"), &RoleBindingListDie{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("RoleList"), &RoleListDie{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)

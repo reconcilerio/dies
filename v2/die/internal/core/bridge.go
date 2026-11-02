@@ -29,4 +29,6 @@ var (
 	SetState func(d any, h *Holder, at Path)
 	// valueTypeOf returns the type of a die's value.
 	ValueTypeOf func(d any) reflect.Type
+	// IsMutable reports whether a die is a mutable die.
+	IsMutable func(d any) bool
 )

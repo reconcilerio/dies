@@ -18,11 +18,20 @@ package fields
 
 import "reconciler.io/dies/v2/die/base"
 
-// DieTypedOf carries a typed die's types for generic code, as base.DieOf
-// does a die's, with its type metadata's accessors.
-type DieTypedOf[T any, D base.DieOf[T, D]] interface {
-	base.DieOf[T, D]
+// DieTypedOf carries an immutable typed die's types for generic code, as
+// base.DieOf does a die's, with its type metadata's accessors.
+type DieTypedOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] interface {
+	base.DieOf[T, D, M]
 	base.DieTyped
-	APIVersion() Value[string, D]
-	Kind() Value[string, D]
+	APIVersion() Value[string]
+	Kind() Value[string]
+}
+
+// DieTypedMutOf carries a mutable typed die's types for generic code, as
+// base.DieMutOf does a die's, with its type metadata's accessors.
+type DieTypedMutOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] interface {
+	base.DieMutOf[T, D, M]
+	base.DieTyped
+	APIVersion() ValueMut[string, M]
+	Kind() ValueMut[string, M]
 }

@@ -18,6 +18,7 @@ package cluster_test
 
 import (
 	"context"
+	"reconciler.io/dies/v2/die"
 	"testing"
 
 	"k8s.io/apimachinery/pkg/types"
@@ -40,7 +41,7 @@ func keyOf(namespace, name string) client.ObjectKey {
 
 // identity is a Deployment with only its identity, to apply nothing else.
 func identity(ns string) *dieappsv1.DeploymentDie {
-	return dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+	return dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Namespace().Set(ns)
 		d.Metadata().Name().Set("web")
 	})
@@ -48,7 +49,7 @@ func identity(ns string) *dieappsv1.DeploymentDie {
 
 // deployment is a valid Deployment that runs nothing.
 func deployment(ns string) *dieappsv1.DeploymentDie {
-	return identity(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	return identity(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().Replicas().Set(0)
 		d.Spec().Paused().Set(true)
 		d.Spec().Selector().MatchLabels().Set("app", "web")
@@ -60,18 +61,16 @@ func deployment(ns string) *dieappsv1.DeploymentDie {
 // apply sends a die's apply as a manager, and returns what the server has
 // after: the die is committed first, so the result isn't overlaid with the
 // apply's intent.
-func apply[D interface {
+func apply[T any, D die.DieOf[T, D, M], M interface {
+	die.DieMutOf[T, D, M]
 	client.Object
-	DieReleaseApplyPatchE() ([]byte, error)
-	DieCommit() D
-	DieWithE(...func(D) error) (D, error)
 }](t *testing.T, d D, manager string, status bool) D {
 	t.Helper()
 	body, err := d.DieReleaseApplyPatchE()
 	if err != nil {
 		t.Fatal(err)
 	}
-	got, err := d.DieCommit().DieWithE(func(d D) error {
+	got, err := d.DieCommit().DieWithE(func(d M) error {
 		patch := client.RawPatch(types.ApplyPatchType, body)
 		if status {
 			return dies.Status().Patch(context.Background(), d, patch, client.FieldOwner(manager), client.ForceOwnership)
@@ -103,7 +102,7 @@ func TestApplyOwnsWhatWasSet(t *testing.T) {
 func TestApplyMergesListMapsByKey(t *testing.T) {
 	ns := harness.Namespace(t, dies)
 	apply(t, deployment(ns), "app", false)
-	got := apply(t, identity(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	got := apply(t, identity(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("registry.example/sidecar:1")
 	}), "sidecar", false)
 	if keys := got.Spec().Template().Spec().Containers().Keys(); len(keys) != 2 {
@@ -121,12 +120,12 @@ func TestApplyMergesListMapsByKey(t *testing.T) {
 // another manager's to remove.
 func TestApplyClearsAndRemoves(t *testing.T) {
 	ns := harness.Namespace(t, dies)
-	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().MinReadySeconds().Set(5)
 		d.Metadata().Labels().Set("tier", "web")
 	}), "app", false)
 
-	got := apply(t, identity(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	got := apply(t, identity(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().MinReadySeconds().Clear()
 		d.Metadata().Labels().Remove("tier")
 	}), "clearer", false)
@@ -143,13 +142,13 @@ func TestApplyClearsAndRemoves(t *testing.T) {
 // from what the server has, keeps the rest.
 func TestApplySendsAtomicStructsWhole(t *testing.T) {
 	ns := harness.Namespace(t, dies)
-	actual := apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	actual := apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		ref := d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef()
 		ref.Name().Set("settings")
 		ref.Key().Set("color")
 	}), "app", false)
 
-	got := apply(t, actual.DieWith(func(d *dieappsv1.DeploymentDie) {
+	got := apply(t, actual.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef().Key().Set("colour")
 	}), "localizer", false)
 	ref := got.Spec().Template().Spec().Containers().At("app").Env().At("COLOR").ValueFrom().ConfigMapKeyRef()
@@ -162,18 +161,18 @@ func TestApplySendsAtomicStructsWhole(t *testing.T) {
 // each owning its own condition.
 func TestApplyCustomResourceStatus(t *testing.T) {
 	ns := harness.Namespace(t, dies)
-	widget := widgetv1.WidgetBlank.DieWith(func(d *widgetv1.WidgetDie) {
+	widget := widgetv1.WidgetBlank.DieWith(func(d *widgetv1.WidgetDieMut) {
 		d.Metadata().Namespace().Set(ns)
 		d.Metadata().Name().Set("web")
 	})
-	apply(t, widget.DieWith(func(d *widgetv1.WidgetDie) {
+	apply(t, widget.DieWith(func(d *widgetv1.WidgetDieMut) {
 		d.Spec().Ports().At("http").Port().Set(80)
 	}), "web", false)
 
 	var got *widgetv1.WidgetDie
 	for _, manager := range []string{"Ready", "Healthy"} {
-		got = apply(t, widget.DieWith(func(d *widgetv1.WidgetDie) {
-			d.Status().Conditions().At(manager).DieWith(func(c *diemetav1.ConditionDie) {
+		got = apply(t, widget.DieWith(func(d *widgetv1.WidgetDieMut) {
+			d.Status().Conditions().At(manager).DieWith(func(c *diemetav1.ConditionDieMut) {
 				c.Status().Set(diemetav1.ConditionTrue)
 				c.Reason().Set("Checked")
 			})
@@ -193,21 +192,21 @@ func TestApplyCustomResourceStatus(t *testing.T) {
 func TestMergePatchCarriesOnlyIntent(t *testing.T) {
 	ns := harness.Namespace(t, dies)
 	ctx := context.Background()
-	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Labels().Set("canary", "true")
 	}), "app", false)
 
-	current, err := dieappsv1.DeploymentBlank.DieWithE(func(d *dieappsv1.DeploymentDie) error {
+	current, err := dieappsv1.DeploymentBlank.DieWithE(func(d *dieappsv1.DeploymentDieMut) error {
 		return dies.Get(ctx, keyOf(ns, "web"), d)
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	apply(t, identity(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	apply(t, identity(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Labels().Set("team", "a")
 	}), "other", false)
 
-	update := current.DieWith(func(d *dieappsv1.DeploymentDie) {
+	update := current.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Labels().Remove("canary")
 		d.Spec().Template().Spec().Containers().At("app").Image().Set("registry.example/app:2")
 	})
@@ -215,7 +214,7 @@ func TestMergePatchCarriesOnlyIntent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	patched, err := current.DieWithE(func(d *dieappsv1.DeploymentDie) error {
+	patched, err := current.DieWithE(func(d *dieappsv1.DeploymentDieMut) error {
 		return dies.Patch(ctx, d, client.RawPatch(types.MergePatchType, body))
 	})
 	if err != nil {

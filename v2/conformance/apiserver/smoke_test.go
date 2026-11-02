@@ -24,7 +24,7 @@ import (
 )
 
 func TestControlPlaneServesDies(t *testing.T) {
-	ns := diecorev1.NamespaceBlank.DieImmutable(false)
+	ns := diecorev1.NamespaceBlank.DieMutable()
 	if err := dies.Get(context.Background(), keyOf("", "default"), ns); err != nil {
 		t.Fatal(err)
 	}

@@ -35,33 +35,48 @@ import (
 // A Package Install is an actual installation of a package and its underlying resources on a Kubernetes cluster.
 // It is represented in kapp-controller by a PackageInstall CR.
 // A PackageInstall CR must reference a Package CR.
+//
+// PackageInstallDie is immutable: it reads.
+// PackageInstallDieMut, its mutable die, also writes, as DieWith passes it.
 type PackageInstallDie struct {
-	diebase.DieObjectBase[PackageInstall, *PackageInstallDie]
+	diebase.DieObjectBase[PackageInstall, *PackageInstallDie, *PackageInstallDieMut]
 }
 
-func (*PackageInstallDie) DieFrom(b diebase.DieBase[PackageInstall, *PackageInstallDie]) *PackageInstallDie {
+// PackageInstallDieMut is the mutable die of PackageInstall: see PackageInstallDie.
+type PackageInstallDieMut struct {
+	diebase.DieObjectMutBase[PackageInstall, *PackageInstallDie, *PackageInstallDieMut]
+}
+
+func (*PackageInstallDie) DieFrom(b diebase.DieBase[PackageInstall, *PackageInstallDie, *PackageInstallDieMut]) *PackageInstallDie {
 	return &PackageInstallDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[PackageInstall, *PackageInstallDie] = (*PackageInstallDie)(nil)
+func (*PackageInstallDieMut) DieFrom(b diebase.DieMutBase[PackageInstall, *PackageInstallDie, *PackageInstallDieMut]) *PackageInstallDieMut {
+	return &PackageInstallDieMut{diebase.AsObjectMut(b)}
+}
 
-var PackageInstallBlank = diebase.BlankOf[PackageInstall, *PackageInstallDie](PackageInstall{TypeMeta: metav1.TypeMeta{APIVersion: "packaging.carvel.dev/v1alpha1", Kind: "PackageInstall"}})
+var (
+	_ dieobjects.DieObjectOf[PackageInstall, *PackageInstallDie, *PackageInstallDieMut]    = (*PackageInstallDie)(nil)
+	_ dieobjects.DieObjectMutOf[PackageInstall, *PackageInstallDie, *PackageInstallDieMut] = (*PackageInstallDieMut)(nil)
+)
+
+var PackageInstallBlank = diebase.BlankOf[PackageInstall, *PackageInstallDie, *PackageInstallDieMut](PackageInstall{TypeMeta: metav1.TypeMeta{APIVersion: "packaging.carvel.dev/v1alpha1", Kind: "PackageInstall"}})
 
 type packageInstallFieldsTable struct {
 	Kind       diefields.Field[PackageInstall, string]
 	APIVersion diefields.Field[PackageInstall, string]
-	Metadata   diefields.Struct[PackageInstall, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[PackageInstall, PackageInstallSpec, *PackageInstallSpecDie]
-	Status     diefields.Struct[PackageInstall, PackageInstallStatus, *PackageInstallStatusDie]
+	Metadata   diefields.Struct[PackageInstall, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[PackageInstall, PackageInstallSpec, *PackageInstallSpecDie, *PackageInstallSpecDieMut]
+	Status     diefields.Struct[PackageInstall, PackageInstallStatus, *PackageInstallStatusDie, *PackageInstallStatusDieMut]
 }
 
 var packageInstallFields = &diefields.Table[packageInstallFieldsTable]{Build: func() (f packageInstallFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[PackageInstall, string]("kind")
 	f.APIVersion = diefields.NewField[PackageInstall, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[PackageInstall, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[PackageInstall, PackageInstallSpec, *PackageInstallSpecDie]("spec")
-	f.Status = diefields.NewStruct[PackageInstall, PackageInstallStatus, *PackageInstallStatusDie]("status")
+	f.Metadata = diefields.NewStruct[PackageInstall, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[PackageInstall, PackageInstallSpec, *PackageInstallSpecDie, *PackageInstallSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[PackageInstall, PackageInstallStatus, *PackageInstallStatusDie, *PackageInstallStatusDieMut]("status")
 	return
 }}
 
@@ -70,7 +85,7 @@ var packageInstallFields = &diefields.Table[packageInstallFieldsTable]{Build: fu
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *PackageInstallDie) Kind() diefields.Value[string, *PackageInstallDie] {
+func (d *PackageInstallDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, packageInstallFields.Get().Kind)
 }
 
@@ -78,7 +93,7 @@ func (d *PackageInstallDie) Kind() diefields.Value[string, *PackageInstallDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *PackageInstallDie) APIVersion() diefields.Value[string, *PackageInstallDie] {
+func (d *PackageInstallDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, packageInstallFields.Get().APIVersion)
 }
 
@@ -95,14 +110,44 @@ func (d *PackageInstallDie) Status() *PackageInstallStatusDie {
 	return diefields.Child(d, packageInstallFields.Get().Status)
 }
 
-type PackageInstallListDie struct {
-	dielists.List[*PackageInstallDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *PackageInstallDieMut) Kind() diefields.ValueMut[string, *PackageInstallDieMut] {
+	return diefields.ValueMutOf(d, packageInstallFields.Get().Kind)
 }
 
-var _ dielists.DieListOf[*PackageInstallDie] = (*PackageInstallListDie)(nil)
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *PackageInstallDieMut) APIVersion() diefields.ValueMut[string, *PackageInstallDieMut] {
+	return diefields.ValueMutOf(d, packageInstallFields.Get().APIVersion)
+}
+
+// Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata.
+func (d *PackageInstallDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, packageInstallFields.Get().Metadata)
+}
+
+func (d *PackageInstallDieMut) Spec() *PackageInstallSpecDieMut {
+	return diefields.ChildMut(d, packageInstallFields.Get().Spec)
+}
+
+func (d *PackageInstallDieMut) Status() *PackageInstallStatusDieMut {
+	return diefields.ChildMut(d, packageInstallFields.Get().Status)
+}
+
+type PackageInstallListDie struct {
+	dielists.List[*PackageInstallDieMut]
+}
+
+var _ dielists.DieListOf[*PackageInstallDieMut] = (*PackageInstallListDie)(nil)
 
 // NewPackageInstallList returns a list with items.
-func NewPackageInstallList(items ...*PackageInstallDie) *PackageInstallListDie {
+func NewPackageInstallList(items ...*PackageInstallDieMut) *PackageInstallListDie {
 	return &PackageInstallListDie{dielists.NewList("packaging.carvel.dev/v1alpha1", "PackageInstallList", items...)}
 }
 
@@ -113,22 +158,36 @@ func (l *PackageInstallListDie) DeepCopy() *PackageInstallListDie {
 
 func (l *PackageInstallListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
+// PackageInstallSpecDie is immutable: it reads.
+// PackageInstallSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type PackageInstallSpecDie struct {
-	diebase.DieBase[PackageInstallSpec, *PackageInstallSpecDie]
+	diebase.DieBase[PackageInstallSpec, *PackageInstallSpecDie, *PackageInstallSpecDieMut]
 }
 
-func (*PackageInstallSpecDie) DieFrom(b diebase.DieBase[PackageInstallSpec, *PackageInstallSpecDie]) *PackageInstallSpecDie {
+// PackageInstallSpecDieMut is the mutable die of PackageInstallSpec: see PackageInstallSpecDie.
+type PackageInstallSpecDieMut struct {
+	diebase.DieMutBase[PackageInstallSpec, *PackageInstallSpecDie, *PackageInstallSpecDieMut]
+}
+
+func (*PackageInstallSpecDie) DieFrom(b diebase.DieBase[PackageInstallSpec, *PackageInstallSpecDie, *PackageInstallSpecDieMut]) *PackageInstallSpecDie {
 	return &PackageInstallSpecDie{b}
 }
 
-var _ diebase.DieOf[PackageInstallSpec, *PackageInstallSpecDie] = (*PackageInstallSpecDie)(nil)
+func (*PackageInstallSpecDieMut) DieFrom(b diebase.DieMutBase[PackageInstallSpec, *PackageInstallSpecDie, *PackageInstallSpecDieMut]) *PackageInstallSpecDieMut {
+	return &PackageInstallSpecDieMut{b}
+}
 
-var PackageInstallSpecBlank = diebase.Blank[PackageInstallSpec, *PackageInstallSpecDie]()
+var (
+	_ diebase.DieOf[PackageInstallSpec, *PackageInstallSpecDie, *PackageInstallSpecDieMut]    = (*PackageInstallSpecDie)(nil)
+	_ diebase.DieMutOf[PackageInstallSpec, *PackageInstallSpecDie, *PackageInstallSpecDieMut] = (*PackageInstallSpecDieMut)(nil)
+)
+
+var PackageInstallSpecBlank = diebase.Blank[PackageInstallSpec, *PackageInstallSpecDie, *PackageInstallSpecDieMut]()
 
 type packageInstallSpecFieldsTable struct {
 	ServiceAccountName diefields.Field[PackageInstallSpec, string]
-	Cluster            diefields.Struct[PackageInstallSpec, kappctrlv1alpha1.AppCluster, *kappctrlv1alpha1.AppClusterDie]
-	PackageRef         diefields.Struct[PackageInstallSpec, PackageRef, *PackageRefDie]
+	Cluster            diefields.Struct[PackageInstallSpec, kappctrlv1alpha1.AppCluster, *kappctrlv1alpha1.AppClusterDie, *kappctrlv1alpha1.AppClusterDieMut]
+	PackageRef         diefields.Struct[PackageInstallSpec, PackageRef, *PackageRefDie, *PackageRefDieMut]
 	Values             diefields.Field[PackageInstallSpec, []PackageInstallValues]
 	Paused             diefields.Field[PackageInstallSpec, bool]
 	Canceled           diefields.Field[PackageInstallSpec, bool]
@@ -140,8 +199,8 @@ type packageInstallSpecFieldsTable struct {
 var packageInstallSpecFields = &diefields.Table[packageInstallSpecFieldsTable]{Build: func() (f packageInstallSpecFieldsTable) {
 	_ = annotated
 	f.ServiceAccountName = diefields.NewField[PackageInstallSpec, string]("serviceAccountName")
-	f.Cluster = diefields.NewStruct[PackageInstallSpec, kappctrlv1alpha1.AppCluster, *kappctrlv1alpha1.AppClusterDie]("cluster")
-	f.PackageRef = diefields.NewStruct[PackageInstallSpec, PackageRef, *PackageRefDie]("packageRef")
+	f.Cluster = diefields.NewStruct[PackageInstallSpec, kappctrlv1alpha1.AppCluster, *kappctrlv1alpha1.AppClusterDie, *kappctrlv1alpha1.AppClusterDieMut]("cluster")
+	f.PackageRef = diefields.NewStruct[PackageInstallSpec, PackageRef, *PackageRefDie, *PackageRefDieMut]("packageRef")
 	f.Values = diefields.NewField[PackageInstallSpec, []PackageInstallValues]("values")
 	f.Paused = diefields.NewField[PackageInstallSpec, bool]("paused")
 	f.Canceled = diefields.NewField[PackageInstallSpec, bool]("canceled")
@@ -152,7 +211,7 @@ var packageInstallSpecFields = &diefields.Table[packageInstallSpecFieldsTable]{B
 }}
 
 // Specifies service account that will be used to install underlying package contents
-func (d *PackageInstallSpecDie) ServiceAccountName() diefields.Value[string, *PackageInstallSpecDie] {
+func (d *PackageInstallSpecDie) ServiceAccountName() diefields.Value[string] {
 	return diefields.ValueOf(d, packageInstallSpecFields.Get().ServiceAccountName)
 }
 
@@ -169,52 +228,119 @@ func (d *PackageInstallSpecDie) PackageRef() *PackageRefDie {
 
 // Values to be included in package's templating step
 // (currently only included in the first templating step) (optional)
-func (d *PackageInstallSpecDie) Values() diefields.Value[[]PackageInstallValues, *PackageInstallSpecDie] {
+func (d *PackageInstallSpecDie) Values() diefields.Value[[]PackageInstallValues] {
 	return diefields.ValueOf(d, packageInstallSpecFields.Get().Values)
 }
 
 // Paused when set to true will ignore all pending changes,
 // once it set back to false, pending changes will be applied
-func (d *PackageInstallSpecDie) Paused() diefields.Value[bool, *PackageInstallSpecDie] {
+func (d *PackageInstallSpecDie) Paused() diefields.Value[bool] {
 	return diefields.ValueOf(d, packageInstallSpecFields.Get().Paused)
 }
 
 // Canceled when set to true will stop all active changes
-func (d *PackageInstallSpecDie) Canceled() diefields.Value[bool, *PackageInstallSpecDie] {
+func (d *PackageInstallSpecDie) Canceled() diefields.Value[bool] {
 	return diefields.ValueOf(d, packageInstallSpecFields.Get().Canceled)
 }
 
 // Controls frequency of App reconciliation in time + unit
 // format. Always >= 30s. If value below 30s is specified,
 // 30s will be used.
-func (d *PackageInstallSpecDie) SyncPeriod() diefields.Optional[diemetav1.Duration, *PackageInstallSpecDie] {
+func (d *PackageInstallSpecDie) SyncPeriod() diefields.Optional[diemetav1.Duration] {
 	return diefields.OptionalOf(d, packageInstallSpecFields.Get().SyncPeriod)
 }
 
 // When NoopDelete set to true, PackageInstall deletion
 // should delete PackageInstall/App CR but preserve App's
 // associated resources.
-func (d *PackageInstallSpecDie) NoopDelete() diefields.Value[bool, *PackageInstallSpecDie] {
+func (d *PackageInstallSpecDie) NoopDelete() diefields.Value[bool] {
 	return diefields.ValueOf(d, packageInstallSpecFields.Get().NoopDelete)
 }
 
 // Specifies the default namespace to install the Package resources, by default this is
 // same as the PackageInstall namespace (optional; v0.48.0+)
-func (d *PackageInstallSpecDie) DefaultNamespace() diefields.Value[string, *PackageInstallSpecDie] {
+func (d *PackageInstallSpecDie) DefaultNamespace() diefields.Value[string] {
 	return diefields.ValueOf(d, packageInstallSpecFields.Get().DefaultNamespace)
 }
 
-type PackageInstallStatusDie struct {
-	diebase.DieBase[PackageInstallStatus, *PackageInstallStatusDie]
+// Specifies service account that will be used to install underlying package contents
+func (d *PackageInstallSpecDieMut) ServiceAccountName() diefields.ValueMut[string, *PackageInstallSpecDieMut] {
+	return diefields.ValueMutOf(d, packageInstallSpecFields.Get().ServiceAccountName)
 }
 
-func (*PackageInstallStatusDie) DieFrom(b diebase.DieBase[PackageInstallStatus, *PackageInstallStatusDie]) *PackageInstallStatusDie {
+// Specifies that Package should be deployed to destination cluster;
+// by default, cluster is same as where this resource resides (optional)
+func (d *PackageInstallSpecDieMut) Cluster() *kappctrlv1alpha1.AppClusterDieMut {
+	return diefields.ChildMut(d, packageInstallSpecFields.Get().Cluster)
+}
+
+// Specifies the name of the package to install (required)
+func (d *PackageInstallSpecDieMut) PackageRef() *PackageRefDieMut {
+	return diefields.ChildMut(d, packageInstallSpecFields.Get().PackageRef)
+}
+
+// Values to be included in package's templating step
+// (currently only included in the first templating step) (optional)
+func (d *PackageInstallSpecDieMut) Values() diefields.ValueMut[[]PackageInstallValues, *PackageInstallSpecDieMut] {
+	return diefields.ValueMutOf(d, packageInstallSpecFields.Get().Values)
+}
+
+// Paused when set to true will ignore all pending changes,
+// once it set back to false, pending changes will be applied
+func (d *PackageInstallSpecDieMut) Paused() diefields.ValueMut[bool, *PackageInstallSpecDieMut] {
+	return diefields.ValueMutOf(d, packageInstallSpecFields.Get().Paused)
+}
+
+// Canceled when set to true will stop all active changes
+func (d *PackageInstallSpecDieMut) Canceled() diefields.ValueMut[bool, *PackageInstallSpecDieMut] {
+	return diefields.ValueMutOf(d, packageInstallSpecFields.Get().Canceled)
+}
+
+// Controls frequency of App reconciliation in time + unit
+// format. Always >= 30s. If value below 30s is specified,
+// 30s will be used.
+func (d *PackageInstallSpecDieMut) SyncPeriod() diefields.OptionalMut[diemetav1.Duration, *PackageInstallSpecDieMut] {
+	return diefields.OptionalMutOf(d, packageInstallSpecFields.Get().SyncPeriod)
+}
+
+// When NoopDelete set to true, PackageInstall deletion
+// should delete PackageInstall/App CR but preserve App's
+// associated resources.
+func (d *PackageInstallSpecDieMut) NoopDelete() diefields.ValueMut[bool, *PackageInstallSpecDieMut] {
+	return diefields.ValueMutOf(d, packageInstallSpecFields.Get().NoopDelete)
+}
+
+// Specifies the default namespace to install the Package resources, by default this is
+// same as the PackageInstall namespace (optional; v0.48.0+)
+func (d *PackageInstallSpecDieMut) DefaultNamespace() diefields.ValueMut[string, *PackageInstallSpecDieMut] {
+	return diefields.ValueMutOf(d, packageInstallSpecFields.Get().DefaultNamespace)
+}
+
+// PackageInstallStatusDie is immutable: it reads.
+// PackageInstallStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type PackageInstallStatusDie struct {
+	diebase.DieBase[PackageInstallStatus, *PackageInstallStatusDie, *PackageInstallStatusDieMut]
+}
+
+// PackageInstallStatusDieMut is the mutable die of PackageInstallStatus: see PackageInstallStatusDie.
+type PackageInstallStatusDieMut struct {
+	diebase.DieMutBase[PackageInstallStatus, *PackageInstallStatusDie, *PackageInstallStatusDieMut]
+}
+
+func (*PackageInstallStatusDie) DieFrom(b diebase.DieBase[PackageInstallStatus, *PackageInstallStatusDie, *PackageInstallStatusDieMut]) *PackageInstallStatusDie {
 	return &PackageInstallStatusDie{b}
 }
 
-var _ diebase.DieOf[PackageInstallStatus, *PackageInstallStatusDie] = (*PackageInstallStatusDie)(nil)
+func (*PackageInstallStatusDieMut) DieFrom(b diebase.DieMutBase[PackageInstallStatus, *PackageInstallStatusDie, *PackageInstallStatusDieMut]) *PackageInstallStatusDieMut {
+	return &PackageInstallStatusDieMut{b}
+}
 
-var PackageInstallStatusBlank = diebase.Blank[PackageInstallStatus, *PackageInstallStatusDie]()
+var (
+	_ diebase.DieOf[PackageInstallStatus, *PackageInstallStatusDie, *PackageInstallStatusDieMut]    = (*PackageInstallStatusDie)(nil)
+	_ diebase.DieMutOf[PackageInstallStatus, *PackageInstallStatusDie, *PackageInstallStatusDieMut] = (*PackageInstallStatusDieMut)(nil)
+)
+
+var PackageInstallStatusBlank = diebase.Blank[PackageInstallStatus, *PackageInstallStatusDie, *PackageInstallStatusDieMut]()
 
 type packageInstallStatusFieldsTable struct {
 	ObservedGeneration   diefields.Field[PackageInstallStatus, int64]
@@ -239,52 +365,96 @@ var packageInstallStatusFields = &diefields.Table[packageInstallStatusFieldsTabl
 // Populated based on metadata.generation when controller
 // observes a change to the resource; if this value is
 // out of data, other status fields do not reflect latest state
-func (d *PackageInstallStatusDie) ObservedGeneration() diefields.Value[int64, *PackageInstallStatusDie] {
+func (d *PackageInstallStatusDie) ObservedGeneration() diefields.Value[int64] {
 	return diefields.ValueOf(d, packageInstallStatusFields.Get().ObservedGeneration)
 }
 
-func (d *PackageInstallStatusDie) Conditions() diefields.Value[[]kappctrlv1alpha1.Condition, *PackageInstallStatusDie] {
+func (d *PackageInstallStatusDie) Conditions() diefields.Value[[]kappctrlv1alpha1.Condition] {
 	return diefields.ValueOf(d, packageInstallStatusFields.Get().Conditions)
 }
 
-func (d *PackageInstallStatusDie) FriendlyDescription() diefields.Value[string, *PackageInstallStatusDie] {
+func (d *PackageInstallStatusDie) FriendlyDescription() diefields.Value[string] {
 	return diefields.ValueOf(d, packageInstallStatusFields.Get().FriendlyDescription)
 }
 
-func (d *PackageInstallStatusDie) UsefulErrorMessage() diefields.Value[string, *PackageInstallStatusDie] {
+func (d *PackageInstallStatusDie) UsefulErrorMessage() diefields.Value[string] {
 	return diefields.ValueOf(d, packageInstallStatusFields.Get().UsefulErrorMessage)
 }
 
 // TODO this is desired resolved version (not actually deployed)
-func (d *PackageInstallStatusDie) Version() diefields.Value[string, *PackageInstallStatusDie] {
+func (d *PackageInstallStatusDie) Version() diefields.Value[string] {
 	return diefields.ValueOf(d, packageInstallStatusFields.Get().Version)
 }
 
 // LastAttemptedVersion specifies what version was last attempted to be installed.
 // It does _not_ indicate it was successfully installed.
-func (d *PackageInstallStatusDie) LastAttemptedVersion() diefields.Value[string, *PackageInstallStatusDie] {
+func (d *PackageInstallStatusDie) LastAttemptedVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, packageInstallStatusFields.Get().LastAttemptedVersion)
 }
 
-type PackageInstallValuesDie struct {
-	diebase.DieBase[PackageInstallValues, *PackageInstallValuesDie]
+// Populated based on metadata.generation when controller
+// observes a change to the resource; if this value is
+// out of data, other status fields do not reflect latest state
+func (d *PackageInstallStatusDieMut) ObservedGeneration() diefields.ValueMut[int64, *PackageInstallStatusDieMut] {
+	return diefields.ValueMutOf(d, packageInstallStatusFields.Get().ObservedGeneration)
 }
 
-func (*PackageInstallValuesDie) DieFrom(b diebase.DieBase[PackageInstallValues, *PackageInstallValuesDie]) *PackageInstallValuesDie {
+func (d *PackageInstallStatusDieMut) Conditions() diefields.ValueMut[[]kappctrlv1alpha1.Condition, *PackageInstallStatusDieMut] {
+	return diefields.ValueMutOf(d, packageInstallStatusFields.Get().Conditions)
+}
+
+func (d *PackageInstallStatusDieMut) FriendlyDescription() diefields.ValueMut[string, *PackageInstallStatusDieMut] {
+	return diefields.ValueMutOf(d, packageInstallStatusFields.Get().FriendlyDescription)
+}
+
+func (d *PackageInstallStatusDieMut) UsefulErrorMessage() diefields.ValueMut[string, *PackageInstallStatusDieMut] {
+	return diefields.ValueMutOf(d, packageInstallStatusFields.Get().UsefulErrorMessage)
+}
+
+// TODO this is desired resolved version (not actually deployed)
+func (d *PackageInstallStatusDieMut) Version() diefields.ValueMut[string, *PackageInstallStatusDieMut] {
+	return diefields.ValueMutOf(d, packageInstallStatusFields.Get().Version)
+}
+
+// LastAttemptedVersion specifies what version was last attempted to be installed.
+// It does _not_ indicate it was successfully installed.
+func (d *PackageInstallStatusDieMut) LastAttemptedVersion() diefields.ValueMut[string, *PackageInstallStatusDieMut] {
+	return diefields.ValueMutOf(d, packageInstallStatusFields.Get().LastAttemptedVersion)
+}
+
+// PackageInstallValuesDie is immutable: it reads.
+// PackageInstallValuesDieMut, its mutable die, also writes, as DieWith passes it.
+type PackageInstallValuesDie struct {
+	diebase.DieBase[PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut]
+}
+
+// PackageInstallValuesDieMut is the mutable die of PackageInstallValues: see PackageInstallValuesDie.
+type PackageInstallValuesDieMut struct {
+	diebase.DieMutBase[PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut]
+}
+
+func (*PackageInstallValuesDie) DieFrom(b diebase.DieBase[PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut]) *PackageInstallValuesDie {
 	return &PackageInstallValuesDie{b}
 }
 
-var _ diebase.DieOf[PackageInstallValues, *PackageInstallValuesDie] = (*PackageInstallValuesDie)(nil)
+func (*PackageInstallValuesDieMut) DieFrom(b diebase.DieMutBase[PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut]) *PackageInstallValuesDieMut {
+	return &PackageInstallValuesDieMut{b}
+}
 
-var PackageInstallValuesBlank = diebase.Blank[PackageInstallValues, *PackageInstallValuesDie]()
+var (
+	_ diebase.DieOf[PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut]    = (*PackageInstallValuesDie)(nil)
+	_ diebase.DieMutOf[PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut] = (*PackageInstallValuesDieMut)(nil)
+)
+
+var PackageInstallValuesBlank = diebase.Blank[PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut]()
 
 type packageInstallValuesFieldsTable struct {
-	SecretRef diefields.Struct[PackageInstallValues, PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie]
+	SecretRef diefields.Struct[PackageInstallValues, PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie, *PackageInstallValuesSecretRefDieMut]
 }
 
 var packageInstallValuesFields = &diefields.Table[packageInstallValuesFieldsTable]{Build: func() (f packageInstallValuesFieldsTable) {
 	_ = annotated
-	f.SecretRef = diefields.NewStruct[PackageInstallValues, PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie]("secretRef")
+	f.SecretRef = diefields.NewStruct[PackageInstallValues, PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie, *PackageInstallValuesSecretRefDieMut]("secretRef")
 	return
 }}
 
@@ -292,17 +462,35 @@ func (d *PackageInstallValuesDie) SecretRef() *PackageInstallValuesSecretRefDie 
 	return diefields.Child(d, packageInstallValuesFields.Get().SecretRef)
 }
 
-type PackageInstallValuesSecretRefDie struct {
-	diebase.DieBase[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie]
+func (d *PackageInstallValuesDieMut) SecretRef() *PackageInstallValuesSecretRefDieMut {
+	return diefields.ChildMut(d, packageInstallValuesFields.Get().SecretRef)
 }
 
-func (*PackageInstallValuesSecretRefDie) DieFrom(b diebase.DieBase[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie]) *PackageInstallValuesSecretRefDie {
+// PackageInstallValuesSecretRefDie is immutable: it reads.
+// PackageInstallValuesSecretRefDieMut, its mutable die, also writes, as DieWith passes it.
+type PackageInstallValuesSecretRefDie struct {
+	diebase.DieBase[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie, *PackageInstallValuesSecretRefDieMut]
+}
+
+// PackageInstallValuesSecretRefDieMut is the mutable die of PackageInstallValuesSecretRef: see PackageInstallValuesSecretRefDie.
+type PackageInstallValuesSecretRefDieMut struct {
+	diebase.DieMutBase[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie, *PackageInstallValuesSecretRefDieMut]
+}
+
+func (*PackageInstallValuesSecretRefDie) DieFrom(b diebase.DieBase[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie, *PackageInstallValuesSecretRefDieMut]) *PackageInstallValuesSecretRefDie {
 	return &PackageInstallValuesSecretRefDie{b}
 }
 
-var _ diebase.DieOf[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie] = (*PackageInstallValuesSecretRefDie)(nil)
+func (*PackageInstallValuesSecretRefDieMut) DieFrom(b diebase.DieMutBase[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie, *PackageInstallValuesSecretRefDieMut]) *PackageInstallValuesSecretRefDieMut {
+	return &PackageInstallValuesSecretRefDieMut{b}
+}
 
-var PackageInstallValuesSecretRefBlank = diebase.Blank[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie]()
+var (
+	_ diebase.DieOf[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie, *PackageInstallValuesSecretRefDieMut]    = (*PackageInstallValuesSecretRefDie)(nil)
+	_ diebase.DieMutOf[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie, *PackageInstallValuesSecretRefDieMut] = (*PackageInstallValuesSecretRefDieMut)(nil)
+)
+
+var PackageInstallValuesSecretRefBlank = diebase.Blank[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie, *PackageInstallValuesSecretRefDieMut]()
 
 type packageInstallValuesSecretRefFieldsTable struct {
 	Name diefields.Field[PackageInstallValuesSecretRef, string]
@@ -316,39 +504,61 @@ var packageInstallValuesSecretRefFields = &diefields.Table[packageInstallValuesS
 	return
 }}
 
-func (d *PackageInstallValuesSecretRefDie) Name() diefields.Value[string, *PackageInstallValuesSecretRefDie] {
+func (d *PackageInstallValuesSecretRefDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, packageInstallValuesSecretRefFields.Get().Name)
 }
 
-func (d *PackageInstallValuesSecretRefDie) Key() diefields.Value[string, *PackageInstallValuesSecretRefDie] {
+func (d *PackageInstallValuesSecretRefDie) Key() diefields.Value[string] {
 	return diefields.ValueOf(d, packageInstallValuesSecretRefFields.Get().Key)
 }
 
-type PackageRefDie struct {
-	diebase.DieBase[PackageRef, *PackageRefDie]
+func (d *PackageInstallValuesSecretRefDieMut) Name() diefields.ValueMut[string, *PackageInstallValuesSecretRefDieMut] {
+	return diefields.ValueMutOf(d, packageInstallValuesSecretRefFields.Get().Name)
 }
 
-func (*PackageRefDie) DieFrom(b diebase.DieBase[PackageRef, *PackageRefDie]) *PackageRefDie {
+func (d *PackageInstallValuesSecretRefDieMut) Key() diefields.ValueMut[string, *PackageInstallValuesSecretRefDieMut] {
+	return diefields.ValueMutOf(d, packageInstallValuesSecretRefFields.Get().Key)
+}
+
+// PackageRefDie is immutable: it reads.
+// PackageRefDieMut, its mutable die, also writes, as DieWith passes it.
+type PackageRefDie struct {
+	diebase.DieBase[PackageRef, *PackageRefDie, *PackageRefDieMut]
+}
+
+// PackageRefDieMut is the mutable die of PackageRef: see PackageRefDie.
+type PackageRefDieMut struct {
+	diebase.DieMutBase[PackageRef, *PackageRefDie, *PackageRefDieMut]
+}
+
+func (*PackageRefDie) DieFrom(b diebase.DieBase[PackageRef, *PackageRefDie, *PackageRefDieMut]) *PackageRefDie {
 	return &PackageRefDie{b}
 }
 
-var _ diebase.DieOf[PackageRef, *PackageRefDie] = (*PackageRefDie)(nil)
+func (*PackageRefDieMut) DieFrom(b diebase.DieMutBase[PackageRef, *PackageRefDie, *PackageRefDieMut]) *PackageRefDieMut {
+	return &PackageRefDieMut{b}
+}
 
-var PackageRefBlank = diebase.Blank[PackageRef, *PackageRefDie]()
+var (
+	_ diebase.DieOf[PackageRef, *PackageRefDie, *PackageRefDieMut]    = (*PackageRefDie)(nil)
+	_ diebase.DieMutOf[PackageRef, *PackageRefDie, *PackageRefDieMut] = (*PackageRefDieMut)(nil)
+)
+
+var PackageRefBlank = diebase.Blank[PackageRef, *PackageRefDie, *PackageRefDieMut]()
 
 type packageRefFieldsTable struct {
 	RefName          diefields.Field[PackageRef, string]
-	VersionSelection diefields.Struct[PackageRef, vendirv1alpha1.VersionSelectionSemver, *vendirv1alpha1.VersionSelectionSemverDie]
+	VersionSelection diefields.Struct[PackageRef, vendirv1alpha1.VersionSelectionSemver, *vendirv1alpha1.VersionSelectionSemverDie, *vendirv1alpha1.VersionSelectionSemverDieMut]
 }
 
 var packageRefFields = &diefields.Table[packageRefFieldsTable]{Build: func() (f packageRefFieldsTable) {
 	_ = annotated
 	f.RefName = diefields.NewField[PackageRef, string]("refName")
-	f.VersionSelection = diefields.NewStruct[PackageRef, vendirv1alpha1.VersionSelectionSemver, *vendirv1alpha1.VersionSelectionSemverDie]("versionSelection")
+	f.VersionSelection = diefields.NewStruct[PackageRef, vendirv1alpha1.VersionSelectionSemver, *vendirv1alpha1.VersionSelectionSemverDie, *vendirv1alpha1.VersionSelectionSemverDieMut]("versionSelection")
 	return
 }}
 
-func (d *PackageRefDie) RefName() diefields.Value[string, *PackageRefDie] {
+func (d *PackageRefDie) RefName() diefields.Value[string] {
 	return diefields.ValueOf(d, packageRefFields.Get().RefName)
 }
 
@@ -356,35 +566,58 @@ func (d *PackageRefDie) VersionSelection() *vendirv1alpha1.VersionSelectionSemve
 	return diefields.Child(d, packageRefFields.Get().VersionSelection)
 }
 
-// A package repository is a collection of packages and their metadata.
-// Similar to a maven repository or a rpm repository, adding a package repository to a cluster gives users of that cluster the ability to install any of the packages from that repository.
-type PackageRepositoryDie struct {
-	diebase.DieObjectBase[PackageRepository, *PackageRepositoryDie]
+func (d *PackageRefDieMut) RefName() diefields.ValueMut[string, *PackageRefDieMut] {
+	return diefields.ValueMutOf(d, packageRefFields.Get().RefName)
 }
 
-func (*PackageRepositoryDie) DieFrom(b diebase.DieBase[PackageRepository, *PackageRepositoryDie]) *PackageRepositoryDie {
+func (d *PackageRefDieMut) VersionSelection() *vendirv1alpha1.VersionSelectionSemverDieMut {
+	return diefields.ChildMut(d, packageRefFields.Get().VersionSelection)
+}
+
+// A package repository is a collection of packages and their metadata.
+// Similar to a maven repository or a rpm repository, adding a package repository to a cluster gives users of that cluster the ability to install any of the packages from that repository.
+//
+// PackageRepositoryDie is immutable: it reads.
+// PackageRepositoryDieMut, its mutable die, also writes, as DieWith passes it.
+type PackageRepositoryDie struct {
+	diebase.DieObjectBase[PackageRepository, *PackageRepositoryDie, *PackageRepositoryDieMut]
+}
+
+// PackageRepositoryDieMut is the mutable die of PackageRepository: see PackageRepositoryDie.
+type PackageRepositoryDieMut struct {
+	diebase.DieObjectMutBase[PackageRepository, *PackageRepositoryDie, *PackageRepositoryDieMut]
+}
+
+func (*PackageRepositoryDie) DieFrom(b diebase.DieBase[PackageRepository, *PackageRepositoryDie, *PackageRepositoryDieMut]) *PackageRepositoryDie {
 	return &PackageRepositoryDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[PackageRepository, *PackageRepositoryDie] = (*PackageRepositoryDie)(nil)
+func (*PackageRepositoryDieMut) DieFrom(b diebase.DieMutBase[PackageRepository, *PackageRepositoryDie, *PackageRepositoryDieMut]) *PackageRepositoryDieMut {
+	return &PackageRepositoryDieMut{diebase.AsObjectMut(b)}
+}
 
-var PackageRepositoryBlank = diebase.BlankOf[PackageRepository, *PackageRepositoryDie](PackageRepository{TypeMeta: metav1.TypeMeta{APIVersion: "packaging.carvel.dev/v1alpha1", Kind: "PackageRepository"}})
+var (
+	_ dieobjects.DieObjectOf[PackageRepository, *PackageRepositoryDie, *PackageRepositoryDieMut]    = (*PackageRepositoryDie)(nil)
+	_ dieobjects.DieObjectMutOf[PackageRepository, *PackageRepositoryDie, *PackageRepositoryDieMut] = (*PackageRepositoryDieMut)(nil)
+)
+
+var PackageRepositoryBlank = diebase.BlankOf[PackageRepository, *PackageRepositoryDie, *PackageRepositoryDieMut](PackageRepository{TypeMeta: metav1.TypeMeta{APIVersion: "packaging.carvel.dev/v1alpha1", Kind: "PackageRepository"}})
 
 type packageRepositoryFieldsTable struct {
 	Kind       diefields.Field[PackageRepository, string]
 	APIVersion diefields.Field[PackageRepository, string]
-	Metadata   diefields.Struct[PackageRepository, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[PackageRepository, PackageRepositorySpec, *PackageRepositorySpecDie]
-	Status     diefields.Struct[PackageRepository, PackageRepositoryStatus, *PackageRepositoryStatusDie]
+	Metadata   diefields.Struct[PackageRepository, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[PackageRepository, PackageRepositorySpec, *PackageRepositorySpecDie, *PackageRepositorySpecDieMut]
+	Status     diefields.Struct[PackageRepository, PackageRepositoryStatus, *PackageRepositoryStatusDie, *PackageRepositoryStatusDieMut]
 }
 
 var packageRepositoryFields = &diefields.Table[packageRepositoryFieldsTable]{Build: func() (f packageRepositoryFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[PackageRepository, string]("kind")
 	f.APIVersion = diefields.NewField[PackageRepository, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[PackageRepository, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[PackageRepository, PackageRepositorySpec, *PackageRepositorySpecDie]("spec")
-	f.Status = diefields.NewStruct[PackageRepository, PackageRepositoryStatus, *PackageRepositoryStatusDie]("status")
+	f.Metadata = diefields.NewStruct[PackageRepository, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[PackageRepository, PackageRepositorySpec, *PackageRepositorySpecDie, *PackageRepositorySpecDieMut]("spec")
+	f.Status = diefields.NewStruct[PackageRepository, PackageRepositoryStatus, *PackageRepositoryStatusDie, *PackageRepositoryStatusDieMut]("status")
 	return
 }}
 
@@ -393,7 +626,7 @@ var packageRepositoryFields = &diefields.Table[packageRepositoryFieldsTable]{Bui
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *PackageRepositoryDie) Kind() diefields.Value[string, *PackageRepositoryDie] {
+func (d *PackageRepositoryDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, packageRepositoryFields.Get().Kind)
 }
 
@@ -401,7 +634,7 @@ func (d *PackageRepositoryDie) Kind() diefields.Value[string, *PackageRepository
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *PackageRepositoryDie) APIVersion() diefields.Value[string, *PackageRepositoryDie] {
+func (d *PackageRepositoryDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, packageRepositoryFields.Get().APIVersion)
 }
 
@@ -418,33 +651,77 @@ func (d *PackageRepositoryDie) Status() *PackageRepositoryStatusDie {
 	return diefields.Child(d, packageRepositoryFields.Get().Status)
 }
 
-type PackageRepositoryFetchDie struct {
-	diebase.DieBase[PackageRepositoryFetch, *PackageRepositoryFetchDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *PackageRepositoryDieMut) Kind() diefields.ValueMut[string, *PackageRepositoryDieMut] {
+	return diefields.ValueMutOf(d, packageRepositoryFields.Get().Kind)
 }
 
-func (*PackageRepositoryFetchDie) DieFrom(b diebase.DieBase[PackageRepositoryFetch, *PackageRepositoryFetchDie]) *PackageRepositoryFetchDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *PackageRepositoryDieMut) APIVersion() diefields.ValueMut[string, *PackageRepositoryDieMut] {
+	return diefields.ValueMutOf(d, packageRepositoryFields.Get().APIVersion)
+}
+
+// Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata.
+func (d *PackageRepositoryDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, packageRepositoryFields.Get().Metadata)
+}
+
+func (d *PackageRepositoryDieMut) Spec() *PackageRepositorySpecDieMut {
+	return diefields.ChildMut(d, packageRepositoryFields.Get().Spec)
+}
+
+func (d *PackageRepositoryDieMut) Status() *PackageRepositoryStatusDieMut {
+	return diefields.ChildMut(d, packageRepositoryFields.Get().Status)
+}
+
+// PackageRepositoryFetchDie is immutable: it reads.
+// PackageRepositoryFetchDieMut, its mutable die, also writes, as DieWith passes it.
+type PackageRepositoryFetchDie struct {
+	diebase.DieBase[PackageRepositoryFetch, *PackageRepositoryFetchDie, *PackageRepositoryFetchDieMut]
+}
+
+// PackageRepositoryFetchDieMut is the mutable die of PackageRepositoryFetch: see PackageRepositoryFetchDie.
+type PackageRepositoryFetchDieMut struct {
+	diebase.DieMutBase[PackageRepositoryFetch, *PackageRepositoryFetchDie, *PackageRepositoryFetchDieMut]
+}
+
+func (*PackageRepositoryFetchDie) DieFrom(b diebase.DieBase[PackageRepositoryFetch, *PackageRepositoryFetchDie, *PackageRepositoryFetchDieMut]) *PackageRepositoryFetchDie {
 	return &PackageRepositoryFetchDie{b}
 }
 
-var _ diebase.DieOf[PackageRepositoryFetch, *PackageRepositoryFetchDie] = (*PackageRepositoryFetchDie)(nil)
+func (*PackageRepositoryFetchDieMut) DieFrom(b diebase.DieMutBase[PackageRepositoryFetch, *PackageRepositoryFetchDie, *PackageRepositoryFetchDieMut]) *PackageRepositoryFetchDieMut {
+	return &PackageRepositoryFetchDieMut{b}
+}
 
-var PackageRepositoryFetchBlank = diebase.Blank[PackageRepositoryFetch, *PackageRepositoryFetchDie]()
+var (
+	_ diebase.DieOf[PackageRepositoryFetch, *PackageRepositoryFetchDie, *PackageRepositoryFetchDieMut]    = (*PackageRepositoryFetchDie)(nil)
+	_ diebase.DieMutOf[PackageRepositoryFetch, *PackageRepositoryFetchDie, *PackageRepositoryFetchDieMut] = (*PackageRepositoryFetchDieMut)(nil)
+)
+
+var PackageRepositoryFetchBlank = diebase.Blank[PackageRepositoryFetch, *PackageRepositoryFetchDie, *PackageRepositoryFetchDieMut]()
 
 type packageRepositoryFetchFieldsTable struct {
-	Image        diefields.Struct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchImage, *kappctrlv1alpha1.AppFetchImageDie]
-	HTTP         diefields.Struct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchHTTP, *kappctrlv1alpha1.AppFetchHTTPDie]
-	Git          diefields.Struct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchGit, *kappctrlv1alpha1.AppFetchGitDie]
-	ImgpkgBundle diefields.Struct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchImgpkgBundle, *kappctrlv1alpha1.AppFetchImgpkgBundleDie]
-	Inline       diefields.Struct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchInline, *kappctrlv1alpha1.AppFetchInlineDie]
+	Image        diefields.Struct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchImage, *kappctrlv1alpha1.AppFetchImageDie, *kappctrlv1alpha1.AppFetchImageDieMut]
+	HTTP         diefields.Struct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchHTTP, *kappctrlv1alpha1.AppFetchHTTPDie, *kappctrlv1alpha1.AppFetchHTTPDieMut]
+	Git          diefields.Struct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchGit, *kappctrlv1alpha1.AppFetchGitDie, *kappctrlv1alpha1.AppFetchGitDieMut]
+	ImgpkgBundle diefields.Struct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchImgpkgBundle, *kappctrlv1alpha1.AppFetchImgpkgBundleDie, *kappctrlv1alpha1.AppFetchImgpkgBundleDieMut]
+	Inline       diefields.Struct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchInline, *kappctrlv1alpha1.AppFetchInlineDie, *kappctrlv1alpha1.AppFetchInlineDieMut]
 }
 
 var packageRepositoryFetchFields = &diefields.Table[packageRepositoryFetchFieldsTable]{Build: func() (f packageRepositoryFetchFieldsTable) {
 	_ = annotated
-	f.Image = diefields.NewStruct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchImage, *kappctrlv1alpha1.AppFetchImageDie]("image")
-	f.HTTP = diefields.NewStruct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchHTTP, *kappctrlv1alpha1.AppFetchHTTPDie]("http")
-	f.Git = diefields.NewStruct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchGit, *kappctrlv1alpha1.AppFetchGitDie]("git")
-	f.ImgpkgBundle = diefields.NewStruct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchImgpkgBundle, *kappctrlv1alpha1.AppFetchImgpkgBundleDie]("imgpkgBundle")
-	f.Inline = diefields.NewStruct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchInline, *kappctrlv1alpha1.AppFetchInlineDie]("inline")
+	f.Image = diefields.NewStruct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchImage, *kappctrlv1alpha1.AppFetchImageDie, *kappctrlv1alpha1.AppFetchImageDieMut]("image")
+	f.HTTP = diefields.NewStruct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchHTTP, *kappctrlv1alpha1.AppFetchHTTPDie, *kappctrlv1alpha1.AppFetchHTTPDieMut]("http")
+	f.Git = diefields.NewStruct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchGit, *kappctrlv1alpha1.AppFetchGitDie, *kappctrlv1alpha1.AppFetchGitDieMut]("git")
+	f.ImgpkgBundle = diefields.NewStruct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchImgpkgBundle, *kappctrlv1alpha1.AppFetchImgpkgBundleDie, *kappctrlv1alpha1.AppFetchImgpkgBundleDieMut]("imgpkgBundle")
+	f.Inline = diefields.NewStruct[PackageRepositoryFetch, kappctrlv1alpha1.AppFetchInline, *kappctrlv1alpha1.AppFetchInlineDie, *kappctrlv1alpha1.AppFetchInlineDieMut]("inline")
 	return
 }}
 
@@ -474,14 +751,40 @@ func (d *PackageRepositoryFetchDie) Inline() *kappctrlv1alpha1.AppFetchInlineDie
 	return diefields.Child(d, packageRepositoryFetchFields.Get().Inline)
 }
 
-type PackageRepositoryListDie struct {
-	dielists.List[*PackageRepositoryDie]
+// Image url; unqualified, tagged, or
+// digest references supported (required)
+func (d *PackageRepositoryFetchDieMut) Image() *kappctrlv1alpha1.AppFetchImageDieMut {
+	return diefields.ChildMut(d, packageRepositoryFetchFields.Get().Image)
 }
 
-var _ dielists.DieListOf[*PackageRepositoryDie] = (*PackageRepositoryListDie)(nil)
+// Uses http library to fetch file containing packages
+func (d *PackageRepositoryFetchDieMut) HTTP() *kappctrlv1alpha1.AppFetchHTTPDieMut {
+	return diefields.ChildMut(d, packageRepositoryFetchFields.Get().HTTP)
+}
+
+// Uses git to clone repository containing package list
+func (d *PackageRepositoryFetchDieMut) Git() *kappctrlv1alpha1.AppFetchGitDieMut {
+	return diefields.ChildMut(d, packageRepositoryFetchFields.Get().Git)
+}
+
+// Pulls imgpkg bundle from Docker/OCI registry
+func (d *PackageRepositoryFetchDieMut) ImgpkgBundle() *kappctrlv1alpha1.AppFetchImgpkgBundleDieMut {
+	return diefields.ChildMut(d, packageRepositoryFetchFields.Get().ImgpkgBundle)
+}
+
+// Pull content from within this resource; or other resources in the cluster
+func (d *PackageRepositoryFetchDieMut) Inline() *kappctrlv1alpha1.AppFetchInlineDieMut {
+	return diefields.ChildMut(d, packageRepositoryFetchFields.Get().Inline)
+}
+
+type PackageRepositoryListDie struct {
+	dielists.List[*PackageRepositoryDieMut]
+}
+
+var _ dielists.DieListOf[*PackageRepositoryDieMut] = (*PackageRepositoryListDie)(nil)
 
 // NewPackageRepositoryList returns a list with items.
-func NewPackageRepositoryList(items ...*PackageRepositoryDie) *PackageRepositoryListDie {
+func NewPackageRepositoryList(items ...*PackageRepositoryDieMut) *PackageRepositoryListDie {
 	return &PackageRepositoryListDie{dielists.NewList("packaging.carvel.dev/v1alpha1", "PackageRepositoryList", items...)}
 }
 
@@ -492,40 +795,54 @@ func (l *PackageRepositoryListDie) DeepCopy() *PackageRepositoryListDie {
 
 func (l *PackageRepositoryListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
+// PackageRepositorySpecDie is immutable: it reads.
+// PackageRepositorySpecDieMut, its mutable die, also writes, as DieWith passes it.
 type PackageRepositorySpecDie struct {
-	diebase.DieBase[PackageRepositorySpec, *PackageRepositorySpecDie]
+	diebase.DieBase[PackageRepositorySpec, *PackageRepositorySpecDie, *PackageRepositorySpecDieMut]
 }
 
-func (*PackageRepositorySpecDie) DieFrom(b diebase.DieBase[PackageRepositorySpec, *PackageRepositorySpecDie]) *PackageRepositorySpecDie {
+// PackageRepositorySpecDieMut is the mutable die of PackageRepositorySpec: see PackageRepositorySpecDie.
+type PackageRepositorySpecDieMut struct {
+	diebase.DieMutBase[PackageRepositorySpec, *PackageRepositorySpecDie, *PackageRepositorySpecDieMut]
+}
+
+func (*PackageRepositorySpecDie) DieFrom(b diebase.DieBase[PackageRepositorySpec, *PackageRepositorySpecDie, *PackageRepositorySpecDieMut]) *PackageRepositorySpecDie {
 	return &PackageRepositorySpecDie{b}
 }
 
-var _ diebase.DieOf[PackageRepositorySpec, *PackageRepositorySpecDie] = (*PackageRepositorySpecDie)(nil)
+func (*PackageRepositorySpecDieMut) DieFrom(b diebase.DieMutBase[PackageRepositorySpec, *PackageRepositorySpecDie, *PackageRepositorySpecDieMut]) *PackageRepositorySpecDieMut {
+	return &PackageRepositorySpecDieMut{b}
+}
 
-var PackageRepositorySpecBlank = diebase.Blank[PackageRepositorySpec, *PackageRepositorySpecDie]()
+var (
+	_ diebase.DieOf[PackageRepositorySpec, *PackageRepositorySpecDie, *PackageRepositorySpecDieMut]    = (*PackageRepositorySpecDie)(nil)
+	_ diebase.DieMutOf[PackageRepositorySpec, *PackageRepositorySpecDie, *PackageRepositorySpecDieMut] = (*PackageRepositorySpecDieMut)(nil)
+)
+
+var PackageRepositorySpecBlank = diebase.Blank[PackageRepositorySpec, *PackageRepositorySpecDie, *PackageRepositorySpecDieMut]()
 
 type packageRepositorySpecFieldsTable struct {
 	Paused     diefields.Field[PackageRepositorySpec, bool]
 	SyncPeriod diefields.Field[PackageRepositorySpec, *diemetav1.Duration]
-	Fetch      diefields.Struct[PackageRepositorySpec, PackageRepositoryFetch, *PackageRepositoryFetchDie]
+	Fetch      diefields.Struct[PackageRepositorySpec, PackageRepositoryFetch, *PackageRepositoryFetchDie, *PackageRepositoryFetchDieMut]
 }
 
 var packageRepositorySpecFields = &diefields.Table[packageRepositorySpecFieldsTable]{Build: func() (f packageRepositorySpecFieldsTable) {
 	_ = annotated
 	f.Paused = diefields.NewField[PackageRepositorySpec, bool]("paused")
 	f.SyncPeriod = diefields.NewField[PackageRepositorySpec, *diemetav1.Duration]("syncPeriod")
-	f.Fetch = diefields.NewStruct[PackageRepositorySpec, PackageRepositoryFetch, *PackageRepositoryFetchDie]("fetch")
+	f.Fetch = diefields.NewStruct[PackageRepositorySpec, PackageRepositoryFetch, *PackageRepositoryFetchDie, *PackageRepositoryFetchDieMut]("fetch")
 	return
 }}
 
 // Paused when set to true will ignore all pending changes,
 // once it set back to false, pending changes will be applied
-func (d *PackageRepositorySpecDie) Paused() diefields.Value[bool, *PackageRepositorySpecDie] {
+func (d *PackageRepositorySpecDie) Paused() diefields.Value[bool] {
 	return diefields.ValueOf(d, packageRepositorySpecFields.Get().Paused)
 }
 
 // Controls frequency of PackageRepository reconciliation
-func (d *PackageRepositorySpecDie) SyncPeriod() diefields.Optional[diemetav1.Duration, *PackageRepositorySpecDie] {
+func (d *PackageRepositorySpecDie) SyncPeriod() diefields.Optional[diemetav1.Duration] {
 	return diefields.OptionalOf(d, packageRepositorySpecFields.Get().SyncPeriod)
 }
 
@@ -533,22 +850,51 @@ func (d *PackageRepositorySpecDie) Fetch() *PackageRepositoryFetchDie {
 	return diefields.Child(d, packageRepositorySpecFields.Get().Fetch)
 }
 
-type PackageRepositoryStatusDie struct {
-	diebase.DieBase[PackageRepositoryStatus, *PackageRepositoryStatusDie]
+// Paused when set to true will ignore all pending changes,
+// once it set back to false, pending changes will be applied
+func (d *PackageRepositorySpecDieMut) Paused() diefields.ValueMut[bool, *PackageRepositorySpecDieMut] {
+	return diefields.ValueMutOf(d, packageRepositorySpecFields.Get().Paused)
 }
 
-func (*PackageRepositoryStatusDie) DieFrom(b diebase.DieBase[PackageRepositoryStatus, *PackageRepositoryStatusDie]) *PackageRepositoryStatusDie {
+// Controls frequency of PackageRepository reconciliation
+func (d *PackageRepositorySpecDieMut) SyncPeriod() diefields.OptionalMut[diemetav1.Duration, *PackageRepositorySpecDieMut] {
+	return diefields.OptionalMutOf(d, packageRepositorySpecFields.Get().SyncPeriod)
+}
+
+func (d *PackageRepositorySpecDieMut) Fetch() *PackageRepositoryFetchDieMut {
+	return diefields.ChildMut(d, packageRepositorySpecFields.Get().Fetch)
+}
+
+// PackageRepositoryStatusDie is immutable: it reads.
+// PackageRepositoryStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type PackageRepositoryStatusDie struct {
+	diebase.DieBase[PackageRepositoryStatus, *PackageRepositoryStatusDie, *PackageRepositoryStatusDieMut]
+}
+
+// PackageRepositoryStatusDieMut is the mutable die of PackageRepositoryStatus: see PackageRepositoryStatusDie.
+type PackageRepositoryStatusDieMut struct {
+	diebase.DieMutBase[PackageRepositoryStatus, *PackageRepositoryStatusDie, *PackageRepositoryStatusDieMut]
+}
+
+func (*PackageRepositoryStatusDie) DieFrom(b diebase.DieBase[PackageRepositoryStatus, *PackageRepositoryStatusDie, *PackageRepositoryStatusDieMut]) *PackageRepositoryStatusDie {
 	return &PackageRepositoryStatusDie{b}
 }
 
-var _ diebase.DieOf[PackageRepositoryStatus, *PackageRepositoryStatusDie] = (*PackageRepositoryStatusDie)(nil)
+func (*PackageRepositoryStatusDieMut) DieFrom(b diebase.DieMutBase[PackageRepositoryStatus, *PackageRepositoryStatusDie, *PackageRepositoryStatusDieMut]) *PackageRepositoryStatusDieMut {
+	return &PackageRepositoryStatusDieMut{b}
+}
 
-var PackageRepositoryStatusBlank = diebase.Blank[PackageRepositoryStatus, *PackageRepositoryStatusDie]()
+var (
+	_ diebase.DieOf[PackageRepositoryStatus, *PackageRepositoryStatusDie, *PackageRepositoryStatusDieMut]    = (*PackageRepositoryStatusDie)(nil)
+	_ diebase.DieMutOf[PackageRepositoryStatus, *PackageRepositoryStatusDie, *PackageRepositoryStatusDieMut] = (*PackageRepositoryStatusDieMut)(nil)
+)
+
+var PackageRepositoryStatusBlank = diebase.Blank[PackageRepositoryStatus, *PackageRepositoryStatusDie, *PackageRepositoryStatusDieMut]()
 
 type packageRepositoryStatusFieldsTable struct {
-	Fetch                         diefields.Struct[PackageRepositoryStatus, kappctrlv1alpha1.AppStatusFetch, *kappctrlv1alpha1.AppStatusFetchDie]
-	Template                      diefields.Struct[PackageRepositoryStatus, kappctrlv1alpha1.AppStatusTemplate, *kappctrlv1alpha1.AppStatusTemplateDie]
-	Deploy                        diefields.Struct[PackageRepositoryStatus, kappctrlv1alpha1.AppStatusDeploy, *kappctrlv1alpha1.AppStatusDeployDie]
+	Fetch                         diefields.Struct[PackageRepositoryStatus, kappctrlv1alpha1.AppStatusFetch, *kappctrlv1alpha1.AppStatusFetchDie, *kappctrlv1alpha1.AppStatusFetchDieMut]
+	Template                      diefields.Struct[PackageRepositoryStatus, kappctrlv1alpha1.AppStatusTemplate, *kappctrlv1alpha1.AppStatusTemplateDie, *kappctrlv1alpha1.AppStatusTemplateDieMut]
+	Deploy                        diefields.Struct[PackageRepositoryStatus, kappctrlv1alpha1.AppStatusDeploy, *kappctrlv1alpha1.AppStatusDeployDie, *kappctrlv1alpha1.AppStatusDeployDieMut]
 	ConsecutiveReconcileSuccesses diefields.Field[PackageRepositoryStatus, int]
 	ConsecutiveReconcileFailures  diefields.Field[PackageRepositoryStatus, int]
 	ObservedGeneration            diefields.Field[PackageRepositoryStatus, int64]
@@ -559,9 +905,9 @@ type packageRepositoryStatusFieldsTable struct {
 
 var packageRepositoryStatusFields = &diefields.Table[packageRepositoryStatusFieldsTable]{Build: func() (f packageRepositoryStatusFieldsTable) {
 	_ = annotated
-	f.Fetch = diefields.NewStruct[PackageRepositoryStatus, kappctrlv1alpha1.AppStatusFetch, *kappctrlv1alpha1.AppStatusFetchDie]("fetch")
-	f.Template = diefields.NewStruct[PackageRepositoryStatus, kappctrlv1alpha1.AppStatusTemplate, *kappctrlv1alpha1.AppStatusTemplateDie]("template")
-	f.Deploy = diefields.NewStruct[PackageRepositoryStatus, kappctrlv1alpha1.AppStatusDeploy, *kappctrlv1alpha1.AppStatusDeployDie]("deploy")
+	f.Fetch = diefields.NewStruct[PackageRepositoryStatus, kappctrlv1alpha1.AppStatusFetch, *kappctrlv1alpha1.AppStatusFetchDie, *kappctrlv1alpha1.AppStatusFetchDieMut]("fetch")
+	f.Template = diefields.NewStruct[PackageRepositoryStatus, kappctrlv1alpha1.AppStatusTemplate, *kappctrlv1alpha1.AppStatusTemplateDie, *kappctrlv1alpha1.AppStatusTemplateDieMut]("template")
+	f.Deploy = diefields.NewStruct[PackageRepositoryStatus, kappctrlv1alpha1.AppStatusDeploy, *kappctrlv1alpha1.AppStatusDeployDie, *kappctrlv1alpha1.AppStatusDeployDieMut]("deploy")
 	f.ConsecutiveReconcileSuccesses = diefields.NewField[PackageRepositoryStatus, int]("consecutiveReconcileSuccesses")
 	f.ConsecutiveReconcileFailures = diefields.NewField[PackageRepositoryStatus, int]("consecutiveReconcileFailures")
 	f.ObservedGeneration = diefields.NewField[PackageRepositoryStatus, int64]("observedGeneration")
@@ -583,47 +929,86 @@ func (d *PackageRepositoryStatusDie) Deploy() *kappctrlv1alpha1.AppStatusDeployD
 	return diefields.Child(d, packageRepositoryStatusFields.Get().Deploy)
 }
 
-func (d *PackageRepositoryStatusDie) ConsecutiveReconcileSuccesses() diefields.Value[int, *PackageRepositoryStatusDie] {
+func (d *PackageRepositoryStatusDie) ConsecutiveReconcileSuccesses() diefields.Value[int] {
 	return diefields.ValueOf(d, packageRepositoryStatusFields.Get().ConsecutiveReconcileSuccesses)
 }
 
-func (d *PackageRepositoryStatusDie) ConsecutiveReconcileFailures() diefields.Value[int, *PackageRepositoryStatusDie] {
+func (d *PackageRepositoryStatusDie) ConsecutiveReconcileFailures() diefields.Value[int] {
 	return diefields.ValueOf(d, packageRepositoryStatusFields.Get().ConsecutiveReconcileFailures)
 }
 
 // Populated based on metadata.generation when controller
 // observes a change to the resource; if this value is
 // out of data, other status fields do not reflect latest state
-func (d *PackageRepositoryStatusDie) ObservedGeneration() diefields.Value[int64, *PackageRepositoryStatusDie] {
+func (d *PackageRepositoryStatusDie) ObservedGeneration() diefields.Value[int64] {
 	return diefields.ValueOf(d, packageRepositoryStatusFields.Get().ObservedGeneration)
 }
 
-func (d *PackageRepositoryStatusDie) Conditions() diefields.Value[[]kappctrlv1alpha1.Condition, *PackageRepositoryStatusDie] {
+func (d *PackageRepositoryStatusDie) Conditions() diefields.Value[[]kappctrlv1alpha1.Condition] {
 	return diefields.ValueOf(d, packageRepositoryStatusFields.Get().Conditions)
 }
 
-func (d *PackageRepositoryStatusDie) FriendlyDescription() diefields.Value[string, *PackageRepositoryStatusDie] {
+func (d *PackageRepositoryStatusDie) FriendlyDescription() diefields.Value[string] {
 	return diefields.ValueOf(d, packageRepositoryStatusFields.Get().FriendlyDescription)
 }
 
-func (d *PackageRepositoryStatusDie) UsefulErrorMessage() diefields.Value[string, *PackageRepositoryStatusDie] {
+func (d *PackageRepositoryStatusDie) UsefulErrorMessage() diefields.Value[string] {
 	return diefields.ValueOf(d, packageRepositoryStatusFields.Get().UsefulErrorMessage)
+}
+
+func (d *PackageRepositoryStatusDieMut) Fetch() *kappctrlv1alpha1.AppStatusFetchDieMut {
+	return diefields.ChildMut(d, packageRepositoryStatusFields.Get().Fetch)
+}
+
+func (d *PackageRepositoryStatusDieMut) Template() *kappctrlv1alpha1.AppStatusTemplateDieMut {
+	return diefields.ChildMut(d, packageRepositoryStatusFields.Get().Template)
+}
+
+func (d *PackageRepositoryStatusDieMut) Deploy() *kappctrlv1alpha1.AppStatusDeployDieMut {
+	return diefields.ChildMut(d, packageRepositoryStatusFields.Get().Deploy)
+}
+
+func (d *PackageRepositoryStatusDieMut) ConsecutiveReconcileSuccesses() diefields.ValueMut[int, *PackageRepositoryStatusDieMut] {
+	return diefields.ValueMutOf(d, packageRepositoryStatusFields.Get().ConsecutiveReconcileSuccesses)
+}
+
+func (d *PackageRepositoryStatusDieMut) ConsecutiveReconcileFailures() diefields.ValueMut[int, *PackageRepositoryStatusDieMut] {
+	return diefields.ValueMutOf(d, packageRepositoryStatusFields.Get().ConsecutiveReconcileFailures)
+}
+
+// Populated based on metadata.generation when controller
+// observes a change to the resource; if this value is
+// out of data, other status fields do not reflect latest state
+func (d *PackageRepositoryStatusDieMut) ObservedGeneration() diefields.ValueMut[int64, *PackageRepositoryStatusDieMut] {
+	return diefields.ValueMutOf(d, packageRepositoryStatusFields.Get().ObservedGeneration)
+}
+
+func (d *PackageRepositoryStatusDieMut) Conditions() diefields.ValueMut[[]kappctrlv1alpha1.Condition, *PackageRepositoryStatusDieMut] {
+	return diefields.ValueMutOf(d, packageRepositoryStatusFields.Get().Conditions)
+}
+
+func (d *PackageRepositoryStatusDieMut) FriendlyDescription() diefields.ValueMut[string, *PackageRepositoryStatusDieMut] {
+	return diefields.ValueMutOf(d, packageRepositoryStatusFields.Get().FriendlyDescription)
+}
+
+func (d *PackageRepositoryStatusDieMut) UsefulErrorMessage() diefields.ValueMut[string, *PackageRepositoryStatusDieMut] {
+	return diefields.ValueMutOf(d, packageRepositoryStatusFields.Get().UsefulErrorMessage)
 }
 
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "packaging.carvel.dev", Version: "v1alpha1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PackageInstall"), &PackageInstallDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PackageInstall"), &PackageInstallDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PackageInstallList"), &PackageInstallListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PackageRepository"), &PackageRepositoryDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PackageRepository"), &PackageRepositoryDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PackageRepositoryList"), &PackageRepositoryListDie{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

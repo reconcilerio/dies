@@ -34,17 +34,32 @@ import (
 // of the handling of exempt requests.
 // In the mandatory exempt configuration object the values in the fields
 // here can be modified by authorized users, unlike the rest of the `spec`.
+//
+// ExemptPriorityLevelConfigurationDie is immutable: it reads.
+// ExemptPriorityLevelConfigurationDieMut, its mutable die, also writes, as DieWith passes it.
 type ExemptPriorityLevelConfigurationDie struct {
-	diebase.DieBase[ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie]
+	diebase.DieBase[ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie, *ExemptPriorityLevelConfigurationDieMut]
 }
 
-func (*ExemptPriorityLevelConfigurationDie) DieFrom(b diebase.DieBase[ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie]) *ExemptPriorityLevelConfigurationDie {
+// ExemptPriorityLevelConfigurationDieMut is the mutable die of ExemptPriorityLevelConfiguration: see ExemptPriorityLevelConfigurationDie.
+type ExemptPriorityLevelConfigurationDieMut struct {
+	diebase.DieMutBase[ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie, *ExemptPriorityLevelConfigurationDieMut]
+}
+
+func (*ExemptPriorityLevelConfigurationDie) DieFrom(b diebase.DieBase[ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie, *ExemptPriorityLevelConfigurationDieMut]) *ExemptPriorityLevelConfigurationDie {
 	return &ExemptPriorityLevelConfigurationDie{b}
 }
 
-var _ diebase.DieOf[ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie] = (*ExemptPriorityLevelConfigurationDie)(nil)
+func (*ExemptPriorityLevelConfigurationDieMut) DieFrom(b diebase.DieMutBase[ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie, *ExemptPriorityLevelConfigurationDieMut]) *ExemptPriorityLevelConfigurationDieMut {
+	return &ExemptPriorityLevelConfigurationDieMut{b}
+}
 
-var ExemptPriorityLevelConfigurationBlank = diebase.Blank[ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie]()
+var (
+	_ diebase.DieOf[ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie, *ExemptPriorityLevelConfigurationDieMut]    = (*ExemptPriorityLevelConfigurationDie)(nil)
+	_ diebase.DieMutOf[ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie, *ExemptPriorityLevelConfigurationDieMut] = (*ExemptPriorityLevelConfigurationDieMut)(nil)
+)
+
+var ExemptPriorityLevelConfigurationBlank = diebase.Blank[ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie, *ExemptPriorityLevelConfigurationDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -53,34 +68,47 @@ func (d *ExemptPriorityLevelConfigurationDie) DieReleaseApplyConfiguration() *Ex
 	return diecodegen.ReleaseApplyConfiguration[ExemptPriorityLevelConfigurationApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ExemptPriorityLevelConfigurationDie) DieFeedApplyConfiguration(ac *ExemptPriorityLevelConfigurationApplyConfiguration) *ExemptPriorityLevelConfigurationDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ExemptPriorityLevelConfigurationDie) DieStampApplyConfiguration(fn func(ac *ExemptPriorityLevelConfigurationApplyConfiguration)) *ExemptPriorityLevelConfigurationDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ExemptPriorityLevelConfigurationDie) DieReleaseApplyConfigurationE() (*ExemptPriorityLevelConfigurationApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ExemptPriorityLevelConfigurationApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ExemptPriorityLevelConfigurationDieMut) DieReleaseApplyConfiguration() *ExemptPriorityLevelConfigurationApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ExemptPriorityLevelConfigurationApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ExemptPriorityLevelConfigurationDieMut) DieReleaseApplyConfigurationE() (*ExemptPriorityLevelConfigurationApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ExemptPriorityLevelConfigurationApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ExemptPriorityLevelConfigurationDieMut) DieFeedApplyConfiguration(ac *ExemptPriorityLevelConfigurationApplyConfiguration) *ExemptPriorityLevelConfigurationDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ExemptPriorityLevelConfigurationDieMut) DieStampApplyConfiguration(fn func(ac *ExemptPriorityLevelConfigurationApplyConfiguration)) *ExemptPriorityLevelConfigurationDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ExemptPriorityLevelConfigurationDie) DieFeedApplyConfigurationE(ac *ExemptPriorityLevelConfigurationApplyConfiguration) (*ExemptPriorityLevelConfigurationDie, error) {
+func (d *ExemptPriorityLevelConfigurationDieMut) DieFeedApplyConfigurationE(ac *ExemptPriorityLevelConfigurationApplyConfiguration) (*ExemptPriorityLevelConfigurationDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ExemptPriorityLevelConfigurationDie) DieStampApplyConfigurationE(fn func(ac *ExemptPriorityLevelConfigurationApplyConfiguration)) (*ExemptPriorityLevelConfigurationDie, error) {
+func (d *ExemptPriorityLevelConfigurationDieMut) DieStampApplyConfigurationE(fn func(ac *ExemptPriorityLevelConfigurationApplyConfiguration)) (*ExemptPriorityLevelConfigurationDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -110,7 +138,7 @@ var exemptPriorityLevelConfigurationFields = &diefields.Table[exemptPriorityLeve
 // Bigger numbers mean a larger nominal concurrency limit,
 // at the expense of every other priority level.
 // This field has a default value of zero.
-func (d *ExemptPriorityLevelConfigurationDie) NominalConcurrencyShares() diefields.Optional[int32, *ExemptPriorityLevelConfigurationDie] {
+func (d *ExemptPriorityLevelConfigurationDie) NominalConcurrencyShares() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, exemptPriorityLevelConfigurationFields.Get().NominalConcurrencyShares)
 }
 
@@ -121,22 +149,66 @@ func (d *ExemptPriorityLevelConfigurationDie) NominalConcurrencyShares() diefiel
 // as this level's LendableConcurrencyLimit (LendableCL), is defined as follows.
 //
 // LendableCL(i) = round( NominalCL(i) * lendablePercent(i)/100.0 )
-func (d *ExemptPriorityLevelConfigurationDie) LendablePercent() diefields.Optional[int32, *ExemptPriorityLevelConfigurationDie] {
+func (d *ExemptPriorityLevelConfigurationDie) LendablePercent() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, exemptPriorityLevelConfigurationFields.Get().LendablePercent)
 }
 
-// FlowDistinguisherMethod specifies the method of a flow distinguisher.
-type FlowDistinguisherMethodDie struct {
-	diebase.DieBase[FlowDistinguisherMethod, *FlowDistinguisherMethodDie]
+// `nominalConcurrencyShares` (NCS) contributes to the computation of the
+// NominalConcurrencyLimit (NominalCL) of this level.
+// This is the number of execution seats nominally reserved for this priority level.
+// This DOES NOT limit the dispatching from this priority level
+// but affects the other priority levels through the borrowing mechanism.
+// The server's concurrency limit (ServerCL) is divided among all the
+// priority levels in proportion to their NCS values:
+//
+// NominalCL(i)  = ceil( ServerCL * NCS(i) / sum_ncs )
+// sum_ncs = sum[priority level k] NCS(k)
+//
+// Bigger numbers mean a larger nominal concurrency limit,
+// at the expense of every other priority level.
+// This field has a default value of zero.
+func (d *ExemptPriorityLevelConfigurationDieMut) NominalConcurrencyShares() diefields.OptionalMut[int32, *ExemptPriorityLevelConfigurationDieMut] {
+	return diefields.OptionalMutOf(d, exemptPriorityLevelConfigurationFields.Get().NominalConcurrencyShares)
 }
 
-func (*FlowDistinguisherMethodDie) DieFrom(b diebase.DieBase[FlowDistinguisherMethod, *FlowDistinguisherMethodDie]) *FlowDistinguisherMethodDie {
+// `lendablePercent` prescribes the fraction of the level's NominalCL that
+// can be borrowed by other priority levels.  This value of this
+// field must be between 0 and 100, inclusive, and it defaults to 0.
+// The number of seats that other levels can borrow from this level, known
+// as this level's LendableConcurrencyLimit (LendableCL), is defined as follows.
+//
+// LendableCL(i) = round( NominalCL(i) * lendablePercent(i)/100.0 )
+func (d *ExemptPriorityLevelConfigurationDieMut) LendablePercent() diefields.OptionalMut[int32, *ExemptPriorityLevelConfigurationDieMut] {
+	return diefields.OptionalMutOf(d, exemptPriorityLevelConfigurationFields.Get().LendablePercent)
+}
+
+// FlowDistinguisherMethod specifies the method of a flow distinguisher.
+//
+// FlowDistinguisherMethodDie is immutable: it reads.
+// FlowDistinguisherMethodDieMut, its mutable die, also writes, as DieWith passes it.
+type FlowDistinguisherMethodDie struct {
+	diebase.DieBase[FlowDistinguisherMethod, *FlowDistinguisherMethodDie, *FlowDistinguisherMethodDieMut]
+}
+
+// FlowDistinguisherMethodDieMut is the mutable die of FlowDistinguisherMethod: see FlowDistinguisherMethodDie.
+type FlowDistinguisherMethodDieMut struct {
+	diebase.DieMutBase[FlowDistinguisherMethod, *FlowDistinguisherMethodDie, *FlowDistinguisherMethodDieMut]
+}
+
+func (*FlowDistinguisherMethodDie) DieFrom(b diebase.DieBase[FlowDistinguisherMethod, *FlowDistinguisherMethodDie, *FlowDistinguisherMethodDieMut]) *FlowDistinguisherMethodDie {
 	return &FlowDistinguisherMethodDie{b}
 }
 
-var _ diebase.DieOf[FlowDistinguisherMethod, *FlowDistinguisherMethodDie] = (*FlowDistinguisherMethodDie)(nil)
+func (*FlowDistinguisherMethodDieMut) DieFrom(b diebase.DieMutBase[FlowDistinguisherMethod, *FlowDistinguisherMethodDie, *FlowDistinguisherMethodDieMut]) *FlowDistinguisherMethodDieMut {
+	return &FlowDistinguisherMethodDieMut{b}
+}
 
-var FlowDistinguisherMethodBlank = diebase.Blank[FlowDistinguisherMethod, *FlowDistinguisherMethodDie]()
+var (
+	_ diebase.DieOf[FlowDistinguisherMethod, *FlowDistinguisherMethodDie, *FlowDistinguisherMethodDieMut]    = (*FlowDistinguisherMethodDie)(nil)
+	_ diebase.DieMutOf[FlowDistinguisherMethod, *FlowDistinguisherMethodDie, *FlowDistinguisherMethodDieMut] = (*FlowDistinguisherMethodDieMut)(nil)
+)
+
+var FlowDistinguisherMethodBlank = diebase.Blank[FlowDistinguisherMethod, *FlowDistinguisherMethodDie, *FlowDistinguisherMethodDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -145,34 +217,47 @@ func (d *FlowDistinguisherMethodDie) DieReleaseApplyConfiguration() *FlowDisting
 	return diecodegen.ReleaseApplyConfiguration[FlowDistinguisherMethodApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *FlowDistinguisherMethodDie) DieFeedApplyConfiguration(ac *FlowDistinguisherMethodApplyConfiguration) *FlowDistinguisherMethodDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *FlowDistinguisherMethodDie) DieStampApplyConfiguration(fn func(ac *FlowDistinguisherMethodApplyConfiguration)) *FlowDistinguisherMethodDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *FlowDistinguisherMethodDie) DieReleaseApplyConfigurationE() (*FlowDistinguisherMethodApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[FlowDistinguisherMethodApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *FlowDistinguisherMethodDieMut) DieReleaseApplyConfiguration() *FlowDistinguisherMethodApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[FlowDistinguisherMethodApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *FlowDistinguisherMethodDieMut) DieReleaseApplyConfigurationE() (*FlowDistinguisherMethodApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[FlowDistinguisherMethodApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *FlowDistinguisherMethodDieMut) DieFeedApplyConfiguration(ac *FlowDistinguisherMethodApplyConfiguration) *FlowDistinguisherMethodDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *FlowDistinguisherMethodDieMut) DieStampApplyConfiguration(fn func(ac *FlowDistinguisherMethodApplyConfiguration)) *FlowDistinguisherMethodDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *FlowDistinguisherMethodDie) DieFeedApplyConfigurationE(ac *FlowDistinguisherMethodApplyConfiguration) (*FlowDistinguisherMethodDie, error) {
+func (d *FlowDistinguisherMethodDieMut) DieFeedApplyConfigurationE(ac *FlowDistinguisherMethodApplyConfiguration) (*FlowDistinguisherMethodDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *FlowDistinguisherMethodDie) DieStampApplyConfigurationE(fn func(ac *FlowDistinguisherMethodApplyConfiguration)) (*FlowDistinguisherMethodDie, error) {
+func (d *FlowDistinguisherMethodDieMut) DieStampApplyConfigurationE(fn func(ac *FlowDistinguisherMethodApplyConfiguration)) (*FlowDistinguisherMethodDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -189,23 +274,45 @@ var flowDistinguisherMethodFields = &diefields.Table[flowDistinguisherMethodFiel
 // `type` is the type of flow distinguisher method
 // The supported types are "ByUser" and "ByNamespace".
 // Required.
-func (d *FlowDistinguisherMethodDie) Type() diefields.Value[FlowDistinguisherMethodType, *FlowDistinguisherMethodDie] {
+func (d *FlowDistinguisherMethodDie) Type() diefields.Value[FlowDistinguisherMethodType] {
 	return diefields.ValueOf(d, flowDistinguisherMethodFields.Get().Type)
+}
+
+// `type` is the type of flow distinguisher method
+// The supported types are "ByUser" and "ByNamespace".
+// Required.
+func (d *FlowDistinguisherMethodDieMut) Type() diefields.ValueMut[FlowDistinguisherMethodType, *FlowDistinguisherMethodDieMut] {
+	return diefields.ValueMutOf(d, flowDistinguisherMethodFields.Get().Type)
 }
 
 // FlowSchema defines the schema of a group of flows. Note that a flow is made up of a set of inbound API requests with
 // similar attributes and is identified by a pair of strings: the name of the FlowSchema and a "flow distinguisher".
+//
+// FlowSchemaDie is immutable: it reads.
+// FlowSchemaDieMut, its mutable die, also writes, as DieWith passes it.
 type FlowSchemaDie struct {
-	diebase.DieObjectBase[FlowSchema, *FlowSchemaDie]
+	diebase.DieObjectBase[FlowSchema, *FlowSchemaDie, *FlowSchemaDieMut]
 }
 
-func (*FlowSchemaDie) DieFrom(b diebase.DieBase[FlowSchema, *FlowSchemaDie]) *FlowSchemaDie {
+// FlowSchemaDieMut is the mutable die of FlowSchema: see FlowSchemaDie.
+type FlowSchemaDieMut struct {
+	diebase.DieObjectMutBase[FlowSchema, *FlowSchemaDie, *FlowSchemaDieMut]
+}
+
+func (*FlowSchemaDie) DieFrom(b diebase.DieBase[FlowSchema, *FlowSchemaDie, *FlowSchemaDieMut]) *FlowSchemaDie {
 	return &FlowSchemaDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[FlowSchema, *FlowSchemaDie] = (*FlowSchemaDie)(nil)
+func (*FlowSchemaDieMut) DieFrom(b diebase.DieMutBase[FlowSchema, *FlowSchemaDie, *FlowSchemaDieMut]) *FlowSchemaDieMut {
+	return &FlowSchemaDieMut{diebase.AsObjectMut(b)}
+}
 
-var FlowSchemaBlank = diebase.BlankOf[FlowSchema, *FlowSchemaDie](FlowSchema{TypeMeta: metav1.TypeMeta{APIVersion: "flowcontrol.apiserver.k8s.io/v1", Kind: "FlowSchema"}})
+var (
+	_ dieobjects.DieObjectOf[FlowSchema, *FlowSchemaDie, *FlowSchemaDieMut]    = (*FlowSchemaDie)(nil)
+	_ dieobjects.DieObjectMutOf[FlowSchema, *FlowSchemaDie, *FlowSchemaDieMut] = (*FlowSchemaDieMut)(nil)
+)
+
+var FlowSchemaBlank = diebase.BlankOf[FlowSchema, *FlowSchemaDie, *FlowSchemaDieMut](FlowSchema{TypeMeta: metav1.TypeMeta{APIVersion: "flowcontrol.apiserver.k8s.io/v1", Kind: "FlowSchema"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -214,52 +321,65 @@ func (d *FlowSchemaDie) DieReleaseApplyConfiguration() *FlowSchemaApplyConfigura
 	return diecodegen.ReleaseApplyConfiguration[FlowSchemaApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *FlowSchemaDie) DieFeedApplyConfiguration(ac *FlowSchemaApplyConfiguration) *FlowSchemaDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *FlowSchemaDie) DieStampApplyConfiguration(fn func(ac *FlowSchemaApplyConfiguration)) *FlowSchemaDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *FlowSchemaDie) DieReleaseApplyConfigurationE() (*FlowSchemaApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[FlowSchemaApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *FlowSchemaDieMut) DieReleaseApplyConfiguration() *FlowSchemaApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[FlowSchemaApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *FlowSchemaDieMut) DieReleaseApplyConfigurationE() (*FlowSchemaApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[FlowSchemaApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *FlowSchemaDieMut) DieFeedApplyConfiguration(ac *FlowSchemaApplyConfiguration) *FlowSchemaDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *FlowSchemaDieMut) DieStampApplyConfiguration(fn func(ac *FlowSchemaApplyConfiguration)) *FlowSchemaDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *FlowSchemaDie) DieFeedApplyConfigurationE(ac *FlowSchemaApplyConfiguration) (*FlowSchemaDie, error) {
+func (d *FlowSchemaDieMut) DieFeedApplyConfigurationE(ac *FlowSchemaApplyConfiguration) (*FlowSchemaDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *FlowSchemaDie) DieStampApplyConfigurationE(fn func(ac *FlowSchemaApplyConfiguration)) (*FlowSchemaDie, error) {
+func (d *FlowSchemaDieMut) DieStampApplyConfigurationE(fn func(ac *FlowSchemaApplyConfiguration)) (*FlowSchemaDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type flowSchemaFieldsTable struct {
 	Kind       diefields.Field[FlowSchema, string]
 	APIVersion diefields.Field[FlowSchema, string]
-	Metadata   diefields.Struct[FlowSchema, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[FlowSchema, FlowSchemaSpec, *FlowSchemaSpecDie]
-	Status     diefields.Struct[FlowSchema, FlowSchemaStatus, *FlowSchemaStatusDie]
+	Metadata   diefields.Struct[FlowSchema, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[FlowSchema, FlowSchemaSpec, *FlowSchemaSpecDie, *FlowSchemaSpecDieMut]
+	Status     diefields.Struct[FlowSchema, FlowSchemaStatus, *FlowSchemaStatusDie, *FlowSchemaStatusDieMut]
 }
 
 var flowSchemaFields = &diefields.Table[flowSchemaFieldsTable]{Build: func() (f flowSchemaFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[FlowSchema, string]("kind")
 	f.APIVersion = diefields.NewField[FlowSchema, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[FlowSchema, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[FlowSchema, FlowSchemaSpec, *FlowSchemaSpecDie]("spec")
-	f.Status = diefields.NewStruct[FlowSchema, FlowSchemaStatus, *FlowSchemaStatusDie]("status")
+	f.Metadata = diefields.NewStruct[FlowSchema, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[FlowSchema, FlowSchemaSpec, *FlowSchemaSpecDie, *FlowSchemaSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[FlowSchema, FlowSchemaStatus, *FlowSchemaStatusDie, *FlowSchemaStatusDieMut]("status")
 	return
 }}
 
@@ -268,7 +388,7 @@ var flowSchemaFields = &diefields.Table[flowSchemaFieldsTable]{Build: func() (f 
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *FlowSchemaDie) Kind() diefields.Value[string, *FlowSchemaDie] {
+func (d *FlowSchemaDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, flowSchemaFields.Get().Kind)
 }
 
@@ -276,7 +396,7 @@ func (d *FlowSchemaDie) Kind() diefields.Value[string, *FlowSchemaDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *FlowSchemaDie) APIVersion() diefields.Value[string, *FlowSchemaDie] {
+func (d *FlowSchemaDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, flowSchemaFields.Get().APIVersion)
 }
 
@@ -298,18 +418,68 @@ func (d *FlowSchemaDie) Status() *FlowSchemaStatusDie {
 	return diefields.Child(d, flowSchemaFields.Get().Status)
 }
 
-// FlowSchemaCondition describes conditions for a FlowSchema.
-type FlowSchemaConditionDie struct {
-	diebase.DieBase[FlowSchemaCondition, *FlowSchemaConditionDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *FlowSchemaDieMut) Kind() diefields.ValueMut[string, *FlowSchemaDieMut] {
+	return diefields.ValueMutOf(d, flowSchemaFields.Get().Kind)
 }
 
-func (*FlowSchemaConditionDie) DieFrom(b diebase.DieBase[FlowSchemaCondition, *FlowSchemaConditionDie]) *FlowSchemaConditionDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *FlowSchemaDieMut) APIVersion() diefields.ValueMut[string, *FlowSchemaDieMut] {
+	return diefields.ValueMutOf(d, flowSchemaFields.Get().APIVersion)
+}
+
+// `metadata` is the standard object's metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *FlowSchemaDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, flowSchemaFields.Get().Metadata)
+}
+
+// `spec` is the specification of the desired behavior of a FlowSchema.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *FlowSchemaDieMut) Spec() *FlowSchemaSpecDieMut {
+	return diefields.ChildMut(d, flowSchemaFields.Get().Spec)
+}
+
+// `status` is the current status of a FlowSchema.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *FlowSchemaDieMut) Status() *FlowSchemaStatusDieMut {
+	return diefields.ChildMut(d, flowSchemaFields.Get().Status)
+}
+
+// FlowSchemaCondition describes conditions for a FlowSchema.
+//
+// FlowSchemaConditionDie is immutable: it reads.
+// FlowSchemaConditionDieMut, its mutable die, also writes, as DieWith passes it.
+type FlowSchemaConditionDie struct {
+	diebase.DieBase[FlowSchemaCondition, *FlowSchemaConditionDie, *FlowSchemaConditionDieMut]
+}
+
+// FlowSchemaConditionDieMut is the mutable die of FlowSchemaCondition: see FlowSchemaConditionDie.
+type FlowSchemaConditionDieMut struct {
+	diebase.DieMutBase[FlowSchemaCondition, *FlowSchemaConditionDie, *FlowSchemaConditionDieMut]
+}
+
+func (*FlowSchemaConditionDie) DieFrom(b diebase.DieBase[FlowSchemaCondition, *FlowSchemaConditionDie, *FlowSchemaConditionDieMut]) *FlowSchemaConditionDie {
 	return &FlowSchemaConditionDie{b}
 }
 
-var _ diebase.DieOf[FlowSchemaCondition, *FlowSchemaConditionDie] = (*FlowSchemaConditionDie)(nil)
+func (*FlowSchemaConditionDieMut) DieFrom(b diebase.DieMutBase[FlowSchemaCondition, *FlowSchemaConditionDie, *FlowSchemaConditionDieMut]) *FlowSchemaConditionDieMut {
+	return &FlowSchemaConditionDieMut{b}
+}
 
-var FlowSchemaConditionBlank = diebase.Blank[FlowSchemaCondition, *FlowSchemaConditionDie]()
+var (
+	_ diebase.DieOf[FlowSchemaCondition, *FlowSchemaConditionDie, *FlowSchemaConditionDieMut]    = (*FlowSchemaConditionDie)(nil)
+	_ diebase.DieMutOf[FlowSchemaCondition, *FlowSchemaConditionDie, *FlowSchemaConditionDieMut] = (*FlowSchemaConditionDieMut)(nil)
+)
+
+var FlowSchemaConditionBlank = diebase.Blank[FlowSchemaCondition, *FlowSchemaConditionDie, *FlowSchemaConditionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -318,34 +488,47 @@ func (d *FlowSchemaConditionDie) DieReleaseApplyConfiguration() *FlowSchemaCondi
 	return diecodegen.ReleaseApplyConfiguration[FlowSchemaConditionApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *FlowSchemaConditionDie) DieFeedApplyConfiguration(ac *FlowSchemaConditionApplyConfiguration) *FlowSchemaConditionDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *FlowSchemaConditionDie) DieStampApplyConfiguration(fn func(ac *FlowSchemaConditionApplyConfiguration)) *FlowSchemaConditionDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *FlowSchemaConditionDie) DieReleaseApplyConfigurationE() (*FlowSchemaConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[FlowSchemaConditionApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *FlowSchemaConditionDieMut) DieReleaseApplyConfiguration() *FlowSchemaConditionApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[FlowSchemaConditionApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *FlowSchemaConditionDieMut) DieReleaseApplyConfigurationE() (*FlowSchemaConditionApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[FlowSchemaConditionApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *FlowSchemaConditionDieMut) DieFeedApplyConfiguration(ac *FlowSchemaConditionApplyConfiguration) *FlowSchemaConditionDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *FlowSchemaConditionDieMut) DieStampApplyConfiguration(fn func(ac *FlowSchemaConditionApplyConfiguration)) *FlowSchemaConditionDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *FlowSchemaConditionDie) DieFeedApplyConfigurationE(ac *FlowSchemaConditionApplyConfiguration) (*FlowSchemaConditionDie, error) {
+func (d *FlowSchemaConditionDieMut) DieFeedApplyConfigurationE(ac *FlowSchemaConditionApplyConfiguration) (*FlowSchemaConditionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *FlowSchemaConditionDie) DieStampApplyConfigurationE(fn func(ac *FlowSchemaConditionApplyConfiguration)) (*FlowSchemaConditionDie, error) {
+func (d *FlowSchemaConditionDieMut) DieStampApplyConfigurationE(fn func(ac *FlowSchemaConditionApplyConfiguration)) (*FlowSchemaConditionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -369,40 +552,67 @@ var flowSchemaConditionFields = &diefields.Table[flowSchemaConditionFieldsTable]
 
 // `type` is the type of the condition.
 // Required.
-func (d *FlowSchemaConditionDie) Type() diefields.Value[FlowSchemaConditionType, *FlowSchemaConditionDie] {
+func (d *FlowSchemaConditionDie) Type() diefields.Value[FlowSchemaConditionType] {
 	return diefields.ValueOf(d, flowSchemaConditionFields.Get().Type)
 }
 
 // `status` is the status of the condition.
 // Should be specified and set to one of True, False, Unknown.
-func (d *FlowSchemaConditionDie) Status() diefields.Value[ConditionStatus, *FlowSchemaConditionDie] {
+func (d *FlowSchemaConditionDie) Status() diefields.Value[ConditionStatus] {
 	return diefields.ValueOf(d, flowSchemaConditionFields.Get().Status)
 }
 
 // `lastTransitionTime` is the last time the condition transitioned from one status to another.
-func (d *FlowSchemaConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time, *FlowSchemaConditionDie] {
+func (d *FlowSchemaConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time] {
 	return diefields.ValueOf(d, flowSchemaConditionFields.Get().LastTransitionTime)
 }
 
 // `reason` is a unique, one-word, CamelCase reason for the condition's last transition.
-func (d *FlowSchemaConditionDie) Reason() diefields.Value[string, *FlowSchemaConditionDie] {
+func (d *FlowSchemaConditionDie) Reason() diefields.Value[string] {
 	return diefields.ValueOf(d, flowSchemaConditionFields.Get().Reason)
 }
 
 // `message` is a human-readable message indicating details about last transition.
-func (d *FlowSchemaConditionDie) Message() diefields.Value[string, *FlowSchemaConditionDie] {
+func (d *FlowSchemaConditionDie) Message() diefields.Value[string] {
 	return diefields.ValueOf(d, flowSchemaConditionFields.Get().Message)
+}
+
+// `type` is the type of the condition.
+// Required.
+func (d *FlowSchemaConditionDieMut) Type() diefields.ValueMut[FlowSchemaConditionType, *FlowSchemaConditionDieMut] {
+	return diefields.ValueMutOf(d, flowSchemaConditionFields.Get().Type)
+}
+
+// `status` is the status of the condition.
+// Should be specified and set to one of True, False, Unknown.
+func (d *FlowSchemaConditionDieMut) Status() diefields.ValueMut[ConditionStatus, *FlowSchemaConditionDieMut] {
+	return diefields.ValueMutOf(d, flowSchemaConditionFields.Get().Status)
+}
+
+// `lastTransitionTime` is the last time the condition transitioned from one status to another.
+func (d *FlowSchemaConditionDieMut) LastTransitionTime() diefields.ValueMut[diemetav1.Time, *FlowSchemaConditionDieMut] {
+	return diefields.ValueMutOf(d, flowSchemaConditionFields.Get().LastTransitionTime)
+}
+
+// `reason` is a unique, one-word, CamelCase reason for the condition's last transition.
+func (d *FlowSchemaConditionDieMut) Reason() diefields.ValueMut[string, *FlowSchemaConditionDieMut] {
+	return diefields.ValueMutOf(d, flowSchemaConditionFields.Get().Reason)
+}
+
+// `message` is a human-readable message indicating details about last transition.
+func (d *FlowSchemaConditionDieMut) Message() diefields.ValueMut[string, *FlowSchemaConditionDieMut] {
+	return diefields.ValueMutOf(d, flowSchemaConditionFields.Get().Message)
 }
 
 // FlowSchemaList is a list of FlowSchema objects.
 type FlowSchemaListDie struct {
-	dielists.List[*FlowSchemaDie]
+	dielists.List[*FlowSchemaDieMut]
 }
 
-var _ dielists.DieListOf[*FlowSchemaDie] = (*FlowSchemaListDie)(nil)
+var _ dielists.DieListOf[*FlowSchemaDieMut] = (*FlowSchemaListDie)(nil)
 
 // NewFlowSchemaList returns a list with items.
-func NewFlowSchemaList(items ...*FlowSchemaDie) *FlowSchemaListDie {
+func NewFlowSchemaList(items ...*FlowSchemaDieMut) *FlowSchemaListDie {
 	return &FlowSchemaListDie{dielists.NewList("flowcontrol.apiserver.k8s.io/v1", "FlowSchemaList", items...)}
 }
 
@@ -412,17 +622,32 @@ func (l *FlowSchemaListDie) DeepCopy() *FlowSchemaListDie { return &FlowSchemaLi
 func (l *FlowSchemaListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // FlowSchemaSpec describes how the FlowSchema's specification looks like.
+//
+// FlowSchemaSpecDie is immutable: it reads.
+// FlowSchemaSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type FlowSchemaSpecDie struct {
-	diebase.DieBase[FlowSchemaSpec, *FlowSchemaSpecDie]
+	diebase.DieBase[FlowSchemaSpec, *FlowSchemaSpecDie, *FlowSchemaSpecDieMut]
 }
 
-func (*FlowSchemaSpecDie) DieFrom(b diebase.DieBase[FlowSchemaSpec, *FlowSchemaSpecDie]) *FlowSchemaSpecDie {
+// FlowSchemaSpecDieMut is the mutable die of FlowSchemaSpec: see FlowSchemaSpecDie.
+type FlowSchemaSpecDieMut struct {
+	diebase.DieMutBase[FlowSchemaSpec, *FlowSchemaSpecDie, *FlowSchemaSpecDieMut]
+}
+
+func (*FlowSchemaSpecDie) DieFrom(b diebase.DieBase[FlowSchemaSpec, *FlowSchemaSpecDie, *FlowSchemaSpecDieMut]) *FlowSchemaSpecDie {
 	return &FlowSchemaSpecDie{b}
 }
 
-var _ diebase.DieOf[FlowSchemaSpec, *FlowSchemaSpecDie] = (*FlowSchemaSpecDie)(nil)
+func (*FlowSchemaSpecDieMut) DieFrom(b diebase.DieMutBase[FlowSchemaSpec, *FlowSchemaSpecDie, *FlowSchemaSpecDieMut]) *FlowSchemaSpecDieMut {
+	return &FlowSchemaSpecDieMut{b}
+}
 
-var FlowSchemaSpecBlank = diebase.Blank[FlowSchemaSpec, *FlowSchemaSpecDie]()
+var (
+	_ diebase.DieOf[FlowSchemaSpec, *FlowSchemaSpecDie, *FlowSchemaSpecDieMut]    = (*FlowSchemaSpecDie)(nil)
+	_ diebase.DieMutOf[FlowSchemaSpec, *FlowSchemaSpecDie, *FlowSchemaSpecDieMut] = (*FlowSchemaSpecDieMut)(nil)
+)
+
+var FlowSchemaSpecBlank = diebase.Blank[FlowSchemaSpec, *FlowSchemaSpecDie, *FlowSchemaSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -431,49 +656,62 @@ func (d *FlowSchemaSpecDie) DieReleaseApplyConfiguration() *FlowSchemaSpecApplyC
 	return diecodegen.ReleaseApplyConfiguration[FlowSchemaSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *FlowSchemaSpecDie) DieFeedApplyConfiguration(ac *FlowSchemaSpecApplyConfiguration) *FlowSchemaSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *FlowSchemaSpecDie) DieStampApplyConfiguration(fn func(ac *FlowSchemaSpecApplyConfiguration)) *FlowSchemaSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *FlowSchemaSpecDie) DieReleaseApplyConfigurationE() (*FlowSchemaSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[FlowSchemaSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *FlowSchemaSpecDieMut) DieReleaseApplyConfiguration() *FlowSchemaSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[FlowSchemaSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *FlowSchemaSpecDieMut) DieReleaseApplyConfigurationE() (*FlowSchemaSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[FlowSchemaSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *FlowSchemaSpecDieMut) DieFeedApplyConfiguration(ac *FlowSchemaSpecApplyConfiguration) *FlowSchemaSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *FlowSchemaSpecDieMut) DieStampApplyConfiguration(fn func(ac *FlowSchemaSpecApplyConfiguration)) *FlowSchemaSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *FlowSchemaSpecDie) DieFeedApplyConfigurationE(ac *FlowSchemaSpecApplyConfiguration) (*FlowSchemaSpecDie, error) {
+func (d *FlowSchemaSpecDieMut) DieFeedApplyConfigurationE(ac *FlowSchemaSpecApplyConfiguration) (*FlowSchemaSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *FlowSchemaSpecDie) DieStampApplyConfigurationE(fn func(ac *FlowSchemaSpecApplyConfiguration)) (*FlowSchemaSpecDie, error) {
+func (d *FlowSchemaSpecDieMut) DieStampApplyConfigurationE(fn func(ac *FlowSchemaSpecApplyConfiguration)) (*FlowSchemaSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type flowSchemaSpecFieldsTable struct {
-	PriorityLevelConfiguration diefields.Struct[FlowSchemaSpec, PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie]
+	PriorityLevelConfiguration diefields.Struct[FlowSchemaSpec, PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie, *PriorityLevelConfigurationReferenceDieMut]
 	MatchingPrecedence         diefields.Field[FlowSchemaSpec, int32]
-	DistinguisherMethod        diefields.Struct[FlowSchemaSpec, FlowDistinguisherMethod, *FlowDistinguisherMethodDie]
+	DistinguisherMethod        diefields.Struct[FlowSchemaSpec, FlowDistinguisherMethod, *FlowDistinguisherMethodDie, *FlowDistinguisherMethodDieMut]
 	Rules                      diefields.Field[FlowSchemaSpec, []PolicyRulesWithSubjects]
 }
 
 var flowSchemaSpecFields = &diefields.Table[flowSchemaSpecFieldsTable]{Build: func() (f flowSchemaSpecFieldsTable) {
 	_ = annotated
-	f.PriorityLevelConfiguration = diefields.NewStruct[FlowSchemaSpec, PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie]("priorityLevelConfiguration")
+	f.PriorityLevelConfiguration = diefields.NewStruct[FlowSchemaSpec, PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie, *PriorityLevelConfigurationReferenceDieMut]("priorityLevelConfiguration")
 	f.MatchingPrecedence = diefields.NewField[FlowSchemaSpec, int32]("matchingPrecedence")
-	f.DistinguisherMethod = diefields.NewStruct[FlowSchemaSpec, FlowDistinguisherMethod, *FlowDistinguisherMethodDie]("distinguisherMethod")
+	f.DistinguisherMethod = diefields.NewStruct[FlowSchemaSpec, FlowDistinguisherMethod, *FlowDistinguisherMethodDie, *FlowDistinguisherMethodDieMut]("distinguisherMethod")
 	f.Rules = diefields.NewField[FlowSchemaSpec, []PolicyRulesWithSubjects]("rules")
 	return
 }}
@@ -489,7 +727,7 @@ func (d *FlowSchemaSpecDie) PriorityLevelConfiguration() *PriorityLevelConfigura
 // FlowSchema is among those with the numerically lowest (which we take to be logically highest)
 // MatchingPrecedence.  Each MatchingPrecedence value must be ranged in [1,10000].
 // Note that if the precedence is not specified, it will be set to 1000 as default.
-func (d *FlowSchemaSpecDie) MatchingPrecedence() diefields.Value[int32, *FlowSchemaSpecDie] {
+func (d *FlowSchemaSpecDie) MatchingPrecedence() diefields.Value[int32] {
 	return diefields.ValueOf(d, flowSchemaSpecFields.Get().MatchingPrecedence)
 }
 
@@ -502,22 +740,65 @@ func (d *FlowSchemaSpecDie) DistinguisherMethod() *FlowDistinguisherMethodDie {
 // `rules` describes which requests will match this flow schema. This FlowSchema matches a request if and only if
 // at least one member of rules matches the request.
 // if it is an empty slice, there will be no requests matching the FlowSchema.
-func (d *FlowSchemaSpecDie) Rules() diefields.Value[[]PolicyRulesWithSubjects, *FlowSchemaSpecDie] {
+func (d *FlowSchemaSpecDie) Rules() diefields.Value[[]PolicyRulesWithSubjects] {
 	return diefields.ValueOf(d, flowSchemaSpecFields.Get().Rules)
 }
 
-// FlowSchemaStatus represents the current state of a FlowSchema.
-type FlowSchemaStatusDie struct {
-	diebase.DieBase[FlowSchemaStatus, *FlowSchemaStatusDie]
+// `priorityLevelConfiguration` should reference a PriorityLevelConfiguration in the cluster. If the reference cannot
+// be resolved, the FlowSchema will be ignored and marked as invalid in its status.
+// Required.
+func (d *FlowSchemaSpecDieMut) PriorityLevelConfiguration() *PriorityLevelConfigurationReferenceDieMut {
+	return diefields.ChildMut(d, flowSchemaSpecFields.Get().PriorityLevelConfiguration)
 }
 
-func (*FlowSchemaStatusDie) DieFrom(b diebase.DieBase[FlowSchemaStatus, *FlowSchemaStatusDie]) *FlowSchemaStatusDie {
+// `matchingPrecedence` is used to choose among the FlowSchemas that match a given request. The chosen
+// FlowSchema is among those with the numerically lowest (which we take to be logically highest)
+// MatchingPrecedence.  Each MatchingPrecedence value must be ranged in [1,10000].
+// Note that if the precedence is not specified, it will be set to 1000 as default.
+func (d *FlowSchemaSpecDieMut) MatchingPrecedence() diefields.ValueMut[int32, *FlowSchemaSpecDieMut] {
+	return diefields.ValueMutOf(d, flowSchemaSpecFields.Get().MatchingPrecedence)
+}
+
+// `distinguisherMethod` defines how to compute the flow distinguisher for requests that match this schema.
+// `nil` specifies that the distinguisher is disabled and thus will always be the empty string.
+func (d *FlowSchemaSpecDieMut) DistinguisherMethod() *FlowDistinguisherMethodDieMut {
+	return diefields.ChildMut(d, flowSchemaSpecFields.Get().DistinguisherMethod)
+}
+
+// `rules` describes which requests will match this flow schema. This FlowSchema matches a request if and only if
+// at least one member of rules matches the request.
+// if it is an empty slice, there will be no requests matching the FlowSchema.
+func (d *FlowSchemaSpecDieMut) Rules() diefields.ValueMut[[]PolicyRulesWithSubjects, *FlowSchemaSpecDieMut] {
+	return diefields.ValueMutOf(d, flowSchemaSpecFields.Get().Rules)
+}
+
+// FlowSchemaStatus represents the current state of a FlowSchema.
+//
+// FlowSchemaStatusDie is immutable: it reads.
+// FlowSchemaStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type FlowSchemaStatusDie struct {
+	diebase.DieBase[FlowSchemaStatus, *FlowSchemaStatusDie, *FlowSchemaStatusDieMut]
+}
+
+// FlowSchemaStatusDieMut is the mutable die of FlowSchemaStatus: see FlowSchemaStatusDie.
+type FlowSchemaStatusDieMut struct {
+	diebase.DieMutBase[FlowSchemaStatus, *FlowSchemaStatusDie, *FlowSchemaStatusDieMut]
+}
+
+func (*FlowSchemaStatusDie) DieFrom(b diebase.DieBase[FlowSchemaStatus, *FlowSchemaStatusDie, *FlowSchemaStatusDieMut]) *FlowSchemaStatusDie {
 	return &FlowSchemaStatusDie{b}
 }
 
-var _ diebase.DieOf[FlowSchemaStatus, *FlowSchemaStatusDie] = (*FlowSchemaStatusDie)(nil)
+func (*FlowSchemaStatusDieMut) DieFrom(b diebase.DieMutBase[FlowSchemaStatus, *FlowSchemaStatusDie, *FlowSchemaStatusDieMut]) *FlowSchemaStatusDieMut {
+	return &FlowSchemaStatusDieMut{b}
+}
 
-var FlowSchemaStatusBlank = diebase.Blank[FlowSchemaStatus, *FlowSchemaStatusDie]()
+var (
+	_ diebase.DieOf[FlowSchemaStatus, *FlowSchemaStatusDie, *FlowSchemaStatusDieMut]    = (*FlowSchemaStatusDie)(nil)
+	_ diebase.DieMutOf[FlowSchemaStatus, *FlowSchemaStatusDie, *FlowSchemaStatusDieMut] = (*FlowSchemaStatusDieMut)(nil)
+)
+
+var FlowSchemaStatusBlank = diebase.Blank[FlowSchemaStatus, *FlowSchemaStatusDie, *FlowSchemaStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -526,44 +807,57 @@ func (d *FlowSchemaStatusDie) DieReleaseApplyConfiguration() *FlowSchemaStatusAp
 	return diecodegen.ReleaseApplyConfiguration[FlowSchemaStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *FlowSchemaStatusDie) DieFeedApplyConfiguration(ac *FlowSchemaStatusApplyConfiguration) *FlowSchemaStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *FlowSchemaStatusDie) DieStampApplyConfiguration(fn func(ac *FlowSchemaStatusApplyConfiguration)) *FlowSchemaStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *FlowSchemaStatusDie) DieReleaseApplyConfigurationE() (*FlowSchemaStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[FlowSchemaStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *FlowSchemaStatusDieMut) DieReleaseApplyConfiguration() *FlowSchemaStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[FlowSchemaStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *FlowSchemaStatusDieMut) DieReleaseApplyConfigurationE() (*FlowSchemaStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[FlowSchemaStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *FlowSchemaStatusDieMut) DieFeedApplyConfiguration(ac *FlowSchemaStatusApplyConfiguration) *FlowSchemaStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *FlowSchemaStatusDieMut) DieStampApplyConfiguration(fn func(ac *FlowSchemaStatusApplyConfiguration)) *FlowSchemaStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *FlowSchemaStatusDie) DieFeedApplyConfigurationE(ac *FlowSchemaStatusApplyConfiguration) (*FlowSchemaStatusDie, error) {
+func (d *FlowSchemaStatusDieMut) DieFeedApplyConfigurationE(ac *FlowSchemaStatusApplyConfiguration) (*FlowSchemaStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *FlowSchemaStatusDie) DieStampApplyConfigurationE(fn func(ac *FlowSchemaStatusApplyConfiguration)) (*FlowSchemaStatusDie, error) {
+func (d *FlowSchemaStatusDieMut) DieStampApplyConfigurationE(fn func(ac *FlowSchemaStatusApplyConfiguration)) (*FlowSchemaStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type flowSchemaStatusFieldsTable struct {
-	Conditions diefields.ListMapField[FlowSchemaStatus, FlowSchemaCondition, *FlowSchemaConditionDie, FlowSchemaConditionType]
+	Conditions diefields.ListMapField[FlowSchemaStatus, FlowSchemaCondition, *FlowSchemaConditionDie, *FlowSchemaConditionDieMut, FlowSchemaConditionType]
 }
 
 var flowSchemaStatusFields = &diefields.Table[flowSchemaStatusFieldsTable]{Build: func() (f flowSchemaStatusFieldsTable) {
 	_ = annotated
-	f.Conditions = diefields.NewListMap[FlowSchemaStatus, FlowSchemaCondition, *FlowSchemaConditionDie]("conditions", func(k FlowSchemaConditionType) []any { return []any{k} }, func(e FlowSchemaCondition) FlowSchemaConditionType { return e.Type })
+	f.Conditions = diefields.NewListMap[FlowSchemaStatus, FlowSchemaCondition, *FlowSchemaConditionDie, *FlowSchemaConditionDieMut]("conditions", func(k FlowSchemaConditionType) []any { return []any{k} }, func(e FlowSchemaCondition) FlowSchemaConditionType { return e.Type })
 	return
 }}
 
@@ -572,18 +866,38 @@ func (d *FlowSchemaStatusDie) Conditions() *diefields.ListMap[FlowSchemaConditio
 	return diefields.ListMapOf(d, flowSchemaStatusFields.Get().Conditions)
 }
 
-// GroupSubject holds detailed information for group-kind subject.
-type GroupSubjectDie struct {
-	diebase.DieBase[GroupSubject, *GroupSubjectDie]
+// `conditions` is a list of the current states of FlowSchema.
+func (d *FlowSchemaStatusDieMut) Conditions() *diefields.ListMapMut[FlowSchemaCondition, *FlowSchemaConditionDieMut, FlowSchemaConditionType] {
+	return diefields.ListMapMutOf(d, flowSchemaStatusFields.Get().Conditions)
 }
 
-func (*GroupSubjectDie) DieFrom(b diebase.DieBase[GroupSubject, *GroupSubjectDie]) *GroupSubjectDie {
+// GroupSubject holds detailed information for group-kind subject.
+//
+// GroupSubjectDie is immutable: it reads.
+// GroupSubjectDieMut, its mutable die, also writes, as DieWith passes it.
+type GroupSubjectDie struct {
+	diebase.DieBase[GroupSubject, *GroupSubjectDie, *GroupSubjectDieMut]
+}
+
+// GroupSubjectDieMut is the mutable die of GroupSubject: see GroupSubjectDie.
+type GroupSubjectDieMut struct {
+	diebase.DieMutBase[GroupSubject, *GroupSubjectDie, *GroupSubjectDieMut]
+}
+
+func (*GroupSubjectDie) DieFrom(b diebase.DieBase[GroupSubject, *GroupSubjectDie, *GroupSubjectDieMut]) *GroupSubjectDie {
 	return &GroupSubjectDie{b}
 }
 
-var _ diebase.DieOf[GroupSubject, *GroupSubjectDie] = (*GroupSubjectDie)(nil)
+func (*GroupSubjectDieMut) DieFrom(b diebase.DieMutBase[GroupSubject, *GroupSubjectDie, *GroupSubjectDieMut]) *GroupSubjectDieMut {
+	return &GroupSubjectDieMut{b}
+}
 
-var GroupSubjectBlank = diebase.Blank[GroupSubject, *GroupSubjectDie]()
+var (
+	_ diebase.DieOf[GroupSubject, *GroupSubjectDie, *GroupSubjectDieMut]    = (*GroupSubjectDie)(nil)
+	_ diebase.DieMutOf[GroupSubject, *GroupSubjectDie, *GroupSubjectDieMut] = (*GroupSubjectDieMut)(nil)
+)
+
+var GroupSubjectBlank = diebase.Blank[GroupSubject, *GroupSubjectDie, *GroupSubjectDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -592,34 +906,47 @@ func (d *GroupSubjectDie) DieReleaseApplyConfiguration() *GroupSubjectApplyConfi
 	return diecodegen.ReleaseApplyConfiguration[GroupSubjectApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *GroupSubjectDie) DieFeedApplyConfiguration(ac *GroupSubjectApplyConfiguration) *GroupSubjectDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *GroupSubjectDie) DieStampApplyConfiguration(fn func(ac *GroupSubjectApplyConfiguration)) *GroupSubjectDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *GroupSubjectDie) DieReleaseApplyConfigurationE() (*GroupSubjectApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[GroupSubjectApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *GroupSubjectDieMut) DieReleaseApplyConfiguration() *GroupSubjectApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[GroupSubjectApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *GroupSubjectDieMut) DieReleaseApplyConfigurationE() (*GroupSubjectApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[GroupSubjectApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *GroupSubjectDieMut) DieFeedApplyConfiguration(ac *GroupSubjectApplyConfiguration) *GroupSubjectDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *GroupSubjectDieMut) DieStampApplyConfiguration(fn func(ac *GroupSubjectApplyConfiguration)) *GroupSubjectDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *GroupSubjectDie) DieFeedApplyConfigurationE(ac *GroupSubjectApplyConfiguration) (*GroupSubjectDie, error) {
+func (d *GroupSubjectDieMut) DieFeedApplyConfigurationE(ac *GroupSubjectApplyConfiguration) (*GroupSubjectDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *GroupSubjectDie) DieStampApplyConfigurationE(fn func(ac *GroupSubjectApplyConfiguration)) (*GroupSubjectDie, error) {
+func (d *GroupSubjectDieMut) DieStampApplyConfigurationE(fn func(ac *GroupSubjectApplyConfiguration)) (*GroupSubjectDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -637,22 +964,45 @@ var groupSubjectFields = &diefields.Table[groupSubjectFieldsTable]{Build: func()
 // See https://github.com/kubernetes/apiserver/blob/master/pkg/authentication/user/user.go for some
 // well-known group names.
 // Required.
-func (d *GroupSubjectDie) Name() diefields.Value[string, *GroupSubjectDie] {
+func (d *GroupSubjectDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, groupSubjectFields.Get().Name)
 }
 
-// LimitResponse defines how to handle requests that can not be executed right now.
-type LimitResponseDie struct {
-	diebase.DieBase[LimitResponse, *LimitResponseDie]
+// name is the user group that matches, or "*" to match all user groups.
+// See https://github.com/kubernetes/apiserver/blob/master/pkg/authentication/user/user.go for some
+// well-known group names.
+// Required.
+func (d *GroupSubjectDieMut) Name() diefields.ValueMut[string, *GroupSubjectDieMut] {
+	return diefields.ValueMutOf(d, groupSubjectFields.Get().Name)
 }
 
-func (*LimitResponseDie) DieFrom(b diebase.DieBase[LimitResponse, *LimitResponseDie]) *LimitResponseDie {
+// LimitResponse defines how to handle requests that can not be executed right now.
+//
+// LimitResponseDie is immutable: it reads.
+// LimitResponseDieMut, its mutable die, also writes, as DieWith passes it.
+type LimitResponseDie struct {
+	diebase.DieBase[LimitResponse, *LimitResponseDie, *LimitResponseDieMut]
+}
+
+// LimitResponseDieMut is the mutable die of LimitResponse: see LimitResponseDie.
+type LimitResponseDieMut struct {
+	diebase.DieMutBase[LimitResponse, *LimitResponseDie, *LimitResponseDieMut]
+}
+
+func (*LimitResponseDie) DieFrom(b diebase.DieBase[LimitResponse, *LimitResponseDie, *LimitResponseDieMut]) *LimitResponseDie {
 	return &LimitResponseDie{b}
 }
 
-var _ diebase.DieOf[LimitResponse, *LimitResponseDie] = (*LimitResponseDie)(nil)
+func (*LimitResponseDieMut) DieFrom(b diebase.DieMutBase[LimitResponse, *LimitResponseDie, *LimitResponseDieMut]) *LimitResponseDieMut {
+	return &LimitResponseDieMut{b}
+}
 
-var LimitResponseBlank = diebase.Blank[LimitResponse, *LimitResponseDie]()
+var (
+	_ diebase.DieOf[LimitResponse, *LimitResponseDie, *LimitResponseDieMut]    = (*LimitResponseDie)(nil)
+	_ diebase.DieMutOf[LimitResponse, *LimitResponseDie, *LimitResponseDieMut] = (*LimitResponseDieMut)(nil)
+)
+
+var LimitResponseBlank = diebase.Blank[LimitResponse, *LimitResponseDie, *LimitResponseDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -661,46 +1011,59 @@ func (d *LimitResponseDie) DieReleaseApplyConfiguration() *LimitResponseApplyCon
 	return diecodegen.ReleaseApplyConfiguration[LimitResponseApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *LimitResponseDie) DieFeedApplyConfiguration(ac *LimitResponseApplyConfiguration) *LimitResponseDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *LimitResponseDie) DieStampApplyConfiguration(fn func(ac *LimitResponseApplyConfiguration)) *LimitResponseDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *LimitResponseDie) DieReleaseApplyConfigurationE() (*LimitResponseApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[LimitResponseApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *LimitResponseDieMut) DieReleaseApplyConfiguration() *LimitResponseApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[LimitResponseApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *LimitResponseDieMut) DieReleaseApplyConfigurationE() (*LimitResponseApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[LimitResponseApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *LimitResponseDieMut) DieFeedApplyConfiguration(ac *LimitResponseApplyConfiguration) *LimitResponseDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *LimitResponseDieMut) DieStampApplyConfiguration(fn func(ac *LimitResponseApplyConfiguration)) *LimitResponseDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *LimitResponseDie) DieFeedApplyConfigurationE(ac *LimitResponseApplyConfiguration) (*LimitResponseDie, error) {
+func (d *LimitResponseDieMut) DieFeedApplyConfigurationE(ac *LimitResponseApplyConfiguration) (*LimitResponseDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *LimitResponseDie) DieStampApplyConfigurationE(fn func(ac *LimitResponseApplyConfiguration)) (*LimitResponseDie, error) {
+func (d *LimitResponseDieMut) DieStampApplyConfigurationE(fn func(ac *LimitResponseApplyConfiguration)) (*LimitResponseDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type limitResponseFieldsTable struct {
 	Type    diefields.Field[LimitResponse, LimitResponseType]
-	Queuing diefields.Struct[LimitResponse, QueuingConfiguration, *QueuingConfigurationDie]
+	Queuing diefields.Struct[LimitResponse, QueuingConfiguration, *QueuingConfigurationDie, *QueuingConfigurationDieMut]
 }
 
 var limitResponseFields = &diefields.Table[limitResponseFieldsTable]{Build: func() (f limitResponseFieldsTable) {
 	_ = annotated
 	f.Type = diefields.NewField[LimitResponse, LimitResponseType]("type")
-	f.Queuing = diefields.NewStruct[LimitResponse, QueuingConfiguration, *QueuingConfigurationDie]("queuing")
+	f.Queuing = diefields.NewStruct[LimitResponse, QueuingConfiguration, *QueuingConfigurationDie, *QueuingConfigurationDieMut]("queuing")
 	return
 }}
 
@@ -711,7 +1074,7 @@ var limitResponseFields = &diefields.Table[limitResponseFieldsTable]{Build: func
 // "Reject" means that requests that can not be executed upon arrival
 // are rejected.
 // Required.
-func (d *LimitResponseDie) Type() diefields.Value[LimitResponseType, *LimitResponseDie] {
+func (d *LimitResponseDie) Type() diefields.Value[LimitResponseType] {
 	return diefields.ValueOf(d, limitResponseFields.Get().Type)
 }
 
@@ -721,21 +1084,53 @@ func (d *LimitResponseDie) Queuing() *QueuingConfigurationDie {
 	return diefields.Child(d, limitResponseFields.Get().Queuing)
 }
 
+// `type` is "Queue" or "Reject".
+// "Queue" means that requests that can not be executed upon arrival
+// are held in a queue until they can be executed or a queuing limit
+// is reached.
+// "Reject" means that requests that can not be executed upon arrival
+// are rejected.
+// Required.
+func (d *LimitResponseDieMut) Type() diefields.ValueMut[LimitResponseType, *LimitResponseDieMut] {
+	return diefields.ValueMutOf(d, limitResponseFields.Get().Type)
+}
+
+// `queuing` holds the configuration parameters for queuing.
+// This field may be non-empty only if `type` is `"Queue"`.
+func (d *LimitResponseDieMut) Queuing() *QueuingConfigurationDieMut {
+	return diefields.ChildMut(d, limitResponseFields.Get().Queuing)
+}
+
 // LimitedPriorityLevelConfiguration specifies how to handle requests that are subject to limits.
 // It addresses two issues:
 //   - How are requests for this priority level limited?
 //   - What should be done with requests that exceed the limit?
+//
+// LimitedPriorityLevelConfigurationDie is immutable: it reads.
+// LimitedPriorityLevelConfigurationDieMut, its mutable die, also writes, as DieWith passes it.
 type LimitedPriorityLevelConfigurationDie struct {
-	diebase.DieBase[LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie]
+	diebase.DieBase[LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie, *LimitedPriorityLevelConfigurationDieMut]
 }
 
-func (*LimitedPriorityLevelConfigurationDie) DieFrom(b diebase.DieBase[LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie]) *LimitedPriorityLevelConfigurationDie {
+// LimitedPriorityLevelConfigurationDieMut is the mutable die of LimitedPriorityLevelConfiguration: see LimitedPriorityLevelConfigurationDie.
+type LimitedPriorityLevelConfigurationDieMut struct {
+	diebase.DieMutBase[LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie, *LimitedPriorityLevelConfigurationDieMut]
+}
+
+func (*LimitedPriorityLevelConfigurationDie) DieFrom(b diebase.DieBase[LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie, *LimitedPriorityLevelConfigurationDieMut]) *LimitedPriorityLevelConfigurationDie {
 	return &LimitedPriorityLevelConfigurationDie{b}
 }
 
-var _ diebase.DieOf[LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie] = (*LimitedPriorityLevelConfigurationDie)(nil)
+func (*LimitedPriorityLevelConfigurationDieMut) DieFrom(b diebase.DieMutBase[LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie, *LimitedPriorityLevelConfigurationDieMut]) *LimitedPriorityLevelConfigurationDieMut {
+	return &LimitedPriorityLevelConfigurationDieMut{b}
+}
 
-var LimitedPriorityLevelConfigurationBlank = diebase.Blank[LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie]()
+var (
+	_ diebase.DieOf[LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie, *LimitedPriorityLevelConfigurationDieMut]    = (*LimitedPriorityLevelConfigurationDie)(nil)
+	_ diebase.DieMutOf[LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie, *LimitedPriorityLevelConfigurationDieMut] = (*LimitedPriorityLevelConfigurationDieMut)(nil)
+)
+
+var LimitedPriorityLevelConfigurationBlank = diebase.Blank[LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie, *LimitedPriorityLevelConfigurationDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -744,40 +1139,53 @@ func (d *LimitedPriorityLevelConfigurationDie) DieReleaseApplyConfiguration() *L
 	return diecodegen.ReleaseApplyConfiguration[LimitedPriorityLevelConfigurationApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *LimitedPriorityLevelConfigurationDie) DieFeedApplyConfiguration(ac *LimitedPriorityLevelConfigurationApplyConfiguration) *LimitedPriorityLevelConfigurationDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *LimitedPriorityLevelConfigurationDie) DieStampApplyConfiguration(fn func(ac *LimitedPriorityLevelConfigurationApplyConfiguration)) *LimitedPriorityLevelConfigurationDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *LimitedPriorityLevelConfigurationDie) DieReleaseApplyConfigurationE() (*LimitedPriorityLevelConfigurationApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[LimitedPriorityLevelConfigurationApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *LimitedPriorityLevelConfigurationDieMut) DieReleaseApplyConfiguration() *LimitedPriorityLevelConfigurationApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[LimitedPriorityLevelConfigurationApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *LimitedPriorityLevelConfigurationDieMut) DieReleaseApplyConfigurationE() (*LimitedPriorityLevelConfigurationApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[LimitedPriorityLevelConfigurationApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *LimitedPriorityLevelConfigurationDieMut) DieFeedApplyConfiguration(ac *LimitedPriorityLevelConfigurationApplyConfiguration) *LimitedPriorityLevelConfigurationDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *LimitedPriorityLevelConfigurationDieMut) DieStampApplyConfiguration(fn func(ac *LimitedPriorityLevelConfigurationApplyConfiguration)) *LimitedPriorityLevelConfigurationDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *LimitedPriorityLevelConfigurationDie) DieFeedApplyConfigurationE(ac *LimitedPriorityLevelConfigurationApplyConfiguration) (*LimitedPriorityLevelConfigurationDie, error) {
+func (d *LimitedPriorityLevelConfigurationDieMut) DieFeedApplyConfigurationE(ac *LimitedPriorityLevelConfigurationApplyConfiguration) (*LimitedPriorityLevelConfigurationDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *LimitedPriorityLevelConfigurationDie) DieStampApplyConfigurationE(fn func(ac *LimitedPriorityLevelConfigurationApplyConfiguration)) (*LimitedPriorityLevelConfigurationDie, error) {
+func (d *LimitedPriorityLevelConfigurationDieMut) DieStampApplyConfigurationE(fn func(ac *LimitedPriorityLevelConfigurationApplyConfiguration)) (*LimitedPriorityLevelConfigurationDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type limitedPriorityLevelConfigurationFieldsTable struct {
 	NominalConcurrencyShares diefields.Field[LimitedPriorityLevelConfiguration, *int32]
-	LimitResponse            diefields.Struct[LimitedPriorityLevelConfiguration, LimitResponse, *LimitResponseDie]
+	LimitResponse            diefields.Struct[LimitedPriorityLevelConfiguration, LimitResponse, *LimitResponseDie, *LimitResponseDieMut]
 	LendablePercent          diefields.Field[LimitedPriorityLevelConfiguration, *int32]
 	BorrowingLimitPercent    diefields.Field[LimitedPriorityLevelConfiguration, *int32]
 }
@@ -785,7 +1193,7 @@ type limitedPriorityLevelConfigurationFieldsTable struct {
 var limitedPriorityLevelConfigurationFields = &diefields.Table[limitedPriorityLevelConfigurationFieldsTable]{Build: func() (f limitedPriorityLevelConfigurationFieldsTable) {
 	_ = annotated
 	f.NominalConcurrencyShares = diefields.NewField[LimitedPriorityLevelConfiguration, *int32]("nominalConcurrencyShares")
-	f.LimitResponse = diefields.NewStruct[LimitedPriorityLevelConfiguration, LimitResponse, *LimitResponseDie]("limitResponse")
+	f.LimitResponse = diefields.NewStruct[LimitedPriorityLevelConfiguration, LimitResponse, *LimitResponseDie, *LimitResponseDieMut]("limitResponse")
 	f.LendablePercent = diefields.NewField[LimitedPriorityLevelConfiguration, *int32]("lendablePercent")
 	f.BorrowingLimitPercent = diefields.NewField[LimitedPriorityLevelConfiguration, *int32]("borrowingLimitPercent")
 	return
@@ -810,7 +1218,7 @@ var limitedPriorityLevelConfigurationFields = &diefields.Table[limitedPriorityLe
 //
 // Setting this field to zero supports the construction of a
 // "jail" for this priority level that is used to hold some request(s)
-func (d *LimitedPriorityLevelConfigurationDie) NominalConcurrencyShares() diefields.Optional[int32, *LimitedPriorityLevelConfigurationDie] {
+func (d *LimitedPriorityLevelConfigurationDie) NominalConcurrencyShares() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, limitedPriorityLevelConfigurationFields.Get().NominalConcurrencyShares)
 }
 
@@ -826,7 +1234,7 @@ func (d *LimitedPriorityLevelConfigurationDie) LimitResponse() *LimitResponseDie
 // as this level's LendableConcurrencyLimit (LendableCL), is defined as follows.
 //
 // LendableCL(i) = round( NominalCL(i) * lendablePercent(i)/100.0 )
-func (d *LimitedPriorityLevelConfigurationDie) LendablePercent() diefields.Optional[int32, *LimitedPriorityLevelConfigurationDie] {
+func (d *LimitedPriorityLevelConfigurationDie) LendablePercent() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, limitedPriorityLevelConfigurationFields.Get().LendablePercent)
 }
 
@@ -845,24 +1253,97 @@ func (d *LimitedPriorityLevelConfigurationDie) LendablePercent() diefields.Optio
 // priority level can borrow a number of seats that is greater than
 // its own nominal concurrency limit (NominalCL).
 // When this field is left `nil`, the limit is effectively infinite.
-func (d *LimitedPriorityLevelConfigurationDie) BorrowingLimitPercent() diefields.Optional[int32, *LimitedPriorityLevelConfigurationDie] {
+func (d *LimitedPriorityLevelConfigurationDie) BorrowingLimitPercent() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, limitedPriorityLevelConfigurationFields.Get().BorrowingLimitPercent)
+}
+
+// `nominalConcurrencyShares` (NCS) contributes to the computation of the
+// NominalConcurrencyLimit (NominalCL) of this level.
+// This is the number of execution seats available at this priority level.
+// This is used both for requests dispatched from this priority level
+// as well as requests dispatched from other priority levels
+// borrowing seats from this level.
+// The server's concurrency limit (ServerCL) is divided among the
+// Limited priority levels in proportion to their NCS values:
+//
+// NominalCL(i)  = ceil( ServerCL * NCS(i) / sum_ncs )
+// sum_ncs = sum[priority level k] NCS(k)
+//
+// Bigger numbers mean a larger nominal concurrency limit,
+// at the expense of every other priority level.
+//
+// If not specified, this field defaults to a value of 30.
+//
+// Setting this field to zero supports the construction of a
+// "jail" for this priority level that is used to hold some request(s)
+func (d *LimitedPriorityLevelConfigurationDieMut) NominalConcurrencyShares() diefields.OptionalMut[int32, *LimitedPriorityLevelConfigurationDieMut] {
+	return diefields.OptionalMutOf(d, limitedPriorityLevelConfigurationFields.Get().NominalConcurrencyShares)
+}
+
+// `limitResponse` indicates what to do with requests that can not be executed right now
+func (d *LimitedPriorityLevelConfigurationDieMut) LimitResponse() *LimitResponseDieMut {
+	return diefields.ChildMut(d, limitedPriorityLevelConfigurationFields.Get().LimitResponse)
+}
+
+// `lendablePercent` prescribes the fraction of the level's NominalCL that
+// can be borrowed by other priority levels. The value of this
+// field must be between 0 and 100, inclusive, and it defaults to 0.
+// The number of seats that other levels can borrow from this level, known
+// as this level's LendableConcurrencyLimit (LendableCL), is defined as follows.
+//
+// LendableCL(i) = round( NominalCL(i) * lendablePercent(i)/100.0 )
+func (d *LimitedPriorityLevelConfigurationDieMut) LendablePercent() diefields.OptionalMut[int32, *LimitedPriorityLevelConfigurationDieMut] {
+	return diefields.OptionalMutOf(d, limitedPriorityLevelConfigurationFields.Get().LendablePercent)
+}
+
+// `borrowingLimitPercent`, if present, configures a limit on how many
+// seats this priority level can borrow from other priority levels.
+// The limit is known as this level's BorrowingConcurrencyLimit
+// (BorrowingCL) and is a limit on the total number of seats that this
+// level may borrow at any one time.
+// This field holds the ratio of that limit to the level's nominal
+// concurrency limit. When this field is non-nil, it must hold a
+// non-negative integer and the limit is calculated as follows.
+//
+// BorrowingCL(i) = round( NominalCL(i) * borrowingLimitPercent(i)/100.0 )
+//
+// The value of this field can be more than 100, implying that this
+// priority level can borrow a number of seats that is greater than
+// its own nominal concurrency limit (NominalCL).
+// When this field is left `nil`, the limit is effectively infinite.
+func (d *LimitedPriorityLevelConfigurationDieMut) BorrowingLimitPercent() diefields.OptionalMut[int32, *LimitedPriorityLevelConfigurationDieMut] {
+	return diefields.OptionalMutOf(d, limitedPriorityLevelConfigurationFields.Get().BorrowingLimitPercent)
 }
 
 // NonResourcePolicyRule is a predicate that matches non-resource requests according to their verb and the
 // target non-resource URL. A NonResourcePolicyRule matches a request if and only if both (a) at least one member
 // of verbs matches the request and (b) at least one member of nonResourceURLs matches the request.
+//
+// NonResourcePolicyRuleDie is immutable: it reads.
+// NonResourcePolicyRuleDieMut, its mutable die, also writes, as DieWith passes it.
 type NonResourcePolicyRuleDie struct {
-	diebase.DieBase[NonResourcePolicyRule, *NonResourcePolicyRuleDie]
+	diebase.DieBase[NonResourcePolicyRule, *NonResourcePolicyRuleDie, *NonResourcePolicyRuleDieMut]
 }
 
-func (*NonResourcePolicyRuleDie) DieFrom(b diebase.DieBase[NonResourcePolicyRule, *NonResourcePolicyRuleDie]) *NonResourcePolicyRuleDie {
+// NonResourcePolicyRuleDieMut is the mutable die of NonResourcePolicyRule: see NonResourcePolicyRuleDie.
+type NonResourcePolicyRuleDieMut struct {
+	diebase.DieMutBase[NonResourcePolicyRule, *NonResourcePolicyRuleDie, *NonResourcePolicyRuleDieMut]
+}
+
+func (*NonResourcePolicyRuleDie) DieFrom(b diebase.DieBase[NonResourcePolicyRule, *NonResourcePolicyRuleDie, *NonResourcePolicyRuleDieMut]) *NonResourcePolicyRuleDie {
 	return &NonResourcePolicyRuleDie{b}
 }
 
-var _ diebase.DieOf[NonResourcePolicyRule, *NonResourcePolicyRuleDie] = (*NonResourcePolicyRuleDie)(nil)
+func (*NonResourcePolicyRuleDieMut) DieFrom(b diebase.DieMutBase[NonResourcePolicyRule, *NonResourcePolicyRuleDie, *NonResourcePolicyRuleDieMut]) *NonResourcePolicyRuleDieMut {
+	return &NonResourcePolicyRuleDieMut{b}
+}
 
-var NonResourcePolicyRuleBlank = diebase.Blank[NonResourcePolicyRule, *NonResourcePolicyRuleDie]()
+var (
+	_ diebase.DieOf[NonResourcePolicyRule, *NonResourcePolicyRuleDie, *NonResourcePolicyRuleDieMut]    = (*NonResourcePolicyRuleDie)(nil)
+	_ diebase.DieMutOf[NonResourcePolicyRule, *NonResourcePolicyRuleDie, *NonResourcePolicyRuleDieMut] = (*NonResourcePolicyRuleDieMut)(nil)
+)
+
+var NonResourcePolicyRuleBlank = diebase.Blank[NonResourcePolicyRule, *NonResourcePolicyRuleDie, *NonResourcePolicyRuleDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -871,34 +1352,47 @@ func (d *NonResourcePolicyRuleDie) DieReleaseApplyConfiguration() *NonResourcePo
 	return diecodegen.ReleaseApplyConfiguration[NonResourcePolicyRuleApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *NonResourcePolicyRuleDie) DieFeedApplyConfiguration(ac *NonResourcePolicyRuleApplyConfiguration) *NonResourcePolicyRuleDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *NonResourcePolicyRuleDie) DieStampApplyConfiguration(fn func(ac *NonResourcePolicyRuleApplyConfiguration)) *NonResourcePolicyRuleDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *NonResourcePolicyRuleDie) DieReleaseApplyConfigurationE() (*NonResourcePolicyRuleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[NonResourcePolicyRuleApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *NonResourcePolicyRuleDieMut) DieReleaseApplyConfiguration() *NonResourcePolicyRuleApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[NonResourcePolicyRuleApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *NonResourcePolicyRuleDieMut) DieReleaseApplyConfigurationE() (*NonResourcePolicyRuleApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[NonResourcePolicyRuleApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *NonResourcePolicyRuleDieMut) DieFeedApplyConfiguration(ac *NonResourcePolicyRuleApplyConfiguration) *NonResourcePolicyRuleDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *NonResourcePolicyRuleDieMut) DieStampApplyConfiguration(fn func(ac *NonResourcePolicyRuleApplyConfiguration)) *NonResourcePolicyRuleDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *NonResourcePolicyRuleDie) DieFeedApplyConfigurationE(ac *NonResourcePolicyRuleApplyConfiguration) (*NonResourcePolicyRuleDie, error) {
+func (d *NonResourcePolicyRuleDieMut) DieFeedApplyConfigurationE(ac *NonResourcePolicyRuleApplyConfiguration) (*NonResourcePolicyRuleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *NonResourcePolicyRuleDie) DieStampApplyConfigurationE(fn func(ac *NonResourcePolicyRuleApplyConfiguration)) (*NonResourcePolicyRuleDie, error) {
+func (d *NonResourcePolicyRuleDieMut) DieStampApplyConfigurationE(fn func(ac *NonResourcePolicyRuleApplyConfiguration)) (*NonResourcePolicyRuleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -917,7 +1411,7 @@ var nonResourcePolicyRuleFields = &diefields.Table[nonResourcePolicyRuleFieldsTa
 // `verbs` is a list of matching verbs and may not be empty.
 // "*" matches all verbs. If it is present, it must be the only entry.
 // Required.
-func (d *NonResourcePolicyRuleDie) Verbs() diefields.Value[[]string, *NonResourcePolicyRuleDie] {
+func (d *NonResourcePolicyRuleDie) Verbs() diefields.Value[[]string] {
 	return diefields.ValueOf(d, nonResourcePolicyRuleFields.Get().Verbs)
 }
 
@@ -931,25 +1425,61 @@ func (d *NonResourcePolicyRuleDie) Verbs() diefields.Value[[]string, *NonResourc
 //
 // "*" matches all non-resource urls. if it is present, it must be the only entry.
 // Required.
-func (d *NonResourcePolicyRuleDie) NonResourceURLs() diefields.Value[[]string, *NonResourcePolicyRuleDie] {
+func (d *NonResourcePolicyRuleDie) NonResourceURLs() diefields.Value[[]string] {
 	return diefields.ValueOf(d, nonResourcePolicyRuleFields.Get().NonResourceURLs)
+}
+
+// `verbs` is a list of matching verbs and may not be empty.
+// "*" matches all verbs. If it is present, it must be the only entry.
+// Required.
+func (d *NonResourcePolicyRuleDieMut) Verbs() diefields.ValueMut[[]string, *NonResourcePolicyRuleDieMut] {
+	return diefields.ValueMutOf(d, nonResourcePolicyRuleFields.Get().Verbs)
+}
+
+// `nonResourceURLs` is a set of url prefixes that a user should have access to and may not be empty.
+// For example:
+//   - "/healthz" is legal
+//   - "/hea*" is illegal
+//   - "/hea" is legal but matches nothing
+//   - "/hea/*" also matches nothing
+//   - "/healthz/*" matches all per-component health checks.
+//
+// "*" matches all non-resource urls. if it is present, it must be the only entry.
+// Required.
+func (d *NonResourcePolicyRuleDieMut) NonResourceURLs() diefields.ValueMut[[]string, *NonResourcePolicyRuleDieMut] {
+	return diefields.ValueMutOf(d, nonResourcePolicyRuleFields.Get().NonResourceURLs)
 }
 
 // PolicyRulesWithSubjects prescribes a test that applies to a request to an apiserver. The test considers the subject
 // making the request, the verb being requested, and the resource to be acted upon. This PolicyRulesWithSubjects matches
 // a request if and only if both (a) at least one member of subjects matches the request and (b) at least one member
 // of resourceRules or nonResourceRules matches the request.
+//
+// PolicyRulesWithSubjectsDie is immutable: it reads.
+// PolicyRulesWithSubjectsDieMut, its mutable die, also writes, as DieWith passes it.
 type PolicyRulesWithSubjectsDie struct {
-	diebase.DieBase[PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie]
+	diebase.DieBase[PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie, *PolicyRulesWithSubjectsDieMut]
 }
 
-func (*PolicyRulesWithSubjectsDie) DieFrom(b diebase.DieBase[PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie]) *PolicyRulesWithSubjectsDie {
+// PolicyRulesWithSubjectsDieMut is the mutable die of PolicyRulesWithSubjects: see PolicyRulesWithSubjectsDie.
+type PolicyRulesWithSubjectsDieMut struct {
+	diebase.DieMutBase[PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie, *PolicyRulesWithSubjectsDieMut]
+}
+
+func (*PolicyRulesWithSubjectsDie) DieFrom(b diebase.DieBase[PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie, *PolicyRulesWithSubjectsDieMut]) *PolicyRulesWithSubjectsDie {
 	return &PolicyRulesWithSubjectsDie{b}
 }
 
-var _ diebase.DieOf[PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie] = (*PolicyRulesWithSubjectsDie)(nil)
+func (*PolicyRulesWithSubjectsDieMut) DieFrom(b diebase.DieMutBase[PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie, *PolicyRulesWithSubjectsDieMut]) *PolicyRulesWithSubjectsDieMut {
+	return &PolicyRulesWithSubjectsDieMut{b}
+}
 
-var PolicyRulesWithSubjectsBlank = diebase.Blank[PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie]()
+var (
+	_ diebase.DieOf[PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie, *PolicyRulesWithSubjectsDieMut]    = (*PolicyRulesWithSubjectsDie)(nil)
+	_ diebase.DieMutOf[PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie, *PolicyRulesWithSubjectsDieMut] = (*PolicyRulesWithSubjectsDieMut)(nil)
+)
+
+var PolicyRulesWithSubjectsBlank = diebase.Blank[PolicyRulesWithSubjects, *PolicyRulesWithSubjectsDie, *PolicyRulesWithSubjectsDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -958,34 +1488,47 @@ func (d *PolicyRulesWithSubjectsDie) DieReleaseApplyConfiguration() *PolicyRules
 	return diecodegen.ReleaseApplyConfiguration[PolicyRulesWithSubjectsApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PolicyRulesWithSubjectsDie) DieFeedApplyConfiguration(ac *PolicyRulesWithSubjectsApplyConfiguration) *PolicyRulesWithSubjectsDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PolicyRulesWithSubjectsDie) DieStampApplyConfiguration(fn func(ac *PolicyRulesWithSubjectsApplyConfiguration)) *PolicyRulesWithSubjectsDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PolicyRulesWithSubjectsDie) DieReleaseApplyConfigurationE() (*PolicyRulesWithSubjectsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PolicyRulesWithSubjectsApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PolicyRulesWithSubjectsDieMut) DieReleaseApplyConfiguration() *PolicyRulesWithSubjectsApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PolicyRulesWithSubjectsApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PolicyRulesWithSubjectsDieMut) DieReleaseApplyConfigurationE() (*PolicyRulesWithSubjectsApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PolicyRulesWithSubjectsApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PolicyRulesWithSubjectsDieMut) DieFeedApplyConfiguration(ac *PolicyRulesWithSubjectsApplyConfiguration) *PolicyRulesWithSubjectsDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PolicyRulesWithSubjectsDieMut) DieStampApplyConfiguration(fn func(ac *PolicyRulesWithSubjectsApplyConfiguration)) *PolicyRulesWithSubjectsDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PolicyRulesWithSubjectsDie) DieFeedApplyConfigurationE(ac *PolicyRulesWithSubjectsApplyConfiguration) (*PolicyRulesWithSubjectsDie, error) {
+func (d *PolicyRulesWithSubjectsDieMut) DieFeedApplyConfigurationE(ac *PolicyRulesWithSubjectsApplyConfiguration) (*PolicyRulesWithSubjectsDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PolicyRulesWithSubjectsDie) DieStampApplyConfigurationE(fn func(ac *PolicyRulesWithSubjectsApplyConfiguration)) (*PolicyRulesWithSubjectsDie, error) {
+func (d *PolicyRulesWithSubjectsDieMut) DieStampApplyConfigurationE(fn func(ac *PolicyRulesWithSubjectsApplyConfiguration)) (*PolicyRulesWithSubjectsDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1007,35 +1550,71 @@ var policyRulesWithSubjectsFields = &diefields.Table[policyRulesWithSubjectsFiel
 // There must be at least one member in this slice.
 // A slice that includes both the system:authenticated and system:unauthenticated user groups matches every request.
 // Required.
-func (d *PolicyRulesWithSubjectsDie) Subjects() diefields.Value[[]Subject, *PolicyRulesWithSubjectsDie] {
+func (d *PolicyRulesWithSubjectsDie) Subjects() diefields.Value[[]Subject] {
 	return diefields.ValueOf(d, policyRulesWithSubjectsFields.Get().Subjects)
 }
 
 // `resourceRules` is a slice of ResourcePolicyRules that identify matching requests according to their verb and the
 // target resource.
 // At least one of `resourceRules` and `nonResourceRules` has to be non-empty.
-func (d *PolicyRulesWithSubjectsDie) ResourceRules() diefields.Value[[]ResourcePolicyRule, *PolicyRulesWithSubjectsDie] {
+func (d *PolicyRulesWithSubjectsDie) ResourceRules() diefields.Value[[]ResourcePolicyRule] {
 	return diefields.ValueOf(d, policyRulesWithSubjectsFields.Get().ResourceRules)
 }
 
 // `nonResourceRules` is a list of NonResourcePolicyRules that identify matching requests according to their verb
 // and the target non-resource URL.
-func (d *PolicyRulesWithSubjectsDie) NonResourceRules() diefields.Value[[]NonResourcePolicyRule, *PolicyRulesWithSubjectsDie] {
+func (d *PolicyRulesWithSubjectsDie) NonResourceRules() diefields.Value[[]NonResourcePolicyRule] {
 	return diefields.ValueOf(d, policyRulesWithSubjectsFields.Get().NonResourceRules)
 }
 
-// PriorityLevelConfiguration represents the configuration of a priority level.
-type PriorityLevelConfigurationDie struct {
-	diebase.DieObjectBase[PriorityLevelConfiguration, *PriorityLevelConfigurationDie]
+// subjects is the list of normal user, serviceaccount, or group that this rule cares about.
+// There must be at least one member in this slice.
+// A slice that includes both the system:authenticated and system:unauthenticated user groups matches every request.
+// Required.
+func (d *PolicyRulesWithSubjectsDieMut) Subjects() diefields.ValueMut[[]Subject, *PolicyRulesWithSubjectsDieMut] {
+	return diefields.ValueMutOf(d, policyRulesWithSubjectsFields.Get().Subjects)
 }
 
-func (*PriorityLevelConfigurationDie) DieFrom(b diebase.DieBase[PriorityLevelConfiguration, *PriorityLevelConfigurationDie]) *PriorityLevelConfigurationDie {
+// `resourceRules` is a slice of ResourcePolicyRules that identify matching requests according to their verb and the
+// target resource.
+// At least one of `resourceRules` and `nonResourceRules` has to be non-empty.
+func (d *PolicyRulesWithSubjectsDieMut) ResourceRules() diefields.ValueMut[[]ResourcePolicyRule, *PolicyRulesWithSubjectsDieMut] {
+	return diefields.ValueMutOf(d, policyRulesWithSubjectsFields.Get().ResourceRules)
+}
+
+// `nonResourceRules` is a list of NonResourcePolicyRules that identify matching requests according to their verb
+// and the target non-resource URL.
+func (d *PolicyRulesWithSubjectsDieMut) NonResourceRules() diefields.ValueMut[[]NonResourcePolicyRule, *PolicyRulesWithSubjectsDieMut] {
+	return diefields.ValueMutOf(d, policyRulesWithSubjectsFields.Get().NonResourceRules)
+}
+
+// PriorityLevelConfiguration represents the configuration of a priority level.
+//
+// PriorityLevelConfigurationDie is immutable: it reads.
+// PriorityLevelConfigurationDieMut, its mutable die, also writes, as DieWith passes it.
+type PriorityLevelConfigurationDie struct {
+	diebase.DieObjectBase[PriorityLevelConfiguration, *PriorityLevelConfigurationDie, *PriorityLevelConfigurationDieMut]
+}
+
+// PriorityLevelConfigurationDieMut is the mutable die of PriorityLevelConfiguration: see PriorityLevelConfigurationDie.
+type PriorityLevelConfigurationDieMut struct {
+	diebase.DieObjectMutBase[PriorityLevelConfiguration, *PriorityLevelConfigurationDie, *PriorityLevelConfigurationDieMut]
+}
+
+func (*PriorityLevelConfigurationDie) DieFrom(b diebase.DieBase[PriorityLevelConfiguration, *PriorityLevelConfigurationDie, *PriorityLevelConfigurationDieMut]) *PriorityLevelConfigurationDie {
 	return &PriorityLevelConfigurationDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[PriorityLevelConfiguration, *PriorityLevelConfigurationDie] = (*PriorityLevelConfigurationDie)(nil)
+func (*PriorityLevelConfigurationDieMut) DieFrom(b diebase.DieMutBase[PriorityLevelConfiguration, *PriorityLevelConfigurationDie, *PriorityLevelConfigurationDieMut]) *PriorityLevelConfigurationDieMut {
+	return &PriorityLevelConfigurationDieMut{diebase.AsObjectMut(b)}
+}
 
-var PriorityLevelConfigurationBlank = diebase.BlankOf[PriorityLevelConfiguration, *PriorityLevelConfigurationDie](PriorityLevelConfiguration{TypeMeta: metav1.TypeMeta{APIVersion: "flowcontrol.apiserver.k8s.io/v1", Kind: "PriorityLevelConfiguration"}})
+var (
+	_ dieobjects.DieObjectOf[PriorityLevelConfiguration, *PriorityLevelConfigurationDie, *PriorityLevelConfigurationDieMut]    = (*PriorityLevelConfigurationDie)(nil)
+	_ dieobjects.DieObjectMutOf[PriorityLevelConfiguration, *PriorityLevelConfigurationDie, *PriorityLevelConfigurationDieMut] = (*PriorityLevelConfigurationDieMut)(nil)
+)
+
+var PriorityLevelConfigurationBlank = diebase.BlankOf[PriorityLevelConfiguration, *PriorityLevelConfigurationDie, *PriorityLevelConfigurationDieMut](PriorityLevelConfiguration{TypeMeta: metav1.TypeMeta{APIVersion: "flowcontrol.apiserver.k8s.io/v1", Kind: "PriorityLevelConfiguration"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1044,52 +1623,65 @@ func (d *PriorityLevelConfigurationDie) DieReleaseApplyConfiguration() *Priority
 	return diecodegen.ReleaseApplyConfiguration[PriorityLevelConfigurationApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PriorityLevelConfigurationDie) DieFeedApplyConfiguration(ac *PriorityLevelConfigurationApplyConfiguration) *PriorityLevelConfigurationDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PriorityLevelConfigurationDie) DieStampApplyConfiguration(fn func(ac *PriorityLevelConfigurationApplyConfiguration)) *PriorityLevelConfigurationDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PriorityLevelConfigurationDie) DieReleaseApplyConfigurationE() (*PriorityLevelConfigurationApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PriorityLevelConfigurationApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PriorityLevelConfigurationDieMut) DieReleaseApplyConfiguration() *PriorityLevelConfigurationApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PriorityLevelConfigurationApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PriorityLevelConfigurationDieMut) DieReleaseApplyConfigurationE() (*PriorityLevelConfigurationApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PriorityLevelConfigurationApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PriorityLevelConfigurationDieMut) DieFeedApplyConfiguration(ac *PriorityLevelConfigurationApplyConfiguration) *PriorityLevelConfigurationDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PriorityLevelConfigurationDieMut) DieStampApplyConfiguration(fn func(ac *PriorityLevelConfigurationApplyConfiguration)) *PriorityLevelConfigurationDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PriorityLevelConfigurationDie) DieFeedApplyConfigurationE(ac *PriorityLevelConfigurationApplyConfiguration) (*PriorityLevelConfigurationDie, error) {
+func (d *PriorityLevelConfigurationDieMut) DieFeedApplyConfigurationE(ac *PriorityLevelConfigurationApplyConfiguration) (*PriorityLevelConfigurationDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PriorityLevelConfigurationDie) DieStampApplyConfigurationE(fn func(ac *PriorityLevelConfigurationApplyConfiguration)) (*PriorityLevelConfigurationDie, error) {
+func (d *PriorityLevelConfigurationDieMut) DieStampApplyConfigurationE(fn func(ac *PriorityLevelConfigurationApplyConfiguration)) (*PriorityLevelConfigurationDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type priorityLevelConfigurationFieldsTable struct {
 	Kind       diefields.Field[PriorityLevelConfiguration, string]
 	APIVersion diefields.Field[PriorityLevelConfiguration, string]
-	Metadata   diefields.Struct[PriorityLevelConfiguration, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[PriorityLevelConfiguration, PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie]
-	Status     diefields.Struct[PriorityLevelConfiguration, PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie]
+	Metadata   diefields.Struct[PriorityLevelConfiguration, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[PriorityLevelConfiguration, PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie, *PriorityLevelConfigurationSpecDieMut]
+	Status     diefields.Struct[PriorityLevelConfiguration, PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie, *PriorityLevelConfigurationStatusDieMut]
 }
 
 var priorityLevelConfigurationFields = &diefields.Table[priorityLevelConfigurationFieldsTable]{Build: func() (f priorityLevelConfigurationFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[PriorityLevelConfiguration, string]("kind")
 	f.APIVersion = diefields.NewField[PriorityLevelConfiguration, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[PriorityLevelConfiguration, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[PriorityLevelConfiguration, PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie]("spec")
-	f.Status = diefields.NewStruct[PriorityLevelConfiguration, PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie]("status")
+	f.Metadata = diefields.NewStruct[PriorityLevelConfiguration, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[PriorityLevelConfiguration, PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie, *PriorityLevelConfigurationSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[PriorityLevelConfiguration, PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie, *PriorityLevelConfigurationStatusDieMut]("status")
 	return
 }}
 
@@ -1098,7 +1690,7 @@ var priorityLevelConfigurationFields = &diefields.Table[priorityLevelConfigurati
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *PriorityLevelConfigurationDie) Kind() diefields.Value[string, *PriorityLevelConfigurationDie] {
+func (d *PriorityLevelConfigurationDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, priorityLevelConfigurationFields.Get().Kind)
 }
 
@@ -1106,7 +1698,7 @@ func (d *PriorityLevelConfigurationDie) Kind() diefields.Value[string, *Priority
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *PriorityLevelConfigurationDie) APIVersion() diefields.Value[string, *PriorityLevelConfigurationDie] {
+func (d *PriorityLevelConfigurationDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, priorityLevelConfigurationFields.Get().APIVersion)
 }
 
@@ -1128,18 +1720,68 @@ func (d *PriorityLevelConfigurationDie) Status() *PriorityLevelConfigurationStat
 	return diefields.Child(d, priorityLevelConfigurationFields.Get().Status)
 }
 
-// PriorityLevelConfigurationCondition defines the condition of priority level.
-type PriorityLevelConfigurationConditionDie struct {
-	diebase.DieBase[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *PriorityLevelConfigurationDieMut) Kind() diefields.ValueMut[string, *PriorityLevelConfigurationDieMut] {
+	return diefields.ValueMutOf(d, priorityLevelConfigurationFields.Get().Kind)
 }
 
-func (*PriorityLevelConfigurationConditionDie) DieFrom(b diebase.DieBase[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie]) *PriorityLevelConfigurationConditionDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *PriorityLevelConfigurationDieMut) APIVersion() diefields.ValueMut[string, *PriorityLevelConfigurationDieMut] {
+	return diefields.ValueMutOf(d, priorityLevelConfigurationFields.Get().APIVersion)
+}
+
+// `metadata` is the standard object's metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *PriorityLevelConfigurationDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, priorityLevelConfigurationFields.Get().Metadata)
+}
+
+// `spec` is the specification of the desired behavior of a "request-priority".
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *PriorityLevelConfigurationDieMut) Spec() *PriorityLevelConfigurationSpecDieMut {
+	return diefields.ChildMut(d, priorityLevelConfigurationFields.Get().Spec)
+}
+
+// `status` is the current status of a "request-priority".
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+func (d *PriorityLevelConfigurationDieMut) Status() *PriorityLevelConfigurationStatusDieMut {
+	return diefields.ChildMut(d, priorityLevelConfigurationFields.Get().Status)
+}
+
+// PriorityLevelConfigurationCondition defines the condition of priority level.
+//
+// PriorityLevelConfigurationConditionDie is immutable: it reads.
+// PriorityLevelConfigurationConditionDieMut, its mutable die, also writes, as DieWith passes it.
+type PriorityLevelConfigurationConditionDie struct {
+	diebase.DieBase[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, *PriorityLevelConfigurationConditionDieMut]
+}
+
+// PriorityLevelConfigurationConditionDieMut is the mutable die of PriorityLevelConfigurationCondition: see PriorityLevelConfigurationConditionDie.
+type PriorityLevelConfigurationConditionDieMut struct {
+	diebase.DieMutBase[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, *PriorityLevelConfigurationConditionDieMut]
+}
+
+func (*PriorityLevelConfigurationConditionDie) DieFrom(b diebase.DieBase[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, *PriorityLevelConfigurationConditionDieMut]) *PriorityLevelConfigurationConditionDie {
 	return &PriorityLevelConfigurationConditionDie{b}
 }
 
-var _ diebase.DieOf[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie] = (*PriorityLevelConfigurationConditionDie)(nil)
+func (*PriorityLevelConfigurationConditionDieMut) DieFrom(b diebase.DieMutBase[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, *PriorityLevelConfigurationConditionDieMut]) *PriorityLevelConfigurationConditionDieMut {
+	return &PriorityLevelConfigurationConditionDieMut{b}
+}
 
-var PriorityLevelConfigurationConditionBlank = diebase.Blank[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie]()
+var (
+	_ diebase.DieOf[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, *PriorityLevelConfigurationConditionDieMut]    = (*PriorityLevelConfigurationConditionDie)(nil)
+	_ diebase.DieMutOf[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, *PriorityLevelConfigurationConditionDieMut] = (*PriorityLevelConfigurationConditionDieMut)(nil)
+)
+
+var PriorityLevelConfigurationConditionBlank = diebase.Blank[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, *PriorityLevelConfigurationConditionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1148,34 +1790,47 @@ func (d *PriorityLevelConfigurationConditionDie) DieReleaseApplyConfiguration() 
 	return diecodegen.ReleaseApplyConfiguration[PriorityLevelConfigurationConditionApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PriorityLevelConfigurationConditionDie) DieFeedApplyConfiguration(ac *PriorityLevelConfigurationConditionApplyConfiguration) *PriorityLevelConfigurationConditionDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PriorityLevelConfigurationConditionDie) DieStampApplyConfiguration(fn func(ac *PriorityLevelConfigurationConditionApplyConfiguration)) *PriorityLevelConfigurationConditionDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PriorityLevelConfigurationConditionDie) DieReleaseApplyConfigurationE() (*PriorityLevelConfigurationConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PriorityLevelConfigurationConditionApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PriorityLevelConfigurationConditionDieMut) DieReleaseApplyConfiguration() *PriorityLevelConfigurationConditionApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PriorityLevelConfigurationConditionApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PriorityLevelConfigurationConditionDieMut) DieReleaseApplyConfigurationE() (*PriorityLevelConfigurationConditionApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PriorityLevelConfigurationConditionApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PriorityLevelConfigurationConditionDieMut) DieFeedApplyConfiguration(ac *PriorityLevelConfigurationConditionApplyConfiguration) *PriorityLevelConfigurationConditionDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PriorityLevelConfigurationConditionDieMut) DieStampApplyConfiguration(fn func(ac *PriorityLevelConfigurationConditionApplyConfiguration)) *PriorityLevelConfigurationConditionDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PriorityLevelConfigurationConditionDie) DieFeedApplyConfigurationE(ac *PriorityLevelConfigurationConditionApplyConfiguration) (*PriorityLevelConfigurationConditionDie, error) {
+func (d *PriorityLevelConfigurationConditionDieMut) DieFeedApplyConfigurationE(ac *PriorityLevelConfigurationConditionApplyConfiguration) (*PriorityLevelConfigurationConditionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PriorityLevelConfigurationConditionDie) DieStampApplyConfigurationE(fn func(ac *PriorityLevelConfigurationConditionApplyConfiguration)) (*PriorityLevelConfigurationConditionDie, error) {
+func (d *PriorityLevelConfigurationConditionDieMut) DieStampApplyConfigurationE(fn func(ac *PriorityLevelConfigurationConditionApplyConfiguration)) (*PriorityLevelConfigurationConditionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1199,40 +1854,67 @@ var priorityLevelConfigurationConditionFields = &diefields.Table[priorityLevelCo
 
 // `type` is the type of the condition.
 // Required.
-func (d *PriorityLevelConfigurationConditionDie) Type() diefields.Value[PriorityLevelConfigurationConditionType, *PriorityLevelConfigurationConditionDie] {
+func (d *PriorityLevelConfigurationConditionDie) Type() diefields.Value[PriorityLevelConfigurationConditionType] {
 	return diefields.ValueOf(d, priorityLevelConfigurationConditionFields.Get().Type)
 }
 
 // `status` is the status of the condition.
 // Should be specified and set to one of True, False, Unknown.
-func (d *PriorityLevelConfigurationConditionDie) Status() diefields.Value[ConditionStatus, *PriorityLevelConfigurationConditionDie] {
+func (d *PriorityLevelConfigurationConditionDie) Status() diefields.Value[ConditionStatus] {
 	return diefields.ValueOf(d, priorityLevelConfigurationConditionFields.Get().Status)
 }
 
 // `lastTransitionTime` is the last time the condition transitioned from one status to another.
-func (d *PriorityLevelConfigurationConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time, *PriorityLevelConfigurationConditionDie] {
+func (d *PriorityLevelConfigurationConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time] {
 	return diefields.ValueOf(d, priorityLevelConfigurationConditionFields.Get().LastTransitionTime)
 }
 
 // `reason` is a unique, one-word, CamelCase reason for the condition's last transition.
-func (d *PriorityLevelConfigurationConditionDie) Reason() diefields.Value[string, *PriorityLevelConfigurationConditionDie] {
+func (d *PriorityLevelConfigurationConditionDie) Reason() diefields.Value[string] {
 	return diefields.ValueOf(d, priorityLevelConfigurationConditionFields.Get().Reason)
 }
 
 // `message` is a human-readable message indicating details about last transition.
-func (d *PriorityLevelConfigurationConditionDie) Message() diefields.Value[string, *PriorityLevelConfigurationConditionDie] {
+func (d *PriorityLevelConfigurationConditionDie) Message() diefields.Value[string] {
 	return diefields.ValueOf(d, priorityLevelConfigurationConditionFields.Get().Message)
+}
+
+// `type` is the type of the condition.
+// Required.
+func (d *PriorityLevelConfigurationConditionDieMut) Type() diefields.ValueMut[PriorityLevelConfigurationConditionType, *PriorityLevelConfigurationConditionDieMut] {
+	return diefields.ValueMutOf(d, priorityLevelConfigurationConditionFields.Get().Type)
+}
+
+// `status` is the status of the condition.
+// Should be specified and set to one of True, False, Unknown.
+func (d *PriorityLevelConfigurationConditionDieMut) Status() diefields.ValueMut[ConditionStatus, *PriorityLevelConfigurationConditionDieMut] {
+	return diefields.ValueMutOf(d, priorityLevelConfigurationConditionFields.Get().Status)
+}
+
+// `lastTransitionTime` is the last time the condition transitioned from one status to another.
+func (d *PriorityLevelConfigurationConditionDieMut) LastTransitionTime() diefields.ValueMut[diemetav1.Time, *PriorityLevelConfigurationConditionDieMut] {
+	return diefields.ValueMutOf(d, priorityLevelConfigurationConditionFields.Get().LastTransitionTime)
+}
+
+// `reason` is a unique, one-word, CamelCase reason for the condition's last transition.
+func (d *PriorityLevelConfigurationConditionDieMut) Reason() diefields.ValueMut[string, *PriorityLevelConfigurationConditionDieMut] {
+	return diefields.ValueMutOf(d, priorityLevelConfigurationConditionFields.Get().Reason)
+}
+
+// `message` is a human-readable message indicating details about last transition.
+func (d *PriorityLevelConfigurationConditionDieMut) Message() diefields.ValueMut[string, *PriorityLevelConfigurationConditionDieMut] {
+	return diefields.ValueMutOf(d, priorityLevelConfigurationConditionFields.Get().Message)
 }
 
 // PriorityLevelConfigurationList is a list of PriorityLevelConfiguration objects.
 type PriorityLevelConfigurationListDie struct {
-	dielists.List[*PriorityLevelConfigurationDie]
+	dielists.List[*PriorityLevelConfigurationDieMut]
 }
 
-var _ dielists.DieListOf[*PriorityLevelConfigurationDie] = (*PriorityLevelConfigurationListDie)(nil)
+var _ dielists.DieListOf[*PriorityLevelConfigurationDieMut] = (*PriorityLevelConfigurationListDie)(nil)
 
 // NewPriorityLevelConfigurationList returns a list with items.
-func NewPriorityLevelConfigurationList(items ...*PriorityLevelConfigurationDie) *PriorityLevelConfigurationListDie {
+func NewPriorityLevelConfigurationList(items ...*PriorityLevelConfigurationDieMut) *PriorityLevelConfigurationListDie {
 	return &PriorityLevelConfigurationListDie{dielists.NewList("flowcontrol.apiserver.k8s.io/v1", "PriorityLevelConfigurationList", items...)}
 }
 
@@ -1244,17 +1926,32 @@ func (l *PriorityLevelConfigurationListDie) DeepCopy() *PriorityLevelConfigurati
 func (l *PriorityLevelConfigurationListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // PriorityLevelConfigurationReference contains information that points to the "request-priority" being used.
+//
+// PriorityLevelConfigurationReferenceDie is immutable: it reads.
+// PriorityLevelConfigurationReferenceDieMut, its mutable die, also writes, as DieWith passes it.
 type PriorityLevelConfigurationReferenceDie struct {
-	diebase.DieBase[PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie]
+	diebase.DieBase[PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie, *PriorityLevelConfigurationReferenceDieMut]
 }
 
-func (*PriorityLevelConfigurationReferenceDie) DieFrom(b diebase.DieBase[PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie]) *PriorityLevelConfigurationReferenceDie {
+// PriorityLevelConfigurationReferenceDieMut is the mutable die of PriorityLevelConfigurationReference: see PriorityLevelConfigurationReferenceDie.
+type PriorityLevelConfigurationReferenceDieMut struct {
+	diebase.DieMutBase[PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie, *PriorityLevelConfigurationReferenceDieMut]
+}
+
+func (*PriorityLevelConfigurationReferenceDie) DieFrom(b diebase.DieBase[PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie, *PriorityLevelConfigurationReferenceDieMut]) *PriorityLevelConfigurationReferenceDie {
 	return &PriorityLevelConfigurationReferenceDie{b}
 }
 
-var _ diebase.DieOf[PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie] = (*PriorityLevelConfigurationReferenceDie)(nil)
+func (*PriorityLevelConfigurationReferenceDieMut) DieFrom(b diebase.DieMutBase[PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie, *PriorityLevelConfigurationReferenceDieMut]) *PriorityLevelConfigurationReferenceDieMut {
+	return &PriorityLevelConfigurationReferenceDieMut{b}
+}
 
-var PriorityLevelConfigurationReferenceBlank = diebase.Blank[PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie]()
+var (
+	_ diebase.DieOf[PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie, *PriorityLevelConfigurationReferenceDieMut]    = (*PriorityLevelConfigurationReferenceDie)(nil)
+	_ diebase.DieMutOf[PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie, *PriorityLevelConfigurationReferenceDieMut] = (*PriorityLevelConfigurationReferenceDieMut)(nil)
+)
+
+var PriorityLevelConfigurationReferenceBlank = diebase.Blank[PriorityLevelConfigurationReference, *PriorityLevelConfigurationReferenceDie, *PriorityLevelConfigurationReferenceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1263,34 +1960,47 @@ func (d *PriorityLevelConfigurationReferenceDie) DieReleaseApplyConfiguration() 
 	return diecodegen.ReleaseApplyConfiguration[PriorityLevelConfigurationReferenceApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PriorityLevelConfigurationReferenceDie) DieFeedApplyConfiguration(ac *PriorityLevelConfigurationReferenceApplyConfiguration) *PriorityLevelConfigurationReferenceDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PriorityLevelConfigurationReferenceDie) DieStampApplyConfiguration(fn func(ac *PriorityLevelConfigurationReferenceApplyConfiguration)) *PriorityLevelConfigurationReferenceDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PriorityLevelConfigurationReferenceDie) DieReleaseApplyConfigurationE() (*PriorityLevelConfigurationReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PriorityLevelConfigurationReferenceApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PriorityLevelConfigurationReferenceDieMut) DieReleaseApplyConfiguration() *PriorityLevelConfigurationReferenceApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PriorityLevelConfigurationReferenceApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PriorityLevelConfigurationReferenceDieMut) DieReleaseApplyConfigurationE() (*PriorityLevelConfigurationReferenceApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PriorityLevelConfigurationReferenceApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PriorityLevelConfigurationReferenceDieMut) DieFeedApplyConfiguration(ac *PriorityLevelConfigurationReferenceApplyConfiguration) *PriorityLevelConfigurationReferenceDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PriorityLevelConfigurationReferenceDieMut) DieStampApplyConfiguration(fn func(ac *PriorityLevelConfigurationReferenceApplyConfiguration)) *PriorityLevelConfigurationReferenceDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PriorityLevelConfigurationReferenceDie) DieFeedApplyConfigurationE(ac *PriorityLevelConfigurationReferenceApplyConfiguration) (*PriorityLevelConfigurationReferenceDie, error) {
+func (d *PriorityLevelConfigurationReferenceDieMut) DieFeedApplyConfigurationE(ac *PriorityLevelConfigurationReferenceApplyConfiguration) (*PriorityLevelConfigurationReferenceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PriorityLevelConfigurationReferenceDie) DieStampApplyConfigurationE(fn func(ac *PriorityLevelConfigurationReferenceApplyConfiguration)) (*PriorityLevelConfigurationReferenceDie, error) {
+func (d *PriorityLevelConfigurationReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *PriorityLevelConfigurationReferenceApplyConfiguration)) (*PriorityLevelConfigurationReferenceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1306,22 +2016,43 @@ var priorityLevelConfigurationReferenceFields = &diefields.Table[priorityLevelCo
 
 // `name` is the name of the priority level configuration being referenced
 // Required.
-func (d *PriorityLevelConfigurationReferenceDie) Name() diefields.Value[string, *PriorityLevelConfigurationReferenceDie] {
+func (d *PriorityLevelConfigurationReferenceDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, priorityLevelConfigurationReferenceFields.Get().Name)
 }
 
-// PriorityLevelConfigurationSpec specifies the configuration of a priority level.
-type PriorityLevelConfigurationSpecDie struct {
-	diebase.DieBase[PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie]
+// `name` is the name of the priority level configuration being referenced
+// Required.
+func (d *PriorityLevelConfigurationReferenceDieMut) Name() diefields.ValueMut[string, *PriorityLevelConfigurationReferenceDieMut] {
+	return diefields.ValueMutOf(d, priorityLevelConfigurationReferenceFields.Get().Name)
 }
 
-func (*PriorityLevelConfigurationSpecDie) DieFrom(b diebase.DieBase[PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie]) *PriorityLevelConfigurationSpecDie {
+// PriorityLevelConfigurationSpec specifies the configuration of a priority level.
+//
+// PriorityLevelConfigurationSpecDie is immutable: it reads.
+// PriorityLevelConfigurationSpecDieMut, its mutable die, also writes, as DieWith passes it.
+type PriorityLevelConfigurationSpecDie struct {
+	diebase.DieBase[PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie, *PriorityLevelConfigurationSpecDieMut]
+}
+
+// PriorityLevelConfigurationSpecDieMut is the mutable die of PriorityLevelConfigurationSpec: see PriorityLevelConfigurationSpecDie.
+type PriorityLevelConfigurationSpecDieMut struct {
+	diebase.DieMutBase[PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie, *PriorityLevelConfigurationSpecDieMut]
+}
+
+func (*PriorityLevelConfigurationSpecDie) DieFrom(b diebase.DieBase[PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie, *PriorityLevelConfigurationSpecDieMut]) *PriorityLevelConfigurationSpecDie {
 	return &PriorityLevelConfigurationSpecDie{b}
 }
 
-var _ diebase.DieOf[PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie] = (*PriorityLevelConfigurationSpecDie)(nil)
+func (*PriorityLevelConfigurationSpecDieMut) DieFrom(b diebase.DieMutBase[PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie, *PriorityLevelConfigurationSpecDieMut]) *PriorityLevelConfigurationSpecDieMut {
+	return &PriorityLevelConfigurationSpecDieMut{b}
+}
 
-var PriorityLevelConfigurationSpecBlank = diebase.Blank[PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie]()
+var (
+	_ diebase.DieOf[PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie, *PriorityLevelConfigurationSpecDieMut]    = (*PriorityLevelConfigurationSpecDie)(nil)
+	_ diebase.DieMutOf[PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie, *PriorityLevelConfigurationSpecDieMut] = (*PriorityLevelConfigurationSpecDieMut)(nil)
+)
+
+var PriorityLevelConfigurationSpecBlank = diebase.Blank[PriorityLevelConfigurationSpec, *PriorityLevelConfigurationSpecDie, *PriorityLevelConfigurationSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1330,48 +2061,61 @@ func (d *PriorityLevelConfigurationSpecDie) DieReleaseApplyConfiguration() *Prio
 	return diecodegen.ReleaseApplyConfiguration[PriorityLevelConfigurationSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PriorityLevelConfigurationSpecDie) DieFeedApplyConfiguration(ac *PriorityLevelConfigurationSpecApplyConfiguration) *PriorityLevelConfigurationSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PriorityLevelConfigurationSpecDie) DieStampApplyConfiguration(fn func(ac *PriorityLevelConfigurationSpecApplyConfiguration)) *PriorityLevelConfigurationSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PriorityLevelConfigurationSpecDie) DieReleaseApplyConfigurationE() (*PriorityLevelConfigurationSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PriorityLevelConfigurationSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PriorityLevelConfigurationSpecDieMut) DieReleaseApplyConfiguration() *PriorityLevelConfigurationSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PriorityLevelConfigurationSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PriorityLevelConfigurationSpecDieMut) DieReleaseApplyConfigurationE() (*PriorityLevelConfigurationSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PriorityLevelConfigurationSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PriorityLevelConfigurationSpecDieMut) DieFeedApplyConfiguration(ac *PriorityLevelConfigurationSpecApplyConfiguration) *PriorityLevelConfigurationSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PriorityLevelConfigurationSpecDieMut) DieStampApplyConfiguration(fn func(ac *PriorityLevelConfigurationSpecApplyConfiguration)) *PriorityLevelConfigurationSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PriorityLevelConfigurationSpecDie) DieFeedApplyConfigurationE(ac *PriorityLevelConfigurationSpecApplyConfiguration) (*PriorityLevelConfigurationSpecDie, error) {
+func (d *PriorityLevelConfigurationSpecDieMut) DieFeedApplyConfigurationE(ac *PriorityLevelConfigurationSpecApplyConfiguration) (*PriorityLevelConfigurationSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PriorityLevelConfigurationSpecDie) DieStampApplyConfigurationE(fn func(ac *PriorityLevelConfigurationSpecApplyConfiguration)) (*PriorityLevelConfigurationSpecDie, error) {
+func (d *PriorityLevelConfigurationSpecDieMut) DieStampApplyConfigurationE(fn func(ac *PriorityLevelConfigurationSpecApplyConfiguration)) (*PriorityLevelConfigurationSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type priorityLevelConfigurationSpecFieldsTable struct {
 	Type    diefields.Field[PriorityLevelConfigurationSpec, PriorityLevelEnablement]
-	Limited diefields.Struct[PriorityLevelConfigurationSpec, LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie]
-	Exempt  diefields.Struct[PriorityLevelConfigurationSpec, ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie]
+	Limited diefields.Struct[PriorityLevelConfigurationSpec, LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie, *LimitedPriorityLevelConfigurationDieMut]
+	Exempt  diefields.Struct[PriorityLevelConfigurationSpec, ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie, *ExemptPriorityLevelConfigurationDieMut]
 }
 
 var priorityLevelConfigurationSpecFields = &diefields.Table[priorityLevelConfigurationSpecFieldsTable]{Build: func() (f priorityLevelConfigurationSpecFieldsTable) {
 	_ = annotated
 	f.Type = diefields.NewField[PriorityLevelConfigurationSpec, PriorityLevelEnablement]("type")
-	f.Limited = diefields.NewStruct[PriorityLevelConfigurationSpec, LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie]("limited")
-	f.Exempt = diefields.NewStruct[PriorityLevelConfigurationSpec, ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie]("exempt")
+	f.Limited = diefields.NewStruct[PriorityLevelConfigurationSpec, LimitedPriorityLevelConfiguration, *LimitedPriorityLevelConfigurationDie, *LimitedPriorityLevelConfigurationDieMut]("limited")
+	f.Exempt = diefields.NewStruct[PriorityLevelConfigurationSpec, ExemptPriorityLevelConfiguration, *ExemptPriorityLevelConfigurationDie, *ExemptPriorityLevelConfigurationDieMut]("exempt")
 	return
 }}
 
@@ -1384,7 +2128,7 @@ var priorityLevelConfigurationSpecFields = &diefields.Table[priorityLevelConfigu
 // _are_ subject to limits and (b) some of the server's limited
 // capacity is made available exclusively to this priority level.
 // Required.
-func (d *PriorityLevelConfigurationSpecDie) Type() diefields.Value[PriorityLevelEnablement, *PriorityLevelConfigurationSpecDie] {
+func (d *PriorityLevelConfigurationSpecDie) Type() diefields.Value[PriorityLevelEnablement] {
 	return diefields.ValueOf(d, priorityLevelConfigurationSpecFields.Get().Type)
 }
 
@@ -1403,18 +2147,61 @@ func (d *PriorityLevelConfigurationSpecDie) Exempt() *ExemptPriorityLevelConfigu
 	return diefields.Child(d, priorityLevelConfigurationSpecFields.Get().Exempt)
 }
 
-// PriorityLevelConfigurationStatus represents the current state of a "request-priority".
-type PriorityLevelConfigurationStatusDie struct {
-	diebase.DieBase[PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie]
+// `type` indicates whether this priority level is subject to
+// limitation on request execution.  A value of `"Exempt"` means
+// that requests of this priority level are not subject to a limit
+// (and thus are never queued) and do not detract from the
+// capacity made available to other priority levels.  A value of
+// `"Limited"` means that (a) requests of this priority level
+// _are_ subject to limits and (b) some of the server's limited
+// capacity is made available exclusively to this priority level.
+// Required.
+func (d *PriorityLevelConfigurationSpecDieMut) Type() diefields.ValueMut[PriorityLevelEnablement, *PriorityLevelConfigurationSpecDieMut] {
+	return diefields.ValueMutOf(d, priorityLevelConfigurationSpecFields.Get().Type)
 }
 
-func (*PriorityLevelConfigurationStatusDie) DieFrom(b diebase.DieBase[PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie]) *PriorityLevelConfigurationStatusDie {
+// `limited` specifies how requests are handled for a Limited priority level.
+// This field must be non-empty if and only if `type` is `"Limited"`.
+func (d *PriorityLevelConfigurationSpecDieMut) Limited() *LimitedPriorityLevelConfigurationDieMut {
+	return diefields.ChildMut(d, priorityLevelConfigurationSpecFields.Get().Limited)
+}
+
+// `exempt` specifies how requests are handled for an exempt priority level.
+// This field MUST be empty if `type` is `"Limited"`.
+// This field MAY be non-empty if `type` is `"Exempt"`.
+// If empty and `type` is `"Exempt"` then the default values
+// for `ExemptPriorityLevelConfiguration` apply.
+func (d *PriorityLevelConfigurationSpecDieMut) Exempt() *ExemptPriorityLevelConfigurationDieMut {
+	return diefields.ChildMut(d, priorityLevelConfigurationSpecFields.Get().Exempt)
+}
+
+// PriorityLevelConfigurationStatus represents the current state of a "request-priority".
+//
+// PriorityLevelConfigurationStatusDie is immutable: it reads.
+// PriorityLevelConfigurationStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type PriorityLevelConfigurationStatusDie struct {
+	diebase.DieBase[PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie, *PriorityLevelConfigurationStatusDieMut]
+}
+
+// PriorityLevelConfigurationStatusDieMut is the mutable die of PriorityLevelConfigurationStatus: see PriorityLevelConfigurationStatusDie.
+type PriorityLevelConfigurationStatusDieMut struct {
+	diebase.DieMutBase[PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie, *PriorityLevelConfigurationStatusDieMut]
+}
+
+func (*PriorityLevelConfigurationStatusDie) DieFrom(b diebase.DieBase[PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie, *PriorityLevelConfigurationStatusDieMut]) *PriorityLevelConfigurationStatusDie {
 	return &PriorityLevelConfigurationStatusDie{b}
 }
 
-var _ diebase.DieOf[PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie] = (*PriorityLevelConfigurationStatusDie)(nil)
+func (*PriorityLevelConfigurationStatusDieMut) DieFrom(b diebase.DieMutBase[PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie, *PriorityLevelConfigurationStatusDieMut]) *PriorityLevelConfigurationStatusDieMut {
+	return &PriorityLevelConfigurationStatusDieMut{b}
+}
 
-var PriorityLevelConfigurationStatusBlank = diebase.Blank[PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie]()
+var (
+	_ diebase.DieOf[PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie, *PriorityLevelConfigurationStatusDieMut]    = (*PriorityLevelConfigurationStatusDie)(nil)
+	_ diebase.DieMutOf[PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie, *PriorityLevelConfigurationStatusDieMut] = (*PriorityLevelConfigurationStatusDieMut)(nil)
+)
+
+var PriorityLevelConfigurationStatusBlank = diebase.Blank[PriorityLevelConfigurationStatus, *PriorityLevelConfigurationStatusDie, *PriorityLevelConfigurationStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1423,44 +2210,57 @@ func (d *PriorityLevelConfigurationStatusDie) DieReleaseApplyConfiguration() *Pr
 	return diecodegen.ReleaseApplyConfiguration[PriorityLevelConfigurationStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PriorityLevelConfigurationStatusDie) DieFeedApplyConfiguration(ac *PriorityLevelConfigurationStatusApplyConfiguration) *PriorityLevelConfigurationStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PriorityLevelConfigurationStatusDie) DieStampApplyConfiguration(fn func(ac *PriorityLevelConfigurationStatusApplyConfiguration)) *PriorityLevelConfigurationStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PriorityLevelConfigurationStatusDie) DieReleaseApplyConfigurationE() (*PriorityLevelConfigurationStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PriorityLevelConfigurationStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PriorityLevelConfigurationStatusDieMut) DieReleaseApplyConfiguration() *PriorityLevelConfigurationStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PriorityLevelConfigurationStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PriorityLevelConfigurationStatusDieMut) DieReleaseApplyConfigurationE() (*PriorityLevelConfigurationStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PriorityLevelConfigurationStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PriorityLevelConfigurationStatusDieMut) DieFeedApplyConfiguration(ac *PriorityLevelConfigurationStatusApplyConfiguration) *PriorityLevelConfigurationStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PriorityLevelConfigurationStatusDieMut) DieStampApplyConfiguration(fn func(ac *PriorityLevelConfigurationStatusApplyConfiguration)) *PriorityLevelConfigurationStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PriorityLevelConfigurationStatusDie) DieFeedApplyConfigurationE(ac *PriorityLevelConfigurationStatusApplyConfiguration) (*PriorityLevelConfigurationStatusDie, error) {
+func (d *PriorityLevelConfigurationStatusDieMut) DieFeedApplyConfigurationE(ac *PriorityLevelConfigurationStatusApplyConfiguration) (*PriorityLevelConfigurationStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PriorityLevelConfigurationStatusDie) DieStampApplyConfigurationE(fn func(ac *PriorityLevelConfigurationStatusApplyConfiguration)) (*PriorityLevelConfigurationStatusDie, error) {
+func (d *PriorityLevelConfigurationStatusDieMut) DieStampApplyConfigurationE(fn func(ac *PriorityLevelConfigurationStatusApplyConfiguration)) (*PriorityLevelConfigurationStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type priorityLevelConfigurationStatusFieldsTable struct {
-	Conditions diefields.ListMapField[PriorityLevelConfigurationStatus, PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, PriorityLevelConfigurationConditionType]
+	Conditions diefields.ListMapField[PriorityLevelConfigurationStatus, PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, *PriorityLevelConfigurationConditionDieMut, PriorityLevelConfigurationConditionType]
 }
 
 var priorityLevelConfigurationStatusFields = &diefields.Table[priorityLevelConfigurationStatusFieldsTable]{Build: func() (f priorityLevelConfigurationStatusFieldsTable) {
 	_ = annotated
-	f.Conditions = diefields.NewListMap[PriorityLevelConfigurationStatus, PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie]("conditions", func(k PriorityLevelConfigurationConditionType) []any { return []any{k} }, func(e PriorityLevelConfigurationCondition) PriorityLevelConfigurationConditionType { return e.Type })
+	f.Conditions = diefields.NewListMap[PriorityLevelConfigurationStatus, PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDie, *PriorityLevelConfigurationConditionDieMut]("conditions", func(k PriorityLevelConfigurationConditionType) []any { return []any{k} }, func(e PriorityLevelConfigurationCondition) PriorityLevelConfigurationConditionType { return e.Type })
 	return
 }}
 
@@ -1469,18 +2269,38 @@ func (d *PriorityLevelConfigurationStatusDie) Conditions() *diefields.ListMap[Pr
 	return diefields.ListMapOf(d, priorityLevelConfigurationStatusFields.Get().Conditions)
 }
 
-// QueuingConfiguration holds the configuration parameters for queuing
-type QueuingConfigurationDie struct {
-	diebase.DieBase[QueuingConfiguration, *QueuingConfigurationDie]
+// `conditions` is the current state of "request-priority".
+func (d *PriorityLevelConfigurationStatusDieMut) Conditions() *diefields.ListMapMut[PriorityLevelConfigurationCondition, *PriorityLevelConfigurationConditionDieMut, PriorityLevelConfigurationConditionType] {
+	return diefields.ListMapMutOf(d, priorityLevelConfigurationStatusFields.Get().Conditions)
 }
 
-func (*QueuingConfigurationDie) DieFrom(b diebase.DieBase[QueuingConfiguration, *QueuingConfigurationDie]) *QueuingConfigurationDie {
+// QueuingConfiguration holds the configuration parameters for queuing
+//
+// QueuingConfigurationDie is immutable: it reads.
+// QueuingConfigurationDieMut, its mutable die, also writes, as DieWith passes it.
+type QueuingConfigurationDie struct {
+	diebase.DieBase[QueuingConfiguration, *QueuingConfigurationDie, *QueuingConfigurationDieMut]
+}
+
+// QueuingConfigurationDieMut is the mutable die of QueuingConfiguration: see QueuingConfigurationDie.
+type QueuingConfigurationDieMut struct {
+	diebase.DieMutBase[QueuingConfiguration, *QueuingConfigurationDie, *QueuingConfigurationDieMut]
+}
+
+func (*QueuingConfigurationDie) DieFrom(b diebase.DieBase[QueuingConfiguration, *QueuingConfigurationDie, *QueuingConfigurationDieMut]) *QueuingConfigurationDie {
 	return &QueuingConfigurationDie{b}
 }
 
-var _ diebase.DieOf[QueuingConfiguration, *QueuingConfigurationDie] = (*QueuingConfigurationDie)(nil)
+func (*QueuingConfigurationDieMut) DieFrom(b diebase.DieMutBase[QueuingConfiguration, *QueuingConfigurationDie, *QueuingConfigurationDieMut]) *QueuingConfigurationDieMut {
+	return &QueuingConfigurationDieMut{b}
+}
 
-var QueuingConfigurationBlank = diebase.Blank[QueuingConfiguration, *QueuingConfigurationDie]()
+var (
+	_ diebase.DieOf[QueuingConfiguration, *QueuingConfigurationDie, *QueuingConfigurationDieMut]    = (*QueuingConfigurationDie)(nil)
+	_ diebase.DieMutOf[QueuingConfiguration, *QueuingConfigurationDie, *QueuingConfigurationDieMut] = (*QueuingConfigurationDieMut)(nil)
+)
+
+var QueuingConfigurationBlank = diebase.Blank[QueuingConfiguration, *QueuingConfigurationDie, *QueuingConfigurationDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1489,34 +2309,47 @@ func (d *QueuingConfigurationDie) DieReleaseApplyConfiguration() *QueuingConfigu
 	return diecodegen.ReleaseApplyConfiguration[QueuingConfigurationApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *QueuingConfigurationDie) DieFeedApplyConfiguration(ac *QueuingConfigurationApplyConfiguration) *QueuingConfigurationDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *QueuingConfigurationDie) DieStampApplyConfiguration(fn func(ac *QueuingConfigurationApplyConfiguration)) *QueuingConfigurationDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *QueuingConfigurationDie) DieReleaseApplyConfigurationE() (*QueuingConfigurationApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[QueuingConfigurationApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *QueuingConfigurationDieMut) DieReleaseApplyConfiguration() *QueuingConfigurationApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[QueuingConfigurationApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *QueuingConfigurationDieMut) DieReleaseApplyConfigurationE() (*QueuingConfigurationApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[QueuingConfigurationApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *QueuingConfigurationDieMut) DieFeedApplyConfiguration(ac *QueuingConfigurationApplyConfiguration) *QueuingConfigurationDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *QueuingConfigurationDieMut) DieStampApplyConfiguration(fn func(ac *QueuingConfigurationApplyConfiguration)) *QueuingConfigurationDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *QueuingConfigurationDie) DieFeedApplyConfigurationE(ac *QueuingConfigurationApplyConfiguration) (*QueuingConfigurationDie, error) {
+func (d *QueuingConfigurationDieMut) DieFeedApplyConfigurationE(ac *QueuingConfigurationApplyConfiguration) (*QueuingConfigurationDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *QueuingConfigurationDie) DieStampApplyConfigurationE(fn func(ac *QueuingConfigurationApplyConfiguration)) (*QueuingConfigurationDie, error) {
+func (d *QueuingConfigurationDieMut) DieStampApplyConfigurationE(fn func(ac *QueuingConfigurationApplyConfiguration)) (*QueuingConfigurationDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1540,7 +2373,7 @@ var queuingConfigurationFields = &diefields.Table[queuingConfigurationFieldsTabl
 // shufflesharding and thus makes the distinguisher method of
 // associated flow schemas irrelevant.  This field has a default
 // value of 64.
-func (d *QueuingConfigurationDie) Queues() diefields.Value[int32, *QueuingConfigurationDie] {
+func (d *QueuingConfigurationDie) Queues() diefields.Value[int32] {
 	return diefields.ValueOf(d, queuingConfigurationFields.Get().Queues)
 }
 
@@ -1555,7 +2388,7 @@ func (d *QueuingConfigurationDie) Queues() diefields.Value[int32, *QueuingConfig
 // saturate most of the queues).  See the user-facing
 // documentation for more extensive guidance on setting this
 // field.  This field has a default value of 8.
-func (d *QueuingConfigurationDie) HandSize() diefields.Value[int32, *QueuingConfigurationDie] {
+func (d *QueuingConfigurationDie) HandSize() diefields.Value[int32] {
 	return diefields.ValueOf(d, queuingConfigurationFields.Get().HandSize)
 }
 
@@ -1563,8 +2396,41 @@ func (d *QueuingConfigurationDie) HandSize() diefields.Value[int32, *QueuingConf
 // be waiting in a given queue of this priority level at a time;
 // excess requests are rejected.  This value must be positive.  If
 // not specified, it will be defaulted to 50.
-func (d *QueuingConfigurationDie) QueueLengthLimit() diefields.Value[int32, *QueuingConfigurationDie] {
+func (d *QueuingConfigurationDie) QueueLengthLimit() diefields.Value[int32] {
 	return diefields.ValueOf(d, queuingConfigurationFields.Get().QueueLengthLimit)
+}
+
+// `queues` is the number of queues for this priority level. The
+// queues exist independently at each apiserver. The value must be
+// positive.  Setting it to 1 effectively precludes
+// shufflesharding and thus makes the distinguisher method of
+// associated flow schemas irrelevant.  This field has a default
+// value of 64.
+func (d *QueuingConfigurationDieMut) Queues() diefields.ValueMut[int32, *QueuingConfigurationDieMut] {
+	return diefields.ValueMutOf(d, queuingConfigurationFields.Get().Queues)
+}
+
+// `handSize` is a small positive number that configures the
+// shuffle sharding of requests into queues.  When enqueuing a request
+// at this priority level the request's flow identifier (a string
+// pair) is hashed and the hash value is used to shuffle the list
+// of queues and deal a hand of the size specified here.  The
+// request is put into one of the shortest queues in that hand.
+// `handSize` must be no larger than `queues`, and should be
+// significantly smaller (so that a few heavy flows do not
+// saturate most of the queues).  See the user-facing
+// documentation for more extensive guidance on setting this
+// field.  This field has a default value of 8.
+func (d *QueuingConfigurationDieMut) HandSize() diefields.ValueMut[int32, *QueuingConfigurationDieMut] {
+	return diefields.ValueMutOf(d, queuingConfigurationFields.Get().HandSize)
+}
+
+// `queueLengthLimit` is the maximum number of requests allowed to
+// be waiting in a given queue of this priority level at a time;
+// excess requests are rejected.  This value must be positive.  If
+// not specified, it will be defaulted to 50.
+func (d *QueuingConfigurationDieMut) QueueLengthLimit() diefields.ValueMut[int32, *QueuingConfigurationDieMut] {
+	return diefields.ValueMutOf(d, queuingConfigurationFields.Get().QueueLengthLimit)
 }
 
 // ResourcePolicyRule is a predicate that matches some resource
@@ -1576,17 +2442,32 @@ func (d *QueuingConfigurationDie) QueueLengthLimit() diefields.Value[int32, *Que
 // not specify a namespace (i.e., `Namespace==""`) and clusterScope is
 // true or (d2) the request specifies a namespace and least one member
 // of namespaces matches the request's namespace.
+//
+// ResourcePolicyRuleDie is immutable: it reads.
+// ResourcePolicyRuleDieMut, its mutable die, also writes, as DieWith passes it.
 type ResourcePolicyRuleDie struct {
-	diebase.DieBase[ResourcePolicyRule, *ResourcePolicyRuleDie]
+	diebase.DieBase[ResourcePolicyRule, *ResourcePolicyRuleDie, *ResourcePolicyRuleDieMut]
 }
 
-func (*ResourcePolicyRuleDie) DieFrom(b diebase.DieBase[ResourcePolicyRule, *ResourcePolicyRuleDie]) *ResourcePolicyRuleDie {
+// ResourcePolicyRuleDieMut is the mutable die of ResourcePolicyRule: see ResourcePolicyRuleDie.
+type ResourcePolicyRuleDieMut struct {
+	diebase.DieMutBase[ResourcePolicyRule, *ResourcePolicyRuleDie, *ResourcePolicyRuleDieMut]
+}
+
+func (*ResourcePolicyRuleDie) DieFrom(b diebase.DieBase[ResourcePolicyRule, *ResourcePolicyRuleDie, *ResourcePolicyRuleDieMut]) *ResourcePolicyRuleDie {
 	return &ResourcePolicyRuleDie{b}
 }
 
-var _ diebase.DieOf[ResourcePolicyRule, *ResourcePolicyRuleDie] = (*ResourcePolicyRuleDie)(nil)
+func (*ResourcePolicyRuleDieMut) DieFrom(b diebase.DieMutBase[ResourcePolicyRule, *ResourcePolicyRuleDie, *ResourcePolicyRuleDieMut]) *ResourcePolicyRuleDieMut {
+	return &ResourcePolicyRuleDieMut{b}
+}
 
-var ResourcePolicyRuleBlank = diebase.Blank[ResourcePolicyRule, *ResourcePolicyRuleDie]()
+var (
+	_ diebase.DieOf[ResourcePolicyRule, *ResourcePolicyRuleDie, *ResourcePolicyRuleDieMut]    = (*ResourcePolicyRuleDie)(nil)
+	_ diebase.DieMutOf[ResourcePolicyRule, *ResourcePolicyRuleDie, *ResourcePolicyRuleDieMut] = (*ResourcePolicyRuleDieMut)(nil)
+)
+
+var ResourcePolicyRuleBlank = diebase.Blank[ResourcePolicyRule, *ResourcePolicyRuleDie, *ResourcePolicyRuleDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1595,34 +2476,47 @@ func (d *ResourcePolicyRuleDie) DieReleaseApplyConfiguration() *ResourcePolicyRu
 	return diecodegen.ReleaseApplyConfiguration[ResourcePolicyRuleApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ResourcePolicyRuleDie) DieFeedApplyConfiguration(ac *ResourcePolicyRuleApplyConfiguration) *ResourcePolicyRuleDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ResourcePolicyRuleDie) DieStampApplyConfiguration(fn func(ac *ResourcePolicyRuleApplyConfiguration)) *ResourcePolicyRuleDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ResourcePolicyRuleDie) DieReleaseApplyConfigurationE() (*ResourcePolicyRuleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ResourcePolicyRuleApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ResourcePolicyRuleDieMut) DieReleaseApplyConfiguration() *ResourcePolicyRuleApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ResourcePolicyRuleApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ResourcePolicyRuleDieMut) DieReleaseApplyConfigurationE() (*ResourcePolicyRuleApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ResourcePolicyRuleApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ResourcePolicyRuleDieMut) DieFeedApplyConfiguration(ac *ResourcePolicyRuleApplyConfiguration) *ResourcePolicyRuleDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ResourcePolicyRuleDieMut) DieStampApplyConfiguration(fn func(ac *ResourcePolicyRuleApplyConfiguration)) *ResourcePolicyRuleDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ResourcePolicyRuleDie) DieFeedApplyConfigurationE(ac *ResourcePolicyRuleApplyConfiguration) (*ResourcePolicyRuleDie, error) {
+func (d *ResourcePolicyRuleDieMut) DieFeedApplyConfigurationE(ac *ResourcePolicyRuleApplyConfiguration) (*ResourcePolicyRuleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ResourcePolicyRuleDie) DieStampApplyConfigurationE(fn func(ac *ResourcePolicyRuleApplyConfiguration)) (*ResourcePolicyRuleDie, error) {
+func (d *ResourcePolicyRuleDieMut) DieStampApplyConfigurationE(fn func(ac *ResourcePolicyRuleApplyConfiguration)) (*ResourcePolicyRuleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1647,14 +2541,14 @@ var resourcePolicyRuleFields = &diefields.Table[resourcePolicyRuleFieldsTable]{B
 // `verbs` is a list of matching verbs and may not be empty.
 // "*" matches all verbs and, if present, must be the only entry.
 // Required.
-func (d *ResourcePolicyRuleDie) Verbs() diefields.Value[[]string, *ResourcePolicyRuleDie] {
+func (d *ResourcePolicyRuleDie) Verbs() diefields.Value[[]string] {
 	return diefields.ValueOf(d, resourcePolicyRuleFields.Get().Verbs)
 }
 
 // `apiGroups` is a list of matching API groups and may not be empty.
 // "*" matches all API groups and, if present, must be the only entry.
 // Required.
-func (d *ResourcePolicyRuleDie) APIGroups() diefields.Value[[]string, *ResourcePolicyRuleDie] {
+func (d *ResourcePolicyRuleDie) APIGroups() diefields.Value[[]string] {
 	return diefields.ValueOf(d, resourcePolicyRuleFields.Get().APIGroups)
 }
 
@@ -1663,7 +2557,7 @@ func (d *ResourcePolicyRuleDie) APIGroups() diefields.Value[[]string, *ResourceP
 // "services", "nodes/status" ].  This list may not be empty.
 // "*" matches all resources and, if present, must be the only entry.
 // Required.
-func (d *ResourcePolicyRuleDie) Resources() diefields.Value[[]string, *ResourcePolicyRuleDie] {
+func (d *ResourcePolicyRuleDie) Resources() diefields.Value[[]string] {
 	return diefields.ValueOf(d, resourcePolicyRuleFields.Get().Resources)
 }
 
@@ -1672,7 +2566,7 @@ func (d *ResourcePolicyRuleDie) Resources() diefields.Value[[]string, *ResourceP
 // is not namespaced or the request targets all namespaces).
 // If this field is omitted or false then the `namespaces` field
 // must contain a non-empty list.
-func (d *ResourcePolicyRuleDie) ClusterScope() diefields.Value[bool, *ResourcePolicyRuleDie] {
+func (d *ResourcePolicyRuleDie) ClusterScope() diefields.Value[bool] {
 	return diefields.ValueOf(d, resourcePolicyRuleFields.Get().ClusterScope)
 }
 
@@ -1684,22 +2578,81 @@ func (d *ResourcePolicyRuleDie) ClusterScope() diefields.Value[bool, *ResourcePo
 // not specify_ a namespace (see the `clusterScope` field for
 // that).
 // This list may be empty, but only if `clusterScope` is true.
-func (d *ResourcePolicyRuleDie) Namespaces() diefields.Value[[]string, *ResourcePolicyRuleDie] {
+func (d *ResourcePolicyRuleDie) Namespaces() diefields.Value[[]string] {
 	return diefields.ValueOf(d, resourcePolicyRuleFields.Get().Namespaces)
 }
 
-// ServiceAccountSubject holds detailed information for service-account-kind subject.
-type ServiceAccountSubjectDie struct {
-	diebase.DieBase[ServiceAccountSubject, *ServiceAccountSubjectDie]
+// `verbs` is a list of matching verbs and may not be empty.
+// "*" matches all verbs and, if present, must be the only entry.
+// Required.
+func (d *ResourcePolicyRuleDieMut) Verbs() diefields.ValueMut[[]string, *ResourcePolicyRuleDieMut] {
+	return diefields.ValueMutOf(d, resourcePolicyRuleFields.Get().Verbs)
 }
 
-func (*ServiceAccountSubjectDie) DieFrom(b diebase.DieBase[ServiceAccountSubject, *ServiceAccountSubjectDie]) *ServiceAccountSubjectDie {
+// `apiGroups` is a list of matching API groups and may not be empty.
+// "*" matches all API groups and, if present, must be the only entry.
+// Required.
+func (d *ResourcePolicyRuleDieMut) APIGroups() diefields.ValueMut[[]string, *ResourcePolicyRuleDieMut] {
+	return diefields.ValueMutOf(d, resourcePolicyRuleFields.Get().APIGroups)
+}
+
+// `resources` is a list of matching resources (i.e., lowercase
+// and plural) with, if desired, subresource.  For example, [
+// "services", "nodes/status" ].  This list may not be empty.
+// "*" matches all resources and, if present, must be the only entry.
+// Required.
+func (d *ResourcePolicyRuleDieMut) Resources() diefields.ValueMut[[]string, *ResourcePolicyRuleDieMut] {
+	return diefields.ValueMutOf(d, resourcePolicyRuleFields.Get().Resources)
+}
+
+// `clusterScope` indicates whether to match requests that do not
+// specify a namespace (which happens either because the resource
+// is not namespaced or the request targets all namespaces).
+// If this field is omitted or false then the `namespaces` field
+// must contain a non-empty list.
+func (d *ResourcePolicyRuleDieMut) ClusterScope() diefields.ValueMut[bool, *ResourcePolicyRuleDieMut] {
+	return diefields.ValueMutOf(d, resourcePolicyRuleFields.Get().ClusterScope)
+}
+
+// `namespaces` is a list of target namespaces that restricts
+// matches.  A request that specifies a target namespace matches
+// only if either (a) this list contains that target namespace or
+// (b) this list contains "*".  Note that "*" matches any
+// specified namespace but does not match a request that _does
+// not specify_ a namespace (see the `clusterScope` field for
+// that).
+// This list may be empty, but only if `clusterScope` is true.
+func (d *ResourcePolicyRuleDieMut) Namespaces() diefields.ValueMut[[]string, *ResourcePolicyRuleDieMut] {
+	return diefields.ValueMutOf(d, resourcePolicyRuleFields.Get().Namespaces)
+}
+
+// ServiceAccountSubject holds detailed information for service-account-kind subject.
+//
+// ServiceAccountSubjectDie is immutable: it reads.
+// ServiceAccountSubjectDieMut, its mutable die, also writes, as DieWith passes it.
+type ServiceAccountSubjectDie struct {
+	diebase.DieBase[ServiceAccountSubject, *ServiceAccountSubjectDie, *ServiceAccountSubjectDieMut]
+}
+
+// ServiceAccountSubjectDieMut is the mutable die of ServiceAccountSubject: see ServiceAccountSubjectDie.
+type ServiceAccountSubjectDieMut struct {
+	diebase.DieMutBase[ServiceAccountSubject, *ServiceAccountSubjectDie, *ServiceAccountSubjectDieMut]
+}
+
+func (*ServiceAccountSubjectDie) DieFrom(b diebase.DieBase[ServiceAccountSubject, *ServiceAccountSubjectDie, *ServiceAccountSubjectDieMut]) *ServiceAccountSubjectDie {
 	return &ServiceAccountSubjectDie{b}
 }
 
-var _ diebase.DieOf[ServiceAccountSubject, *ServiceAccountSubjectDie] = (*ServiceAccountSubjectDie)(nil)
+func (*ServiceAccountSubjectDieMut) DieFrom(b diebase.DieMutBase[ServiceAccountSubject, *ServiceAccountSubjectDie, *ServiceAccountSubjectDieMut]) *ServiceAccountSubjectDieMut {
+	return &ServiceAccountSubjectDieMut{b}
+}
 
-var ServiceAccountSubjectBlank = diebase.Blank[ServiceAccountSubject, *ServiceAccountSubjectDie]()
+var (
+	_ diebase.DieOf[ServiceAccountSubject, *ServiceAccountSubjectDie, *ServiceAccountSubjectDieMut]    = (*ServiceAccountSubjectDie)(nil)
+	_ diebase.DieMutOf[ServiceAccountSubject, *ServiceAccountSubjectDie, *ServiceAccountSubjectDieMut] = (*ServiceAccountSubjectDieMut)(nil)
+)
+
+var ServiceAccountSubjectBlank = diebase.Blank[ServiceAccountSubject, *ServiceAccountSubjectDie, *ServiceAccountSubjectDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1708,34 +2661,47 @@ func (d *ServiceAccountSubjectDie) DieReleaseApplyConfiguration() *ServiceAccoun
 	return diecodegen.ReleaseApplyConfiguration[ServiceAccountSubjectApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ServiceAccountSubjectDie) DieFeedApplyConfiguration(ac *ServiceAccountSubjectApplyConfiguration) *ServiceAccountSubjectDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ServiceAccountSubjectDie) DieStampApplyConfiguration(fn func(ac *ServiceAccountSubjectApplyConfiguration)) *ServiceAccountSubjectDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ServiceAccountSubjectDie) DieReleaseApplyConfigurationE() (*ServiceAccountSubjectApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ServiceAccountSubjectApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ServiceAccountSubjectDieMut) DieReleaseApplyConfiguration() *ServiceAccountSubjectApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ServiceAccountSubjectApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ServiceAccountSubjectDieMut) DieReleaseApplyConfigurationE() (*ServiceAccountSubjectApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ServiceAccountSubjectApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ServiceAccountSubjectDieMut) DieFeedApplyConfiguration(ac *ServiceAccountSubjectApplyConfiguration) *ServiceAccountSubjectDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ServiceAccountSubjectDieMut) DieStampApplyConfiguration(fn func(ac *ServiceAccountSubjectApplyConfiguration)) *ServiceAccountSubjectDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ServiceAccountSubjectDie) DieFeedApplyConfigurationE(ac *ServiceAccountSubjectApplyConfiguration) (*ServiceAccountSubjectDie, error) {
+func (d *ServiceAccountSubjectDieMut) DieFeedApplyConfigurationE(ac *ServiceAccountSubjectApplyConfiguration) (*ServiceAccountSubjectDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ServiceAccountSubjectDie) DieStampApplyConfigurationE(fn func(ac *ServiceAccountSubjectApplyConfiguration)) (*ServiceAccountSubjectDie, error) {
+func (d *ServiceAccountSubjectDieMut) DieStampApplyConfigurationE(fn func(ac *ServiceAccountSubjectApplyConfiguration)) (*ServiceAccountSubjectDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1753,29 +2719,56 @@ var serviceAccountSubjectFields = &diefields.Table[serviceAccountSubjectFieldsTa
 
 // `namespace` is the namespace of matching ServiceAccount objects.
 // Required.
-func (d *ServiceAccountSubjectDie) Namespace() diefields.Value[string, *ServiceAccountSubjectDie] {
+func (d *ServiceAccountSubjectDie) Namespace() diefields.Value[string] {
 	return diefields.ValueOf(d, serviceAccountSubjectFields.Get().Namespace)
 }
 
 // `name` is the name of matching ServiceAccount objects, or "*" to match regardless of name.
 // Required.
-func (d *ServiceAccountSubjectDie) Name() diefields.Value[string, *ServiceAccountSubjectDie] {
+func (d *ServiceAccountSubjectDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, serviceAccountSubjectFields.Get().Name)
+}
+
+// `namespace` is the namespace of matching ServiceAccount objects.
+// Required.
+func (d *ServiceAccountSubjectDieMut) Namespace() diefields.ValueMut[string, *ServiceAccountSubjectDieMut] {
+	return diefields.ValueMutOf(d, serviceAccountSubjectFields.Get().Namespace)
+}
+
+// `name` is the name of matching ServiceAccount objects, or "*" to match regardless of name.
+// Required.
+func (d *ServiceAccountSubjectDieMut) Name() diefields.ValueMut[string, *ServiceAccountSubjectDieMut] {
+	return diefields.ValueMutOf(d, serviceAccountSubjectFields.Get().Name)
 }
 
 // Subject matches the originator of a request, as identified by the request authentication system. There are three
 // ways of matching an originator; by user, group, or service account.
+//
+// SubjectDie is immutable: it reads.
+// SubjectDieMut, its mutable die, also writes, as DieWith passes it.
 type SubjectDie struct {
-	diebase.DieBase[Subject, *SubjectDie]
+	diebase.DieBase[Subject, *SubjectDie, *SubjectDieMut]
 }
 
-func (*SubjectDie) DieFrom(b diebase.DieBase[Subject, *SubjectDie]) *SubjectDie {
+// SubjectDieMut is the mutable die of Subject: see SubjectDie.
+type SubjectDieMut struct {
+	diebase.DieMutBase[Subject, *SubjectDie, *SubjectDieMut]
+}
+
+func (*SubjectDie) DieFrom(b diebase.DieBase[Subject, *SubjectDie, *SubjectDieMut]) *SubjectDie {
 	return &SubjectDie{b}
 }
 
-var _ diebase.DieOf[Subject, *SubjectDie] = (*SubjectDie)(nil)
+func (*SubjectDieMut) DieFrom(b diebase.DieMutBase[Subject, *SubjectDie, *SubjectDieMut]) *SubjectDieMut {
+	return &SubjectDieMut{b}
+}
 
-var SubjectBlank = diebase.Blank[Subject, *SubjectDie]()
+var (
+	_ diebase.DieOf[Subject, *SubjectDie, *SubjectDieMut]    = (*SubjectDie)(nil)
+	_ diebase.DieMutOf[Subject, *SubjectDie, *SubjectDieMut] = (*SubjectDieMut)(nil)
+)
+
+var SubjectBlank = diebase.Blank[Subject, *SubjectDie, *SubjectDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1784,56 +2777,69 @@ func (d *SubjectDie) DieReleaseApplyConfiguration() *SubjectApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[SubjectApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *SubjectDie) DieFeedApplyConfiguration(ac *SubjectApplyConfiguration) *SubjectDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *SubjectDie) DieStampApplyConfiguration(fn func(ac *SubjectApplyConfiguration)) *SubjectDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *SubjectDie) DieReleaseApplyConfigurationE() (*SubjectApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[SubjectApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *SubjectDieMut) DieReleaseApplyConfiguration() *SubjectApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[SubjectApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *SubjectDieMut) DieReleaseApplyConfigurationE() (*SubjectApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[SubjectApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *SubjectDieMut) DieFeedApplyConfiguration(ac *SubjectApplyConfiguration) *SubjectDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *SubjectDieMut) DieStampApplyConfiguration(fn func(ac *SubjectApplyConfiguration)) *SubjectDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *SubjectDie) DieFeedApplyConfigurationE(ac *SubjectApplyConfiguration) (*SubjectDie, error) {
+func (d *SubjectDieMut) DieFeedApplyConfigurationE(ac *SubjectApplyConfiguration) (*SubjectDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *SubjectDie) DieStampApplyConfigurationE(fn func(ac *SubjectApplyConfiguration)) (*SubjectDie, error) {
+func (d *SubjectDieMut) DieStampApplyConfigurationE(fn func(ac *SubjectApplyConfiguration)) (*SubjectDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type subjectFieldsTable struct {
 	Kind           diefields.Field[Subject, SubjectKind]
-	User           diefields.Struct[Subject, UserSubject, *UserSubjectDie]
-	Group          diefields.Struct[Subject, GroupSubject, *GroupSubjectDie]
-	ServiceAccount diefields.Struct[Subject, ServiceAccountSubject, *ServiceAccountSubjectDie]
+	User           diefields.Struct[Subject, UserSubject, *UserSubjectDie, *UserSubjectDieMut]
+	Group          diefields.Struct[Subject, GroupSubject, *GroupSubjectDie, *GroupSubjectDieMut]
+	ServiceAccount diefields.Struct[Subject, ServiceAccountSubject, *ServiceAccountSubjectDie, *ServiceAccountSubjectDieMut]
 }
 
 var subjectFields = &diefields.Table[subjectFieldsTable]{Build: func() (f subjectFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[Subject, SubjectKind]("kind")
-	f.User = diefields.NewStruct[Subject, UserSubject, *UserSubjectDie]("user")
-	f.Group = diefields.NewStruct[Subject, GroupSubject, *GroupSubjectDie]("group")
-	f.ServiceAccount = diefields.NewStruct[Subject, ServiceAccountSubject, *ServiceAccountSubjectDie]("serviceAccount")
+	f.User = diefields.NewStruct[Subject, UserSubject, *UserSubjectDie, *UserSubjectDieMut]("user")
+	f.Group = diefields.NewStruct[Subject, GroupSubject, *GroupSubjectDie, *GroupSubjectDieMut]("group")
+	f.ServiceAccount = diefields.NewStruct[Subject, ServiceAccountSubject, *ServiceAccountSubjectDie, *ServiceAccountSubjectDieMut]("serviceAccount")
 	return
 }}
 
 // `kind` indicates which one of the other fields is non-empty.
 // Required
-func (d *SubjectDie) Kind() diefields.Value[SubjectKind, *SubjectDie] {
+func (d *SubjectDie) Kind() diefields.Value[SubjectKind] {
 	return diefields.ValueOf(d, subjectFields.Get().Kind)
 }
 
@@ -1848,18 +2854,54 @@ func (d *SubjectDie) ServiceAccount() *ServiceAccountSubjectDie {
 	return diefields.Child(d, subjectFields.Get().ServiceAccount)
 }
 
-// UserSubject holds detailed information for user-kind subject.
-type UserSubjectDie struct {
-	diebase.DieBase[UserSubject, *UserSubjectDie]
+// `kind` indicates which one of the other fields is non-empty.
+// Required
+func (d *SubjectDieMut) Kind() diefields.ValueMut[SubjectKind, *SubjectDieMut] {
+	return diefields.ValueMutOf(d, subjectFields.Get().Kind)
 }
 
-func (*UserSubjectDie) DieFrom(b diebase.DieBase[UserSubject, *UserSubjectDie]) *UserSubjectDie {
+// `user` matches based on username.
+func (d *SubjectDieMut) User() *UserSubjectDieMut {
+	return diefields.ChildMut(d, subjectFields.Get().User)
+}
+
+// `group` matches based on user group name.
+func (d *SubjectDieMut) Group() *GroupSubjectDieMut {
+	return diefields.ChildMut(d, subjectFields.Get().Group)
+}
+
+// `serviceAccount` matches ServiceAccounts.
+func (d *SubjectDieMut) ServiceAccount() *ServiceAccountSubjectDieMut {
+	return diefields.ChildMut(d, subjectFields.Get().ServiceAccount)
+}
+
+// UserSubject holds detailed information for user-kind subject.
+//
+// UserSubjectDie is immutable: it reads.
+// UserSubjectDieMut, its mutable die, also writes, as DieWith passes it.
+type UserSubjectDie struct {
+	diebase.DieBase[UserSubject, *UserSubjectDie, *UserSubjectDieMut]
+}
+
+// UserSubjectDieMut is the mutable die of UserSubject: see UserSubjectDie.
+type UserSubjectDieMut struct {
+	diebase.DieMutBase[UserSubject, *UserSubjectDie, *UserSubjectDieMut]
+}
+
+func (*UserSubjectDie) DieFrom(b diebase.DieBase[UserSubject, *UserSubjectDie, *UserSubjectDieMut]) *UserSubjectDie {
 	return &UserSubjectDie{b}
 }
 
-var _ diebase.DieOf[UserSubject, *UserSubjectDie] = (*UserSubjectDie)(nil)
+func (*UserSubjectDieMut) DieFrom(b diebase.DieMutBase[UserSubject, *UserSubjectDie, *UserSubjectDieMut]) *UserSubjectDieMut {
+	return &UserSubjectDieMut{b}
+}
 
-var UserSubjectBlank = diebase.Blank[UserSubject, *UserSubjectDie]()
+var (
+	_ diebase.DieOf[UserSubject, *UserSubjectDie, *UserSubjectDieMut]    = (*UserSubjectDie)(nil)
+	_ diebase.DieMutOf[UserSubject, *UserSubjectDie, *UserSubjectDieMut] = (*UserSubjectDieMut)(nil)
+)
+
+var UserSubjectBlank = diebase.Blank[UserSubject, *UserSubjectDie, *UserSubjectDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1868,34 +2910,47 @@ func (d *UserSubjectDie) DieReleaseApplyConfiguration() *UserSubjectApplyConfigu
 	return diecodegen.ReleaseApplyConfiguration[UserSubjectApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *UserSubjectDie) DieFeedApplyConfiguration(ac *UserSubjectApplyConfiguration) *UserSubjectDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *UserSubjectDie) DieStampApplyConfiguration(fn func(ac *UserSubjectApplyConfiguration)) *UserSubjectDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *UserSubjectDie) DieReleaseApplyConfigurationE() (*UserSubjectApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[UserSubjectApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *UserSubjectDieMut) DieReleaseApplyConfiguration() *UserSubjectApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[UserSubjectApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *UserSubjectDieMut) DieReleaseApplyConfigurationE() (*UserSubjectApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[UserSubjectApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *UserSubjectDieMut) DieFeedApplyConfiguration(ac *UserSubjectApplyConfiguration) *UserSubjectDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *UserSubjectDieMut) DieStampApplyConfiguration(fn func(ac *UserSubjectApplyConfiguration)) *UserSubjectDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *UserSubjectDie) DieFeedApplyConfigurationE(ac *UserSubjectApplyConfiguration) (*UserSubjectDie, error) {
+func (d *UserSubjectDieMut) DieFeedApplyConfigurationE(ac *UserSubjectApplyConfiguration) (*UserSubjectDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *UserSubjectDie) DieStampApplyConfigurationE(fn func(ac *UserSubjectApplyConfiguration)) (*UserSubjectDie, error) {
+func (d *UserSubjectDieMut) DieStampApplyConfigurationE(fn func(ac *UserSubjectApplyConfiguration)) (*UserSubjectDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1911,24 +2966,30 @@ var userSubjectFields = &diefields.Table[userSubjectFieldsTable]{Build: func() (
 
 // `name` is the username that matches, or "*" to match all usernames.
 // Required.
-func (d *UserSubjectDie) Name() diefields.Value[string, *UserSubjectDie] {
+func (d *UserSubjectDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, userSubjectFields.Get().Name)
+}
+
+// `name` is the username that matches, or "*" to match all usernames.
+// Required.
+func (d *UserSubjectDieMut) Name() diefields.ValueMut[string, *UserSubjectDieMut] {
+	return diefields.ValueMutOf(d, userSubjectFields.Get().Name)
 }
 
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "flowcontrol.apiserver.k8s.io", Version: "v1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("FlowSchema"), &FlowSchemaDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("FlowSchema"), &FlowSchemaDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("FlowSchemaList"), &FlowSchemaListDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PriorityLevelConfiguration"), &PriorityLevelConfigurationDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PriorityLevelConfiguration"), &PriorityLevelConfigurationDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("PriorityLevelConfigurationList"), &PriorityLevelConfigurationListDie{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

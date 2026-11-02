@@ -20,23 +20,27 @@ package dietest
 import (
 	"os"
 
+	"reconciler.io/dies/v2/die/base"
 	"reconciler.io/dies/v2/die/internal/core"
 )
 
-// FeedYAMLFile feeds a die the YAML, or JSON, in a file, as DieFeedYAML
-// does: FeedYAMLFile(DeploymentBlank, "testdata/web.yaml"). It panics if the
-// file can't be read or doesn't decode, so that fixtures can be package
-// variables.
-func FeedYAMLFile[D interface{ DieFeedYAMLE([]byte) (D, error) }](d D, name string) D {
+// FeedYAMLFile returns an immutable die of the YAML, or JSON, in a file, fed
+// to a copy of d as DieFeedYAML feeds it: FeedYAMLFile(DeploymentBlank,
+// "testdata/web.yaml"). It panics if the file can't be read or doesn't
+// decode, so that fixtures can be package variables.
+func FeedYAMLFile[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]](d D, name string) D {
 	return core.Must(FeedYAMLFileE(d, name))
 }
 
 // FeedYAMLFileE is FeedYAMLFile, returning an error rather than panicking.
-func FeedYAMLFileE[D interface{ DieFeedYAMLE([]byte) (D, error) }](d D, name string) (D, error) {
+func FeedYAMLFileE[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]](d D, name string) (D, error) {
 	data, err := os.ReadFile(name)
 	if err != nil {
 		var zero D
 		return zero, core.Errorf("dietest: %w", err)
 	}
-	return d.DieFeedYAMLE(data)
+	return d.DieWithE(func(m M) error {
+		_, err := m.DieFeedYAMLE(data)
+		return err
+	})
 }

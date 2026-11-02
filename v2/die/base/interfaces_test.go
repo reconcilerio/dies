@@ -32,29 +32,62 @@ import (
 	dieunstructured "reconciler.io/dies/v2/die/unstructured"
 )
 
-// Every die is a Die and a DieOf its types; typed dies are DieTypeds, object
-// dies DieObjects, and list dies DieLists. An unstructured die is a
-// DieObject, but not a DieObjectOf: it has no typed accessors.
+// Every die is a Die and a DieOf its types, and every mutable die a Die
+// and a DieMutOf; typed dies are DieTypeds, object dies DieObjects, and list
+// dies DieLists, of mutable items. An unstructured die is a DieObject, but
+// not a DieObjectOf: it has no typed accessors.
 var (
-	_ die.Die                                                                 = (*diecorev1.PodSpecDie)(nil)
-	_ base.DieOf[corev1.PodSpec, *diecorev1.PodSpecDie]                       = (*diecorev1.PodSpecDie)(nil)
-	_ die.DieTyped                                                            = (*diecorev1.PodAttachOptionsDie)(nil)
-	_ die.DieTypedOf[corev1.PodAttachOptions, *diecorev1.PodAttachOptionsDie] = (*diecorev1.PodAttachOptionsDie)(nil)
-	_ die.DieObject                                                           = (*dieappsv1.DeploymentDie)(nil)
-	_ die.DieObjectOf[appsv1.Deployment, *dieappsv1.DeploymentDie]            = (*dieappsv1.DeploymentDie)(nil)
-	_ die.DieObject                                                           = (*dieunstructured.Object)(nil)
-	_ die.DieList                                                             = (*dieappsv1.DeploymentListDie)(nil)
-	_ die.DieListOf[*dieappsv1.DeploymentDie]                                 = (*dieappsv1.DeploymentListDie)(nil)
-	_ die.DieList                                                             = (*dieunstructured.ObjectList)(nil)
-	_ lists.DieListOf[*dieunstructured.Object]                                = (*dieunstructured.ObjectList)(nil)
+	_ die.Die                                                                                                       = (*diecorev1.PodSpecDie)(nil)
+	_ die.Die                                                                                                       = (*diecorev1.PodSpecDieMut)(nil)
+	_ base.DieOf[corev1.PodSpec, *diecorev1.PodSpecDie, *diecorev1.PodSpecDieMut]                                   = (*diecorev1.PodSpecDie)(nil)
+	_ base.DieMutOf[corev1.PodSpec, *diecorev1.PodSpecDie, *diecorev1.PodSpecDieMut]                                = (*diecorev1.PodSpecDieMut)(nil)
+	_ die.DieTyped                                                                                                  = (*diecorev1.PodAttachOptionsDie)(nil)
+	_ die.DieTypedOf[corev1.PodAttachOptions, *diecorev1.PodAttachOptionsDie, *diecorev1.PodAttachOptionsDieMut]    = (*diecorev1.PodAttachOptionsDie)(nil)
+	_ die.DieTypedMutOf[corev1.PodAttachOptions, *diecorev1.PodAttachOptionsDie, *diecorev1.PodAttachOptionsDieMut] = (*diecorev1.PodAttachOptionsDieMut)(nil)
+	_ die.DieObject                                                                                                 = (*dieappsv1.DeploymentDie)(nil)
+	_ die.DieObject                                                                                                 = (*dieappsv1.DeploymentDieMut)(nil)
+	_ die.DieObjectOf[appsv1.Deployment, *dieappsv1.DeploymentDie, *dieappsv1.DeploymentDieMut]                     = (*dieappsv1.DeploymentDie)(nil)
+	_ die.DieObjectMutOf[appsv1.Deployment, *dieappsv1.DeploymentDie, *dieappsv1.DeploymentDieMut]                  = (*dieappsv1.DeploymentDieMut)(nil)
+	_ die.DieObject                                                                                                 = (*dieunstructured.Object)(nil)
+	_ die.DieObject                                                                                                 = (*dieunstructured.ObjectMut)(nil)
+	_ die.DieList                                                                                                   = (*dieappsv1.DeploymentListDie)(nil)
+	_ die.DieListOf[*dieappsv1.DeploymentDieMut]                                                                    = (*dieappsv1.DeploymentListDie)(nil)
+	_ die.DieList                                                                                                   = (*dieunstructured.ObjectList)(nil)
+	_ lists.DieListOf[*dieunstructured.ObjectMut]                                                                   = (*dieunstructured.ObjectList)(nil)
 )
 
-// Generic code over DieOf calls a die's methods directly.
-func stampName[T any, D die.DieObjectOf[T, D]](d D, name string) D {
-	return d.DieWith(func(d D) {
-		d.Metadata().Name().Set(name)
-		d.APIVersion().Set("apps/v1")
+// Generic code over DieOf calls a die's methods directly, and writes
+// through its mutable die.
+func stampName[T any, D die.DieObjectOf[T, D, M], M die.DieObjectMutOf[T, D, M]](d D, name string) D {
+	return d.DieWith(func(m M) {
+		m.Metadata().Name().Set(name)
+		m.APIVersion().Set("apps/v1")
 	})
+}
+
+// An immutable die has DieMutable, and a mutable die DieImmutable, never
+// both, so the two are told apart by type: ImmutableDie and MutableDie.
+func TestMutabilityIsExclusive(t *testing.T) {
+	var d, m any = dieappsv1.DeploymentBlank, dieappsv1.DeploymentBlank.DieMutable()
+	if _, ok := d.(base.MutableDie); ok {
+		t.Error("an immutable die is a MutableDie")
+	}
+	if _, ok := m.(base.ImmutableDie); ok {
+		t.Error("a mutable die is an ImmutableDie")
+	}
+	if _, ok := d.(interface {
+		DieImmutable() *dieappsv1.DeploymentDie
+	}); ok {
+		t.Error("an immutable die has DieImmutable")
+	}
+	if _, ok := m.(interface {
+		DieMutable() *dieappsv1.DeploymentDieMut
+	}); ok {
+		t.Error("a mutable die has DieMutable")
+	}
+	if !base.IsMutable(m) || base.IsMutable(d) {
+		t.Error("IsMutable")
+	}
 }
 
 // Code over any die or list uses what every one has.
@@ -72,12 +105,12 @@ func TestDieInterfaces(t *testing.T) {
 		t.Errorf("metadata %s", got)
 	}
 
-	var l die.DieList = dieappsv1.NewDeploymentList(d)
+	var l die.DieList = dieappsv1.NewDeploymentList(d.DieMutable())
 	items, err := meta.ExtractList(l)
 	if err != nil || len(items) != 1 {
 		t.Fatalf("items %v, %v", items, err)
 	}
-	var typed die.DieListOf[*dieappsv1.DeploymentDie] = dieappsv1.NewDeploymentList(d)
+	var typed die.DieListOf[*dieappsv1.DeploymentDieMut] = dieappsv1.NewDeploymentList(d.DieMutable())
 	if typed.DieItems()[0].GetName() != "web" {
 		t.Errorf("items %v", typed.DieItems())
 	}

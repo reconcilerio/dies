@@ -30,7 +30,7 @@ import (
 // A value set whole has the presence a Go value can have: nil and omitempty
 // zero fields are absent, never null.
 func TestCodecSetWhole(t *testing.T) {
-	d := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+	d := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Name().Set("web")
 		d.Spec().Template().DieFeed(upstreamcorev1.PodTemplateSpec{
 			Spec: upstreamcorev1.PodSpec{ServiceAccountName: "sa"},
@@ -45,7 +45,7 @@ func TestCodecSetWhole(t *testing.T) {
 
 // Decoding records what was present on the wire, zero or not.
 func TestCodecWirePresence(t *testing.T) {
-	d := dieappsv1.DeploymentBlank.DieImmutable(false)
+	d := dieappsv1.DeploymentBlank.DieMutable()
 	if err := json.Unmarshal([]byte(`{"spec": {"paused": false, "minReadySeconds": 0}}`), d); err != nil {
 		t.Fatal(err)
 	}
@@ -59,7 +59,7 @@ func TestCodecWirePresence(t *testing.T) {
 
 // Fields the Go type doesn't have are kept, and encoded again.
 func TestCodecUnknownFields(t *testing.T) {
-	d := dieappsv1.DeploymentBlank.DieImmutable(false)
+	d := dieappsv1.DeploymentBlank.DieMutable()
 	if err := json.Unmarshal([]byte(`{
 		"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "web"},
 		"spec": {"futureField": {"from": "a newer API"}, "template": {"spec": {"containers": [{"name": "app", "futureFlag": true}]}}}
@@ -77,9 +77,9 @@ func TestCodecUnknownFields(t *testing.T) {
 	}`)
 }
 
-func decoded(t *testing.T, data string) *dieappsv1.DeploymentDie {
+func decoded(t *testing.T, data string) *dieappsv1.DeploymentDieMut {
 	t.Helper()
-	d := dieappsv1.DeploymentBlank.DieImmutable(false)
+	d := dieappsv1.DeploymentBlank.DieMutable()
 	if err := json.Unmarshal([]byte(data), d); err != nil {
 		t.Fatal(err)
 	}
@@ -105,7 +105,7 @@ func TestCodecPresenceThroughWrites(t *testing.T) {
 	assertJSON(t, got, err, `{"spec": {"minReadySeconds": 0, "revisionHistoryLimit": 0}}`)
 
 	// a value fed from Go has the presence the Go rule gives it
-	fed := dieappsv1.DeploymentBlank.DieFeed(d.DieRelease())
+	fed := dieappsv1.DeploymentBlank.DieWith(func(f *dieappsv1.DeploymentDieMut) { f.DieFeed(d.DieRelease()) })
 	if fed.Spec().MinReadySeconds().Has() || !fed.Spec().RevisionHistoryLimit().Has() {
 		t.Errorf("fed: minReadySeconds %v, revisionHistoryLimit %v", fed.Spec().MinReadySeconds().Has(), fed.Spec().RevisionHistoryLimit().Has())
 	}

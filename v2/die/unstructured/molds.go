@@ -26,6 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/openapi"
 
+	"reconciler.io/dies/v2/die/base"
 	"reconciler.io/dies/v2/die/internal/core"
 	"reconciler.io/dies/v2/die/internal/dies"
 )
@@ -99,29 +100,47 @@ func (m *Molds) BlankE(gvk schema.GroupVersionKind) (*Object, error) {
 	return d, nil
 }
 
-// For gives an unstructured die the mold of its kind, such as an item of a
-// list a client listed into, keeping its value and intent. A mutable die is
-// given it in place; for an immutable die, a new die is returned. It panics
-// if the server has no schema for the die's kind.
+// For returns an immutable unstructured die in the mold of its kind,
+// keeping its value and intent. It panics if the server has no schema for
+// the die's kind.
 func (m *Molds) For(d *Object) *Object { return core.Must(m.ForE(d)) }
 
 // ForE is For, returning an error rather than panicking.
 func (m *Molds) ForE(d *Object) (*Object, error) {
-	h, at := dies.MustStateOf(d)
-	if len(at) > 0 || h.View != nil {
-		return nil, core.Errorf("die: For is only supported on a root die, not at %s", at)
-	}
-	sc, err := m.schemaOf(d.GetObjectKind().GroupVersionKind())
+	h, sc, err := m.moldOf(d)
 	if err != nil {
 		return nil, err
-	}
-	if h.Mutable {
-		h.Schema = sc
-		return d, nil
 	}
 	out := &Object{}
 	core.SetState(out, &core.Holder{Base: h.Base, Ov: h.Ov, Wire: h.Wire, Schema: sc}, nil)
 	return out, nil
+}
+
+// ForMut gives a mutable unstructured die the mold of its kind, in place,
+// such as an item of a list a client listed into, keeping its value and
+// intent. It panics if the server has no schema for the die's kind.
+func (m *Molds) ForMut(d *ObjectMut) *ObjectMut { return core.Must(m.ForMutE(d)) }
+
+// ForMutE is ForMut, returning an error rather than panicking.
+func (m *Molds) ForMutE(d *ObjectMut) (*ObjectMut, error) {
+	h, sc, err := m.moldOf(d)
+	if err != nil {
+		return nil, err
+	}
+	h.Schema = sc
+	return d, nil
+}
+
+func (m *Molds) moldOf(d base.DieObject) (*core.Holder, *core.Schema, error) {
+	h, at := dies.MustStateOf(d)
+	if len(at) > 0 || h.View != nil {
+		return nil, nil, core.Errorf("die: For is only supported on a root die, not at %s", at)
+	}
+	sc, err := m.schemaOf(d.GetObjectKind().GroupVersionKind())
+	if err != nil {
+		return nil, nil, err
+	}
+	return h, sc, nil
 }
 
 func (m *Molds) schemaOf(gvk schema.GroupVersionKind) (*core.Schema, error) {

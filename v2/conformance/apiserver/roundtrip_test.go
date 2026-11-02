@@ -46,52 +46,52 @@ type roundTrip struct {
 
 func roundTrips(ns string) []roundTrip {
 	return []roundTrip{
-		{"Deployment", deployment(ns).DieImmutable(false), dieappsv1.DeploymentBlank.DieImmutable(false)},
-		{"Pod", diecorev1.PodBlank.DieWith(func(d *diecorev1.PodDie) {
+		{"Deployment", deployment(ns).DieMutable(), dieappsv1.DeploymentBlank.DieMutable()},
+		{"Pod", diecorev1.PodBlank.DieWith(func(d *diecorev1.PodDieMut) {
 			d.Metadata().Namespace().Set(ns)
 			d.Metadata().Name().Set("web")
-			d.Spec().Containers().At("app").DieWith(func(c *diecorev1.ContainerDie) {
+			d.Spec().Containers().At("app").DieWith(func(c *diecorev1.ContainerDieMut) {
 				c.Image().Set("app:1")
 				c.Ports().At(diecorev1.ContainerPortKey{ContainerPort: 8080}).Name().Set("http")
-				c.Env().At("COLOR").ValueFrom().ConfigMapKeyRef().DieWith(func(r *diecorev1.ConfigMapKeySelectorDie) {
+				c.Env().At("COLOR").ValueFrom().ConfigMapKeyRef().DieWith(func(r *diecorev1.ConfigMapKeySelectorDieMut) {
 					r.Name().Set("settings")
 					r.Key().Set("color")
 				})
 			})
-		}).DieImmutable(false), diecorev1.PodBlank.DieImmutable(false)},
-		{"Service", diecorev1.ServiceBlank.DieWith(func(d *diecorev1.ServiceDie) {
+		}).DieMutable(), diecorev1.PodBlank.DieMutable()},
+		{"Service", diecorev1.ServiceBlank.DieWith(func(d *diecorev1.ServiceDieMut) {
 			d.Metadata().Namespace().Set(ns)
 			d.Metadata().Name().Set("web")
 			d.Spec().Selector().Set(map[string]string{"app": "web"})
 			d.Spec().Ports().At(diecorev1.ServicePortKey{Port: 80}).TargetPort().Set(intstr.FromInt32(8080))
-		}).DieImmutable(false), diecorev1.ServiceBlank.DieImmutable(false)},
-		{"ConfigMap", diecorev1.ConfigMapBlank.DieWith(func(d *diecorev1.ConfigMapDie) {
+		}).DieMutable(), diecorev1.ServiceBlank.DieMutable()},
+		{"ConfigMap", diecorev1.ConfigMapBlank.DieWith(func(d *diecorev1.ConfigMapDieMut) {
 			d.Metadata().Namespace().Set(ns)
 			d.Metadata().Name().Set("web")
 			d.Data().Set("color", "")
 			d.BinaryData().Set("blob", []byte{0, 1, 2})
-		}).DieImmutable(false), diecorev1.ConfigMapBlank.DieImmutable(false)},
-		{"CronJob", diebatchv1.CronJobBlank.DieWith(func(d *diebatchv1.CronJobDie) {
+		}).DieMutable(), diecorev1.ConfigMapBlank.DieMutable()},
+		{"CronJob", diebatchv1.CronJobBlank.DieWith(func(d *diebatchv1.CronJobDieMut) {
 			d.Metadata().Namespace().Set(ns)
 			d.Metadata().Name().Set("web")
 			d.Spec().Schedule().Set("@hourly")
-			d.Spec().JobTemplate().Spec().Template().Spec().DieWith(func(p *diecorev1.PodSpecDie) {
+			d.Spec().JobTemplate().Spec().Template().Spec().DieWith(func(p *diecorev1.PodSpecDieMut) {
 				p.RestartPolicy().Set(diecorev1.RestartPolicyNever)
 				p.Containers().At("job").Image().Set("job:1")
 			})
-		}).DieImmutable(false), diebatchv1.CronJobBlank.DieImmutable(false)},
-		{"Role", dierbacv1.RoleBlank.DieWith(func(d *dierbacv1.RoleDie) {
+		}).DieMutable(), diebatchv1.CronJobBlank.DieMutable()},
+		{"Role", dierbacv1.RoleBlank.DieWith(func(d *dierbacv1.RoleDieMut) {
 			d.Metadata().Namespace().Set(ns)
 			d.Metadata().Name().Set("web")
 			d.Rules().Set([]dierbacv1.PolicyRule{{APIGroups: []string{""}, Resources: []string{"configmaps"}, Verbs: []string{"get"}}})
-		}).DieImmutable(false), dierbacv1.RoleBlank.DieImmutable(false)},
-		{"Widget", widgetv1.WidgetBlank.DieWith(func(d *widgetv1.WidgetDie) {
+		}).DieMutable(), dierbacv1.RoleBlank.DieMutable()},
+		{"Widget", widgetv1.WidgetBlank.DieWith(func(d *widgetv1.WidgetDieMut) {
 			d.Metadata().Namespace().Set(ns)
 			d.Metadata().Name().Set("web")
 			d.Spec().Ports().At("http").Port().Set(80)
 			d.Spec().Template().Spec().Containers().At("app").Image().Set("app:1")
 			d.Spec().Match().Exact().Set(false)
-		}).DieImmutable(false), widgetv1.WidgetBlank.DieImmutable(false)},
+		}).DieMutable(), widgetv1.WidgetBlank.DieMutable()},
 	}
 }
 
@@ -146,12 +146,12 @@ func TestServerObjectsRoundTripThroughDies(t *testing.T) {
 func TestUpdateFromADieKeepsWhatTheServerSet(t *testing.T) {
 	ns := namespace(t)
 	ctx := context.Background()
-	svc := diecorev1.ServiceBlank.DieWith(func(d *diecorev1.ServiceDie) {
+	svc := diecorev1.ServiceBlank.DieWith(func(d *diecorev1.ServiceDieMut) {
 		d.Metadata().Namespace().Set(ns)
 		d.Metadata().Name().Set("web")
 		d.Spec().Selector().Set(map[string]string{"app": "web"})
 		d.Spec().Ports().At(diecorev1.ServicePortKey{Port: 80}).TargetPort().Set(intstr.FromInt32(8080))
-	}).DieImmutable(false)
+	}).DieMutable()
 	if err := dies.Create(ctx, svc); err != nil {
 		t.Fatal(err)
 	}
@@ -160,7 +160,7 @@ func TestUpdateFromADieKeepsWhatTheServerSet(t *testing.T) {
 		t.Fatal("the server allocated no cluster IP")
 	}
 
-	read := diecorev1.ServiceBlank.DieImmutable(false)
+	read := diecorev1.ServiceBlank.DieMutable()
 	if err := dies.Get(ctx, keyOf(ns, "web"), read); err != nil {
 		t.Fatal(err)
 	}
@@ -181,11 +181,11 @@ func TestListIntoListDies(t *testing.T) {
 	ns := namespace(t)
 	ctx := context.Background()
 	for _, name := range []string{"a", "b"} {
-		cm := diecorev1.ConfigMapBlank.DieWith(func(d *diecorev1.ConfigMapDie) {
+		cm := diecorev1.ConfigMapBlank.DieWith(func(d *diecorev1.ConfigMapDieMut) {
 			d.Metadata().Namespace().Set(ns)
 			d.Metadata().Name().Set(name)
 			d.Data().Set("name", name)
-		}).DieImmutable(false)
+		}).DieMutable()
 		if err := dies.Create(ctx, cm); err != nil {
 			t.Fatal(err)
 		}

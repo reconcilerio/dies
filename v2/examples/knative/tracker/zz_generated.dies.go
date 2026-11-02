@@ -29,24 +29,39 @@ import (
 // Reference is modeled after corev1.ObjectReference, but omits fields
 // unsupported by the tracker, and permits us to extend things in
 // divergent ways.
+//
+// ReferenceDie is immutable: it reads.
+// ReferenceDieMut, its mutable die, also writes, as DieWith passes it.
 type ReferenceDie struct {
-	diebase.DieBase[Reference, *ReferenceDie]
+	diebase.DieBase[Reference, *ReferenceDie, *ReferenceDieMut]
 }
 
-func (*ReferenceDie) DieFrom(b diebase.DieBase[Reference, *ReferenceDie]) *ReferenceDie {
+// ReferenceDieMut is the mutable die of Reference: see ReferenceDie.
+type ReferenceDieMut struct {
+	diebase.DieMutBase[Reference, *ReferenceDie, *ReferenceDieMut]
+}
+
+func (*ReferenceDie) DieFrom(b diebase.DieBase[Reference, *ReferenceDie, *ReferenceDieMut]) *ReferenceDie {
 	return &ReferenceDie{b}
 }
 
-var _ diebase.DieOf[Reference, *ReferenceDie] = (*ReferenceDie)(nil)
+func (*ReferenceDieMut) DieFrom(b diebase.DieMutBase[Reference, *ReferenceDie, *ReferenceDieMut]) *ReferenceDieMut {
+	return &ReferenceDieMut{b}
+}
 
-var ReferenceBlank = diebase.Blank[Reference, *ReferenceDie]()
+var (
+	_ diebase.DieOf[Reference, *ReferenceDie, *ReferenceDieMut]    = (*ReferenceDie)(nil)
+	_ diebase.DieMutOf[Reference, *ReferenceDie, *ReferenceDieMut] = (*ReferenceDieMut)(nil)
+)
+
+var ReferenceBlank = diebase.Blank[Reference, *ReferenceDie, *ReferenceDieMut]()
 
 type referenceFieldsTable struct {
 	APIVersion diefields.Field[Reference, string]
 	Kind       diefields.Field[Reference, string]
 	Namespace  diefields.Field[Reference, string]
 	Name       diefields.Field[Reference, string]
-	Selector   diefields.Struct[Reference, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]
+	Selector   diefields.Struct[Reference, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 }
 
 var referenceFields = &diefields.Table[referenceFieldsTable]{Build: func() (f referenceFieldsTable) {
@@ -55,28 +70,28 @@ var referenceFields = &diefields.Table[referenceFieldsTable]{Build: func() (f re
 	f.Kind = diefields.NewField[Reference, string]("kind")
 	f.Namespace = diefields.NewField[Reference, string]("namespace")
 	f.Name = diefields.NewField[Reference, string]("name")
-	f.Selector = diefields.NewStruct[Reference, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]("selector")
+	f.Selector = diefields.NewStruct[Reference, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("selector")
 	return
 }}
 
 // API version of the referent.
-func (d *ReferenceDie) APIVersion() diefields.Value[string, *ReferenceDie] {
+func (d *ReferenceDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, referenceFields.Get().APIVersion)
 }
 
 // Kind of the referent.
-func (d *ReferenceDie) Kind() diefields.Value[string, *ReferenceDie] {
+func (d *ReferenceDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, referenceFields.Get().Kind)
 }
 
 // Namespace of the referent.
-func (d *ReferenceDie) Namespace() diefields.Value[string, *ReferenceDie] {
+func (d *ReferenceDie) Namespace() diefields.Value[string] {
 	return diefields.ValueOf(d, referenceFields.Get().Namespace)
 }
 
 // Name of the referent.
 // Mutually exclusive with Selector.
-func (d *ReferenceDie) Name() diefields.Value[string, *ReferenceDie] {
+func (d *ReferenceDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, referenceFields.Get().Name)
 }
 
@@ -84,6 +99,33 @@ func (d *ReferenceDie) Name() diefields.Value[string, *ReferenceDie] {
 // Mutually exclusive with Name.
 func (d *ReferenceDie) Selector() *diemetav1.LabelSelectorDie {
 	return diefields.Child(d, referenceFields.Get().Selector)
+}
+
+// API version of the referent.
+func (d *ReferenceDieMut) APIVersion() diefields.ValueMut[string, *ReferenceDieMut] {
+	return diefields.ValueMutOf(d, referenceFields.Get().APIVersion)
+}
+
+// Kind of the referent.
+func (d *ReferenceDieMut) Kind() diefields.ValueMut[string, *ReferenceDieMut] {
+	return diefields.ValueMutOf(d, referenceFields.Get().Kind)
+}
+
+// Namespace of the referent.
+func (d *ReferenceDieMut) Namespace() diefields.ValueMut[string, *ReferenceDieMut] {
+	return diefields.ValueMutOf(d, referenceFields.Get().Namespace)
+}
+
+// Name of the referent.
+// Mutually exclusive with Selector.
+func (d *ReferenceDieMut) Name() diefields.ValueMut[string, *ReferenceDieMut] {
+	return diefields.ValueMutOf(d, referenceFields.Get().Name)
+}
+
+// Selector of the referents.
+// Mutually exclusive with Name.
+func (d *ReferenceDieMut) Selector() *diemetav1.LabelSelectorDieMut {
+	return diefields.ChildMut(d, referenceFields.Get().Selector)
 }
 
 // SchemeBuilder registers this package's object and list dies, of which

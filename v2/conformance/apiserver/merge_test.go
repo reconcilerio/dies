@@ -31,11 +31,11 @@ import (
 
 func get(t *testing.T, ns string) *dieappsv1.DeploymentDie {
 	t.Helper()
-	d := dieappsv1.DeploymentBlank.DieImmutable(false)
+	d := dieappsv1.DeploymentBlank.DieMutable()
 	if err := dies.Get(context.Background(), keyOf(ns, "web"), d); err != nil {
 		t.Fatal(err)
 	}
-	return d.DieImmutable(true)
+	return d.DieImmutable()
 }
 
 func mergePatch(t *testing.T, d *dieappsv1.DeploymentDie) *dieappsv1.DeploymentDie {
@@ -44,16 +44,16 @@ func mergePatch(t *testing.T, d *dieappsv1.DeploymentDie) *dieappsv1.DeploymentD
 	if err != nil {
 		t.Fatal(err)
 	}
-	got := d.DieImmutable(false)
+	got := d.DieMutable()
 	if err := dies.Patch(context.Background(), got, client.RawPatch(types.MergePatchType, body)); err != nil {
 		t.Fatalf("merge patch %s: %v", body, err)
 	}
-	return got.DieImmutable(true)
+	return got.DieImmutable()
 }
 
 func TestMergePatchCarriesOnlyIntent(t *testing.T) {
 	ns := namespace(t)
-	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Labels().Set("tier", "web")
 		d.Spec().Replicas().Set(2)
 		d.Spec().Paused().Set(true)
@@ -62,12 +62,12 @@ func TestMergePatchCarriesOnlyIntent(t *testing.T) {
 	read := get(t, ns)
 
 	// another writer changes the object after it was read
-	other := identity(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	other := identity(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Labels().Set("team", "a")
 	})
 	apply(t, other, "other")
 
-	got := mergePatch(t, read.DieWith(func(d *dieappsv1.DeploymentDie) {
+	got := mergePatch(t, read.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().Replicas().Set(0)
 		d.Spec().Paused().Set(false)
 		d.Spec().MinReadySeconds().Clear()
@@ -96,11 +96,11 @@ func TestMergePatchCarriesOnlyIntent(t *testing.T) {
 // has it, from what it read: the other elements are kept, as they were.
 func TestMergePatchSendsListsWhole(t *testing.T) {
 	ns := namespace(t)
-	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().Template().Spec().Containers().At("sidecar").Image().Set("sidecar:1")
 	}), "app")
 
-	got := mergePatch(t, get(t, ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	got := mergePatch(t, get(t, ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().Template().Spec().Containers().At("app").Image().Set("app:2")
 	}))
 	containers := got.Spec().Template().Spec().Containers()
@@ -119,18 +119,18 @@ func TestMergePatchSendsListsWhole(t *testing.T) {
 func TestMergePatchSteps(t *testing.T) {
 	ns := namespace(t)
 	ctx := context.Background()
-	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDie) {
+	apply(t, deployment(ns).DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Labels().Set("canary", "true")
 		d.Spec().Replicas().Set(2)
 	}), "app")
 
-	current, err := dieappsv1.DeploymentBlank.DieWithE(func(d *dieappsv1.DeploymentDie) error {
+	current, err := dieappsv1.DeploymentBlank.DieWithE(func(d *dieappsv1.DeploymentDieMut) error {
 		return dies.Get(ctx, keyOf(ns, "web"), d)
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	update := current.DieWith(func(d *dieappsv1.DeploymentDie) {
+	update := current.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Spec().Replicas().Set(0)
 		d.Metadata().Labels().Remove("canary")
 	})
@@ -138,15 +138,15 @@ func TestMergePatchSteps(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	patched, err := current.DieWithE(func(d *dieappsv1.DeploymentDie) error {
+	patched, err := current.DieWithE(func(d *dieappsv1.DeploymentDieMut) error {
 		return dies.Patch(ctx, d, client.RawPatch(types.MergePatchType, body))
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if patched.DieMutable() || patched.DieIntent() != "" {
-		t.Errorf("patched is mutable %v, with intent %q", patched.DieMutable(), patched.DieIntent())
+	if patched.DieIntent() != "" {
+		t.Errorf("patched has intent %q", patched.DieIntent())
 	}
 	if patched.Spec().Replicas().Get() != 0 || patched.Metadata().Labels().Has("canary") {
 		t.Errorf("patched replicas %d, labels %v", patched.Spec().Replicas().Get(), patched.GetLabels())

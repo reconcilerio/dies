@@ -25,17 +25,31 @@ import (
 	diefields "reconciler.io/dies/v2/die/fields"
 )
 
+// GadgetPartDie is immutable: it reads.
+// GadgetPartDieMut, its mutable die, also writes, as DieWith passes it.
 type GadgetPartDie struct {
-	diebase.DieBase[GadgetPart, *GadgetPartDie]
+	diebase.DieBase[GadgetPart, *GadgetPartDie, *GadgetPartDieMut]
 }
 
-func (*GadgetPartDie) DieFrom(b diebase.DieBase[GadgetPart, *GadgetPartDie]) *GadgetPartDie {
+// GadgetPartDieMut is the mutable die of GadgetPart: see GadgetPartDie.
+type GadgetPartDieMut struct {
+	diebase.DieMutBase[GadgetPart, *GadgetPartDie, *GadgetPartDieMut]
+}
+
+func (*GadgetPartDie) DieFrom(b diebase.DieBase[GadgetPart, *GadgetPartDie, *GadgetPartDieMut]) *GadgetPartDie {
 	return &GadgetPartDie{b}
 }
 
-var _ diebase.DieOf[GadgetPart, *GadgetPartDie] = (*GadgetPartDie)(nil)
+func (*GadgetPartDieMut) DieFrom(b diebase.DieMutBase[GadgetPart, *GadgetPartDie, *GadgetPartDieMut]) *GadgetPartDieMut {
+	return &GadgetPartDieMut{b}
+}
 
-var GadgetPartBlank = diebase.Blank[GadgetPart, *GadgetPartDie]()
+var (
+	_ diebase.DieOf[GadgetPart, *GadgetPartDie, *GadgetPartDieMut]    = (*GadgetPartDie)(nil)
+	_ diebase.DieMutOf[GadgetPart, *GadgetPartDie, *GadgetPartDieMut] = (*GadgetPartDieMut)(nil)
+)
+
+var GadgetPartBlank = diebase.Blank[GadgetPart, *GadgetPartDie, *GadgetPartDieMut]()
 
 type gadgetPartFieldsTable struct {
 	Name diefields.Field[GadgetPart, string]
@@ -47,23 +61,42 @@ var gadgetPartFields = &diefields.Table[gadgetPartFieldsTable]{Build: func() (f 
 	return
 }}
 
-func (d *GadgetPartDie) Name() diefields.Value[string, *GadgetPartDie] {
+func (d *GadgetPartDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, gadgetPartFields.Get().Name)
+}
+
+func (d *GadgetPartDieMut) Name() diefields.ValueMut[string, *GadgetPartDieMut] {
+	return diefields.ValueMutOf(d, gadgetPartFields.Get().Name)
 }
 
 // GadgetSpec's parts are a list map by their upstream-style markers, which
 // the +die marker overrides to atomic.
+//
+// GadgetSpecDie is immutable: it reads.
+// GadgetSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type GadgetSpecDie struct {
-	diebase.DieBase[GadgetSpec, *GadgetSpecDie]
+	diebase.DieBase[GadgetSpec, *GadgetSpecDie, *GadgetSpecDieMut]
 }
 
-func (*GadgetSpecDie) DieFrom(b diebase.DieBase[GadgetSpec, *GadgetSpecDie]) *GadgetSpecDie {
+// GadgetSpecDieMut is the mutable die of GadgetSpec: see GadgetSpecDie.
+type GadgetSpecDieMut struct {
+	diebase.DieMutBase[GadgetSpec, *GadgetSpecDie, *GadgetSpecDieMut]
+}
+
+func (*GadgetSpecDie) DieFrom(b diebase.DieBase[GadgetSpec, *GadgetSpecDie, *GadgetSpecDieMut]) *GadgetSpecDie {
 	return &GadgetSpecDie{b}
 }
 
-var _ diebase.DieOf[GadgetSpec, *GadgetSpecDie] = (*GadgetSpecDie)(nil)
+func (*GadgetSpecDieMut) DieFrom(b diebase.DieMutBase[GadgetSpec, *GadgetSpecDie, *GadgetSpecDieMut]) *GadgetSpecDieMut {
+	return &GadgetSpecDieMut{b}
+}
 
-var GadgetSpecBlank = diebase.Blank[GadgetSpec, *GadgetSpecDie]()
+var (
+	_ diebase.DieOf[GadgetSpec, *GadgetSpecDie, *GadgetSpecDieMut]    = (*GadgetSpecDie)(nil)
+	_ diebase.DieMutOf[GadgetSpec, *GadgetSpecDie, *GadgetSpecDieMut] = (*GadgetSpecDieMut)(nil)
+)
+
+var GadgetSpecBlank = diebase.Blank[GadgetSpec, *GadgetSpecDie, *GadgetSpecDieMut]()
 
 type gadgetSpecFieldsTable struct {
 	Parts diefields.Field[GadgetSpec, []GadgetPart]
@@ -75,8 +108,12 @@ var gadgetSpecFields = &diefields.Table[gadgetSpecFieldsTable]{Build: func() (f 
 	return
 }}
 
-func (d *GadgetSpecDie) Parts() diefields.Value[[]GadgetPart, *GadgetSpecDie] {
+func (d *GadgetSpecDie) Parts() diefields.Value[[]GadgetPart] {
 	return diefields.ValueOf(d, gadgetSpecFields.Get().Parts)
+}
+
+func (d *GadgetSpecDieMut) Parts() diefields.ValueMut[[]GadgetPart, *GadgetSpecDieMut] {
+	return diefields.ValueMutOf(d, gadgetSpecFields.Get().Parts)
 }
 
 // SchemeBuilder registers this package's object and list dies, of which

@@ -33,31 +33,46 @@ import (
 // SelfSubjectReview contains the user information that the kube-apiserver has about the user making this request.
 // When using impersonation, users will receive the user info of the user being impersonated.  If impersonation or
 // request header authentication is used, any extra keys will have their case ignored and returned as lowercase.
+//
+// SelfSubjectReviewDie is immutable: it reads.
+// SelfSubjectReviewDieMut, its mutable die, also writes, as DieWith passes it.
 type SelfSubjectReviewDie struct {
-	diebase.DieObjectBase[SelfSubjectReview, *SelfSubjectReviewDie]
+	diebase.DieObjectBase[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut]
 }
 
-func (*SelfSubjectReviewDie) DieFrom(b diebase.DieBase[SelfSubjectReview, *SelfSubjectReviewDie]) *SelfSubjectReviewDie {
+// SelfSubjectReviewDieMut is the mutable die of SelfSubjectReview: see SelfSubjectReviewDie.
+type SelfSubjectReviewDieMut struct {
+	diebase.DieObjectMutBase[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut]
+}
+
+func (*SelfSubjectReviewDie) DieFrom(b diebase.DieBase[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut]) *SelfSubjectReviewDie {
 	return &SelfSubjectReviewDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[SelfSubjectReview, *SelfSubjectReviewDie] = (*SelfSubjectReviewDie)(nil)
+func (*SelfSubjectReviewDieMut) DieFrom(b diebase.DieMutBase[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut]) *SelfSubjectReviewDieMut {
+	return &SelfSubjectReviewDieMut{diebase.AsObjectMut(b)}
+}
 
-var SelfSubjectReviewBlank = diebase.BlankOf[SelfSubjectReview, *SelfSubjectReviewDie](SelfSubjectReview{TypeMeta: metav1.TypeMeta{APIVersion: "authentication.k8s.io/v1beta1", Kind: "SelfSubjectReview"}})
+var (
+	_ dieobjects.DieObjectOf[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut]    = (*SelfSubjectReviewDie)(nil)
+	_ dieobjects.DieObjectMutOf[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut] = (*SelfSubjectReviewDieMut)(nil)
+)
+
+var SelfSubjectReviewBlank = diebase.BlankOf[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut](SelfSubjectReview{TypeMeta: metav1.TypeMeta{APIVersion: "authentication.k8s.io/v1beta1", Kind: "SelfSubjectReview"}})
 
 type selfSubjectReviewFieldsTable struct {
 	Kind       diefields.Field[SelfSubjectReview, string]
 	APIVersion diefields.Field[SelfSubjectReview, string]
-	Metadata   diefields.Struct[SelfSubjectReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Status     diefields.Struct[SelfSubjectReview, SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie]
+	Metadata   diefields.Struct[SelfSubjectReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Status     diefields.Struct[SelfSubjectReview, SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut]
 }
 
 var selfSubjectReviewFields = &diefields.Table[selfSubjectReviewFieldsTable]{Build: func() (f selfSubjectReviewFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[SelfSubjectReview, string]("kind")
 	f.APIVersion = diefields.NewField[SelfSubjectReview, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[SelfSubjectReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Status = diefields.NewStruct[SelfSubjectReview, SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie]("status")
+	f.Metadata = diefields.NewStruct[SelfSubjectReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Status = diefields.NewStruct[SelfSubjectReview, SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut]("status")
 	return
 }}
 
@@ -66,7 +81,7 @@ var selfSubjectReviewFields = &diefields.Table[selfSubjectReviewFieldsTable]{Bui
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *SelfSubjectReviewDie) Kind() diefields.Value[string, *SelfSubjectReviewDie] {
+func (d *SelfSubjectReviewDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, selfSubjectReviewFields.Get().Kind)
 }
 
@@ -74,7 +89,7 @@ func (d *SelfSubjectReviewDie) Kind() diefields.Value[string, *SelfSubjectReview
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *SelfSubjectReviewDie) APIVersion() diefields.Value[string, *SelfSubjectReviewDie] {
+func (d *SelfSubjectReviewDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, selfSubjectReviewFields.Get().APIVersion)
 }
 
@@ -89,26 +104,69 @@ func (d *SelfSubjectReviewDie) Status() *SelfSubjectReviewStatusDie {
 	return diefields.Child(d, selfSubjectReviewFields.Get().Status)
 }
 
-// SelfSubjectReviewStatus is filled by the kube-apiserver and sent back to a user.
-type SelfSubjectReviewStatusDie struct {
-	diebase.DieBase[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *SelfSubjectReviewDieMut) Kind() diefields.ValueMut[string, *SelfSubjectReviewDieMut] {
+	return diefields.ValueMutOf(d, selfSubjectReviewFields.Get().Kind)
 }
 
-func (*SelfSubjectReviewStatusDie) DieFrom(b diebase.DieBase[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie]) *SelfSubjectReviewStatusDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *SelfSubjectReviewDieMut) APIVersion() diefields.ValueMut[string, *SelfSubjectReviewDieMut] {
+	return diefields.ValueMutOf(d, selfSubjectReviewFields.Get().APIVersion)
+}
+
+// metadata is the standard object's metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *SelfSubjectReviewDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, selfSubjectReviewFields.Get().Metadata)
+}
+
+// status is filled in by the server with the user attributes.
+func (d *SelfSubjectReviewDieMut) Status() *SelfSubjectReviewStatusDieMut {
+	return diefields.ChildMut(d, selfSubjectReviewFields.Get().Status)
+}
+
+// SelfSubjectReviewStatus is filled by the kube-apiserver and sent back to a user.
+//
+// SelfSubjectReviewStatusDie is immutable: it reads.
+// SelfSubjectReviewStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type SelfSubjectReviewStatusDie struct {
+	diebase.DieBase[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut]
+}
+
+// SelfSubjectReviewStatusDieMut is the mutable die of SelfSubjectReviewStatus: see SelfSubjectReviewStatusDie.
+type SelfSubjectReviewStatusDieMut struct {
+	diebase.DieMutBase[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut]
+}
+
+func (*SelfSubjectReviewStatusDie) DieFrom(b diebase.DieBase[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut]) *SelfSubjectReviewStatusDie {
 	return &SelfSubjectReviewStatusDie{b}
 }
 
-var _ diebase.DieOf[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie] = (*SelfSubjectReviewStatusDie)(nil)
+func (*SelfSubjectReviewStatusDieMut) DieFrom(b diebase.DieMutBase[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut]) *SelfSubjectReviewStatusDieMut {
+	return &SelfSubjectReviewStatusDieMut{b}
+}
 
-var SelfSubjectReviewStatusBlank = diebase.Blank[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie]()
+var (
+	_ diebase.DieOf[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut]    = (*SelfSubjectReviewStatusDie)(nil)
+	_ diebase.DieMutOf[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut] = (*SelfSubjectReviewStatusDieMut)(nil)
+)
+
+var SelfSubjectReviewStatusBlank = diebase.Blank[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut]()
 
 type selfSubjectReviewStatusFieldsTable struct {
-	UserInfo diefields.Struct[SelfSubjectReviewStatus, dieauthenticationv1.UserInfo, *dieauthenticationv1.UserInfoDie]
+	UserInfo diefields.Struct[SelfSubjectReviewStatus, dieauthenticationv1.UserInfo, *dieauthenticationv1.UserInfoDie, *dieauthenticationv1.UserInfoDieMut]
 }
 
 var selfSubjectReviewStatusFields = &diefields.Table[selfSubjectReviewStatusFieldsTable]{Build: func() (f selfSubjectReviewStatusFieldsTable) {
 	_ = annotated
-	f.UserInfo = diefields.NewStruct[SelfSubjectReviewStatus, dieauthenticationv1.UserInfo, *dieauthenticationv1.UserInfoDie]("userInfo")
+	f.UserInfo = diefields.NewStruct[SelfSubjectReviewStatus, dieauthenticationv1.UserInfo, *dieauthenticationv1.UserInfoDie, *dieauthenticationv1.UserInfoDieMut]("userInfo")
 	return
 }}
 
@@ -117,36 +175,56 @@ func (d *SelfSubjectReviewStatusDie) UserInfo() *dieauthenticationv1.UserInfoDie
 	return diefields.Child(d, selfSubjectReviewStatusFields.Get().UserInfo)
 }
 
+// userInfo is a set of attributes belonging to the user making this request.
+func (d *SelfSubjectReviewStatusDieMut) UserInfo() *dieauthenticationv1.UserInfoDieMut {
+	return diefields.ChildMut(d, selfSubjectReviewStatusFields.Get().UserInfo)
+}
+
 // TokenReview attempts to authenticate a token to a known user.
 // Note: TokenReview requests may be cached by the webhook token authenticator
 // plugin in the kube-apiserver.
+//
+// TokenReviewDie is immutable: it reads.
+// TokenReviewDieMut, its mutable die, also writes, as DieWith passes it.
 type TokenReviewDie struct {
-	diebase.DieObjectBase[TokenReview, *TokenReviewDie]
+	diebase.DieObjectBase[TokenReview, *TokenReviewDie, *TokenReviewDieMut]
 }
 
-func (*TokenReviewDie) DieFrom(b diebase.DieBase[TokenReview, *TokenReviewDie]) *TokenReviewDie {
+// TokenReviewDieMut is the mutable die of TokenReview: see TokenReviewDie.
+type TokenReviewDieMut struct {
+	diebase.DieObjectMutBase[TokenReview, *TokenReviewDie, *TokenReviewDieMut]
+}
+
+func (*TokenReviewDie) DieFrom(b diebase.DieBase[TokenReview, *TokenReviewDie, *TokenReviewDieMut]) *TokenReviewDie {
 	return &TokenReviewDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[TokenReview, *TokenReviewDie] = (*TokenReviewDie)(nil)
+func (*TokenReviewDieMut) DieFrom(b diebase.DieMutBase[TokenReview, *TokenReviewDie, *TokenReviewDieMut]) *TokenReviewDieMut {
+	return &TokenReviewDieMut{diebase.AsObjectMut(b)}
+}
 
-var TokenReviewBlank = diebase.BlankOf[TokenReview, *TokenReviewDie](TokenReview{TypeMeta: metav1.TypeMeta{APIVersion: "authentication.k8s.io/v1beta1", Kind: "TokenReview"}})
+var (
+	_ dieobjects.DieObjectOf[TokenReview, *TokenReviewDie, *TokenReviewDieMut]    = (*TokenReviewDie)(nil)
+	_ dieobjects.DieObjectMutOf[TokenReview, *TokenReviewDie, *TokenReviewDieMut] = (*TokenReviewDieMut)(nil)
+)
+
+var TokenReviewBlank = diebase.BlankOf[TokenReview, *TokenReviewDie, *TokenReviewDieMut](TokenReview{TypeMeta: metav1.TypeMeta{APIVersion: "authentication.k8s.io/v1beta1", Kind: "TokenReview"}})
 
 type tokenReviewFieldsTable struct {
 	Kind       diefields.Field[TokenReview, string]
 	APIVersion diefields.Field[TokenReview, string]
-	Metadata   diefields.Struct[TokenReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[TokenReview, TokenReviewSpec, *TokenReviewSpecDie]
-	Status     diefields.Struct[TokenReview, TokenReviewStatus, *TokenReviewStatusDie]
+	Metadata   diefields.Struct[TokenReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[TokenReview, TokenReviewSpec, *TokenReviewSpecDie, *TokenReviewSpecDieMut]
+	Status     diefields.Struct[TokenReview, TokenReviewStatus, *TokenReviewStatusDie, *TokenReviewStatusDieMut]
 }
 
 var tokenReviewFields = &diefields.Table[tokenReviewFieldsTable]{Build: func() (f tokenReviewFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[TokenReview, string]("kind")
 	f.APIVersion = diefields.NewField[TokenReview, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[TokenReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[TokenReview, TokenReviewSpec, *TokenReviewSpecDie]("spec")
-	f.Status = diefields.NewStruct[TokenReview, TokenReviewStatus, *TokenReviewStatusDie]("status")
+	f.Metadata = diefields.NewStruct[TokenReview, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[TokenReview, TokenReviewSpec, *TokenReviewSpecDie, *TokenReviewSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[TokenReview, TokenReviewStatus, *TokenReviewStatusDie, *TokenReviewStatusDieMut]("status")
 	return
 }}
 
@@ -155,7 +233,7 @@ var tokenReviewFields = &diefields.Table[tokenReviewFieldsTable]{Build: func() (
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *TokenReviewDie) Kind() diefields.Value[string, *TokenReviewDie] {
+func (d *TokenReviewDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, tokenReviewFields.Get().Kind)
 }
 
@@ -163,7 +241,7 @@ func (d *TokenReviewDie) Kind() diefields.Value[string, *TokenReviewDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *TokenReviewDie) APIVersion() diefields.Value[string, *TokenReviewDie] {
+func (d *TokenReviewDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, tokenReviewFields.Get().APIVersion)
 }
 
@@ -183,18 +261,66 @@ func (d *TokenReviewDie) Status() *TokenReviewStatusDie {
 	return diefields.Child(d, tokenReviewFields.Get().Status)
 }
 
-// TokenReviewSpec is a description of the token authentication request.
-type TokenReviewSpecDie struct {
-	diebase.DieBase[TokenReviewSpec, *TokenReviewSpecDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *TokenReviewDieMut) Kind() diefields.ValueMut[string, *TokenReviewDieMut] {
+	return diefields.ValueMutOf(d, tokenReviewFields.Get().Kind)
 }
 
-func (*TokenReviewSpecDie) DieFrom(b diebase.DieBase[TokenReviewSpec, *TokenReviewSpecDie]) *TokenReviewSpecDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *TokenReviewDieMut) APIVersion() diefields.ValueMut[string, *TokenReviewDieMut] {
+	return diefields.ValueMutOf(d, tokenReviewFields.Get().APIVersion)
+}
+
+// metadata is the standard object's metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *TokenReviewDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, tokenReviewFields.Get().Metadata)
+}
+
+// spec holds information about the request being evaluated
+func (d *TokenReviewDieMut) Spec() *TokenReviewSpecDieMut {
+	return diefields.ChildMut(d, tokenReviewFields.Get().Spec)
+}
+
+// status is filled in by the server and indicates whether the token can be authenticated.
+func (d *TokenReviewDieMut) Status() *TokenReviewStatusDieMut {
+	return diefields.ChildMut(d, tokenReviewFields.Get().Status)
+}
+
+// TokenReviewSpec is a description of the token authentication request.
+//
+// TokenReviewSpecDie is immutable: it reads.
+// TokenReviewSpecDieMut, its mutable die, also writes, as DieWith passes it.
+type TokenReviewSpecDie struct {
+	diebase.DieBase[TokenReviewSpec, *TokenReviewSpecDie, *TokenReviewSpecDieMut]
+}
+
+// TokenReviewSpecDieMut is the mutable die of TokenReviewSpec: see TokenReviewSpecDie.
+type TokenReviewSpecDieMut struct {
+	diebase.DieMutBase[TokenReviewSpec, *TokenReviewSpecDie, *TokenReviewSpecDieMut]
+}
+
+func (*TokenReviewSpecDie) DieFrom(b diebase.DieBase[TokenReviewSpec, *TokenReviewSpecDie, *TokenReviewSpecDieMut]) *TokenReviewSpecDie {
 	return &TokenReviewSpecDie{b}
 }
 
-var _ diebase.DieOf[TokenReviewSpec, *TokenReviewSpecDie] = (*TokenReviewSpecDie)(nil)
+func (*TokenReviewSpecDieMut) DieFrom(b diebase.DieMutBase[TokenReviewSpec, *TokenReviewSpecDie, *TokenReviewSpecDieMut]) *TokenReviewSpecDieMut {
+	return &TokenReviewSpecDieMut{b}
+}
 
-var TokenReviewSpecBlank = diebase.Blank[TokenReviewSpec, *TokenReviewSpecDie]()
+var (
+	_ diebase.DieOf[TokenReviewSpec, *TokenReviewSpecDie, *TokenReviewSpecDieMut]    = (*TokenReviewSpecDie)(nil)
+	_ diebase.DieMutOf[TokenReviewSpec, *TokenReviewSpecDie, *TokenReviewSpecDieMut] = (*TokenReviewSpecDieMut)(nil)
+)
+
+var TokenReviewSpecBlank = diebase.Blank[TokenReviewSpec, *TokenReviewSpecDie, *TokenReviewSpecDieMut]()
 
 type tokenReviewSpecFieldsTable struct {
 	Token     diefields.Field[TokenReviewSpec, string]
@@ -209,7 +335,7 @@ var tokenReviewSpecFields = &diefields.Table[tokenReviewSpecFieldsTable]{Build: 
 }}
 
 // token is the opaque bearer token.
-func (d *TokenReviewSpecDie) Token() diefields.Value[string, *TokenReviewSpecDie] {
+func (d *TokenReviewSpecDie) Token() diefields.Value[string] {
 	return diefields.ValueOf(d, tokenReviewSpecFields.Get().Token)
 }
 
@@ -218,26 +344,55 @@ func (d *TokenReviewSpecDie) Token() diefields.Value[string, *TokenReviewSpecDie
 // verify that the token was intended for at least one of the audiences in
 // this list. If no audiences are provided, the audience will default to the
 // audience of the Kubernetes apiserver.
-func (d *TokenReviewSpecDie) Audiences() diefields.Value[[]string, *TokenReviewSpecDie] {
+func (d *TokenReviewSpecDie) Audiences() diefields.Value[[]string] {
 	return diefields.ValueOf(d, tokenReviewSpecFields.Get().Audiences)
 }
 
-// TokenReviewStatus is the result of the token authentication request.
-type TokenReviewStatusDie struct {
-	diebase.DieBase[TokenReviewStatus, *TokenReviewStatusDie]
+// token is the opaque bearer token.
+func (d *TokenReviewSpecDieMut) Token() diefields.ValueMut[string, *TokenReviewSpecDieMut] {
+	return diefields.ValueMutOf(d, tokenReviewSpecFields.Get().Token)
 }
 
-func (*TokenReviewStatusDie) DieFrom(b diebase.DieBase[TokenReviewStatus, *TokenReviewStatusDie]) *TokenReviewStatusDie {
+// audiences is a list of the identifiers that the resource server presented
+// with the token identifies as. Audience-aware token authenticators will
+// verify that the token was intended for at least one of the audiences in
+// this list. If no audiences are provided, the audience will default to the
+// audience of the Kubernetes apiserver.
+func (d *TokenReviewSpecDieMut) Audiences() diefields.ValueMut[[]string, *TokenReviewSpecDieMut] {
+	return diefields.ValueMutOf(d, tokenReviewSpecFields.Get().Audiences)
+}
+
+// TokenReviewStatus is the result of the token authentication request.
+//
+// TokenReviewStatusDie is immutable: it reads.
+// TokenReviewStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type TokenReviewStatusDie struct {
+	diebase.DieBase[TokenReviewStatus, *TokenReviewStatusDie, *TokenReviewStatusDieMut]
+}
+
+// TokenReviewStatusDieMut is the mutable die of TokenReviewStatus: see TokenReviewStatusDie.
+type TokenReviewStatusDieMut struct {
+	diebase.DieMutBase[TokenReviewStatus, *TokenReviewStatusDie, *TokenReviewStatusDieMut]
+}
+
+func (*TokenReviewStatusDie) DieFrom(b diebase.DieBase[TokenReviewStatus, *TokenReviewStatusDie, *TokenReviewStatusDieMut]) *TokenReviewStatusDie {
 	return &TokenReviewStatusDie{b}
 }
 
-var _ diebase.DieOf[TokenReviewStatus, *TokenReviewStatusDie] = (*TokenReviewStatusDie)(nil)
+func (*TokenReviewStatusDieMut) DieFrom(b diebase.DieMutBase[TokenReviewStatus, *TokenReviewStatusDie, *TokenReviewStatusDieMut]) *TokenReviewStatusDieMut {
+	return &TokenReviewStatusDieMut{b}
+}
 
-var TokenReviewStatusBlank = diebase.Blank[TokenReviewStatus, *TokenReviewStatusDie]()
+var (
+	_ diebase.DieOf[TokenReviewStatus, *TokenReviewStatusDie, *TokenReviewStatusDieMut]    = (*TokenReviewStatusDie)(nil)
+	_ diebase.DieMutOf[TokenReviewStatus, *TokenReviewStatusDie, *TokenReviewStatusDieMut] = (*TokenReviewStatusDieMut)(nil)
+)
+
+var TokenReviewStatusBlank = diebase.Blank[TokenReviewStatus, *TokenReviewStatusDie, *TokenReviewStatusDieMut]()
 
 type tokenReviewStatusFieldsTable struct {
 	Authenticated diefields.Field[TokenReviewStatus, bool]
-	User          diefields.Struct[TokenReviewStatus, UserInfo, *UserInfoDie]
+	User          diefields.Struct[TokenReviewStatus, UserInfo, *UserInfoDie, *UserInfoDieMut]
 	Audiences     diefields.Field[TokenReviewStatus, []string]
 	Error         diefields.Field[TokenReviewStatus, string]
 }
@@ -245,14 +400,14 @@ type tokenReviewStatusFieldsTable struct {
 var tokenReviewStatusFields = &diefields.Table[tokenReviewStatusFieldsTable]{Build: func() (f tokenReviewStatusFieldsTable) {
 	_ = annotated
 	f.Authenticated = diefields.NewField[TokenReviewStatus, bool]("authenticated")
-	f.User = diefields.NewStruct[TokenReviewStatus, UserInfo, *UserInfoDie]("user")
+	f.User = diefields.NewStruct[TokenReviewStatus, UserInfo, *UserInfoDie, *UserInfoDieMut]("user")
 	f.Audiences = diefields.NewField[TokenReviewStatus, []string]("audiences")
 	f.Error = diefields.NewField[TokenReviewStatus, string]("error")
 	return
 }}
 
 // authenticated indicates that the token was associated with a known user.
-func (d *TokenReviewStatusDie) Authenticated() diefields.Value[bool, *TokenReviewStatusDie] {
+func (d *TokenReviewStatusDie) Authenticated() diefields.Value[bool] {
 	return diefields.ValueOf(d, tokenReviewStatusFields.Get().Authenticated)
 }
 
@@ -270,28 +425,71 @@ func (d *TokenReviewStatusDie) User() *UserInfoDie {
 // server is audience aware. If a TokenReview returns an empty
 // status.audience field where status.authenticated is "true", the token is
 // valid against the audience of the Kubernetes API server.
-func (d *TokenReviewStatusDie) Audiences() diefields.Value[[]string, *TokenReviewStatusDie] {
+func (d *TokenReviewStatusDie) Audiences() diefields.Value[[]string] {
 	return diefields.ValueOf(d, tokenReviewStatusFields.Get().Audiences)
 }
 
 // error indicates that the token couldn't be checked
-func (d *TokenReviewStatusDie) Error() diefields.Value[string, *TokenReviewStatusDie] {
+func (d *TokenReviewStatusDie) Error() diefields.Value[string] {
 	return diefields.ValueOf(d, tokenReviewStatusFields.Get().Error)
+}
+
+// authenticated indicates that the token was associated with a known user.
+func (d *TokenReviewStatusDieMut) Authenticated() diefields.ValueMut[bool, *TokenReviewStatusDieMut] {
+	return diefields.ValueMutOf(d, tokenReviewStatusFields.Get().Authenticated)
+}
+
+// user is the UserInfo associated with the provided token.
+func (d *TokenReviewStatusDieMut) User() *UserInfoDieMut {
+	return diefields.ChildMut(d, tokenReviewStatusFields.Get().User)
+}
+
+// audiences are audience identifiers chosen by the authenticator that are
+// compatible with both the TokenReview and token. An identifier is any
+// identifier in the intersection of the TokenReviewSpec audiences and the
+// token's audiences. A client of the TokenReview API that sets the
+// spec.audiences field should validate that a compatible audience identifier
+// is returned in the status.audiences field to ensure that the TokenReview
+// server is audience aware. If a TokenReview returns an empty
+// status.audience field where status.authenticated is "true", the token is
+// valid against the audience of the Kubernetes API server.
+func (d *TokenReviewStatusDieMut) Audiences() diefields.ValueMut[[]string, *TokenReviewStatusDieMut] {
+	return diefields.ValueMutOf(d, tokenReviewStatusFields.Get().Audiences)
+}
+
+// error indicates that the token couldn't be checked
+func (d *TokenReviewStatusDieMut) Error() diefields.ValueMut[string, *TokenReviewStatusDieMut] {
+	return diefields.ValueMutOf(d, tokenReviewStatusFields.Get().Error)
 }
 
 // UserInfo holds the information about the user needed to implement the
 // user.Info interface.
+//
+// UserInfoDie is immutable: it reads.
+// UserInfoDieMut, its mutable die, also writes, as DieWith passes it.
 type UserInfoDie struct {
-	diebase.DieBase[UserInfo, *UserInfoDie]
+	diebase.DieBase[UserInfo, *UserInfoDie, *UserInfoDieMut]
 }
 
-func (*UserInfoDie) DieFrom(b diebase.DieBase[UserInfo, *UserInfoDie]) *UserInfoDie {
+// UserInfoDieMut is the mutable die of UserInfo: see UserInfoDie.
+type UserInfoDieMut struct {
+	diebase.DieMutBase[UserInfo, *UserInfoDie, *UserInfoDieMut]
+}
+
+func (*UserInfoDie) DieFrom(b diebase.DieBase[UserInfo, *UserInfoDie, *UserInfoDieMut]) *UserInfoDie {
 	return &UserInfoDie{b}
 }
 
-var _ diebase.DieOf[UserInfo, *UserInfoDie] = (*UserInfoDie)(nil)
+func (*UserInfoDieMut) DieFrom(b diebase.DieMutBase[UserInfo, *UserInfoDie, *UserInfoDieMut]) *UserInfoDieMut {
+	return &UserInfoDieMut{b}
+}
 
-var UserInfoBlank = diebase.Blank[UserInfo, *UserInfoDie]()
+var (
+	_ diebase.DieOf[UserInfo, *UserInfoDie, *UserInfoDieMut]    = (*UserInfoDie)(nil)
+	_ diebase.DieMutOf[UserInfo, *UserInfoDie, *UserInfoDieMut] = (*UserInfoDieMut)(nil)
+)
+
+var UserInfoBlank = diebase.Blank[UserInfo, *UserInfoDie, *UserInfoDieMut]()
 
 type userInfoFieldsTable struct {
 	Username diefields.Field[UserInfo, string]
@@ -310,19 +508,19 @@ var userInfoFields = &diefields.Table[userInfoFieldsTable]{Build: func() (f user
 }}
 
 // username is the name that uniquely identifies this user among all active users.
-func (d *UserInfoDie) Username() diefields.Value[string, *UserInfoDie] {
+func (d *UserInfoDie) Username() diefields.Value[string] {
 	return diefields.ValueOf(d, userInfoFields.Get().Username)
 }
 
 // uid is a unique value that identifies this user across time. If this user is
 // deleted and another user by the same name is added, they will have
 // different UIDs.
-func (d *UserInfoDie) UID() diefields.Value[string, *UserInfoDie] {
+func (d *UserInfoDie) UID() diefields.Value[string] {
 	return diefields.ValueOf(d, userInfoFields.Get().UID)
 }
 
 // groups is the names of groups this user is a part of.
-func (d *UserInfoDie) Groups() diefields.Value[[]string, *UserInfoDie] {
+func (d *UserInfoDie) Groups() diefields.Value[[]string] {
 	return diefields.ValueOf(d, userInfoFields.Get().Groups)
 }
 
@@ -331,19 +529,41 @@ func (d *UserInfoDie) Extra() *diefields.Map[string, ExtraValue] {
 	return diefields.MapOf(d, userInfoFields.Get().Extra)
 }
 
+// username is the name that uniquely identifies this user among all active users.
+func (d *UserInfoDieMut) Username() diefields.ValueMut[string, *UserInfoDieMut] {
+	return diefields.ValueMutOf(d, userInfoFields.Get().Username)
+}
+
+// uid is a unique value that identifies this user across time. If this user is
+// deleted and another user by the same name is added, they will have
+// different UIDs.
+func (d *UserInfoDieMut) UID() diefields.ValueMut[string, *UserInfoDieMut] {
+	return diefields.ValueMutOf(d, userInfoFields.Get().UID)
+}
+
+// groups is the names of groups this user is a part of.
+func (d *UserInfoDieMut) Groups() diefields.ValueMut[[]string, *UserInfoDieMut] {
+	return diefields.ValueMutOf(d, userInfoFields.Get().Groups)
+}
+
+// extra is any additional information provided by the authenticator.
+func (d *UserInfoDieMut) Extra() *diefields.MapMut[string, ExtraValue] {
+	return diefields.MapMutOf(d, userInfoFields.Get().Extra)
+}
+
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "authentication.k8s.io", Version: "v1beta1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("SelfSubjectReview"), &SelfSubjectReviewDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("TokenReview"), &TokenReviewDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("SelfSubjectReview"), &SelfSubjectReviewDieMut{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("TokenReview"), &TokenReviewDieMut{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }

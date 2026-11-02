@@ -75,10 +75,10 @@ func Namespace(t testing.TB, c client.Client) string {
 		name = name[:63-len(suffix)]
 	}
 	name = strings.TrimRight(name, "-") + suffix
-	ns := diecorev1.NamespaceBlank.DieWith(func(d *diecorev1.NamespaceDie) {
+	ns := diecorev1.NamespaceBlank.DieWith(func(d *diecorev1.NamespaceDieMut) {
 		d.Metadata().Name().Set(name)
 		d.Metadata().Labels().Set(Label, "true")
-	}).DieImmutable(false)
+	}).DieMutable()
 	ctx := context.Background()
 	if err := c.Create(ctx, ns); err != nil {
 		t.Fatal(err)

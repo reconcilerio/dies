@@ -210,6 +210,9 @@ func (pg *pkgGen) typeExpr(t types.Type) string {
 	panic(fmt.Sprintf("diegen: unsupported type %s", t))
 }
 
+// dieMutExpr is the mutable die of a type.
+func (pg *pkgGen) dieMutExpr(t types.Type) string { return pg.dieExpr(t) + "Mut" }
+
 func (pg *pkgGen) dieExpr(t types.Type) string {
 	path, name, ok := pg.dieOf(t)
 	if !ok {
@@ -417,34 +420,51 @@ func (pg *pkgGen) emit() error {
 			continue
 		}
 		name, dname := tg.name(), tg.name()+"Die"
+		mname := dname + "Mut"
 		fields := pg.flatten(tg.named, tg.st)
 		if err := pg.checkAccessors(tg, fields); err != nil {
 			return err
 		}
 
-		base, wrap, check := pg.objectBase(tg, name, dname)
-		f.doc(docText(tg.doc))
+		ob := pg.objectBase(tg, name, dname)
+		params := fmt.Sprintf("%s, *%s, *%s", name, dname, mname)
+		if doc := docText(tg.doc); len(doc) > 0 {
+			f.doc(doc)
+			f.p("//")
+		}
+		f.p("// %s is immutable: it reads.", dname)
+		f.p("// %s, its mutable die, also writes, as DieWith passes it.", mname)
 		f.p("type %s struct {", dname)
-		f.p("\tdie.%s[%s, *%s]", base, name, dname)
+		f.p("\tdie.%s[%s]", ob.base, params)
 		f.p("}")
 		f.p("")
-		f.p("func (*%s) DieFrom(b die.DieBase[%s, *%s]) *%s { return &%s{%s} }", dname, name, dname, dname, dname, wrap)
+		f.p("// %s is the mutable die of %s: see %s.", mname, name, dname)
+		f.p("type %s struct {", mname)
+		f.p("\tdie.%s[%s]", ob.mutBase, params)
+		f.p("}")
 		f.p("")
-		f.p("var _ %s = (*%s)(nil)", check, dname)
+		f.p("func (*%s) DieFrom(b die.DieBase[%s]) *%s { return &%s{%s} }", dname, params, dname, dname, ob.wrap)
 		f.p("")
-		blank := fmt.Sprintf("die.Blank[%s, *%s]()", name, dname)
+		f.p("func (*%s) DieFrom(b die.DieMutBase[%s]) *%s { return &%s{%s} }", mname, params, mname, mname, ob.mutWrap)
+		f.p("")
+		f.p("var (")
+		f.p("\t_ %s[%s] = (*%s)(nil)", ob.check, params, dname)
+		f.p("\t_ %s[%s] = (*%s)(nil)", ob.mutCheck, params, mname)
+		f.p(")")
+		f.p("")
+		blank := fmt.Sprintf("die.Blank[%s]()", params)
 		if m, ok := findDieMarker(tg.doc, "die:object"); ok {
 			if typeMeta(tg.st) {
 				// a literal, so that a blank costs no field table at init
-				blank = fmt.Sprintf("die.BlankOf[%s, *%s](%s{TypeMeta: %s.TypeMeta{APIVersion: %q, Kind: %q}})", name, dname, name, f.use("k8s.io/apimachinery/pkg/apis/meta/v1"), m.arg("apiVersion"), m.arg("kind"))
+				blank = fmt.Sprintf("die.BlankOf[%s](%s{TypeMeta: %s.TypeMeta{APIVersion: %q, Kind: %q}})", params, name, f.use("k8s.io/apimachinery/pkg/apis/meta/v1"), m.arg("apiVersion"), m.arg("kind"))
 			} else {
-				blank += fmt.Sprintf(".\n\tAPIVersion().Set(%q).\n\tKind().Set(%q).\n\tDieCommit()", m.arg("apiVersion"), m.arg("kind"))
+				blank += fmt.Sprintf(".\n\tDieMutable().\n\tAPIVersion().Set(%q).\n\tKind().Set(%q).\n\tDieCommit().\n\tDieImmutable()", m.arg("apiVersion"), m.arg("kind"))
 			}
 		}
 		f.p("var %sBlank = %s", name, blank)
 		f.p("")
 		if ac, ok := pg.applyConfiguration(tg); ok {
-			pg.emitApplyConfiguration(dname, ac)
+			pg.emitApplyConfiguration(dname, mname, ac)
 		}
 
 		// the field table is laid out statically and built on first use
@@ -474,6 +494,9 @@ func (pg *pkgGen) emit() error {
 
 		for _, wf := range fields {
 			pg.accessor(dname, table, wf)
+		}
+		for _, wf := range fields {
+			pg.accessorMut(mname, table, wf)
 		}
 	}
 
@@ -532,7 +555,13 @@ func (pg *pkgGen) emitRegister() error {
 			return fmt.Errorf("%s: object dies of more than one group version, %s and %s", pg.p.PkgPath, apiVersion, av)
 		}
 		apiVersion = av
-		kinds = append(kinds, known{m.arg("kind"), tg.name() + "Die"})
+		// an object's registered type is its mutable die, which decodes; a
+		// list die is one type
+		d := tg.name() + "DieMut"
+		if _, ok := pg.listItem(tg); ok {
+			d = tg.name() + "Die"
+		}
+		kinds = append(kinds, known{m.arg("kind"), d})
 	}
 	for _, name := range []string{"SchemeGroupVersion", "SchemeBuilder", "AddToScheme", "addKnownTypes"} {
 		if obj := pg.p.Types.Scope().Lookup(name); obj != nil && filepath.Base(pg.p.Fset.File(obj.Pos()).Name()) != diesFile {
@@ -559,8 +588,8 @@ func (pg *pkgGen) emitRegister() error {
 	f.p("// SchemeGroupVersion is the group version of this package's object dies.")
 	f.p("var SchemeGroupVersion = %s.GroupVersion{Group: %q, Version: %q}", schema, group, version)
 	f.p("")
-	f.p("// SchemeBuilder registers this package's object and list dies as the Go")
-	f.p("// types of their kinds, in place of the upstream types.")
+	f.p("// SchemeBuilder registers this package's mutable object dies, and list")
+	f.p("// dies, as the Go types of their kinds, in place of the upstream types.")
 	f.p("var SchemeBuilder = %s.NewSchemeBuilder(addKnownTypes)", runtime)
 	f.p("")
 	f.p("// AddToScheme registers this package's dies with a scheme.")
@@ -599,7 +628,7 @@ func (pg *pkgGen) listItem(tg *target) (string, bool) {
 	if !listMeta || items == nil || !pg.hasDie(items) {
 		return "", false
 	}
-	return pg.dieExpr(items), true
+	return pg.dieMutExpr(items), true
 }
 
 // emitList emits a list die: a plain list of item dies, as a Kubernetes list
@@ -645,14 +674,22 @@ func typeMeta(st *types.Struct) bool {
 	return false
 }
 
+// dieBase is what a die and its mutable die embed, how DieFrom wraps their
+// state in it, and the interfaces of their kind they're checked against.
+type dieBase struct {
+	base, mutBase   string
+	wrap, mutWrap   string
+	check, mutCheck string
+}
+
 // objectBase is the base a die embeds, and the interface of its kind it's
 // checked against: an object die implements runtime.Object, metav1.Object
 // by its metadata, and DieObjectOf; a typed die runtime.Object and
-// DieTypedOf; and any other die DieOf.
-func (pg *pkgGen) objectBase(tg *target, name, dname string) (base, wrap, check string) {
-	params := fmt.Sprintf("[%s, *%s]", name, dname)
+// DieTypedOf; and any other die DieOf. The mutable die has the mutable
+// counterparts.
+func (pg *pkgGen) objectBase(tg *target, name, dname string) dieBase {
 	if _, ok := findDieMarker(tg.doc, "die:object"); !ok {
-		return "DieBase", "b", "die.DieOf" + params
+		return dieBase{"DieBase", "DieMutBase", "b", "b", "die.DieOf", "die.DieMutOf"}
 	}
 	for _, wf := range pg.g.directFields(tg.st) {
 		n, ok := types.Unalias(wf.v.Type()).(*types.Named)
@@ -662,12 +699,12 @@ func (pg *pkgGen) objectBase(tg *target, name, dname string) (base, wrap, check 
 		if n.Obj().Name() == "ObjectMeta" {
 			// DieObjectOf names the dies of meta/v1, which can't import it
 			if pg.p.PkgPath == "reconciler.io/dies/v2/apis/meta/v1" {
-				return "DieObjectBase", "die.AsObject(b)", "die.DieTypedOf" + params
+				return dieBase{"DieObjectBase", "DieObjectMutBase", "die.AsObject(b)", "die.AsObjectMut(b)", "die.DieTypedOf", "die.DieTypedMutOf"}
 			}
-			return "DieObjectBase", "die.AsObject(b)", "die.DieObjectOf" + params
+			return dieBase{"DieObjectBase", "DieObjectMutBase", "die.AsObject(b)", "die.AsObjectMut(b)", "die.DieObjectOf", "die.DieObjectMutOf"}
 		}
 	}
-	return "DieTypedBase", "die.AsTyped(b)", "die.DieTypedOf" + params
+	return dieBase{"DieTypedBase", "DieTypedMutBase", "die.AsTyped(b)", "die.AsTypedMut(b)", "die.DieTypedOf", "die.DieTypedMutOf"}
 }
 
 // emitPackage registers the package with the runtime: the packages declaring
@@ -754,7 +791,7 @@ var objectMethods = []string{
 // checkAccessors rejects accessor names that collide, saying how to rename
 // them.
 func (pg *pkgGen) checkAccessors(tg *target, fields []wfield) error {
-	base, _, _ := pg.objectBase(tg, tg.name(), tg.name()+"Die")
+	base := pg.objectBase(tg, tg.name(), tg.name()+"Die").base
 	rename := func(wf wfield, why string) error {
 		how := "on the type"
 		if tg.obj.IsAlias() {
@@ -786,15 +823,15 @@ func (pg *pkgGen) fieldRef(tg *target, wf wfield) (string, string) {
 	ft := types.Unalias(wf.v.Type())
 	switch pg.kind(wf) {
 	case fChild:
-		c, cd := pg.typeExpr(deref(ft)), pg.dieExpr(deref(ft))
-		return fmt.Sprintf("die.Struct[%s, %s, %s]", t, c, cd),
-			fmt.Sprintf("die.NewStruct[%s, %s, %s](%q)", t, c, cd, wf.wire)
+		c, cd, cdm := pg.typeExpr(deref(ft)), pg.dieExpr(deref(ft)), pg.dieMutExpr(deref(ft))
+		return fmt.Sprintf("die.Struct[%s, %s, %s, %s]", t, c, cd, cdm),
+			fmt.Sprintf("die.NewStruct[%s, %s, %s, %s](%q)", t, c, cd, cdm, wf.wire)
 	case fListMap:
 		elem := ft.Underlying().(*types.Slice).Elem()
-		c, cd := pg.typeExpr(elem), pg.dieExpr(elem)
+		c, cd, cdm := pg.typeExpr(elem), pg.dieExpr(elem), pg.dieMutExpr(elem)
 		k, keyFn, keyOf := pg.listMapKey(elem, wf.spec.listMapKey)
-		return fmt.Sprintf("die.ListMapField[%s, %s, %s, %s]", t, c, cd, k),
-			fmt.Sprintf("die.NewListMap[%s, %s, %s](%q, %s, %s)", t, c, cd, wf.wire, keyFn, keyOf)
+		return fmt.Sprintf("die.ListMapField[%s, %s, %s, %s, %s]", t, c, cd, cdm, k),
+			fmt.Sprintf("die.NewListMap[%s, %s, %s, %s](%q, %s, %s)", t, c, cd, cdm, wf.wire, keyFn, keyOf)
 	case fMap:
 		m := ft.Underlying().(*types.Map)
 		k, v := pg.typeExpr(m.Key()), pg.typeExpr(m.Elem())
@@ -855,9 +892,32 @@ func (pg *pkgGen) accessor(dname, table string, wf wfield) {
 		m := ft.Underlying().(*types.Map)
 		f.p("func (d *%s) %s() *die.Map[%s, %s] { return die.MapOf(d, %s.Get().%s) }", dname, wf.accessor, pg.typeExpr(m.Key()), pg.typeExpr(m.Elem()), table, wf.accessor)
 	case fOptional:
-		f.p("func (d *%s) %s() die.Optional[%s, *%s] { return die.OptionalOf(d, %s.Get().%s) }", dname, wf.accessor, pg.typeExpr(deref(ft)), dname, table, wf.accessor)
+		f.p("func (d *%s) %s() die.Optional[%s] { return die.OptionalOf(d, %s.Get().%s) }", dname, wf.accessor, pg.typeExpr(deref(ft)), table, wf.accessor)
 	default:
-		f.p("func (d *%s) %s() die.Value[%s, *%s] { return die.ValueOf(d, %s.Get().%s) }", dname, wf.accessor, pg.typeExpr(ft), dname, table, wf.accessor)
+		f.p("func (d *%s) %s() die.Value[%s] { return die.ValueOf(d, %s.Get().%s) }", dname, wf.accessor, pg.typeExpr(ft), table, wf.accessor)
+	}
+	f.p("")
+}
+
+// accessorMut emits a mutable die's accessor for a field, which writes it.
+func (pg *pkgGen) accessorMut(mname, table string, wf wfield) {
+	f := pg.f
+	ft := types.Unalias(wf.v.Type())
+	f.doc(wf.doc)
+	switch pg.kind(wf) {
+	case fChild:
+		f.p("func (d *%s) %s() %s { return die.ChildMut(d, %s.Get().%s) }", mname, wf.accessor, pg.dieMutExpr(deref(ft)), table, wf.accessor)
+	case fListMap:
+		elem := ft.Underlying().(*types.Slice).Elem()
+		k, _, _ := pg.listMapKey(elem, wf.spec.listMapKey)
+		f.p("func (d *%s) %s() *die.ListMapMut[%s, %s, %s] { return die.ListMapMutOf(d, %s.Get().%s) }", mname, wf.accessor, pg.typeExpr(elem), pg.dieMutExpr(elem), k, table, wf.accessor)
+	case fMap:
+		m := ft.Underlying().(*types.Map)
+		f.p("func (d *%s) %s() *die.MapMut[%s, %s] { return die.MapMutOf(d, %s.Get().%s) }", mname, wf.accessor, pg.typeExpr(m.Key()), pg.typeExpr(m.Elem()), table, wf.accessor)
+	case fOptional:
+		f.p("func (d *%s) %s() die.OptionalMut[%s, *%s] { return die.OptionalMutOf(d, %s.Get().%s) }", mname, wf.accessor, pg.typeExpr(deref(ft)), mname, table, wf.accessor)
+	default:
+		f.p("func (d *%s) %s() die.ValueMut[%s, *%s] { return die.ValueMutOf(d, %s.Get().%s) }", mname, wf.accessor, pg.typeExpr(ft), mname, table, wf.accessor)
 	}
 	f.p("")
 }

@@ -26,52 +26,76 @@ import (
 // PodTemplateSpec
 
 type PodTemplateSpecDie struct {
-	base.DieBase[PodTemplateSpec, *PodTemplateSpecDie]
+	base.DieBase[PodTemplateSpec, *PodTemplateSpecDie, *PodTemplateSpecDieMut]
 }
 
-func (*PodTemplateSpecDie) DieFrom(b base.DieBase[PodTemplateSpec, *PodTemplateSpecDie]) *PodTemplateSpecDie {
+type PodTemplateSpecDieMut struct {
+	base.DieMutBase[PodTemplateSpec, *PodTemplateSpecDie, *PodTemplateSpecDieMut]
+}
+
+func (*PodTemplateSpecDie) DieFrom(b base.DieBase[PodTemplateSpec, *PodTemplateSpecDie, *PodTemplateSpecDieMut]) *PodTemplateSpecDie {
 	return &PodTemplateSpecDie{b}
 }
 
-var PodTemplateSpecBlank = base.Blank[PodTemplateSpec, *PodTemplateSpecDie]()
+func (*PodTemplateSpecDieMut) DieFrom(b base.DieMutBase[PodTemplateSpec, *PodTemplateSpecDie, *PodTemplateSpecDieMut]) *PodTemplateSpecDieMut {
+	return &PodTemplateSpecDieMut{b}
+}
+
+var PodTemplateSpecBlank = base.Blank[PodTemplateSpec, *PodTemplateSpecDie, *PodTemplateSpecDieMut]()
 
 var podTemplateSpecFields = struct {
-	Metadata fields.Struct[PodTemplateSpec, metav1.ObjectMeta, *metav1.ObjectMetaDie]
-	Spec     fields.Struct[PodTemplateSpec, PodSpec, *PodSpecDie]
+	Metadata fields.Struct[PodTemplateSpec, metav1.ObjectMeta, *metav1.ObjectMetaDie, *metav1.ObjectMetaDieMut]
+	Spec     fields.Struct[PodTemplateSpec, PodSpec, *PodSpecDie, *PodSpecDieMut]
 }{
-	Metadata: fields.NewStruct[PodTemplateSpec, metav1.ObjectMeta, *metav1.ObjectMetaDie]("metadata"),
-	Spec:     fields.NewStruct[PodTemplateSpec, PodSpec, *PodSpecDie]("spec"),
+	Metadata: fields.NewStruct[PodTemplateSpec, metav1.ObjectMeta, *metav1.ObjectMetaDie, *metav1.ObjectMetaDieMut]("metadata"),
+	Spec:     fields.NewStruct[PodTemplateSpec, PodSpec, *PodSpecDie, *PodSpecDieMut]("spec"),
 }
 
 func (d *PodTemplateSpecDie) Metadata() *metav1.ObjectMetaDie {
 	return fields.Child(d, podTemplateSpecFields.Metadata)
 }
 
+func (d *PodTemplateSpecDieMut) Metadata() *metav1.ObjectMetaDieMut {
+	return fields.ChildMut(d, podTemplateSpecFields.Metadata)
+}
+
 func (d *PodTemplateSpecDie) Spec() *PodSpecDie { return fields.Child(d, podTemplateSpecFields.Spec) }
+
+func (d *PodTemplateSpecDieMut) Spec() *PodSpecDieMut {
+	return fields.ChildMut(d, podTemplateSpecFields.Spec)
+}
 
 // PodSpec
 
 type PodSpecDie struct {
-	base.DieBase[PodSpec, *PodSpecDie]
+	base.DieBase[PodSpec, *PodSpecDie, *PodSpecDieMut]
 }
 
-func (*PodSpecDie) DieFrom(b base.DieBase[PodSpec, *PodSpecDie]) *PodSpecDie {
+type PodSpecDieMut struct {
+	base.DieMutBase[PodSpec, *PodSpecDie, *PodSpecDieMut]
+}
+
+func (*PodSpecDie) DieFrom(b base.DieBase[PodSpec, *PodSpecDie, *PodSpecDieMut]) *PodSpecDie {
 	return &PodSpecDie{b}
 }
 
-var PodSpecBlank = base.Blank[PodSpec, *PodSpecDie]()
+func (*PodSpecDieMut) DieFrom(b base.DieMutBase[PodSpec, *PodSpecDie, *PodSpecDieMut]) *PodSpecDieMut {
+	return &PodSpecDieMut{b}
+}
+
+var PodSpecBlank = base.Blank[PodSpec, *PodSpecDie, *PodSpecDieMut]()
 
 var podSpecFields = struct {
-	Volumes                      fields.ListMapField[PodSpec, Volume, *VolumeDie, string]
-	InitContainers               fields.ListMapField[PodSpec, Container, *ContainerDie, string]
-	Containers                   fields.ListMapField[PodSpec, Container, *ContainerDie, string]
+	Volumes                      fields.ListMapField[PodSpec, Volume, *VolumeDie, *VolumeDieMut, string]
+	InitContainers               fields.ListMapField[PodSpec, Container, *ContainerDie, *ContainerDieMut, string]
+	Containers                   fields.ListMapField[PodSpec, Container, *ContainerDie, *ContainerDieMut, string]
 	NodeSelector                 fields.MapField[PodSpec, string, string]
 	ServiceAccountName           fields.Field[PodSpec, string]
 	AutomountServiceAccountToken fields.Field[PodSpec, *bool]
 }{
-	Volumes:                      fields.NewListMap[PodSpec, Volume, *VolumeDie]("volumes", byName, func(v Volume) string { return v.Name }),
-	InitContainers:               fields.NewListMap[PodSpec, Container, *ContainerDie]("initContainers", byName, containerName),
-	Containers:                   fields.NewListMap[PodSpec, Container, *ContainerDie]("containers", byName, containerName),
+	Volumes:                      fields.NewListMap[PodSpec, Volume, *VolumeDie, *VolumeDieMut]("volumes", byName, func(v Volume) string { return v.Name }),
+	InitContainers:               fields.NewListMap[PodSpec, Container, *ContainerDie, *ContainerDieMut]("initContainers", byName, containerName),
+	Containers:                   fields.NewListMap[PodSpec, Container, *ContainerDie, *ContainerDieMut]("containers", byName, containerName),
 	NodeSelector:                 fields.NewMap[PodSpec, string, string]("nodeSelector"),
 	ServiceAccountName:           fields.NewField[PodSpec, string]("serviceAccountName"),
 	AutomountServiceAccountToken: fields.NewField[PodSpec, *bool]("automountServiceAccountToken"),
@@ -84,37 +108,69 @@ func (d *PodSpecDie) Volumes() *die.ListMap[Volume, *VolumeDie, string] {
 	return fields.ListMapOf(d, podSpecFields.Volumes)
 }
 
+func (d *PodSpecDieMut) Volumes() *die.ListMapMut[Volume, *VolumeDieMut, string] {
+	return fields.ListMapMutOf(d, podSpecFields.Volumes)
+}
+
 func (d *PodSpecDie) InitContainers() *die.ListMap[Container, *ContainerDie, string] {
 	return fields.ListMapOf(d, podSpecFields.InitContainers)
+}
+
+func (d *PodSpecDieMut) InitContainers() *die.ListMapMut[Container, *ContainerDieMut, string] {
+	return fields.ListMapMutOf(d, podSpecFields.InitContainers)
 }
 
 func (d *PodSpecDie) Containers() *die.ListMap[Container, *ContainerDie, string] {
 	return fields.ListMapOf(d, podSpecFields.Containers)
 }
 
+func (d *PodSpecDieMut) Containers() *die.ListMapMut[Container, *ContainerDieMut, string] {
+	return fields.ListMapMutOf(d, podSpecFields.Containers)
+}
+
 func (d *PodSpecDie) NodeSelector() *die.Map[string, string] {
 	return fields.MapOf(d, podSpecFields.NodeSelector)
 }
 
-func (d *PodSpecDie) ServiceAccountName() die.Value[string, *PodSpecDie] {
+func (d *PodSpecDieMut) NodeSelector() *die.MapMut[string, string] {
+	return fields.MapMutOf(d, podSpecFields.NodeSelector)
+}
+
+func (d *PodSpecDie) ServiceAccountName() die.Value[string] {
 	return fields.ValueOf(d, podSpecFields.ServiceAccountName)
 }
 
-func (d *PodSpecDie) AutomountServiceAccountToken() die.Optional[bool, *PodSpecDie] {
+func (d *PodSpecDieMut) ServiceAccountName() die.ValueMut[string, *PodSpecDieMut] {
+	return fields.ValueMutOf(d, podSpecFields.ServiceAccountName)
+}
+
+func (d *PodSpecDie) AutomountServiceAccountToken() die.Optional[bool] {
 	return fields.OptionalOf(d, podSpecFields.AutomountServiceAccountToken)
+}
+
+func (d *PodSpecDieMut) AutomountServiceAccountToken() die.OptionalMut[bool, *PodSpecDieMut] {
+	return fields.OptionalMutOf(d, podSpecFields.AutomountServiceAccountToken)
 }
 
 // Container
 
 type ContainerDie struct {
-	base.DieBase[Container, *ContainerDie]
+	base.DieBase[Container, *ContainerDie, *ContainerDieMut]
 }
 
-func (*ContainerDie) DieFrom(b base.DieBase[Container, *ContainerDie]) *ContainerDie {
+type ContainerDieMut struct {
+	base.DieMutBase[Container, *ContainerDie, *ContainerDieMut]
+}
+
+func (*ContainerDie) DieFrom(b base.DieBase[Container, *ContainerDie, *ContainerDieMut]) *ContainerDie {
 	return &ContainerDie{b}
 }
 
-var ContainerBlank = base.Blank[Container, *ContainerDie]()
+func (*ContainerDieMut) DieFrom(b base.DieMutBase[Container, *ContainerDie, *ContainerDieMut]) *ContainerDieMut {
+	return &ContainerDieMut{b}
+}
+
+var ContainerBlank = base.Blank[Container, *ContainerDie, *ContainerDieMut]()
 
 // PortKey identifies a container port.
 type PortKey struct {
@@ -126,55 +182,87 @@ var containerFields = struct {
 	Name         fields.Field[Container, string]
 	Image        fields.Field[Container, string]
 	Args         fields.Field[Container, []string]
-	Ports        fields.ListMapField[Container, ContainerPort, *ContainerPortDie, PortKey]
-	Env          fields.ListMapField[Container, EnvVar, *EnvVarDie, string]
-	VolumeMounts fields.ListMapField[Container, VolumeMount, *VolumeMountDie, string]
+	Ports        fields.ListMapField[Container, ContainerPort, *ContainerPortDie, *ContainerPortDieMut, PortKey]
+	Env          fields.ListMapField[Container, EnvVar, *EnvVarDie, *EnvVarDieMut, string]
+	VolumeMounts fields.ListMapField[Container, VolumeMount, *VolumeMountDie, *VolumeMountDieMut, string]
 }{
 	Name:  fields.NewField[Container, string]("name"),
 	Image: fields.NewField[Container, string]("image"),
 	Args:  fields.NewField[Container, []string]("args"),
-	Ports: fields.NewListMap[Container, ContainerPort, *ContainerPortDie]("ports",
+	Ports: fields.NewListMap[Container, ContainerPort, *ContainerPortDie, *ContainerPortDieMut]("ports",
 		func(k PortKey) []any { return []any{k.ContainerPort, k.Protocol} },
 		func(p ContainerPort) PortKey { return PortKey{p.ContainerPort, p.Protocol} }),
-	Env: fields.NewListMap[Container, EnvVar, *EnvVarDie]("env", byName,
+	Env: fields.NewListMap[Container, EnvVar, *EnvVarDie, *EnvVarDieMut]("env", byName,
 		func(e EnvVar) string { return e.Name }),
-	VolumeMounts: fields.NewListMap[Container, VolumeMount, *VolumeMountDie]("volumeMounts",
+	VolumeMounts: fields.NewListMap[Container, VolumeMount, *VolumeMountDie, *VolumeMountDieMut]("volumeMounts",
 		func(path string) []any { return []any{path} },
 		func(m VolumeMount) string { return m.MountPath }),
 }
 
-func (d *ContainerDie) Name() die.Value[string, *ContainerDie] {
+func (d *ContainerDie) Name() die.Value[string] {
 	return fields.ValueOf(d, containerFields.Name)
 }
 
-func (d *ContainerDie) Image() die.Value[string, *ContainerDie] {
+func (d *ContainerDieMut) Name() die.ValueMut[string, *ContainerDieMut] {
+	return fields.ValueMutOf(d, containerFields.Name)
+}
+
+func (d *ContainerDie) Image() die.Value[string] {
 	return fields.ValueOf(d, containerFields.Image)
 }
 
-func (d *ContainerDie) Args() die.Value[[]string, *ContainerDie] {
+func (d *ContainerDieMut) Image() die.ValueMut[string, *ContainerDieMut] {
+	return fields.ValueMutOf(d, containerFields.Image)
+}
+
+func (d *ContainerDie) Args() die.Value[[]string] {
 	return fields.ValueOf(d, containerFields.Args)
+}
+
+func (d *ContainerDieMut) Args() die.ValueMut[[]string, *ContainerDieMut] {
+	return fields.ValueMutOf(d, containerFields.Args)
 }
 
 func (d *ContainerDie) Ports() *die.ListMap[ContainerPort, *ContainerPortDie, PortKey] {
 	return fields.ListMapOf(d, containerFields.Ports)
 }
 
+func (d *ContainerDieMut) Ports() *die.ListMapMut[ContainerPort, *ContainerPortDieMut, PortKey] {
+	return fields.ListMapMutOf(d, containerFields.Ports)
+}
+
 func (d *ContainerDie) Env() *die.ListMap[EnvVar, *EnvVarDie, string] {
 	return fields.ListMapOf(d, containerFields.Env)
+}
+
+func (d *ContainerDieMut) Env() *die.ListMapMut[EnvVar, *EnvVarDieMut, string] {
+	return fields.ListMapMutOf(d, containerFields.Env)
 }
 
 func (d *ContainerDie) VolumeMounts() *die.ListMap[VolumeMount, *VolumeMountDie, string] {
 	return fields.ListMapOf(d, containerFields.VolumeMounts)
 }
 
+func (d *ContainerDieMut) VolumeMounts() *die.ListMapMut[VolumeMount, *VolumeMountDieMut, string] {
+	return fields.ListMapMutOf(d, containerFields.VolumeMounts)
+}
+
 // ContainerPort
 
 type ContainerPortDie struct {
-	base.DieBase[ContainerPort, *ContainerPortDie]
+	base.DieBase[ContainerPort, *ContainerPortDie, *ContainerPortDieMut]
 }
 
-func (*ContainerPortDie) DieFrom(b base.DieBase[ContainerPort, *ContainerPortDie]) *ContainerPortDie {
+type ContainerPortDieMut struct {
+	base.DieMutBase[ContainerPort, *ContainerPortDie, *ContainerPortDieMut]
+}
+
+func (*ContainerPortDie) DieFrom(b base.DieBase[ContainerPort, *ContainerPortDie, *ContainerPortDieMut]) *ContainerPortDie {
 	return &ContainerPortDie{b}
+}
+
+func (*ContainerPortDieMut) DieFrom(b base.DieMutBase[ContainerPort, *ContainerPortDie, *ContainerPortDieMut]) *ContainerPortDieMut {
+	return &ContainerPortDieMut{b}
 }
 
 var containerPortFields = struct {
@@ -187,25 +275,47 @@ var containerPortFields = struct {
 	Protocol:      fields.NewField[ContainerPort, string]("protocol"),
 }
 
-func (d *ContainerPortDie) Name() die.Value[string, *ContainerPortDie] {
+func (d *ContainerPortDie) Name() die.Value[string] {
 	return fields.ValueOf(d, containerPortFields.Name)
 }
 
-func (d *ContainerPortDie) ContainerPort() die.Value[int32, *ContainerPortDie] {
+func (d *ContainerPortDieMut) Name() die.ValueMut[string, *ContainerPortDieMut] {
+	return fields.ValueMutOf(d, containerPortFields.Name)
+}
+
+func (d *ContainerPortDie) ContainerPort() die.Value[int32] {
 	return fields.ValueOf(d, containerPortFields.ContainerPort)
 }
 
-func (d *ContainerPortDie) Protocol() die.Value[string, *ContainerPortDie] {
+func (d *ContainerPortDieMut) ContainerPort() die.ValueMut[int32, *ContainerPortDieMut] {
+	return fields.ValueMutOf(d, containerPortFields.ContainerPort)
+}
+
+func (d *ContainerPortDie) Protocol() die.Value[string] {
 	return fields.ValueOf(d, containerPortFields.Protocol)
+}
+
+func (d *ContainerPortDieMut) Protocol() die.ValueMut[string, *ContainerPortDieMut] {
+	return fields.ValueMutOf(d, containerPortFields.Protocol)
 }
 
 // EnvVar
 
 type EnvVarDie struct {
-	base.DieBase[EnvVar, *EnvVarDie]
+	base.DieBase[EnvVar, *EnvVarDie, *EnvVarDieMut]
 }
 
-func (*EnvVarDie) DieFrom(b base.DieBase[EnvVar, *EnvVarDie]) *EnvVarDie { return &EnvVarDie{b} }
+type EnvVarDieMut struct {
+	base.DieMutBase[EnvVar, *EnvVarDie, *EnvVarDieMut]
+}
+
+func (*EnvVarDie) DieFrom(b base.DieBase[EnvVar, *EnvVarDie, *EnvVarDieMut]) *EnvVarDie {
+	return &EnvVarDie{b}
+}
+
+func (*EnvVarDieMut) DieFrom(b base.DieMutBase[EnvVar, *EnvVarDie, *EnvVarDieMut]) *EnvVarDieMut {
+	return &EnvVarDieMut{b}
+}
 
 var envVarFields = struct {
 	Name  fields.Field[EnvVar, string]
@@ -215,22 +325,38 @@ var envVarFields = struct {
 	Value: fields.NewField[EnvVar, string]("value"),
 }
 
-func (d *EnvVarDie) Name() die.Value[string, *EnvVarDie] {
+func (d *EnvVarDie) Name() die.Value[string] {
 	return fields.ValueOf(d, envVarFields.Name)
 }
 
-func (d *EnvVarDie) Value() die.Value[string, *EnvVarDie] {
+func (d *EnvVarDieMut) Name() die.ValueMut[string, *EnvVarDieMut] {
+	return fields.ValueMutOf(d, envVarFields.Name)
+}
+
+func (d *EnvVarDie) Value() die.Value[string] {
 	return fields.ValueOf(d, envVarFields.Value)
+}
+
+func (d *EnvVarDieMut) Value() die.ValueMut[string, *EnvVarDieMut] {
+	return fields.ValueMutOf(d, envVarFields.Value)
 }
 
 // VolumeMount
 
 type VolumeMountDie struct {
-	base.DieBase[VolumeMount, *VolumeMountDie]
+	base.DieBase[VolumeMount, *VolumeMountDie, *VolumeMountDieMut]
 }
 
-func (*VolumeMountDie) DieFrom(b base.DieBase[VolumeMount, *VolumeMountDie]) *VolumeMountDie {
+type VolumeMountDieMut struct {
+	base.DieMutBase[VolumeMount, *VolumeMountDie, *VolumeMountDieMut]
+}
+
+func (*VolumeMountDie) DieFrom(b base.DieBase[VolumeMount, *VolumeMountDie, *VolumeMountDieMut]) *VolumeMountDie {
 	return &VolumeMountDie{b}
+}
+
+func (*VolumeMountDieMut) DieFrom(b base.DieMutBase[VolumeMount, *VolumeMountDie, *VolumeMountDieMut]) *VolumeMountDieMut {
+	return &VolumeMountDieMut{b}
 }
 
 var volumeMountFields = struct {
@@ -243,50 +369,92 @@ var volumeMountFields = struct {
 	MountPath: fields.NewField[VolumeMount, string]("mountPath"),
 }
 
-func (d *VolumeMountDie) Name() die.Value[string, *VolumeMountDie] {
+func (d *VolumeMountDie) Name() die.Value[string] {
 	return fields.ValueOf(d, volumeMountFields.Name)
 }
 
-func (d *VolumeMountDie) ReadOnly() die.Value[bool, *VolumeMountDie] {
+func (d *VolumeMountDieMut) Name() die.ValueMut[string, *VolumeMountDieMut] {
+	return fields.ValueMutOf(d, volumeMountFields.Name)
+}
+
+func (d *VolumeMountDie) ReadOnly() die.Value[bool] {
 	return fields.ValueOf(d, volumeMountFields.ReadOnly)
 }
 
-func (d *VolumeMountDie) MountPath() die.Value[string, *VolumeMountDie] {
+func (d *VolumeMountDieMut) ReadOnly() die.ValueMut[bool, *VolumeMountDieMut] {
+	return fields.ValueMutOf(d, volumeMountFields.ReadOnly)
+}
+
+func (d *VolumeMountDie) MountPath() die.Value[string] {
 	return fields.ValueOf(d, volumeMountFields.MountPath)
+}
+
+func (d *VolumeMountDieMut) MountPath() die.ValueMut[string, *VolumeMountDieMut] {
+	return fields.ValueMutOf(d, volumeMountFields.MountPath)
 }
 
 // Volume: the members of the inlined VolumeSource are accessed directly.
 
 type VolumeDie struct {
-	base.DieBase[Volume, *VolumeDie]
+	base.DieBase[Volume, *VolumeDie, *VolumeDieMut]
 }
 
-func (*VolumeDie) DieFrom(b base.DieBase[Volume, *VolumeDie]) *VolumeDie { return &VolumeDie{b} }
+type VolumeDieMut struct {
+	base.DieMutBase[Volume, *VolumeDie, *VolumeDieMut]
+}
+
+func (*VolumeDie) DieFrom(b base.DieBase[Volume, *VolumeDie, *VolumeDieMut]) *VolumeDie {
+	return &VolumeDie{b}
+}
+
+func (*VolumeDieMut) DieFrom(b base.DieMutBase[Volume, *VolumeDie, *VolumeDieMut]) *VolumeDieMut {
+	return &VolumeDieMut{b}
+}
 
 var volumeFields = struct {
 	Name     fields.Field[Volume, string]
-	Secret   fields.Struct[Volume, SecretVolumeSource, *SecretVolumeSourceDie]
-	EmptyDir fields.Struct[Volume, EmptyDirVolumeSource, *EmptyDirVolumeSourceDie]
+	Secret   fields.Struct[Volume, SecretVolumeSource, *SecretVolumeSourceDie, *SecretVolumeSourceDieMut]
+	EmptyDir fields.Struct[Volume, EmptyDirVolumeSource, *EmptyDirVolumeSourceDie, *EmptyDirVolumeSourceDieMut]
 }{
 	Name:     fields.NewField[Volume, string]("name"),
-	Secret:   fields.NewStruct[Volume, SecretVolumeSource, *SecretVolumeSourceDie]("secret"),
-	EmptyDir: fields.NewStruct[Volume, EmptyDirVolumeSource, *EmptyDirVolumeSourceDie]("emptyDir"),
+	Secret:   fields.NewStruct[Volume, SecretVolumeSource, *SecretVolumeSourceDie, *SecretVolumeSourceDieMut]("secret"),
+	EmptyDir: fields.NewStruct[Volume, EmptyDirVolumeSource, *EmptyDirVolumeSourceDie, *EmptyDirVolumeSourceDieMut]("emptyDir"),
 }
 
-func (d *VolumeDie) Name() die.Value[string, *VolumeDie] { return fields.ValueOf(d, volumeFields.Name) }
+func (d *VolumeDie) Name() die.Value[string] { return fields.ValueOf(d, volumeFields.Name) }
+
+func (d *VolumeDieMut) Name() die.ValueMut[string, *VolumeDieMut] {
+	return fields.ValueMutOf(d, volumeFields.Name)
+}
 
 func (d *VolumeDie) Secret() *SecretVolumeSourceDie { return fields.Child(d, volumeFields.Secret) }
+
+func (d *VolumeDieMut) Secret() *SecretVolumeSourceDieMut {
+	return fields.ChildMut(d, volumeFields.Secret)
+}
 
 func (d *VolumeDie) EmptyDir() *EmptyDirVolumeSourceDie {
 	return fields.Child(d, volumeFields.EmptyDir)
 }
 
-type SecretVolumeSourceDie struct {
-	base.DieBase[SecretVolumeSource, *SecretVolumeSourceDie]
+func (d *VolumeDieMut) EmptyDir() *EmptyDirVolumeSourceDieMut {
+	return fields.ChildMut(d, volumeFields.EmptyDir)
 }
 
-func (*SecretVolumeSourceDie) DieFrom(b base.DieBase[SecretVolumeSource, *SecretVolumeSourceDie]) *SecretVolumeSourceDie {
+type SecretVolumeSourceDie struct {
+	base.DieBase[SecretVolumeSource, *SecretVolumeSourceDie, *SecretVolumeSourceDieMut]
+}
+
+type SecretVolumeSourceDieMut struct {
+	base.DieMutBase[SecretVolumeSource, *SecretVolumeSourceDie, *SecretVolumeSourceDieMut]
+}
+
+func (*SecretVolumeSourceDie) DieFrom(b base.DieBase[SecretVolumeSource, *SecretVolumeSourceDie, *SecretVolumeSourceDieMut]) *SecretVolumeSourceDie {
 	return &SecretVolumeSourceDie{b}
+}
+
+func (*SecretVolumeSourceDieMut) DieFrom(b base.DieMutBase[SecretVolumeSource, *SecretVolumeSourceDie, *SecretVolumeSourceDieMut]) *SecretVolumeSourceDieMut {
+	return &SecretVolumeSourceDieMut{b}
 }
 
 var secretVolumeSourceFields = struct {
@@ -295,16 +463,28 @@ var secretVolumeSourceFields = struct {
 	SecretName: fields.NewField[SecretVolumeSource, string]("secretName"),
 }
 
-func (d *SecretVolumeSourceDie) SecretName() die.Value[string, *SecretVolumeSourceDie] {
+func (d *SecretVolumeSourceDie) SecretName() die.Value[string] {
 	return fields.ValueOf(d, secretVolumeSourceFields.SecretName)
 }
 
-type EmptyDirVolumeSourceDie struct {
-	base.DieBase[EmptyDirVolumeSource, *EmptyDirVolumeSourceDie]
+func (d *SecretVolumeSourceDieMut) SecretName() die.ValueMut[string, *SecretVolumeSourceDieMut] {
+	return fields.ValueMutOf(d, secretVolumeSourceFields.SecretName)
 }
 
-func (*EmptyDirVolumeSourceDie) DieFrom(b base.DieBase[EmptyDirVolumeSource, *EmptyDirVolumeSourceDie]) *EmptyDirVolumeSourceDie {
+type EmptyDirVolumeSourceDie struct {
+	base.DieBase[EmptyDirVolumeSource, *EmptyDirVolumeSourceDie, *EmptyDirVolumeSourceDieMut]
+}
+
+type EmptyDirVolumeSourceDieMut struct {
+	base.DieMutBase[EmptyDirVolumeSource, *EmptyDirVolumeSourceDie, *EmptyDirVolumeSourceDieMut]
+}
+
+func (*EmptyDirVolumeSourceDie) DieFrom(b base.DieBase[EmptyDirVolumeSource, *EmptyDirVolumeSourceDie, *EmptyDirVolumeSourceDieMut]) *EmptyDirVolumeSourceDie {
 	return &EmptyDirVolumeSourceDie{b}
+}
+
+func (*EmptyDirVolumeSourceDieMut) DieFrom(b base.DieMutBase[EmptyDirVolumeSource, *EmptyDirVolumeSourceDie, *EmptyDirVolumeSourceDieMut]) *EmptyDirVolumeSourceDieMut {
+	return &EmptyDirVolumeSourceDieMut{b}
 }
 
 var emptyDirVolumeSourceFields = struct {
@@ -313,6 +493,9 @@ var emptyDirVolumeSourceFields = struct {
 	Medium: fields.NewField[EmptyDirVolumeSource, string]("medium"),
 }
 
-func (d *EmptyDirVolumeSourceDie) Medium() die.Value[string, *EmptyDirVolumeSourceDie] {
+func (d *EmptyDirVolumeSourceDie) Medium() die.Value[string] {
 	return fields.ValueOf(d, emptyDirVolumeSourceFields.Medium)
+}
+func (d *EmptyDirVolumeSourceDieMut) Medium() die.ValueMut[string, *EmptyDirVolumeSourceDieMut] {
+	return fields.ValueMutOf(d, emptyDirVolumeSourceFields.Medium)
 }

@@ -115,7 +115,7 @@ func TestUpstreamRoundTripsThroughClonedDies(t *testing.T) {
 	}
 	want, _ := json.Marshal(upstream)
 
-	d := &packagingv1alpha1.PackageInstallDie{}
+	d := &packagingv1alpha1.PackageInstallDieMut{}
 	if err := json.Unmarshal(want, d); err != nil {
 		t.Fatal(err)
 	}

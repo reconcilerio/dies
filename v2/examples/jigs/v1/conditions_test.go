@@ -48,12 +48,12 @@ func TestDeploymentConditionsAreLossless(t *testing.T) {
 }
 
 func TestHarmonizedConditionsKeepWhatTheJigDoesNotShow(t *testing.T) {
-	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDie) {
+	deploy := dieappsv1.DeploymentBlank.DieWith(func(d *dieappsv1.DeploymentDieMut) {
 		d.Metadata().Name().Set("web")
 		d.Status().DieStamp(func(r *appsv1.DeploymentStatus) { r.Conditions = legacyConditions() })
-	}).DieCommit().DieImmutable(false)
+	}).DieCommit().DieMutable()
 
-	c, _ := jigsv1.ConditionedJig.Of(deploy.Status())
+	c, _ := jigsv1.ConditionedJig.OfMut(deploy.Status())
 	c.Conditions().At("Available").Status().Set(metav1.ConditionTrue)
 	c.Conditions().At("Available").Reason().Set("MinimumReplicasAvailable")
 

@@ -31,30 +31,45 @@ import (
 )
 
 // AdmissionRequest describes the admission.Attributes for the admission request.
+//
+// AdmissionRequestDie is immutable: it reads.
+// AdmissionRequestDieMut, its mutable die, also writes, as DieWith passes it.
 type AdmissionRequestDie struct {
-	diebase.DieBase[AdmissionRequest, *AdmissionRequestDie]
+	diebase.DieBase[AdmissionRequest, *AdmissionRequestDie, *AdmissionRequestDieMut]
 }
 
-func (*AdmissionRequestDie) DieFrom(b diebase.DieBase[AdmissionRequest, *AdmissionRequestDie]) *AdmissionRequestDie {
+// AdmissionRequestDieMut is the mutable die of AdmissionRequest: see AdmissionRequestDie.
+type AdmissionRequestDieMut struct {
+	diebase.DieMutBase[AdmissionRequest, *AdmissionRequestDie, *AdmissionRequestDieMut]
+}
+
+func (*AdmissionRequestDie) DieFrom(b diebase.DieBase[AdmissionRequest, *AdmissionRequestDie, *AdmissionRequestDieMut]) *AdmissionRequestDie {
 	return &AdmissionRequestDie{b}
 }
 
-var _ diebase.DieOf[AdmissionRequest, *AdmissionRequestDie] = (*AdmissionRequestDie)(nil)
+func (*AdmissionRequestDieMut) DieFrom(b diebase.DieMutBase[AdmissionRequest, *AdmissionRequestDie, *AdmissionRequestDieMut]) *AdmissionRequestDieMut {
+	return &AdmissionRequestDieMut{b}
+}
 
-var AdmissionRequestBlank = diebase.Blank[AdmissionRequest, *AdmissionRequestDie]()
+var (
+	_ diebase.DieOf[AdmissionRequest, *AdmissionRequestDie, *AdmissionRequestDieMut]    = (*AdmissionRequestDie)(nil)
+	_ diebase.DieMutOf[AdmissionRequest, *AdmissionRequestDie, *AdmissionRequestDieMut] = (*AdmissionRequestDieMut)(nil)
+)
+
+var AdmissionRequestBlank = diebase.Blank[AdmissionRequest, *AdmissionRequestDie, *AdmissionRequestDieMut]()
 
 type admissionRequestFieldsTable struct {
 	UID                diefields.Field[AdmissionRequest, types.UID]
-	Kind               diefields.Struct[AdmissionRequest, diemetav1.GroupVersionKind, *diemetav1.GroupVersionKindDie]
-	Resource           diefields.Struct[AdmissionRequest, diemetav1.GroupVersionResource, *diemetav1.GroupVersionResourceDie]
+	Kind               diefields.Struct[AdmissionRequest, diemetav1.GroupVersionKind, *diemetav1.GroupVersionKindDie, *diemetav1.GroupVersionKindDieMut]
+	Resource           diefields.Struct[AdmissionRequest, diemetav1.GroupVersionResource, *diemetav1.GroupVersionResourceDie, *diemetav1.GroupVersionResourceDieMut]
 	SubResource        diefields.Field[AdmissionRequest, string]
-	RequestKind        diefields.Struct[AdmissionRequest, diemetav1.GroupVersionKind, *diemetav1.GroupVersionKindDie]
-	RequestResource    diefields.Struct[AdmissionRequest, diemetav1.GroupVersionResource, *diemetav1.GroupVersionResourceDie]
+	RequestKind        diefields.Struct[AdmissionRequest, diemetav1.GroupVersionKind, *diemetav1.GroupVersionKindDie, *diemetav1.GroupVersionKindDieMut]
+	RequestResource    diefields.Struct[AdmissionRequest, diemetav1.GroupVersionResource, *diemetav1.GroupVersionResourceDie, *diemetav1.GroupVersionResourceDieMut]
 	RequestSubResource diefields.Field[AdmissionRequest, string]
 	Name               diefields.Field[AdmissionRequest, string]
 	Namespace          diefields.Field[AdmissionRequest, string]
 	Operation          diefields.Field[AdmissionRequest, Operation]
-	UserInfo           diefields.Struct[AdmissionRequest, dieauthenticationv1.UserInfo, *dieauthenticationv1.UserInfoDie]
+	UserInfo           diefields.Struct[AdmissionRequest, dieauthenticationv1.UserInfo, *dieauthenticationv1.UserInfoDie, *dieauthenticationv1.UserInfoDieMut]
 	Object             diefields.Field[AdmissionRequest, runtime.RawExtension]
 	OldObject          diefields.Field[AdmissionRequest, runtime.RawExtension]
 	DryRun             diefields.Field[AdmissionRequest, *bool]
@@ -64,16 +79,16 @@ type admissionRequestFieldsTable struct {
 var admissionRequestFields = &diefields.Table[admissionRequestFieldsTable]{Build: func() (f admissionRequestFieldsTable) {
 	_ = annotated
 	f.UID = diefields.NewField[AdmissionRequest, types.UID]("uid")
-	f.Kind = diefields.NewStruct[AdmissionRequest, diemetav1.GroupVersionKind, *diemetav1.GroupVersionKindDie]("kind")
-	f.Resource = diefields.NewStruct[AdmissionRequest, diemetav1.GroupVersionResource, *diemetav1.GroupVersionResourceDie]("resource")
+	f.Kind = diefields.NewStruct[AdmissionRequest, diemetav1.GroupVersionKind, *diemetav1.GroupVersionKindDie, *diemetav1.GroupVersionKindDieMut]("kind")
+	f.Resource = diefields.NewStruct[AdmissionRequest, diemetav1.GroupVersionResource, *diemetav1.GroupVersionResourceDie, *diemetav1.GroupVersionResourceDieMut]("resource")
 	f.SubResource = diefields.NewField[AdmissionRequest, string]("subResource")
-	f.RequestKind = diefields.NewStruct[AdmissionRequest, diemetav1.GroupVersionKind, *diemetav1.GroupVersionKindDie]("requestKind")
-	f.RequestResource = diefields.NewStruct[AdmissionRequest, diemetav1.GroupVersionResource, *diemetav1.GroupVersionResourceDie]("requestResource")
+	f.RequestKind = diefields.NewStruct[AdmissionRequest, diemetav1.GroupVersionKind, *diemetav1.GroupVersionKindDie, *diemetav1.GroupVersionKindDieMut]("requestKind")
+	f.RequestResource = diefields.NewStruct[AdmissionRequest, diemetav1.GroupVersionResource, *diemetav1.GroupVersionResourceDie, *diemetav1.GroupVersionResourceDieMut]("requestResource")
 	f.RequestSubResource = diefields.NewField[AdmissionRequest, string]("requestSubResource")
 	f.Name = diefields.NewField[AdmissionRequest, string]("name")
 	f.Namespace = diefields.NewField[AdmissionRequest, string]("namespace")
 	f.Operation = diefields.NewField[AdmissionRequest, Operation]("operation")
-	f.UserInfo = diefields.NewStruct[AdmissionRequest, dieauthenticationv1.UserInfo, *dieauthenticationv1.UserInfoDie]("userInfo")
+	f.UserInfo = diefields.NewStruct[AdmissionRequest, dieauthenticationv1.UserInfo, *dieauthenticationv1.UserInfoDie, *dieauthenticationv1.UserInfoDieMut]("userInfo")
 	f.Object = diefields.NewField[AdmissionRequest, runtime.RawExtension]("object")
 	f.OldObject = diefields.NewField[AdmissionRequest, runtime.RawExtension]("oldObject")
 	f.DryRun = diefields.NewField[AdmissionRequest, *bool]("dryRun")
@@ -85,7 +100,7 @@ var admissionRequestFields = &diefields.Table[admissionRequestFieldsTable]{Build
 // otherwise identical (parallel requests, requests when earlier requests did not modify etc)
 // The UID is meant to track the round trip (request/response) between the KAS and the WebHook, not the user request.
 // It is suitable for correlating log entries between the webhook and apiserver, for either auditing or debugging.
-func (d *AdmissionRequestDie) UID() diefields.Value[types.UID, *AdmissionRequestDie] {
+func (d *AdmissionRequestDie) UID() diefields.Value[types.UID] {
 	return diefields.ValueOf(d, admissionRequestFields.Get().UID)
 }
 
@@ -100,7 +115,7 @@ func (d *AdmissionRequestDie) Resource() *diemetav1.GroupVersionResourceDie {
 }
 
 // subResource is the subresource being requested, if any (for example, "status" or "scale")
-func (d *AdmissionRequestDie) SubResource() diefields.Value[string, *AdmissionRequestDie] {
+func (d *AdmissionRequestDie) SubResource() diefields.Value[string] {
 	return diefields.ValueOf(d, admissionRequestFields.Get().SubResource)
 }
 
@@ -135,24 +150,24 @@ func (d *AdmissionRequestDie) RequestResource() *diemetav1.GroupVersionResourceD
 // requestSubResource is the name of the subresource of the original API request, if any (for example, "status" or "scale")
 // If this is specified and differs from the value in "subResource", an equivalent match and conversion was performed.
 // See documentation for the "matchPolicy" field in the webhook configuration type.
-func (d *AdmissionRequestDie) RequestSubResource() diefields.Value[string, *AdmissionRequestDie] {
+func (d *AdmissionRequestDie) RequestSubResource() diefields.Value[string] {
 	return diefields.ValueOf(d, admissionRequestFields.Get().RequestSubResource)
 }
 
 // name is the name of the object as presented in the request.  On a CREATE operation, the client may omit name and
 // rely on the server to generate the name.  If that is the case, this field will contain an empty string.
-func (d *AdmissionRequestDie) Name() diefields.Value[string, *AdmissionRequestDie] {
+func (d *AdmissionRequestDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, admissionRequestFields.Get().Name)
 }
 
 // namespace is the namespace associated with the request (if any).
-func (d *AdmissionRequestDie) Namespace() diefields.Value[string, *AdmissionRequestDie] {
+func (d *AdmissionRequestDie) Namespace() diefields.Value[string] {
 	return diefields.ValueOf(d, admissionRequestFields.Get().Namespace)
 }
 
 // operation is the operation being performed. This may be different than the operation
 // requested. e.g. a patch can result in either a CREATE or UPDATE Operation.
-func (d *AdmissionRequestDie) Operation() diefields.Value[Operation, *AdmissionRequestDie] {
+func (d *AdmissionRequestDie) Operation() diefields.Value[Operation] {
 	return diefields.ValueOf(d, admissionRequestFields.Get().Operation)
 }
 
@@ -162,18 +177,18 @@ func (d *AdmissionRequestDie) UserInfo() *dieauthenticationv1.UserInfoDie {
 }
 
 // object is the object from the incoming request.
-func (d *AdmissionRequestDie) Object() diefields.Value[runtime.RawExtension, *AdmissionRequestDie] {
+func (d *AdmissionRequestDie) Object() diefields.Value[runtime.RawExtension] {
 	return diefields.ValueOf(d, admissionRequestFields.Get().Object)
 }
 
 // oldObject is the existing object. Only populated for DELETE and UPDATE requests.
-func (d *AdmissionRequestDie) OldObject() diefields.Value[runtime.RawExtension, *AdmissionRequestDie] {
+func (d *AdmissionRequestDie) OldObject() diefields.Value[runtime.RawExtension] {
 	return diefields.ValueOf(d, admissionRequestFields.Get().OldObject)
 }
 
 // dryRun indicates that modifications will definitely not be persisted for this request.
 // Defaults to false.
-func (d *AdmissionRequestDie) DryRun() diefields.Optional[bool, *AdmissionRequestDie] {
+func (d *AdmissionRequestDie) DryRun() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, admissionRequestFields.Get().DryRun)
 }
 
@@ -182,27 +197,147 @@ func (d *AdmissionRequestDie) DryRun() diefields.Optional[bool, *AdmissionReques
 // different than the options the caller provided. e.g. for a patch request the performed
 // Operation might be a CREATE, in which case the Options will a
 // `meta.k8s.io/v1.CreateOptions` even though the caller provided `meta.k8s.io/v1.PatchOptions`.
-func (d *AdmissionRequestDie) Options() diefields.Value[runtime.RawExtension, *AdmissionRequestDie] {
+func (d *AdmissionRequestDie) Options() diefields.Value[runtime.RawExtension] {
 	return diefields.ValueOf(d, admissionRequestFields.Get().Options)
 }
 
-// AdmissionResponse describes an admission response.
-type AdmissionResponseDie struct {
-	diebase.DieBase[AdmissionResponse, *AdmissionResponseDie]
+// uid is an identifier for the individual request/response. It allows us to distinguish instances of requests which are
+// otherwise identical (parallel requests, requests when earlier requests did not modify etc)
+// The UID is meant to track the round trip (request/response) between the KAS and the WebHook, not the user request.
+// It is suitable for correlating log entries between the webhook and apiserver, for either auditing or debugging.
+func (d *AdmissionRequestDieMut) UID() diefields.ValueMut[types.UID, *AdmissionRequestDieMut] {
+	return diefields.ValueMutOf(d, admissionRequestFields.Get().UID)
 }
 
-func (*AdmissionResponseDie) DieFrom(b diebase.DieBase[AdmissionResponse, *AdmissionResponseDie]) *AdmissionResponseDie {
+// kind is the fully-qualified type of object being submitted (for example, v1.Pod or autoscaling.v1.Scale)
+func (d *AdmissionRequestDieMut) Kind() *diemetav1.GroupVersionKindDieMut {
+	return diefields.ChildMut(d, admissionRequestFields.Get().Kind)
+}
+
+// resource is the fully-qualified resource being requested (for example, v1.pods)
+func (d *AdmissionRequestDieMut) Resource() *diemetav1.GroupVersionResourceDieMut {
+	return diefields.ChildMut(d, admissionRequestFields.Get().Resource)
+}
+
+// subResource is the subresource being requested, if any (for example, "status" or "scale")
+func (d *AdmissionRequestDieMut) SubResource() diefields.ValueMut[string, *AdmissionRequestDieMut] {
+	return diefields.ValueMutOf(d, admissionRequestFields.Get().SubResource)
+}
+
+// requestKind is the fully-qualified type of the original API request (for example, v1.Pod or autoscaling.v1.Scale).
+// If this is specified and differs from the value in "kind", an equivalent match and conversion was performed.
+//
+// For example, if deployments can be modified via apps/v1 and apps/v1beta1, and a webhook registered a rule of
+// `apiGroups:["apps"], apiVersions:["v1"], resources: ["deployments"]` and `matchPolicy: Equivalent`,
+// an API request to apps/v1beta1 deployments would be converted and sent to the webhook
+// with `kind: {group:"apps", version:"v1", kind:"Deployment"}` (matching the rule the webhook registered for),
+// and `requestKind: {group:"apps", version:"v1beta1", kind:"Deployment"}` (indicating the kind of the original API request).
+//
+// See documentation for the "matchPolicy" field in the webhook configuration type for more details.
+func (d *AdmissionRequestDieMut) RequestKind() *diemetav1.GroupVersionKindDieMut {
+	return diefields.ChildMut(d, admissionRequestFields.Get().RequestKind)
+}
+
+// requestResource is the fully-qualified resource of the original API request (for example, v1.pods).
+// If this is specified and differs from the value in "resource", an equivalent match and conversion was performed.
+//
+// For example, if deployments can be modified via apps/v1 and apps/v1beta1, and a webhook registered a rule of
+// `apiGroups:["apps"], apiVersions:["v1"], resources: ["deployments"]` and `matchPolicy: Equivalent`,
+// an API request to apps/v1beta1 deployments would be converted and sent to the webhook
+// with `resource: {group:"apps", version:"v1", resource:"deployments"}` (matching the resource the webhook registered for),
+// and `requestResource: {group:"apps", version:"v1beta1", resource:"deployments"}` (indicating the resource of the original API request).
+//
+// See documentation for the "matchPolicy" field in the webhook configuration type.
+func (d *AdmissionRequestDieMut) RequestResource() *diemetav1.GroupVersionResourceDieMut {
+	return diefields.ChildMut(d, admissionRequestFields.Get().RequestResource)
+}
+
+// requestSubResource is the name of the subresource of the original API request, if any (for example, "status" or "scale")
+// If this is specified and differs from the value in "subResource", an equivalent match and conversion was performed.
+// See documentation for the "matchPolicy" field in the webhook configuration type.
+func (d *AdmissionRequestDieMut) RequestSubResource() diefields.ValueMut[string, *AdmissionRequestDieMut] {
+	return diefields.ValueMutOf(d, admissionRequestFields.Get().RequestSubResource)
+}
+
+// name is the name of the object as presented in the request.  On a CREATE operation, the client may omit name and
+// rely on the server to generate the name.  If that is the case, this field will contain an empty string.
+func (d *AdmissionRequestDieMut) Name() diefields.ValueMut[string, *AdmissionRequestDieMut] {
+	return diefields.ValueMutOf(d, admissionRequestFields.Get().Name)
+}
+
+// namespace is the namespace associated with the request (if any).
+func (d *AdmissionRequestDieMut) Namespace() diefields.ValueMut[string, *AdmissionRequestDieMut] {
+	return diefields.ValueMutOf(d, admissionRequestFields.Get().Namespace)
+}
+
+// operation is the operation being performed. This may be different than the operation
+// requested. e.g. a patch can result in either a CREATE or UPDATE Operation.
+func (d *AdmissionRequestDieMut) Operation() diefields.ValueMut[Operation, *AdmissionRequestDieMut] {
+	return diefields.ValueMutOf(d, admissionRequestFields.Get().Operation)
+}
+
+// userInfo is information about the requesting user
+func (d *AdmissionRequestDieMut) UserInfo() *dieauthenticationv1.UserInfoDieMut {
+	return diefields.ChildMut(d, admissionRequestFields.Get().UserInfo)
+}
+
+// object is the object from the incoming request.
+func (d *AdmissionRequestDieMut) Object() diefields.ValueMut[runtime.RawExtension, *AdmissionRequestDieMut] {
+	return diefields.ValueMutOf(d, admissionRequestFields.Get().Object)
+}
+
+// oldObject is the existing object. Only populated for DELETE and UPDATE requests.
+func (d *AdmissionRequestDieMut) OldObject() diefields.ValueMut[runtime.RawExtension, *AdmissionRequestDieMut] {
+	return diefields.ValueMutOf(d, admissionRequestFields.Get().OldObject)
+}
+
+// dryRun indicates that modifications will definitely not be persisted for this request.
+// Defaults to false.
+func (d *AdmissionRequestDieMut) DryRun() diefields.OptionalMut[bool, *AdmissionRequestDieMut] {
+	return diefields.OptionalMutOf(d, admissionRequestFields.Get().DryRun)
+}
+
+// options is the operation option structure of the operation being performed.
+// e.g. `meta.k8s.io/v1.DeleteOptions` or `meta.k8s.io/v1.CreateOptions`. This may be
+// different than the options the caller provided. e.g. for a patch request the performed
+// Operation might be a CREATE, in which case the Options will a
+// `meta.k8s.io/v1.CreateOptions` even though the caller provided `meta.k8s.io/v1.PatchOptions`.
+func (d *AdmissionRequestDieMut) Options() diefields.ValueMut[runtime.RawExtension, *AdmissionRequestDieMut] {
+	return diefields.ValueMutOf(d, admissionRequestFields.Get().Options)
+}
+
+// AdmissionResponse describes an admission response.
+//
+// AdmissionResponseDie is immutable: it reads.
+// AdmissionResponseDieMut, its mutable die, also writes, as DieWith passes it.
+type AdmissionResponseDie struct {
+	diebase.DieBase[AdmissionResponse, *AdmissionResponseDie, *AdmissionResponseDieMut]
+}
+
+// AdmissionResponseDieMut is the mutable die of AdmissionResponse: see AdmissionResponseDie.
+type AdmissionResponseDieMut struct {
+	diebase.DieMutBase[AdmissionResponse, *AdmissionResponseDie, *AdmissionResponseDieMut]
+}
+
+func (*AdmissionResponseDie) DieFrom(b diebase.DieBase[AdmissionResponse, *AdmissionResponseDie, *AdmissionResponseDieMut]) *AdmissionResponseDie {
 	return &AdmissionResponseDie{b}
 }
 
-var _ diebase.DieOf[AdmissionResponse, *AdmissionResponseDie] = (*AdmissionResponseDie)(nil)
+func (*AdmissionResponseDieMut) DieFrom(b diebase.DieMutBase[AdmissionResponse, *AdmissionResponseDie, *AdmissionResponseDieMut]) *AdmissionResponseDieMut {
+	return &AdmissionResponseDieMut{b}
+}
 
-var AdmissionResponseBlank = diebase.Blank[AdmissionResponse, *AdmissionResponseDie]()
+var (
+	_ diebase.DieOf[AdmissionResponse, *AdmissionResponseDie, *AdmissionResponseDieMut]    = (*AdmissionResponseDie)(nil)
+	_ diebase.DieMutOf[AdmissionResponse, *AdmissionResponseDie, *AdmissionResponseDieMut] = (*AdmissionResponseDieMut)(nil)
+)
+
+var AdmissionResponseBlank = diebase.Blank[AdmissionResponse, *AdmissionResponseDie, *AdmissionResponseDieMut]()
 
 type admissionResponseFieldsTable struct {
 	UID              diefields.Field[AdmissionResponse, types.UID]
 	Allowed          diefields.Field[AdmissionResponse, bool]
-	Result           diefields.Struct[AdmissionResponse, diemetav1.Status, *diemetav1.StatusDie]
+	Result           diefields.Struct[AdmissionResponse, diemetav1.Status, *diemetav1.StatusDie, *diemetav1.StatusDieMut]
 	Patch            diefields.Field[AdmissionResponse, []byte]
 	PatchType        diefields.Field[AdmissionResponse, *PatchType]
 	AuditAnnotations diefields.MapField[AdmissionResponse, string, string]
@@ -213,7 +348,7 @@ var admissionResponseFields = &diefields.Table[admissionResponseFieldsTable]{Bui
 	_ = annotated
 	f.UID = diefields.NewField[AdmissionResponse, types.UID]("uid")
 	f.Allowed = diefields.NewField[AdmissionResponse, bool]("allowed")
-	f.Result = diefields.NewStruct[AdmissionResponse, diemetav1.Status, *diemetav1.StatusDie]("status")
+	f.Result = diefields.NewStruct[AdmissionResponse, diemetav1.Status, *diemetav1.StatusDie, *diemetav1.StatusDieMut]("status")
 	f.Patch = diefields.NewField[AdmissionResponse, []byte]("patch")
 	f.PatchType = diefields.NewField[AdmissionResponse, *PatchType]("patchType")
 	f.AuditAnnotations = diefields.NewMap[AdmissionResponse, string, string]("auditAnnotations")
@@ -223,12 +358,12 @@ var admissionResponseFields = &diefields.Table[admissionResponseFieldsTable]{Bui
 
 // uid is an identifier for the individual request/response.
 // This must be copied over from the corresponding AdmissionRequest.
-func (d *AdmissionResponseDie) UID() diefields.Value[types.UID, *AdmissionResponseDie] {
+func (d *AdmissionResponseDie) UID() diefields.Value[types.UID] {
 	return diefields.ValueOf(d, admissionResponseFields.Get().UID)
 }
 
 // allowed indicates whether or not the admission request was permitted.
-func (d *AdmissionResponseDie) Allowed() diefields.Value[bool, *AdmissionResponseDie] {
+func (d *AdmissionResponseDie) Allowed() diefields.Value[bool] {
 	return diefields.ValueOf(d, admissionResponseFields.Get().Allowed)
 }
 
@@ -239,12 +374,12 @@ func (d *AdmissionResponseDie) Result() *diemetav1.StatusDie {
 }
 
 // patch is the patch body. Currently we only support "JSONPatch" which implements RFC 6902.
-func (d *AdmissionResponseDie) Patch() diefields.Value[[]byte, *AdmissionResponseDie] {
+func (d *AdmissionResponseDie) Patch() diefields.Value[[]byte] {
 	return diefields.ValueOf(d, admissionResponseFields.Get().Patch)
 }
 
 // patchType is the type of Patch. Currently we only allow "JSONPatch".
-func (d *AdmissionResponseDie) PatchType() diefields.Optional[PatchType, *AdmissionResponseDie] {
+func (d *AdmissionResponseDie) PatchType() diefields.Optional[PatchType] {
 	return diefields.OptionalOf(d, admissionResponseFields.Get().PatchType)
 }
 
@@ -260,36 +395,94 @@ func (d *AdmissionResponseDie) AuditAnnotations() *diefields.Map[string, string]
 // Warning messages describe a problem the client making the API request should correct or be aware of.
 // Limit warnings to 120 characters if possible.
 // Warnings over 256 characters and large numbers of warnings may be truncated.
-func (d *AdmissionResponseDie) Warnings() diefields.Value[[]string, *AdmissionResponseDie] {
+func (d *AdmissionResponseDie) Warnings() diefields.Value[[]string] {
 	return diefields.ValueOf(d, admissionResponseFields.Get().Warnings)
 }
 
-// AdmissionReview describes an admission review request/response.
-type AdmissionReviewDie struct {
-	diebase.DieTypedBase[AdmissionReview, *AdmissionReviewDie]
+// uid is an identifier for the individual request/response.
+// This must be copied over from the corresponding AdmissionRequest.
+func (d *AdmissionResponseDieMut) UID() diefields.ValueMut[types.UID, *AdmissionResponseDieMut] {
+	return diefields.ValueMutOf(d, admissionResponseFields.Get().UID)
 }
 
-func (*AdmissionReviewDie) DieFrom(b diebase.DieBase[AdmissionReview, *AdmissionReviewDie]) *AdmissionReviewDie {
+// allowed indicates whether or not the admission request was permitted.
+func (d *AdmissionResponseDieMut) Allowed() diefields.ValueMut[bool, *AdmissionResponseDieMut] {
+	return diefields.ValueMutOf(d, admissionResponseFields.Get().Allowed)
+}
+
+// status is the result contains extra details into why an admission request was denied.
+// This field IS NOT consulted in any way if "Allowed" is "true".
+func (d *AdmissionResponseDieMut) Result() *diemetav1.StatusDieMut {
+	return diefields.ChildMut(d, admissionResponseFields.Get().Result)
+}
+
+// patch is the patch body. Currently we only support "JSONPatch" which implements RFC 6902.
+func (d *AdmissionResponseDieMut) Patch() diefields.ValueMut[[]byte, *AdmissionResponseDieMut] {
+	return diefields.ValueMutOf(d, admissionResponseFields.Get().Patch)
+}
+
+// patchType is the type of Patch. Currently we only allow "JSONPatch".
+func (d *AdmissionResponseDieMut) PatchType() diefields.OptionalMut[PatchType, *AdmissionResponseDieMut] {
+	return diefields.OptionalMutOf(d, admissionResponseFields.Get().PatchType)
+}
+
+// auditAnnotations is an unstructured key value map set by remote admission controller (e.g. error=image-blacklisted).
+// MutatingAdmissionWebhook and ValidatingAdmissionWebhook admission controller will prefix the keys with
+// admission webhook name (e.g. imagepolicy.example.com/error=image-blacklisted). AuditAnnotations will be provided by
+// the admission webhook to add additional context to the audit log for this request.
+func (d *AdmissionResponseDieMut) AuditAnnotations() *diefields.MapMut[string, string] {
+	return diefields.MapMutOf(d, admissionResponseFields.Get().AuditAnnotations)
+}
+
+// warnings is a list of warning messages to return to the requesting API client.
+// Warning messages describe a problem the client making the API request should correct or be aware of.
+// Limit warnings to 120 characters if possible.
+// Warnings over 256 characters and large numbers of warnings may be truncated.
+func (d *AdmissionResponseDieMut) Warnings() diefields.ValueMut[[]string, *AdmissionResponseDieMut] {
+	return diefields.ValueMutOf(d, admissionResponseFields.Get().Warnings)
+}
+
+// AdmissionReview describes an admission review request/response.
+//
+// AdmissionReviewDie is immutable: it reads.
+// AdmissionReviewDieMut, its mutable die, also writes, as DieWith passes it.
+type AdmissionReviewDie struct {
+	diebase.DieTypedBase[AdmissionReview, *AdmissionReviewDie, *AdmissionReviewDieMut]
+}
+
+// AdmissionReviewDieMut is the mutable die of AdmissionReview: see AdmissionReviewDie.
+type AdmissionReviewDieMut struct {
+	diebase.DieTypedMutBase[AdmissionReview, *AdmissionReviewDie, *AdmissionReviewDieMut]
+}
+
+func (*AdmissionReviewDie) DieFrom(b diebase.DieBase[AdmissionReview, *AdmissionReviewDie, *AdmissionReviewDieMut]) *AdmissionReviewDie {
 	return &AdmissionReviewDie{diebase.AsTyped(b)}
 }
 
-var _ diefields.DieTypedOf[AdmissionReview, *AdmissionReviewDie] = (*AdmissionReviewDie)(nil)
+func (*AdmissionReviewDieMut) DieFrom(b diebase.DieMutBase[AdmissionReview, *AdmissionReviewDie, *AdmissionReviewDieMut]) *AdmissionReviewDieMut {
+	return &AdmissionReviewDieMut{diebase.AsTypedMut(b)}
+}
 
-var AdmissionReviewBlank = diebase.BlankOf[AdmissionReview, *AdmissionReviewDie](AdmissionReview{TypeMeta: metav1.TypeMeta{APIVersion: "admission.k8s.io/v1", Kind: "AdmissionReview"}})
+var (
+	_ diefields.DieTypedOf[AdmissionReview, *AdmissionReviewDie, *AdmissionReviewDieMut]    = (*AdmissionReviewDie)(nil)
+	_ diefields.DieTypedMutOf[AdmissionReview, *AdmissionReviewDie, *AdmissionReviewDieMut] = (*AdmissionReviewDieMut)(nil)
+)
+
+var AdmissionReviewBlank = diebase.BlankOf[AdmissionReview, *AdmissionReviewDie, *AdmissionReviewDieMut](AdmissionReview{TypeMeta: metav1.TypeMeta{APIVersion: "admission.k8s.io/v1", Kind: "AdmissionReview"}})
 
 type admissionReviewFieldsTable struct {
 	Kind       diefields.Field[AdmissionReview, string]
 	APIVersion diefields.Field[AdmissionReview, string]
-	Request    diefields.Struct[AdmissionReview, AdmissionRequest, *AdmissionRequestDie]
-	Response   diefields.Struct[AdmissionReview, AdmissionResponse, *AdmissionResponseDie]
+	Request    diefields.Struct[AdmissionReview, AdmissionRequest, *AdmissionRequestDie, *AdmissionRequestDieMut]
+	Response   diefields.Struct[AdmissionReview, AdmissionResponse, *AdmissionResponseDie, *AdmissionResponseDieMut]
 }
 
 var admissionReviewFields = &diefields.Table[admissionReviewFieldsTable]{Build: func() (f admissionReviewFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[AdmissionReview, string]("kind")
 	f.APIVersion = diefields.NewField[AdmissionReview, string]("apiVersion")
-	f.Request = diefields.NewStruct[AdmissionReview, AdmissionRequest, *AdmissionRequestDie]("request")
-	f.Response = diefields.NewStruct[AdmissionReview, AdmissionResponse, *AdmissionResponseDie]("response")
+	f.Request = diefields.NewStruct[AdmissionReview, AdmissionRequest, *AdmissionRequestDie, *AdmissionRequestDieMut]("request")
+	f.Response = diefields.NewStruct[AdmissionReview, AdmissionResponse, *AdmissionResponseDie, *AdmissionResponseDieMut]("response")
 	return
 }}
 
@@ -298,7 +491,7 @@ var admissionReviewFields = &diefields.Table[admissionReviewFieldsTable]{Build: 
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *AdmissionReviewDie) Kind() diefields.Value[string, *AdmissionReviewDie] {
+func (d *AdmissionReviewDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, admissionReviewFields.Get().Kind)
 }
 
@@ -306,7 +499,7 @@ func (d *AdmissionReviewDie) Kind() diefields.Value[string, *AdmissionReviewDie]
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *AdmissionReviewDie) APIVersion() diefields.Value[string, *AdmissionReviewDie] {
+func (d *AdmissionReviewDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, admissionReviewFields.Get().APIVersion)
 }
 
@@ -320,18 +513,45 @@ func (d *AdmissionReviewDie) Response() *AdmissionResponseDie {
 	return diefields.Child(d, admissionReviewFields.Get().Response)
 }
 
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *AdmissionReviewDieMut) Kind() diefields.ValueMut[string, *AdmissionReviewDieMut] {
+	return diefields.ValueMutOf(d, admissionReviewFields.Get().Kind)
+}
+
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *AdmissionReviewDieMut) APIVersion() diefields.ValueMut[string, *AdmissionReviewDieMut] {
+	return diefields.ValueMutOf(d, admissionReviewFields.Get().APIVersion)
+}
+
+// request describes the attributes for the admission request.
+func (d *AdmissionReviewDieMut) Request() *AdmissionRequestDieMut {
+	return diefields.ChildMut(d, admissionReviewFields.Get().Request)
+}
+
+// response describes the attributes for the admission response.
+func (d *AdmissionReviewDieMut) Response() *AdmissionResponseDieMut {
+	return diefields.ChildMut(d, admissionReviewFields.Get().Response)
+}
+
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "admission.k8s.io", Version: "v1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("AdmissionReview"), &AdmissionReviewDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("AdmissionReview"), &AdmissionReviewDieMut{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }

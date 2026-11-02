@@ -32,17 +32,32 @@ import (
 
 // APIService represents a server for a particular GroupVersion.
 // Name must be "version.group".
+//
+// APIServiceDie is immutable: it reads.
+// APIServiceDieMut, its mutable die, also writes, as DieWith passes it.
 type APIServiceDie struct {
-	diebase.DieObjectBase[APIService, *APIServiceDie]
+	diebase.DieObjectBase[APIService, *APIServiceDie, *APIServiceDieMut]
 }
 
-func (*APIServiceDie) DieFrom(b diebase.DieBase[APIService, *APIServiceDie]) *APIServiceDie {
+// APIServiceDieMut is the mutable die of APIService: see APIServiceDie.
+type APIServiceDieMut struct {
+	diebase.DieObjectMutBase[APIService, *APIServiceDie, *APIServiceDieMut]
+}
+
+func (*APIServiceDie) DieFrom(b diebase.DieBase[APIService, *APIServiceDie, *APIServiceDieMut]) *APIServiceDie {
 	return &APIServiceDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[APIService, *APIServiceDie] = (*APIServiceDie)(nil)
+func (*APIServiceDieMut) DieFrom(b diebase.DieMutBase[APIService, *APIServiceDie, *APIServiceDieMut]) *APIServiceDieMut {
+	return &APIServiceDieMut{diebase.AsObjectMut(b)}
+}
 
-var APIServiceBlank = diebase.BlankOf[APIService, *APIServiceDie](APIService{TypeMeta: metav1.TypeMeta{APIVersion: "apiregistration.k8s.io/v1", Kind: "APIService"}})
+var (
+	_ dieobjects.DieObjectOf[APIService, *APIServiceDie, *APIServiceDieMut]    = (*APIServiceDie)(nil)
+	_ dieobjects.DieObjectMutOf[APIService, *APIServiceDie, *APIServiceDieMut] = (*APIServiceDieMut)(nil)
+)
+
+var APIServiceBlank = diebase.BlankOf[APIService, *APIServiceDie, *APIServiceDieMut](APIService{TypeMeta: metav1.TypeMeta{APIVersion: "apiregistration.k8s.io/v1", Kind: "APIService"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -51,52 +66,65 @@ func (d *APIServiceDie) DieReleaseApplyConfiguration() *APIServiceApplyConfigura
 	return diecodegen.ReleaseApplyConfiguration[APIServiceApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *APIServiceDie) DieFeedApplyConfiguration(ac *APIServiceApplyConfiguration) *APIServiceDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *APIServiceDie) DieStampApplyConfiguration(fn func(ac *APIServiceApplyConfiguration)) *APIServiceDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *APIServiceDie) DieReleaseApplyConfigurationE() (*APIServiceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[APIServiceApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *APIServiceDieMut) DieReleaseApplyConfiguration() *APIServiceApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[APIServiceApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *APIServiceDieMut) DieReleaseApplyConfigurationE() (*APIServiceApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[APIServiceApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *APIServiceDieMut) DieFeedApplyConfiguration(ac *APIServiceApplyConfiguration) *APIServiceDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *APIServiceDieMut) DieStampApplyConfiguration(fn func(ac *APIServiceApplyConfiguration)) *APIServiceDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *APIServiceDie) DieFeedApplyConfigurationE(ac *APIServiceApplyConfiguration) (*APIServiceDie, error) {
+func (d *APIServiceDieMut) DieFeedApplyConfigurationE(ac *APIServiceApplyConfiguration) (*APIServiceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *APIServiceDie) DieStampApplyConfigurationE(fn func(ac *APIServiceApplyConfiguration)) (*APIServiceDie, error) {
+func (d *APIServiceDieMut) DieStampApplyConfigurationE(fn func(ac *APIServiceApplyConfiguration)) (*APIServiceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type aPIServiceFieldsTable struct {
 	Kind       diefields.Field[APIService, string]
 	APIVersion diefields.Field[APIService, string]
-	Metadata   diefields.Struct[APIService, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[APIService, APIServiceSpec, *APIServiceSpecDie]
-	Status     diefields.Struct[APIService, APIServiceStatus, *APIServiceStatusDie]
+	Metadata   diefields.Struct[APIService, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[APIService, APIServiceSpec, *APIServiceSpecDie, *APIServiceSpecDieMut]
+	Status     diefields.Struct[APIService, APIServiceStatus, *APIServiceStatusDie, *APIServiceStatusDieMut]
 }
 
 var aPIServiceFields = &diefields.Table[aPIServiceFieldsTable]{Build: func() (f aPIServiceFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[APIService, string]("kind")
 	f.APIVersion = diefields.NewField[APIService, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[APIService, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[APIService, APIServiceSpec, *APIServiceSpecDie]("spec")
-	f.Status = diefields.NewStruct[APIService, APIServiceStatus, *APIServiceStatusDie]("status")
+	f.Metadata = diefields.NewStruct[APIService, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[APIService, APIServiceSpec, *APIServiceSpecDie, *APIServiceSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[APIService, APIServiceStatus, *APIServiceStatusDie, *APIServiceStatusDieMut]("status")
 	return
 }}
 
@@ -105,7 +133,7 @@ var aPIServiceFields = &diefields.Table[aPIServiceFieldsTable]{Build: func() (f 
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *APIServiceDie) Kind() diefields.Value[string, *APIServiceDie] {
+func (d *APIServiceDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIServiceFields.Get().Kind)
 }
 
@@ -113,7 +141,7 @@ func (d *APIServiceDie) Kind() diefields.Value[string, *APIServiceDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *APIServiceDie) APIVersion() diefields.Value[string, *APIServiceDie] {
+func (d *APIServiceDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIServiceFields.Get().APIVersion)
 }
 
@@ -133,18 +161,66 @@ func (d *APIServiceDie) Status() *APIServiceStatusDie {
 	return diefields.Child(d, aPIServiceFields.Get().Status)
 }
 
-// APIServiceCondition describes the state of an APIService at a particular point
-type APIServiceConditionDie struct {
-	diebase.DieBase[APIServiceCondition, *APIServiceConditionDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *APIServiceDieMut) Kind() diefields.ValueMut[string, *APIServiceDieMut] {
+	return diefields.ValueMutOf(d, aPIServiceFields.Get().Kind)
 }
 
-func (*APIServiceConditionDie) DieFrom(b diebase.DieBase[APIServiceCondition, *APIServiceConditionDie]) *APIServiceConditionDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *APIServiceDieMut) APIVersion() diefields.ValueMut[string, *APIServiceDieMut] {
+	return diefields.ValueMutOf(d, aPIServiceFields.Get().APIVersion)
+}
+
+// Standard object's metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *APIServiceDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, aPIServiceFields.Get().Metadata)
+}
+
+// Spec contains information for locating and communicating with a server
+func (d *APIServiceDieMut) Spec() *APIServiceSpecDieMut {
+	return diefields.ChildMut(d, aPIServiceFields.Get().Spec)
+}
+
+// Status contains derived information about an API server
+func (d *APIServiceDieMut) Status() *APIServiceStatusDieMut {
+	return diefields.ChildMut(d, aPIServiceFields.Get().Status)
+}
+
+// APIServiceCondition describes the state of an APIService at a particular point
+//
+// APIServiceConditionDie is immutable: it reads.
+// APIServiceConditionDieMut, its mutable die, also writes, as DieWith passes it.
+type APIServiceConditionDie struct {
+	diebase.DieBase[APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut]
+}
+
+// APIServiceConditionDieMut is the mutable die of APIServiceCondition: see APIServiceConditionDie.
+type APIServiceConditionDieMut struct {
+	diebase.DieMutBase[APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut]
+}
+
+func (*APIServiceConditionDie) DieFrom(b diebase.DieBase[APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut]) *APIServiceConditionDie {
 	return &APIServiceConditionDie{b}
 }
 
-var _ diebase.DieOf[APIServiceCondition, *APIServiceConditionDie] = (*APIServiceConditionDie)(nil)
+func (*APIServiceConditionDieMut) DieFrom(b diebase.DieMutBase[APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut]) *APIServiceConditionDieMut {
+	return &APIServiceConditionDieMut{b}
+}
 
-var APIServiceConditionBlank = diebase.Blank[APIServiceCondition, *APIServiceConditionDie]()
+var (
+	_ diebase.DieOf[APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut]    = (*APIServiceConditionDie)(nil)
+	_ diebase.DieMutOf[APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut] = (*APIServiceConditionDieMut)(nil)
+)
+
+var APIServiceConditionBlank = diebase.Blank[APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -153,34 +229,47 @@ func (d *APIServiceConditionDie) DieReleaseApplyConfiguration() *APIServiceCondi
 	return diecodegen.ReleaseApplyConfiguration[APIServiceConditionApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *APIServiceConditionDie) DieFeedApplyConfiguration(ac *APIServiceConditionApplyConfiguration) *APIServiceConditionDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *APIServiceConditionDie) DieStampApplyConfiguration(fn func(ac *APIServiceConditionApplyConfiguration)) *APIServiceConditionDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *APIServiceConditionDie) DieReleaseApplyConfigurationE() (*APIServiceConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[APIServiceConditionApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *APIServiceConditionDieMut) DieReleaseApplyConfiguration() *APIServiceConditionApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[APIServiceConditionApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *APIServiceConditionDieMut) DieReleaseApplyConfigurationE() (*APIServiceConditionApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[APIServiceConditionApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *APIServiceConditionDieMut) DieFeedApplyConfiguration(ac *APIServiceConditionApplyConfiguration) *APIServiceConditionDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *APIServiceConditionDieMut) DieStampApplyConfiguration(fn func(ac *APIServiceConditionApplyConfiguration)) *APIServiceConditionDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *APIServiceConditionDie) DieFeedApplyConfigurationE(ac *APIServiceConditionApplyConfiguration) (*APIServiceConditionDie, error) {
+func (d *APIServiceConditionDieMut) DieFeedApplyConfigurationE(ac *APIServiceConditionApplyConfiguration) (*APIServiceConditionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *APIServiceConditionDie) DieStampApplyConfigurationE(fn func(ac *APIServiceConditionApplyConfiguration)) (*APIServiceConditionDie, error) {
+func (d *APIServiceConditionDieMut) DieStampApplyConfigurationE(fn func(ac *APIServiceConditionApplyConfiguration)) (*APIServiceConditionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -203,40 +292,66 @@ var aPIServiceConditionFields = &diefields.Table[aPIServiceConditionFieldsTable]
 }}
 
 // Type is the type of the condition.
-func (d *APIServiceConditionDie) Type() diefields.Value[APIServiceConditionType, *APIServiceConditionDie] {
+func (d *APIServiceConditionDie) Type() diefields.Value[APIServiceConditionType] {
 	return diefields.ValueOf(d, aPIServiceConditionFields.Get().Type)
 }
 
 // Status is the status of the condition.
 // Can be True, False, Unknown.
-func (d *APIServiceConditionDie) Status() diefields.Value[ConditionStatus, *APIServiceConditionDie] {
+func (d *APIServiceConditionDie) Status() diefields.Value[ConditionStatus] {
 	return diefields.ValueOf(d, aPIServiceConditionFields.Get().Status)
 }
 
 // Last time the condition transitioned from one status to another.
-func (d *APIServiceConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time, *APIServiceConditionDie] {
+func (d *APIServiceConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time] {
 	return diefields.ValueOf(d, aPIServiceConditionFields.Get().LastTransitionTime)
 }
 
 // Unique, one-word, CamelCase reason for the condition's last transition.
-func (d *APIServiceConditionDie) Reason() diefields.Value[string, *APIServiceConditionDie] {
+func (d *APIServiceConditionDie) Reason() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIServiceConditionFields.Get().Reason)
 }
 
 // Human-readable message indicating details about last transition.
-func (d *APIServiceConditionDie) Message() diefields.Value[string, *APIServiceConditionDie] {
+func (d *APIServiceConditionDie) Message() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIServiceConditionFields.Get().Message)
+}
+
+// Type is the type of the condition.
+func (d *APIServiceConditionDieMut) Type() diefields.ValueMut[APIServiceConditionType, *APIServiceConditionDieMut] {
+	return diefields.ValueMutOf(d, aPIServiceConditionFields.Get().Type)
+}
+
+// Status is the status of the condition.
+// Can be True, False, Unknown.
+func (d *APIServiceConditionDieMut) Status() diefields.ValueMut[ConditionStatus, *APIServiceConditionDieMut] {
+	return diefields.ValueMutOf(d, aPIServiceConditionFields.Get().Status)
+}
+
+// Last time the condition transitioned from one status to another.
+func (d *APIServiceConditionDieMut) LastTransitionTime() diefields.ValueMut[diemetav1.Time, *APIServiceConditionDieMut] {
+	return diefields.ValueMutOf(d, aPIServiceConditionFields.Get().LastTransitionTime)
+}
+
+// Unique, one-word, CamelCase reason for the condition's last transition.
+func (d *APIServiceConditionDieMut) Reason() diefields.ValueMut[string, *APIServiceConditionDieMut] {
+	return diefields.ValueMutOf(d, aPIServiceConditionFields.Get().Reason)
+}
+
+// Human-readable message indicating details about last transition.
+func (d *APIServiceConditionDieMut) Message() diefields.ValueMut[string, *APIServiceConditionDieMut] {
+	return diefields.ValueMutOf(d, aPIServiceConditionFields.Get().Message)
 }
 
 // APIServiceList is a list of APIService objects.
 type APIServiceListDie struct {
-	dielists.List[*APIServiceDie]
+	dielists.List[*APIServiceDieMut]
 }
 
-var _ dielists.DieListOf[*APIServiceDie] = (*APIServiceListDie)(nil)
+var _ dielists.DieListOf[*APIServiceDieMut] = (*APIServiceListDie)(nil)
 
 // NewAPIServiceList returns a list with items.
-func NewAPIServiceList(items ...*APIServiceDie) *APIServiceListDie {
+func NewAPIServiceList(items ...*APIServiceDieMut) *APIServiceListDie {
 	return &APIServiceListDie{dielists.NewList("apiregistration.k8s.io/v1", "APIServiceList", items...)}
 }
 
@@ -247,17 +362,32 @@ func (l *APIServiceListDie) DeepCopyObject() runtime.Object { return l.DeepCopy(
 
 // APIServiceSpec contains information for locating and communicating with a server.
 // Only https is supported, though you are able to disable certificate verification.
+//
+// APIServiceSpecDie is immutable: it reads.
+// APIServiceSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type APIServiceSpecDie struct {
-	diebase.DieBase[APIServiceSpec, *APIServiceSpecDie]
+	diebase.DieBase[APIServiceSpec, *APIServiceSpecDie, *APIServiceSpecDieMut]
 }
 
-func (*APIServiceSpecDie) DieFrom(b diebase.DieBase[APIServiceSpec, *APIServiceSpecDie]) *APIServiceSpecDie {
+// APIServiceSpecDieMut is the mutable die of APIServiceSpec: see APIServiceSpecDie.
+type APIServiceSpecDieMut struct {
+	diebase.DieMutBase[APIServiceSpec, *APIServiceSpecDie, *APIServiceSpecDieMut]
+}
+
+func (*APIServiceSpecDie) DieFrom(b diebase.DieBase[APIServiceSpec, *APIServiceSpecDie, *APIServiceSpecDieMut]) *APIServiceSpecDie {
 	return &APIServiceSpecDie{b}
 }
 
-var _ diebase.DieOf[APIServiceSpec, *APIServiceSpecDie] = (*APIServiceSpecDie)(nil)
+func (*APIServiceSpecDieMut) DieFrom(b diebase.DieMutBase[APIServiceSpec, *APIServiceSpecDie, *APIServiceSpecDieMut]) *APIServiceSpecDieMut {
+	return &APIServiceSpecDieMut{b}
+}
 
-var APIServiceSpecBlank = diebase.Blank[APIServiceSpec, *APIServiceSpecDie]()
+var (
+	_ diebase.DieOf[APIServiceSpec, *APIServiceSpecDie, *APIServiceSpecDieMut]    = (*APIServiceSpecDie)(nil)
+	_ diebase.DieMutOf[APIServiceSpec, *APIServiceSpecDie, *APIServiceSpecDieMut] = (*APIServiceSpecDieMut)(nil)
+)
+
+var APIServiceSpecBlank = diebase.Blank[APIServiceSpec, *APIServiceSpecDie, *APIServiceSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -266,39 +396,52 @@ func (d *APIServiceSpecDie) DieReleaseApplyConfiguration() *APIServiceSpecApplyC
 	return diecodegen.ReleaseApplyConfiguration[APIServiceSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *APIServiceSpecDie) DieFeedApplyConfiguration(ac *APIServiceSpecApplyConfiguration) *APIServiceSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *APIServiceSpecDie) DieStampApplyConfiguration(fn func(ac *APIServiceSpecApplyConfiguration)) *APIServiceSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *APIServiceSpecDie) DieReleaseApplyConfigurationE() (*APIServiceSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[APIServiceSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *APIServiceSpecDieMut) DieReleaseApplyConfiguration() *APIServiceSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[APIServiceSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *APIServiceSpecDieMut) DieReleaseApplyConfigurationE() (*APIServiceSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[APIServiceSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *APIServiceSpecDieMut) DieFeedApplyConfiguration(ac *APIServiceSpecApplyConfiguration) *APIServiceSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *APIServiceSpecDieMut) DieStampApplyConfiguration(fn func(ac *APIServiceSpecApplyConfiguration)) *APIServiceSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *APIServiceSpecDie) DieFeedApplyConfigurationE(ac *APIServiceSpecApplyConfiguration) (*APIServiceSpecDie, error) {
+func (d *APIServiceSpecDieMut) DieFeedApplyConfigurationE(ac *APIServiceSpecApplyConfiguration) (*APIServiceSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *APIServiceSpecDie) DieStampApplyConfigurationE(fn func(ac *APIServiceSpecApplyConfiguration)) (*APIServiceSpecDie, error) {
+func (d *APIServiceSpecDieMut) DieStampApplyConfigurationE(fn func(ac *APIServiceSpecApplyConfiguration)) (*APIServiceSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type aPIServiceSpecFieldsTable struct {
-	Service               diefields.Struct[APIServiceSpec, ServiceReference, *ServiceReferenceDie]
+	Service               diefields.Struct[APIServiceSpec, ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]
 	Group                 diefields.Field[APIServiceSpec, string]
 	Version               diefields.Field[APIServiceSpec, string]
 	InsecureSkipTLSVerify diefields.Field[APIServiceSpec, bool]
@@ -309,7 +452,7 @@ type aPIServiceSpecFieldsTable struct {
 
 var aPIServiceSpecFields = &diefields.Table[aPIServiceSpecFieldsTable]{Build: func() (f aPIServiceSpecFieldsTable) {
 	_ = annotated
-	f.Service = diefields.NewStruct[APIServiceSpec, ServiceReference, *ServiceReferenceDie]("service")
+	f.Service = diefields.NewStruct[APIServiceSpec, ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]("service")
 	f.Group = diefields.NewField[APIServiceSpec, string]("group")
 	f.Version = diefields.NewField[APIServiceSpec, string]("version")
 	f.InsecureSkipTLSVerify = diefields.NewField[APIServiceSpec, bool]("insecureSkipTLSVerify")
@@ -328,24 +471,24 @@ func (d *APIServiceSpecDie) Service() *ServiceReferenceDie {
 }
 
 // Group is the API group name this server hosts
-func (d *APIServiceSpecDie) Group() diefields.Value[string, *APIServiceSpecDie] {
+func (d *APIServiceSpecDie) Group() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIServiceSpecFields.Get().Group)
 }
 
 // Version is the API version this server hosts.  For example, "v1"
-func (d *APIServiceSpecDie) Version() diefields.Value[string, *APIServiceSpecDie] {
+func (d *APIServiceSpecDie) Version() diefields.Value[string] {
 	return diefields.ValueOf(d, aPIServiceSpecFields.Get().Version)
 }
 
 // InsecureSkipTLSVerify disables TLS certificate verification when communicating with this server.
 // This is strongly discouraged.  You should use the CABundle instead.
-func (d *APIServiceSpecDie) InsecureSkipTLSVerify() diefields.Value[bool, *APIServiceSpecDie] {
+func (d *APIServiceSpecDie) InsecureSkipTLSVerify() diefields.Value[bool] {
 	return diefields.ValueOf(d, aPIServiceSpecFields.Get().InsecureSkipTLSVerify)
 }
 
 // CABundle is a PEM encoded CA bundle which will be used to validate an API server's serving certificate.
 // If unspecified, system trust roots on the apiserver are used.
-func (d *APIServiceSpecDie) CABundle() diefields.Value[[]byte, *APIServiceSpecDie] {
+func (d *APIServiceSpecDie) CABundle() diefields.Value[[]byte] {
 	return diefields.ValueOf(d, aPIServiceSpecFields.Get().CABundle)
 }
 
@@ -355,7 +498,7 @@ func (d *APIServiceSpecDie) CABundle() diefields.Value[[]byte, *APIServiceSpecDi
 // The secondary sort is based on the alphabetical comparison of the name of the object.  (v1.bar before v1.foo)
 // We'd recommend something like: *.k8s.io (except extensions) at 18000 and
 // PaaSes (OpenShift, Deis) are recommended to be in the 2000s
-func (d *APIServiceSpecDie) GroupPriorityMinimum() diefields.Value[int32, *APIServiceSpecDie] {
+func (d *APIServiceSpecDie) GroupPriorityMinimum() diefields.Value[int32] {
 	return diefields.ValueOf(d, aPIServiceSpecFields.Get().GroupPriorityMinimum)
 }
 
@@ -369,22 +512,91 @@ func (d *APIServiceSpecDie) GroupPriorityMinimum() diefields.Value[int32, *APISe
 // by GA > beta > alpha (where GA is a version with no suffix such as beta or alpha), and then by comparing major
 // version, then minor version. An example sorted list of versions:
 // v10, v2, v1, v11beta2, v10beta3, v3beta1, v12alpha1, v11alpha2, foo1, foo10.
-func (d *APIServiceSpecDie) VersionPriority() diefields.Value[int32, *APIServiceSpecDie] {
+func (d *APIServiceSpecDie) VersionPriority() diefields.Value[int32] {
 	return diefields.ValueOf(d, aPIServiceSpecFields.Get().VersionPriority)
 }
 
-// APIServiceStatus contains derived information about an API server
-type APIServiceStatusDie struct {
-	diebase.DieBase[APIServiceStatus, *APIServiceStatusDie]
+// Service is a reference to the service for this API server.  It must communicate
+// on port 443.
+// If the Service is nil, that means the handling for the API groupversion is handled locally on this server.
+// The call will simply delegate to the normal handler chain to be fulfilled.
+func (d *APIServiceSpecDieMut) Service() *ServiceReferenceDieMut {
+	return diefields.ChildMut(d, aPIServiceSpecFields.Get().Service)
 }
 
-func (*APIServiceStatusDie) DieFrom(b diebase.DieBase[APIServiceStatus, *APIServiceStatusDie]) *APIServiceStatusDie {
+// Group is the API group name this server hosts
+func (d *APIServiceSpecDieMut) Group() diefields.ValueMut[string, *APIServiceSpecDieMut] {
+	return diefields.ValueMutOf(d, aPIServiceSpecFields.Get().Group)
+}
+
+// Version is the API version this server hosts.  For example, "v1"
+func (d *APIServiceSpecDieMut) Version() diefields.ValueMut[string, *APIServiceSpecDieMut] {
+	return diefields.ValueMutOf(d, aPIServiceSpecFields.Get().Version)
+}
+
+// InsecureSkipTLSVerify disables TLS certificate verification when communicating with this server.
+// This is strongly discouraged.  You should use the CABundle instead.
+func (d *APIServiceSpecDieMut) InsecureSkipTLSVerify() diefields.ValueMut[bool, *APIServiceSpecDieMut] {
+	return diefields.ValueMutOf(d, aPIServiceSpecFields.Get().InsecureSkipTLSVerify)
+}
+
+// CABundle is a PEM encoded CA bundle which will be used to validate an API server's serving certificate.
+// If unspecified, system trust roots on the apiserver are used.
+func (d *APIServiceSpecDieMut) CABundle() diefields.ValueMut[[]byte, *APIServiceSpecDieMut] {
+	return diefields.ValueMutOf(d, aPIServiceSpecFields.Get().CABundle)
+}
+
+// GroupPriorityMinimum is the priority this group should have at least. Higher priority means that the group is preferred by clients over lower priority ones.
+// Note that other versions of this group might specify even higher GroupPriorityMinimum values such that the whole group gets a higher priority.
+// The primary sort is based on GroupPriorityMinimum, ordered highest number to lowest (20 before 10).
+// The secondary sort is based on the alphabetical comparison of the name of the object.  (v1.bar before v1.foo)
+// We'd recommend something like: *.k8s.io (except extensions) at 18000 and
+// PaaSes (OpenShift, Deis) are recommended to be in the 2000s
+func (d *APIServiceSpecDieMut) GroupPriorityMinimum() diefields.ValueMut[int32, *APIServiceSpecDieMut] {
+	return diefields.ValueMutOf(d, aPIServiceSpecFields.Get().GroupPriorityMinimum)
+}
+
+// VersionPriority controls the ordering of this API version inside of its group.  Must be greater than zero.
+// The primary sort is based on VersionPriority, ordered highest to lowest (20 before 10).
+// Since it's inside of a group, the number can be small, probably in the 10s.
+// In case of equal version priorities, the version string will be used to compute the order inside a group.
+// If the version string is "kube-like", it will sort above non "kube-like" version strings, which are ordered
+// lexicographically. "Kube-like" versions start with a "v", then are followed by a number (the major version),
+// then optionally the string "alpha" or "beta" and another number (the minor version). These are sorted first
+// by GA > beta > alpha (where GA is a version with no suffix such as beta or alpha), and then by comparing major
+// version, then minor version. An example sorted list of versions:
+// v10, v2, v1, v11beta2, v10beta3, v3beta1, v12alpha1, v11alpha2, foo1, foo10.
+func (d *APIServiceSpecDieMut) VersionPriority() diefields.ValueMut[int32, *APIServiceSpecDieMut] {
+	return diefields.ValueMutOf(d, aPIServiceSpecFields.Get().VersionPriority)
+}
+
+// APIServiceStatus contains derived information about an API server
+//
+// APIServiceStatusDie is immutable: it reads.
+// APIServiceStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type APIServiceStatusDie struct {
+	diebase.DieBase[APIServiceStatus, *APIServiceStatusDie, *APIServiceStatusDieMut]
+}
+
+// APIServiceStatusDieMut is the mutable die of APIServiceStatus: see APIServiceStatusDie.
+type APIServiceStatusDieMut struct {
+	diebase.DieMutBase[APIServiceStatus, *APIServiceStatusDie, *APIServiceStatusDieMut]
+}
+
+func (*APIServiceStatusDie) DieFrom(b diebase.DieBase[APIServiceStatus, *APIServiceStatusDie, *APIServiceStatusDieMut]) *APIServiceStatusDie {
 	return &APIServiceStatusDie{b}
 }
 
-var _ diebase.DieOf[APIServiceStatus, *APIServiceStatusDie] = (*APIServiceStatusDie)(nil)
+func (*APIServiceStatusDieMut) DieFrom(b diebase.DieMutBase[APIServiceStatus, *APIServiceStatusDie, *APIServiceStatusDieMut]) *APIServiceStatusDieMut {
+	return &APIServiceStatusDieMut{b}
+}
 
-var APIServiceStatusBlank = diebase.Blank[APIServiceStatus, *APIServiceStatusDie]()
+var (
+	_ diebase.DieOf[APIServiceStatus, *APIServiceStatusDie, *APIServiceStatusDieMut]    = (*APIServiceStatusDie)(nil)
+	_ diebase.DieMutOf[APIServiceStatus, *APIServiceStatusDie, *APIServiceStatusDieMut] = (*APIServiceStatusDieMut)(nil)
+)
+
+var APIServiceStatusBlank = diebase.Blank[APIServiceStatus, *APIServiceStatusDie, *APIServiceStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -393,44 +605,57 @@ func (d *APIServiceStatusDie) DieReleaseApplyConfiguration() *APIServiceStatusAp
 	return diecodegen.ReleaseApplyConfiguration[APIServiceStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *APIServiceStatusDie) DieFeedApplyConfiguration(ac *APIServiceStatusApplyConfiguration) *APIServiceStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *APIServiceStatusDie) DieStampApplyConfiguration(fn func(ac *APIServiceStatusApplyConfiguration)) *APIServiceStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *APIServiceStatusDie) DieReleaseApplyConfigurationE() (*APIServiceStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[APIServiceStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *APIServiceStatusDieMut) DieReleaseApplyConfiguration() *APIServiceStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[APIServiceStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *APIServiceStatusDieMut) DieReleaseApplyConfigurationE() (*APIServiceStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[APIServiceStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *APIServiceStatusDieMut) DieFeedApplyConfiguration(ac *APIServiceStatusApplyConfiguration) *APIServiceStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *APIServiceStatusDieMut) DieStampApplyConfiguration(fn func(ac *APIServiceStatusApplyConfiguration)) *APIServiceStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *APIServiceStatusDie) DieFeedApplyConfigurationE(ac *APIServiceStatusApplyConfiguration) (*APIServiceStatusDie, error) {
+func (d *APIServiceStatusDieMut) DieFeedApplyConfigurationE(ac *APIServiceStatusApplyConfiguration) (*APIServiceStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *APIServiceStatusDie) DieStampApplyConfigurationE(fn func(ac *APIServiceStatusApplyConfiguration)) (*APIServiceStatusDie, error) {
+func (d *APIServiceStatusDieMut) DieStampApplyConfigurationE(fn func(ac *APIServiceStatusApplyConfiguration)) (*APIServiceStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type aPIServiceStatusFieldsTable struct {
-	Conditions diefields.ListMapField[APIServiceStatus, APIServiceCondition, *APIServiceConditionDie, APIServiceConditionType]
+	Conditions diefields.ListMapField[APIServiceStatus, APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut, APIServiceConditionType]
 }
 
 var aPIServiceStatusFields = &diefields.Table[aPIServiceStatusFieldsTable]{Build: func() (f aPIServiceStatusFieldsTable) {
 	_ = annotated
-	f.Conditions = diefields.NewListMap[APIServiceStatus, APIServiceCondition, *APIServiceConditionDie]("conditions", func(k APIServiceConditionType) []any { return []any{k} }, func(e APIServiceCondition) APIServiceConditionType { return e.Type })
+	f.Conditions = diefields.NewListMap[APIServiceStatus, APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut]("conditions", func(k APIServiceConditionType) []any { return []any{k} }, func(e APIServiceCondition) APIServiceConditionType { return e.Type })
 	return
 }}
 
@@ -439,18 +664,38 @@ func (d *APIServiceStatusDie) Conditions() *diefields.ListMap[APIServiceConditio
 	return diefields.ListMapOf(d, aPIServiceStatusFields.Get().Conditions)
 }
 
-// ServiceReference holds a reference to Service.legacy.k8s.io
-type ServiceReferenceDie struct {
-	diebase.DieBase[ServiceReference, *ServiceReferenceDie]
+// Current service state of apiService.
+func (d *APIServiceStatusDieMut) Conditions() *diefields.ListMapMut[APIServiceCondition, *APIServiceConditionDieMut, APIServiceConditionType] {
+	return diefields.ListMapMutOf(d, aPIServiceStatusFields.Get().Conditions)
 }
 
-func (*ServiceReferenceDie) DieFrom(b diebase.DieBase[ServiceReference, *ServiceReferenceDie]) *ServiceReferenceDie {
+// ServiceReference holds a reference to Service.legacy.k8s.io
+//
+// ServiceReferenceDie is immutable: it reads.
+// ServiceReferenceDieMut, its mutable die, also writes, as DieWith passes it.
+type ServiceReferenceDie struct {
+	diebase.DieBase[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]
+}
+
+// ServiceReferenceDieMut is the mutable die of ServiceReference: see ServiceReferenceDie.
+type ServiceReferenceDieMut struct {
+	diebase.DieMutBase[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]
+}
+
+func (*ServiceReferenceDie) DieFrom(b diebase.DieBase[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]) *ServiceReferenceDie {
 	return &ServiceReferenceDie{b}
 }
 
-var _ diebase.DieOf[ServiceReference, *ServiceReferenceDie] = (*ServiceReferenceDie)(nil)
+func (*ServiceReferenceDieMut) DieFrom(b diebase.DieMutBase[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]) *ServiceReferenceDieMut {
+	return &ServiceReferenceDieMut{b}
+}
 
-var ServiceReferenceBlank = diebase.Blank[ServiceReference, *ServiceReferenceDie]()
+var (
+	_ diebase.DieOf[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]    = (*ServiceReferenceDie)(nil)
+	_ diebase.DieMutOf[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut] = (*ServiceReferenceDieMut)(nil)
+)
+
+var ServiceReferenceBlank = diebase.Blank[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -459,34 +704,47 @@ func (d *ServiceReferenceDie) DieReleaseApplyConfiguration() *ServiceReferenceAp
 	return diecodegen.ReleaseApplyConfiguration[ServiceReferenceApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ServiceReferenceDie) DieFeedApplyConfiguration(ac *ServiceReferenceApplyConfiguration) *ServiceReferenceDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ServiceReferenceDie) DieStampApplyConfiguration(fn func(ac *ServiceReferenceApplyConfiguration)) *ServiceReferenceDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ServiceReferenceDie) DieReleaseApplyConfigurationE() (*ServiceReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ServiceReferenceApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ServiceReferenceDieMut) DieReleaseApplyConfiguration() *ServiceReferenceApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ServiceReferenceApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ServiceReferenceDieMut) DieReleaseApplyConfigurationE() (*ServiceReferenceApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ServiceReferenceApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ServiceReferenceDieMut) DieFeedApplyConfiguration(ac *ServiceReferenceApplyConfiguration) *ServiceReferenceDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ServiceReferenceDieMut) DieStampApplyConfiguration(fn func(ac *ServiceReferenceApplyConfiguration)) *ServiceReferenceDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ServiceReferenceDie) DieFeedApplyConfigurationE(ac *ServiceReferenceApplyConfiguration) (*ServiceReferenceDie, error) {
+func (d *ServiceReferenceDieMut) DieFeedApplyConfigurationE(ac *ServiceReferenceApplyConfiguration) (*ServiceReferenceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ServiceReferenceDie) DieStampApplyConfigurationE(fn func(ac *ServiceReferenceApplyConfiguration)) (*ServiceReferenceDie, error) {
+func (d *ServiceReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *ServiceReferenceApplyConfiguration)) (*ServiceReferenceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -505,34 +763,51 @@ var serviceReferenceFields = &diefields.Table[serviceReferenceFieldsTable]{Build
 }}
 
 // Namespace is the namespace of the service
-func (d *ServiceReferenceDie) Namespace() diefields.Value[string, *ServiceReferenceDie] {
+func (d *ServiceReferenceDie) Namespace() diefields.Value[string] {
 	return diefields.ValueOf(d, serviceReferenceFields.Get().Namespace)
 }
 
 // Name is the name of the service
-func (d *ServiceReferenceDie) Name() diefields.Value[string, *ServiceReferenceDie] {
+func (d *ServiceReferenceDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, serviceReferenceFields.Get().Name)
 }
 
 // If specified, the port on the service that hosting webhook.
 // Default to 443 for backward compatibility.
 // `port` should be a valid port number (1-65535, inclusive).
-func (d *ServiceReferenceDie) Port() diefields.Optional[int32, *ServiceReferenceDie] {
+func (d *ServiceReferenceDie) Port() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, serviceReferenceFields.Get().Port)
+}
+
+// Namespace is the namespace of the service
+func (d *ServiceReferenceDieMut) Namespace() diefields.ValueMut[string, *ServiceReferenceDieMut] {
+	return diefields.ValueMutOf(d, serviceReferenceFields.Get().Namespace)
+}
+
+// Name is the name of the service
+func (d *ServiceReferenceDieMut) Name() diefields.ValueMut[string, *ServiceReferenceDieMut] {
+	return diefields.ValueMutOf(d, serviceReferenceFields.Get().Name)
+}
+
+// If specified, the port on the service that hosting webhook.
+// Default to 443 for backward compatibility.
+// `port` should be a valid port number (1-65535, inclusive).
+func (d *ServiceReferenceDieMut) Port() diefields.OptionalMut[int32, *ServiceReferenceDieMut] {
+	return diefields.OptionalMutOf(d, serviceReferenceFields.Get().Port)
 }
 
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "apiregistration.k8s.io", Version: "v1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("APIService"), &APIServiceDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("APIService"), &APIServiceDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("APIServiceList"), &APIServiceListDie{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

@@ -39,17 +39,32 @@ import (
 // Kubernetes, and have special scaling options on top of those available to
 // normal per-pod metrics using the "pods" source.  Only one "target" type
 // should be set.
+//
+// ContainerResourceMetricSourceDie is immutable: it reads.
+// ContainerResourceMetricSourceDieMut, its mutable die, also writes, as DieWith passes it.
 type ContainerResourceMetricSourceDie struct {
-	diebase.DieBase[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie]
+	diebase.DieBase[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]
 }
 
-func (*ContainerResourceMetricSourceDie) DieFrom(b diebase.DieBase[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie]) *ContainerResourceMetricSourceDie {
+// ContainerResourceMetricSourceDieMut is the mutable die of ContainerResourceMetricSource: see ContainerResourceMetricSourceDie.
+type ContainerResourceMetricSourceDieMut struct {
+	diebase.DieMutBase[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]
+}
+
+func (*ContainerResourceMetricSourceDie) DieFrom(b diebase.DieBase[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]) *ContainerResourceMetricSourceDie {
 	return &ContainerResourceMetricSourceDie{b}
 }
 
-var _ diebase.DieOf[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie] = (*ContainerResourceMetricSourceDie)(nil)
+func (*ContainerResourceMetricSourceDieMut) DieFrom(b diebase.DieMutBase[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]) *ContainerResourceMetricSourceDieMut {
+	return &ContainerResourceMetricSourceDieMut{b}
+}
 
-var ContainerResourceMetricSourceBlank = diebase.Blank[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie]()
+var (
+	_ diebase.DieOf[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]    = (*ContainerResourceMetricSourceDie)(nil)
+	_ diebase.DieMutOf[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut] = (*ContainerResourceMetricSourceDieMut)(nil)
+)
+
+var ContainerResourceMetricSourceBlank = diebase.Blank[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -58,53 +73,66 @@ func (d *ContainerResourceMetricSourceDie) DieReleaseApplyConfiguration() *Conta
 	return diecodegen.ReleaseApplyConfiguration[ContainerResourceMetricSourceApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ContainerResourceMetricSourceDie) DieFeedApplyConfiguration(ac *ContainerResourceMetricSourceApplyConfiguration) *ContainerResourceMetricSourceDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ContainerResourceMetricSourceDie) DieStampApplyConfiguration(fn func(ac *ContainerResourceMetricSourceApplyConfiguration)) *ContainerResourceMetricSourceDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ContainerResourceMetricSourceDie) DieReleaseApplyConfigurationE() (*ContainerResourceMetricSourceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ContainerResourceMetricSourceApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ContainerResourceMetricSourceDieMut) DieReleaseApplyConfiguration() *ContainerResourceMetricSourceApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ContainerResourceMetricSourceApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ContainerResourceMetricSourceDieMut) DieReleaseApplyConfigurationE() (*ContainerResourceMetricSourceApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ContainerResourceMetricSourceApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ContainerResourceMetricSourceDieMut) DieFeedApplyConfiguration(ac *ContainerResourceMetricSourceApplyConfiguration) *ContainerResourceMetricSourceDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ContainerResourceMetricSourceDieMut) DieStampApplyConfiguration(fn func(ac *ContainerResourceMetricSourceApplyConfiguration)) *ContainerResourceMetricSourceDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ContainerResourceMetricSourceDie) DieFeedApplyConfigurationE(ac *ContainerResourceMetricSourceApplyConfiguration) (*ContainerResourceMetricSourceDie, error) {
+func (d *ContainerResourceMetricSourceDieMut) DieFeedApplyConfigurationE(ac *ContainerResourceMetricSourceApplyConfiguration) (*ContainerResourceMetricSourceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ContainerResourceMetricSourceDie) DieStampApplyConfigurationE(fn func(ac *ContainerResourceMetricSourceApplyConfiguration)) (*ContainerResourceMetricSourceDie, error) {
+func (d *ContainerResourceMetricSourceDieMut) DieStampApplyConfigurationE(fn func(ac *ContainerResourceMetricSourceApplyConfiguration)) (*ContainerResourceMetricSourceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type containerResourceMetricSourceFieldsTable struct {
 	Name      diefields.Field[ContainerResourceMetricSource, diecorev1.ResourceName]
-	Target    diefields.Struct[ContainerResourceMetricSource, MetricTarget, *MetricTargetDie]
+	Target    diefields.Struct[ContainerResourceMetricSource, MetricTarget, *MetricTargetDie, *MetricTargetDieMut]
 	Container diefields.Field[ContainerResourceMetricSource, string]
 }
 
 var containerResourceMetricSourceFields = &diefields.Table[containerResourceMetricSourceFieldsTable]{Build: func() (f containerResourceMetricSourceFieldsTable) {
 	_ = annotated
 	f.Name = diefields.NewField[ContainerResourceMetricSource, diecorev1.ResourceName]("name")
-	f.Target = diefields.NewStruct[ContainerResourceMetricSource, MetricTarget, *MetricTargetDie]("target")
+	f.Target = diefields.NewStruct[ContainerResourceMetricSource, MetricTarget, *MetricTargetDie, *MetricTargetDieMut]("target")
 	f.Container = diefields.NewField[ContainerResourceMetricSource, string]("container")
 	return
 }}
 
 // name is the name of the resource in question.
-func (d *ContainerResourceMetricSourceDie) Name() diefields.Value[diecorev1.ResourceName, *ContainerResourceMetricSourceDie] {
+func (d *ContainerResourceMetricSourceDie) Name() diefields.Value[diecorev1.ResourceName] {
 	return diefields.ValueOf(d, containerResourceMetricSourceFields.Get().Name)
 }
 
@@ -114,8 +142,23 @@ func (d *ContainerResourceMetricSourceDie) Target() *MetricTargetDie {
 }
 
 // container is the name of the container in the pods of the scaling target
-func (d *ContainerResourceMetricSourceDie) Container() diefields.Value[string, *ContainerResourceMetricSourceDie] {
+func (d *ContainerResourceMetricSourceDie) Container() diefields.Value[string] {
 	return diefields.ValueOf(d, containerResourceMetricSourceFields.Get().Container)
+}
+
+// name is the name of the resource in question.
+func (d *ContainerResourceMetricSourceDieMut) Name() diefields.ValueMut[diecorev1.ResourceName, *ContainerResourceMetricSourceDieMut] {
+	return diefields.ValueMutOf(d, containerResourceMetricSourceFields.Get().Name)
+}
+
+// target specifies the target value for the given metric
+func (d *ContainerResourceMetricSourceDieMut) Target() *MetricTargetDieMut {
+	return diefields.ChildMut(d, containerResourceMetricSourceFields.Get().Target)
+}
+
+// container is the name of the container in the pods of the scaling target
+func (d *ContainerResourceMetricSourceDieMut) Container() diefields.ValueMut[string, *ContainerResourceMetricSourceDieMut] {
+	return diefields.ValueMutOf(d, containerResourceMetricSourceFields.Get().Container)
 }
 
 // ContainerResourceMetricStatus indicates the current value of a resource metric known to
@@ -123,17 +166,32 @@ func (d *ContainerResourceMetricSourceDie) Container() diefields.Value[string, *
 // current scale target (e.g. CPU or memory).  Such metrics are built in to
 // Kubernetes, and have special scaling options on top of those available to
 // normal per-pod metrics using the "pods" source.
+//
+// ContainerResourceMetricStatusDie is immutable: it reads.
+// ContainerResourceMetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
 type ContainerResourceMetricStatusDie struct {
-	diebase.DieBase[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie]
+	diebase.DieBase[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]
 }
 
-func (*ContainerResourceMetricStatusDie) DieFrom(b diebase.DieBase[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie]) *ContainerResourceMetricStatusDie {
+// ContainerResourceMetricStatusDieMut is the mutable die of ContainerResourceMetricStatus: see ContainerResourceMetricStatusDie.
+type ContainerResourceMetricStatusDieMut struct {
+	diebase.DieMutBase[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]
+}
+
+func (*ContainerResourceMetricStatusDie) DieFrom(b diebase.DieBase[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]) *ContainerResourceMetricStatusDie {
 	return &ContainerResourceMetricStatusDie{b}
 }
 
-var _ diebase.DieOf[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie] = (*ContainerResourceMetricStatusDie)(nil)
+func (*ContainerResourceMetricStatusDieMut) DieFrom(b diebase.DieMutBase[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]) *ContainerResourceMetricStatusDieMut {
+	return &ContainerResourceMetricStatusDieMut{b}
+}
 
-var ContainerResourceMetricStatusBlank = diebase.Blank[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie]()
+var (
+	_ diebase.DieOf[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]    = (*ContainerResourceMetricStatusDie)(nil)
+	_ diebase.DieMutOf[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut] = (*ContainerResourceMetricStatusDieMut)(nil)
+)
+
+var ContainerResourceMetricStatusBlank = diebase.Blank[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -142,53 +200,66 @@ func (d *ContainerResourceMetricStatusDie) DieReleaseApplyConfiguration() *Conta
 	return diecodegen.ReleaseApplyConfiguration[ContainerResourceMetricStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ContainerResourceMetricStatusDie) DieFeedApplyConfiguration(ac *ContainerResourceMetricStatusApplyConfiguration) *ContainerResourceMetricStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ContainerResourceMetricStatusDie) DieStampApplyConfiguration(fn func(ac *ContainerResourceMetricStatusApplyConfiguration)) *ContainerResourceMetricStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ContainerResourceMetricStatusDie) DieReleaseApplyConfigurationE() (*ContainerResourceMetricStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ContainerResourceMetricStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ContainerResourceMetricStatusDieMut) DieReleaseApplyConfiguration() *ContainerResourceMetricStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ContainerResourceMetricStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ContainerResourceMetricStatusDieMut) DieReleaseApplyConfigurationE() (*ContainerResourceMetricStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ContainerResourceMetricStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ContainerResourceMetricStatusDieMut) DieFeedApplyConfiguration(ac *ContainerResourceMetricStatusApplyConfiguration) *ContainerResourceMetricStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ContainerResourceMetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *ContainerResourceMetricStatusApplyConfiguration)) *ContainerResourceMetricStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ContainerResourceMetricStatusDie) DieFeedApplyConfigurationE(ac *ContainerResourceMetricStatusApplyConfiguration) (*ContainerResourceMetricStatusDie, error) {
+func (d *ContainerResourceMetricStatusDieMut) DieFeedApplyConfigurationE(ac *ContainerResourceMetricStatusApplyConfiguration) (*ContainerResourceMetricStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ContainerResourceMetricStatusDie) DieStampApplyConfigurationE(fn func(ac *ContainerResourceMetricStatusApplyConfiguration)) (*ContainerResourceMetricStatusDie, error) {
+func (d *ContainerResourceMetricStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ContainerResourceMetricStatusApplyConfiguration)) (*ContainerResourceMetricStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type containerResourceMetricStatusFieldsTable struct {
 	Name      diefields.Field[ContainerResourceMetricStatus, diecorev1.ResourceName]
-	Current   diefields.Struct[ContainerResourceMetricStatus, MetricValueStatus, *MetricValueStatusDie]
+	Current   diefields.Struct[ContainerResourceMetricStatus, MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]
 	Container diefields.Field[ContainerResourceMetricStatus, string]
 }
 
 var containerResourceMetricStatusFields = &diefields.Table[containerResourceMetricStatusFieldsTable]{Build: func() (f containerResourceMetricStatusFieldsTable) {
 	_ = annotated
 	f.Name = diefields.NewField[ContainerResourceMetricStatus, diecorev1.ResourceName]("name")
-	f.Current = diefields.NewStruct[ContainerResourceMetricStatus, MetricValueStatus, *MetricValueStatusDie]("current")
+	f.Current = diefields.NewStruct[ContainerResourceMetricStatus, MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]("current")
 	f.Container = diefields.NewField[ContainerResourceMetricStatus, string]("container")
 	return
 }}
 
 // name is the name of the resource in question.
-func (d *ContainerResourceMetricStatusDie) Name() diefields.Value[diecorev1.ResourceName, *ContainerResourceMetricStatusDie] {
+func (d *ContainerResourceMetricStatusDie) Name() diefields.Value[diecorev1.ResourceName] {
 	return diefields.ValueOf(d, containerResourceMetricStatusFields.Get().Name)
 }
 
@@ -198,22 +269,52 @@ func (d *ContainerResourceMetricStatusDie) Current() *MetricValueStatusDie {
 }
 
 // container is the name of the container in the pods of the scaling target
-func (d *ContainerResourceMetricStatusDie) Container() diefields.Value[string, *ContainerResourceMetricStatusDie] {
+func (d *ContainerResourceMetricStatusDie) Container() diefields.Value[string] {
 	return diefields.ValueOf(d, containerResourceMetricStatusFields.Get().Container)
 }
 
-// CrossVersionObjectReference contains enough information to let you identify the referred resource.
-type CrossVersionObjectReferenceDie struct {
-	diebase.DieBase[CrossVersionObjectReference, *CrossVersionObjectReferenceDie]
+// name is the name of the resource in question.
+func (d *ContainerResourceMetricStatusDieMut) Name() diefields.ValueMut[diecorev1.ResourceName, *ContainerResourceMetricStatusDieMut] {
+	return diefields.ValueMutOf(d, containerResourceMetricStatusFields.Get().Name)
 }
 
-func (*CrossVersionObjectReferenceDie) DieFrom(b diebase.DieBase[CrossVersionObjectReference, *CrossVersionObjectReferenceDie]) *CrossVersionObjectReferenceDie {
+// current contains the current value for the given metric
+func (d *ContainerResourceMetricStatusDieMut) Current() *MetricValueStatusDieMut {
+	return diefields.ChildMut(d, containerResourceMetricStatusFields.Get().Current)
+}
+
+// container is the name of the container in the pods of the scaling target
+func (d *ContainerResourceMetricStatusDieMut) Container() diefields.ValueMut[string, *ContainerResourceMetricStatusDieMut] {
+	return diefields.ValueMutOf(d, containerResourceMetricStatusFields.Get().Container)
+}
+
+// CrossVersionObjectReference contains enough information to let you identify the referred resource.
+//
+// CrossVersionObjectReferenceDie is immutable: it reads.
+// CrossVersionObjectReferenceDieMut, its mutable die, also writes, as DieWith passes it.
+type CrossVersionObjectReferenceDie struct {
+	diebase.DieBase[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]
+}
+
+// CrossVersionObjectReferenceDieMut is the mutable die of CrossVersionObjectReference: see CrossVersionObjectReferenceDie.
+type CrossVersionObjectReferenceDieMut struct {
+	diebase.DieMutBase[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]
+}
+
+func (*CrossVersionObjectReferenceDie) DieFrom(b diebase.DieBase[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]) *CrossVersionObjectReferenceDie {
 	return &CrossVersionObjectReferenceDie{b}
 }
 
-var _ diebase.DieOf[CrossVersionObjectReference, *CrossVersionObjectReferenceDie] = (*CrossVersionObjectReferenceDie)(nil)
+func (*CrossVersionObjectReferenceDieMut) DieFrom(b diebase.DieMutBase[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]) *CrossVersionObjectReferenceDieMut {
+	return &CrossVersionObjectReferenceDieMut{b}
+}
 
-var CrossVersionObjectReferenceBlank = diebase.Blank[CrossVersionObjectReference, *CrossVersionObjectReferenceDie]()
+var (
+	_ diebase.DieOf[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]    = (*CrossVersionObjectReferenceDie)(nil)
+	_ diebase.DieMutOf[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut] = (*CrossVersionObjectReferenceDieMut)(nil)
+)
+
+var CrossVersionObjectReferenceBlank = diebase.Blank[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -222,34 +323,47 @@ func (d *CrossVersionObjectReferenceDie) DieReleaseApplyConfiguration() *CrossVe
 	return diecodegen.ReleaseApplyConfiguration[CrossVersionObjectReferenceApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CrossVersionObjectReferenceDie) DieFeedApplyConfiguration(ac *CrossVersionObjectReferenceApplyConfiguration) *CrossVersionObjectReferenceDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CrossVersionObjectReferenceDie) DieStampApplyConfiguration(fn func(ac *CrossVersionObjectReferenceApplyConfiguration)) *CrossVersionObjectReferenceDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CrossVersionObjectReferenceDie) DieReleaseApplyConfigurationE() (*CrossVersionObjectReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CrossVersionObjectReferenceApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CrossVersionObjectReferenceDieMut) DieReleaseApplyConfiguration() *CrossVersionObjectReferenceApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CrossVersionObjectReferenceApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CrossVersionObjectReferenceDieMut) DieReleaseApplyConfigurationE() (*CrossVersionObjectReferenceApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CrossVersionObjectReferenceApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CrossVersionObjectReferenceDieMut) DieFeedApplyConfiguration(ac *CrossVersionObjectReferenceApplyConfiguration) *CrossVersionObjectReferenceDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CrossVersionObjectReferenceDieMut) DieStampApplyConfiguration(fn func(ac *CrossVersionObjectReferenceApplyConfiguration)) *CrossVersionObjectReferenceDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CrossVersionObjectReferenceDie) DieFeedApplyConfigurationE(ac *CrossVersionObjectReferenceApplyConfiguration) (*CrossVersionObjectReferenceDie, error) {
+func (d *CrossVersionObjectReferenceDieMut) DieFeedApplyConfigurationE(ac *CrossVersionObjectReferenceApplyConfiguration) (*CrossVersionObjectReferenceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CrossVersionObjectReferenceDie) DieStampApplyConfigurationE(fn func(ac *CrossVersionObjectReferenceApplyConfiguration)) (*CrossVersionObjectReferenceDie, error) {
+func (d *CrossVersionObjectReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *CrossVersionObjectReferenceApplyConfiguration)) (*CrossVersionObjectReferenceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -268,34 +382,64 @@ var crossVersionObjectReferenceFields = &diefields.Table[crossVersionObjectRefer
 }}
 
 // kind is the kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *CrossVersionObjectReferenceDie) Kind() diefields.Value[string, *CrossVersionObjectReferenceDie] {
+func (d *CrossVersionObjectReferenceDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, crossVersionObjectReferenceFields.Get().Kind)
 }
 
 // name is the name of the referent; More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-func (d *CrossVersionObjectReferenceDie) Name() diefields.Value[string, *CrossVersionObjectReferenceDie] {
+func (d *CrossVersionObjectReferenceDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, crossVersionObjectReferenceFields.Get().Name)
 }
 
 // apiVersion is the API version of the referent
-func (d *CrossVersionObjectReferenceDie) APIVersion() diefields.Value[string, *CrossVersionObjectReferenceDie] {
+func (d *CrossVersionObjectReferenceDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, crossVersionObjectReferenceFields.Get().APIVersion)
+}
+
+// kind is the kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *CrossVersionObjectReferenceDieMut) Kind() diefields.ValueMut[string, *CrossVersionObjectReferenceDieMut] {
+	return diefields.ValueMutOf(d, crossVersionObjectReferenceFields.Get().Kind)
+}
+
+// name is the name of the referent; More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+func (d *CrossVersionObjectReferenceDieMut) Name() diefields.ValueMut[string, *CrossVersionObjectReferenceDieMut] {
+	return diefields.ValueMutOf(d, crossVersionObjectReferenceFields.Get().Name)
+}
+
+// apiVersion is the API version of the referent
+func (d *CrossVersionObjectReferenceDieMut) APIVersion() diefields.ValueMut[string, *CrossVersionObjectReferenceDieMut] {
+	return diefields.ValueMutOf(d, crossVersionObjectReferenceFields.Get().APIVersion)
 }
 
 // ExternalMetricSource indicates how to scale on a metric not associated with
 // any Kubernetes object (for example length of queue in cloud
 // messaging service, or QPS from loadbalancer running outside of cluster).
+//
+// ExternalMetricSourceDie is immutable: it reads.
+// ExternalMetricSourceDieMut, its mutable die, also writes, as DieWith passes it.
 type ExternalMetricSourceDie struct {
-	diebase.DieBase[ExternalMetricSource, *ExternalMetricSourceDie]
+	diebase.DieBase[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]
 }
 
-func (*ExternalMetricSourceDie) DieFrom(b diebase.DieBase[ExternalMetricSource, *ExternalMetricSourceDie]) *ExternalMetricSourceDie {
+// ExternalMetricSourceDieMut is the mutable die of ExternalMetricSource: see ExternalMetricSourceDie.
+type ExternalMetricSourceDieMut struct {
+	diebase.DieMutBase[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]
+}
+
+func (*ExternalMetricSourceDie) DieFrom(b diebase.DieBase[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]) *ExternalMetricSourceDie {
 	return &ExternalMetricSourceDie{b}
 }
 
-var _ diebase.DieOf[ExternalMetricSource, *ExternalMetricSourceDie] = (*ExternalMetricSourceDie)(nil)
+func (*ExternalMetricSourceDieMut) DieFrom(b diebase.DieMutBase[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]) *ExternalMetricSourceDieMut {
+	return &ExternalMetricSourceDieMut{b}
+}
 
-var ExternalMetricSourceBlank = diebase.Blank[ExternalMetricSource, *ExternalMetricSourceDie]()
+var (
+	_ diebase.DieOf[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]    = (*ExternalMetricSourceDie)(nil)
+	_ diebase.DieMutOf[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut] = (*ExternalMetricSourceDieMut)(nil)
+)
+
+var ExternalMetricSourceBlank = diebase.Blank[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -304,46 +448,59 @@ func (d *ExternalMetricSourceDie) DieReleaseApplyConfiguration() *ExternalMetric
 	return diecodegen.ReleaseApplyConfiguration[ExternalMetricSourceApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ExternalMetricSourceDie) DieFeedApplyConfiguration(ac *ExternalMetricSourceApplyConfiguration) *ExternalMetricSourceDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ExternalMetricSourceDie) DieStampApplyConfiguration(fn func(ac *ExternalMetricSourceApplyConfiguration)) *ExternalMetricSourceDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ExternalMetricSourceDie) DieReleaseApplyConfigurationE() (*ExternalMetricSourceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ExternalMetricSourceApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ExternalMetricSourceDieMut) DieReleaseApplyConfiguration() *ExternalMetricSourceApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ExternalMetricSourceApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ExternalMetricSourceDieMut) DieReleaseApplyConfigurationE() (*ExternalMetricSourceApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ExternalMetricSourceApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ExternalMetricSourceDieMut) DieFeedApplyConfiguration(ac *ExternalMetricSourceApplyConfiguration) *ExternalMetricSourceDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ExternalMetricSourceDieMut) DieStampApplyConfiguration(fn func(ac *ExternalMetricSourceApplyConfiguration)) *ExternalMetricSourceDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ExternalMetricSourceDie) DieFeedApplyConfigurationE(ac *ExternalMetricSourceApplyConfiguration) (*ExternalMetricSourceDie, error) {
+func (d *ExternalMetricSourceDieMut) DieFeedApplyConfigurationE(ac *ExternalMetricSourceApplyConfiguration) (*ExternalMetricSourceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ExternalMetricSourceDie) DieStampApplyConfigurationE(fn func(ac *ExternalMetricSourceApplyConfiguration)) (*ExternalMetricSourceDie, error) {
+func (d *ExternalMetricSourceDieMut) DieStampApplyConfigurationE(fn func(ac *ExternalMetricSourceApplyConfiguration)) (*ExternalMetricSourceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type externalMetricSourceFieldsTable struct {
-	Metric diefields.Struct[ExternalMetricSource, MetricIdentifier, *MetricIdentifierDie]
-	Target diefields.Struct[ExternalMetricSource, MetricTarget, *MetricTargetDie]
+	Metric diefields.Struct[ExternalMetricSource, MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]
+	Target diefields.Struct[ExternalMetricSource, MetricTarget, *MetricTargetDie, *MetricTargetDieMut]
 }
 
 var externalMetricSourceFields = &diefields.Table[externalMetricSourceFieldsTable]{Build: func() (f externalMetricSourceFieldsTable) {
 	_ = annotated
-	f.Metric = diefields.NewStruct[ExternalMetricSource, MetricIdentifier, *MetricIdentifierDie]("metric")
-	f.Target = diefields.NewStruct[ExternalMetricSource, MetricTarget, *MetricTargetDie]("target")
+	f.Metric = diefields.NewStruct[ExternalMetricSource, MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]("metric")
+	f.Target = diefields.NewStruct[ExternalMetricSource, MetricTarget, *MetricTargetDie, *MetricTargetDieMut]("target")
 	return
 }}
 
@@ -357,19 +514,44 @@ func (d *ExternalMetricSourceDie) Target() *MetricTargetDie {
 	return diefields.Child(d, externalMetricSourceFields.Get().Target)
 }
 
-// ExternalMetricStatus indicates the current value of a global metric
-// not associated with any Kubernetes object.
-type ExternalMetricStatusDie struct {
-	diebase.DieBase[ExternalMetricStatus, *ExternalMetricStatusDie]
+// metric identifies the target metric by name and selector
+func (d *ExternalMetricSourceDieMut) Metric() *MetricIdentifierDieMut {
+	return diefields.ChildMut(d, externalMetricSourceFields.Get().Metric)
 }
 
-func (*ExternalMetricStatusDie) DieFrom(b diebase.DieBase[ExternalMetricStatus, *ExternalMetricStatusDie]) *ExternalMetricStatusDie {
+// target specifies the target value for the given metric
+func (d *ExternalMetricSourceDieMut) Target() *MetricTargetDieMut {
+	return diefields.ChildMut(d, externalMetricSourceFields.Get().Target)
+}
+
+// ExternalMetricStatus indicates the current value of a global metric
+// not associated with any Kubernetes object.
+//
+// ExternalMetricStatusDie is immutable: it reads.
+// ExternalMetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type ExternalMetricStatusDie struct {
+	diebase.DieBase[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]
+}
+
+// ExternalMetricStatusDieMut is the mutable die of ExternalMetricStatus: see ExternalMetricStatusDie.
+type ExternalMetricStatusDieMut struct {
+	diebase.DieMutBase[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]
+}
+
+func (*ExternalMetricStatusDie) DieFrom(b diebase.DieBase[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]) *ExternalMetricStatusDie {
 	return &ExternalMetricStatusDie{b}
 }
 
-var _ diebase.DieOf[ExternalMetricStatus, *ExternalMetricStatusDie] = (*ExternalMetricStatusDie)(nil)
+func (*ExternalMetricStatusDieMut) DieFrom(b diebase.DieMutBase[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]) *ExternalMetricStatusDieMut {
+	return &ExternalMetricStatusDieMut{b}
+}
 
-var ExternalMetricStatusBlank = diebase.Blank[ExternalMetricStatus, *ExternalMetricStatusDie]()
+var (
+	_ diebase.DieOf[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]    = (*ExternalMetricStatusDie)(nil)
+	_ diebase.DieMutOf[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut] = (*ExternalMetricStatusDieMut)(nil)
+)
+
+var ExternalMetricStatusBlank = diebase.Blank[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -378,46 +560,59 @@ func (d *ExternalMetricStatusDie) DieReleaseApplyConfiguration() *ExternalMetric
 	return diecodegen.ReleaseApplyConfiguration[ExternalMetricStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ExternalMetricStatusDie) DieFeedApplyConfiguration(ac *ExternalMetricStatusApplyConfiguration) *ExternalMetricStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ExternalMetricStatusDie) DieStampApplyConfiguration(fn func(ac *ExternalMetricStatusApplyConfiguration)) *ExternalMetricStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ExternalMetricStatusDie) DieReleaseApplyConfigurationE() (*ExternalMetricStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ExternalMetricStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ExternalMetricStatusDieMut) DieReleaseApplyConfiguration() *ExternalMetricStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ExternalMetricStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ExternalMetricStatusDieMut) DieReleaseApplyConfigurationE() (*ExternalMetricStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ExternalMetricStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ExternalMetricStatusDieMut) DieFeedApplyConfiguration(ac *ExternalMetricStatusApplyConfiguration) *ExternalMetricStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ExternalMetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *ExternalMetricStatusApplyConfiguration)) *ExternalMetricStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ExternalMetricStatusDie) DieFeedApplyConfigurationE(ac *ExternalMetricStatusApplyConfiguration) (*ExternalMetricStatusDie, error) {
+func (d *ExternalMetricStatusDieMut) DieFeedApplyConfigurationE(ac *ExternalMetricStatusApplyConfiguration) (*ExternalMetricStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ExternalMetricStatusDie) DieStampApplyConfigurationE(fn func(ac *ExternalMetricStatusApplyConfiguration)) (*ExternalMetricStatusDie, error) {
+func (d *ExternalMetricStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ExternalMetricStatusApplyConfiguration)) (*ExternalMetricStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type externalMetricStatusFieldsTable struct {
-	Metric  diefields.Struct[ExternalMetricStatus, MetricIdentifier, *MetricIdentifierDie]
-	Current diefields.Struct[ExternalMetricStatus, MetricValueStatus, *MetricValueStatusDie]
+	Metric  diefields.Struct[ExternalMetricStatus, MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]
+	Current diefields.Struct[ExternalMetricStatus, MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]
 }
 
 var externalMetricStatusFields = &diefields.Table[externalMetricStatusFieldsTable]{Build: func() (f externalMetricStatusFieldsTable) {
 	_ = annotated
-	f.Metric = diefields.NewStruct[ExternalMetricStatus, MetricIdentifier, *MetricIdentifierDie]("metric")
-	f.Current = diefields.NewStruct[ExternalMetricStatus, MetricValueStatus, *MetricValueStatusDie]("current")
+	f.Metric = diefields.NewStruct[ExternalMetricStatus, MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]("metric")
+	f.Current = diefields.NewStruct[ExternalMetricStatus, MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]("current")
 	return
 }}
 
@@ -431,18 +626,43 @@ func (d *ExternalMetricStatusDie) Current() *MetricValueStatusDie {
 	return diefields.Child(d, externalMetricStatusFields.Get().Current)
 }
 
-// HPAScalingPolicy is a single policy which must hold true for a specified past interval.
-type HPAScalingPolicyDie struct {
-	diebase.DieBase[HPAScalingPolicy, *HPAScalingPolicyDie]
+// metric identifies the target metric by name and selector
+func (d *ExternalMetricStatusDieMut) Metric() *MetricIdentifierDieMut {
+	return diefields.ChildMut(d, externalMetricStatusFields.Get().Metric)
 }
 
-func (*HPAScalingPolicyDie) DieFrom(b diebase.DieBase[HPAScalingPolicy, *HPAScalingPolicyDie]) *HPAScalingPolicyDie {
+// current contains the current value for the given metric
+func (d *ExternalMetricStatusDieMut) Current() *MetricValueStatusDieMut {
+	return diefields.ChildMut(d, externalMetricStatusFields.Get().Current)
+}
+
+// HPAScalingPolicy is a single policy which must hold true for a specified past interval.
+//
+// HPAScalingPolicyDie is immutable: it reads.
+// HPAScalingPolicyDieMut, its mutable die, also writes, as DieWith passes it.
+type HPAScalingPolicyDie struct {
+	diebase.DieBase[HPAScalingPolicy, *HPAScalingPolicyDie, *HPAScalingPolicyDieMut]
+}
+
+// HPAScalingPolicyDieMut is the mutable die of HPAScalingPolicy: see HPAScalingPolicyDie.
+type HPAScalingPolicyDieMut struct {
+	diebase.DieMutBase[HPAScalingPolicy, *HPAScalingPolicyDie, *HPAScalingPolicyDieMut]
+}
+
+func (*HPAScalingPolicyDie) DieFrom(b diebase.DieBase[HPAScalingPolicy, *HPAScalingPolicyDie, *HPAScalingPolicyDieMut]) *HPAScalingPolicyDie {
 	return &HPAScalingPolicyDie{b}
 }
 
-var _ diebase.DieOf[HPAScalingPolicy, *HPAScalingPolicyDie] = (*HPAScalingPolicyDie)(nil)
+func (*HPAScalingPolicyDieMut) DieFrom(b diebase.DieMutBase[HPAScalingPolicy, *HPAScalingPolicyDie, *HPAScalingPolicyDieMut]) *HPAScalingPolicyDieMut {
+	return &HPAScalingPolicyDieMut{b}
+}
 
-var HPAScalingPolicyBlank = diebase.Blank[HPAScalingPolicy, *HPAScalingPolicyDie]()
+var (
+	_ diebase.DieOf[HPAScalingPolicy, *HPAScalingPolicyDie, *HPAScalingPolicyDieMut]    = (*HPAScalingPolicyDie)(nil)
+	_ diebase.DieMutOf[HPAScalingPolicy, *HPAScalingPolicyDie, *HPAScalingPolicyDieMut] = (*HPAScalingPolicyDieMut)(nil)
+)
+
+var HPAScalingPolicyBlank = diebase.Blank[HPAScalingPolicy, *HPAScalingPolicyDie, *HPAScalingPolicyDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -451,34 +671,47 @@ func (d *HPAScalingPolicyDie) DieReleaseApplyConfiguration() *HPAScalingPolicyAp
 	return diecodegen.ReleaseApplyConfiguration[HPAScalingPolicyApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *HPAScalingPolicyDie) DieFeedApplyConfiguration(ac *HPAScalingPolicyApplyConfiguration) *HPAScalingPolicyDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *HPAScalingPolicyDie) DieStampApplyConfiguration(fn func(ac *HPAScalingPolicyApplyConfiguration)) *HPAScalingPolicyDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *HPAScalingPolicyDie) DieReleaseApplyConfigurationE() (*HPAScalingPolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[HPAScalingPolicyApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *HPAScalingPolicyDieMut) DieReleaseApplyConfiguration() *HPAScalingPolicyApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[HPAScalingPolicyApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *HPAScalingPolicyDieMut) DieReleaseApplyConfigurationE() (*HPAScalingPolicyApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[HPAScalingPolicyApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *HPAScalingPolicyDieMut) DieFeedApplyConfiguration(ac *HPAScalingPolicyApplyConfiguration) *HPAScalingPolicyDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *HPAScalingPolicyDieMut) DieStampApplyConfiguration(fn func(ac *HPAScalingPolicyApplyConfiguration)) *HPAScalingPolicyDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HPAScalingPolicyDie) DieFeedApplyConfigurationE(ac *HPAScalingPolicyApplyConfiguration) (*HPAScalingPolicyDie, error) {
+func (d *HPAScalingPolicyDieMut) DieFeedApplyConfigurationE(ac *HPAScalingPolicyApplyConfiguration) (*HPAScalingPolicyDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HPAScalingPolicyDie) DieStampApplyConfigurationE(fn func(ac *HPAScalingPolicyApplyConfiguration)) (*HPAScalingPolicyDie, error) {
+func (d *HPAScalingPolicyDieMut) DieStampApplyConfigurationE(fn func(ac *HPAScalingPolicyApplyConfiguration)) (*HPAScalingPolicyDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -497,20 +730,37 @@ var hPAScalingPolicyFields = &diefields.Table[hPAScalingPolicyFieldsTable]{Build
 }}
 
 // type is used to specify the scaling policy.
-func (d *HPAScalingPolicyDie) Type() diefields.Value[HPAScalingPolicyType, *HPAScalingPolicyDie] {
+func (d *HPAScalingPolicyDie) Type() diefields.Value[HPAScalingPolicyType] {
 	return diefields.ValueOf(d, hPAScalingPolicyFields.Get().Type)
 }
 
 // value contains the amount of change which is permitted by the policy.
 // It must be greater than zero
-func (d *HPAScalingPolicyDie) Value() diefields.Value[int32, *HPAScalingPolicyDie] {
+func (d *HPAScalingPolicyDie) Value() diefields.Value[int32] {
 	return diefields.ValueOf(d, hPAScalingPolicyFields.Get().Value)
 }
 
 // periodSeconds specifies the window of time for which the policy should hold true.
 // PeriodSeconds must be greater than zero and less than or equal to 1800 (30 min).
-func (d *HPAScalingPolicyDie) PeriodSeconds() diefields.Value[int32, *HPAScalingPolicyDie] {
+func (d *HPAScalingPolicyDie) PeriodSeconds() diefields.Value[int32] {
 	return diefields.ValueOf(d, hPAScalingPolicyFields.Get().PeriodSeconds)
+}
+
+// type is used to specify the scaling policy.
+func (d *HPAScalingPolicyDieMut) Type() diefields.ValueMut[HPAScalingPolicyType, *HPAScalingPolicyDieMut] {
+	return diefields.ValueMutOf(d, hPAScalingPolicyFields.Get().Type)
+}
+
+// value contains the amount of change which is permitted by the policy.
+// It must be greater than zero
+func (d *HPAScalingPolicyDieMut) Value() diefields.ValueMut[int32, *HPAScalingPolicyDieMut] {
+	return diefields.ValueMutOf(d, hPAScalingPolicyFields.Get().Value)
+}
+
+// periodSeconds specifies the window of time for which the policy should hold true.
+// PeriodSeconds must be greater than zero and less than or equal to 1800 (30 min).
+func (d *HPAScalingPolicyDieMut) PeriodSeconds() diefields.ValueMut[int32, *HPAScalingPolicyDieMut] {
+	return diefields.ValueMutOf(d, hPAScalingPolicyFields.Get().PeriodSeconds)
 }
 
 // HPAScalingRules configures the scaling behavior for one direction via
@@ -524,17 +774,32 @@ func (d *HPAScalingPolicyDie) PeriodSeconds() diefields.Value[int32, *HPAScaling
 //
 // The tolerance is applied to the metric values and prevents scaling too
 // eagerly for small metric variations.
+//
+// HPAScalingRulesDie is immutable: it reads.
+// HPAScalingRulesDieMut, its mutable die, also writes, as DieWith passes it.
 type HPAScalingRulesDie struct {
-	diebase.DieBase[HPAScalingRules, *HPAScalingRulesDie]
+	diebase.DieBase[HPAScalingRules, *HPAScalingRulesDie, *HPAScalingRulesDieMut]
 }
 
-func (*HPAScalingRulesDie) DieFrom(b diebase.DieBase[HPAScalingRules, *HPAScalingRulesDie]) *HPAScalingRulesDie {
+// HPAScalingRulesDieMut is the mutable die of HPAScalingRules: see HPAScalingRulesDie.
+type HPAScalingRulesDieMut struct {
+	diebase.DieMutBase[HPAScalingRules, *HPAScalingRulesDie, *HPAScalingRulesDieMut]
+}
+
+func (*HPAScalingRulesDie) DieFrom(b diebase.DieBase[HPAScalingRules, *HPAScalingRulesDie, *HPAScalingRulesDieMut]) *HPAScalingRulesDie {
 	return &HPAScalingRulesDie{b}
 }
 
-var _ diebase.DieOf[HPAScalingRules, *HPAScalingRulesDie] = (*HPAScalingRulesDie)(nil)
+func (*HPAScalingRulesDieMut) DieFrom(b diebase.DieMutBase[HPAScalingRules, *HPAScalingRulesDie, *HPAScalingRulesDieMut]) *HPAScalingRulesDieMut {
+	return &HPAScalingRulesDieMut{b}
+}
 
-var HPAScalingRulesBlank = diebase.Blank[HPAScalingRules, *HPAScalingRulesDie]()
+var (
+	_ diebase.DieOf[HPAScalingRules, *HPAScalingRulesDie, *HPAScalingRulesDieMut]    = (*HPAScalingRulesDie)(nil)
+	_ diebase.DieMutOf[HPAScalingRules, *HPAScalingRulesDie, *HPAScalingRulesDieMut] = (*HPAScalingRulesDieMut)(nil)
+)
+
+var HPAScalingRulesBlank = diebase.Blank[HPAScalingRules, *HPAScalingRulesDie, *HPAScalingRulesDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -543,34 +808,47 @@ func (d *HPAScalingRulesDie) DieReleaseApplyConfiguration() *HPAScalingRulesAppl
 	return diecodegen.ReleaseApplyConfiguration[HPAScalingRulesApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *HPAScalingRulesDie) DieFeedApplyConfiguration(ac *HPAScalingRulesApplyConfiguration) *HPAScalingRulesDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *HPAScalingRulesDie) DieStampApplyConfiguration(fn func(ac *HPAScalingRulesApplyConfiguration)) *HPAScalingRulesDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *HPAScalingRulesDie) DieReleaseApplyConfigurationE() (*HPAScalingRulesApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[HPAScalingRulesApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *HPAScalingRulesDieMut) DieReleaseApplyConfiguration() *HPAScalingRulesApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[HPAScalingRulesApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *HPAScalingRulesDieMut) DieReleaseApplyConfigurationE() (*HPAScalingRulesApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[HPAScalingRulesApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *HPAScalingRulesDieMut) DieFeedApplyConfiguration(ac *HPAScalingRulesApplyConfiguration) *HPAScalingRulesDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *HPAScalingRulesDieMut) DieStampApplyConfiguration(fn func(ac *HPAScalingRulesApplyConfiguration)) *HPAScalingRulesDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HPAScalingRulesDie) DieFeedApplyConfigurationE(ac *HPAScalingRulesApplyConfiguration) (*HPAScalingRulesDie, error) {
+func (d *HPAScalingRulesDieMut) DieFeedApplyConfigurationE(ac *HPAScalingRulesApplyConfiguration) (*HPAScalingRulesDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HPAScalingRulesDie) DieStampApplyConfigurationE(fn func(ac *HPAScalingRulesApplyConfiguration)) (*HPAScalingRulesDie, error) {
+func (d *HPAScalingRulesDieMut) DieStampApplyConfigurationE(fn func(ac *HPAScalingRulesApplyConfiguration)) (*HPAScalingRulesDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -596,13 +874,13 @@ var hPAScalingRulesFields = &diefields.Table[hPAScalingRulesFieldsTable]{Build: 
 // If not set, use the default values:
 // - For scale up: 0 (i.e. no stabilization is done).
 // - For scale down: 300 (i.e. the stabilization window is 300 seconds long).
-func (d *HPAScalingRulesDie) StabilizationWindowSeconds() diefields.Optional[int32, *HPAScalingRulesDie] {
+func (d *HPAScalingRulesDie) StabilizationWindowSeconds() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, hPAScalingRulesFields.Get().StabilizationWindowSeconds)
 }
 
 // selectPolicy is used to specify which policy should be used.
 // If not set, the default value Max is used.
-func (d *HPAScalingRulesDie) SelectPolicy() diefields.Optional[ScalingPolicySelect, *HPAScalingRulesDie] {
+func (d *HPAScalingRulesDie) SelectPolicy() diefields.Optional[ScalingPolicySelect] {
 	return diefields.OptionalOf(d, hPAScalingRulesFields.Get().SelectPolicy)
 }
 
@@ -610,7 +888,7 @@ func (d *HPAScalingRulesDie) SelectPolicy() diefields.Optional[ScalingPolicySele
 // If not set, use the default values:
 // - For scale up: allow doubling the number of pods, or an absolute change of 4 pods in a 15s window.
 // - For scale down: allow all pods to be removed in a 15s window.
-func (d *HPAScalingRulesDie) Policies() diefields.Value[[]HPAScalingPolicy, *HPAScalingRulesDie] {
+func (d *HPAScalingRulesDie) Policies() diefields.Value[[]HPAScalingPolicy] {
 	return diefields.ValueOf(d, hPAScalingRulesFields.Get().Policies)
 }
 
@@ -622,24 +900,75 @@ func (d *HPAScalingRulesDie) Policies() diefields.Value[[]HPAScalingPolicy, *HPA
 // For example, if autoscaling is configured with a memory consumption target of 100Mi,
 // and scale-down and scale-up tolerances of 5% and 1% respectively, scaling will be
 // triggered when the actual consumption falls below 95Mi or exceeds 101Mi.
-func (d *HPAScalingRulesDie) Tolerance() diefields.Optional[resource.Quantity, *HPAScalingRulesDie] {
+func (d *HPAScalingRulesDie) Tolerance() diefields.Optional[resource.Quantity] {
 	return diefields.OptionalOf(d, hPAScalingRulesFields.Get().Tolerance)
+}
+
+// stabilizationWindowSeconds is the number of seconds for which past recommendations should be
+// considered while scaling up or scaling down.
+// StabilizationWindowSeconds must be greater than or equal to zero and less than or equal to 3600 (one hour).
+// If not set, use the default values:
+// - For scale up: 0 (i.e. no stabilization is done).
+// - For scale down: 300 (i.e. the stabilization window is 300 seconds long).
+func (d *HPAScalingRulesDieMut) StabilizationWindowSeconds() diefields.OptionalMut[int32, *HPAScalingRulesDieMut] {
+	return diefields.OptionalMutOf(d, hPAScalingRulesFields.Get().StabilizationWindowSeconds)
+}
+
+// selectPolicy is used to specify which policy should be used.
+// If not set, the default value Max is used.
+func (d *HPAScalingRulesDieMut) SelectPolicy() diefields.OptionalMut[ScalingPolicySelect, *HPAScalingRulesDieMut] {
+	return diefields.OptionalMutOf(d, hPAScalingRulesFields.Get().SelectPolicy)
+}
+
+// policies is a list of potential scaling polices which can be used during scaling.
+// If not set, use the default values:
+// - For scale up: allow doubling the number of pods, or an absolute change of 4 pods in a 15s window.
+// - For scale down: allow all pods to be removed in a 15s window.
+func (d *HPAScalingRulesDieMut) Policies() diefields.ValueMut[[]HPAScalingPolicy, *HPAScalingRulesDieMut] {
+	return diefields.ValueMutOf(d, hPAScalingRulesFields.Get().Policies)
+}
+
+// tolerance is the tolerance on the ratio between the current and desired
+// metric value under which no updates are made to the desired number of
+// replicas (e.g. 0.01 for 1%). Must be greater than or equal to zero. If not
+// set, the default cluster-wide tolerance is applied (by default 10%).
+//
+// For example, if autoscaling is configured with a memory consumption target of 100Mi,
+// and scale-down and scale-up tolerances of 5% and 1% respectively, scaling will be
+// triggered when the actual consumption falls below 95Mi or exceeds 101Mi.
+func (d *HPAScalingRulesDieMut) Tolerance() diefields.OptionalMut[resource.Quantity, *HPAScalingRulesDieMut] {
+	return diefields.OptionalMutOf(d, hPAScalingRulesFields.Get().Tolerance)
 }
 
 // HorizontalPodAutoscaler is the configuration for a horizontal pod
 // autoscaler, which automatically manages the replica count of any resource
 // implementing the scale subresource based on the metrics specified.
+//
+// HorizontalPodAutoscalerDie is immutable: it reads.
+// HorizontalPodAutoscalerDieMut, its mutable die, also writes, as DieWith passes it.
 type HorizontalPodAutoscalerDie struct {
-	diebase.DieObjectBase[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie]
+	diebase.DieObjectBase[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut]
 }
 
-func (*HorizontalPodAutoscalerDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie]) *HorizontalPodAutoscalerDie {
+// HorizontalPodAutoscalerDieMut is the mutable die of HorizontalPodAutoscaler: see HorizontalPodAutoscalerDie.
+type HorizontalPodAutoscalerDieMut struct {
+	diebase.DieObjectMutBase[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut]
+}
+
+func (*HorizontalPodAutoscalerDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut]) *HorizontalPodAutoscalerDie {
 	return &HorizontalPodAutoscalerDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie] = (*HorizontalPodAutoscalerDie)(nil)
+func (*HorizontalPodAutoscalerDieMut) DieFrom(b diebase.DieMutBase[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut]) *HorizontalPodAutoscalerDieMut {
+	return &HorizontalPodAutoscalerDieMut{diebase.AsObjectMut(b)}
+}
 
-var HorizontalPodAutoscalerBlank = diebase.BlankOf[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie](HorizontalPodAutoscaler{TypeMeta: metav1.TypeMeta{APIVersion: "autoscaling/v2", Kind: "HorizontalPodAutoscaler"}})
+var (
+	_ dieobjects.DieObjectOf[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut]    = (*HorizontalPodAutoscalerDie)(nil)
+	_ dieobjects.DieObjectMutOf[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut] = (*HorizontalPodAutoscalerDieMut)(nil)
+)
+
+var HorizontalPodAutoscalerBlank = diebase.BlankOf[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut](HorizontalPodAutoscaler{TypeMeta: metav1.TypeMeta{APIVersion: "autoscaling/v2", Kind: "HorizontalPodAutoscaler"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -648,52 +977,65 @@ func (d *HorizontalPodAutoscalerDie) DieReleaseApplyConfiguration() *HorizontalP
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *HorizontalPodAutoscalerDie) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerApplyConfiguration) *HorizontalPodAutoscalerDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *HorizontalPodAutoscalerDie) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerApplyConfiguration)) *HorizontalPodAutoscalerDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *HorizontalPodAutoscalerDie) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *HorizontalPodAutoscalerDieMut) DieReleaseApplyConfiguration() *HorizontalPodAutoscalerApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *HorizontalPodAutoscalerDieMut) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *HorizontalPodAutoscalerDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerApplyConfiguration) *HorizontalPodAutoscalerDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *HorizontalPodAutoscalerDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerApplyConfiguration)) *HorizontalPodAutoscalerDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HorizontalPodAutoscalerDie) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerApplyConfiguration) (*HorizontalPodAutoscalerDie, error) {
+func (d *HorizontalPodAutoscalerDieMut) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerApplyConfiguration) (*HorizontalPodAutoscalerDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HorizontalPodAutoscalerDie) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerApplyConfiguration)) (*HorizontalPodAutoscalerDie, error) {
+func (d *HorizontalPodAutoscalerDieMut) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerApplyConfiguration)) (*HorizontalPodAutoscalerDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type horizontalPodAutoscalerFieldsTable struct {
 	Kind       diefields.Field[HorizontalPodAutoscaler, string]
 	APIVersion diefields.Field[HorizontalPodAutoscaler, string]
-	Metadata   diefields.Struct[HorizontalPodAutoscaler, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[HorizontalPodAutoscaler, HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie]
-	Status     diefields.Struct[HorizontalPodAutoscaler, HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie]
+	Metadata   diefields.Struct[HorizontalPodAutoscaler, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[HorizontalPodAutoscaler, HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]
+	Status     diefields.Struct[HorizontalPodAutoscaler, HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]
 }
 
 var horizontalPodAutoscalerFields = &diefields.Table[horizontalPodAutoscalerFieldsTable]{Build: func() (f horizontalPodAutoscalerFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[HorizontalPodAutoscaler, string]("kind")
 	f.APIVersion = diefields.NewField[HorizontalPodAutoscaler, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[HorizontalPodAutoscaler, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[HorizontalPodAutoscaler, HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie]("spec")
-	f.Status = diefields.NewStruct[HorizontalPodAutoscaler, HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie]("status")
+	f.Metadata = diefields.NewStruct[HorizontalPodAutoscaler, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[HorizontalPodAutoscaler, HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[HorizontalPodAutoscaler, HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]("status")
 	return
 }}
 
@@ -702,7 +1044,7 @@ var horizontalPodAutoscalerFields = &diefields.Table[horizontalPodAutoscalerFiel
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *HorizontalPodAutoscalerDie) Kind() diefields.Value[string, *HorizontalPodAutoscalerDie] {
+func (d *HorizontalPodAutoscalerDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerFields.Get().Kind)
 }
 
@@ -710,7 +1052,7 @@ func (d *HorizontalPodAutoscalerDie) Kind() diefields.Value[string, *HorizontalP
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *HorizontalPodAutoscalerDie) APIVersion() diefields.Value[string, *HorizontalPodAutoscalerDie] {
+func (d *HorizontalPodAutoscalerDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerFields.Get().APIVersion)
 }
 
@@ -731,19 +1073,68 @@ func (d *HorizontalPodAutoscalerDie) Status() *HorizontalPodAutoscalerStatusDie 
 	return diefields.Child(d, horizontalPodAutoscalerFields.Get().Status)
 }
 
-// HorizontalPodAutoscalerBehavior configures the scaling behavior of the target
-// in both Up and Down directions (scaleUp and scaleDown fields respectively).
-type HorizontalPodAutoscalerBehaviorDie struct {
-	diebase.DieBase[HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *HorizontalPodAutoscalerDieMut) Kind() diefields.ValueMut[string, *HorizontalPodAutoscalerDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerFields.Get().Kind)
 }
 
-func (*HorizontalPodAutoscalerBehaviorDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie]) *HorizontalPodAutoscalerBehaviorDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *HorizontalPodAutoscalerDieMut) APIVersion() diefields.ValueMut[string, *HorizontalPodAutoscalerDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerFields.Get().APIVersion)
+}
+
+// metadata is the standard object metadata.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *HorizontalPodAutoscalerDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, horizontalPodAutoscalerFields.Get().Metadata)
+}
+
+// spec is the specification for the behaviour of the autoscaler.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.
+func (d *HorizontalPodAutoscalerDieMut) Spec() *HorizontalPodAutoscalerSpecDieMut {
+	return diefields.ChildMut(d, horizontalPodAutoscalerFields.Get().Spec)
+}
+
+// status is the current information about the autoscaler.
+func (d *HorizontalPodAutoscalerDieMut) Status() *HorizontalPodAutoscalerStatusDieMut {
+	return diefields.ChildMut(d, horizontalPodAutoscalerFields.Get().Status)
+}
+
+// HorizontalPodAutoscalerBehavior configures the scaling behavior of the target
+// in both Up and Down directions (scaleUp and scaleDown fields respectively).
+//
+// HorizontalPodAutoscalerBehaviorDie is immutable: it reads.
+// HorizontalPodAutoscalerBehaviorDieMut, its mutable die, also writes, as DieWith passes it.
+type HorizontalPodAutoscalerBehaviorDie struct {
+	diebase.DieBase[HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie, *HorizontalPodAutoscalerBehaviorDieMut]
+}
+
+// HorizontalPodAutoscalerBehaviorDieMut is the mutable die of HorizontalPodAutoscalerBehavior: see HorizontalPodAutoscalerBehaviorDie.
+type HorizontalPodAutoscalerBehaviorDieMut struct {
+	diebase.DieMutBase[HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie, *HorizontalPodAutoscalerBehaviorDieMut]
+}
+
+func (*HorizontalPodAutoscalerBehaviorDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie, *HorizontalPodAutoscalerBehaviorDieMut]) *HorizontalPodAutoscalerBehaviorDie {
 	return &HorizontalPodAutoscalerBehaviorDie{b}
 }
 
-var _ diebase.DieOf[HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie] = (*HorizontalPodAutoscalerBehaviorDie)(nil)
+func (*HorizontalPodAutoscalerBehaviorDieMut) DieFrom(b diebase.DieMutBase[HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie, *HorizontalPodAutoscalerBehaviorDieMut]) *HorizontalPodAutoscalerBehaviorDieMut {
+	return &HorizontalPodAutoscalerBehaviorDieMut{b}
+}
 
-var HorizontalPodAutoscalerBehaviorBlank = diebase.Blank[HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie]()
+var (
+	_ diebase.DieOf[HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie, *HorizontalPodAutoscalerBehaviorDieMut]    = (*HorizontalPodAutoscalerBehaviorDie)(nil)
+	_ diebase.DieMutOf[HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie, *HorizontalPodAutoscalerBehaviorDieMut] = (*HorizontalPodAutoscalerBehaviorDieMut)(nil)
+)
+
+var HorizontalPodAutoscalerBehaviorBlank = diebase.Blank[HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie, *HorizontalPodAutoscalerBehaviorDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -752,46 +1143,59 @@ func (d *HorizontalPodAutoscalerBehaviorDie) DieReleaseApplyConfiguration() *Hor
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerBehaviorApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *HorizontalPodAutoscalerBehaviorDie) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerBehaviorApplyConfiguration) *HorizontalPodAutoscalerBehaviorDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *HorizontalPodAutoscalerBehaviorDie) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerBehaviorApplyConfiguration)) *HorizontalPodAutoscalerBehaviorDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *HorizontalPodAutoscalerBehaviorDie) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerBehaviorApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerBehaviorApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *HorizontalPodAutoscalerBehaviorDieMut) DieReleaseApplyConfiguration() *HorizontalPodAutoscalerBehaviorApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerBehaviorApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *HorizontalPodAutoscalerBehaviorDieMut) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerBehaviorApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerBehaviorApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *HorizontalPodAutoscalerBehaviorDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerBehaviorApplyConfiguration) *HorizontalPodAutoscalerBehaviorDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *HorizontalPodAutoscalerBehaviorDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerBehaviorApplyConfiguration)) *HorizontalPodAutoscalerBehaviorDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HorizontalPodAutoscalerBehaviorDie) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerBehaviorApplyConfiguration) (*HorizontalPodAutoscalerBehaviorDie, error) {
+func (d *HorizontalPodAutoscalerBehaviorDieMut) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerBehaviorApplyConfiguration) (*HorizontalPodAutoscalerBehaviorDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HorizontalPodAutoscalerBehaviorDie) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerBehaviorApplyConfiguration)) (*HorizontalPodAutoscalerBehaviorDie, error) {
+func (d *HorizontalPodAutoscalerBehaviorDieMut) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerBehaviorApplyConfiguration)) (*HorizontalPodAutoscalerBehaviorDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type horizontalPodAutoscalerBehaviorFieldsTable struct {
-	ScaleUp   diefields.Struct[HorizontalPodAutoscalerBehavior, HPAScalingRules, *HPAScalingRulesDie]
-	ScaleDown diefields.Struct[HorizontalPodAutoscalerBehavior, HPAScalingRules, *HPAScalingRulesDie]
+	ScaleUp   diefields.Struct[HorizontalPodAutoscalerBehavior, HPAScalingRules, *HPAScalingRulesDie, *HPAScalingRulesDieMut]
+	ScaleDown diefields.Struct[HorizontalPodAutoscalerBehavior, HPAScalingRules, *HPAScalingRulesDie, *HPAScalingRulesDieMut]
 }
 
 var horizontalPodAutoscalerBehaviorFields = &diefields.Table[horizontalPodAutoscalerBehaviorFieldsTable]{Build: func() (f horizontalPodAutoscalerBehaviorFieldsTable) {
 	_ = annotated
-	f.ScaleUp = diefields.NewStruct[HorizontalPodAutoscalerBehavior, HPAScalingRules, *HPAScalingRulesDie]("scaleUp")
-	f.ScaleDown = diefields.NewStruct[HorizontalPodAutoscalerBehavior, HPAScalingRules, *HPAScalingRulesDie]("scaleDown")
+	f.ScaleUp = diefields.NewStruct[HorizontalPodAutoscalerBehavior, HPAScalingRules, *HPAScalingRulesDie, *HPAScalingRulesDieMut]("scaleUp")
+	f.ScaleDown = diefields.NewStruct[HorizontalPodAutoscalerBehavior, HPAScalingRules, *HPAScalingRulesDie, *HPAScalingRulesDieMut]("scaleDown")
 	return
 }}
 
@@ -813,19 +1217,52 @@ func (d *HorizontalPodAutoscalerBehaviorDie) ScaleDown() *HPAScalingRulesDie {
 	return diefields.Child(d, horizontalPodAutoscalerBehaviorFields.Get().ScaleDown)
 }
 
-// HorizontalPodAutoscalerCondition describes the state of
-// a HorizontalPodAutoscaler at a certain point.
-type HorizontalPodAutoscalerConditionDie struct {
-	diebase.DieBase[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie]
+// scaleUp is scaling policy for scaling Up.
+// If not set, the default value is the higher of:
+//   - increase no more than 4 pods per 60 seconds
+//   - double the number of pods per 60 seconds
+//
+// No stabilization is used.
+func (d *HorizontalPodAutoscalerBehaviorDieMut) ScaleUp() *HPAScalingRulesDieMut {
+	return diefields.ChildMut(d, horizontalPodAutoscalerBehaviorFields.Get().ScaleUp)
 }
 
-func (*HorizontalPodAutoscalerConditionDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie]) *HorizontalPodAutoscalerConditionDie {
+// scaleDown is scaling policy for scaling Down.
+// If not set, the default value is to allow to scale down to minReplicas pods, with a
+// 300 second stabilization window (i.e., the highest recommendation for
+// the last 300sec is used).
+func (d *HorizontalPodAutoscalerBehaviorDieMut) ScaleDown() *HPAScalingRulesDieMut {
+	return diefields.ChildMut(d, horizontalPodAutoscalerBehaviorFields.Get().ScaleDown)
+}
+
+// HorizontalPodAutoscalerCondition describes the state of
+// a HorizontalPodAutoscaler at a certain point.
+//
+// HorizontalPodAutoscalerConditionDie is immutable: it reads.
+// HorizontalPodAutoscalerConditionDieMut, its mutable die, also writes, as DieWith passes it.
+type HorizontalPodAutoscalerConditionDie struct {
+	diebase.DieBase[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]
+}
+
+// HorizontalPodAutoscalerConditionDieMut is the mutable die of HorizontalPodAutoscalerCondition: see HorizontalPodAutoscalerConditionDie.
+type HorizontalPodAutoscalerConditionDieMut struct {
+	diebase.DieMutBase[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]
+}
+
+func (*HorizontalPodAutoscalerConditionDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]) *HorizontalPodAutoscalerConditionDie {
 	return &HorizontalPodAutoscalerConditionDie{b}
 }
 
-var _ diebase.DieOf[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie] = (*HorizontalPodAutoscalerConditionDie)(nil)
+func (*HorizontalPodAutoscalerConditionDieMut) DieFrom(b diebase.DieMutBase[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]) *HorizontalPodAutoscalerConditionDieMut {
+	return &HorizontalPodAutoscalerConditionDieMut{b}
+}
 
-var HorizontalPodAutoscalerConditionBlank = diebase.Blank[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie]()
+var (
+	_ diebase.DieOf[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]    = (*HorizontalPodAutoscalerConditionDie)(nil)
+	_ diebase.DieMutOf[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut] = (*HorizontalPodAutoscalerConditionDieMut)(nil)
+)
+
+var HorizontalPodAutoscalerConditionBlank = diebase.Blank[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -834,34 +1271,47 @@ func (d *HorizontalPodAutoscalerConditionDie) DieReleaseApplyConfiguration() *Ho
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerConditionApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *HorizontalPodAutoscalerConditionDie) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerConditionApplyConfiguration) *HorizontalPodAutoscalerConditionDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *HorizontalPodAutoscalerConditionDie) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerConditionApplyConfiguration)) *HorizontalPodAutoscalerConditionDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *HorizontalPodAutoscalerConditionDie) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerConditionApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *HorizontalPodAutoscalerConditionDieMut) DieReleaseApplyConfiguration() *HorizontalPodAutoscalerConditionApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerConditionApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *HorizontalPodAutoscalerConditionDieMut) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerConditionApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerConditionApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *HorizontalPodAutoscalerConditionDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerConditionApplyConfiguration) *HorizontalPodAutoscalerConditionDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *HorizontalPodAutoscalerConditionDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerConditionApplyConfiguration)) *HorizontalPodAutoscalerConditionDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HorizontalPodAutoscalerConditionDie) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerConditionApplyConfiguration) (*HorizontalPodAutoscalerConditionDie, error) {
+func (d *HorizontalPodAutoscalerConditionDieMut) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerConditionApplyConfiguration) (*HorizontalPodAutoscalerConditionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HorizontalPodAutoscalerConditionDie) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerConditionApplyConfiguration)) (*HorizontalPodAutoscalerConditionDie, error) {
+func (d *HorizontalPodAutoscalerConditionDieMut) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerConditionApplyConfiguration)) (*HorizontalPodAutoscalerConditionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -886,48 +1336,82 @@ var horizontalPodAutoscalerConditionFields = &diefields.Table[horizontalPodAutos
 }}
 
 // type describes the current condition
-func (d *HorizontalPodAutoscalerConditionDie) Type() diefields.Value[HorizontalPodAutoscalerConditionType, *HorizontalPodAutoscalerConditionDie] {
+func (d *HorizontalPodAutoscalerConditionDie) Type() diefields.Value[HorizontalPodAutoscalerConditionType] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerConditionFields.Get().Type)
 }
 
 // status is the status of the condition (True, False, Unknown)
-func (d *HorizontalPodAutoscalerConditionDie) Status() diefields.Value[diecorev1.ConditionStatus, *HorizontalPodAutoscalerConditionDie] {
+func (d *HorizontalPodAutoscalerConditionDie) Status() diefields.Value[diecorev1.ConditionStatus] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerConditionFields.Get().Status)
 }
 
 // lastTransitionTime is the last time the condition transitioned from
 // one status to another
-func (d *HorizontalPodAutoscalerConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time, *HorizontalPodAutoscalerConditionDie] {
+func (d *HorizontalPodAutoscalerConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerConditionFields.Get().LastTransitionTime)
 }
 
 // reason is the reason for the condition's last transition.
-func (d *HorizontalPodAutoscalerConditionDie) Reason() diefields.Value[string, *HorizontalPodAutoscalerConditionDie] {
+func (d *HorizontalPodAutoscalerConditionDie) Reason() diefields.Value[string] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerConditionFields.Get().Reason)
 }
 
 // message is a human-readable explanation containing details about
 // the transition
-func (d *HorizontalPodAutoscalerConditionDie) Message() diefields.Value[string, *HorizontalPodAutoscalerConditionDie] {
+func (d *HorizontalPodAutoscalerConditionDie) Message() diefields.Value[string] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerConditionFields.Get().Message)
 }
 
 // observedGeneration represents the .metadata.generation that the condition was set based upon.
 // For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
 // with respect to the current state of the instance.
-func (d *HorizontalPodAutoscalerConditionDie) ObservedGeneration() diefields.Optional[int64, *HorizontalPodAutoscalerConditionDie] {
+func (d *HorizontalPodAutoscalerConditionDie) ObservedGeneration() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, horizontalPodAutoscalerConditionFields.Get().ObservedGeneration)
+}
+
+// type describes the current condition
+func (d *HorizontalPodAutoscalerConditionDieMut) Type() diefields.ValueMut[HorizontalPodAutoscalerConditionType, *HorizontalPodAutoscalerConditionDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerConditionFields.Get().Type)
+}
+
+// status is the status of the condition (True, False, Unknown)
+func (d *HorizontalPodAutoscalerConditionDieMut) Status() diefields.ValueMut[diecorev1.ConditionStatus, *HorizontalPodAutoscalerConditionDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerConditionFields.Get().Status)
+}
+
+// lastTransitionTime is the last time the condition transitioned from
+// one status to another
+func (d *HorizontalPodAutoscalerConditionDieMut) LastTransitionTime() diefields.ValueMut[diemetav1.Time, *HorizontalPodAutoscalerConditionDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerConditionFields.Get().LastTransitionTime)
+}
+
+// reason is the reason for the condition's last transition.
+func (d *HorizontalPodAutoscalerConditionDieMut) Reason() diefields.ValueMut[string, *HorizontalPodAutoscalerConditionDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerConditionFields.Get().Reason)
+}
+
+// message is a human-readable explanation containing details about
+// the transition
+func (d *HorizontalPodAutoscalerConditionDieMut) Message() diefields.ValueMut[string, *HorizontalPodAutoscalerConditionDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerConditionFields.Get().Message)
+}
+
+// observedGeneration represents the .metadata.generation that the condition was set based upon.
+// For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+// with respect to the current state of the instance.
+func (d *HorizontalPodAutoscalerConditionDieMut) ObservedGeneration() diefields.OptionalMut[int64, *HorizontalPodAutoscalerConditionDieMut] {
+	return diefields.OptionalMutOf(d, horizontalPodAutoscalerConditionFields.Get().ObservedGeneration)
 }
 
 // HorizontalPodAutoscalerList is a list of horizontal pod autoscaler objects.
 type HorizontalPodAutoscalerListDie struct {
-	dielists.List[*HorizontalPodAutoscalerDie]
+	dielists.List[*HorizontalPodAutoscalerDieMut]
 }
 
-var _ dielists.DieListOf[*HorizontalPodAutoscalerDie] = (*HorizontalPodAutoscalerListDie)(nil)
+var _ dielists.DieListOf[*HorizontalPodAutoscalerDieMut] = (*HorizontalPodAutoscalerListDie)(nil)
 
 // NewHorizontalPodAutoscalerList returns a list with items.
-func NewHorizontalPodAutoscalerList(items ...*HorizontalPodAutoscalerDie) *HorizontalPodAutoscalerListDie {
+func NewHorizontalPodAutoscalerList(items ...*HorizontalPodAutoscalerDieMut) *HorizontalPodAutoscalerListDie {
 	return &HorizontalPodAutoscalerListDie{dielists.NewList("autoscaling/v2", "HorizontalPodAutoscalerList", items...)}
 }
 
@@ -939,17 +1423,32 @@ func (l *HorizontalPodAutoscalerListDie) DeepCopy() *HorizontalPodAutoscalerList
 func (l *HorizontalPodAutoscalerListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // HorizontalPodAutoscalerSpec describes the desired functionality of the HorizontalPodAutoscaler.
+//
+// HorizontalPodAutoscalerSpecDie is immutable: it reads.
+// HorizontalPodAutoscalerSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type HorizontalPodAutoscalerSpecDie struct {
-	diebase.DieBase[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie]
+	diebase.DieBase[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]
 }
 
-func (*HorizontalPodAutoscalerSpecDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie]) *HorizontalPodAutoscalerSpecDie {
+// HorizontalPodAutoscalerSpecDieMut is the mutable die of HorizontalPodAutoscalerSpec: see HorizontalPodAutoscalerSpecDie.
+type HorizontalPodAutoscalerSpecDieMut struct {
+	diebase.DieMutBase[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]
+}
+
+func (*HorizontalPodAutoscalerSpecDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]) *HorizontalPodAutoscalerSpecDie {
 	return &HorizontalPodAutoscalerSpecDie{b}
 }
 
-var _ diebase.DieOf[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie] = (*HorizontalPodAutoscalerSpecDie)(nil)
+func (*HorizontalPodAutoscalerSpecDieMut) DieFrom(b diebase.DieMutBase[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]) *HorizontalPodAutoscalerSpecDieMut {
+	return &HorizontalPodAutoscalerSpecDieMut{b}
+}
 
-var HorizontalPodAutoscalerSpecBlank = diebase.Blank[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie]()
+var (
+	_ diebase.DieOf[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]    = (*HorizontalPodAutoscalerSpecDie)(nil)
+	_ diebase.DieMutOf[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut] = (*HorizontalPodAutoscalerSpecDieMut)(nil)
+)
+
+var HorizontalPodAutoscalerSpecBlank = diebase.Blank[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -958,52 +1457,65 @@ func (d *HorizontalPodAutoscalerSpecDie) DieReleaseApplyConfiguration() *Horizon
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *HorizontalPodAutoscalerSpecDie) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerSpecApplyConfiguration) *HorizontalPodAutoscalerSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *HorizontalPodAutoscalerSpecDie) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerSpecApplyConfiguration)) *HorizontalPodAutoscalerSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *HorizontalPodAutoscalerSpecDie) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *HorizontalPodAutoscalerSpecDieMut) DieReleaseApplyConfiguration() *HorizontalPodAutoscalerSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *HorizontalPodAutoscalerSpecDieMut) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *HorizontalPodAutoscalerSpecDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerSpecApplyConfiguration) *HorizontalPodAutoscalerSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *HorizontalPodAutoscalerSpecDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerSpecApplyConfiguration)) *HorizontalPodAutoscalerSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HorizontalPodAutoscalerSpecDie) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerSpecApplyConfiguration) (*HorizontalPodAutoscalerSpecDie, error) {
+func (d *HorizontalPodAutoscalerSpecDieMut) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerSpecApplyConfiguration) (*HorizontalPodAutoscalerSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HorizontalPodAutoscalerSpecDie) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerSpecApplyConfiguration)) (*HorizontalPodAutoscalerSpecDie, error) {
+func (d *HorizontalPodAutoscalerSpecDieMut) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerSpecApplyConfiguration)) (*HorizontalPodAutoscalerSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type horizontalPodAutoscalerSpecFieldsTable struct {
-	ScaleTargetRef diefields.Struct[HorizontalPodAutoscalerSpec, CrossVersionObjectReference, *CrossVersionObjectReferenceDie]
+	ScaleTargetRef diefields.Struct[HorizontalPodAutoscalerSpec, CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]
 	MinReplicas    diefields.Field[HorizontalPodAutoscalerSpec, *int32]
 	MaxReplicas    diefields.Field[HorizontalPodAutoscalerSpec, int32]
 	Metrics        diefields.Field[HorizontalPodAutoscalerSpec, []MetricSpec]
-	Behavior       diefields.Struct[HorizontalPodAutoscalerSpec, HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie]
+	Behavior       diefields.Struct[HorizontalPodAutoscalerSpec, HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie, *HorizontalPodAutoscalerBehaviorDieMut]
 }
 
 var horizontalPodAutoscalerSpecFields = &diefields.Table[horizontalPodAutoscalerSpecFieldsTable]{Build: func() (f horizontalPodAutoscalerSpecFieldsTable) {
 	_ = annotated
-	f.ScaleTargetRef = diefields.NewStruct[HorizontalPodAutoscalerSpec, CrossVersionObjectReference, *CrossVersionObjectReferenceDie]("scaleTargetRef")
+	f.ScaleTargetRef = diefields.NewStruct[HorizontalPodAutoscalerSpec, CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]("scaleTargetRef")
 	f.MinReplicas = diefields.NewField[HorizontalPodAutoscalerSpec, *int32]("minReplicas")
 	f.MaxReplicas = diefields.NewField[HorizontalPodAutoscalerSpec, int32]("maxReplicas")
 	f.Metrics = diefields.NewField[HorizontalPodAutoscalerSpec, []MetricSpec]("metrics")
-	f.Behavior = diefields.NewStruct[HorizontalPodAutoscalerSpec, HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie]("behavior")
+	f.Behavior = diefields.NewStruct[HorizontalPodAutoscalerSpec, HorizontalPodAutoscalerBehavior, *HorizontalPodAutoscalerBehaviorDie, *HorizontalPodAutoscalerBehaviorDieMut]("behavior")
 	return
 }}
 
@@ -1018,13 +1530,13 @@ func (d *HorizontalPodAutoscalerSpecDie) ScaleTargetRef() *CrossVersionObjectRef
 // alpha feature gate HPAScaleToZero is enabled and at least one Object or External
 // metric is configured.  Scaling is active as long as at least one metric value is
 // available.
-func (d *HorizontalPodAutoscalerSpecDie) MinReplicas() diefields.Optional[int32, *HorizontalPodAutoscalerSpecDie] {
+func (d *HorizontalPodAutoscalerSpecDie) MinReplicas() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, horizontalPodAutoscalerSpecFields.Get().MinReplicas)
 }
 
 // maxReplicas is the upper limit for the number of replicas to which the autoscaler can scale up.
 // It cannot be less that minReplicas.
-func (d *HorizontalPodAutoscalerSpecDie) MaxReplicas() diefields.Value[int32, *HorizontalPodAutoscalerSpecDie] {
+func (d *HorizontalPodAutoscalerSpecDie) MaxReplicas() diefields.Value[int32] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerSpecFields.Get().MaxReplicas)
 }
 
@@ -1036,7 +1548,7 @@ func (d *HorizontalPodAutoscalerSpecDie) MaxReplicas() diefields.Value[int32, *H
 // increased, and vice-versa.  See the individual metric source types for
 // more information about how each type of metric must respond.
 // If not set, the default metric will be set to 80% average CPU utilization.
-func (d *HorizontalPodAutoscalerSpecDie) Metrics() diefields.Value[[]MetricSpec, *HorizontalPodAutoscalerSpecDie] {
+func (d *HorizontalPodAutoscalerSpecDie) Metrics() diefields.Value[[]MetricSpec] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerSpecFields.Get().Metrics)
 }
 
@@ -1047,18 +1559,73 @@ func (d *HorizontalPodAutoscalerSpecDie) Behavior() *HorizontalPodAutoscalerBeha
 	return diefields.Child(d, horizontalPodAutoscalerSpecFields.Get().Behavior)
 }
 
-// HorizontalPodAutoscalerStatus describes the current status of a horizontal pod autoscaler.
-type HorizontalPodAutoscalerStatusDie struct {
-	diebase.DieBase[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie]
+// scaleTargetRef points to the target resource to scale, and is used to the pods for which metrics
+// should be collected, as well as to actually change the replica count.
+func (d *HorizontalPodAutoscalerSpecDieMut) ScaleTargetRef() *CrossVersionObjectReferenceDieMut {
+	return diefields.ChildMut(d, horizontalPodAutoscalerSpecFields.Get().ScaleTargetRef)
 }
 
-func (*HorizontalPodAutoscalerStatusDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie]) *HorizontalPodAutoscalerStatusDie {
+// minReplicas is the lower limit for the number of replicas to which the autoscaler
+// can scale down.  It defaults to 1 pod.  minReplicas is allowed to be 0 if the
+// alpha feature gate HPAScaleToZero is enabled and at least one Object or External
+// metric is configured.  Scaling is active as long as at least one metric value is
+// available.
+func (d *HorizontalPodAutoscalerSpecDieMut) MinReplicas() diefields.OptionalMut[int32, *HorizontalPodAutoscalerSpecDieMut] {
+	return diefields.OptionalMutOf(d, horizontalPodAutoscalerSpecFields.Get().MinReplicas)
+}
+
+// maxReplicas is the upper limit for the number of replicas to which the autoscaler can scale up.
+// It cannot be less that minReplicas.
+func (d *HorizontalPodAutoscalerSpecDieMut) MaxReplicas() diefields.ValueMut[int32, *HorizontalPodAutoscalerSpecDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerSpecFields.Get().MaxReplicas)
+}
+
+// metrics contains the specifications for which to use to calculate the
+// desired replica count (the maximum replica count across all metrics will
+// be used).  The desired replica count is calculated multiplying the
+// ratio between the target value and the current value by the current
+// number of pods.  Ergo, metrics used must decrease as the pod count is
+// increased, and vice-versa.  See the individual metric source types for
+// more information about how each type of metric must respond.
+// If not set, the default metric will be set to 80% average CPU utilization.
+func (d *HorizontalPodAutoscalerSpecDieMut) Metrics() diefields.ValueMut[[]MetricSpec, *HorizontalPodAutoscalerSpecDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerSpecFields.Get().Metrics)
+}
+
+// behavior configures the scaling behavior of the target
+// in both Up and Down directions (scaleUp and scaleDown fields respectively).
+// If not set, the default HPAScalingRules for scale up and scale down are used.
+func (d *HorizontalPodAutoscalerSpecDieMut) Behavior() *HorizontalPodAutoscalerBehaviorDieMut {
+	return diefields.ChildMut(d, horizontalPodAutoscalerSpecFields.Get().Behavior)
+}
+
+// HorizontalPodAutoscalerStatus describes the current status of a horizontal pod autoscaler.
+//
+// HorizontalPodAutoscalerStatusDie is immutable: it reads.
+// HorizontalPodAutoscalerStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type HorizontalPodAutoscalerStatusDie struct {
+	diebase.DieBase[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]
+}
+
+// HorizontalPodAutoscalerStatusDieMut is the mutable die of HorizontalPodAutoscalerStatus: see HorizontalPodAutoscalerStatusDie.
+type HorizontalPodAutoscalerStatusDieMut struct {
+	diebase.DieMutBase[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]
+}
+
+func (*HorizontalPodAutoscalerStatusDie) DieFrom(b diebase.DieBase[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]) *HorizontalPodAutoscalerStatusDie {
 	return &HorizontalPodAutoscalerStatusDie{b}
 }
 
-var _ diebase.DieOf[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie] = (*HorizontalPodAutoscalerStatusDie)(nil)
+func (*HorizontalPodAutoscalerStatusDieMut) DieFrom(b diebase.DieMutBase[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]) *HorizontalPodAutoscalerStatusDieMut {
+	return &HorizontalPodAutoscalerStatusDieMut{b}
+}
 
-var HorizontalPodAutoscalerStatusBlank = diebase.Blank[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie]()
+var (
+	_ diebase.DieOf[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]    = (*HorizontalPodAutoscalerStatusDie)(nil)
+	_ diebase.DieMutOf[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut] = (*HorizontalPodAutoscalerStatusDieMut)(nil)
+)
+
+var HorizontalPodAutoscalerStatusBlank = diebase.Blank[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1067,34 +1634,47 @@ func (d *HorizontalPodAutoscalerStatusDie) DieReleaseApplyConfiguration() *Horiz
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *HorizontalPodAutoscalerStatusDie) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerStatusApplyConfiguration) *HorizontalPodAutoscalerStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *HorizontalPodAutoscalerStatusDie) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerStatusApplyConfiguration)) *HorizontalPodAutoscalerStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *HorizontalPodAutoscalerStatusDie) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *HorizontalPodAutoscalerStatusDieMut) DieReleaseApplyConfiguration() *HorizontalPodAutoscalerStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *HorizontalPodAutoscalerStatusDieMut) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *HorizontalPodAutoscalerStatusDieMut) DieFeedApplyConfiguration(ac *HorizontalPodAutoscalerStatusApplyConfiguration) *HorizontalPodAutoscalerStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *HorizontalPodAutoscalerStatusDieMut) DieStampApplyConfiguration(fn func(ac *HorizontalPodAutoscalerStatusApplyConfiguration)) *HorizontalPodAutoscalerStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HorizontalPodAutoscalerStatusDie) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerStatusApplyConfiguration) (*HorizontalPodAutoscalerStatusDie, error) {
+func (d *HorizontalPodAutoscalerStatusDieMut) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerStatusApplyConfiguration) (*HorizontalPodAutoscalerStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *HorizontalPodAutoscalerStatusDie) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerStatusApplyConfiguration)) (*HorizontalPodAutoscalerStatusDie, error) {
+func (d *HorizontalPodAutoscalerStatusDieMut) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerStatusApplyConfiguration)) (*HorizontalPodAutoscalerStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1104,7 +1684,7 @@ type horizontalPodAutoscalerStatusFieldsTable struct {
 	CurrentReplicas    diefields.Field[HorizontalPodAutoscalerStatus, int32]
 	DesiredReplicas    diefields.Field[HorizontalPodAutoscalerStatus, int32]
 	CurrentMetrics     diefields.Field[HorizontalPodAutoscalerStatus, []MetricStatus]
-	Conditions         diefields.ListMapField[HorizontalPodAutoscalerStatus, HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, HorizontalPodAutoscalerConditionType]
+	Conditions         diefields.ListMapField[HorizontalPodAutoscalerStatus, HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut, HorizontalPodAutoscalerConditionType]
 }
 
 var horizontalPodAutoscalerStatusFields = &diefields.Table[horizontalPodAutoscalerStatusFieldsTable]{Build: func() (f horizontalPodAutoscalerStatusFieldsTable) {
@@ -1114,35 +1694,35 @@ var horizontalPodAutoscalerStatusFields = &diefields.Table[horizontalPodAutoscal
 	f.CurrentReplicas = diefields.NewField[HorizontalPodAutoscalerStatus, int32]("currentReplicas")
 	f.DesiredReplicas = diefields.NewField[HorizontalPodAutoscalerStatus, int32]("desiredReplicas")
 	f.CurrentMetrics = diefields.NewField[HorizontalPodAutoscalerStatus, []MetricStatus]("currentMetrics")
-	f.Conditions = diefields.NewListMap[HorizontalPodAutoscalerStatus, HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie]("conditions", func(k HorizontalPodAutoscalerConditionType) []any { return []any{k} }, func(e HorizontalPodAutoscalerCondition) HorizontalPodAutoscalerConditionType { return e.Type })
+	f.Conditions = diefields.NewListMap[HorizontalPodAutoscalerStatus, HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]("conditions", func(k HorizontalPodAutoscalerConditionType) []any { return []any{k} }, func(e HorizontalPodAutoscalerCondition) HorizontalPodAutoscalerConditionType { return e.Type })
 	return
 }}
 
 // observedGeneration is the most recent generation observed by this autoscaler.
-func (d *HorizontalPodAutoscalerStatusDie) ObservedGeneration() diefields.Optional[int64, *HorizontalPodAutoscalerStatusDie] {
+func (d *HorizontalPodAutoscalerStatusDie) ObservedGeneration() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, horizontalPodAutoscalerStatusFields.Get().ObservedGeneration)
 }
 
 // lastScaleTime is the last time the HorizontalPodAutoscaler scaled the number of pods,
 // used by the autoscaler to control how often the number of pods is changed.
-func (d *HorizontalPodAutoscalerStatusDie) LastScaleTime() diefields.Optional[diemetav1.Time, *HorizontalPodAutoscalerStatusDie] {
+func (d *HorizontalPodAutoscalerStatusDie) LastScaleTime() diefields.Optional[diemetav1.Time] {
 	return diefields.OptionalOf(d, horizontalPodAutoscalerStatusFields.Get().LastScaleTime)
 }
 
 // currentReplicas is current number of replicas of pods managed by this autoscaler,
 // as last seen by the autoscaler.
-func (d *HorizontalPodAutoscalerStatusDie) CurrentReplicas() diefields.Value[int32, *HorizontalPodAutoscalerStatusDie] {
+func (d *HorizontalPodAutoscalerStatusDie) CurrentReplicas() diefields.Value[int32] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerStatusFields.Get().CurrentReplicas)
 }
 
 // desiredReplicas is the desired number of replicas of pods managed by this autoscaler,
 // as last calculated by the autoscaler.
-func (d *HorizontalPodAutoscalerStatusDie) DesiredReplicas() diefields.Value[int32, *HorizontalPodAutoscalerStatusDie] {
+func (d *HorizontalPodAutoscalerStatusDie) DesiredReplicas() diefields.Value[int32] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerStatusFields.Get().DesiredReplicas)
 }
 
 // currentMetrics is the last read state of the metrics used by this autoscaler.
-func (d *HorizontalPodAutoscalerStatusDie) CurrentMetrics() diefields.Value[[]MetricStatus, *HorizontalPodAutoscalerStatusDie] {
+func (d *HorizontalPodAutoscalerStatusDie) CurrentMetrics() diefields.Value[[]MetricStatus] {
 	return diefields.ValueOf(d, horizontalPodAutoscalerStatusFields.Get().CurrentMetrics)
 }
 
@@ -1152,18 +1732,67 @@ func (d *HorizontalPodAutoscalerStatusDie) Conditions() *diefields.ListMap[Horiz
 	return diefields.ListMapOf(d, horizontalPodAutoscalerStatusFields.Get().Conditions)
 }
 
-// MetricIdentifier defines the name and optionally selector for a metric
-type MetricIdentifierDie struct {
-	diebase.DieBase[MetricIdentifier, *MetricIdentifierDie]
+// observedGeneration is the most recent generation observed by this autoscaler.
+func (d *HorizontalPodAutoscalerStatusDieMut) ObservedGeneration() diefields.OptionalMut[int64, *HorizontalPodAutoscalerStatusDieMut] {
+	return diefields.OptionalMutOf(d, horizontalPodAutoscalerStatusFields.Get().ObservedGeneration)
 }
 
-func (*MetricIdentifierDie) DieFrom(b diebase.DieBase[MetricIdentifier, *MetricIdentifierDie]) *MetricIdentifierDie {
+// lastScaleTime is the last time the HorizontalPodAutoscaler scaled the number of pods,
+// used by the autoscaler to control how often the number of pods is changed.
+func (d *HorizontalPodAutoscalerStatusDieMut) LastScaleTime() diefields.OptionalMut[diemetav1.Time, *HorizontalPodAutoscalerStatusDieMut] {
+	return diefields.OptionalMutOf(d, horizontalPodAutoscalerStatusFields.Get().LastScaleTime)
+}
+
+// currentReplicas is current number of replicas of pods managed by this autoscaler,
+// as last seen by the autoscaler.
+func (d *HorizontalPodAutoscalerStatusDieMut) CurrentReplicas() diefields.ValueMut[int32, *HorizontalPodAutoscalerStatusDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerStatusFields.Get().CurrentReplicas)
+}
+
+// desiredReplicas is the desired number of replicas of pods managed by this autoscaler,
+// as last calculated by the autoscaler.
+func (d *HorizontalPodAutoscalerStatusDieMut) DesiredReplicas() diefields.ValueMut[int32, *HorizontalPodAutoscalerStatusDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerStatusFields.Get().DesiredReplicas)
+}
+
+// currentMetrics is the last read state of the metrics used by this autoscaler.
+func (d *HorizontalPodAutoscalerStatusDieMut) CurrentMetrics() diefields.ValueMut[[]MetricStatus, *HorizontalPodAutoscalerStatusDieMut] {
+	return diefields.ValueMutOf(d, horizontalPodAutoscalerStatusFields.Get().CurrentMetrics)
+}
+
+// conditions is the set of conditions required for this autoscaler to scale its target,
+// and indicates whether or not those conditions are met.
+func (d *HorizontalPodAutoscalerStatusDieMut) Conditions() *diefields.ListMapMut[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDieMut, HorizontalPodAutoscalerConditionType] {
+	return diefields.ListMapMutOf(d, horizontalPodAutoscalerStatusFields.Get().Conditions)
+}
+
+// MetricIdentifier defines the name and optionally selector for a metric
+//
+// MetricIdentifierDie is immutable: it reads.
+// MetricIdentifierDieMut, its mutable die, also writes, as DieWith passes it.
+type MetricIdentifierDie struct {
+	diebase.DieBase[MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]
+}
+
+// MetricIdentifierDieMut is the mutable die of MetricIdentifier: see MetricIdentifierDie.
+type MetricIdentifierDieMut struct {
+	diebase.DieMutBase[MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]
+}
+
+func (*MetricIdentifierDie) DieFrom(b diebase.DieBase[MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]) *MetricIdentifierDie {
 	return &MetricIdentifierDie{b}
 }
 
-var _ diebase.DieOf[MetricIdentifier, *MetricIdentifierDie] = (*MetricIdentifierDie)(nil)
+func (*MetricIdentifierDieMut) DieFrom(b diebase.DieMutBase[MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]) *MetricIdentifierDieMut {
+	return &MetricIdentifierDieMut{b}
+}
 
-var MetricIdentifierBlank = diebase.Blank[MetricIdentifier, *MetricIdentifierDie]()
+var (
+	_ diebase.DieOf[MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]    = (*MetricIdentifierDie)(nil)
+	_ diebase.DieMutOf[MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut] = (*MetricIdentifierDieMut)(nil)
+)
+
+var MetricIdentifierBlank = diebase.Blank[MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1172,51 +1801,64 @@ func (d *MetricIdentifierDie) DieReleaseApplyConfiguration() *MetricIdentifierAp
 	return diecodegen.ReleaseApplyConfiguration[MetricIdentifierApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *MetricIdentifierDie) DieFeedApplyConfiguration(ac *MetricIdentifierApplyConfiguration) *MetricIdentifierDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *MetricIdentifierDie) DieStampApplyConfiguration(fn func(ac *MetricIdentifierApplyConfiguration)) *MetricIdentifierDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *MetricIdentifierDie) DieReleaseApplyConfigurationE() (*MetricIdentifierApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[MetricIdentifierApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *MetricIdentifierDieMut) DieReleaseApplyConfiguration() *MetricIdentifierApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[MetricIdentifierApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *MetricIdentifierDieMut) DieReleaseApplyConfigurationE() (*MetricIdentifierApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[MetricIdentifierApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *MetricIdentifierDieMut) DieFeedApplyConfiguration(ac *MetricIdentifierApplyConfiguration) *MetricIdentifierDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *MetricIdentifierDieMut) DieStampApplyConfiguration(fn func(ac *MetricIdentifierApplyConfiguration)) *MetricIdentifierDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *MetricIdentifierDie) DieFeedApplyConfigurationE(ac *MetricIdentifierApplyConfiguration) (*MetricIdentifierDie, error) {
+func (d *MetricIdentifierDieMut) DieFeedApplyConfigurationE(ac *MetricIdentifierApplyConfiguration) (*MetricIdentifierDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *MetricIdentifierDie) DieStampApplyConfigurationE(fn func(ac *MetricIdentifierApplyConfiguration)) (*MetricIdentifierDie, error) {
+func (d *MetricIdentifierDieMut) DieStampApplyConfigurationE(fn func(ac *MetricIdentifierApplyConfiguration)) (*MetricIdentifierDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type metricIdentifierFieldsTable struct {
 	Name     diefields.Field[MetricIdentifier, string]
-	Selector diefields.Struct[MetricIdentifier, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]
+	Selector diefields.Struct[MetricIdentifier, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]
 }
 
 var metricIdentifierFields = &diefields.Table[metricIdentifierFieldsTable]{Build: func() (f metricIdentifierFieldsTable) {
 	_ = annotated
 	f.Name = diefields.NewField[MetricIdentifier, string]("name")
-	f.Selector = diefields.NewStruct[MetricIdentifier, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie]("selector")
+	f.Selector = diefields.NewStruct[MetricIdentifier, diemetav1.LabelSelector, *diemetav1.LabelSelectorDie, *diemetav1.LabelSelectorDieMut]("selector")
 	return
 }}
 
 // name is the name of the given metric
-func (d *MetricIdentifierDie) Name() diefields.Value[string, *MetricIdentifierDie] {
+func (d *MetricIdentifierDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, metricIdentifierFields.Get().Name)
 }
 
@@ -1227,19 +1869,46 @@ func (d *MetricIdentifierDie) Selector() *diemetav1.LabelSelectorDie {
 	return diefields.Child(d, metricIdentifierFields.Get().Selector)
 }
 
-// MetricSpec specifies how to scale based on a single metric
-// (only `type` and one other matching field should be set at once).
-type MetricSpecDie struct {
-	diebase.DieBase[MetricSpec, *MetricSpecDie]
+// name is the name of the given metric
+func (d *MetricIdentifierDieMut) Name() diefields.ValueMut[string, *MetricIdentifierDieMut] {
+	return diefields.ValueMutOf(d, metricIdentifierFields.Get().Name)
 }
 
-func (*MetricSpecDie) DieFrom(b diebase.DieBase[MetricSpec, *MetricSpecDie]) *MetricSpecDie {
+// selector is the string-encoded form of a standard kubernetes label selector for the given metric
+// When set, it is passed as an additional parameter to the metrics server for more specific metrics scoping.
+// When unset, just the metricName will be used to gather metrics.
+func (d *MetricIdentifierDieMut) Selector() *diemetav1.LabelSelectorDieMut {
+	return diefields.ChildMut(d, metricIdentifierFields.Get().Selector)
+}
+
+// MetricSpec specifies how to scale based on a single metric
+// (only `type` and one other matching field should be set at once).
+//
+// MetricSpecDie is immutable: it reads.
+// MetricSpecDieMut, its mutable die, also writes, as DieWith passes it.
+type MetricSpecDie struct {
+	diebase.DieBase[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]
+}
+
+// MetricSpecDieMut is the mutable die of MetricSpec: see MetricSpecDie.
+type MetricSpecDieMut struct {
+	diebase.DieMutBase[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]
+}
+
+func (*MetricSpecDie) DieFrom(b diebase.DieBase[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]) *MetricSpecDie {
 	return &MetricSpecDie{b}
 }
 
-var _ diebase.DieOf[MetricSpec, *MetricSpecDie] = (*MetricSpecDie)(nil)
+func (*MetricSpecDieMut) DieFrom(b diebase.DieMutBase[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]) *MetricSpecDieMut {
+	return &MetricSpecDieMut{b}
+}
 
-var MetricSpecBlank = diebase.Blank[MetricSpec, *MetricSpecDie]()
+var (
+	_ diebase.DieOf[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]    = (*MetricSpecDie)(nil)
+	_ diebase.DieMutOf[MetricSpec, *MetricSpecDie, *MetricSpecDieMut] = (*MetricSpecDieMut)(nil)
+)
+
+var MetricSpecBlank = diebase.Blank[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1248,60 +1917,73 @@ func (d *MetricSpecDie) DieReleaseApplyConfiguration() *MetricSpecApplyConfigura
 	return diecodegen.ReleaseApplyConfiguration[MetricSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *MetricSpecDie) DieFeedApplyConfiguration(ac *MetricSpecApplyConfiguration) *MetricSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *MetricSpecDie) DieStampApplyConfiguration(fn func(ac *MetricSpecApplyConfiguration)) *MetricSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *MetricSpecDie) DieReleaseApplyConfigurationE() (*MetricSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[MetricSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *MetricSpecDieMut) DieReleaseApplyConfiguration() *MetricSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[MetricSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *MetricSpecDieMut) DieReleaseApplyConfigurationE() (*MetricSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[MetricSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *MetricSpecDieMut) DieFeedApplyConfiguration(ac *MetricSpecApplyConfiguration) *MetricSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *MetricSpecDieMut) DieStampApplyConfiguration(fn func(ac *MetricSpecApplyConfiguration)) *MetricSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *MetricSpecDie) DieFeedApplyConfigurationE(ac *MetricSpecApplyConfiguration) (*MetricSpecDie, error) {
+func (d *MetricSpecDieMut) DieFeedApplyConfigurationE(ac *MetricSpecApplyConfiguration) (*MetricSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *MetricSpecDie) DieStampApplyConfigurationE(fn func(ac *MetricSpecApplyConfiguration)) (*MetricSpecDie, error) {
+func (d *MetricSpecDieMut) DieStampApplyConfigurationE(fn func(ac *MetricSpecApplyConfiguration)) (*MetricSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type metricSpecFieldsTable struct {
 	Type              diefields.Field[MetricSpec, MetricSourceType]
-	Object            diefields.Struct[MetricSpec, ObjectMetricSource, *ObjectMetricSourceDie]
-	Pods              diefields.Struct[MetricSpec, PodsMetricSource, *PodsMetricSourceDie]
-	Resource          diefields.Struct[MetricSpec, ResourceMetricSource, *ResourceMetricSourceDie]
-	ContainerResource diefields.Struct[MetricSpec, ContainerResourceMetricSource, *ContainerResourceMetricSourceDie]
-	External          diefields.Struct[MetricSpec, ExternalMetricSource, *ExternalMetricSourceDie]
+	Object            diefields.Struct[MetricSpec, ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]
+	Pods              diefields.Struct[MetricSpec, PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]
+	Resource          diefields.Struct[MetricSpec, ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]
+	ContainerResource diefields.Struct[MetricSpec, ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]
+	External          diefields.Struct[MetricSpec, ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]
 }
 
 var metricSpecFields = &diefields.Table[metricSpecFieldsTable]{Build: func() (f metricSpecFieldsTable) {
 	_ = annotated
 	f.Type = diefields.NewField[MetricSpec, MetricSourceType]("type")
-	f.Object = diefields.NewStruct[MetricSpec, ObjectMetricSource, *ObjectMetricSourceDie]("object")
-	f.Pods = diefields.NewStruct[MetricSpec, PodsMetricSource, *PodsMetricSourceDie]("pods")
-	f.Resource = diefields.NewStruct[MetricSpec, ResourceMetricSource, *ResourceMetricSourceDie]("resource")
-	f.ContainerResource = diefields.NewStruct[MetricSpec, ContainerResourceMetricSource, *ContainerResourceMetricSourceDie]("containerResource")
-	f.External = diefields.NewStruct[MetricSpec, ExternalMetricSource, *ExternalMetricSourceDie]("external")
+	f.Object = diefields.NewStruct[MetricSpec, ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]("object")
+	f.Pods = diefields.NewStruct[MetricSpec, PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]("pods")
+	f.Resource = diefields.NewStruct[MetricSpec, ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]("resource")
+	f.ContainerResource = diefields.NewStruct[MetricSpec, ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]("containerResource")
+	f.External = diefields.NewStruct[MetricSpec, ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]("external")
 	return
 }}
 
 // type is the type of metric source.  It should be one of "ContainerResource", "External",
 // "Object", "Pods" or "Resource", each mapping to a matching field in the object.
-func (d *MetricSpecDie) Type() diefields.Value[MetricSourceType, *MetricSpecDie] {
+func (d *MetricSpecDie) Type() diefields.Value[MetricSourceType] {
 	return diefields.ValueOf(d, metricSpecFields.Get().Type)
 }
 
@@ -1345,18 +2027,79 @@ func (d *MetricSpecDie) External() *ExternalMetricSourceDie {
 	return diefields.Child(d, metricSpecFields.Get().External)
 }
 
-// MetricStatus describes the last-read state of a single metric.
-type MetricStatusDie struct {
-	diebase.DieBase[MetricStatus, *MetricStatusDie]
+// type is the type of metric source.  It should be one of "ContainerResource", "External",
+// "Object", "Pods" or "Resource", each mapping to a matching field in the object.
+func (d *MetricSpecDieMut) Type() diefields.ValueMut[MetricSourceType, *MetricSpecDieMut] {
+	return diefields.ValueMutOf(d, metricSpecFields.Get().Type)
 }
 
-func (*MetricStatusDie) DieFrom(b diebase.DieBase[MetricStatus, *MetricStatusDie]) *MetricStatusDie {
+// object refers to a metric describing a single kubernetes object
+// (for example, hits-per-second on an Ingress object).
+func (d *MetricSpecDieMut) Object() *ObjectMetricSourceDieMut {
+	return diefields.ChildMut(d, metricSpecFields.Get().Object)
+}
+
+// pods refers to a metric describing each pod in the current scale target
+// (for example, transactions-processed-per-second).  The values will be
+// averaged together before being compared to the target value.
+func (d *MetricSpecDieMut) Pods() *PodsMetricSourceDieMut {
+	return diefields.ChildMut(d, metricSpecFields.Get().Pods)
+}
+
+// resource refers to a resource metric (such as those specified in
+// requests and limits) known to Kubernetes describing each pod in the
+// current scale target (e.g. CPU or memory). Such metrics are built in to
+// Kubernetes, and have special scaling options on top of those available
+// to normal per-pod metrics using the "pods" source.
+func (d *MetricSpecDieMut) Resource() *ResourceMetricSourceDieMut {
+	return diefields.ChildMut(d, metricSpecFields.Get().Resource)
+}
+
+// containerResource refers to a resource metric (such as those specified in
+// requests and limits) known to Kubernetes describing a single container in
+// each pod of the current scale target (e.g. CPU or memory). Such metrics are
+// built in to Kubernetes, and have special scaling options on top of those
+// available to normal per-pod metrics using the "pods" source.
+func (d *MetricSpecDieMut) ContainerResource() *ContainerResourceMetricSourceDieMut {
+	return diefields.ChildMut(d, metricSpecFields.Get().ContainerResource)
+}
+
+// external refers to a global metric that is not associated
+// with any Kubernetes object. It allows autoscaling based on information
+// coming from components running outside of cluster
+// (for example length of queue in cloud messaging service, or
+// QPS from loadbalancer running outside of cluster).
+func (d *MetricSpecDieMut) External() *ExternalMetricSourceDieMut {
+	return diefields.ChildMut(d, metricSpecFields.Get().External)
+}
+
+// MetricStatus describes the last-read state of a single metric.
+//
+// MetricStatusDie is immutable: it reads.
+// MetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type MetricStatusDie struct {
+	diebase.DieBase[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]
+}
+
+// MetricStatusDieMut is the mutable die of MetricStatus: see MetricStatusDie.
+type MetricStatusDieMut struct {
+	diebase.DieMutBase[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]
+}
+
+func (*MetricStatusDie) DieFrom(b diebase.DieBase[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]) *MetricStatusDie {
 	return &MetricStatusDie{b}
 }
 
-var _ diebase.DieOf[MetricStatus, *MetricStatusDie] = (*MetricStatusDie)(nil)
+func (*MetricStatusDieMut) DieFrom(b diebase.DieMutBase[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]) *MetricStatusDieMut {
+	return &MetricStatusDieMut{b}
+}
 
-var MetricStatusBlank = diebase.Blank[MetricStatus, *MetricStatusDie]()
+var (
+	_ diebase.DieOf[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]    = (*MetricStatusDie)(nil)
+	_ diebase.DieMutOf[MetricStatus, *MetricStatusDie, *MetricStatusDieMut] = (*MetricStatusDieMut)(nil)
+)
+
+var MetricStatusBlank = diebase.Blank[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1365,60 +2108,73 @@ func (d *MetricStatusDie) DieReleaseApplyConfiguration() *MetricStatusApplyConfi
 	return diecodegen.ReleaseApplyConfiguration[MetricStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *MetricStatusDie) DieFeedApplyConfiguration(ac *MetricStatusApplyConfiguration) *MetricStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *MetricStatusDie) DieStampApplyConfiguration(fn func(ac *MetricStatusApplyConfiguration)) *MetricStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *MetricStatusDie) DieReleaseApplyConfigurationE() (*MetricStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[MetricStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *MetricStatusDieMut) DieReleaseApplyConfiguration() *MetricStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[MetricStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *MetricStatusDieMut) DieReleaseApplyConfigurationE() (*MetricStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[MetricStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *MetricStatusDieMut) DieFeedApplyConfiguration(ac *MetricStatusApplyConfiguration) *MetricStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *MetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *MetricStatusApplyConfiguration)) *MetricStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *MetricStatusDie) DieFeedApplyConfigurationE(ac *MetricStatusApplyConfiguration) (*MetricStatusDie, error) {
+func (d *MetricStatusDieMut) DieFeedApplyConfigurationE(ac *MetricStatusApplyConfiguration) (*MetricStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *MetricStatusDie) DieStampApplyConfigurationE(fn func(ac *MetricStatusApplyConfiguration)) (*MetricStatusDie, error) {
+func (d *MetricStatusDieMut) DieStampApplyConfigurationE(fn func(ac *MetricStatusApplyConfiguration)) (*MetricStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type metricStatusFieldsTable struct {
 	Type              diefields.Field[MetricStatus, MetricSourceType]
-	Object            diefields.Struct[MetricStatus, ObjectMetricStatus, *ObjectMetricStatusDie]
-	Pods              diefields.Struct[MetricStatus, PodsMetricStatus, *PodsMetricStatusDie]
-	Resource          diefields.Struct[MetricStatus, ResourceMetricStatus, *ResourceMetricStatusDie]
-	ContainerResource diefields.Struct[MetricStatus, ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie]
-	External          diefields.Struct[MetricStatus, ExternalMetricStatus, *ExternalMetricStatusDie]
+	Object            diefields.Struct[MetricStatus, ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]
+	Pods              diefields.Struct[MetricStatus, PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]
+	Resource          diefields.Struct[MetricStatus, ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]
+	ContainerResource diefields.Struct[MetricStatus, ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]
+	External          diefields.Struct[MetricStatus, ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]
 }
 
 var metricStatusFields = &diefields.Table[metricStatusFieldsTable]{Build: func() (f metricStatusFieldsTable) {
 	_ = annotated
 	f.Type = diefields.NewField[MetricStatus, MetricSourceType]("type")
-	f.Object = diefields.NewStruct[MetricStatus, ObjectMetricStatus, *ObjectMetricStatusDie]("object")
-	f.Pods = diefields.NewStruct[MetricStatus, PodsMetricStatus, *PodsMetricStatusDie]("pods")
-	f.Resource = diefields.NewStruct[MetricStatus, ResourceMetricStatus, *ResourceMetricStatusDie]("resource")
-	f.ContainerResource = diefields.NewStruct[MetricStatus, ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie]("containerResource")
-	f.External = diefields.NewStruct[MetricStatus, ExternalMetricStatus, *ExternalMetricStatusDie]("external")
+	f.Object = diefields.NewStruct[MetricStatus, ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]("object")
+	f.Pods = diefields.NewStruct[MetricStatus, PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]("pods")
+	f.Resource = diefields.NewStruct[MetricStatus, ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]("resource")
+	f.ContainerResource = diefields.NewStruct[MetricStatus, ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]("containerResource")
+	f.External = diefields.NewStruct[MetricStatus, ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]("external")
 	return
 }}
 
 // type is the type of metric source.  It will be one of "ContainerResource", "External",
 // "Object", "Pods" or "Resource", each corresponds to a matching field in the object.
-func (d *MetricStatusDie) Type() diefields.Value[MetricSourceType, *MetricStatusDie] {
+func (d *MetricStatusDie) Type() diefields.Value[MetricSourceType] {
 	return diefields.ValueOf(d, metricStatusFields.Get().Type)
 }
 
@@ -1462,18 +2218,79 @@ func (d *MetricStatusDie) External() *ExternalMetricStatusDie {
 	return diefields.Child(d, metricStatusFields.Get().External)
 }
 
-// MetricTarget defines the target value, average value, or average utilization of a specific metric
-type MetricTargetDie struct {
-	diebase.DieBase[MetricTarget, *MetricTargetDie]
+// type is the type of metric source.  It will be one of "ContainerResource", "External",
+// "Object", "Pods" or "Resource", each corresponds to a matching field in the object.
+func (d *MetricStatusDieMut) Type() diefields.ValueMut[MetricSourceType, *MetricStatusDieMut] {
+	return diefields.ValueMutOf(d, metricStatusFields.Get().Type)
 }
 
-func (*MetricTargetDie) DieFrom(b diebase.DieBase[MetricTarget, *MetricTargetDie]) *MetricTargetDie {
+// object refers to a metric describing a single kubernetes object
+// (for example, hits-per-second on an Ingress object).
+func (d *MetricStatusDieMut) Object() *ObjectMetricStatusDieMut {
+	return diefields.ChildMut(d, metricStatusFields.Get().Object)
+}
+
+// pods refers to a metric describing each pod in the current scale target
+// (for example, transactions-processed-per-second).  The values will be
+// averaged together before being compared to the target value.
+func (d *MetricStatusDieMut) Pods() *PodsMetricStatusDieMut {
+	return diefields.ChildMut(d, metricStatusFields.Get().Pods)
+}
+
+// resource refers to a resource metric (such as those specified in
+// requests and limits) known to Kubernetes describing each pod in the
+// current scale target (e.g. CPU or memory). Such metrics are built in to
+// Kubernetes, and have special scaling options on top of those available
+// to normal per-pod metrics using the "pods" source.
+func (d *MetricStatusDieMut) Resource() *ResourceMetricStatusDieMut {
+	return diefields.ChildMut(d, metricStatusFields.Get().Resource)
+}
+
+// containerResource refers to a resource metric (such as those specified in
+// requests and limits) known to Kubernetes describing a single container in each pod in the
+// current scale target (e.g. CPU or memory). Such metrics are built in to
+// Kubernetes, and have special scaling options on top of those available
+// to normal per-pod metrics using the "pods" source.
+func (d *MetricStatusDieMut) ContainerResource() *ContainerResourceMetricStatusDieMut {
+	return diefields.ChildMut(d, metricStatusFields.Get().ContainerResource)
+}
+
+// external refers to a global metric that is not associated
+// with any Kubernetes object. It allows autoscaling based on information
+// coming from components running outside of cluster
+// (for example length of queue in cloud messaging service, or
+// QPS from loadbalancer running outside of cluster).
+func (d *MetricStatusDieMut) External() *ExternalMetricStatusDieMut {
+	return diefields.ChildMut(d, metricStatusFields.Get().External)
+}
+
+// MetricTarget defines the target value, average value, or average utilization of a specific metric
+//
+// MetricTargetDie is immutable: it reads.
+// MetricTargetDieMut, its mutable die, also writes, as DieWith passes it.
+type MetricTargetDie struct {
+	diebase.DieBase[MetricTarget, *MetricTargetDie, *MetricTargetDieMut]
+}
+
+// MetricTargetDieMut is the mutable die of MetricTarget: see MetricTargetDie.
+type MetricTargetDieMut struct {
+	diebase.DieMutBase[MetricTarget, *MetricTargetDie, *MetricTargetDieMut]
+}
+
+func (*MetricTargetDie) DieFrom(b diebase.DieBase[MetricTarget, *MetricTargetDie, *MetricTargetDieMut]) *MetricTargetDie {
 	return &MetricTargetDie{b}
 }
 
-var _ diebase.DieOf[MetricTarget, *MetricTargetDie] = (*MetricTargetDie)(nil)
+func (*MetricTargetDieMut) DieFrom(b diebase.DieMutBase[MetricTarget, *MetricTargetDie, *MetricTargetDieMut]) *MetricTargetDieMut {
+	return &MetricTargetDieMut{b}
+}
 
-var MetricTargetBlank = diebase.Blank[MetricTarget, *MetricTargetDie]()
+var (
+	_ diebase.DieOf[MetricTarget, *MetricTargetDie, *MetricTargetDieMut]    = (*MetricTargetDie)(nil)
+	_ diebase.DieMutOf[MetricTarget, *MetricTargetDie, *MetricTargetDieMut] = (*MetricTargetDieMut)(nil)
+)
+
+var MetricTargetBlank = diebase.Blank[MetricTarget, *MetricTargetDie, *MetricTargetDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1482,34 +2299,47 @@ func (d *MetricTargetDie) DieReleaseApplyConfiguration() *MetricTargetApplyConfi
 	return diecodegen.ReleaseApplyConfiguration[MetricTargetApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *MetricTargetDie) DieFeedApplyConfiguration(ac *MetricTargetApplyConfiguration) *MetricTargetDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *MetricTargetDie) DieStampApplyConfiguration(fn func(ac *MetricTargetApplyConfiguration)) *MetricTargetDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *MetricTargetDie) DieReleaseApplyConfigurationE() (*MetricTargetApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[MetricTargetApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *MetricTargetDieMut) DieReleaseApplyConfiguration() *MetricTargetApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[MetricTargetApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *MetricTargetDieMut) DieReleaseApplyConfigurationE() (*MetricTargetApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[MetricTargetApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *MetricTargetDieMut) DieFeedApplyConfiguration(ac *MetricTargetApplyConfiguration) *MetricTargetDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *MetricTargetDieMut) DieStampApplyConfiguration(fn func(ac *MetricTargetApplyConfiguration)) *MetricTargetDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *MetricTargetDie) DieFeedApplyConfigurationE(ac *MetricTargetApplyConfiguration) (*MetricTargetDie, error) {
+func (d *MetricTargetDieMut) DieFeedApplyConfigurationE(ac *MetricTargetApplyConfiguration) (*MetricTargetDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *MetricTargetDie) DieStampApplyConfigurationE(fn func(ac *MetricTargetApplyConfiguration)) (*MetricTargetDie, error) {
+func (d *MetricTargetDieMut) DieStampApplyConfigurationE(fn func(ac *MetricTargetApplyConfiguration)) (*MetricTargetDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1530,18 +2360,18 @@ var metricTargetFields = &diefields.Table[metricTargetFieldsTable]{Build: func()
 }}
 
 // type represents whether the metric type is Utilization, Value, or AverageValue
-func (d *MetricTargetDie) Type() diefields.Value[MetricTargetType, *MetricTargetDie] {
+func (d *MetricTargetDie) Type() diefields.Value[MetricTargetType] {
 	return diefields.ValueOf(d, metricTargetFields.Get().Type)
 }
 
 // value is the target value of the metric (as a quantity).
-func (d *MetricTargetDie) Value() diefields.Optional[resource.Quantity, *MetricTargetDie] {
+func (d *MetricTargetDie) Value() diefields.Optional[resource.Quantity] {
 	return diefields.OptionalOf(d, metricTargetFields.Get().Value)
 }
 
 // averageValue is the target value of the average of the
 // metric across all relevant pods (as a quantity)
-func (d *MetricTargetDie) AverageValue() diefields.Optional[resource.Quantity, *MetricTargetDie] {
+func (d *MetricTargetDie) AverageValue() diefields.Optional[resource.Quantity] {
 	return diefields.OptionalOf(d, metricTargetFields.Get().AverageValue)
 }
 
@@ -1549,22 +2379,61 @@ func (d *MetricTargetDie) AverageValue() diefields.Optional[resource.Quantity, *
 // resource metric across all relevant pods, represented as a percentage of
 // the requested value of the resource for the pods.
 // Currently only valid for Resource metric source type
-func (d *MetricTargetDie) AverageUtilization() diefields.Optional[int32, *MetricTargetDie] {
+func (d *MetricTargetDie) AverageUtilization() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, metricTargetFields.Get().AverageUtilization)
 }
 
-// MetricValueStatus holds the current value for a metric
-type MetricValueStatusDie struct {
-	diebase.DieBase[MetricValueStatus, *MetricValueStatusDie]
+// type represents whether the metric type is Utilization, Value, or AverageValue
+func (d *MetricTargetDieMut) Type() diefields.ValueMut[MetricTargetType, *MetricTargetDieMut] {
+	return diefields.ValueMutOf(d, metricTargetFields.Get().Type)
 }
 
-func (*MetricValueStatusDie) DieFrom(b diebase.DieBase[MetricValueStatus, *MetricValueStatusDie]) *MetricValueStatusDie {
+// value is the target value of the metric (as a quantity).
+func (d *MetricTargetDieMut) Value() diefields.OptionalMut[resource.Quantity, *MetricTargetDieMut] {
+	return diefields.OptionalMutOf(d, metricTargetFields.Get().Value)
+}
+
+// averageValue is the target value of the average of the
+// metric across all relevant pods (as a quantity)
+func (d *MetricTargetDieMut) AverageValue() diefields.OptionalMut[resource.Quantity, *MetricTargetDieMut] {
+	return diefields.OptionalMutOf(d, metricTargetFields.Get().AverageValue)
+}
+
+// averageUtilization is the target value of the average of the
+// resource metric across all relevant pods, represented as a percentage of
+// the requested value of the resource for the pods.
+// Currently only valid for Resource metric source type
+func (d *MetricTargetDieMut) AverageUtilization() diefields.OptionalMut[int32, *MetricTargetDieMut] {
+	return diefields.OptionalMutOf(d, metricTargetFields.Get().AverageUtilization)
+}
+
+// MetricValueStatus holds the current value for a metric
+//
+// MetricValueStatusDie is immutable: it reads.
+// MetricValueStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type MetricValueStatusDie struct {
+	diebase.DieBase[MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]
+}
+
+// MetricValueStatusDieMut is the mutable die of MetricValueStatus: see MetricValueStatusDie.
+type MetricValueStatusDieMut struct {
+	diebase.DieMutBase[MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]
+}
+
+func (*MetricValueStatusDie) DieFrom(b diebase.DieBase[MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]) *MetricValueStatusDie {
 	return &MetricValueStatusDie{b}
 }
 
-var _ diebase.DieOf[MetricValueStatus, *MetricValueStatusDie] = (*MetricValueStatusDie)(nil)
+func (*MetricValueStatusDieMut) DieFrom(b diebase.DieMutBase[MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]) *MetricValueStatusDieMut {
+	return &MetricValueStatusDieMut{b}
+}
 
-var MetricValueStatusBlank = diebase.Blank[MetricValueStatus, *MetricValueStatusDie]()
+var (
+	_ diebase.DieOf[MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]    = (*MetricValueStatusDie)(nil)
+	_ diebase.DieMutOf[MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut] = (*MetricValueStatusDieMut)(nil)
+)
+
+var MetricValueStatusBlank = diebase.Blank[MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1573,34 +2442,47 @@ func (d *MetricValueStatusDie) DieReleaseApplyConfiguration() *MetricValueStatus
 	return diecodegen.ReleaseApplyConfiguration[MetricValueStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *MetricValueStatusDie) DieFeedApplyConfiguration(ac *MetricValueStatusApplyConfiguration) *MetricValueStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *MetricValueStatusDie) DieStampApplyConfiguration(fn func(ac *MetricValueStatusApplyConfiguration)) *MetricValueStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *MetricValueStatusDie) DieReleaseApplyConfigurationE() (*MetricValueStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[MetricValueStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *MetricValueStatusDieMut) DieReleaseApplyConfiguration() *MetricValueStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[MetricValueStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *MetricValueStatusDieMut) DieReleaseApplyConfigurationE() (*MetricValueStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[MetricValueStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *MetricValueStatusDieMut) DieFeedApplyConfiguration(ac *MetricValueStatusApplyConfiguration) *MetricValueStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *MetricValueStatusDieMut) DieStampApplyConfiguration(fn func(ac *MetricValueStatusApplyConfiguration)) *MetricValueStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *MetricValueStatusDie) DieFeedApplyConfigurationE(ac *MetricValueStatusApplyConfiguration) (*MetricValueStatusDie, error) {
+func (d *MetricValueStatusDieMut) DieFeedApplyConfigurationE(ac *MetricValueStatusApplyConfiguration) (*MetricValueStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *MetricValueStatusDie) DieStampApplyConfigurationE(fn func(ac *MetricValueStatusApplyConfiguration)) (*MetricValueStatusDie, error) {
+func (d *MetricValueStatusDieMut) DieStampApplyConfigurationE(fn func(ac *MetricValueStatusApplyConfiguration)) (*MetricValueStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1619,36 +2501,69 @@ var metricValueStatusFields = &diefields.Table[metricValueStatusFieldsTable]{Bui
 }}
 
 // value is the current value of the metric (as a quantity).
-func (d *MetricValueStatusDie) Value() diefields.Optional[resource.Quantity, *MetricValueStatusDie] {
+func (d *MetricValueStatusDie) Value() diefields.Optional[resource.Quantity] {
 	return diefields.OptionalOf(d, metricValueStatusFields.Get().Value)
 }
 
 // averageValue is the current value of the average of the
 // metric across all relevant pods (as a quantity)
-func (d *MetricValueStatusDie) AverageValue() diefields.Optional[resource.Quantity, *MetricValueStatusDie] {
+func (d *MetricValueStatusDie) AverageValue() diefields.Optional[resource.Quantity] {
 	return diefields.OptionalOf(d, metricValueStatusFields.Get().AverageValue)
 }
 
 // averageUtilization is the current value of the average of the
 // resource metric across all relevant pods, represented as a percentage of
 // the requested value of the resource for the pods.
-func (d *MetricValueStatusDie) AverageUtilization() diefields.Optional[int32, *MetricValueStatusDie] {
+func (d *MetricValueStatusDie) AverageUtilization() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, metricValueStatusFields.Get().AverageUtilization)
+}
+
+// value is the current value of the metric (as a quantity).
+func (d *MetricValueStatusDieMut) Value() diefields.OptionalMut[resource.Quantity, *MetricValueStatusDieMut] {
+	return diefields.OptionalMutOf(d, metricValueStatusFields.Get().Value)
+}
+
+// averageValue is the current value of the average of the
+// metric across all relevant pods (as a quantity)
+func (d *MetricValueStatusDieMut) AverageValue() diefields.OptionalMut[resource.Quantity, *MetricValueStatusDieMut] {
+	return diefields.OptionalMutOf(d, metricValueStatusFields.Get().AverageValue)
+}
+
+// averageUtilization is the current value of the average of the
+// resource metric across all relevant pods, represented as a percentage of
+// the requested value of the resource for the pods.
+func (d *MetricValueStatusDieMut) AverageUtilization() diefields.OptionalMut[int32, *MetricValueStatusDieMut] {
+	return diefields.OptionalMutOf(d, metricValueStatusFields.Get().AverageUtilization)
 }
 
 // ObjectMetricSource indicates how to scale on a metric describing a
 // kubernetes object (for example, hits-per-second on an Ingress object).
+//
+// ObjectMetricSourceDie is immutable: it reads.
+// ObjectMetricSourceDieMut, its mutable die, also writes, as DieWith passes it.
 type ObjectMetricSourceDie struct {
-	diebase.DieBase[ObjectMetricSource, *ObjectMetricSourceDie]
+	diebase.DieBase[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]
 }
 
-func (*ObjectMetricSourceDie) DieFrom(b diebase.DieBase[ObjectMetricSource, *ObjectMetricSourceDie]) *ObjectMetricSourceDie {
+// ObjectMetricSourceDieMut is the mutable die of ObjectMetricSource: see ObjectMetricSourceDie.
+type ObjectMetricSourceDieMut struct {
+	diebase.DieMutBase[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]
+}
+
+func (*ObjectMetricSourceDie) DieFrom(b diebase.DieBase[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]) *ObjectMetricSourceDie {
 	return &ObjectMetricSourceDie{b}
 }
 
-var _ diebase.DieOf[ObjectMetricSource, *ObjectMetricSourceDie] = (*ObjectMetricSourceDie)(nil)
+func (*ObjectMetricSourceDieMut) DieFrom(b diebase.DieMutBase[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]) *ObjectMetricSourceDieMut {
+	return &ObjectMetricSourceDieMut{b}
+}
 
-var ObjectMetricSourceBlank = diebase.Blank[ObjectMetricSource, *ObjectMetricSourceDie]()
+var (
+	_ diebase.DieOf[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]    = (*ObjectMetricSourceDie)(nil)
+	_ diebase.DieMutOf[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut] = (*ObjectMetricSourceDieMut)(nil)
+)
+
+var ObjectMetricSourceBlank = diebase.Blank[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1657,48 +2572,61 @@ func (d *ObjectMetricSourceDie) DieReleaseApplyConfiguration() *ObjectMetricSour
 	return diecodegen.ReleaseApplyConfiguration[ObjectMetricSourceApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ObjectMetricSourceDie) DieFeedApplyConfiguration(ac *ObjectMetricSourceApplyConfiguration) *ObjectMetricSourceDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ObjectMetricSourceDie) DieStampApplyConfiguration(fn func(ac *ObjectMetricSourceApplyConfiguration)) *ObjectMetricSourceDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ObjectMetricSourceDie) DieReleaseApplyConfigurationE() (*ObjectMetricSourceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ObjectMetricSourceApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ObjectMetricSourceDieMut) DieReleaseApplyConfiguration() *ObjectMetricSourceApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ObjectMetricSourceApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ObjectMetricSourceDieMut) DieReleaseApplyConfigurationE() (*ObjectMetricSourceApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ObjectMetricSourceApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ObjectMetricSourceDieMut) DieFeedApplyConfiguration(ac *ObjectMetricSourceApplyConfiguration) *ObjectMetricSourceDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ObjectMetricSourceDieMut) DieStampApplyConfiguration(fn func(ac *ObjectMetricSourceApplyConfiguration)) *ObjectMetricSourceDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ObjectMetricSourceDie) DieFeedApplyConfigurationE(ac *ObjectMetricSourceApplyConfiguration) (*ObjectMetricSourceDie, error) {
+func (d *ObjectMetricSourceDieMut) DieFeedApplyConfigurationE(ac *ObjectMetricSourceApplyConfiguration) (*ObjectMetricSourceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ObjectMetricSourceDie) DieStampApplyConfigurationE(fn func(ac *ObjectMetricSourceApplyConfiguration)) (*ObjectMetricSourceDie, error) {
+func (d *ObjectMetricSourceDieMut) DieStampApplyConfigurationE(fn func(ac *ObjectMetricSourceApplyConfiguration)) (*ObjectMetricSourceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type objectMetricSourceFieldsTable struct {
-	DescribedObject diefields.Struct[ObjectMetricSource, CrossVersionObjectReference, *CrossVersionObjectReferenceDie]
-	Target          diefields.Struct[ObjectMetricSource, MetricTarget, *MetricTargetDie]
-	Metric          diefields.Struct[ObjectMetricSource, MetricIdentifier, *MetricIdentifierDie]
+	DescribedObject diefields.Struct[ObjectMetricSource, CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]
+	Target          diefields.Struct[ObjectMetricSource, MetricTarget, *MetricTargetDie, *MetricTargetDieMut]
+	Metric          diefields.Struct[ObjectMetricSource, MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]
 }
 
 var objectMetricSourceFields = &diefields.Table[objectMetricSourceFieldsTable]{Build: func() (f objectMetricSourceFieldsTable) {
 	_ = annotated
-	f.DescribedObject = diefields.NewStruct[ObjectMetricSource, CrossVersionObjectReference, *CrossVersionObjectReferenceDie]("describedObject")
-	f.Target = diefields.NewStruct[ObjectMetricSource, MetricTarget, *MetricTargetDie]("target")
-	f.Metric = diefields.NewStruct[ObjectMetricSource, MetricIdentifier, *MetricIdentifierDie]("metric")
+	f.DescribedObject = diefields.NewStruct[ObjectMetricSource, CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]("describedObject")
+	f.Target = diefields.NewStruct[ObjectMetricSource, MetricTarget, *MetricTargetDie, *MetricTargetDieMut]("target")
+	f.Metric = diefields.NewStruct[ObjectMetricSource, MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]("metric")
 	return
 }}
 
@@ -1717,19 +2645,49 @@ func (d *ObjectMetricSourceDie) Metric() *MetricIdentifierDie {
 	return diefields.Child(d, objectMetricSourceFields.Get().Metric)
 }
 
-// ObjectMetricStatus indicates the current value of a metric describing a
-// kubernetes object (for example, hits-per-second on an Ingress object).
-type ObjectMetricStatusDie struct {
-	diebase.DieBase[ObjectMetricStatus, *ObjectMetricStatusDie]
+// describedObject specifies the descriptions of a object,such as kind,name apiVersion
+func (d *ObjectMetricSourceDieMut) DescribedObject() *CrossVersionObjectReferenceDieMut {
+	return diefields.ChildMut(d, objectMetricSourceFields.Get().DescribedObject)
 }
 
-func (*ObjectMetricStatusDie) DieFrom(b diebase.DieBase[ObjectMetricStatus, *ObjectMetricStatusDie]) *ObjectMetricStatusDie {
+// target specifies the target value for the given metric
+func (d *ObjectMetricSourceDieMut) Target() *MetricTargetDieMut {
+	return diefields.ChildMut(d, objectMetricSourceFields.Get().Target)
+}
+
+// metric identifies the target metric by name and selector
+func (d *ObjectMetricSourceDieMut) Metric() *MetricIdentifierDieMut {
+	return diefields.ChildMut(d, objectMetricSourceFields.Get().Metric)
+}
+
+// ObjectMetricStatus indicates the current value of a metric describing a
+// kubernetes object (for example, hits-per-second on an Ingress object).
+//
+// ObjectMetricStatusDie is immutable: it reads.
+// ObjectMetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type ObjectMetricStatusDie struct {
+	diebase.DieBase[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]
+}
+
+// ObjectMetricStatusDieMut is the mutable die of ObjectMetricStatus: see ObjectMetricStatusDie.
+type ObjectMetricStatusDieMut struct {
+	diebase.DieMutBase[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]
+}
+
+func (*ObjectMetricStatusDie) DieFrom(b diebase.DieBase[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]) *ObjectMetricStatusDie {
 	return &ObjectMetricStatusDie{b}
 }
 
-var _ diebase.DieOf[ObjectMetricStatus, *ObjectMetricStatusDie] = (*ObjectMetricStatusDie)(nil)
+func (*ObjectMetricStatusDieMut) DieFrom(b diebase.DieMutBase[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]) *ObjectMetricStatusDieMut {
+	return &ObjectMetricStatusDieMut{b}
+}
 
-var ObjectMetricStatusBlank = diebase.Blank[ObjectMetricStatus, *ObjectMetricStatusDie]()
+var (
+	_ diebase.DieOf[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]    = (*ObjectMetricStatusDie)(nil)
+	_ diebase.DieMutOf[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut] = (*ObjectMetricStatusDieMut)(nil)
+)
+
+var ObjectMetricStatusBlank = diebase.Blank[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1738,48 +2696,61 @@ func (d *ObjectMetricStatusDie) DieReleaseApplyConfiguration() *ObjectMetricStat
 	return diecodegen.ReleaseApplyConfiguration[ObjectMetricStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ObjectMetricStatusDie) DieFeedApplyConfiguration(ac *ObjectMetricStatusApplyConfiguration) *ObjectMetricStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ObjectMetricStatusDie) DieStampApplyConfiguration(fn func(ac *ObjectMetricStatusApplyConfiguration)) *ObjectMetricStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ObjectMetricStatusDie) DieReleaseApplyConfigurationE() (*ObjectMetricStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ObjectMetricStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ObjectMetricStatusDieMut) DieReleaseApplyConfiguration() *ObjectMetricStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ObjectMetricStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ObjectMetricStatusDieMut) DieReleaseApplyConfigurationE() (*ObjectMetricStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ObjectMetricStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ObjectMetricStatusDieMut) DieFeedApplyConfiguration(ac *ObjectMetricStatusApplyConfiguration) *ObjectMetricStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ObjectMetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *ObjectMetricStatusApplyConfiguration)) *ObjectMetricStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ObjectMetricStatusDie) DieFeedApplyConfigurationE(ac *ObjectMetricStatusApplyConfiguration) (*ObjectMetricStatusDie, error) {
+func (d *ObjectMetricStatusDieMut) DieFeedApplyConfigurationE(ac *ObjectMetricStatusApplyConfiguration) (*ObjectMetricStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ObjectMetricStatusDie) DieStampApplyConfigurationE(fn func(ac *ObjectMetricStatusApplyConfiguration)) (*ObjectMetricStatusDie, error) {
+func (d *ObjectMetricStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ObjectMetricStatusApplyConfiguration)) (*ObjectMetricStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type objectMetricStatusFieldsTable struct {
-	Metric          diefields.Struct[ObjectMetricStatus, MetricIdentifier, *MetricIdentifierDie]
-	Current         diefields.Struct[ObjectMetricStatus, MetricValueStatus, *MetricValueStatusDie]
-	DescribedObject diefields.Struct[ObjectMetricStatus, CrossVersionObjectReference, *CrossVersionObjectReferenceDie]
+	Metric          diefields.Struct[ObjectMetricStatus, MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]
+	Current         diefields.Struct[ObjectMetricStatus, MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]
+	DescribedObject diefields.Struct[ObjectMetricStatus, CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]
 }
 
 var objectMetricStatusFields = &diefields.Table[objectMetricStatusFieldsTable]{Build: func() (f objectMetricStatusFieldsTable) {
 	_ = annotated
-	f.Metric = diefields.NewStruct[ObjectMetricStatus, MetricIdentifier, *MetricIdentifierDie]("metric")
-	f.Current = diefields.NewStruct[ObjectMetricStatus, MetricValueStatus, *MetricValueStatusDie]("current")
-	f.DescribedObject = diefields.NewStruct[ObjectMetricStatus, CrossVersionObjectReference, *CrossVersionObjectReferenceDie]("describedObject")
+	f.Metric = diefields.NewStruct[ObjectMetricStatus, MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]("metric")
+	f.Current = diefields.NewStruct[ObjectMetricStatus, MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]("current")
+	f.DescribedObject = diefields.NewStruct[ObjectMetricStatus, CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]("describedObject")
 	return
 }}
 
@@ -1798,21 +2769,51 @@ func (d *ObjectMetricStatusDie) DescribedObject() *CrossVersionObjectReferenceDi
 	return diefields.Child(d, objectMetricStatusFields.Get().DescribedObject)
 }
 
+// metric identifies the target metric by name and selector
+func (d *ObjectMetricStatusDieMut) Metric() *MetricIdentifierDieMut {
+	return diefields.ChildMut(d, objectMetricStatusFields.Get().Metric)
+}
+
+// current contains the current value for the given metric
+func (d *ObjectMetricStatusDieMut) Current() *MetricValueStatusDieMut {
+	return diefields.ChildMut(d, objectMetricStatusFields.Get().Current)
+}
+
+// describedObject specifies the descriptions of a object,such as kind,name apiVersion
+func (d *ObjectMetricStatusDieMut) DescribedObject() *CrossVersionObjectReferenceDieMut {
+	return diefields.ChildMut(d, objectMetricStatusFields.Get().DescribedObject)
+}
+
 // PodsMetricSource indicates how to scale on a metric describing each pod in
 // the current scale target (for example, transactions-processed-per-second).
 // The values will be averaged together before being compared to the target
 // value.
+//
+// PodsMetricSourceDie is immutable: it reads.
+// PodsMetricSourceDieMut, its mutable die, also writes, as DieWith passes it.
 type PodsMetricSourceDie struct {
-	diebase.DieBase[PodsMetricSource, *PodsMetricSourceDie]
+	diebase.DieBase[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]
 }
 
-func (*PodsMetricSourceDie) DieFrom(b diebase.DieBase[PodsMetricSource, *PodsMetricSourceDie]) *PodsMetricSourceDie {
+// PodsMetricSourceDieMut is the mutable die of PodsMetricSource: see PodsMetricSourceDie.
+type PodsMetricSourceDieMut struct {
+	diebase.DieMutBase[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]
+}
+
+func (*PodsMetricSourceDie) DieFrom(b diebase.DieBase[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]) *PodsMetricSourceDie {
 	return &PodsMetricSourceDie{b}
 }
 
-var _ diebase.DieOf[PodsMetricSource, *PodsMetricSourceDie] = (*PodsMetricSourceDie)(nil)
+func (*PodsMetricSourceDieMut) DieFrom(b diebase.DieMutBase[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]) *PodsMetricSourceDieMut {
+	return &PodsMetricSourceDieMut{b}
+}
 
-var PodsMetricSourceBlank = diebase.Blank[PodsMetricSource, *PodsMetricSourceDie]()
+var (
+	_ diebase.DieOf[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]    = (*PodsMetricSourceDie)(nil)
+	_ diebase.DieMutOf[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut] = (*PodsMetricSourceDieMut)(nil)
+)
+
+var PodsMetricSourceBlank = diebase.Blank[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1821,46 +2822,59 @@ func (d *PodsMetricSourceDie) DieReleaseApplyConfiguration() *PodsMetricSourceAp
 	return diecodegen.ReleaseApplyConfiguration[PodsMetricSourceApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PodsMetricSourceDie) DieFeedApplyConfiguration(ac *PodsMetricSourceApplyConfiguration) *PodsMetricSourceDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PodsMetricSourceDie) DieStampApplyConfiguration(fn func(ac *PodsMetricSourceApplyConfiguration)) *PodsMetricSourceDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PodsMetricSourceDie) DieReleaseApplyConfigurationE() (*PodsMetricSourceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodsMetricSourceApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PodsMetricSourceDieMut) DieReleaseApplyConfiguration() *PodsMetricSourceApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PodsMetricSourceApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PodsMetricSourceDieMut) DieReleaseApplyConfigurationE() (*PodsMetricSourceApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PodsMetricSourceApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PodsMetricSourceDieMut) DieFeedApplyConfiguration(ac *PodsMetricSourceApplyConfiguration) *PodsMetricSourceDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PodsMetricSourceDieMut) DieStampApplyConfiguration(fn func(ac *PodsMetricSourceApplyConfiguration)) *PodsMetricSourceDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodsMetricSourceDie) DieFeedApplyConfigurationE(ac *PodsMetricSourceApplyConfiguration) (*PodsMetricSourceDie, error) {
+func (d *PodsMetricSourceDieMut) DieFeedApplyConfigurationE(ac *PodsMetricSourceApplyConfiguration) (*PodsMetricSourceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodsMetricSourceDie) DieStampApplyConfigurationE(fn func(ac *PodsMetricSourceApplyConfiguration)) (*PodsMetricSourceDie, error) {
+func (d *PodsMetricSourceDieMut) DieStampApplyConfigurationE(fn func(ac *PodsMetricSourceApplyConfiguration)) (*PodsMetricSourceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type podsMetricSourceFieldsTable struct {
-	Metric diefields.Struct[PodsMetricSource, MetricIdentifier, *MetricIdentifierDie]
-	Target diefields.Struct[PodsMetricSource, MetricTarget, *MetricTargetDie]
+	Metric diefields.Struct[PodsMetricSource, MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]
+	Target diefields.Struct[PodsMetricSource, MetricTarget, *MetricTargetDie, *MetricTargetDieMut]
 }
 
 var podsMetricSourceFields = &diefields.Table[podsMetricSourceFieldsTable]{Build: func() (f podsMetricSourceFieldsTable) {
 	_ = annotated
-	f.Metric = diefields.NewStruct[PodsMetricSource, MetricIdentifier, *MetricIdentifierDie]("metric")
-	f.Target = diefields.NewStruct[PodsMetricSource, MetricTarget, *MetricTargetDie]("target")
+	f.Metric = diefields.NewStruct[PodsMetricSource, MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]("metric")
+	f.Target = diefields.NewStruct[PodsMetricSource, MetricTarget, *MetricTargetDie, *MetricTargetDieMut]("target")
 	return
 }}
 
@@ -1874,19 +2888,44 @@ func (d *PodsMetricSourceDie) Target() *MetricTargetDie {
 	return diefields.Child(d, podsMetricSourceFields.Get().Target)
 }
 
-// PodsMetricStatus indicates the current value of a metric describing each pod in
-// the current scale target (for example, transactions-processed-per-second).
-type PodsMetricStatusDie struct {
-	diebase.DieBase[PodsMetricStatus, *PodsMetricStatusDie]
+// metric identifies the target metric by name and selector
+func (d *PodsMetricSourceDieMut) Metric() *MetricIdentifierDieMut {
+	return diefields.ChildMut(d, podsMetricSourceFields.Get().Metric)
 }
 
-func (*PodsMetricStatusDie) DieFrom(b diebase.DieBase[PodsMetricStatus, *PodsMetricStatusDie]) *PodsMetricStatusDie {
+// target specifies the target value for the given metric
+func (d *PodsMetricSourceDieMut) Target() *MetricTargetDieMut {
+	return diefields.ChildMut(d, podsMetricSourceFields.Get().Target)
+}
+
+// PodsMetricStatus indicates the current value of a metric describing each pod in
+// the current scale target (for example, transactions-processed-per-second).
+//
+// PodsMetricStatusDie is immutable: it reads.
+// PodsMetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type PodsMetricStatusDie struct {
+	diebase.DieBase[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]
+}
+
+// PodsMetricStatusDieMut is the mutable die of PodsMetricStatus: see PodsMetricStatusDie.
+type PodsMetricStatusDieMut struct {
+	diebase.DieMutBase[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]
+}
+
+func (*PodsMetricStatusDie) DieFrom(b diebase.DieBase[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]) *PodsMetricStatusDie {
 	return &PodsMetricStatusDie{b}
 }
 
-var _ diebase.DieOf[PodsMetricStatus, *PodsMetricStatusDie] = (*PodsMetricStatusDie)(nil)
+func (*PodsMetricStatusDieMut) DieFrom(b diebase.DieMutBase[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]) *PodsMetricStatusDieMut {
+	return &PodsMetricStatusDieMut{b}
+}
 
-var PodsMetricStatusBlank = diebase.Blank[PodsMetricStatus, *PodsMetricStatusDie]()
+var (
+	_ diebase.DieOf[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]    = (*PodsMetricStatusDie)(nil)
+	_ diebase.DieMutOf[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut] = (*PodsMetricStatusDieMut)(nil)
+)
+
+var PodsMetricStatusBlank = diebase.Blank[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1895,46 +2934,59 @@ func (d *PodsMetricStatusDie) DieReleaseApplyConfiguration() *PodsMetricStatusAp
 	return diecodegen.ReleaseApplyConfiguration[PodsMetricStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *PodsMetricStatusDie) DieFeedApplyConfiguration(ac *PodsMetricStatusApplyConfiguration) *PodsMetricStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *PodsMetricStatusDie) DieStampApplyConfiguration(fn func(ac *PodsMetricStatusApplyConfiguration)) *PodsMetricStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *PodsMetricStatusDie) DieReleaseApplyConfigurationE() (*PodsMetricStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodsMetricStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *PodsMetricStatusDieMut) DieReleaseApplyConfiguration() *PodsMetricStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[PodsMetricStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *PodsMetricStatusDieMut) DieReleaseApplyConfigurationE() (*PodsMetricStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[PodsMetricStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *PodsMetricStatusDieMut) DieFeedApplyConfiguration(ac *PodsMetricStatusApplyConfiguration) *PodsMetricStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *PodsMetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *PodsMetricStatusApplyConfiguration)) *PodsMetricStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodsMetricStatusDie) DieFeedApplyConfigurationE(ac *PodsMetricStatusApplyConfiguration) (*PodsMetricStatusDie, error) {
+func (d *PodsMetricStatusDieMut) DieFeedApplyConfigurationE(ac *PodsMetricStatusApplyConfiguration) (*PodsMetricStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *PodsMetricStatusDie) DieStampApplyConfigurationE(fn func(ac *PodsMetricStatusApplyConfiguration)) (*PodsMetricStatusDie, error) {
+func (d *PodsMetricStatusDieMut) DieStampApplyConfigurationE(fn func(ac *PodsMetricStatusApplyConfiguration)) (*PodsMetricStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type podsMetricStatusFieldsTable struct {
-	Metric  diefields.Struct[PodsMetricStatus, MetricIdentifier, *MetricIdentifierDie]
-	Current diefields.Struct[PodsMetricStatus, MetricValueStatus, *MetricValueStatusDie]
+	Metric  diefields.Struct[PodsMetricStatus, MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]
+	Current diefields.Struct[PodsMetricStatus, MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]
 }
 
 var podsMetricStatusFields = &diefields.Table[podsMetricStatusFieldsTable]{Build: func() (f podsMetricStatusFieldsTable) {
 	_ = annotated
-	f.Metric = diefields.NewStruct[PodsMetricStatus, MetricIdentifier, *MetricIdentifierDie]("metric")
-	f.Current = diefields.NewStruct[PodsMetricStatus, MetricValueStatus, *MetricValueStatusDie]("current")
+	f.Metric = diefields.NewStruct[PodsMetricStatus, MetricIdentifier, *MetricIdentifierDie, *MetricIdentifierDieMut]("metric")
+	f.Current = diefields.NewStruct[PodsMetricStatus, MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]("current")
 	return
 }}
 
@@ -1948,6 +3000,16 @@ func (d *PodsMetricStatusDie) Current() *MetricValueStatusDie {
 	return diefields.Child(d, podsMetricStatusFields.Get().Current)
 }
 
+// metric identifies the target metric by name and selector
+func (d *PodsMetricStatusDieMut) Metric() *MetricIdentifierDieMut {
+	return diefields.ChildMut(d, podsMetricStatusFields.Get().Metric)
+}
+
+// current contains the current value for the given metric
+func (d *PodsMetricStatusDieMut) Current() *MetricValueStatusDieMut {
+	return diefields.ChildMut(d, podsMetricStatusFields.Get().Current)
+}
+
 // ResourceMetricSource indicates how to scale on a resource metric known to
 // Kubernetes, as specified in requests and limits, describing each pod in the
 // current scale target (e.g. CPU or memory).  The values will be averaged
@@ -1955,17 +3017,32 @@ func (d *PodsMetricStatusDie) Current() *MetricValueStatusDie {
 // Kubernetes, and have special scaling options on top of those available to
 // normal per-pod metrics using the "pods" source.  Only one "target" type
 // should be set.
+//
+// ResourceMetricSourceDie is immutable: it reads.
+// ResourceMetricSourceDieMut, its mutable die, also writes, as DieWith passes it.
 type ResourceMetricSourceDie struct {
-	diebase.DieBase[ResourceMetricSource, *ResourceMetricSourceDie]
+	diebase.DieBase[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]
 }
 
-func (*ResourceMetricSourceDie) DieFrom(b diebase.DieBase[ResourceMetricSource, *ResourceMetricSourceDie]) *ResourceMetricSourceDie {
+// ResourceMetricSourceDieMut is the mutable die of ResourceMetricSource: see ResourceMetricSourceDie.
+type ResourceMetricSourceDieMut struct {
+	diebase.DieMutBase[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]
+}
+
+func (*ResourceMetricSourceDie) DieFrom(b diebase.DieBase[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]) *ResourceMetricSourceDie {
 	return &ResourceMetricSourceDie{b}
 }
 
-var _ diebase.DieOf[ResourceMetricSource, *ResourceMetricSourceDie] = (*ResourceMetricSourceDie)(nil)
+func (*ResourceMetricSourceDieMut) DieFrom(b diebase.DieMutBase[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]) *ResourceMetricSourceDieMut {
+	return &ResourceMetricSourceDieMut{b}
+}
 
-var ResourceMetricSourceBlank = diebase.Blank[ResourceMetricSource, *ResourceMetricSourceDie]()
+var (
+	_ diebase.DieOf[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]    = (*ResourceMetricSourceDie)(nil)
+	_ diebase.DieMutOf[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut] = (*ResourceMetricSourceDieMut)(nil)
+)
+
+var ResourceMetricSourceBlank = diebase.Blank[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1974,51 +3051,64 @@ func (d *ResourceMetricSourceDie) DieReleaseApplyConfiguration() *ResourceMetric
 	return diecodegen.ReleaseApplyConfiguration[ResourceMetricSourceApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ResourceMetricSourceDie) DieFeedApplyConfiguration(ac *ResourceMetricSourceApplyConfiguration) *ResourceMetricSourceDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ResourceMetricSourceDie) DieStampApplyConfiguration(fn func(ac *ResourceMetricSourceApplyConfiguration)) *ResourceMetricSourceDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ResourceMetricSourceDie) DieReleaseApplyConfigurationE() (*ResourceMetricSourceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ResourceMetricSourceApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ResourceMetricSourceDieMut) DieReleaseApplyConfiguration() *ResourceMetricSourceApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ResourceMetricSourceApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ResourceMetricSourceDieMut) DieReleaseApplyConfigurationE() (*ResourceMetricSourceApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ResourceMetricSourceApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ResourceMetricSourceDieMut) DieFeedApplyConfiguration(ac *ResourceMetricSourceApplyConfiguration) *ResourceMetricSourceDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ResourceMetricSourceDieMut) DieStampApplyConfiguration(fn func(ac *ResourceMetricSourceApplyConfiguration)) *ResourceMetricSourceDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ResourceMetricSourceDie) DieFeedApplyConfigurationE(ac *ResourceMetricSourceApplyConfiguration) (*ResourceMetricSourceDie, error) {
+func (d *ResourceMetricSourceDieMut) DieFeedApplyConfigurationE(ac *ResourceMetricSourceApplyConfiguration) (*ResourceMetricSourceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ResourceMetricSourceDie) DieStampApplyConfigurationE(fn func(ac *ResourceMetricSourceApplyConfiguration)) (*ResourceMetricSourceDie, error) {
+func (d *ResourceMetricSourceDieMut) DieStampApplyConfigurationE(fn func(ac *ResourceMetricSourceApplyConfiguration)) (*ResourceMetricSourceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type resourceMetricSourceFieldsTable struct {
 	Name   diefields.Field[ResourceMetricSource, diecorev1.ResourceName]
-	Target diefields.Struct[ResourceMetricSource, MetricTarget, *MetricTargetDie]
+	Target diefields.Struct[ResourceMetricSource, MetricTarget, *MetricTargetDie, *MetricTargetDieMut]
 }
 
 var resourceMetricSourceFields = &diefields.Table[resourceMetricSourceFieldsTable]{Build: func() (f resourceMetricSourceFieldsTable) {
 	_ = annotated
 	f.Name = diefields.NewField[ResourceMetricSource, diecorev1.ResourceName]("name")
-	f.Target = diefields.NewStruct[ResourceMetricSource, MetricTarget, *MetricTargetDie]("target")
+	f.Target = diefields.NewStruct[ResourceMetricSource, MetricTarget, *MetricTargetDie, *MetricTargetDieMut]("target")
 	return
 }}
 
 // name is the name of the resource in question.
-func (d *ResourceMetricSourceDie) Name() diefields.Value[diecorev1.ResourceName, *ResourceMetricSourceDie] {
+func (d *ResourceMetricSourceDie) Name() diefields.Value[diecorev1.ResourceName] {
 	return diefields.ValueOf(d, resourceMetricSourceFields.Get().Name)
 }
 
@@ -2027,22 +3117,47 @@ func (d *ResourceMetricSourceDie) Target() *MetricTargetDie {
 	return diefields.Child(d, resourceMetricSourceFields.Get().Target)
 }
 
+// name is the name of the resource in question.
+func (d *ResourceMetricSourceDieMut) Name() diefields.ValueMut[diecorev1.ResourceName, *ResourceMetricSourceDieMut] {
+	return diefields.ValueMutOf(d, resourceMetricSourceFields.Get().Name)
+}
+
+// target specifies the target value for the given metric
+func (d *ResourceMetricSourceDieMut) Target() *MetricTargetDieMut {
+	return diefields.ChildMut(d, resourceMetricSourceFields.Get().Target)
+}
+
 // ResourceMetricStatus indicates the current value of a resource metric known to
 // Kubernetes, as specified in requests and limits, describing each pod in the
 // current scale target (e.g. CPU or memory).  Such metrics are built in to
 // Kubernetes, and have special scaling options on top of those available to
 // normal per-pod metrics using the "pods" source.
+//
+// ResourceMetricStatusDie is immutable: it reads.
+// ResourceMetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
 type ResourceMetricStatusDie struct {
-	diebase.DieBase[ResourceMetricStatus, *ResourceMetricStatusDie]
+	diebase.DieBase[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]
 }
 
-func (*ResourceMetricStatusDie) DieFrom(b diebase.DieBase[ResourceMetricStatus, *ResourceMetricStatusDie]) *ResourceMetricStatusDie {
+// ResourceMetricStatusDieMut is the mutable die of ResourceMetricStatus: see ResourceMetricStatusDie.
+type ResourceMetricStatusDieMut struct {
+	diebase.DieMutBase[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]
+}
+
+func (*ResourceMetricStatusDie) DieFrom(b diebase.DieBase[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]) *ResourceMetricStatusDie {
 	return &ResourceMetricStatusDie{b}
 }
 
-var _ diebase.DieOf[ResourceMetricStatus, *ResourceMetricStatusDie] = (*ResourceMetricStatusDie)(nil)
+func (*ResourceMetricStatusDieMut) DieFrom(b diebase.DieMutBase[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]) *ResourceMetricStatusDieMut {
+	return &ResourceMetricStatusDieMut{b}
+}
 
-var ResourceMetricStatusBlank = diebase.Blank[ResourceMetricStatus, *ResourceMetricStatusDie]()
+var (
+	_ diebase.DieOf[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]    = (*ResourceMetricStatusDie)(nil)
+	_ diebase.DieMutOf[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut] = (*ResourceMetricStatusDieMut)(nil)
+)
+
+var ResourceMetricStatusBlank = diebase.Blank[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -2051,51 +3166,64 @@ func (d *ResourceMetricStatusDie) DieReleaseApplyConfiguration() *ResourceMetric
 	return diecodegen.ReleaseApplyConfiguration[ResourceMetricStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ResourceMetricStatusDie) DieFeedApplyConfiguration(ac *ResourceMetricStatusApplyConfiguration) *ResourceMetricStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ResourceMetricStatusDie) DieStampApplyConfiguration(fn func(ac *ResourceMetricStatusApplyConfiguration)) *ResourceMetricStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ResourceMetricStatusDie) DieReleaseApplyConfigurationE() (*ResourceMetricStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ResourceMetricStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ResourceMetricStatusDieMut) DieReleaseApplyConfiguration() *ResourceMetricStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ResourceMetricStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ResourceMetricStatusDieMut) DieReleaseApplyConfigurationE() (*ResourceMetricStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ResourceMetricStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ResourceMetricStatusDieMut) DieFeedApplyConfiguration(ac *ResourceMetricStatusApplyConfiguration) *ResourceMetricStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ResourceMetricStatusDieMut) DieStampApplyConfiguration(fn func(ac *ResourceMetricStatusApplyConfiguration)) *ResourceMetricStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ResourceMetricStatusDie) DieFeedApplyConfigurationE(ac *ResourceMetricStatusApplyConfiguration) (*ResourceMetricStatusDie, error) {
+func (d *ResourceMetricStatusDieMut) DieFeedApplyConfigurationE(ac *ResourceMetricStatusApplyConfiguration) (*ResourceMetricStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ResourceMetricStatusDie) DieStampApplyConfigurationE(fn func(ac *ResourceMetricStatusApplyConfiguration)) (*ResourceMetricStatusDie, error) {
+func (d *ResourceMetricStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ResourceMetricStatusApplyConfiguration)) (*ResourceMetricStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type resourceMetricStatusFieldsTable struct {
 	Name    diefields.Field[ResourceMetricStatus, diecorev1.ResourceName]
-	Current diefields.Struct[ResourceMetricStatus, MetricValueStatus, *MetricValueStatusDie]
+	Current diefields.Struct[ResourceMetricStatus, MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]
 }
 
 var resourceMetricStatusFields = &diefields.Table[resourceMetricStatusFieldsTable]{Build: func() (f resourceMetricStatusFieldsTable) {
 	_ = annotated
 	f.Name = diefields.NewField[ResourceMetricStatus, diecorev1.ResourceName]("name")
-	f.Current = diefields.NewStruct[ResourceMetricStatus, MetricValueStatus, *MetricValueStatusDie]("current")
+	f.Current = diefields.NewStruct[ResourceMetricStatus, MetricValueStatus, *MetricValueStatusDie, *MetricValueStatusDieMut]("current")
 	return
 }}
 
 // name is the name of the resource in question.
-func (d *ResourceMetricStatusDie) Name() diefields.Value[diecorev1.ResourceName, *ResourceMetricStatusDie] {
+func (d *ResourceMetricStatusDie) Name() diefields.Value[diecorev1.ResourceName] {
 	return diefields.ValueOf(d, resourceMetricStatusFields.Get().Name)
 }
 
@@ -2104,18 +3232,28 @@ func (d *ResourceMetricStatusDie) Current() *MetricValueStatusDie {
 	return diefields.Child(d, resourceMetricStatusFields.Get().Current)
 }
 
+// name is the name of the resource in question.
+func (d *ResourceMetricStatusDieMut) Name() diefields.ValueMut[diecorev1.ResourceName, *ResourceMetricStatusDieMut] {
+	return diefields.ValueMutOf(d, resourceMetricStatusFields.Get().Name)
+}
+
+// current contains the current value for the given metric
+func (d *ResourceMetricStatusDieMut) Current() *MetricValueStatusDieMut {
+	return diefields.ChildMut(d, resourceMetricStatusFields.Get().Current)
+}
+
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "autoscaling", Version: "v2"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("HorizontalPodAutoscaler"), &HorizontalPodAutoscalerDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("HorizontalPodAutoscaler"), &HorizontalPodAutoscalerDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("HorizontalPodAutoscalerList"), &HorizontalPodAutoscalerListDie{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

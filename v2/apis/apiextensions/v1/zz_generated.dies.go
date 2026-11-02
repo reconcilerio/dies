@@ -32,17 +32,32 @@ import (
 )
 
 // ConversionRequest describes the conversion request parameters.
+//
+// ConversionRequestDie is immutable: it reads.
+// ConversionRequestDieMut, its mutable die, also writes, as DieWith passes it.
 type ConversionRequestDie struct {
-	diebase.DieBase[ConversionRequest, *ConversionRequestDie]
+	diebase.DieBase[ConversionRequest, *ConversionRequestDie, *ConversionRequestDieMut]
 }
 
-func (*ConversionRequestDie) DieFrom(b diebase.DieBase[ConversionRequest, *ConversionRequestDie]) *ConversionRequestDie {
+// ConversionRequestDieMut is the mutable die of ConversionRequest: see ConversionRequestDie.
+type ConversionRequestDieMut struct {
+	diebase.DieMutBase[ConversionRequest, *ConversionRequestDie, *ConversionRequestDieMut]
+}
+
+func (*ConversionRequestDie) DieFrom(b diebase.DieBase[ConversionRequest, *ConversionRequestDie, *ConversionRequestDieMut]) *ConversionRequestDie {
 	return &ConversionRequestDie{b}
 }
 
-var _ diebase.DieOf[ConversionRequest, *ConversionRequestDie] = (*ConversionRequestDie)(nil)
+func (*ConversionRequestDieMut) DieFrom(b diebase.DieMutBase[ConversionRequest, *ConversionRequestDie, *ConversionRequestDieMut]) *ConversionRequestDieMut {
+	return &ConversionRequestDieMut{b}
+}
 
-var ConversionRequestBlank = diebase.Blank[ConversionRequest, *ConversionRequestDie]()
+var (
+	_ diebase.DieOf[ConversionRequest, *ConversionRequestDie, *ConversionRequestDieMut]    = (*ConversionRequestDie)(nil)
+	_ diebase.DieMutOf[ConversionRequest, *ConversionRequestDie, *ConversionRequestDieMut] = (*ConversionRequestDieMut)(nil)
+)
+
+var ConversionRequestBlank = diebase.Blank[ConversionRequest, *ConversionRequestDie, *ConversionRequestDieMut]()
 
 type conversionRequestFieldsTable struct {
 	UID               diefields.Field[ConversionRequest, types.UID]
@@ -62,50 +77,83 @@ var conversionRequestFields = &diefields.Table[conversionRequestFieldsTable]{Bui
 // otherwise identical (parallel requests, etc).
 // The UID is meant to track the round trip (request/response) between the Kubernetes API server and the webhook, not the user request.
 // It is suitable for correlating log entries between the webhook and apiserver, for either auditing or debugging.
-func (d *ConversionRequestDie) UID() diefields.Value[types.UID, *ConversionRequestDie] {
+func (d *ConversionRequestDie) UID() diefields.Value[types.UID] {
 	return diefields.ValueOf(d, conversionRequestFields.Get().UID)
 }
 
 // desiredAPIVersion is the version to convert given objects to. e.g. "myapi.example.com/v1"
-func (d *ConversionRequestDie) DesiredAPIVersion() diefields.Value[string, *ConversionRequestDie] {
+func (d *ConversionRequestDie) DesiredAPIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, conversionRequestFields.Get().DesiredAPIVersion)
 }
 
 // objects is the list of custom resource objects to be converted.
-func (d *ConversionRequestDie) Objects() diefields.Value[[]runtime.RawExtension, *ConversionRequestDie] {
+func (d *ConversionRequestDie) Objects() diefields.Value[[]runtime.RawExtension] {
 	return diefields.ValueOf(d, conversionRequestFields.Get().Objects)
 }
 
-// ConversionResponse describes a conversion response.
-type ConversionResponseDie struct {
-	diebase.DieBase[ConversionResponse, *ConversionResponseDie]
+// uid is an identifier for the individual request/response. It allows distinguishing instances of requests which are
+// otherwise identical (parallel requests, etc).
+// The UID is meant to track the round trip (request/response) between the Kubernetes API server and the webhook, not the user request.
+// It is suitable for correlating log entries between the webhook and apiserver, for either auditing or debugging.
+func (d *ConversionRequestDieMut) UID() diefields.ValueMut[types.UID, *ConversionRequestDieMut] {
+	return diefields.ValueMutOf(d, conversionRequestFields.Get().UID)
 }
 
-func (*ConversionResponseDie) DieFrom(b diebase.DieBase[ConversionResponse, *ConversionResponseDie]) *ConversionResponseDie {
+// desiredAPIVersion is the version to convert given objects to. e.g. "myapi.example.com/v1"
+func (d *ConversionRequestDieMut) DesiredAPIVersion() diefields.ValueMut[string, *ConversionRequestDieMut] {
+	return diefields.ValueMutOf(d, conversionRequestFields.Get().DesiredAPIVersion)
+}
+
+// objects is the list of custom resource objects to be converted.
+func (d *ConversionRequestDieMut) Objects() diefields.ValueMut[[]runtime.RawExtension, *ConversionRequestDieMut] {
+	return diefields.ValueMutOf(d, conversionRequestFields.Get().Objects)
+}
+
+// ConversionResponse describes a conversion response.
+//
+// ConversionResponseDie is immutable: it reads.
+// ConversionResponseDieMut, its mutable die, also writes, as DieWith passes it.
+type ConversionResponseDie struct {
+	diebase.DieBase[ConversionResponse, *ConversionResponseDie, *ConversionResponseDieMut]
+}
+
+// ConversionResponseDieMut is the mutable die of ConversionResponse: see ConversionResponseDie.
+type ConversionResponseDieMut struct {
+	diebase.DieMutBase[ConversionResponse, *ConversionResponseDie, *ConversionResponseDieMut]
+}
+
+func (*ConversionResponseDie) DieFrom(b diebase.DieBase[ConversionResponse, *ConversionResponseDie, *ConversionResponseDieMut]) *ConversionResponseDie {
 	return &ConversionResponseDie{b}
 }
 
-var _ diebase.DieOf[ConversionResponse, *ConversionResponseDie] = (*ConversionResponseDie)(nil)
+func (*ConversionResponseDieMut) DieFrom(b diebase.DieMutBase[ConversionResponse, *ConversionResponseDie, *ConversionResponseDieMut]) *ConversionResponseDieMut {
+	return &ConversionResponseDieMut{b}
+}
 
-var ConversionResponseBlank = diebase.Blank[ConversionResponse, *ConversionResponseDie]()
+var (
+	_ diebase.DieOf[ConversionResponse, *ConversionResponseDie, *ConversionResponseDieMut]    = (*ConversionResponseDie)(nil)
+	_ diebase.DieMutOf[ConversionResponse, *ConversionResponseDie, *ConversionResponseDieMut] = (*ConversionResponseDieMut)(nil)
+)
+
+var ConversionResponseBlank = diebase.Blank[ConversionResponse, *ConversionResponseDie, *ConversionResponseDieMut]()
 
 type conversionResponseFieldsTable struct {
 	UID              diefields.Field[ConversionResponse, types.UID]
 	ConvertedObjects diefields.Field[ConversionResponse, []runtime.RawExtension]
-	Result           diefields.Struct[ConversionResponse, diemetav1.Status, *diemetav1.StatusDie]
+	Result           diefields.Struct[ConversionResponse, diemetav1.Status, *diemetav1.StatusDie, *diemetav1.StatusDieMut]
 }
 
 var conversionResponseFields = &diefields.Table[conversionResponseFieldsTable]{Build: func() (f conversionResponseFieldsTable) {
 	_ = annotated
 	f.UID = diefields.NewField[ConversionResponse, types.UID]("uid")
 	f.ConvertedObjects = diefields.NewField[ConversionResponse, []runtime.RawExtension]("convertedObjects")
-	f.Result = diefields.NewStruct[ConversionResponse, diemetav1.Status, *diemetav1.StatusDie]("result")
+	f.Result = diefields.NewStruct[ConversionResponse, diemetav1.Status, *diemetav1.StatusDie, *diemetav1.StatusDieMut]("result")
 	return
 }}
 
 // uid is an identifier for the individual request/response.
 // This should be copied over from the corresponding `request.uid`.
-func (d *ConversionResponseDie) UID() diefields.Value[types.UID, *ConversionResponseDie] {
+func (d *ConversionResponseDie) UID() diefields.Value[types.UID] {
 	return diefields.ValueOf(d, conversionResponseFields.Get().UID)
 }
 
@@ -113,7 +161,7 @@ func (d *ConversionResponseDie) UID() diefields.Value[types.UID, *ConversionResp
 // The webhook is expected to set `apiVersion` of these objects to the `request.desiredAPIVersion`. The list
 // must also have the same size as the input list with the same objects in the same order (equal kind, metadata.uid, metadata.name and metadata.namespace).
 // The webhook is allowed to mutate labels and annotations. Any other change to the metadata is silently ignored.
-func (d *ConversionResponseDie) ConvertedObjects() diefields.Value[[]runtime.RawExtension, *ConversionResponseDie] {
+func (d *ConversionResponseDie) ConvertedObjects() diefields.Value[[]runtime.RawExtension] {
 	return diefields.ValueOf(d, conversionResponseFields.Get().ConvertedObjects)
 }
 
@@ -126,32 +174,70 @@ func (d *ConversionResponseDie) Result() *diemetav1.StatusDie {
 	return diefields.Child(d, conversionResponseFields.Get().Result)
 }
 
-// ConversionReview describes a conversion request/response.
-type ConversionReviewDie struct {
-	diebase.DieTypedBase[ConversionReview, *ConversionReviewDie]
+// uid is an identifier for the individual request/response.
+// This should be copied over from the corresponding `request.uid`.
+func (d *ConversionResponseDieMut) UID() diefields.ValueMut[types.UID, *ConversionResponseDieMut] {
+	return diefields.ValueMutOf(d, conversionResponseFields.Get().UID)
 }
 
-func (*ConversionReviewDie) DieFrom(b diebase.DieBase[ConversionReview, *ConversionReviewDie]) *ConversionReviewDie {
+// convertedObjects is the list of converted version of `request.objects` if the `result` is successful, otherwise empty.
+// The webhook is expected to set `apiVersion` of these objects to the `request.desiredAPIVersion`. The list
+// must also have the same size as the input list with the same objects in the same order (equal kind, metadata.uid, metadata.name and metadata.namespace).
+// The webhook is allowed to mutate labels and annotations. Any other change to the metadata is silently ignored.
+func (d *ConversionResponseDieMut) ConvertedObjects() diefields.ValueMut[[]runtime.RawExtension, *ConversionResponseDieMut] {
+	return diefields.ValueMutOf(d, conversionResponseFields.Get().ConvertedObjects)
+}
+
+// result contains the result of conversion with extra details if the conversion failed. `result.status` determines if
+// the conversion failed or succeeded. The `result.status` field is required and represents the success or failure of the
+// conversion. A successful conversion must set `result.status` to `Success`. A failed conversion must set
+// `result.status` to `Failure` and provide more details in `result.message` and return http status 200. The `result.message`
+// will be used to construct an error message for the end user.
+func (d *ConversionResponseDieMut) Result() *diemetav1.StatusDieMut {
+	return diefields.ChildMut(d, conversionResponseFields.Get().Result)
+}
+
+// ConversionReview describes a conversion request/response.
+//
+// ConversionReviewDie is immutable: it reads.
+// ConversionReviewDieMut, its mutable die, also writes, as DieWith passes it.
+type ConversionReviewDie struct {
+	diebase.DieTypedBase[ConversionReview, *ConversionReviewDie, *ConversionReviewDieMut]
+}
+
+// ConversionReviewDieMut is the mutable die of ConversionReview: see ConversionReviewDie.
+type ConversionReviewDieMut struct {
+	diebase.DieTypedMutBase[ConversionReview, *ConversionReviewDie, *ConversionReviewDieMut]
+}
+
+func (*ConversionReviewDie) DieFrom(b diebase.DieBase[ConversionReview, *ConversionReviewDie, *ConversionReviewDieMut]) *ConversionReviewDie {
 	return &ConversionReviewDie{diebase.AsTyped(b)}
 }
 
-var _ diefields.DieTypedOf[ConversionReview, *ConversionReviewDie] = (*ConversionReviewDie)(nil)
+func (*ConversionReviewDieMut) DieFrom(b diebase.DieMutBase[ConversionReview, *ConversionReviewDie, *ConversionReviewDieMut]) *ConversionReviewDieMut {
+	return &ConversionReviewDieMut{diebase.AsTypedMut(b)}
+}
 
-var ConversionReviewBlank = diebase.BlankOf[ConversionReview, *ConversionReviewDie](ConversionReview{TypeMeta: metav1.TypeMeta{APIVersion: "apiextensions.k8s.io/v1", Kind: "ConversionReview"}})
+var (
+	_ diefields.DieTypedOf[ConversionReview, *ConversionReviewDie, *ConversionReviewDieMut]    = (*ConversionReviewDie)(nil)
+	_ diefields.DieTypedMutOf[ConversionReview, *ConversionReviewDie, *ConversionReviewDieMut] = (*ConversionReviewDieMut)(nil)
+)
+
+var ConversionReviewBlank = diebase.BlankOf[ConversionReview, *ConversionReviewDie, *ConversionReviewDieMut](ConversionReview{TypeMeta: metav1.TypeMeta{APIVersion: "apiextensions.k8s.io/v1", Kind: "ConversionReview"}})
 
 type conversionReviewFieldsTable struct {
 	Kind       diefields.Field[ConversionReview, string]
 	APIVersion diefields.Field[ConversionReview, string]
-	Request    diefields.Struct[ConversionReview, ConversionRequest, *ConversionRequestDie]
-	Response   diefields.Struct[ConversionReview, ConversionResponse, *ConversionResponseDie]
+	Request    diefields.Struct[ConversionReview, ConversionRequest, *ConversionRequestDie, *ConversionRequestDieMut]
+	Response   diefields.Struct[ConversionReview, ConversionResponse, *ConversionResponseDie, *ConversionResponseDieMut]
 }
 
 var conversionReviewFields = &diefields.Table[conversionReviewFieldsTable]{Build: func() (f conversionReviewFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[ConversionReview, string]("kind")
 	f.APIVersion = diefields.NewField[ConversionReview, string]("apiVersion")
-	f.Request = diefields.NewStruct[ConversionReview, ConversionRequest, *ConversionRequestDie]("request")
-	f.Response = diefields.NewStruct[ConversionReview, ConversionResponse, *ConversionResponseDie]("response")
+	f.Request = diefields.NewStruct[ConversionReview, ConversionRequest, *ConversionRequestDie, *ConversionRequestDieMut]("request")
+	f.Response = diefields.NewStruct[ConversionReview, ConversionResponse, *ConversionResponseDie, *ConversionResponseDieMut]("response")
 	return
 }}
 
@@ -160,7 +246,7 @@ var conversionReviewFields = &diefields.Table[conversionReviewFieldsTable]{Build
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *ConversionReviewDie) Kind() diefields.Value[string, *ConversionReviewDie] {
+func (d *ConversionReviewDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, conversionReviewFields.Get().Kind)
 }
 
@@ -168,7 +254,7 @@ func (d *ConversionReviewDie) Kind() diefields.Value[string, *ConversionReviewDi
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *ConversionReviewDie) APIVersion() diefields.Value[string, *ConversionReviewDie] {
+func (d *ConversionReviewDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, conversionReviewFields.Get().APIVersion)
 }
 
@@ -182,18 +268,60 @@ func (d *ConversionReviewDie) Response() *ConversionResponseDie {
 	return diefields.Child(d, conversionReviewFields.Get().Response)
 }
 
-// CustomResourceColumnDefinition specifies a column for server side printing.
-type CustomResourceColumnDefinitionDie struct {
-	diebase.DieBase[CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *ConversionReviewDieMut) Kind() diefields.ValueMut[string, *ConversionReviewDieMut] {
+	return diefields.ValueMutOf(d, conversionReviewFields.Get().Kind)
 }
 
-func (*CustomResourceColumnDefinitionDie) DieFrom(b diebase.DieBase[CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie]) *CustomResourceColumnDefinitionDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *ConversionReviewDieMut) APIVersion() diefields.ValueMut[string, *ConversionReviewDieMut] {
+	return diefields.ValueMutOf(d, conversionReviewFields.Get().APIVersion)
+}
+
+// request describes the attributes for the conversion request.
+func (d *ConversionReviewDieMut) Request() *ConversionRequestDieMut {
+	return diefields.ChildMut(d, conversionReviewFields.Get().Request)
+}
+
+// response describes the attributes for the conversion response.
+func (d *ConversionReviewDieMut) Response() *ConversionResponseDieMut {
+	return diefields.ChildMut(d, conversionReviewFields.Get().Response)
+}
+
+// CustomResourceColumnDefinition specifies a column for server side printing.
+//
+// CustomResourceColumnDefinitionDie is immutable: it reads.
+// CustomResourceColumnDefinitionDieMut, its mutable die, also writes, as DieWith passes it.
+type CustomResourceColumnDefinitionDie struct {
+	diebase.DieBase[CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie, *CustomResourceColumnDefinitionDieMut]
+}
+
+// CustomResourceColumnDefinitionDieMut is the mutable die of CustomResourceColumnDefinition: see CustomResourceColumnDefinitionDie.
+type CustomResourceColumnDefinitionDieMut struct {
+	diebase.DieMutBase[CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie, *CustomResourceColumnDefinitionDieMut]
+}
+
+func (*CustomResourceColumnDefinitionDie) DieFrom(b diebase.DieBase[CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie, *CustomResourceColumnDefinitionDieMut]) *CustomResourceColumnDefinitionDie {
 	return &CustomResourceColumnDefinitionDie{b}
 }
 
-var _ diebase.DieOf[CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie] = (*CustomResourceColumnDefinitionDie)(nil)
+func (*CustomResourceColumnDefinitionDieMut) DieFrom(b diebase.DieMutBase[CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie, *CustomResourceColumnDefinitionDieMut]) *CustomResourceColumnDefinitionDieMut {
+	return &CustomResourceColumnDefinitionDieMut{b}
+}
 
-var CustomResourceColumnDefinitionBlank = diebase.Blank[CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie]()
+var (
+	_ diebase.DieOf[CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie, *CustomResourceColumnDefinitionDieMut]    = (*CustomResourceColumnDefinitionDie)(nil)
+	_ diebase.DieMutOf[CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie, *CustomResourceColumnDefinitionDieMut] = (*CustomResourceColumnDefinitionDieMut)(nil)
+)
+
+var CustomResourceColumnDefinitionBlank = diebase.Blank[CustomResourceColumnDefinition, *CustomResourceColumnDefinitionDie, *CustomResourceColumnDefinitionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -202,34 +330,47 @@ func (d *CustomResourceColumnDefinitionDie) DieReleaseApplyConfiguration() *Cust
 	return diecodegen.ReleaseApplyConfiguration[CustomResourceColumnDefinitionApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CustomResourceColumnDefinitionDie) DieFeedApplyConfiguration(ac *CustomResourceColumnDefinitionApplyConfiguration) *CustomResourceColumnDefinitionDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CustomResourceColumnDefinitionDie) DieStampApplyConfiguration(fn func(ac *CustomResourceColumnDefinitionApplyConfiguration)) *CustomResourceColumnDefinitionDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CustomResourceColumnDefinitionDie) DieReleaseApplyConfigurationE() (*CustomResourceColumnDefinitionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CustomResourceColumnDefinitionApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CustomResourceColumnDefinitionDieMut) DieReleaseApplyConfiguration() *CustomResourceColumnDefinitionApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CustomResourceColumnDefinitionApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CustomResourceColumnDefinitionDieMut) DieReleaseApplyConfigurationE() (*CustomResourceColumnDefinitionApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CustomResourceColumnDefinitionApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CustomResourceColumnDefinitionDieMut) DieFeedApplyConfiguration(ac *CustomResourceColumnDefinitionApplyConfiguration) *CustomResourceColumnDefinitionDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CustomResourceColumnDefinitionDieMut) DieStampApplyConfiguration(fn func(ac *CustomResourceColumnDefinitionApplyConfiguration)) *CustomResourceColumnDefinitionDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceColumnDefinitionDie) DieFeedApplyConfigurationE(ac *CustomResourceColumnDefinitionApplyConfiguration) (*CustomResourceColumnDefinitionDie, error) {
+func (d *CustomResourceColumnDefinitionDieMut) DieFeedApplyConfigurationE(ac *CustomResourceColumnDefinitionApplyConfiguration) (*CustomResourceColumnDefinitionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceColumnDefinitionDie) DieStampApplyConfigurationE(fn func(ac *CustomResourceColumnDefinitionApplyConfiguration)) (*CustomResourceColumnDefinitionDie, error) {
+func (d *CustomResourceColumnDefinitionDieMut) DieStampApplyConfigurationE(fn func(ac *CustomResourceColumnDefinitionApplyConfiguration)) (*CustomResourceColumnDefinitionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -254,53 +395,104 @@ var customResourceColumnDefinitionFields = &diefields.Table[customResourceColumn
 }}
 
 // name is a human readable name for the column.
-func (d *CustomResourceColumnDefinitionDie) Name() diefields.Value[string, *CustomResourceColumnDefinitionDie] {
+func (d *CustomResourceColumnDefinitionDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, customResourceColumnDefinitionFields.Get().Name)
 }
 
 // type is an OpenAPI type definition for this column.
 // See https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#data-types for details.
-func (d *CustomResourceColumnDefinitionDie) Type() diefields.Value[string, *CustomResourceColumnDefinitionDie] {
+func (d *CustomResourceColumnDefinitionDie) Type() diefields.Value[string] {
 	return diefields.ValueOf(d, customResourceColumnDefinitionFields.Get().Type)
 }
 
 // format is an optional OpenAPI type definition for this column. The 'name' format is applied
 // to the primary identifier column to assist in clients identifying column is the resource name.
 // See https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#data-types for details.
-func (d *CustomResourceColumnDefinitionDie) Format() diefields.Value[string, *CustomResourceColumnDefinitionDie] {
+func (d *CustomResourceColumnDefinitionDie) Format() diefields.Value[string] {
 	return diefields.ValueOf(d, customResourceColumnDefinitionFields.Get().Format)
 }
 
 // description is a human readable description of this column.
-func (d *CustomResourceColumnDefinitionDie) Description() diefields.Value[string, *CustomResourceColumnDefinitionDie] {
+func (d *CustomResourceColumnDefinitionDie) Description() diefields.Value[string] {
 	return diefields.ValueOf(d, customResourceColumnDefinitionFields.Get().Description)
 }
 
 // priority is an integer defining the relative importance of this column compared to others. Lower
 // numbers are considered higher priority. Columns that may be omitted in limited space scenarios
 // should be given a priority greater than 0.
-func (d *CustomResourceColumnDefinitionDie) Priority() diefields.Value[int32, *CustomResourceColumnDefinitionDie] {
+func (d *CustomResourceColumnDefinitionDie) Priority() diefields.Value[int32] {
 	return diefields.ValueOf(d, customResourceColumnDefinitionFields.Get().Priority)
 }
 
 // jsonPath is a simple JSON path (i.e. with array notation) which is evaluated against
 // each custom resource to produce the value for this column.
-func (d *CustomResourceColumnDefinitionDie) JSONPath() diefields.Value[string, *CustomResourceColumnDefinitionDie] {
+func (d *CustomResourceColumnDefinitionDie) JSONPath() diefields.Value[string] {
 	return diefields.ValueOf(d, customResourceColumnDefinitionFields.Get().JSONPath)
 }
 
-// CustomResourceConversion describes how to convert different versions of a CR.
-type CustomResourceConversionDie struct {
-	diebase.DieBase[CustomResourceConversion, *CustomResourceConversionDie]
+// name is a human readable name for the column.
+func (d *CustomResourceColumnDefinitionDieMut) Name() diefields.ValueMut[string, *CustomResourceColumnDefinitionDieMut] {
+	return diefields.ValueMutOf(d, customResourceColumnDefinitionFields.Get().Name)
 }
 
-func (*CustomResourceConversionDie) DieFrom(b diebase.DieBase[CustomResourceConversion, *CustomResourceConversionDie]) *CustomResourceConversionDie {
+// type is an OpenAPI type definition for this column.
+// See https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#data-types for details.
+func (d *CustomResourceColumnDefinitionDieMut) Type() diefields.ValueMut[string, *CustomResourceColumnDefinitionDieMut] {
+	return diefields.ValueMutOf(d, customResourceColumnDefinitionFields.Get().Type)
+}
+
+// format is an optional OpenAPI type definition for this column. The 'name' format is applied
+// to the primary identifier column to assist in clients identifying column is the resource name.
+// See https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#data-types for details.
+func (d *CustomResourceColumnDefinitionDieMut) Format() diefields.ValueMut[string, *CustomResourceColumnDefinitionDieMut] {
+	return diefields.ValueMutOf(d, customResourceColumnDefinitionFields.Get().Format)
+}
+
+// description is a human readable description of this column.
+func (d *CustomResourceColumnDefinitionDieMut) Description() diefields.ValueMut[string, *CustomResourceColumnDefinitionDieMut] {
+	return diefields.ValueMutOf(d, customResourceColumnDefinitionFields.Get().Description)
+}
+
+// priority is an integer defining the relative importance of this column compared to others. Lower
+// numbers are considered higher priority. Columns that may be omitted in limited space scenarios
+// should be given a priority greater than 0.
+func (d *CustomResourceColumnDefinitionDieMut) Priority() diefields.ValueMut[int32, *CustomResourceColumnDefinitionDieMut] {
+	return diefields.ValueMutOf(d, customResourceColumnDefinitionFields.Get().Priority)
+}
+
+// jsonPath is a simple JSON path (i.e. with array notation) which is evaluated against
+// each custom resource to produce the value for this column.
+func (d *CustomResourceColumnDefinitionDieMut) JSONPath() diefields.ValueMut[string, *CustomResourceColumnDefinitionDieMut] {
+	return diefields.ValueMutOf(d, customResourceColumnDefinitionFields.Get().JSONPath)
+}
+
+// CustomResourceConversion describes how to convert different versions of a CR.
+//
+// CustomResourceConversionDie is immutable: it reads.
+// CustomResourceConversionDieMut, its mutable die, also writes, as DieWith passes it.
+type CustomResourceConversionDie struct {
+	diebase.DieBase[CustomResourceConversion, *CustomResourceConversionDie, *CustomResourceConversionDieMut]
+}
+
+// CustomResourceConversionDieMut is the mutable die of CustomResourceConversion: see CustomResourceConversionDie.
+type CustomResourceConversionDieMut struct {
+	diebase.DieMutBase[CustomResourceConversion, *CustomResourceConversionDie, *CustomResourceConversionDieMut]
+}
+
+func (*CustomResourceConversionDie) DieFrom(b diebase.DieBase[CustomResourceConversion, *CustomResourceConversionDie, *CustomResourceConversionDieMut]) *CustomResourceConversionDie {
 	return &CustomResourceConversionDie{b}
 }
 
-var _ diebase.DieOf[CustomResourceConversion, *CustomResourceConversionDie] = (*CustomResourceConversionDie)(nil)
+func (*CustomResourceConversionDieMut) DieFrom(b diebase.DieMutBase[CustomResourceConversion, *CustomResourceConversionDie, *CustomResourceConversionDieMut]) *CustomResourceConversionDieMut {
+	return &CustomResourceConversionDieMut{b}
+}
 
-var CustomResourceConversionBlank = diebase.Blank[CustomResourceConversion, *CustomResourceConversionDie]()
+var (
+	_ diebase.DieOf[CustomResourceConversion, *CustomResourceConversionDie, *CustomResourceConversionDieMut]    = (*CustomResourceConversionDie)(nil)
+	_ diebase.DieMutOf[CustomResourceConversion, *CustomResourceConversionDie, *CustomResourceConversionDieMut] = (*CustomResourceConversionDieMut)(nil)
+)
+
+var CustomResourceConversionBlank = diebase.Blank[CustomResourceConversion, *CustomResourceConversionDie, *CustomResourceConversionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -309,46 +501,59 @@ func (d *CustomResourceConversionDie) DieReleaseApplyConfiguration() *CustomReso
 	return diecodegen.ReleaseApplyConfiguration[CustomResourceConversionApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CustomResourceConversionDie) DieFeedApplyConfiguration(ac *CustomResourceConversionApplyConfiguration) *CustomResourceConversionDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CustomResourceConversionDie) DieStampApplyConfiguration(fn func(ac *CustomResourceConversionApplyConfiguration)) *CustomResourceConversionDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CustomResourceConversionDie) DieReleaseApplyConfigurationE() (*CustomResourceConversionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CustomResourceConversionApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CustomResourceConversionDieMut) DieReleaseApplyConfiguration() *CustomResourceConversionApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CustomResourceConversionApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CustomResourceConversionDieMut) DieReleaseApplyConfigurationE() (*CustomResourceConversionApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CustomResourceConversionApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CustomResourceConversionDieMut) DieFeedApplyConfiguration(ac *CustomResourceConversionApplyConfiguration) *CustomResourceConversionDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CustomResourceConversionDieMut) DieStampApplyConfiguration(fn func(ac *CustomResourceConversionApplyConfiguration)) *CustomResourceConversionDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceConversionDie) DieFeedApplyConfigurationE(ac *CustomResourceConversionApplyConfiguration) (*CustomResourceConversionDie, error) {
+func (d *CustomResourceConversionDieMut) DieFeedApplyConfigurationE(ac *CustomResourceConversionApplyConfiguration) (*CustomResourceConversionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceConversionDie) DieStampApplyConfigurationE(fn func(ac *CustomResourceConversionApplyConfiguration)) (*CustomResourceConversionDie, error) {
+func (d *CustomResourceConversionDieMut) DieStampApplyConfigurationE(fn func(ac *CustomResourceConversionApplyConfiguration)) (*CustomResourceConversionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type customResourceConversionFieldsTable struct {
 	Strategy diefields.Field[CustomResourceConversion, ConversionStrategyType]
-	Webhook  diefields.Struct[CustomResourceConversion, WebhookConversion, *WebhookConversionDie]
+	Webhook  diefields.Struct[CustomResourceConversion, WebhookConversion, *WebhookConversionDie, *WebhookConversionDieMut]
 }
 
 var customResourceConversionFields = &diefields.Table[customResourceConversionFieldsTable]{Build: func() (f customResourceConversionFieldsTable) {
 	_ = annotated
 	f.Strategy = diefields.NewField[CustomResourceConversion, ConversionStrategyType]("strategy")
-	f.Webhook = diefields.NewStruct[CustomResourceConversion, WebhookConversion, *WebhookConversionDie]("webhook")
+	f.Webhook = diefields.NewStruct[CustomResourceConversion, WebhookConversion, *WebhookConversionDie, *WebhookConversionDieMut]("webhook")
 	return
 }}
 
@@ -356,7 +561,7 @@ var customResourceConversionFields = &diefields.Table[customResourceConversionFi
 //   - `"None"`: The converter only change the apiVersion and would not touch any other field in the custom resource.
 //   - `"Webhook"`: API Server will call to an external webhook to do the conversion. Additional information
 //     is needed for this option. This requires spec.preserveUnknownFields to be false, and spec.conversion.webhook to be set.
-func (d *CustomResourceConversionDie) Strategy() diefields.Value[ConversionStrategyType, *CustomResourceConversionDie] {
+func (d *CustomResourceConversionDie) Strategy() diefields.Value[ConversionStrategyType] {
 	return diefields.ValueOf(d, customResourceConversionFields.Get().Strategy)
 }
 
@@ -365,19 +570,47 @@ func (d *CustomResourceConversionDie) Webhook() *WebhookConversionDie {
 	return diefields.Child(d, customResourceConversionFields.Get().Webhook)
 }
 
-// CustomResourceDefinition represents a resource that should be exposed on the API server.  Its name MUST be in the format
-// <.spec.name>.<.spec.group>.
-type CustomResourceDefinitionDie struct {
-	diebase.DieObjectBase[CustomResourceDefinition, *CustomResourceDefinitionDie]
+// strategy specifies how custom resources are converted between versions. Allowed values are:
+//   - `"None"`: The converter only change the apiVersion and would not touch any other field in the custom resource.
+//   - `"Webhook"`: API Server will call to an external webhook to do the conversion. Additional information
+//     is needed for this option. This requires spec.preserveUnknownFields to be false, and spec.conversion.webhook to be set.
+func (d *CustomResourceConversionDieMut) Strategy() diefields.ValueMut[ConversionStrategyType, *CustomResourceConversionDieMut] {
+	return diefields.ValueMutOf(d, customResourceConversionFields.Get().Strategy)
 }
 
-func (*CustomResourceDefinitionDie) DieFrom(b diebase.DieBase[CustomResourceDefinition, *CustomResourceDefinitionDie]) *CustomResourceDefinitionDie {
+// webhook describes how to call the conversion webhook. Required when `strategy` is set to `"Webhook"`.
+func (d *CustomResourceConversionDieMut) Webhook() *WebhookConversionDieMut {
+	return diefields.ChildMut(d, customResourceConversionFields.Get().Webhook)
+}
+
+// CustomResourceDefinition represents a resource that should be exposed on the API server.  Its name MUST be in the format
+// <.spec.name>.<.spec.group>.
+//
+// CustomResourceDefinitionDie is immutable: it reads.
+// CustomResourceDefinitionDieMut, its mutable die, also writes, as DieWith passes it.
+type CustomResourceDefinitionDie struct {
+	diebase.DieObjectBase[CustomResourceDefinition, *CustomResourceDefinitionDie, *CustomResourceDefinitionDieMut]
+}
+
+// CustomResourceDefinitionDieMut is the mutable die of CustomResourceDefinition: see CustomResourceDefinitionDie.
+type CustomResourceDefinitionDieMut struct {
+	diebase.DieObjectMutBase[CustomResourceDefinition, *CustomResourceDefinitionDie, *CustomResourceDefinitionDieMut]
+}
+
+func (*CustomResourceDefinitionDie) DieFrom(b diebase.DieBase[CustomResourceDefinition, *CustomResourceDefinitionDie, *CustomResourceDefinitionDieMut]) *CustomResourceDefinitionDie {
 	return &CustomResourceDefinitionDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[CustomResourceDefinition, *CustomResourceDefinitionDie] = (*CustomResourceDefinitionDie)(nil)
+func (*CustomResourceDefinitionDieMut) DieFrom(b diebase.DieMutBase[CustomResourceDefinition, *CustomResourceDefinitionDie, *CustomResourceDefinitionDieMut]) *CustomResourceDefinitionDieMut {
+	return &CustomResourceDefinitionDieMut{diebase.AsObjectMut(b)}
+}
 
-var CustomResourceDefinitionBlank = diebase.BlankOf[CustomResourceDefinition, *CustomResourceDefinitionDie](CustomResourceDefinition{TypeMeta: metav1.TypeMeta{APIVersion: "apiextensions.k8s.io/v1", Kind: "CustomResourceDefinition"}})
+var (
+	_ dieobjects.DieObjectOf[CustomResourceDefinition, *CustomResourceDefinitionDie, *CustomResourceDefinitionDieMut]    = (*CustomResourceDefinitionDie)(nil)
+	_ dieobjects.DieObjectMutOf[CustomResourceDefinition, *CustomResourceDefinitionDie, *CustomResourceDefinitionDieMut] = (*CustomResourceDefinitionDieMut)(nil)
+)
+
+var CustomResourceDefinitionBlank = diebase.BlankOf[CustomResourceDefinition, *CustomResourceDefinitionDie, *CustomResourceDefinitionDieMut](CustomResourceDefinition{TypeMeta: metav1.TypeMeta{APIVersion: "apiextensions.k8s.io/v1", Kind: "CustomResourceDefinition"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -386,52 +619,65 @@ func (d *CustomResourceDefinitionDie) DieReleaseApplyConfiguration() *CustomReso
 	return diecodegen.ReleaseApplyConfiguration[CustomResourceDefinitionApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CustomResourceDefinitionDie) DieFeedApplyConfiguration(ac *CustomResourceDefinitionApplyConfiguration) *CustomResourceDefinitionDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CustomResourceDefinitionDie) DieStampApplyConfiguration(fn func(ac *CustomResourceDefinitionApplyConfiguration)) *CustomResourceDefinitionDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CustomResourceDefinitionDie) DieReleaseApplyConfigurationE() (*CustomResourceDefinitionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CustomResourceDefinitionApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CustomResourceDefinitionDieMut) DieReleaseApplyConfiguration() *CustomResourceDefinitionApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CustomResourceDefinitionApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CustomResourceDefinitionDieMut) DieReleaseApplyConfigurationE() (*CustomResourceDefinitionApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CustomResourceDefinitionApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CustomResourceDefinitionDieMut) DieFeedApplyConfiguration(ac *CustomResourceDefinitionApplyConfiguration) *CustomResourceDefinitionDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CustomResourceDefinitionDieMut) DieStampApplyConfiguration(fn func(ac *CustomResourceDefinitionApplyConfiguration)) *CustomResourceDefinitionDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceDefinitionDie) DieFeedApplyConfigurationE(ac *CustomResourceDefinitionApplyConfiguration) (*CustomResourceDefinitionDie, error) {
+func (d *CustomResourceDefinitionDieMut) DieFeedApplyConfigurationE(ac *CustomResourceDefinitionApplyConfiguration) (*CustomResourceDefinitionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceDefinitionDie) DieStampApplyConfigurationE(fn func(ac *CustomResourceDefinitionApplyConfiguration)) (*CustomResourceDefinitionDie, error) {
+func (d *CustomResourceDefinitionDieMut) DieStampApplyConfigurationE(fn func(ac *CustomResourceDefinitionApplyConfiguration)) (*CustomResourceDefinitionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type customResourceDefinitionFieldsTable struct {
 	Kind       diefields.Field[CustomResourceDefinition, string]
 	APIVersion diefields.Field[CustomResourceDefinition, string]
-	Metadata   diefields.Struct[CustomResourceDefinition, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[CustomResourceDefinition, CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie]
-	Status     diefields.Struct[CustomResourceDefinition, CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie]
+	Metadata   diefields.Struct[CustomResourceDefinition, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[CustomResourceDefinition, CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie, *CustomResourceDefinitionSpecDieMut]
+	Status     diefields.Struct[CustomResourceDefinition, CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie, *CustomResourceDefinitionStatusDieMut]
 }
 
 var customResourceDefinitionFields = &diefields.Table[customResourceDefinitionFieldsTable]{Build: func() (f customResourceDefinitionFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[CustomResourceDefinition, string]("kind")
 	f.APIVersion = diefields.NewField[CustomResourceDefinition, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[CustomResourceDefinition, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[CustomResourceDefinition, CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie]("spec")
-	f.Status = diefields.NewStruct[CustomResourceDefinition, CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie]("status")
+	f.Metadata = diefields.NewStruct[CustomResourceDefinition, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[CustomResourceDefinition, CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie, *CustomResourceDefinitionSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[CustomResourceDefinition, CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie, *CustomResourceDefinitionStatusDieMut]("status")
 	return
 }}
 
@@ -440,7 +686,7 @@ var customResourceDefinitionFields = &diefields.Table[customResourceDefinitionFi
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *CustomResourceDefinitionDie) Kind() diefields.Value[string, *CustomResourceDefinitionDie] {
+func (d *CustomResourceDefinitionDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, customResourceDefinitionFields.Get().Kind)
 }
 
@@ -448,7 +694,7 @@ func (d *CustomResourceDefinitionDie) Kind() diefields.Value[string, *CustomReso
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *CustomResourceDefinitionDie) APIVersion() diefields.Value[string, *CustomResourceDefinitionDie] {
+func (d *CustomResourceDefinitionDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, customResourceDefinitionFields.Get().APIVersion)
 }
 
@@ -468,18 +714,66 @@ func (d *CustomResourceDefinitionDie) Status() *CustomResourceDefinitionStatusDi
 	return diefields.Child(d, customResourceDefinitionFields.Get().Status)
 }
 
-// CustomResourceDefinitionCondition contains details for the current condition of this pod.
-type CustomResourceDefinitionConditionDie struct {
-	diebase.DieBase[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *CustomResourceDefinitionDieMut) Kind() diefields.ValueMut[string, *CustomResourceDefinitionDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionFields.Get().Kind)
 }
 
-func (*CustomResourceDefinitionConditionDie) DieFrom(b diebase.DieBase[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie]) *CustomResourceDefinitionConditionDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *CustomResourceDefinitionDieMut) APIVersion() diefields.ValueMut[string, *CustomResourceDefinitionDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionFields.Get().APIVersion)
+}
+
+// Standard object's metadata
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+func (d *CustomResourceDefinitionDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, customResourceDefinitionFields.Get().Metadata)
+}
+
+// spec describes how the user wants the resources to appear
+func (d *CustomResourceDefinitionDieMut) Spec() *CustomResourceDefinitionSpecDieMut {
+	return diefields.ChildMut(d, customResourceDefinitionFields.Get().Spec)
+}
+
+// status indicates the actual state of the CustomResourceDefinition
+func (d *CustomResourceDefinitionDieMut) Status() *CustomResourceDefinitionStatusDieMut {
+	return diefields.ChildMut(d, customResourceDefinitionFields.Get().Status)
+}
+
+// CustomResourceDefinitionCondition contains details for the current condition of this pod.
+//
+// CustomResourceDefinitionConditionDie is immutable: it reads.
+// CustomResourceDefinitionConditionDieMut, its mutable die, also writes, as DieWith passes it.
+type CustomResourceDefinitionConditionDie struct {
+	diebase.DieBase[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut]
+}
+
+// CustomResourceDefinitionConditionDieMut is the mutable die of CustomResourceDefinitionCondition: see CustomResourceDefinitionConditionDie.
+type CustomResourceDefinitionConditionDieMut struct {
+	diebase.DieMutBase[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut]
+}
+
+func (*CustomResourceDefinitionConditionDie) DieFrom(b diebase.DieBase[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut]) *CustomResourceDefinitionConditionDie {
 	return &CustomResourceDefinitionConditionDie{b}
 }
 
-var _ diebase.DieOf[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie] = (*CustomResourceDefinitionConditionDie)(nil)
+func (*CustomResourceDefinitionConditionDieMut) DieFrom(b diebase.DieMutBase[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut]) *CustomResourceDefinitionConditionDieMut {
+	return &CustomResourceDefinitionConditionDieMut{b}
+}
 
-var CustomResourceDefinitionConditionBlank = diebase.Blank[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie]()
+var (
+	_ diebase.DieOf[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut]    = (*CustomResourceDefinitionConditionDie)(nil)
+	_ diebase.DieMutOf[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut] = (*CustomResourceDefinitionConditionDieMut)(nil)
+)
+
+var CustomResourceDefinitionConditionBlank = diebase.Blank[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -488,34 +782,47 @@ func (d *CustomResourceDefinitionConditionDie) DieReleaseApplyConfiguration() *C
 	return diecodegen.ReleaseApplyConfiguration[CustomResourceDefinitionConditionApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CustomResourceDefinitionConditionDie) DieFeedApplyConfiguration(ac *CustomResourceDefinitionConditionApplyConfiguration) *CustomResourceDefinitionConditionDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CustomResourceDefinitionConditionDie) DieStampApplyConfiguration(fn func(ac *CustomResourceDefinitionConditionApplyConfiguration)) *CustomResourceDefinitionConditionDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CustomResourceDefinitionConditionDie) DieReleaseApplyConfigurationE() (*CustomResourceDefinitionConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CustomResourceDefinitionConditionApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CustomResourceDefinitionConditionDieMut) DieReleaseApplyConfiguration() *CustomResourceDefinitionConditionApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CustomResourceDefinitionConditionApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CustomResourceDefinitionConditionDieMut) DieReleaseApplyConfigurationE() (*CustomResourceDefinitionConditionApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CustomResourceDefinitionConditionApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CustomResourceDefinitionConditionDieMut) DieFeedApplyConfiguration(ac *CustomResourceDefinitionConditionApplyConfiguration) *CustomResourceDefinitionConditionDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CustomResourceDefinitionConditionDieMut) DieStampApplyConfiguration(fn func(ac *CustomResourceDefinitionConditionApplyConfiguration)) *CustomResourceDefinitionConditionDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceDefinitionConditionDie) DieFeedApplyConfigurationE(ac *CustomResourceDefinitionConditionApplyConfiguration) (*CustomResourceDefinitionConditionDie, error) {
+func (d *CustomResourceDefinitionConditionDieMut) DieFeedApplyConfigurationE(ac *CustomResourceDefinitionConditionApplyConfiguration) (*CustomResourceDefinitionConditionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceDefinitionConditionDie) DieStampApplyConfigurationE(fn func(ac *CustomResourceDefinitionConditionApplyConfiguration)) (*CustomResourceDefinitionConditionDie, error) {
+func (d *CustomResourceDefinitionConditionDieMut) DieStampApplyConfigurationE(fn func(ac *CustomResourceDefinitionConditionApplyConfiguration)) (*CustomResourceDefinitionConditionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -540,47 +847,80 @@ var customResourceDefinitionConditionFields = &diefields.Table[customResourceDef
 }}
 
 // type is the type of the condition. Types include Established, NamesAccepted and Terminating.
-func (d *CustomResourceDefinitionConditionDie) Type() diefields.Value[CustomResourceDefinitionConditionType, *CustomResourceDefinitionConditionDie] {
+func (d *CustomResourceDefinitionConditionDie) Type() diefields.Value[CustomResourceDefinitionConditionType] {
 	return diefields.ValueOf(d, customResourceDefinitionConditionFields.Get().Type)
 }
 
 // status is the status of the condition.
 // Can be True, False, Unknown.
-func (d *CustomResourceDefinitionConditionDie) Status() diefields.Value[ConditionStatus, *CustomResourceDefinitionConditionDie] {
+func (d *CustomResourceDefinitionConditionDie) Status() diefields.Value[ConditionStatus] {
 	return diefields.ValueOf(d, customResourceDefinitionConditionFields.Get().Status)
 }
 
 // lastTransitionTime last time the condition transitioned from one status to another.
-func (d *CustomResourceDefinitionConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time, *CustomResourceDefinitionConditionDie] {
+func (d *CustomResourceDefinitionConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time] {
 	return diefields.ValueOf(d, customResourceDefinitionConditionFields.Get().LastTransitionTime)
 }
 
 // reason is a unique, one-word, CamelCase reason for the condition's last transition.
-func (d *CustomResourceDefinitionConditionDie) Reason() diefields.Value[string, *CustomResourceDefinitionConditionDie] {
+func (d *CustomResourceDefinitionConditionDie) Reason() diefields.Value[string] {
 	return diefields.ValueOf(d, customResourceDefinitionConditionFields.Get().Reason)
 }
 
 // message is a human-readable message indicating details about last transition.
-func (d *CustomResourceDefinitionConditionDie) Message() diefields.Value[string, *CustomResourceDefinitionConditionDie] {
+func (d *CustomResourceDefinitionConditionDie) Message() diefields.Value[string] {
 	return diefields.ValueOf(d, customResourceDefinitionConditionFields.Get().Message)
 }
 
 // observedGeneration represents the .metadata.generation that the condition was set based upon.
 // For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
 // with respect to the current state of the instance.
-func (d *CustomResourceDefinitionConditionDie) ObservedGeneration() diefields.Value[int64, *CustomResourceDefinitionConditionDie] {
+func (d *CustomResourceDefinitionConditionDie) ObservedGeneration() diefields.Value[int64] {
 	return diefields.ValueOf(d, customResourceDefinitionConditionFields.Get().ObservedGeneration)
+}
+
+// type is the type of the condition. Types include Established, NamesAccepted and Terminating.
+func (d *CustomResourceDefinitionConditionDieMut) Type() diefields.ValueMut[CustomResourceDefinitionConditionType, *CustomResourceDefinitionConditionDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionConditionFields.Get().Type)
+}
+
+// status is the status of the condition.
+// Can be True, False, Unknown.
+func (d *CustomResourceDefinitionConditionDieMut) Status() diefields.ValueMut[ConditionStatus, *CustomResourceDefinitionConditionDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionConditionFields.Get().Status)
+}
+
+// lastTransitionTime last time the condition transitioned from one status to another.
+func (d *CustomResourceDefinitionConditionDieMut) LastTransitionTime() diefields.ValueMut[diemetav1.Time, *CustomResourceDefinitionConditionDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionConditionFields.Get().LastTransitionTime)
+}
+
+// reason is a unique, one-word, CamelCase reason for the condition's last transition.
+func (d *CustomResourceDefinitionConditionDieMut) Reason() diefields.ValueMut[string, *CustomResourceDefinitionConditionDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionConditionFields.Get().Reason)
+}
+
+// message is a human-readable message indicating details about last transition.
+func (d *CustomResourceDefinitionConditionDieMut) Message() diefields.ValueMut[string, *CustomResourceDefinitionConditionDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionConditionFields.Get().Message)
+}
+
+// observedGeneration represents the .metadata.generation that the condition was set based upon.
+// For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+// with respect to the current state of the instance.
+func (d *CustomResourceDefinitionConditionDieMut) ObservedGeneration() diefields.ValueMut[int64, *CustomResourceDefinitionConditionDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionConditionFields.Get().ObservedGeneration)
 }
 
 // CustomResourceDefinitionList is a list of CustomResourceDefinition objects.
 type CustomResourceDefinitionListDie struct {
-	dielists.List[*CustomResourceDefinitionDie]
+	dielists.List[*CustomResourceDefinitionDieMut]
 }
 
-var _ dielists.DieListOf[*CustomResourceDefinitionDie] = (*CustomResourceDefinitionListDie)(nil)
+var _ dielists.DieListOf[*CustomResourceDefinitionDieMut] = (*CustomResourceDefinitionListDie)(nil)
 
 // NewCustomResourceDefinitionList returns a list with items.
-func NewCustomResourceDefinitionList(items ...*CustomResourceDefinitionDie) *CustomResourceDefinitionListDie {
+func NewCustomResourceDefinitionList(items ...*CustomResourceDefinitionDieMut) *CustomResourceDefinitionListDie {
 	return &CustomResourceDefinitionListDie{dielists.NewList("apiextensions.k8s.io/v1", "CustomResourceDefinitionList", items...)}
 }
 
@@ -592,17 +932,32 @@ func (l *CustomResourceDefinitionListDie) DeepCopy() *CustomResourceDefinitionLi
 func (l *CustomResourceDefinitionListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // CustomResourceDefinitionNames indicates the names to serve this CustomResourceDefinition
+//
+// CustomResourceDefinitionNamesDie is immutable: it reads.
+// CustomResourceDefinitionNamesDieMut, its mutable die, also writes, as DieWith passes it.
 type CustomResourceDefinitionNamesDie struct {
-	diebase.DieBase[CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie]
+	diebase.DieBase[CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut]
 }
 
-func (*CustomResourceDefinitionNamesDie) DieFrom(b diebase.DieBase[CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie]) *CustomResourceDefinitionNamesDie {
+// CustomResourceDefinitionNamesDieMut is the mutable die of CustomResourceDefinitionNames: see CustomResourceDefinitionNamesDie.
+type CustomResourceDefinitionNamesDieMut struct {
+	diebase.DieMutBase[CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut]
+}
+
+func (*CustomResourceDefinitionNamesDie) DieFrom(b diebase.DieBase[CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut]) *CustomResourceDefinitionNamesDie {
 	return &CustomResourceDefinitionNamesDie{b}
 }
 
-var _ diebase.DieOf[CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie] = (*CustomResourceDefinitionNamesDie)(nil)
+func (*CustomResourceDefinitionNamesDieMut) DieFrom(b diebase.DieMutBase[CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut]) *CustomResourceDefinitionNamesDieMut {
+	return &CustomResourceDefinitionNamesDieMut{b}
+}
 
-var CustomResourceDefinitionNamesBlank = diebase.Blank[CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie]()
+var (
+	_ diebase.DieOf[CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut]    = (*CustomResourceDefinitionNamesDie)(nil)
+	_ diebase.DieMutOf[CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut] = (*CustomResourceDefinitionNamesDieMut)(nil)
+)
+
+var CustomResourceDefinitionNamesBlank = diebase.Blank[CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -611,34 +966,47 @@ func (d *CustomResourceDefinitionNamesDie) DieReleaseApplyConfiguration() *Custo
 	return diecodegen.ReleaseApplyConfiguration[CustomResourceDefinitionNamesApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CustomResourceDefinitionNamesDie) DieFeedApplyConfiguration(ac *CustomResourceDefinitionNamesApplyConfiguration) *CustomResourceDefinitionNamesDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CustomResourceDefinitionNamesDie) DieStampApplyConfiguration(fn func(ac *CustomResourceDefinitionNamesApplyConfiguration)) *CustomResourceDefinitionNamesDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CustomResourceDefinitionNamesDie) DieReleaseApplyConfigurationE() (*CustomResourceDefinitionNamesApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CustomResourceDefinitionNamesApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CustomResourceDefinitionNamesDieMut) DieReleaseApplyConfiguration() *CustomResourceDefinitionNamesApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CustomResourceDefinitionNamesApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CustomResourceDefinitionNamesDieMut) DieReleaseApplyConfigurationE() (*CustomResourceDefinitionNamesApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CustomResourceDefinitionNamesApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CustomResourceDefinitionNamesDieMut) DieFeedApplyConfiguration(ac *CustomResourceDefinitionNamesApplyConfiguration) *CustomResourceDefinitionNamesDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CustomResourceDefinitionNamesDieMut) DieStampApplyConfiguration(fn func(ac *CustomResourceDefinitionNamesApplyConfiguration)) *CustomResourceDefinitionNamesDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceDefinitionNamesDie) DieFeedApplyConfigurationE(ac *CustomResourceDefinitionNamesApplyConfiguration) (*CustomResourceDefinitionNamesDie, error) {
+func (d *CustomResourceDefinitionNamesDieMut) DieFeedApplyConfigurationE(ac *CustomResourceDefinitionNamesApplyConfiguration) (*CustomResourceDefinitionNamesDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceDefinitionNamesDie) DieStampApplyConfigurationE(fn func(ac *CustomResourceDefinitionNamesApplyConfiguration)) (*CustomResourceDefinitionNamesDie, error) {
+func (d *CustomResourceDefinitionNamesDieMut) DieStampApplyConfigurationE(fn func(ac *CustomResourceDefinitionNamesApplyConfiguration)) (*CustomResourceDefinitionNamesDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -666,52 +1034,105 @@ var customResourceDefinitionNamesFields = &diefields.Table[customResourceDefinit
 // The custom resources are served under `/apis/<group>/<version>/.../<plural>`.
 // Must match the name of the CustomResourceDefinition (in the form `<names.plural>.<group>`).
 // Must be all lowercase.
-func (d *CustomResourceDefinitionNamesDie) Plural() diefields.Value[string, *CustomResourceDefinitionNamesDie] {
+func (d *CustomResourceDefinitionNamesDie) Plural() diefields.Value[string] {
 	return diefields.ValueOf(d, customResourceDefinitionNamesFields.Get().Plural)
 }
 
 // singular is the singular name of the resource. It must be all lowercase. Defaults to lowercased `kind`.
-func (d *CustomResourceDefinitionNamesDie) Singular() diefields.Value[string, *CustomResourceDefinitionNamesDie] {
+func (d *CustomResourceDefinitionNamesDie) Singular() diefields.Value[string] {
 	return diefields.ValueOf(d, customResourceDefinitionNamesFields.Get().Singular)
 }
 
 // shortNames are short names for the resource, exposed in API discovery documents,
 // and used by clients to support invocations like `kubectl get <shortname>`.
 // It must be all lowercase.
-func (d *CustomResourceDefinitionNamesDie) ShortNames() diefields.Value[[]string, *CustomResourceDefinitionNamesDie] {
+func (d *CustomResourceDefinitionNamesDie) ShortNames() diefields.Value[[]string] {
 	return diefields.ValueOf(d, customResourceDefinitionNamesFields.Get().ShortNames)
 }
 
 // kind is the serialized kind of the resource. It is normally CamelCase and singular.
 // Custom resource instances will use this value as the `kind` attribute in API calls.
-func (d *CustomResourceDefinitionNamesDie) Kind() diefields.Value[string, *CustomResourceDefinitionNamesDie] {
+func (d *CustomResourceDefinitionNamesDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, customResourceDefinitionNamesFields.Get().Kind)
 }
 
 // listKind is the serialized kind of the list for this resource. Defaults to "`kind`List".
-func (d *CustomResourceDefinitionNamesDie) ListKind() diefields.Value[string, *CustomResourceDefinitionNamesDie] {
+func (d *CustomResourceDefinitionNamesDie) ListKind() diefields.Value[string] {
 	return diefields.ValueOf(d, customResourceDefinitionNamesFields.Get().ListKind)
 }
 
 // categories is a list of grouped resources this custom resource belongs to (e.g. 'all').
 // This is published in API discovery documents, and used by clients to support invocations like
 // `kubectl get all`.
-func (d *CustomResourceDefinitionNamesDie) Categories() diefields.Value[[]string, *CustomResourceDefinitionNamesDie] {
+func (d *CustomResourceDefinitionNamesDie) Categories() diefields.Value[[]string] {
 	return diefields.ValueOf(d, customResourceDefinitionNamesFields.Get().Categories)
 }
 
-// CustomResourceDefinitionSpec describes how a user wants their resource to appear
-type CustomResourceDefinitionSpecDie struct {
-	diebase.DieBase[CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie]
+// plural is the plural name of the resource to serve.
+// The custom resources are served under `/apis/<group>/<version>/.../<plural>`.
+// Must match the name of the CustomResourceDefinition (in the form `<names.plural>.<group>`).
+// Must be all lowercase.
+func (d *CustomResourceDefinitionNamesDieMut) Plural() diefields.ValueMut[string, *CustomResourceDefinitionNamesDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionNamesFields.Get().Plural)
 }
 
-func (*CustomResourceDefinitionSpecDie) DieFrom(b diebase.DieBase[CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie]) *CustomResourceDefinitionSpecDie {
+// singular is the singular name of the resource. It must be all lowercase. Defaults to lowercased `kind`.
+func (d *CustomResourceDefinitionNamesDieMut) Singular() diefields.ValueMut[string, *CustomResourceDefinitionNamesDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionNamesFields.Get().Singular)
+}
+
+// shortNames are short names for the resource, exposed in API discovery documents,
+// and used by clients to support invocations like `kubectl get <shortname>`.
+// It must be all lowercase.
+func (d *CustomResourceDefinitionNamesDieMut) ShortNames() diefields.ValueMut[[]string, *CustomResourceDefinitionNamesDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionNamesFields.Get().ShortNames)
+}
+
+// kind is the serialized kind of the resource. It is normally CamelCase and singular.
+// Custom resource instances will use this value as the `kind` attribute in API calls.
+func (d *CustomResourceDefinitionNamesDieMut) Kind() diefields.ValueMut[string, *CustomResourceDefinitionNamesDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionNamesFields.Get().Kind)
+}
+
+// listKind is the serialized kind of the list for this resource. Defaults to "`kind`List".
+func (d *CustomResourceDefinitionNamesDieMut) ListKind() diefields.ValueMut[string, *CustomResourceDefinitionNamesDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionNamesFields.Get().ListKind)
+}
+
+// categories is a list of grouped resources this custom resource belongs to (e.g. 'all').
+// This is published in API discovery documents, and used by clients to support invocations like
+// `kubectl get all`.
+func (d *CustomResourceDefinitionNamesDieMut) Categories() diefields.ValueMut[[]string, *CustomResourceDefinitionNamesDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionNamesFields.Get().Categories)
+}
+
+// CustomResourceDefinitionSpec describes how a user wants their resource to appear
+//
+// CustomResourceDefinitionSpecDie is immutable: it reads.
+// CustomResourceDefinitionSpecDieMut, its mutable die, also writes, as DieWith passes it.
+type CustomResourceDefinitionSpecDie struct {
+	diebase.DieBase[CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie, *CustomResourceDefinitionSpecDieMut]
+}
+
+// CustomResourceDefinitionSpecDieMut is the mutable die of CustomResourceDefinitionSpec: see CustomResourceDefinitionSpecDie.
+type CustomResourceDefinitionSpecDieMut struct {
+	diebase.DieMutBase[CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie, *CustomResourceDefinitionSpecDieMut]
+}
+
+func (*CustomResourceDefinitionSpecDie) DieFrom(b diebase.DieBase[CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie, *CustomResourceDefinitionSpecDieMut]) *CustomResourceDefinitionSpecDie {
 	return &CustomResourceDefinitionSpecDie{b}
 }
 
-var _ diebase.DieOf[CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie] = (*CustomResourceDefinitionSpecDie)(nil)
+func (*CustomResourceDefinitionSpecDieMut) DieFrom(b diebase.DieMutBase[CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie, *CustomResourceDefinitionSpecDieMut]) *CustomResourceDefinitionSpecDieMut {
+	return &CustomResourceDefinitionSpecDieMut{b}
+}
 
-var CustomResourceDefinitionSpecBlank = diebase.Blank[CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie]()
+var (
+	_ diebase.DieOf[CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie, *CustomResourceDefinitionSpecDieMut]    = (*CustomResourceDefinitionSpecDie)(nil)
+	_ diebase.DieMutOf[CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie, *CustomResourceDefinitionSpecDieMut] = (*CustomResourceDefinitionSpecDieMut)(nil)
+)
+
+var CustomResourceDefinitionSpecBlank = diebase.Blank[CustomResourceDefinitionSpec, *CustomResourceDefinitionSpecDie, *CustomResourceDefinitionSpecDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -720,53 +1141,66 @@ func (d *CustomResourceDefinitionSpecDie) DieReleaseApplyConfiguration() *Custom
 	return diecodegen.ReleaseApplyConfiguration[CustomResourceDefinitionSpecApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CustomResourceDefinitionSpecDie) DieFeedApplyConfiguration(ac *CustomResourceDefinitionSpecApplyConfiguration) *CustomResourceDefinitionSpecDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CustomResourceDefinitionSpecDie) DieStampApplyConfiguration(fn func(ac *CustomResourceDefinitionSpecApplyConfiguration)) *CustomResourceDefinitionSpecDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CustomResourceDefinitionSpecDie) DieReleaseApplyConfigurationE() (*CustomResourceDefinitionSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CustomResourceDefinitionSpecApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CustomResourceDefinitionSpecDieMut) DieReleaseApplyConfiguration() *CustomResourceDefinitionSpecApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CustomResourceDefinitionSpecApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CustomResourceDefinitionSpecDieMut) DieReleaseApplyConfigurationE() (*CustomResourceDefinitionSpecApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CustomResourceDefinitionSpecApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CustomResourceDefinitionSpecDieMut) DieFeedApplyConfiguration(ac *CustomResourceDefinitionSpecApplyConfiguration) *CustomResourceDefinitionSpecDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CustomResourceDefinitionSpecDieMut) DieStampApplyConfiguration(fn func(ac *CustomResourceDefinitionSpecApplyConfiguration)) *CustomResourceDefinitionSpecDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceDefinitionSpecDie) DieFeedApplyConfigurationE(ac *CustomResourceDefinitionSpecApplyConfiguration) (*CustomResourceDefinitionSpecDie, error) {
+func (d *CustomResourceDefinitionSpecDieMut) DieFeedApplyConfigurationE(ac *CustomResourceDefinitionSpecApplyConfiguration) (*CustomResourceDefinitionSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceDefinitionSpecDie) DieStampApplyConfigurationE(fn func(ac *CustomResourceDefinitionSpecApplyConfiguration)) (*CustomResourceDefinitionSpecDie, error) {
+func (d *CustomResourceDefinitionSpecDieMut) DieStampApplyConfigurationE(fn func(ac *CustomResourceDefinitionSpecApplyConfiguration)) (*CustomResourceDefinitionSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type customResourceDefinitionSpecFieldsTable struct {
 	Group                 diefields.Field[CustomResourceDefinitionSpec, string]
-	Names                 diefields.Struct[CustomResourceDefinitionSpec, CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie]
+	Names                 diefields.Struct[CustomResourceDefinitionSpec, CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut]
 	Scope                 diefields.Field[CustomResourceDefinitionSpec, ResourceScope]
 	Versions              diefields.Field[CustomResourceDefinitionSpec, []CustomResourceDefinitionVersion]
-	Conversion            diefields.Struct[CustomResourceDefinitionSpec, CustomResourceConversion, *CustomResourceConversionDie]
+	Conversion            diefields.Struct[CustomResourceDefinitionSpec, CustomResourceConversion, *CustomResourceConversionDie, *CustomResourceConversionDieMut]
 	PreserveUnknownFields diefields.Field[CustomResourceDefinitionSpec, bool]
 }
 
 var customResourceDefinitionSpecFields = &diefields.Table[customResourceDefinitionSpecFieldsTable]{Build: func() (f customResourceDefinitionSpecFieldsTable) {
 	_ = annotated
 	f.Group = diefields.NewField[CustomResourceDefinitionSpec, string]("group")
-	f.Names = diefields.NewStruct[CustomResourceDefinitionSpec, CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie]("names")
+	f.Names = diefields.NewStruct[CustomResourceDefinitionSpec, CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut]("names")
 	f.Scope = diefields.NewField[CustomResourceDefinitionSpec, ResourceScope]("scope")
 	f.Versions = diefields.NewField[CustomResourceDefinitionSpec, []CustomResourceDefinitionVersion]("versions")
-	f.Conversion = diefields.NewStruct[CustomResourceDefinitionSpec, CustomResourceConversion, *CustomResourceConversionDie]("conversion")
+	f.Conversion = diefields.NewStruct[CustomResourceDefinitionSpec, CustomResourceConversion, *CustomResourceConversionDie, *CustomResourceConversionDieMut]("conversion")
 	f.PreserveUnknownFields = diefields.NewField[CustomResourceDefinitionSpec, bool]("preserveUnknownFields")
 	return
 }}
@@ -774,7 +1208,7 @@ var customResourceDefinitionSpecFields = &diefields.Table[customResourceDefiniti
 // group is the API group of the defined custom resource.
 // The custom resources are served under `/apis/<group>/...`.
 // Must match the name of the CustomResourceDefinition (in the form `<names.plural>.<group>`).
-func (d *CustomResourceDefinitionSpecDie) Group() diefields.Value[string, *CustomResourceDefinitionSpecDie] {
+func (d *CustomResourceDefinitionSpecDie) Group() diefields.Value[string] {
 	return diefields.ValueOf(d, customResourceDefinitionSpecFields.Get().Group)
 }
 
@@ -785,7 +1219,7 @@ func (d *CustomResourceDefinitionSpecDie) Names() *CustomResourceDefinitionNames
 
 // scope indicates whether the defined custom resource is cluster- or namespace-scoped.
 // Allowed values are `Cluster` and `Namespaced`.
-func (d *CustomResourceDefinitionSpecDie) Scope() diefields.Value[ResourceScope, *CustomResourceDefinitionSpecDie] {
+func (d *CustomResourceDefinitionSpecDie) Scope() diefields.Value[ResourceScope] {
 	return diefields.ValueOf(d, customResourceDefinitionSpecFields.Get().Scope)
 }
 
@@ -797,7 +1231,7 @@ func (d *CustomResourceDefinitionSpecDie) Scope() diefields.Value[ResourceScope,
 // by GA > beta > alpha (where GA is a version with no suffix such as beta or alpha), and then by comparing
 // major version, then minor version. An example sorted list of versions:
 // v10, v2, v1, v11beta2, v10beta3, v3beta1, v12alpha1, v11alpha2, foo1, foo10.
-func (d *CustomResourceDefinitionSpecDie) Versions() diefields.Value[[]CustomResourceDefinitionVersion, *CustomResourceDefinitionSpecDie] {
+func (d *CustomResourceDefinitionSpecDie) Versions() diefields.Value[[]CustomResourceDefinitionVersion] {
 	return diefields.ValueOf(d, customResourceDefinitionSpecFields.Get().Versions)
 }
 
@@ -811,22 +1245,81 @@ func (d *CustomResourceDefinitionSpecDie) Conversion() *CustomResourceConversion
 // apiVersion, kind, metadata and known fields inside metadata are always preserved.
 // This field is deprecated in favor of setting `x-preserve-unknown-fields` to true in `spec.versions[*].schema.openAPIV3Schema`.
 // See https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#field-pruning for details.
-func (d *CustomResourceDefinitionSpecDie) PreserveUnknownFields() diefields.Value[bool, *CustomResourceDefinitionSpecDie] {
+func (d *CustomResourceDefinitionSpecDie) PreserveUnknownFields() diefields.Value[bool] {
 	return diefields.ValueOf(d, customResourceDefinitionSpecFields.Get().PreserveUnknownFields)
 }
 
-// CustomResourceDefinitionStatus indicates the state of the CustomResourceDefinition
-type CustomResourceDefinitionStatusDie struct {
-	diebase.DieBase[CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie]
+// group is the API group of the defined custom resource.
+// The custom resources are served under `/apis/<group>/...`.
+// Must match the name of the CustomResourceDefinition (in the form `<names.plural>.<group>`).
+func (d *CustomResourceDefinitionSpecDieMut) Group() diefields.ValueMut[string, *CustomResourceDefinitionSpecDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionSpecFields.Get().Group)
 }
 
-func (*CustomResourceDefinitionStatusDie) DieFrom(b diebase.DieBase[CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie]) *CustomResourceDefinitionStatusDie {
+// names specify the resource and kind names for the custom resource.
+func (d *CustomResourceDefinitionSpecDieMut) Names() *CustomResourceDefinitionNamesDieMut {
+	return diefields.ChildMut(d, customResourceDefinitionSpecFields.Get().Names)
+}
+
+// scope indicates whether the defined custom resource is cluster- or namespace-scoped.
+// Allowed values are `Cluster` and `Namespaced`.
+func (d *CustomResourceDefinitionSpecDieMut) Scope() diefields.ValueMut[ResourceScope, *CustomResourceDefinitionSpecDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionSpecFields.Get().Scope)
+}
+
+// versions is the list of all API versions of the defined custom resource.
+// Version names are used to compute the order in which served versions are listed in API discovery.
+// If the version string is "kube-like", it will sort above non "kube-like" version strings, which are ordered
+// lexicographically. "Kube-like" versions start with a "v", then are followed by a number (the major version),
+// then optionally the string "alpha" or "beta" and another number (the minor version). These are sorted first
+// by GA > beta > alpha (where GA is a version with no suffix such as beta or alpha), and then by comparing
+// major version, then minor version. An example sorted list of versions:
+// v10, v2, v1, v11beta2, v10beta3, v3beta1, v12alpha1, v11alpha2, foo1, foo10.
+func (d *CustomResourceDefinitionSpecDieMut) Versions() diefields.ValueMut[[]CustomResourceDefinitionVersion, *CustomResourceDefinitionSpecDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionSpecFields.Get().Versions)
+}
+
+// conversion defines conversion settings for the CRD.
+func (d *CustomResourceDefinitionSpecDieMut) Conversion() *CustomResourceConversionDieMut {
+	return diefields.ChildMut(d, customResourceDefinitionSpecFields.Get().Conversion)
+}
+
+// preserveUnknownFields indicates that object fields which are not specified
+// in the OpenAPI schema should be preserved when persisting to storage.
+// apiVersion, kind, metadata and known fields inside metadata are always preserved.
+// This field is deprecated in favor of setting `x-preserve-unknown-fields` to true in `spec.versions[*].schema.openAPIV3Schema`.
+// See https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#field-pruning for details.
+func (d *CustomResourceDefinitionSpecDieMut) PreserveUnknownFields() diefields.ValueMut[bool, *CustomResourceDefinitionSpecDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionSpecFields.Get().PreserveUnknownFields)
+}
+
+// CustomResourceDefinitionStatus indicates the state of the CustomResourceDefinition
+//
+// CustomResourceDefinitionStatusDie is immutable: it reads.
+// CustomResourceDefinitionStatusDieMut, its mutable die, also writes, as DieWith passes it.
+type CustomResourceDefinitionStatusDie struct {
+	diebase.DieBase[CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie, *CustomResourceDefinitionStatusDieMut]
+}
+
+// CustomResourceDefinitionStatusDieMut is the mutable die of CustomResourceDefinitionStatus: see CustomResourceDefinitionStatusDie.
+type CustomResourceDefinitionStatusDieMut struct {
+	diebase.DieMutBase[CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie, *CustomResourceDefinitionStatusDieMut]
+}
+
+func (*CustomResourceDefinitionStatusDie) DieFrom(b diebase.DieBase[CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie, *CustomResourceDefinitionStatusDieMut]) *CustomResourceDefinitionStatusDie {
 	return &CustomResourceDefinitionStatusDie{b}
 }
 
-var _ diebase.DieOf[CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie] = (*CustomResourceDefinitionStatusDie)(nil)
+func (*CustomResourceDefinitionStatusDieMut) DieFrom(b diebase.DieMutBase[CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie, *CustomResourceDefinitionStatusDieMut]) *CustomResourceDefinitionStatusDieMut {
+	return &CustomResourceDefinitionStatusDieMut{b}
+}
 
-var CustomResourceDefinitionStatusBlank = diebase.Blank[CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie]()
+var (
+	_ diebase.DieOf[CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie, *CustomResourceDefinitionStatusDieMut]    = (*CustomResourceDefinitionStatusDie)(nil)
+	_ diebase.DieMutOf[CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie, *CustomResourceDefinitionStatusDieMut] = (*CustomResourceDefinitionStatusDieMut)(nil)
+)
+
+var CustomResourceDefinitionStatusBlank = diebase.Blank[CustomResourceDefinitionStatus, *CustomResourceDefinitionStatusDie, *CustomResourceDefinitionStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -835,48 +1328,61 @@ func (d *CustomResourceDefinitionStatusDie) DieReleaseApplyConfiguration() *Cust
 	return diecodegen.ReleaseApplyConfiguration[CustomResourceDefinitionStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CustomResourceDefinitionStatusDie) DieFeedApplyConfiguration(ac *CustomResourceDefinitionStatusApplyConfiguration) *CustomResourceDefinitionStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CustomResourceDefinitionStatusDie) DieStampApplyConfiguration(fn func(ac *CustomResourceDefinitionStatusApplyConfiguration)) *CustomResourceDefinitionStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CustomResourceDefinitionStatusDie) DieReleaseApplyConfigurationE() (*CustomResourceDefinitionStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CustomResourceDefinitionStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CustomResourceDefinitionStatusDieMut) DieReleaseApplyConfiguration() *CustomResourceDefinitionStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CustomResourceDefinitionStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CustomResourceDefinitionStatusDieMut) DieReleaseApplyConfigurationE() (*CustomResourceDefinitionStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CustomResourceDefinitionStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CustomResourceDefinitionStatusDieMut) DieFeedApplyConfiguration(ac *CustomResourceDefinitionStatusApplyConfiguration) *CustomResourceDefinitionStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CustomResourceDefinitionStatusDieMut) DieStampApplyConfiguration(fn func(ac *CustomResourceDefinitionStatusApplyConfiguration)) *CustomResourceDefinitionStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceDefinitionStatusDie) DieFeedApplyConfigurationE(ac *CustomResourceDefinitionStatusApplyConfiguration) (*CustomResourceDefinitionStatusDie, error) {
+func (d *CustomResourceDefinitionStatusDieMut) DieFeedApplyConfigurationE(ac *CustomResourceDefinitionStatusApplyConfiguration) (*CustomResourceDefinitionStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceDefinitionStatusDie) DieStampApplyConfigurationE(fn func(ac *CustomResourceDefinitionStatusApplyConfiguration)) (*CustomResourceDefinitionStatusDie, error) {
+func (d *CustomResourceDefinitionStatusDieMut) DieStampApplyConfigurationE(fn func(ac *CustomResourceDefinitionStatusApplyConfiguration)) (*CustomResourceDefinitionStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type customResourceDefinitionStatusFieldsTable struct {
-	Conditions         diefields.ListMapField[CustomResourceDefinitionStatus, CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, CustomResourceDefinitionConditionType]
-	AcceptedNames      diefields.Struct[CustomResourceDefinitionStatus, CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie]
+	Conditions         diefields.ListMapField[CustomResourceDefinitionStatus, CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut, CustomResourceDefinitionConditionType]
+	AcceptedNames      diefields.Struct[CustomResourceDefinitionStatus, CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut]
 	StoredVersions     diefields.Field[CustomResourceDefinitionStatus, []string]
 	ObservedGeneration diefields.Field[CustomResourceDefinitionStatus, int64]
 }
 
 var customResourceDefinitionStatusFields = &diefields.Table[customResourceDefinitionStatusFieldsTable]{Build: func() (f customResourceDefinitionStatusFieldsTable) {
 	_ = annotated
-	f.Conditions = diefields.NewListMap[CustomResourceDefinitionStatus, CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie]("conditions", func(k CustomResourceDefinitionConditionType) []any { return []any{k} }, func(e CustomResourceDefinitionCondition) CustomResourceDefinitionConditionType { return e.Type })
-	f.AcceptedNames = diefields.NewStruct[CustomResourceDefinitionStatus, CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie]("acceptedNames")
+	f.Conditions = diefields.NewListMap[CustomResourceDefinitionStatus, CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDie, *CustomResourceDefinitionConditionDieMut]("conditions", func(k CustomResourceDefinitionConditionType) []any { return []any{k} }, func(e CustomResourceDefinitionCondition) CustomResourceDefinitionConditionType { return e.Type })
+	f.AcceptedNames = diefields.NewStruct[CustomResourceDefinitionStatus, CustomResourceDefinitionNames, *CustomResourceDefinitionNamesDie, *CustomResourceDefinitionNamesDieMut]("acceptedNames")
 	f.StoredVersions = diefields.NewField[CustomResourceDefinitionStatus, []string]("storedVersions")
 	f.ObservedGeneration = diefields.NewField[CustomResourceDefinitionStatus, int64]("observedGeneration")
 	return
@@ -899,27 +1405,68 @@ func (d *CustomResourceDefinitionStatusDie) AcceptedNames() *CustomResourceDefin
 // no old objects are left in storage), and then remove the rest of the
 // versions from this list.
 // Versions may not be removed from `spec.versions` while they exist in this list.
-func (d *CustomResourceDefinitionStatusDie) StoredVersions() diefields.Value[[]string, *CustomResourceDefinitionStatusDie] {
+func (d *CustomResourceDefinitionStatusDie) StoredVersions() diefields.Value[[]string] {
 	return diefields.ValueOf(d, customResourceDefinitionStatusFields.Get().StoredVersions)
 }
 
 // The generation observed by the CRD controller.
-func (d *CustomResourceDefinitionStatusDie) ObservedGeneration() diefields.Value[int64, *CustomResourceDefinitionStatusDie] {
+func (d *CustomResourceDefinitionStatusDie) ObservedGeneration() diefields.Value[int64] {
 	return diefields.ValueOf(d, customResourceDefinitionStatusFields.Get().ObservedGeneration)
 }
 
-// CustomResourceDefinitionVersion describes a version for CRD.
-type CustomResourceDefinitionVersionDie struct {
-	diebase.DieBase[CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie]
+// conditions indicate state for particular aspects of a CustomResourceDefinition
+func (d *CustomResourceDefinitionStatusDieMut) Conditions() *diefields.ListMapMut[CustomResourceDefinitionCondition, *CustomResourceDefinitionConditionDieMut, CustomResourceDefinitionConditionType] {
+	return diefields.ListMapMutOf(d, customResourceDefinitionStatusFields.Get().Conditions)
 }
 
-func (*CustomResourceDefinitionVersionDie) DieFrom(b diebase.DieBase[CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie]) *CustomResourceDefinitionVersionDie {
+// acceptedNames are the names that are actually being used to serve discovery.
+// They may be different than the names in spec.
+func (d *CustomResourceDefinitionStatusDieMut) AcceptedNames() *CustomResourceDefinitionNamesDieMut {
+	return diefields.ChildMut(d, customResourceDefinitionStatusFields.Get().AcceptedNames)
+}
+
+// storedVersions lists all versions of CustomResources that were ever persisted. Tracking these
+// versions allows a migration path for stored versions in etcd. The field is mutable
+// so a migration controller can finish a migration to another version (ensuring
+// no old objects are left in storage), and then remove the rest of the
+// versions from this list.
+// Versions may not be removed from `spec.versions` while they exist in this list.
+func (d *CustomResourceDefinitionStatusDieMut) StoredVersions() diefields.ValueMut[[]string, *CustomResourceDefinitionStatusDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionStatusFields.Get().StoredVersions)
+}
+
+// The generation observed by the CRD controller.
+func (d *CustomResourceDefinitionStatusDieMut) ObservedGeneration() diefields.ValueMut[int64, *CustomResourceDefinitionStatusDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionStatusFields.Get().ObservedGeneration)
+}
+
+// CustomResourceDefinitionVersion describes a version for CRD.
+//
+// CustomResourceDefinitionVersionDie is immutable: it reads.
+// CustomResourceDefinitionVersionDieMut, its mutable die, also writes, as DieWith passes it.
+type CustomResourceDefinitionVersionDie struct {
+	diebase.DieBase[CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie, *CustomResourceDefinitionVersionDieMut]
+}
+
+// CustomResourceDefinitionVersionDieMut is the mutable die of CustomResourceDefinitionVersion: see CustomResourceDefinitionVersionDie.
+type CustomResourceDefinitionVersionDieMut struct {
+	diebase.DieMutBase[CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie, *CustomResourceDefinitionVersionDieMut]
+}
+
+func (*CustomResourceDefinitionVersionDie) DieFrom(b diebase.DieBase[CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie, *CustomResourceDefinitionVersionDieMut]) *CustomResourceDefinitionVersionDie {
 	return &CustomResourceDefinitionVersionDie{b}
 }
 
-var _ diebase.DieOf[CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie] = (*CustomResourceDefinitionVersionDie)(nil)
+func (*CustomResourceDefinitionVersionDieMut) DieFrom(b diebase.DieMutBase[CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie, *CustomResourceDefinitionVersionDieMut]) *CustomResourceDefinitionVersionDieMut {
+	return &CustomResourceDefinitionVersionDieMut{b}
+}
 
-var CustomResourceDefinitionVersionBlank = diebase.Blank[CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie]()
+var (
+	_ diebase.DieOf[CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie, *CustomResourceDefinitionVersionDieMut]    = (*CustomResourceDefinitionVersionDie)(nil)
+	_ diebase.DieMutOf[CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie, *CustomResourceDefinitionVersionDieMut] = (*CustomResourceDefinitionVersionDieMut)(nil)
+)
+
+var CustomResourceDefinitionVersionBlank = diebase.Blank[CustomResourceDefinitionVersion, *CustomResourceDefinitionVersionDie, *CustomResourceDefinitionVersionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -928,34 +1475,47 @@ func (d *CustomResourceDefinitionVersionDie) DieReleaseApplyConfiguration() *Cus
 	return diecodegen.ReleaseApplyConfiguration[CustomResourceDefinitionVersionApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CustomResourceDefinitionVersionDie) DieFeedApplyConfiguration(ac *CustomResourceDefinitionVersionApplyConfiguration) *CustomResourceDefinitionVersionDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CustomResourceDefinitionVersionDie) DieStampApplyConfiguration(fn func(ac *CustomResourceDefinitionVersionApplyConfiguration)) *CustomResourceDefinitionVersionDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CustomResourceDefinitionVersionDie) DieReleaseApplyConfigurationE() (*CustomResourceDefinitionVersionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CustomResourceDefinitionVersionApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CustomResourceDefinitionVersionDieMut) DieReleaseApplyConfiguration() *CustomResourceDefinitionVersionApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CustomResourceDefinitionVersionApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CustomResourceDefinitionVersionDieMut) DieReleaseApplyConfigurationE() (*CustomResourceDefinitionVersionApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CustomResourceDefinitionVersionApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CustomResourceDefinitionVersionDieMut) DieFeedApplyConfiguration(ac *CustomResourceDefinitionVersionApplyConfiguration) *CustomResourceDefinitionVersionDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CustomResourceDefinitionVersionDieMut) DieStampApplyConfiguration(fn func(ac *CustomResourceDefinitionVersionApplyConfiguration)) *CustomResourceDefinitionVersionDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceDefinitionVersionDie) DieFeedApplyConfigurationE(ac *CustomResourceDefinitionVersionApplyConfiguration) (*CustomResourceDefinitionVersionDie, error) {
+func (d *CustomResourceDefinitionVersionDieMut) DieFeedApplyConfigurationE(ac *CustomResourceDefinitionVersionApplyConfiguration) (*CustomResourceDefinitionVersionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceDefinitionVersionDie) DieStampApplyConfigurationE(fn func(ac *CustomResourceDefinitionVersionApplyConfiguration)) (*CustomResourceDefinitionVersionDie, error) {
+func (d *CustomResourceDefinitionVersionDieMut) DieStampApplyConfigurationE(fn func(ac *CustomResourceDefinitionVersionApplyConfiguration)) (*CustomResourceDefinitionVersionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -965,8 +1525,8 @@ type customResourceDefinitionVersionFieldsTable struct {
 	Storage                  diefields.Field[CustomResourceDefinitionVersion, bool]
 	Deprecated               diefields.Field[CustomResourceDefinitionVersion, bool]
 	DeprecationWarning       diefields.Field[CustomResourceDefinitionVersion, *string]
-	Schema                   diefields.Struct[CustomResourceDefinitionVersion, CustomResourceValidation, *CustomResourceValidationDie]
-	Subresources             diefields.Struct[CustomResourceDefinitionVersion, CustomResourceSubresources, *CustomResourceSubresourcesDie]
+	Schema                   diefields.Struct[CustomResourceDefinitionVersion, CustomResourceValidation, *CustomResourceValidationDie, *CustomResourceValidationDieMut]
+	Subresources             diefields.Struct[CustomResourceDefinitionVersion, CustomResourceSubresources, *CustomResourceSubresourcesDie, *CustomResourceSubresourcesDieMut]
 	AdditionalPrinterColumns diefields.Field[CustomResourceDefinitionVersion, []CustomResourceColumnDefinition]
 	SelectableFields         diefields.Field[CustomResourceDefinitionVersion, []SelectableField]
 }
@@ -978,8 +1538,8 @@ var customResourceDefinitionVersionFields = &diefields.Table[customResourceDefin
 	f.Storage = diefields.NewField[CustomResourceDefinitionVersion, bool]("storage")
 	f.Deprecated = diefields.NewField[CustomResourceDefinitionVersion, bool]("deprecated")
 	f.DeprecationWarning = diefields.NewField[CustomResourceDefinitionVersion, *string]("deprecationWarning")
-	f.Schema = diefields.NewStruct[CustomResourceDefinitionVersion, CustomResourceValidation, *CustomResourceValidationDie]("schema")
-	f.Subresources = diefields.NewStruct[CustomResourceDefinitionVersion, CustomResourceSubresources, *CustomResourceSubresourcesDie]("subresources")
+	f.Schema = diefields.NewStruct[CustomResourceDefinitionVersion, CustomResourceValidation, *CustomResourceValidationDie, *CustomResourceValidationDieMut]("schema")
+	f.Subresources = diefields.NewStruct[CustomResourceDefinitionVersion, CustomResourceSubresources, *CustomResourceSubresourcesDie, *CustomResourceSubresourcesDieMut]("subresources")
 	f.AdditionalPrinterColumns = diefields.NewField[CustomResourceDefinitionVersion, []CustomResourceColumnDefinition]("additionalPrinterColumns")
 	f.SelectableFields = diefields.NewField[CustomResourceDefinitionVersion, []SelectableField]("selectableFields")
 	return
@@ -987,25 +1547,25 @@ var customResourceDefinitionVersionFields = &diefields.Table[customResourceDefin
 
 // name is the version name, e.g. “v1”, “v2beta1”, etc.
 // The custom resources are served under this version at `/apis/<group>/<version>/...` if `served` is true.
-func (d *CustomResourceDefinitionVersionDie) Name() diefields.Value[string, *CustomResourceDefinitionVersionDie] {
+func (d *CustomResourceDefinitionVersionDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, customResourceDefinitionVersionFields.Get().Name)
 }
 
 // served is a flag enabling/disabling this version from being served via REST APIs
-func (d *CustomResourceDefinitionVersionDie) Served() diefields.Value[bool, *CustomResourceDefinitionVersionDie] {
+func (d *CustomResourceDefinitionVersionDie) Served() diefields.Value[bool] {
 	return diefields.ValueOf(d, customResourceDefinitionVersionFields.Get().Served)
 }
 
 // storage indicates this version should be used when persisting custom resources to storage.
 // There must be exactly one version with storage=true.
-func (d *CustomResourceDefinitionVersionDie) Storage() diefields.Value[bool, *CustomResourceDefinitionVersionDie] {
+func (d *CustomResourceDefinitionVersionDie) Storage() diefields.Value[bool] {
 	return diefields.ValueOf(d, customResourceDefinitionVersionFields.Get().Storage)
 }
 
 // deprecated indicates this version of the custom resource API is deprecated.
 // When set to true, API requests to this version receive a warning header in the server response.
 // Defaults to false.
-func (d *CustomResourceDefinitionVersionDie) Deprecated() diefields.Value[bool, *CustomResourceDefinitionVersionDie] {
+func (d *CustomResourceDefinitionVersionDie) Deprecated() diefields.Value[bool] {
 	return diefields.ValueOf(d, customResourceDefinitionVersionFields.Get().Deprecated)
 }
 
@@ -1013,7 +1573,7 @@ func (d *CustomResourceDefinitionVersionDie) Deprecated() diefields.Value[bool, 
 // May only be set when `deprecated` is true.
 // The default warning indicates this version is deprecated and recommends use
 // of the newest served version of equal or greater stability, if one exists.
-func (d *CustomResourceDefinitionVersionDie) DeprecationWarning() diefields.Optional[string, *CustomResourceDefinitionVersionDie] {
+func (d *CustomResourceDefinitionVersionDie) DeprecationWarning() diefields.Optional[string] {
 	return diefields.OptionalOf(d, customResourceDefinitionVersionFields.Get().DeprecationWarning)
 }
 
@@ -1030,29 +1590,100 @@ func (d *CustomResourceDefinitionVersionDie) Subresources() *CustomResourceSubre
 // additionalPrinterColumns specifies additional columns returned in Table output.
 // See https://kubernetes.io/docs/reference/using-api/api-concepts/#receiving-resources-as-tables for details.
 // If no columns are specified, a single column displaying the age of the custom resource is used.
-func (d *CustomResourceDefinitionVersionDie) AdditionalPrinterColumns() diefields.Value[[]CustomResourceColumnDefinition, *CustomResourceDefinitionVersionDie] {
+func (d *CustomResourceDefinitionVersionDie) AdditionalPrinterColumns() diefields.Value[[]CustomResourceColumnDefinition] {
 	return diefields.ValueOf(d, customResourceDefinitionVersionFields.Get().AdditionalPrinterColumns)
 }
 
 // selectableFields specifies paths to fields that may be used as field selectors.
 // A maximum of 8 selectable fields are allowed.
 // See https://kubernetes.io/docs/concepts/overview/working-with-objects/field-selectors
-func (d *CustomResourceDefinitionVersionDie) SelectableFields() diefields.Value[[]SelectableField, *CustomResourceDefinitionVersionDie] {
+func (d *CustomResourceDefinitionVersionDie) SelectableFields() diefields.Value[[]SelectableField] {
 	return diefields.ValueOf(d, customResourceDefinitionVersionFields.Get().SelectableFields)
 }
 
-// CustomResourceSubresourceScale defines how to serve the scale subresource for CustomResources.
-type CustomResourceSubresourceScaleDie struct {
-	diebase.DieBase[CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie]
+// name is the version name, e.g. “v1”, “v2beta1”, etc.
+// The custom resources are served under this version at `/apis/<group>/<version>/...` if `served` is true.
+func (d *CustomResourceDefinitionVersionDieMut) Name() diefields.ValueMut[string, *CustomResourceDefinitionVersionDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionVersionFields.Get().Name)
 }
 
-func (*CustomResourceSubresourceScaleDie) DieFrom(b diebase.DieBase[CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie]) *CustomResourceSubresourceScaleDie {
+// served is a flag enabling/disabling this version from being served via REST APIs
+func (d *CustomResourceDefinitionVersionDieMut) Served() diefields.ValueMut[bool, *CustomResourceDefinitionVersionDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionVersionFields.Get().Served)
+}
+
+// storage indicates this version should be used when persisting custom resources to storage.
+// There must be exactly one version with storage=true.
+func (d *CustomResourceDefinitionVersionDieMut) Storage() diefields.ValueMut[bool, *CustomResourceDefinitionVersionDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionVersionFields.Get().Storage)
+}
+
+// deprecated indicates this version of the custom resource API is deprecated.
+// When set to true, API requests to this version receive a warning header in the server response.
+// Defaults to false.
+func (d *CustomResourceDefinitionVersionDieMut) Deprecated() diefields.ValueMut[bool, *CustomResourceDefinitionVersionDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionVersionFields.Get().Deprecated)
+}
+
+// deprecationWarning overrides the default warning returned to API clients.
+// May only be set when `deprecated` is true.
+// The default warning indicates this version is deprecated and recommends use
+// of the newest served version of equal or greater stability, if one exists.
+func (d *CustomResourceDefinitionVersionDieMut) DeprecationWarning() diefields.OptionalMut[string, *CustomResourceDefinitionVersionDieMut] {
+	return diefields.OptionalMutOf(d, customResourceDefinitionVersionFields.Get().DeprecationWarning)
+}
+
+// schema describes the schema used for validation, pruning, and defaulting of this version of the custom resource.
+func (d *CustomResourceDefinitionVersionDieMut) Schema() *CustomResourceValidationDieMut {
+	return diefields.ChildMut(d, customResourceDefinitionVersionFields.Get().Schema)
+}
+
+// subresources specify what subresources this version of the defined custom resource have.
+func (d *CustomResourceDefinitionVersionDieMut) Subresources() *CustomResourceSubresourcesDieMut {
+	return diefields.ChildMut(d, customResourceDefinitionVersionFields.Get().Subresources)
+}
+
+// additionalPrinterColumns specifies additional columns returned in Table output.
+// See https://kubernetes.io/docs/reference/using-api/api-concepts/#receiving-resources-as-tables for details.
+// If no columns are specified, a single column displaying the age of the custom resource is used.
+func (d *CustomResourceDefinitionVersionDieMut) AdditionalPrinterColumns() diefields.ValueMut[[]CustomResourceColumnDefinition, *CustomResourceDefinitionVersionDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionVersionFields.Get().AdditionalPrinterColumns)
+}
+
+// selectableFields specifies paths to fields that may be used as field selectors.
+// A maximum of 8 selectable fields are allowed.
+// See https://kubernetes.io/docs/concepts/overview/working-with-objects/field-selectors
+func (d *CustomResourceDefinitionVersionDieMut) SelectableFields() diefields.ValueMut[[]SelectableField, *CustomResourceDefinitionVersionDieMut] {
+	return diefields.ValueMutOf(d, customResourceDefinitionVersionFields.Get().SelectableFields)
+}
+
+// CustomResourceSubresourceScale defines how to serve the scale subresource for CustomResources.
+//
+// CustomResourceSubresourceScaleDie is immutable: it reads.
+// CustomResourceSubresourceScaleDieMut, its mutable die, also writes, as DieWith passes it.
+type CustomResourceSubresourceScaleDie struct {
+	diebase.DieBase[CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie, *CustomResourceSubresourceScaleDieMut]
+}
+
+// CustomResourceSubresourceScaleDieMut is the mutable die of CustomResourceSubresourceScale: see CustomResourceSubresourceScaleDie.
+type CustomResourceSubresourceScaleDieMut struct {
+	diebase.DieMutBase[CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie, *CustomResourceSubresourceScaleDieMut]
+}
+
+func (*CustomResourceSubresourceScaleDie) DieFrom(b diebase.DieBase[CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie, *CustomResourceSubresourceScaleDieMut]) *CustomResourceSubresourceScaleDie {
 	return &CustomResourceSubresourceScaleDie{b}
 }
 
-var _ diebase.DieOf[CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie] = (*CustomResourceSubresourceScaleDie)(nil)
+func (*CustomResourceSubresourceScaleDieMut) DieFrom(b diebase.DieMutBase[CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie, *CustomResourceSubresourceScaleDieMut]) *CustomResourceSubresourceScaleDieMut {
+	return &CustomResourceSubresourceScaleDieMut{b}
+}
 
-var CustomResourceSubresourceScaleBlank = diebase.Blank[CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie]()
+var (
+	_ diebase.DieOf[CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie, *CustomResourceSubresourceScaleDieMut]    = (*CustomResourceSubresourceScaleDie)(nil)
+	_ diebase.DieMutOf[CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie, *CustomResourceSubresourceScaleDieMut] = (*CustomResourceSubresourceScaleDieMut)(nil)
+)
+
+var CustomResourceSubresourceScaleBlank = diebase.Blank[CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie, *CustomResourceSubresourceScaleDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1061,34 +1692,47 @@ func (d *CustomResourceSubresourceScaleDie) DieReleaseApplyConfiguration() *Cust
 	return diecodegen.ReleaseApplyConfiguration[CustomResourceSubresourceScaleApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CustomResourceSubresourceScaleDie) DieFeedApplyConfiguration(ac *CustomResourceSubresourceScaleApplyConfiguration) *CustomResourceSubresourceScaleDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CustomResourceSubresourceScaleDie) DieStampApplyConfiguration(fn func(ac *CustomResourceSubresourceScaleApplyConfiguration)) *CustomResourceSubresourceScaleDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CustomResourceSubresourceScaleDie) DieReleaseApplyConfigurationE() (*CustomResourceSubresourceScaleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CustomResourceSubresourceScaleApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CustomResourceSubresourceScaleDieMut) DieReleaseApplyConfiguration() *CustomResourceSubresourceScaleApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CustomResourceSubresourceScaleApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CustomResourceSubresourceScaleDieMut) DieReleaseApplyConfigurationE() (*CustomResourceSubresourceScaleApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CustomResourceSubresourceScaleApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CustomResourceSubresourceScaleDieMut) DieFeedApplyConfiguration(ac *CustomResourceSubresourceScaleApplyConfiguration) *CustomResourceSubresourceScaleDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CustomResourceSubresourceScaleDieMut) DieStampApplyConfiguration(fn func(ac *CustomResourceSubresourceScaleApplyConfiguration)) *CustomResourceSubresourceScaleDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceSubresourceScaleDie) DieFeedApplyConfigurationE(ac *CustomResourceSubresourceScaleApplyConfiguration) (*CustomResourceSubresourceScaleDie, error) {
+func (d *CustomResourceSubresourceScaleDieMut) DieFeedApplyConfigurationE(ac *CustomResourceSubresourceScaleApplyConfiguration) (*CustomResourceSubresourceScaleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceSubresourceScaleDie) DieStampApplyConfigurationE(fn func(ac *CustomResourceSubresourceScaleApplyConfiguration)) (*CustomResourceSubresourceScaleDie, error) {
+func (d *CustomResourceSubresourceScaleDieMut) DieStampApplyConfigurationE(fn func(ac *CustomResourceSubresourceScaleApplyConfiguration)) (*CustomResourceSubresourceScaleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1110,7 +1754,7 @@ var customResourceSubresourceScaleFields = &diefields.Table[customResourceSubres
 // Only JSON paths without the array notation are allowed.
 // Must be a JSON Path under `.spec`.
 // If there is no value under the given path in the custom resource, the `/scale` subresource will return an error on GET.
-func (d *CustomResourceSubresourceScaleDie) SpecReplicasPath() diefields.Value[string, *CustomResourceSubresourceScaleDie] {
+func (d *CustomResourceSubresourceScaleDie) SpecReplicasPath() diefields.Value[string] {
 	return diefields.ValueOf(d, customResourceSubresourceScaleFields.Get().SpecReplicasPath)
 }
 
@@ -1119,7 +1763,7 @@ func (d *CustomResourceSubresourceScaleDie) SpecReplicasPath() diefields.Value[s
 // Must be a JSON Path under `.status`.
 // If there is no value under the given path in the custom resource, the `status.replicas` value in the `/scale` subresource
 // will default to 0.
-func (d *CustomResourceSubresourceScaleDie) StatusReplicasPath() diefields.Value[string, *CustomResourceSubresourceScaleDie] {
+func (d *CustomResourceSubresourceScaleDie) StatusReplicasPath() diefields.Value[string] {
 	return diefields.ValueOf(d, customResourceSubresourceScaleFields.Get().StatusReplicasPath)
 }
 
@@ -1132,8 +1776,38 @@ func (d *CustomResourceSubresourceScaleDie) StatusReplicasPath() diefields.Value
 // More info: https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions#scale-subresource
 // If there is no value under the given path in the custom resource, the `status.selector` value in the `/scale`
 // subresource will default to the empty string.
-func (d *CustomResourceSubresourceScaleDie) LabelSelectorPath() diefields.Optional[string, *CustomResourceSubresourceScaleDie] {
+func (d *CustomResourceSubresourceScaleDie) LabelSelectorPath() diefields.Optional[string] {
 	return diefields.OptionalOf(d, customResourceSubresourceScaleFields.Get().LabelSelectorPath)
+}
+
+// specReplicasPath defines the JSON path inside of a custom resource that corresponds to Scale `spec.replicas`.
+// Only JSON paths without the array notation are allowed.
+// Must be a JSON Path under `.spec`.
+// If there is no value under the given path in the custom resource, the `/scale` subresource will return an error on GET.
+func (d *CustomResourceSubresourceScaleDieMut) SpecReplicasPath() diefields.ValueMut[string, *CustomResourceSubresourceScaleDieMut] {
+	return diefields.ValueMutOf(d, customResourceSubresourceScaleFields.Get().SpecReplicasPath)
+}
+
+// statusReplicasPath defines the JSON path inside of a custom resource that corresponds to Scale `status.replicas`.
+// Only JSON paths without the array notation are allowed.
+// Must be a JSON Path under `.status`.
+// If there is no value under the given path in the custom resource, the `status.replicas` value in the `/scale` subresource
+// will default to 0.
+func (d *CustomResourceSubresourceScaleDieMut) StatusReplicasPath() diefields.ValueMut[string, *CustomResourceSubresourceScaleDieMut] {
+	return diefields.ValueMutOf(d, customResourceSubresourceScaleFields.Get().StatusReplicasPath)
+}
+
+// labelSelectorPath defines the JSON path inside of a custom resource that corresponds to Scale `status.selector`.
+// Only JSON paths without the array notation are allowed.
+// Must be a JSON Path under `.status` or `.spec`.
+// Must be set to work with HorizontalPodAutoscaler.
+// The field pointed by this JSON path must be a string field (not a complex selector struct)
+// which contains a serialized label selector in string form.
+// More info: https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions#scale-subresource
+// If there is no value under the given path in the custom resource, the `status.selector` value in the `/scale`
+// subresource will default to the empty string.
+func (d *CustomResourceSubresourceScaleDieMut) LabelSelectorPath() diefields.OptionalMut[string, *CustomResourceSubresourceScaleDieMut] {
+	return diefields.OptionalMutOf(d, customResourceSubresourceScaleFields.Get().LabelSelectorPath)
 }
 
 // CustomResourceSubresourceStatus defines how to serve the status subresource for CustomResources.
@@ -1141,17 +1815,32 @@ func (d *CustomResourceSubresourceScaleDie) LabelSelectorPath() diefields.Option
 // * exposes a /status subresource for the custom resource
 // * PUT requests to the /status subresource take a custom resource object, and ignore changes to anything except the status stanza
 // * PUT/POST/PATCH requests to the custom resource ignore changes to the status stanza
+//
+// CustomResourceSubresourceStatusDie is immutable: it reads.
+// CustomResourceSubresourceStatusDieMut, its mutable die, also writes, as DieWith passes it.
 type CustomResourceSubresourceStatusDie struct {
-	diebase.DieBase[CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie]
+	diebase.DieBase[CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie, *CustomResourceSubresourceStatusDieMut]
 }
 
-func (*CustomResourceSubresourceStatusDie) DieFrom(b diebase.DieBase[CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie]) *CustomResourceSubresourceStatusDie {
+// CustomResourceSubresourceStatusDieMut is the mutable die of CustomResourceSubresourceStatus: see CustomResourceSubresourceStatusDie.
+type CustomResourceSubresourceStatusDieMut struct {
+	diebase.DieMutBase[CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie, *CustomResourceSubresourceStatusDieMut]
+}
+
+func (*CustomResourceSubresourceStatusDie) DieFrom(b diebase.DieBase[CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie, *CustomResourceSubresourceStatusDieMut]) *CustomResourceSubresourceStatusDie {
 	return &CustomResourceSubresourceStatusDie{b}
 }
 
-var _ diebase.DieOf[CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie] = (*CustomResourceSubresourceStatusDie)(nil)
+func (*CustomResourceSubresourceStatusDieMut) DieFrom(b diebase.DieMutBase[CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie, *CustomResourceSubresourceStatusDieMut]) *CustomResourceSubresourceStatusDieMut {
+	return &CustomResourceSubresourceStatusDieMut{b}
+}
 
-var CustomResourceSubresourceStatusBlank = diebase.Blank[CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie]()
+var (
+	_ diebase.DieOf[CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie, *CustomResourceSubresourceStatusDieMut]    = (*CustomResourceSubresourceStatusDie)(nil)
+	_ diebase.DieMutOf[CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie, *CustomResourceSubresourceStatusDieMut] = (*CustomResourceSubresourceStatusDieMut)(nil)
+)
+
+var CustomResourceSubresourceStatusBlank = diebase.Blank[CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie, *CustomResourceSubresourceStatusDieMut]()
 
 type customResourceSubresourceStatusFieldsTable struct {
 }
@@ -1162,17 +1851,32 @@ var customResourceSubresourceStatusFields = &diefields.Table[customResourceSubre
 }}
 
 // CustomResourceSubresources defines the status and scale subresources for CustomResources.
+//
+// CustomResourceSubresourcesDie is immutable: it reads.
+// CustomResourceSubresourcesDieMut, its mutable die, also writes, as DieWith passes it.
 type CustomResourceSubresourcesDie struct {
-	diebase.DieBase[CustomResourceSubresources, *CustomResourceSubresourcesDie]
+	diebase.DieBase[CustomResourceSubresources, *CustomResourceSubresourcesDie, *CustomResourceSubresourcesDieMut]
 }
 
-func (*CustomResourceSubresourcesDie) DieFrom(b diebase.DieBase[CustomResourceSubresources, *CustomResourceSubresourcesDie]) *CustomResourceSubresourcesDie {
+// CustomResourceSubresourcesDieMut is the mutable die of CustomResourceSubresources: see CustomResourceSubresourcesDie.
+type CustomResourceSubresourcesDieMut struct {
+	diebase.DieMutBase[CustomResourceSubresources, *CustomResourceSubresourcesDie, *CustomResourceSubresourcesDieMut]
+}
+
+func (*CustomResourceSubresourcesDie) DieFrom(b diebase.DieBase[CustomResourceSubresources, *CustomResourceSubresourcesDie, *CustomResourceSubresourcesDieMut]) *CustomResourceSubresourcesDie {
 	return &CustomResourceSubresourcesDie{b}
 }
 
-var _ diebase.DieOf[CustomResourceSubresources, *CustomResourceSubresourcesDie] = (*CustomResourceSubresourcesDie)(nil)
+func (*CustomResourceSubresourcesDieMut) DieFrom(b diebase.DieMutBase[CustomResourceSubresources, *CustomResourceSubresourcesDie, *CustomResourceSubresourcesDieMut]) *CustomResourceSubresourcesDieMut {
+	return &CustomResourceSubresourcesDieMut{b}
+}
 
-var CustomResourceSubresourcesBlank = diebase.Blank[CustomResourceSubresources, *CustomResourceSubresourcesDie]()
+var (
+	_ diebase.DieOf[CustomResourceSubresources, *CustomResourceSubresourcesDie, *CustomResourceSubresourcesDieMut]    = (*CustomResourceSubresourcesDie)(nil)
+	_ diebase.DieMutOf[CustomResourceSubresources, *CustomResourceSubresourcesDie, *CustomResourceSubresourcesDieMut] = (*CustomResourceSubresourcesDieMut)(nil)
+)
+
+var CustomResourceSubresourcesBlank = diebase.Blank[CustomResourceSubresources, *CustomResourceSubresourcesDie, *CustomResourceSubresourcesDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1181,46 +1885,59 @@ func (d *CustomResourceSubresourcesDie) DieReleaseApplyConfiguration() *CustomRe
 	return diecodegen.ReleaseApplyConfiguration[CustomResourceSubresourcesApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CustomResourceSubresourcesDie) DieFeedApplyConfiguration(ac *CustomResourceSubresourcesApplyConfiguration) *CustomResourceSubresourcesDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CustomResourceSubresourcesDie) DieStampApplyConfiguration(fn func(ac *CustomResourceSubresourcesApplyConfiguration)) *CustomResourceSubresourcesDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CustomResourceSubresourcesDie) DieReleaseApplyConfigurationE() (*CustomResourceSubresourcesApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CustomResourceSubresourcesApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CustomResourceSubresourcesDieMut) DieReleaseApplyConfiguration() *CustomResourceSubresourcesApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CustomResourceSubresourcesApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CustomResourceSubresourcesDieMut) DieReleaseApplyConfigurationE() (*CustomResourceSubresourcesApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CustomResourceSubresourcesApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CustomResourceSubresourcesDieMut) DieFeedApplyConfiguration(ac *CustomResourceSubresourcesApplyConfiguration) *CustomResourceSubresourcesDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CustomResourceSubresourcesDieMut) DieStampApplyConfiguration(fn func(ac *CustomResourceSubresourcesApplyConfiguration)) *CustomResourceSubresourcesDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceSubresourcesDie) DieFeedApplyConfigurationE(ac *CustomResourceSubresourcesApplyConfiguration) (*CustomResourceSubresourcesDie, error) {
+func (d *CustomResourceSubresourcesDieMut) DieFeedApplyConfigurationE(ac *CustomResourceSubresourcesApplyConfiguration) (*CustomResourceSubresourcesDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceSubresourcesDie) DieStampApplyConfigurationE(fn func(ac *CustomResourceSubresourcesApplyConfiguration)) (*CustomResourceSubresourcesDie, error) {
+func (d *CustomResourceSubresourcesDieMut) DieStampApplyConfigurationE(fn func(ac *CustomResourceSubresourcesApplyConfiguration)) (*CustomResourceSubresourcesDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type customResourceSubresourcesFieldsTable struct {
-	Status diefields.Struct[CustomResourceSubresources, CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie]
-	Scale  diefields.Struct[CustomResourceSubresources, CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie]
+	Status diefields.Struct[CustomResourceSubresources, CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie, *CustomResourceSubresourceStatusDieMut]
+	Scale  diefields.Struct[CustomResourceSubresources, CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie, *CustomResourceSubresourceScaleDieMut]
 }
 
 var customResourceSubresourcesFields = &diefields.Table[customResourceSubresourcesFieldsTable]{Build: func() (f customResourceSubresourcesFieldsTable) {
 	_ = annotated
-	f.Status = diefields.NewStruct[CustomResourceSubresources, CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie]("status")
-	f.Scale = diefields.NewStruct[CustomResourceSubresources, CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie]("scale")
+	f.Status = diefields.NewStruct[CustomResourceSubresources, CustomResourceSubresourceStatus, *CustomResourceSubresourceStatusDie, *CustomResourceSubresourceStatusDieMut]("status")
+	f.Scale = diefields.NewStruct[CustomResourceSubresources, CustomResourceSubresourceScale, *CustomResourceSubresourceScaleDie, *CustomResourceSubresourceScaleDieMut]("scale")
 	return
 }}
 
@@ -1237,18 +1954,46 @@ func (d *CustomResourceSubresourcesDie) Scale() *CustomResourceSubresourceScaleD
 	return diefields.Child(d, customResourceSubresourcesFields.Get().Scale)
 }
 
-// CustomResourceValidation is a list of validation methods for CustomResources.
-type CustomResourceValidationDie struct {
-	diebase.DieBase[CustomResourceValidation, *CustomResourceValidationDie]
+// status indicates the custom resource should serve a `/status` subresource.
+// When enabled:
+// 1. requests to the custom resource primary endpoint ignore changes to the `status` stanza of the object.
+// 2. requests to the custom resource `/status` subresource ignore changes to anything other than the `status` stanza of the object.
+func (d *CustomResourceSubresourcesDieMut) Status() *CustomResourceSubresourceStatusDieMut {
+	return diefields.ChildMut(d, customResourceSubresourcesFields.Get().Status)
 }
 
-func (*CustomResourceValidationDie) DieFrom(b diebase.DieBase[CustomResourceValidation, *CustomResourceValidationDie]) *CustomResourceValidationDie {
+// scale indicates the custom resource should serve a `/scale` subresource that returns an `autoscaling/v1` Scale object.
+func (d *CustomResourceSubresourcesDieMut) Scale() *CustomResourceSubresourceScaleDieMut {
+	return diefields.ChildMut(d, customResourceSubresourcesFields.Get().Scale)
+}
+
+// CustomResourceValidation is a list of validation methods for CustomResources.
+//
+// CustomResourceValidationDie is immutable: it reads.
+// CustomResourceValidationDieMut, its mutable die, also writes, as DieWith passes it.
+type CustomResourceValidationDie struct {
+	diebase.DieBase[CustomResourceValidation, *CustomResourceValidationDie, *CustomResourceValidationDieMut]
+}
+
+// CustomResourceValidationDieMut is the mutable die of CustomResourceValidation: see CustomResourceValidationDie.
+type CustomResourceValidationDieMut struct {
+	diebase.DieMutBase[CustomResourceValidation, *CustomResourceValidationDie, *CustomResourceValidationDieMut]
+}
+
+func (*CustomResourceValidationDie) DieFrom(b diebase.DieBase[CustomResourceValidation, *CustomResourceValidationDie, *CustomResourceValidationDieMut]) *CustomResourceValidationDie {
 	return &CustomResourceValidationDie{b}
 }
 
-var _ diebase.DieOf[CustomResourceValidation, *CustomResourceValidationDie] = (*CustomResourceValidationDie)(nil)
+func (*CustomResourceValidationDieMut) DieFrom(b diebase.DieMutBase[CustomResourceValidation, *CustomResourceValidationDie, *CustomResourceValidationDieMut]) *CustomResourceValidationDieMut {
+	return &CustomResourceValidationDieMut{b}
+}
 
-var CustomResourceValidationBlank = diebase.Blank[CustomResourceValidation, *CustomResourceValidationDie]()
+var (
+	_ diebase.DieOf[CustomResourceValidation, *CustomResourceValidationDie, *CustomResourceValidationDieMut]    = (*CustomResourceValidationDie)(nil)
+	_ diebase.DieMutOf[CustomResourceValidation, *CustomResourceValidationDie, *CustomResourceValidationDieMut] = (*CustomResourceValidationDieMut)(nil)
+)
+
+var CustomResourceValidationBlank = diebase.Blank[CustomResourceValidation, *CustomResourceValidationDie, *CustomResourceValidationDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1257,44 +2002,57 @@ func (d *CustomResourceValidationDie) DieReleaseApplyConfiguration() *CustomReso
 	return diecodegen.ReleaseApplyConfiguration[CustomResourceValidationApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *CustomResourceValidationDie) DieFeedApplyConfiguration(ac *CustomResourceValidationApplyConfiguration) *CustomResourceValidationDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *CustomResourceValidationDie) DieStampApplyConfiguration(fn func(ac *CustomResourceValidationApplyConfiguration)) *CustomResourceValidationDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *CustomResourceValidationDie) DieReleaseApplyConfigurationE() (*CustomResourceValidationApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CustomResourceValidationApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *CustomResourceValidationDieMut) DieReleaseApplyConfiguration() *CustomResourceValidationApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[CustomResourceValidationApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *CustomResourceValidationDieMut) DieReleaseApplyConfigurationE() (*CustomResourceValidationApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[CustomResourceValidationApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *CustomResourceValidationDieMut) DieFeedApplyConfiguration(ac *CustomResourceValidationApplyConfiguration) *CustomResourceValidationDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *CustomResourceValidationDieMut) DieStampApplyConfiguration(fn func(ac *CustomResourceValidationApplyConfiguration)) *CustomResourceValidationDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceValidationDie) DieFeedApplyConfigurationE(ac *CustomResourceValidationApplyConfiguration) (*CustomResourceValidationDie, error) {
+func (d *CustomResourceValidationDieMut) DieFeedApplyConfigurationE(ac *CustomResourceValidationApplyConfiguration) (*CustomResourceValidationDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *CustomResourceValidationDie) DieStampApplyConfigurationE(fn func(ac *CustomResourceValidationApplyConfiguration)) (*CustomResourceValidationDie, error) {
+func (d *CustomResourceValidationDieMut) DieStampApplyConfigurationE(fn func(ac *CustomResourceValidationApplyConfiguration)) (*CustomResourceValidationDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type customResourceValidationFieldsTable struct {
-	OpenAPIV3Schema diefields.Struct[CustomResourceValidation, JSONSchemaProps, *JSONSchemaPropsDie]
+	OpenAPIV3Schema diefields.Struct[CustomResourceValidation, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]
 }
 
 var customResourceValidationFields = &diefields.Table[customResourceValidationFieldsTable]{Build: func() (f customResourceValidationFieldsTable) {
 	_ = annotated
-	f.OpenAPIV3Schema = diefields.NewStruct[CustomResourceValidation, JSONSchemaProps, *JSONSchemaPropsDie]("openAPIV3Schema")
+	f.OpenAPIV3Schema = diefields.NewStruct[CustomResourceValidation, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]("openAPIV3Schema")
 	return
 }}
 
@@ -1303,18 +2061,38 @@ func (d *CustomResourceValidationDie) OpenAPIV3Schema() *JSONSchemaPropsDie {
 	return diefields.Child(d, customResourceValidationFields.Get().OpenAPIV3Schema)
 }
 
-// ExternalDocumentation allows referencing an external resource for extended documentation.
-type ExternalDocumentationDie struct {
-	diebase.DieBase[ExternalDocumentation, *ExternalDocumentationDie]
+// openAPIV3Schema is the OpenAPI v3 schema to use for validation and pruning.
+func (d *CustomResourceValidationDieMut) OpenAPIV3Schema() *JSONSchemaPropsDieMut {
+	return diefields.ChildMut(d, customResourceValidationFields.Get().OpenAPIV3Schema)
 }
 
-func (*ExternalDocumentationDie) DieFrom(b diebase.DieBase[ExternalDocumentation, *ExternalDocumentationDie]) *ExternalDocumentationDie {
+// ExternalDocumentation allows referencing an external resource for extended documentation.
+//
+// ExternalDocumentationDie is immutable: it reads.
+// ExternalDocumentationDieMut, its mutable die, also writes, as DieWith passes it.
+type ExternalDocumentationDie struct {
+	diebase.DieBase[ExternalDocumentation, *ExternalDocumentationDie, *ExternalDocumentationDieMut]
+}
+
+// ExternalDocumentationDieMut is the mutable die of ExternalDocumentation: see ExternalDocumentationDie.
+type ExternalDocumentationDieMut struct {
+	diebase.DieMutBase[ExternalDocumentation, *ExternalDocumentationDie, *ExternalDocumentationDieMut]
+}
+
+func (*ExternalDocumentationDie) DieFrom(b diebase.DieBase[ExternalDocumentation, *ExternalDocumentationDie, *ExternalDocumentationDieMut]) *ExternalDocumentationDie {
 	return &ExternalDocumentationDie{b}
 }
 
-var _ diebase.DieOf[ExternalDocumentation, *ExternalDocumentationDie] = (*ExternalDocumentationDie)(nil)
+func (*ExternalDocumentationDieMut) DieFrom(b diebase.DieMutBase[ExternalDocumentation, *ExternalDocumentationDie, *ExternalDocumentationDieMut]) *ExternalDocumentationDieMut {
+	return &ExternalDocumentationDieMut{b}
+}
 
-var ExternalDocumentationBlank = diebase.Blank[ExternalDocumentation, *ExternalDocumentationDie]()
+var (
+	_ diebase.DieOf[ExternalDocumentation, *ExternalDocumentationDie, *ExternalDocumentationDieMut]    = (*ExternalDocumentationDie)(nil)
+	_ diebase.DieMutOf[ExternalDocumentation, *ExternalDocumentationDie, *ExternalDocumentationDieMut] = (*ExternalDocumentationDieMut)(nil)
+)
+
+var ExternalDocumentationBlank = diebase.Blank[ExternalDocumentation, *ExternalDocumentationDie, *ExternalDocumentationDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1323,34 +2101,47 @@ func (d *ExternalDocumentationDie) DieReleaseApplyConfiguration() *ExternalDocum
 	return diecodegen.ReleaseApplyConfiguration[ExternalDocumentationApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ExternalDocumentationDie) DieFeedApplyConfiguration(ac *ExternalDocumentationApplyConfiguration) *ExternalDocumentationDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ExternalDocumentationDie) DieStampApplyConfiguration(fn func(ac *ExternalDocumentationApplyConfiguration)) *ExternalDocumentationDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ExternalDocumentationDie) DieReleaseApplyConfigurationE() (*ExternalDocumentationApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ExternalDocumentationApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ExternalDocumentationDieMut) DieReleaseApplyConfiguration() *ExternalDocumentationApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ExternalDocumentationApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ExternalDocumentationDieMut) DieReleaseApplyConfigurationE() (*ExternalDocumentationApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ExternalDocumentationApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ExternalDocumentationDieMut) DieFeedApplyConfiguration(ac *ExternalDocumentationApplyConfiguration) *ExternalDocumentationDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ExternalDocumentationDieMut) DieStampApplyConfiguration(fn func(ac *ExternalDocumentationApplyConfiguration)) *ExternalDocumentationDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ExternalDocumentationDie) DieFeedApplyConfigurationE(ac *ExternalDocumentationApplyConfiguration) (*ExternalDocumentationDie, error) {
+func (d *ExternalDocumentationDieMut) DieFeedApplyConfigurationE(ac *ExternalDocumentationApplyConfiguration) (*ExternalDocumentationDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ExternalDocumentationDie) DieStampApplyConfigurationE(fn func(ac *ExternalDocumentationApplyConfiguration)) (*ExternalDocumentationDie, error) {
+func (d *ExternalDocumentationDieMut) DieStampApplyConfigurationE(fn func(ac *ExternalDocumentationApplyConfiguration)) (*ExternalDocumentationDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1366,26 +2157,49 @@ var externalDocumentationFields = &diefields.Table[externalDocumentationFieldsTa
 	return
 }}
 
-func (d *ExternalDocumentationDie) Description() diefields.Value[string, *ExternalDocumentationDie] {
+func (d *ExternalDocumentationDie) Description() diefields.Value[string] {
 	return diefields.ValueOf(d, externalDocumentationFields.Get().Description)
 }
 
-func (d *ExternalDocumentationDie) URL() diefields.Value[string, *ExternalDocumentationDie] {
+func (d *ExternalDocumentationDie) URL() diefields.Value[string] {
 	return diefields.ValueOf(d, externalDocumentationFields.Get().URL)
 }
 
-// JSONSchemaProps is a JSON-Schema following Specification Draft 4 (http://json-schema.org/).
-type JSONSchemaPropsDie struct {
-	diebase.DieBase[JSONSchemaProps, *JSONSchemaPropsDie]
+func (d *ExternalDocumentationDieMut) Description() diefields.ValueMut[string, *ExternalDocumentationDieMut] {
+	return diefields.ValueMutOf(d, externalDocumentationFields.Get().Description)
 }
 
-func (*JSONSchemaPropsDie) DieFrom(b diebase.DieBase[JSONSchemaProps, *JSONSchemaPropsDie]) *JSONSchemaPropsDie {
+func (d *ExternalDocumentationDieMut) URL() diefields.ValueMut[string, *ExternalDocumentationDieMut] {
+	return diefields.ValueMutOf(d, externalDocumentationFields.Get().URL)
+}
+
+// JSONSchemaProps is a JSON-Schema following Specification Draft 4 (http://json-schema.org/).
+//
+// JSONSchemaPropsDie is immutable: it reads.
+// JSONSchemaPropsDieMut, its mutable die, also writes, as DieWith passes it.
+type JSONSchemaPropsDie struct {
+	diebase.DieBase[JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]
+}
+
+// JSONSchemaPropsDieMut is the mutable die of JSONSchemaProps: see JSONSchemaPropsDie.
+type JSONSchemaPropsDieMut struct {
+	diebase.DieMutBase[JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]
+}
+
+func (*JSONSchemaPropsDie) DieFrom(b diebase.DieBase[JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]) *JSONSchemaPropsDie {
 	return &JSONSchemaPropsDie{b}
 }
 
-var _ diebase.DieOf[JSONSchemaProps, *JSONSchemaPropsDie] = (*JSONSchemaPropsDie)(nil)
+func (*JSONSchemaPropsDieMut) DieFrom(b diebase.DieMutBase[JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]) *JSONSchemaPropsDieMut {
+	return &JSONSchemaPropsDieMut{b}
+}
 
-var JSONSchemaPropsBlank = diebase.Blank[JSONSchemaProps, *JSONSchemaPropsDie]()
+var (
+	_ diebase.DieOf[JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]    = (*JSONSchemaPropsDie)(nil)
+	_ diebase.DieMutOf[JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut] = (*JSONSchemaPropsDieMut)(nil)
+)
+
+var JSONSchemaPropsBlank = diebase.Blank[JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1394,34 +2208,47 @@ func (d *JSONSchemaPropsDie) DieReleaseApplyConfiguration() *JSONSchemaPropsAppl
 	return diecodegen.ReleaseApplyConfiguration[JSONSchemaPropsApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *JSONSchemaPropsDie) DieFeedApplyConfiguration(ac *JSONSchemaPropsApplyConfiguration) *JSONSchemaPropsDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *JSONSchemaPropsDie) DieStampApplyConfiguration(fn func(ac *JSONSchemaPropsApplyConfiguration)) *JSONSchemaPropsDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *JSONSchemaPropsDie) DieReleaseApplyConfigurationE() (*JSONSchemaPropsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JSONSchemaPropsApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *JSONSchemaPropsDieMut) DieReleaseApplyConfiguration() *JSONSchemaPropsApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[JSONSchemaPropsApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *JSONSchemaPropsDieMut) DieReleaseApplyConfigurationE() (*JSONSchemaPropsApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[JSONSchemaPropsApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *JSONSchemaPropsDieMut) DieFeedApplyConfiguration(ac *JSONSchemaPropsApplyConfiguration) *JSONSchemaPropsDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *JSONSchemaPropsDieMut) DieStampApplyConfiguration(fn func(ac *JSONSchemaPropsApplyConfiguration)) *JSONSchemaPropsDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *JSONSchemaPropsDie) DieFeedApplyConfigurationE(ac *JSONSchemaPropsApplyConfiguration) (*JSONSchemaPropsDie, error) {
+func (d *JSONSchemaPropsDieMut) DieFeedApplyConfigurationE(ac *JSONSchemaPropsApplyConfiguration) (*JSONSchemaPropsDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *JSONSchemaPropsDie) DieStampApplyConfigurationE(fn func(ac *JSONSchemaPropsApplyConfiguration)) (*JSONSchemaPropsDie, error) {
+func (d *JSONSchemaPropsDieMut) DieStampApplyConfigurationE(fn func(ac *JSONSchemaPropsApplyConfiguration)) (*JSONSchemaPropsDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1453,14 +2280,14 @@ type jSONSchemaPropsFieldsTable struct {
 	AllOf                  diefields.Field[JSONSchemaProps, []JSONSchemaProps]
 	OneOf                  diefields.Field[JSONSchemaProps, []JSONSchemaProps]
 	AnyOf                  diefields.Field[JSONSchemaProps, []JSONSchemaProps]
-	Not                    diefields.Struct[JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie]
+	Not                    diefields.Struct[JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]
 	Properties             diefields.Field[JSONSchemaProps, map[string]JSONSchemaProps]
 	AdditionalProperties   diefields.Field[JSONSchemaProps, *JSONSchemaPropsOrBool]
 	PatternProperties      diefields.Field[JSONSchemaProps, map[string]JSONSchemaProps]
 	Dependencies           diefields.MapField[JSONSchemaProps, string, JSONSchemaPropsOrStringArray]
 	AdditionalItems        diefields.Field[JSONSchemaProps, *JSONSchemaPropsOrBool]
 	Definitions            diefields.Field[JSONSchemaProps, JSONSchemaDefinitions]
-	ExternalDocs           diefields.Struct[JSONSchemaProps, ExternalDocumentation, *ExternalDocumentationDie]
+	ExternalDocs           diefields.Struct[JSONSchemaProps, ExternalDocumentation, *ExternalDocumentationDie, *ExternalDocumentationDieMut]
 	Example                diefields.Field[JSONSchemaProps, *JSON]
 	Nullable               diefields.Field[JSONSchemaProps, bool]
 	XPreserveUnknownFields diefields.Field[JSONSchemaProps, *bool]
@@ -1469,7 +2296,7 @@ type jSONSchemaPropsFieldsTable struct {
 	XListMapKeys           diefields.Field[JSONSchemaProps, []string]
 	XListType              diefields.Field[JSONSchemaProps, *string]
 	XMapType               diefields.Field[JSONSchemaProps, *string]
-	XValidations           diefields.ListMapField[JSONSchemaProps, ValidationRule, *ValidationRuleDie, string]
+	XValidations           diefields.ListMapField[JSONSchemaProps, ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut, string]
 }
 
 var jSONSchemaPropsFields = &diefields.Table[jSONSchemaPropsFieldsTable]{Build: func() (f jSONSchemaPropsFieldsTable) {
@@ -1501,14 +2328,14 @@ var jSONSchemaPropsFields = &diefields.Table[jSONSchemaPropsFieldsTable]{Build: 
 	f.AllOf = diefields.NewField[JSONSchemaProps, []JSONSchemaProps]("allOf")
 	f.OneOf = diefields.NewField[JSONSchemaProps, []JSONSchemaProps]("oneOf")
 	f.AnyOf = diefields.NewField[JSONSchemaProps, []JSONSchemaProps]("anyOf")
-	f.Not = diefields.NewStruct[JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie]("not")
+	f.Not = diefields.NewStruct[JSONSchemaProps, JSONSchemaProps, *JSONSchemaPropsDie, *JSONSchemaPropsDieMut]("not")
 	f.Properties = diefields.NewField[JSONSchemaProps, map[string]JSONSchemaProps]("properties")
 	f.AdditionalProperties = diefields.NewField[JSONSchemaProps, *JSONSchemaPropsOrBool]("additionalProperties")
 	f.PatternProperties = diefields.NewField[JSONSchemaProps, map[string]JSONSchemaProps]("patternProperties")
 	f.Dependencies = diefields.NewMap[JSONSchemaProps, string, JSONSchemaPropsOrStringArray]("dependencies")
 	f.AdditionalItems = diefields.NewField[JSONSchemaProps, *JSONSchemaPropsOrBool]("additionalItems")
 	f.Definitions = diefields.NewField[JSONSchemaProps, JSONSchemaDefinitions]("definitions")
-	f.ExternalDocs = diefields.NewStruct[JSONSchemaProps, ExternalDocumentation, *ExternalDocumentationDie]("externalDocs")
+	f.ExternalDocs = diefields.NewStruct[JSONSchemaProps, ExternalDocumentation, *ExternalDocumentationDie, *ExternalDocumentationDieMut]("externalDocs")
 	f.Example = diefields.NewField[JSONSchemaProps, *JSON]("example")
 	f.Nullable = diefields.NewField[JSONSchemaProps, bool]("nullable")
 	f.XPreserveUnknownFields = diefields.NewField[JSONSchemaProps, *bool]("x-kubernetes-preserve-unknown-fields")
@@ -1517,27 +2344,27 @@ var jSONSchemaPropsFields = &diefields.Table[jSONSchemaPropsFieldsTable]{Build: 
 	f.XListMapKeys = diefields.NewField[JSONSchemaProps, []string]("x-kubernetes-list-map-keys")
 	f.XListType = diefields.NewField[JSONSchemaProps, *string]("x-kubernetes-list-type")
 	f.XMapType = diefields.NewField[JSONSchemaProps, *string]("x-kubernetes-map-type")
-	f.XValidations = diefields.NewListMap[JSONSchemaProps, ValidationRule, *ValidationRuleDie]("x-kubernetes-validations", func(k string) []any { return []any{k} }, func(e ValidationRule) string { return e.Rule })
+	f.XValidations = diefields.NewListMap[JSONSchemaProps, ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut]("x-kubernetes-validations", func(k string) []any { return []any{k} }, func(e ValidationRule) string { return e.Rule })
 	return
 }}
 
-func (d *JSONSchemaPropsDie) ID() diefields.Value[string, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) ID() diefields.Value[string] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().ID)
 }
 
-func (d *JSONSchemaPropsDie) Schema() diefields.Value[JSONSchemaURL, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) Schema() diefields.Value[JSONSchemaURL] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().Schema)
 }
 
-func (d *JSONSchemaPropsDie) Ref() diefields.Optional[string, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) Ref() diefields.Optional[string] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().Ref)
 }
 
-func (d *JSONSchemaPropsDie) Description() diefields.Value[string, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) Description() diefields.Value[string] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().Description)
 }
 
-func (d *JSONSchemaPropsDie) Type() diefields.Value[string, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) Type() diefields.Value[string] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().Type)
 }
 
@@ -1567,94 +2394,94 @@ func (d *JSONSchemaPropsDie) Type() diefields.Value[string, *JSONSchemaPropsDie]
 // - date: a date string like "2006-01-02" as defined by full-date in RFC3339
 // - duration: a duration string like "22 ns" as parsed by Golang time.ParseDuration or compatible with Scala duration format
 // - datetime: a date time string like "2014-12-15T19:30:20.000Z" as defined by date-time in RFC3339.
-func (d *JSONSchemaPropsDie) Format() diefields.Value[string, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) Format() diefields.Value[string] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().Format)
 }
 
-func (d *JSONSchemaPropsDie) Title() diefields.Value[string, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) Title() diefields.Value[string] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().Title)
 }
 
 // default is a default value for undefined object fields.
 // Defaulting is a beta feature under the CustomResourceDefaulting feature gate.
 // Defaulting requires spec.preserveUnknownFields to be false.
-func (d *JSONSchemaPropsDie) Default() diefields.Optional[JSON, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) Default() diefields.Optional[JSON] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().Default)
 }
 
-func (d *JSONSchemaPropsDie) Maximum() diefields.Optional[float64, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) Maximum() diefields.Optional[float64] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().Maximum)
 }
 
-func (d *JSONSchemaPropsDie) ExclusiveMaximum() diefields.Value[bool, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) ExclusiveMaximum() diefields.Value[bool] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().ExclusiveMaximum)
 }
 
-func (d *JSONSchemaPropsDie) Minimum() diefields.Optional[float64, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) Minimum() diefields.Optional[float64] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().Minimum)
 }
 
-func (d *JSONSchemaPropsDie) ExclusiveMinimum() diefields.Value[bool, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) ExclusiveMinimum() diefields.Value[bool] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().ExclusiveMinimum)
 }
 
-func (d *JSONSchemaPropsDie) MaxLength() diefields.Optional[int64, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) MaxLength() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().MaxLength)
 }
 
-func (d *JSONSchemaPropsDie) MinLength() diefields.Optional[int64, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) MinLength() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().MinLength)
 }
 
-func (d *JSONSchemaPropsDie) Pattern() diefields.Value[string, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) Pattern() diefields.Value[string] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().Pattern)
 }
 
-func (d *JSONSchemaPropsDie) MaxItems() diefields.Optional[int64, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) MaxItems() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().MaxItems)
 }
 
-func (d *JSONSchemaPropsDie) MinItems() diefields.Optional[int64, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) MinItems() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().MinItems)
 }
 
-func (d *JSONSchemaPropsDie) UniqueItems() diefields.Value[bool, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) UniqueItems() diefields.Value[bool] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().UniqueItems)
 }
 
-func (d *JSONSchemaPropsDie) MultipleOf() diefields.Optional[float64, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) MultipleOf() diefields.Optional[float64] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().MultipleOf)
 }
 
-func (d *JSONSchemaPropsDie) Enum() diefields.Value[[]JSON, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) Enum() diefields.Value[[]JSON] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().Enum)
 }
 
-func (d *JSONSchemaPropsDie) MaxProperties() diefields.Optional[int64, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) MaxProperties() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().MaxProperties)
 }
 
-func (d *JSONSchemaPropsDie) MinProperties() diefields.Optional[int64, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) MinProperties() diefields.Optional[int64] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().MinProperties)
 }
 
-func (d *JSONSchemaPropsDie) Required() diefields.Value[[]string, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) Required() diefields.Value[[]string] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().Required)
 }
 
-func (d *JSONSchemaPropsDie) Items() diefields.Optional[JSONSchemaPropsOrArray, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) Items() diefields.Optional[JSONSchemaPropsOrArray] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().Items)
 }
 
-func (d *JSONSchemaPropsDie) AllOf() diefields.Value[[]JSONSchemaProps, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) AllOf() diefields.Value[[]JSONSchemaProps] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().AllOf)
 }
 
-func (d *JSONSchemaPropsDie) OneOf() diefields.Value[[]JSONSchemaProps, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) OneOf() diefields.Value[[]JSONSchemaProps] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().OneOf)
 }
 
-func (d *JSONSchemaPropsDie) AnyOf() diefields.Value[[]JSONSchemaProps, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) AnyOf() diefields.Value[[]JSONSchemaProps] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().AnyOf)
 }
 
@@ -1662,15 +2489,15 @@ func (d *JSONSchemaPropsDie) Not() *JSONSchemaPropsDie {
 	return diefields.Child(d, jSONSchemaPropsFields.Get().Not)
 }
 
-func (d *JSONSchemaPropsDie) Properties() diefields.Value[map[string]JSONSchemaProps, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) Properties() diefields.Value[map[string]JSONSchemaProps] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().Properties)
 }
 
-func (d *JSONSchemaPropsDie) AdditionalProperties() diefields.Optional[JSONSchemaPropsOrBool, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) AdditionalProperties() diefields.Optional[JSONSchemaPropsOrBool] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().AdditionalProperties)
 }
 
-func (d *JSONSchemaPropsDie) PatternProperties() diefields.Value[map[string]JSONSchemaProps, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) PatternProperties() diefields.Value[map[string]JSONSchemaProps] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().PatternProperties)
 }
 
@@ -1678,11 +2505,11 @@ func (d *JSONSchemaPropsDie) Dependencies() *diefields.Map[string, JSONSchemaPro
 	return diefields.MapOf(d, jSONSchemaPropsFields.Get().Dependencies)
 }
 
-func (d *JSONSchemaPropsDie) AdditionalItems() diefields.Optional[JSONSchemaPropsOrBool, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) AdditionalItems() diefields.Optional[JSONSchemaPropsOrBool] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().AdditionalItems)
 }
 
-func (d *JSONSchemaPropsDie) Definitions() diefields.Value[JSONSchemaDefinitions, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) Definitions() diefields.Value[JSONSchemaDefinitions] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().Definitions)
 }
 
@@ -1690,11 +2517,11 @@ func (d *JSONSchemaPropsDie) ExternalDocs() *ExternalDocumentationDie {
 	return diefields.Child(d, jSONSchemaPropsFields.Get().ExternalDocs)
 }
 
-func (d *JSONSchemaPropsDie) Example() diefields.Optional[JSON, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) Example() diefields.Optional[JSON] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().Example)
 }
 
-func (d *JSONSchemaPropsDie) Nullable() diefields.Value[bool, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) Nullable() diefields.Value[bool] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().Nullable)
 }
 
@@ -1704,7 +2531,7 @@ func (d *JSONSchemaPropsDie) Nullable() diefields.Value[bool, *JSONSchemaPropsDi
 // but switches back to normal pruning behaviour if nested
 // properties or additionalProperties are specified in the schema.
 // This can either be true or undefined. False is forbidden.
-func (d *JSONSchemaPropsDie) XPreserveUnknownFields() diefields.Optional[bool, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) XPreserveUnknownFields() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().XPreserveUnknownFields)
 }
 
@@ -1715,7 +2542,7 @@ func (d *JSONSchemaPropsDie) XPreserveUnknownFields() diefields.Optional[bool, *
 // are validated automatically. x-kubernetes-preserve-unknown-fields
 // is allowed to be true, but does not have to be if the object
 // is fully specified (up to kind, apiVersion, metadata).
-func (d *JSONSchemaPropsDie) XEmbeddedResource() diefields.Value[bool, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) XEmbeddedResource() diefields.Value[bool] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().XEmbeddedResource)
 }
 
@@ -1733,7 +2560,7 @@ func (d *JSONSchemaPropsDie) XEmbeddedResource() diefields.Value[bool, *JSONSche
 //   - type: integer
 //   - type: string
 //   - ... zero or more
-func (d *JSONSchemaPropsDie) XIntOrString() diefields.Value[bool, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) XIntOrString() diefields.Value[bool] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().XIntOrString)
 }
 
@@ -1746,7 +2573,7 @@ func (d *JSONSchemaPropsDie) XIntOrString() diefields.Value[bool, *JSONSchemaPro
 //
 // The properties specified must either be required or have a default value,
 // to ensure those properties are present for all list items.
-func (d *JSONSchemaPropsDie) XListMapKeys() diefields.Value[[]string, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) XListMapKeys() diefields.Value[[]string] {
 	return diefields.ValueOf(d, jSONSchemaPropsFields.Get().XListMapKeys)
 }
 
@@ -1766,7 +2593,7 @@ func (d *JSONSchemaPropsDie) XListMapKeys() diefields.Value[[]string, *JSONSchem
 //     must only be used on a list with elements of type object.
 //
 // Defaults to atomic for arrays.
-func (d *JSONSchemaPropsDie) XListType() diefields.Optional[string, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) XListType() diefields.Optional[string] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().XListType)
 }
 
@@ -1779,7 +2606,7 @@ func (d *JSONSchemaPropsDie) XListType() diefields.Optional[string, *JSONSchemaP
 //     the default behaviour for all maps.
 //  2. `atomic`: the list is treated as a single entity, like a scalar.
 //     Atomic maps will be entirely replaced when updated.
-func (d *JSONSchemaPropsDie) XMapType() diefields.Optional[string, *JSONSchemaPropsDie] {
+func (d *JSONSchemaPropsDie) XMapType() diefields.Optional[string] {
 	return diefields.OptionalOf(d, jSONSchemaPropsFields.Get().XMapType)
 }
 
@@ -1788,18 +2615,300 @@ func (d *JSONSchemaPropsDie) XValidations() *diefields.ListMap[ValidationRule, *
 	return diefields.ListMapOf(d, jSONSchemaPropsFields.Get().XValidations)
 }
 
-// SelectableField specifies the JSON path of a field that may be used with field selectors.
-type SelectableFieldDie struct {
-	diebase.DieBase[SelectableField, *SelectableFieldDie]
+func (d *JSONSchemaPropsDieMut) ID() diefields.ValueMut[string, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().ID)
 }
 
-func (*SelectableFieldDie) DieFrom(b diebase.DieBase[SelectableField, *SelectableFieldDie]) *SelectableFieldDie {
+func (d *JSONSchemaPropsDieMut) Schema() diefields.ValueMut[JSONSchemaURL, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().Schema)
+}
+
+func (d *JSONSchemaPropsDieMut) Ref() diefields.OptionalMut[string, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().Ref)
+}
+
+func (d *JSONSchemaPropsDieMut) Description() diefields.ValueMut[string, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().Description)
+}
+
+func (d *JSONSchemaPropsDieMut) Type() diefields.ValueMut[string, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().Type)
+}
+
+// format is an OpenAPI v3 format string. Unknown formats are ignored. The following formats are validated:
+//
+// - bsonobjectid: a bson object ID, i.e. a 24 characters hex string
+// - uri: an URI as parsed by Golang net/url.ParseRequestURI
+// - email: an email address as parsed by Golang net/mail.ParseAddress
+// - hostname: a valid representation for an Internet host name, as defined by RFC 1034, section 3.1 [RFC1034].
+// - ipv4: an IPv4 IP as parsed by Golang net.ParseIP
+// - ipv6: an IPv6 IP as parsed by Golang net.ParseIP
+// - cidr: a CIDR as parsed by Golang net.ParseCIDR
+// - mac: a MAC address as parsed by Golang net.ParseMAC
+// - uuid: an UUID that allows uppercase defined by the regex (?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$
+// - uuid3: an UUID3 that allows uppercase defined by the regex (?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?3[0-9a-f]{3}-?[0-9a-f]{4}-?[0-9a-f]{12}$
+// - uuid4: an UUID4 that allows uppercase defined by the regex (?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?4[0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}$
+// - uuid5: an UUID5 that allows uppercase defined by the regex (?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?5[0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}$
+// - isbn: an ISBN10 or ISBN13 number string like "0321751043" or "978-0321751041"
+// - isbn10: an ISBN10 number string like "0321751043"
+// - isbn13: an ISBN13 number string like "978-0321751041"
+// - creditcard: a credit card number defined by the regex ^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\\d{3})\\d{11})$ with any non digit characters mixed in
+// - ssn: a U.S. social security number following the regex ^\\d{3}[- ]?\\d{2}[- ]?\\d{4}$
+// - hexcolor: an hexadecimal color code like "#FFFFFF: following the regex ^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$
+// - rgbcolor: an RGB color code like rgb like "rgb(255,255,2559"
+// - byte: base64 encoded binary data
+// - password: any kind of string
+// - date: a date string like "2006-01-02" as defined by full-date in RFC3339
+// - duration: a duration string like "22 ns" as parsed by Golang time.ParseDuration or compatible with Scala duration format
+// - datetime: a date time string like "2014-12-15T19:30:20.000Z" as defined by date-time in RFC3339.
+func (d *JSONSchemaPropsDieMut) Format() diefields.ValueMut[string, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().Format)
+}
+
+func (d *JSONSchemaPropsDieMut) Title() diefields.ValueMut[string, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().Title)
+}
+
+// default is a default value for undefined object fields.
+// Defaulting is a beta feature under the CustomResourceDefaulting feature gate.
+// Defaulting requires spec.preserveUnknownFields to be false.
+func (d *JSONSchemaPropsDieMut) Default() diefields.OptionalMut[JSON, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().Default)
+}
+
+func (d *JSONSchemaPropsDieMut) Maximum() diefields.OptionalMut[float64, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().Maximum)
+}
+
+func (d *JSONSchemaPropsDieMut) ExclusiveMaximum() diefields.ValueMut[bool, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().ExclusiveMaximum)
+}
+
+func (d *JSONSchemaPropsDieMut) Minimum() diefields.OptionalMut[float64, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().Minimum)
+}
+
+func (d *JSONSchemaPropsDieMut) ExclusiveMinimum() diefields.ValueMut[bool, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().ExclusiveMinimum)
+}
+
+func (d *JSONSchemaPropsDieMut) MaxLength() diefields.OptionalMut[int64, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().MaxLength)
+}
+
+func (d *JSONSchemaPropsDieMut) MinLength() diefields.OptionalMut[int64, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().MinLength)
+}
+
+func (d *JSONSchemaPropsDieMut) Pattern() diefields.ValueMut[string, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().Pattern)
+}
+
+func (d *JSONSchemaPropsDieMut) MaxItems() diefields.OptionalMut[int64, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().MaxItems)
+}
+
+func (d *JSONSchemaPropsDieMut) MinItems() diefields.OptionalMut[int64, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().MinItems)
+}
+
+func (d *JSONSchemaPropsDieMut) UniqueItems() diefields.ValueMut[bool, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().UniqueItems)
+}
+
+func (d *JSONSchemaPropsDieMut) MultipleOf() diefields.OptionalMut[float64, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().MultipleOf)
+}
+
+func (d *JSONSchemaPropsDieMut) Enum() diefields.ValueMut[[]JSON, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().Enum)
+}
+
+func (d *JSONSchemaPropsDieMut) MaxProperties() diefields.OptionalMut[int64, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().MaxProperties)
+}
+
+func (d *JSONSchemaPropsDieMut) MinProperties() diefields.OptionalMut[int64, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().MinProperties)
+}
+
+func (d *JSONSchemaPropsDieMut) Required() diefields.ValueMut[[]string, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().Required)
+}
+
+func (d *JSONSchemaPropsDieMut) Items() diefields.OptionalMut[JSONSchemaPropsOrArray, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().Items)
+}
+
+func (d *JSONSchemaPropsDieMut) AllOf() diefields.ValueMut[[]JSONSchemaProps, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().AllOf)
+}
+
+func (d *JSONSchemaPropsDieMut) OneOf() diefields.ValueMut[[]JSONSchemaProps, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().OneOf)
+}
+
+func (d *JSONSchemaPropsDieMut) AnyOf() diefields.ValueMut[[]JSONSchemaProps, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().AnyOf)
+}
+
+func (d *JSONSchemaPropsDieMut) Not() *JSONSchemaPropsDieMut {
+	return diefields.ChildMut(d, jSONSchemaPropsFields.Get().Not)
+}
+
+func (d *JSONSchemaPropsDieMut) Properties() diefields.ValueMut[map[string]JSONSchemaProps, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().Properties)
+}
+
+func (d *JSONSchemaPropsDieMut) AdditionalProperties() diefields.OptionalMut[JSONSchemaPropsOrBool, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().AdditionalProperties)
+}
+
+func (d *JSONSchemaPropsDieMut) PatternProperties() diefields.ValueMut[map[string]JSONSchemaProps, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().PatternProperties)
+}
+
+func (d *JSONSchemaPropsDieMut) Dependencies() *diefields.MapMut[string, JSONSchemaPropsOrStringArray] {
+	return diefields.MapMutOf(d, jSONSchemaPropsFields.Get().Dependencies)
+}
+
+func (d *JSONSchemaPropsDieMut) AdditionalItems() diefields.OptionalMut[JSONSchemaPropsOrBool, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().AdditionalItems)
+}
+
+func (d *JSONSchemaPropsDieMut) Definitions() diefields.ValueMut[JSONSchemaDefinitions, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().Definitions)
+}
+
+func (d *JSONSchemaPropsDieMut) ExternalDocs() *ExternalDocumentationDieMut {
+	return diefields.ChildMut(d, jSONSchemaPropsFields.Get().ExternalDocs)
+}
+
+func (d *JSONSchemaPropsDieMut) Example() diefields.OptionalMut[JSON, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().Example)
+}
+
+func (d *JSONSchemaPropsDieMut) Nullable() diefields.ValueMut[bool, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().Nullable)
+}
+
+// x-kubernetes-preserve-unknown-fields stops the API server
+// decoding step from pruning fields which are not specified
+// in the validation schema. This affects fields recursively,
+// but switches back to normal pruning behaviour if nested
+// properties or additionalProperties are specified in the schema.
+// This can either be true or undefined. False is forbidden.
+func (d *JSONSchemaPropsDieMut) XPreserveUnknownFields() diefields.OptionalMut[bool, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().XPreserveUnknownFields)
+}
+
+// x-kubernetes-embedded-resource defines that the value is an
+// embedded Kubernetes runtime.Object, with TypeMeta and
+// ObjectMeta. The type must be object. It is allowed to further
+// restrict the embedded object. kind, apiVersion and metadata
+// are validated automatically. x-kubernetes-preserve-unknown-fields
+// is allowed to be true, but does not have to be if the object
+// is fully specified (up to kind, apiVersion, metadata).
+func (d *JSONSchemaPropsDieMut) XEmbeddedResource() diefields.ValueMut[bool, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().XEmbeddedResource)
+}
+
+// x-kubernetes-int-or-string specifies that this value is
+// either an integer or a string. If this is true, an empty
+// type is allowed and type as child of anyOf is permitted
+// if following one of the following patterns:
+//
+// 1) anyOf:
+//   - type: integer
+//   - type: string
+//
+// 2) allOf:
+//   - anyOf:
+//   - type: integer
+//   - type: string
+//   - ... zero or more
+func (d *JSONSchemaPropsDieMut) XIntOrString() diefields.ValueMut[bool, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().XIntOrString)
+}
+
+// x-kubernetes-list-map-keys annotates an array with the x-kubernetes-list-type `map` by specifying the keys used
+// as the index of the map.
+//
+// This tag MUST only be used on lists that have the "x-kubernetes-list-type"
+// extension set to "map". Also, the values specified for this attribute must
+// be a scalar typed field of the child structure (no nesting is supported).
+//
+// The properties specified must either be required or have a default value,
+// to ensure those properties are present for all list items.
+func (d *JSONSchemaPropsDieMut) XListMapKeys() diefields.ValueMut[[]string, *JSONSchemaPropsDieMut] {
+	return diefields.ValueMutOf(d, jSONSchemaPropsFields.Get().XListMapKeys)
+}
+
+// x-kubernetes-list-type annotates an array to further describe its topology.
+// This extension must only be used on lists and may have 3 possible values:
+//
+//  1. `atomic`: the list is treated as a single entity, like a scalar.
+//     Atomic lists will be entirely replaced when updated. This extension
+//     may be used on any type of list (struct, scalar, ...).
+//  2. `set`:
+//     Sets are lists that must not have multiple items with the same value. Each
+//     value must be a scalar, an object with x-kubernetes-map-type `atomic` or an
+//     array with x-kubernetes-list-type `atomic`.
+//  3. `map`:
+//     These lists are like maps in that their elements have a non-index key
+//     used to identify them. Order is preserved upon merge. The map tag
+//     must only be used on a list with elements of type object.
+//
+// Defaults to atomic for arrays.
+func (d *JSONSchemaPropsDieMut) XListType() diefields.OptionalMut[string, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().XListType)
+}
+
+// x-kubernetes-map-type annotates an object to further describe its topology.
+// This extension must only be used when type is object and may have 2 possible values:
+//
+//  1. `granular`:
+//     These maps are actual maps (key-value pairs) and each fields are independent
+//     from each other (they can each be manipulated by separate actors). This is
+//     the default behaviour for all maps.
+//  2. `atomic`: the list is treated as a single entity, like a scalar.
+//     Atomic maps will be entirely replaced when updated.
+func (d *JSONSchemaPropsDieMut) XMapType() diefields.OptionalMut[string, *JSONSchemaPropsDieMut] {
+	return diefields.OptionalMutOf(d, jSONSchemaPropsFields.Get().XMapType)
+}
+
+// x-kubernetes-validations describes a list of validation rules written in the CEL expression language.
+func (d *JSONSchemaPropsDieMut) XValidations() *diefields.ListMapMut[ValidationRule, *ValidationRuleDieMut, string] {
+	return diefields.ListMapMutOf(d, jSONSchemaPropsFields.Get().XValidations)
+}
+
+// SelectableField specifies the JSON path of a field that may be used with field selectors.
+//
+// SelectableFieldDie is immutable: it reads.
+// SelectableFieldDieMut, its mutable die, also writes, as DieWith passes it.
+type SelectableFieldDie struct {
+	diebase.DieBase[SelectableField, *SelectableFieldDie, *SelectableFieldDieMut]
+}
+
+// SelectableFieldDieMut is the mutable die of SelectableField: see SelectableFieldDie.
+type SelectableFieldDieMut struct {
+	diebase.DieMutBase[SelectableField, *SelectableFieldDie, *SelectableFieldDieMut]
+}
+
+func (*SelectableFieldDie) DieFrom(b diebase.DieBase[SelectableField, *SelectableFieldDie, *SelectableFieldDieMut]) *SelectableFieldDie {
 	return &SelectableFieldDie{b}
 }
 
-var _ diebase.DieOf[SelectableField, *SelectableFieldDie] = (*SelectableFieldDie)(nil)
+func (*SelectableFieldDieMut) DieFrom(b diebase.DieMutBase[SelectableField, *SelectableFieldDie, *SelectableFieldDieMut]) *SelectableFieldDieMut {
+	return &SelectableFieldDieMut{b}
+}
 
-var SelectableFieldBlank = diebase.Blank[SelectableField, *SelectableFieldDie]()
+var (
+	_ diebase.DieOf[SelectableField, *SelectableFieldDie, *SelectableFieldDieMut]    = (*SelectableFieldDie)(nil)
+	_ diebase.DieMutOf[SelectableField, *SelectableFieldDie, *SelectableFieldDieMut] = (*SelectableFieldDieMut)(nil)
+)
+
+var SelectableFieldBlank = diebase.Blank[SelectableField, *SelectableFieldDie, *SelectableFieldDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1808,34 +2917,47 @@ func (d *SelectableFieldDie) DieReleaseApplyConfiguration() *SelectableFieldAppl
 	return diecodegen.ReleaseApplyConfiguration[SelectableFieldApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *SelectableFieldDie) DieFeedApplyConfiguration(ac *SelectableFieldApplyConfiguration) *SelectableFieldDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *SelectableFieldDie) DieStampApplyConfiguration(fn func(ac *SelectableFieldApplyConfiguration)) *SelectableFieldDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *SelectableFieldDie) DieReleaseApplyConfigurationE() (*SelectableFieldApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[SelectableFieldApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *SelectableFieldDieMut) DieReleaseApplyConfiguration() *SelectableFieldApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[SelectableFieldApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *SelectableFieldDieMut) DieReleaseApplyConfigurationE() (*SelectableFieldApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[SelectableFieldApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *SelectableFieldDieMut) DieFeedApplyConfiguration(ac *SelectableFieldApplyConfiguration) *SelectableFieldDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *SelectableFieldDieMut) DieStampApplyConfiguration(fn func(ac *SelectableFieldApplyConfiguration)) *SelectableFieldDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *SelectableFieldDie) DieFeedApplyConfigurationE(ac *SelectableFieldApplyConfiguration) (*SelectableFieldDie, error) {
+func (d *SelectableFieldDieMut) DieFeedApplyConfigurationE(ac *SelectableFieldApplyConfiguration) (*SelectableFieldDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *SelectableFieldDie) DieStampApplyConfigurationE(fn func(ac *SelectableFieldApplyConfiguration)) (*SelectableFieldDie, error) {
+func (d *SelectableFieldDieMut) DieStampApplyConfigurationE(fn func(ac *SelectableFieldApplyConfiguration)) (*SelectableFieldDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1857,22 +2979,49 @@ var selectableFieldFields = &diefields.Table[selectableFieldFieldsTable]{Build: 
 // If jsonPath refers to absent field in a resource, the jsonPath evaluates to an empty string.
 // Must not point to metdata fields.
 // Required.
-func (d *SelectableFieldDie) JSONPath() diefields.Value[string, *SelectableFieldDie] {
+func (d *SelectableFieldDie) JSONPath() diefields.Value[string] {
 	return diefields.ValueOf(d, selectableFieldFields.Get().JSONPath)
 }
 
-// ServiceReference holds a reference to Service.legacy.k8s.io
-type ServiceReferenceDie struct {
-	diebase.DieBase[ServiceReference, *ServiceReferenceDie]
+// jsonPath is a simple JSON path which is evaluated against each custom resource to produce a
+// field selector value.
+// Only JSON paths without the array notation are allowed.
+// Must point to a field of type string, boolean or integer. Types with enum values
+// and strings with formats are allowed.
+// If jsonPath refers to absent field in a resource, the jsonPath evaluates to an empty string.
+// Must not point to metdata fields.
+// Required.
+func (d *SelectableFieldDieMut) JSONPath() diefields.ValueMut[string, *SelectableFieldDieMut] {
+	return diefields.ValueMutOf(d, selectableFieldFields.Get().JSONPath)
 }
 
-func (*ServiceReferenceDie) DieFrom(b diebase.DieBase[ServiceReference, *ServiceReferenceDie]) *ServiceReferenceDie {
+// ServiceReference holds a reference to Service.legacy.k8s.io
+//
+// ServiceReferenceDie is immutable: it reads.
+// ServiceReferenceDieMut, its mutable die, also writes, as DieWith passes it.
+type ServiceReferenceDie struct {
+	diebase.DieBase[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]
+}
+
+// ServiceReferenceDieMut is the mutable die of ServiceReference: see ServiceReferenceDie.
+type ServiceReferenceDieMut struct {
+	diebase.DieMutBase[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]
+}
+
+func (*ServiceReferenceDie) DieFrom(b diebase.DieBase[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]) *ServiceReferenceDie {
 	return &ServiceReferenceDie{b}
 }
 
-var _ diebase.DieOf[ServiceReference, *ServiceReferenceDie] = (*ServiceReferenceDie)(nil)
+func (*ServiceReferenceDieMut) DieFrom(b diebase.DieMutBase[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]) *ServiceReferenceDieMut {
+	return &ServiceReferenceDieMut{b}
+}
 
-var ServiceReferenceBlank = diebase.Blank[ServiceReference, *ServiceReferenceDie]()
+var (
+	_ diebase.DieOf[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]    = (*ServiceReferenceDie)(nil)
+	_ diebase.DieMutOf[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut] = (*ServiceReferenceDieMut)(nil)
+)
+
+var ServiceReferenceBlank = diebase.Blank[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1881,34 +3030,47 @@ func (d *ServiceReferenceDie) DieReleaseApplyConfiguration() *ServiceReferenceAp
 	return diecodegen.ReleaseApplyConfiguration[ServiceReferenceApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ServiceReferenceDie) DieFeedApplyConfiguration(ac *ServiceReferenceApplyConfiguration) *ServiceReferenceDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ServiceReferenceDie) DieStampApplyConfiguration(fn func(ac *ServiceReferenceApplyConfiguration)) *ServiceReferenceDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ServiceReferenceDie) DieReleaseApplyConfigurationE() (*ServiceReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ServiceReferenceApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ServiceReferenceDieMut) DieReleaseApplyConfiguration() *ServiceReferenceApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ServiceReferenceApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ServiceReferenceDieMut) DieReleaseApplyConfigurationE() (*ServiceReferenceApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ServiceReferenceApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ServiceReferenceDieMut) DieFeedApplyConfiguration(ac *ServiceReferenceApplyConfiguration) *ServiceReferenceDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ServiceReferenceDieMut) DieStampApplyConfiguration(fn func(ac *ServiceReferenceApplyConfiguration)) *ServiceReferenceDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ServiceReferenceDie) DieFeedApplyConfigurationE(ac *ServiceReferenceApplyConfiguration) (*ServiceReferenceDie, error) {
+func (d *ServiceReferenceDieMut) DieFeedApplyConfigurationE(ac *ServiceReferenceApplyConfiguration) (*ServiceReferenceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ServiceReferenceDie) DieStampApplyConfigurationE(fn func(ac *ServiceReferenceApplyConfiguration)) (*ServiceReferenceDie, error) {
+func (d *ServiceReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *ServiceReferenceApplyConfiguration)) (*ServiceReferenceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -1930,40 +3092,79 @@ var serviceReferenceFields = &diefields.Table[serviceReferenceFieldsTable]{Build
 
 // namespace is the namespace of the service.
 // Required
-func (d *ServiceReferenceDie) Namespace() diefields.Value[string, *ServiceReferenceDie] {
+func (d *ServiceReferenceDie) Namespace() diefields.Value[string] {
 	return diefields.ValueOf(d, serviceReferenceFields.Get().Namespace)
 }
 
 // name is the name of the service.
 // Required
-func (d *ServiceReferenceDie) Name() diefields.Value[string, *ServiceReferenceDie] {
+func (d *ServiceReferenceDie) Name() diefields.Value[string] {
 	return diefields.ValueOf(d, serviceReferenceFields.Get().Name)
 }
 
 // path is an optional URL path at which the webhook will be contacted.
-func (d *ServiceReferenceDie) Path() diefields.Optional[string, *ServiceReferenceDie] {
+func (d *ServiceReferenceDie) Path() diefields.Optional[string] {
 	return diefields.OptionalOf(d, serviceReferenceFields.Get().Path)
 }
 
 // port is an optional service port at which the webhook will be contacted.
 // `port` should be a valid port number (1-65535, inclusive).
 // Defaults to 443 for backward compatibility.
-func (d *ServiceReferenceDie) Port() diefields.Optional[int32, *ServiceReferenceDie] {
+func (d *ServiceReferenceDie) Port() diefields.Optional[int32] {
 	return diefields.OptionalOf(d, serviceReferenceFields.Get().Port)
 }
 
-// ValidationRule describes a validation rule written in the CEL expression language.
-type ValidationRuleDie struct {
-	diebase.DieBase[ValidationRule, *ValidationRuleDie]
+// namespace is the namespace of the service.
+// Required
+func (d *ServiceReferenceDieMut) Namespace() diefields.ValueMut[string, *ServiceReferenceDieMut] {
+	return diefields.ValueMutOf(d, serviceReferenceFields.Get().Namespace)
 }
 
-func (*ValidationRuleDie) DieFrom(b diebase.DieBase[ValidationRule, *ValidationRuleDie]) *ValidationRuleDie {
+// name is the name of the service.
+// Required
+func (d *ServiceReferenceDieMut) Name() diefields.ValueMut[string, *ServiceReferenceDieMut] {
+	return diefields.ValueMutOf(d, serviceReferenceFields.Get().Name)
+}
+
+// path is an optional URL path at which the webhook will be contacted.
+func (d *ServiceReferenceDieMut) Path() diefields.OptionalMut[string, *ServiceReferenceDieMut] {
+	return diefields.OptionalMutOf(d, serviceReferenceFields.Get().Path)
+}
+
+// port is an optional service port at which the webhook will be contacted.
+// `port` should be a valid port number (1-65535, inclusive).
+// Defaults to 443 for backward compatibility.
+func (d *ServiceReferenceDieMut) Port() diefields.OptionalMut[int32, *ServiceReferenceDieMut] {
+	return diefields.OptionalMutOf(d, serviceReferenceFields.Get().Port)
+}
+
+// ValidationRule describes a validation rule written in the CEL expression language.
+//
+// ValidationRuleDie is immutable: it reads.
+// ValidationRuleDieMut, its mutable die, also writes, as DieWith passes it.
+type ValidationRuleDie struct {
+	diebase.DieBase[ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut]
+}
+
+// ValidationRuleDieMut is the mutable die of ValidationRule: see ValidationRuleDie.
+type ValidationRuleDieMut struct {
+	diebase.DieMutBase[ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut]
+}
+
+func (*ValidationRuleDie) DieFrom(b diebase.DieBase[ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut]) *ValidationRuleDie {
 	return &ValidationRuleDie{b}
 }
 
-var _ diebase.DieOf[ValidationRule, *ValidationRuleDie] = (*ValidationRuleDie)(nil)
+func (*ValidationRuleDieMut) DieFrom(b diebase.DieMutBase[ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut]) *ValidationRuleDieMut {
+	return &ValidationRuleDieMut{b}
+}
 
-var ValidationRuleBlank = diebase.Blank[ValidationRule, *ValidationRuleDie]()
+var (
+	_ diebase.DieOf[ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut]    = (*ValidationRuleDie)(nil)
+	_ diebase.DieMutOf[ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut] = (*ValidationRuleDieMut)(nil)
+)
+
+var ValidationRuleBlank = diebase.Blank[ValidationRule, *ValidationRuleDie, *ValidationRuleDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -1972,34 +3173,47 @@ func (d *ValidationRuleDie) DieReleaseApplyConfiguration() *ValidationRuleApplyC
 	return diecodegen.ReleaseApplyConfiguration[ValidationRuleApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ValidationRuleDie) DieFeedApplyConfiguration(ac *ValidationRuleApplyConfiguration) *ValidationRuleDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ValidationRuleDie) DieStampApplyConfiguration(fn func(ac *ValidationRuleApplyConfiguration)) *ValidationRuleDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ValidationRuleDie) DieReleaseApplyConfigurationE() (*ValidationRuleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ValidationRuleApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ValidationRuleDieMut) DieReleaseApplyConfiguration() *ValidationRuleApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ValidationRuleApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ValidationRuleDieMut) DieReleaseApplyConfigurationE() (*ValidationRuleApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ValidationRuleApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ValidationRuleDieMut) DieFeedApplyConfiguration(ac *ValidationRuleApplyConfiguration) *ValidationRuleDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ValidationRuleDieMut) DieStampApplyConfiguration(fn func(ac *ValidationRuleApplyConfiguration)) *ValidationRuleDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ValidationRuleDie) DieFeedApplyConfigurationE(ac *ValidationRuleApplyConfiguration) (*ValidationRuleDie, error) {
+func (d *ValidationRuleDieMut) DieFeedApplyConfigurationE(ac *ValidationRuleApplyConfiguration) (*ValidationRuleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ValidationRuleDie) DieStampApplyConfigurationE(fn func(ac *ValidationRuleApplyConfiguration)) (*ValidationRuleDie, error) {
+func (d *ValidationRuleDieMut) DieStampApplyConfigurationE(fn func(ac *ValidationRuleApplyConfiguration)) (*ValidationRuleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -2091,7 +3305,7 @@ var validationRuleFields = &diefields.Table[validationRuleFieldsTable]{Build: fu
 // Transition rules by default are applied only on UPDATE requests and are
 // skipped if an old value could not be found. You can opt a transition
 // rule into unconditional evaluation by setting `optionalOldSelf` to true.
-func (d *ValidationRuleDie) Rule() diefields.Value[string, *ValidationRuleDie] {
+func (d *ValidationRuleDie) Rule() diefields.Value[string] {
 	return diefields.ValueOf(d, validationRuleFields.Get().Rule)
 }
 
@@ -2099,7 +3313,7 @@ func (d *ValidationRuleDie) Rule() diefields.Value[string, *ValidationRuleDie] {
 // line breaks. The message must not contain line breaks.
 // If unset, the message is "failed rule: {Rule}".
 // e.g. "must be a URL with the host matching spec.host"
-func (d *ValidationRuleDie) Message() diefields.Value[string, *ValidationRuleDie] {
+func (d *ValidationRuleDie) Message() diefields.Value[string] {
 	return diefields.ValueOf(d, validationRuleFields.Get().Message)
 }
 
@@ -2113,7 +3327,7 @@ func (d *ValidationRuleDie) Message() diefields.Value[string, *ValidationRuleDie
 // messageExpression has access to all the same variables as the rule; the only difference is the return type.
 // Example:
 // "x must be less than max ("+string(self.max)+")"
-func (d *ValidationRuleDie) MessageExpression() diefields.Value[string, *ValidationRuleDie] {
+func (d *ValidationRuleDie) MessageExpression() diefields.Value[string] {
 	return diefields.ValueOf(d, validationRuleFields.Get().MessageExpression)
 }
 
@@ -2122,7 +3336,7 @@ func (d *ValidationRuleDie) MessageExpression() diefields.Value[string, *Validat
 // The currently supported reasons are: "FieldValueInvalid", "FieldValueForbidden", "FieldValueRequired", "FieldValueDuplicate".
 // If not set, default to use "FieldValueInvalid".
 // All future added reasons must be accepted by clients when reading this value and unknown reasons should be treated as FieldValueInvalid.
-func (d *ValidationRuleDie) Reason() diefields.Optional[FieldValueErrorReason, *ValidationRuleDie] {
+func (d *ValidationRuleDie) Reason() diefields.Optional[FieldValueErrorReason] {
 	return diefields.OptionalOf(d, validationRuleFields.Get().Reason)
 }
 
@@ -2135,7 +3349,7 @@ func (d *ValidationRuleDie) Reason() diefields.Optional[FieldValueErrorReason, *
 // Numeric index of array is not supported.
 // For field name which contains special characters, use `['specialName']` to refer the field name.
 // e.g. for attribute `foo.34$` appears in a list `testList`, the fieldPath could be set to `.testList['foo.34$']`
-func (d *ValidationRuleDie) FieldPath() diefields.Value[string, *ValidationRuleDie] {
+func (d *ValidationRuleDie) FieldPath() diefields.Value[string] {
 	return diefields.ValueOf(d, validationRuleFields.Get().FieldPath)
 }
 
@@ -2152,22 +3366,170 @@ func (d *ValidationRuleDie) FieldPath() diefields.Value[string, *ValidationRuleD
 // https://pkg.go.dev/github.com/google/cel-go/cel#OptionalTypes
 //
 // May not be set unless `oldSelf` is used in `rule`.
-func (d *ValidationRuleDie) OptionalOldSelf() diefields.Optional[bool, *ValidationRuleDie] {
+func (d *ValidationRuleDie) OptionalOldSelf() diefields.Optional[bool] {
 	return diefields.OptionalOf(d, validationRuleFields.Get().OptionalOldSelf)
 }
 
-// WebhookClientConfig contains the information to make a TLS connection with the webhook.
-type WebhookClientConfigDie struct {
-	diebase.DieBase[WebhookClientConfig, *WebhookClientConfigDie]
+// Rule represents the expression which will be evaluated by CEL.
+// ref: https://github.com/google/cel-spec
+// The Rule is scoped to the location of the x-kubernetes-validations extension in the schema.
+// The `self` variable in the CEL expression is bound to the scoped value.
+// Example:
+// - Rule scoped to the root of a resource with a status subresource: {"rule": "self.status.actual <= self.spec.maxDesired"}
+//
+// If the Rule is scoped to an object with properties, the accessible properties of the object are field selectable
+// via `self.field` and field presence can be checked via `has(self.field)`. Null valued fields are treated as
+// absent fields in CEL expressions.
+// If the Rule is scoped to an object with additionalProperties (i.e. a map) the value of the map
+// are accessible via `self[mapKey]`, map containment can be checked via `mapKey in self` and all entries of the map
+// are accessible via CEL macros and functions such as `self.all(...)`.
+// If the Rule is scoped to an array, the elements of the array are accessible via `self[i]` and also by macros and
+// functions.
+// If the Rule is scoped to a scalar, `self` is bound to the scalar value.
+// Examples:
+// - Rule scoped to a map of objects: {"rule": "self.components['Widget'].priority < 10"}
+// - Rule scoped to a list of integers: {"rule": "self.values.all(value, value >= 0 && value < 100)"}
+// - Rule scoped to a string value: {"rule": "self.startsWith('kube')"}
+//
+// The `apiVersion`, `kind`, `metadata.name` and `metadata.generateName` are always accessible from the root of the
+// object and from any x-kubernetes-embedded-resource annotated objects. No other metadata properties are accessible.
+//
+// Unknown data preserved in custom resources via x-kubernetes-preserve-unknown-fields is not accessible in CEL
+// expressions. This includes:
+// - Unknown field values that are preserved by object schemas with x-kubernetes-preserve-unknown-fields.
+// - Object properties where the property schema is of an "unknown type". An "unknown type" is recursively defined as:
+//   - A schema with no type and x-kubernetes-preserve-unknown-fields set to true
+//   - An array where the items schema is of an "unknown type"
+//   - An object where the additionalProperties schema is of an "unknown type"
+//
+// Only property names of the form `[a-zA-Z_.-/][a-zA-Z0-9_.-/]*` are accessible.
+// Accessible property names are escaped according to the following rules when accessed in the expression:
+//   - '__' escapes to '__underscores__'
+//   - '.' escapes to '__dot__'
+//   - '-' escapes to '__dash__'
+//   - '/' escapes to '__slash__'
+//   - Property names that exactly match a CEL RESERVED keyword escape to '__{keyword}__'. The keywords are:
+//     "true", "false", "null", "in", "as", "break", "const", "continue", "else", "for", "function", "if",
+//     "import", "let", "loop", "package", "namespace", "return".
+//
+// Examples:
+//   - Rule accessing a property named "namespace": {"rule": "self.__namespace__ > 0"}
+//   - Rule accessing a property named "x-prop": {"rule": "self.x__dash__prop > 0"}
+//   - Rule accessing a property named "redact__d": {"rule": "self.redact__underscores__d > 0"}
+//
+// Equality on arrays with x-kubernetes-list-type of 'set' or 'map' ignores element order, i.e. [1, 2] == [2, 1].
+// Concatenation on arrays with x-kubernetes-list-type use the semantics of the list type:
+//   - 'set': `X + Y` performs a union where the array positions of all elements in `X` are preserved and
+//     non-intersecting elements in `Y` are appended, retaining their partial order.
+//   - 'map': `X + Y` performs a merge where the array positions of all keys in `X` are preserved but the values
+//     are overwritten by values in `Y` when the key sets of `X` and `Y` intersect. Elements in `Y` with
+//     non-intersecting keys are appended, retaining their partial order.
+//
+// If `rule` makes use of the `oldSelf` variable it is implicitly a
+// `transition rule`.
+//
+// By default, the `oldSelf` variable is the same type as `self`.
+// When `optionalOldSelf` is true, the `oldSelf` variable is a CEL optional
+//
+//	variable whose value() is the same type as `self`.
+//
+// See the documentation for the `optionalOldSelf` field for details.
+//
+// Transition rules by default are applied only on UPDATE requests and are
+// skipped if an old value could not be found. You can opt a transition
+// rule into unconditional evaluation by setting `optionalOldSelf` to true.
+func (d *ValidationRuleDieMut) Rule() diefields.ValueMut[string, *ValidationRuleDieMut] {
+	return diefields.ValueMutOf(d, validationRuleFields.Get().Rule)
 }
 
-func (*WebhookClientConfigDie) DieFrom(b diebase.DieBase[WebhookClientConfig, *WebhookClientConfigDie]) *WebhookClientConfigDie {
+// Message represents the message displayed when validation fails. The message is required if the Rule contains
+// line breaks. The message must not contain line breaks.
+// If unset, the message is "failed rule: {Rule}".
+// e.g. "must be a URL with the host matching spec.host"
+func (d *ValidationRuleDieMut) Message() diefields.ValueMut[string, *ValidationRuleDieMut] {
+	return diefields.ValueMutOf(d, validationRuleFields.Get().Message)
+}
+
+// MessageExpression declares a CEL expression that evaluates to the validation failure message that is returned when this rule fails.
+// Since messageExpression is used as a failure message, it must evaluate to a string.
+// If both message and messageExpression are present on a rule, then messageExpression will be used if validation
+// fails. If messageExpression results in a runtime error, the runtime error is logged, and the validation failure message is produced
+// as if the messageExpression field were unset. If messageExpression evaluates to an empty string, a string with only spaces, or a string
+// that contains line breaks, then the validation failure message will also be produced as if the messageExpression field were unset, and
+// the fact that messageExpression produced an empty string/string with only spaces/string with line breaks will be logged.
+// messageExpression has access to all the same variables as the rule; the only difference is the return type.
+// Example:
+// "x must be less than max ("+string(self.max)+")"
+func (d *ValidationRuleDieMut) MessageExpression() diefields.ValueMut[string, *ValidationRuleDieMut] {
+	return diefields.ValueMutOf(d, validationRuleFields.Get().MessageExpression)
+}
+
+// reason provides a machine-readable validation failure reason that is returned to the caller when a request fails this validation rule.
+// The HTTP status code returned to the caller will match the reason of the reason of the first failed validation rule.
+// The currently supported reasons are: "FieldValueInvalid", "FieldValueForbidden", "FieldValueRequired", "FieldValueDuplicate".
+// If not set, default to use "FieldValueInvalid".
+// All future added reasons must be accepted by clients when reading this value and unknown reasons should be treated as FieldValueInvalid.
+func (d *ValidationRuleDieMut) Reason() diefields.OptionalMut[FieldValueErrorReason, *ValidationRuleDieMut] {
+	return diefields.OptionalMutOf(d, validationRuleFields.Get().Reason)
+}
+
+// fieldPath represents the field path returned when the validation fails.
+// It must be a relative JSON path (i.e. with array notation) scoped to the location of this x-kubernetes-validations extension in the schema and refer to an existing field.
+// e.g. when validation checks if a specific attribute `foo` under a map `testMap`, the fieldPath could be set to `.testMap.foo`
+// If the validation checks two lists must have unique attributes, the fieldPath could be set to either of the list: e.g. `.testList`
+// It does not support list numeric index.
+// It supports child operation to refer to an existing field currently. Refer to [JSONPath support in Kubernetes](https://kubernetes.io/docs/reference/kubectl/jsonpath/) for more info.
+// Numeric index of array is not supported.
+// For field name which contains special characters, use `['specialName']` to refer the field name.
+// e.g. for attribute `foo.34$` appears in a list `testList`, the fieldPath could be set to `.testList['foo.34$']`
+func (d *ValidationRuleDieMut) FieldPath() diefields.ValueMut[string, *ValidationRuleDieMut] {
+	return diefields.ValueMutOf(d, validationRuleFields.Get().FieldPath)
+}
+
+// optionalOldSelf is used to opt a transition rule into evaluation
+// even when the object is first created, or if the old object is
+// missing the value.
+//
+// When enabled `oldSelf` will be a CEL optional whose value will be
+// `None` if there is no old value, or when the object is initially created.
+//
+// You may check for presence of oldSelf using `oldSelf.hasValue()` and
+// unwrap it after checking using `oldSelf.value()`. Check the CEL
+// documentation for Optional types for more information:
+// https://pkg.go.dev/github.com/google/cel-go/cel#OptionalTypes
+//
+// May not be set unless `oldSelf` is used in `rule`.
+func (d *ValidationRuleDieMut) OptionalOldSelf() diefields.OptionalMut[bool, *ValidationRuleDieMut] {
+	return diefields.OptionalMutOf(d, validationRuleFields.Get().OptionalOldSelf)
+}
+
+// WebhookClientConfig contains the information to make a TLS connection with the webhook.
+//
+// WebhookClientConfigDie is immutable: it reads.
+// WebhookClientConfigDieMut, its mutable die, also writes, as DieWith passes it.
+type WebhookClientConfigDie struct {
+	diebase.DieBase[WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]
+}
+
+// WebhookClientConfigDieMut is the mutable die of WebhookClientConfig: see WebhookClientConfigDie.
+type WebhookClientConfigDieMut struct {
+	diebase.DieMutBase[WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]
+}
+
+func (*WebhookClientConfigDie) DieFrom(b diebase.DieBase[WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]) *WebhookClientConfigDie {
 	return &WebhookClientConfigDie{b}
 }
 
-var _ diebase.DieOf[WebhookClientConfig, *WebhookClientConfigDie] = (*WebhookClientConfigDie)(nil)
+func (*WebhookClientConfigDieMut) DieFrom(b diebase.DieMutBase[WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]) *WebhookClientConfigDieMut {
+	return &WebhookClientConfigDieMut{b}
+}
 
-var WebhookClientConfigBlank = diebase.Blank[WebhookClientConfig, *WebhookClientConfigDie]()
+var (
+	_ diebase.DieOf[WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]    = (*WebhookClientConfigDie)(nil)
+	_ diebase.DieMutOf[WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut] = (*WebhookClientConfigDieMut)(nil)
+)
+
+var WebhookClientConfigBlank = diebase.Blank[WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -2176,47 +3538,60 @@ func (d *WebhookClientConfigDie) DieReleaseApplyConfiguration() *WebhookClientCo
 	return diecodegen.ReleaseApplyConfiguration[WebhookClientConfigApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *WebhookClientConfigDie) DieFeedApplyConfiguration(ac *WebhookClientConfigApplyConfiguration) *WebhookClientConfigDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *WebhookClientConfigDie) DieStampApplyConfiguration(fn func(ac *WebhookClientConfigApplyConfiguration)) *WebhookClientConfigDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *WebhookClientConfigDie) DieReleaseApplyConfigurationE() (*WebhookClientConfigApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WebhookClientConfigApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *WebhookClientConfigDieMut) DieReleaseApplyConfiguration() *WebhookClientConfigApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[WebhookClientConfigApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *WebhookClientConfigDieMut) DieReleaseApplyConfigurationE() (*WebhookClientConfigApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[WebhookClientConfigApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *WebhookClientConfigDieMut) DieFeedApplyConfiguration(ac *WebhookClientConfigApplyConfiguration) *WebhookClientConfigDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *WebhookClientConfigDieMut) DieStampApplyConfiguration(fn func(ac *WebhookClientConfigApplyConfiguration)) *WebhookClientConfigDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *WebhookClientConfigDie) DieFeedApplyConfigurationE(ac *WebhookClientConfigApplyConfiguration) (*WebhookClientConfigDie, error) {
+func (d *WebhookClientConfigDieMut) DieFeedApplyConfigurationE(ac *WebhookClientConfigApplyConfiguration) (*WebhookClientConfigDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *WebhookClientConfigDie) DieStampApplyConfigurationE(fn func(ac *WebhookClientConfigApplyConfiguration)) (*WebhookClientConfigDie, error) {
+func (d *WebhookClientConfigDieMut) DieStampApplyConfigurationE(fn func(ac *WebhookClientConfigApplyConfiguration)) (*WebhookClientConfigDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type webhookClientConfigFieldsTable struct {
 	URL      diefields.Field[WebhookClientConfig, *string]
-	Service  diefields.Struct[WebhookClientConfig, ServiceReference, *ServiceReferenceDie]
+	Service  diefields.Struct[WebhookClientConfig, ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]
 	CABundle diefields.Field[WebhookClientConfig, []byte]
 }
 
 var webhookClientConfigFields = &diefields.Table[webhookClientConfigFieldsTable]{Build: func() (f webhookClientConfigFieldsTable) {
 	_ = annotated
 	f.URL = diefields.NewField[WebhookClientConfig, *string]("url")
-	f.Service = diefields.NewStruct[WebhookClientConfig, ServiceReference, *ServiceReferenceDie]("service")
+	f.Service = diefields.NewStruct[WebhookClientConfig, ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]("service")
 	f.CABundle = diefields.NewField[WebhookClientConfig, []byte]("caBundle")
 	return
 }}
@@ -2246,7 +3621,7 @@ var webhookClientConfigFields = &diefields.Table[webhookClientConfigFieldsTable]
 // Attempting to use a user or basic auth e.g. "user:password@" is not
 // allowed. Fragments ("#...") and query parameters ("?...") are not
 // allowed, either.
-func (d *WebhookClientConfigDie) URL() diefields.Optional[string, *WebhookClientConfigDie] {
+func (d *WebhookClientConfigDie) URL() diefields.Optional[string] {
 	return diefields.OptionalOf(d, webhookClientConfigFields.Get().URL)
 }
 
@@ -2260,22 +3635,80 @@ func (d *WebhookClientConfigDie) Service() *ServiceReferenceDie {
 
 // caBundle is a PEM encoded CA bundle which will be used to validate the webhook's server certificate.
 // If unspecified, system trust roots on the apiserver are used.
-func (d *WebhookClientConfigDie) CABundle() diefields.Value[[]byte, *WebhookClientConfigDie] {
+func (d *WebhookClientConfigDie) CABundle() diefields.Value[[]byte] {
 	return diefields.ValueOf(d, webhookClientConfigFields.Get().CABundle)
 }
 
-// WebhookConversion describes how to call a conversion webhook
-type WebhookConversionDie struct {
-	diebase.DieBase[WebhookConversion, *WebhookConversionDie]
+// url gives the location of the webhook, in standard URL form
+// (`scheme://host:port/path`). Exactly one of `url` or `service`
+// must be specified.
+//
+// The `host` should not refer to a service running in the cluster; use
+// the `service` field instead. The host might be resolved via external
+// DNS in some apiservers (e.g., `kube-apiserver` cannot resolve
+// in-cluster DNS as that would be a layering violation). `host` may
+// also be an IP address.
+//
+// Please note that using `localhost` or `127.0.0.1` as a `host` is
+// risky unless you take great care to run this webhook on all hosts
+// which run an apiserver which might need to make calls to this
+// webhook. Such installs are likely to be non-portable, i.e., not easy
+// to turn up in a new cluster.
+//
+// The scheme must be "https"; the URL must begin with "https://".
+//
+// A path is optional, and if present may be any string permissible in
+// a URL. You may use the path to pass an arbitrary string to the
+// webhook, for example, a cluster identifier.
+//
+// Attempting to use a user or basic auth e.g. "user:password@" is not
+// allowed. Fragments ("#...") and query parameters ("?...") are not
+// allowed, either.
+func (d *WebhookClientConfigDieMut) URL() diefields.OptionalMut[string, *WebhookClientConfigDieMut] {
+	return diefields.OptionalMutOf(d, webhookClientConfigFields.Get().URL)
 }
 
-func (*WebhookConversionDie) DieFrom(b diebase.DieBase[WebhookConversion, *WebhookConversionDie]) *WebhookConversionDie {
+// service is a reference to the service for this webhook. Either
+// service or url must be specified.
+//
+// If the webhook is running within the cluster, then you should use `service`.
+func (d *WebhookClientConfigDieMut) Service() *ServiceReferenceDieMut {
+	return diefields.ChildMut(d, webhookClientConfigFields.Get().Service)
+}
+
+// caBundle is a PEM encoded CA bundle which will be used to validate the webhook's server certificate.
+// If unspecified, system trust roots on the apiserver are used.
+func (d *WebhookClientConfigDieMut) CABundle() diefields.ValueMut[[]byte, *WebhookClientConfigDieMut] {
+	return diefields.ValueMutOf(d, webhookClientConfigFields.Get().CABundle)
+}
+
+// WebhookConversion describes how to call a conversion webhook
+//
+// WebhookConversionDie is immutable: it reads.
+// WebhookConversionDieMut, its mutable die, also writes, as DieWith passes it.
+type WebhookConversionDie struct {
+	diebase.DieBase[WebhookConversion, *WebhookConversionDie, *WebhookConversionDieMut]
+}
+
+// WebhookConversionDieMut is the mutable die of WebhookConversion: see WebhookConversionDie.
+type WebhookConversionDieMut struct {
+	diebase.DieMutBase[WebhookConversion, *WebhookConversionDie, *WebhookConversionDieMut]
+}
+
+func (*WebhookConversionDie) DieFrom(b diebase.DieBase[WebhookConversion, *WebhookConversionDie, *WebhookConversionDieMut]) *WebhookConversionDie {
 	return &WebhookConversionDie{b}
 }
 
-var _ diebase.DieOf[WebhookConversion, *WebhookConversionDie] = (*WebhookConversionDie)(nil)
+func (*WebhookConversionDieMut) DieFrom(b diebase.DieMutBase[WebhookConversion, *WebhookConversionDie, *WebhookConversionDieMut]) *WebhookConversionDieMut {
+	return &WebhookConversionDieMut{b}
+}
 
-var WebhookConversionBlank = diebase.Blank[WebhookConversion, *WebhookConversionDie]()
+var (
+	_ diebase.DieOf[WebhookConversion, *WebhookConversionDie, *WebhookConversionDieMut]    = (*WebhookConversionDie)(nil)
+	_ diebase.DieMutOf[WebhookConversion, *WebhookConversionDie, *WebhookConversionDieMut] = (*WebhookConversionDieMut)(nil)
+)
+
+var WebhookConversionBlank = diebase.Blank[WebhookConversion, *WebhookConversionDie, *WebhookConversionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -2284,45 +3717,58 @@ func (d *WebhookConversionDie) DieReleaseApplyConfiguration() *WebhookConversion
 	return diecodegen.ReleaseApplyConfiguration[WebhookConversionApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *WebhookConversionDie) DieFeedApplyConfiguration(ac *WebhookConversionApplyConfiguration) *WebhookConversionDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *WebhookConversionDie) DieStampApplyConfiguration(fn func(ac *WebhookConversionApplyConfiguration)) *WebhookConversionDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *WebhookConversionDie) DieReleaseApplyConfigurationE() (*WebhookConversionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WebhookConversionApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *WebhookConversionDieMut) DieReleaseApplyConfiguration() *WebhookConversionApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[WebhookConversionApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *WebhookConversionDieMut) DieReleaseApplyConfigurationE() (*WebhookConversionApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[WebhookConversionApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *WebhookConversionDieMut) DieFeedApplyConfiguration(ac *WebhookConversionApplyConfiguration) *WebhookConversionDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *WebhookConversionDieMut) DieStampApplyConfiguration(fn func(ac *WebhookConversionApplyConfiguration)) *WebhookConversionDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *WebhookConversionDie) DieFeedApplyConfigurationE(ac *WebhookConversionApplyConfiguration) (*WebhookConversionDie, error) {
+func (d *WebhookConversionDieMut) DieFeedApplyConfigurationE(ac *WebhookConversionApplyConfiguration) (*WebhookConversionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *WebhookConversionDie) DieStampApplyConfigurationE(fn func(ac *WebhookConversionApplyConfiguration)) (*WebhookConversionDie, error) {
+func (d *WebhookConversionDieMut) DieStampApplyConfigurationE(fn func(ac *WebhookConversionApplyConfiguration)) (*WebhookConversionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type webhookConversionFieldsTable struct {
-	ClientConfig             diefields.Struct[WebhookConversion, WebhookClientConfig, *WebhookClientConfigDie]
+	ClientConfig             diefields.Struct[WebhookConversion, WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]
 	ConversionReviewVersions diefields.Field[WebhookConversion, []string]
 }
 
 var webhookConversionFields = &diefields.Table[webhookConversionFieldsTable]{Build: func() (f webhookConversionFieldsTable) {
 	_ = annotated
-	f.ClientConfig = diefields.NewStruct[WebhookConversion, WebhookClientConfig, *WebhookClientConfigDie]("clientConfig")
+	f.ClientConfig = diefields.NewStruct[WebhookConversion, WebhookClientConfig, *WebhookClientConfigDie, *WebhookClientConfigDieMut]("clientConfig")
 	f.ConversionReviewVersions = diefields.NewField[WebhookConversion, []string]("conversionReviewVersions")
 	return
 }}
@@ -2338,23 +3784,38 @@ func (d *WebhookConversionDie) ClientConfig() *WebhookClientConfigDie {
 // are supported by API server, conversion will fail for the custom resource.
 // If a persisted Webhook configuration specifies allowed versions and does not
 // include any versions known to the API Server, calls to the webhook will fail.
-func (d *WebhookConversionDie) ConversionReviewVersions() diefields.Value[[]string, *WebhookConversionDie] {
+func (d *WebhookConversionDie) ConversionReviewVersions() diefields.Value[[]string] {
 	return diefields.ValueOf(d, webhookConversionFields.Get().ConversionReviewVersions)
+}
+
+// clientConfig is the instructions for how to call the webhook if strategy is `Webhook`.
+func (d *WebhookConversionDieMut) ClientConfig() *WebhookClientConfigDieMut {
+	return diefields.ChildMut(d, webhookConversionFields.Get().ClientConfig)
+}
+
+// conversionReviewVersions is an ordered list of preferred `ConversionReview`
+// versions the Webhook expects. The API server will use the first version in
+// the list which it supports. If none of the versions specified in this list
+// are supported by API server, conversion will fail for the custom resource.
+// If a persisted Webhook configuration specifies allowed versions and does not
+// include any versions known to the API Server, calls to the webhook will fail.
+func (d *WebhookConversionDieMut) ConversionReviewVersions() diefields.ValueMut[[]string, *WebhookConversionDieMut] {
+	return diefields.ValueMutOf(d, webhookConversionFields.Get().ConversionReviewVersions)
 }
 
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "apiextensions.k8s.io", Version: "v1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ConversionReview"), &ConversionReviewDie{})
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CustomResourceDefinition"), &CustomResourceDefinitionDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("ConversionReview"), &ConversionReviewDieMut{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CustomResourceDefinition"), &CustomResourceDefinitionDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("CustomResourceDefinitionList"), &CustomResourceDefinitionListDie{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

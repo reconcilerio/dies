@@ -42,10 +42,10 @@ func TestAddToSchemeRegistersEveryGroup(t *testing.T) {
 		t.Fatal(err)
 	}
 	for gvk, want := range map[schema.GroupVersionKind]any{
-		{Group: "apps", Version: "v1", Kind: "Deployment"}:                               &dieappsv1.DeploymentDie{},
+		{Group: "apps", Version: "v1", Kind: "Deployment"}:                               &dieappsv1.DeploymentDieMut{},
 		{Group: "apps", Version: "v1", Kind: "DeploymentList"}:                           &dieappsv1.DeploymentListDie{},
-		{Version: "v1", Kind: "Pod"}:                                                     &diecorev1.PodDie{},
-		{Group: "apiextensions.k8s.io", Version: "v1", Kind: "CustomResourceDefinition"}: &dieapiextensionsv1.CustomResourceDefinitionDie{},
+		{Version: "v1", Kind: "Pod"}:                                                     &diecorev1.PodDieMut{},
+		{Group: "apiextensions.k8s.io", Version: "v1", Kind: "CustomResourceDefinition"}: &dieapiextensionsv1.CustomResourceDefinitionDieMut{},
 	} {
 		obj, err := scheme.New(gvk)
 		if err != nil {

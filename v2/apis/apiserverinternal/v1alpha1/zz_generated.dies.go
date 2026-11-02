@@ -32,17 +32,32 @@ import (
 
 // An API server instance reports the version it can decode and the version it
 // encodes objects to when persisting objects in the backend.
+//
+// ServerStorageVersionDie is immutable: it reads.
+// ServerStorageVersionDieMut, its mutable die, also writes, as DieWith passes it.
 type ServerStorageVersionDie struct {
-	diebase.DieBase[ServerStorageVersion, *ServerStorageVersionDie]
+	diebase.DieBase[ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut]
 }
 
-func (*ServerStorageVersionDie) DieFrom(b diebase.DieBase[ServerStorageVersion, *ServerStorageVersionDie]) *ServerStorageVersionDie {
+// ServerStorageVersionDieMut is the mutable die of ServerStorageVersion: see ServerStorageVersionDie.
+type ServerStorageVersionDieMut struct {
+	diebase.DieMutBase[ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut]
+}
+
+func (*ServerStorageVersionDie) DieFrom(b diebase.DieBase[ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut]) *ServerStorageVersionDie {
 	return &ServerStorageVersionDie{b}
 }
 
-var _ diebase.DieOf[ServerStorageVersion, *ServerStorageVersionDie] = (*ServerStorageVersionDie)(nil)
+func (*ServerStorageVersionDieMut) DieFrom(b diebase.DieMutBase[ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut]) *ServerStorageVersionDieMut {
+	return &ServerStorageVersionDieMut{b}
+}
 
-var ServerStorageVersionBlank = diebase.Blank[ServerStorageVersion, *ServerStorageVersionDie]()
+var (
+	_ diebase.DieOf[ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut]    = (*ServerStorageVersionDie)(nil)
+	_ diebase.DieMutOf[ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut] = (*ServerStorageVersionDieMut)(nil)
+)
+
+var ServerStorageVersionBlank = diebase.Blank[ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -51,34 +66,47 @@ func (d *ServerStorageVersionDie) DieReleaseApplyConfiguration() *ServerStorageV
 	return diecodegen.ReleaseApplyConfiguration[ServerStorageVersionApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *ServerStorageVersionDie) DieFeedApplyConfiguration(ac *ServerStorageVersionApplyConfiguration) *ServerStorageVersionDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *ServerStorageVersionDie) DieStampApplyConfiguration(fn func(ac *ServerStorageVersionApplyConfiguration)) *ServerStorageVersionDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *ServerStorageVersionDie) DieReleaseApplyConfigurationE() (*ServerStorageVersionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ServerStorageVersionApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *ServerStorageVersionDieMut) DieReleaseApplyConfiguration() *ServerStorageVersionApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[ServerStorageVersionApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *ServerStorageVersionDieMut) DieReleaseApplyConfigurationE() (*ServerStorageVersionApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[ServerStorageVersionApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *ServerStorageVersionDieMut) DieFeedApplyConfiguration(ac *ServerStorageVersionApplyConfiguration) *ServerStorageVersionDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *ServerStorageVersionDieMut) DieStampApplyConfiguration(fn func(ac *ServerStorageVersionApplyConfiguration)) *ServerStorageVersionDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ServerStorageVersionDie) DieFeedApplyConfigurationE(ac *ServerStorageVersionApplyConfiguration) (*ServerStorageVersionDie, error) {
+func (d *ServerStorageVersionDieMut) DieFeedApplyConfigurationE(ac *ServerStorageVersionApplyConfiguration) (*ServerStorageVersionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *ServerStorageVersionDie) DieStampApplyConfigurationE(fn func(ac *ServerStorageVersionApplyConfiguration)) (*ServerStorageVersionDie, error) {
+func (d *ServerStorageVersionDieMut) DieStampApplyConfigurationE(fn func(ac *ServerStorageVersionApplyConfiguration)) (*ServerStorageVersionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -99,41 +127,80 @@ var serverStorageVersionFields = &diefields.Table[serverStorageVersionFieldsTabl
 }}
 
 // apiServerID is the ID of the reporting API server.
-func (d *ServerStorageVersionDie) APIServerID() diefields.Value[string, *ServerStorageVersionDie] {
+func (d *ServerStorageVersionDie) APIServerID() diefields.Value[string] {
 	return diefields.ValueOf(d, serverStorageVersionFields.Get().APIServerID)
 }
 
 // encodingVersion the API server encodes the object to when persisting it in
 // the backend (e.g., etcd).
-func (d *ServerStorageVersionDie) EncodingVersion() diefields.Value[string, *ServerStorageVersionDie] {
+func (d *ServerStorageVersionDie) EncodingVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, serverStorageVersionFields.Get().EncodingVersion)
 }
 
 // decodableVersions are the encoding versions the API server can handle to decode.
 // The API server can decode objects encoded in these versions.
 // The encodingVersion must be included in the decodableVersions.
-func (d *ServerStorageVersionDie) DecodableVersions() diefields.Value[[]string, *ServerStorageVersionDie] {
+func (d *ServerStorageVersionDie) DecodableVersions() diefields.Value[[]string] {
 	return diefields.ValueOf(d, serverStorageVersionFields.Get().DecodableVersions)
 }
 
 // servedVersions lists all versions the API server can serve.
 // DecodableVersions must include all ServedVersions.
-func (d *ServerStorageVersionDie) ServedVersions() diefields.Value[[]string, *ServerStorageVersionDie] {
+func (d *ServerStorageVersionDie) ServedVersions() diefields.Value[[]string] {
 	return diefields.ValueOf(d, serverStorageVersionFields.Get().ServedVersions)
 }
 
-// Storage version of a specific resource.
-type StorageVersionDie struct {
-	diebase.DieObjectBase[StorageVersion, *StorageVersionDie]
+// apiServerID is the ID of the reporting API server.
+func (d *ServerStorageVersionDieMut) APIServerID() diefields.ValueMut[string, *ServerStorageVersionDieMut] {
+	return diefields.ValueMutOf(d, serverStorageVersionFields.Get().APIServerID)
 }
 
-func (*StorageVersionDie) DieFrom(b diebase.DieBase[StorageVersion, *StorageVersionDie]) *StorageVersionDie {
+// encodingVersion the API server encodes the object to when persisting it in
+// the backend (e.g., etcd).
+func (d *ServerStorageVersionDieMut) EncodingVersion() diefields.ValueMut[string, *ServerStorageVersionDieMut] {
+	return diefields.ValueMutOf(d, serverStorageVersionFields.Get().EncodingVersion)
+}
+
+// decodableVersions are the encoding versions the API server can handle to decode.
+// The API server can decode objects encoded in these versions.
+// The encodingVersion must be included in the decodableVersions.
+func (d *ServerStorageVersionDieMut) DecodableVersions() diefields.ValueMut[[]string, *ServerStorageVersionDieMut] {
+	return diefields.ValueMutOf(d, serverStorageVersionFields.Get().DecodableVersions)
+}
+
+// servedVersions lists all versions the API server can serve.
+// DecodableVersions must include all ServedVersions.
+func (d *ServerStorageVersionDieMut) ServedVersions() diefields.ValueMut[[]string, *ServerStorageVersionDieMut] {
+	return diefields.ValueMutOf(d, serverStorageVersionFields.Get().ServedVersions)
+}
+
+// Storage version of a specific resource.
+//
+// StorageVersionDie is immutable: it reads.
+// StorageVersionDieMut, its mutable die, also writes, as DieWith passes it.
+type StorageVersionDie struct {
+	diebase.DieObjectBase[StorageVersion, *StorageVersionDie, *StorageVersionDieMut]
+}
+
+// StorageVersionDieMut is the mutable die of StorageVersion: see StorageVersionDie.
+type StorageVersionDieMut struct {
+	diebase.DieObjectMutBase[StorageVersion, *StorageVersionDie, *StorageVersionDieMut]
+}
+
+func (*StorageVersionDie) DieFrom(b diebase.DieBase[StorageVersion, *StorageVersionDie, *StorageVersionDieMut]) *StorageVersionDie {
 	return &StorageVersionDie{diebase.AsObject(b)}
 }
 
-var _ dieobjects.DieObjectOf[StorageVersion, *StorageVersionDie] = (*StorageVersionDie)(nil)
+func (*StorageVersionDieMut) DieFrom(b diebase.DieMutBase[StorageVersion, *StorageVersionDie, *StorageVersionDieMut]) *StorageVersionDieMut {
+	return &StorageVersionDieMut{diebase.AsObjectMut(b)}
+}
 
-var StorageVersionBlank = diebase.BlankOf[StorageVersion, *StorageVersionDie](StorageVersion{TypeMeta: metav1.TypeMeta{APIVersion: "internal.apiserver.k8s.io/v1alpha1", Kind: "StorageVersion"}})
+var (
+	_ dieobjects.DieObjectOf[StorageVersion, *StorageVersionDie, *StorageVersionDieMut]    = (*StorageVersionDie)(nil)
+	_ dieobjects.DieObjectMutOf[StorageVersion, *StorageVersionDie, *StorageVersionDieMut] = (*StorageVersionDieMut)(nil)
+)
+
+var StorageVersionBlank = diebase.BlankOf[StorageVersion, *StorageVersionDie, *StorageVersionDieMut](StorageVersion{TypeMeta: metav1.TypeMeta{APIVersion: "internal.apiserver.k8s.io/v1alpha1", Kind: "StorageVersion"}})
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -142,52 +209,65 @@ func (d *StorageVersionDie) DieReleaseApplyConfiguration() *StorageVersionApplyC
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *StorageVersionDie) DieFeedApplyConfiguration(ac *StorageVersionApplyConfiguration) *StorageVersionDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *StorageVersionDie) DieStampApplyConfiguration(fn func(ac *StorageVersionApplyConfiguration)) *StorageVersionDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *StorageVersionDie) DieReleaseApplyConfigurationE() (*StorageVersionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[StorageVersionApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *StorageVersionDieMut) DieReleaseApplyConfiguration() *StorageVersionApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[StorageVersionApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *StorageVersionDieMut) DieReleaseApplyConfigurationE() (*StorageVersionApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[StorageVersionApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *StorageVersionDieMut) DieFeedApplyConfiguration(ac *StorageVersionApplyConfiguration) *StorageVersionDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *StorageVersionDieMut) DieStampApplyConfiguration(fn func(ac *StorageVersionApplyConfiguration)) *StorageVersionDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *StorageVersionDie) DieFeedApplyConfigurationE(ac *StorageVersionApplyConfiguration) (*StorageVersionDie, error) {
+func (d *StorageVersionDieMut) DieFeedApplyConfigurationE(ac *StorageVersionApplyConfiguration) (*StorageVersionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *StorageVersionDie) DieStampApplyConfigurationE(fn func(ac *StorageVersionApplyConfiguration)) (*StorageVersionDie, error) {
+func (d *StorageVersionDieMut) DieStampApplyConfigurationE(fn func(ac *StorageVersionApplyConfiguration)) (*StorageVersionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type storageVersionFieldsTable struct {
 	Kind       diefields.Field[StorageVersion, string]
 	APIVersion diefields.Field[StorageVersion, string]
-	Metadata   diefields.Struct[StorageVersion, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]
-	Spec       diefields.Struct[StorageVersion, StorageVersionSpec, *StorageVersionSpecDie]
-	Status     diefields.Struct[StorageVersion, StorageVersionStatus, *StorageVersionStatusDie]
+	Metadata   diefields.Struct[StorageVersion, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]
+	Spec       diefields.Struct[StorageVersion, StorageVersionSpec, *StorageVersionSpecDie, *StorageVersionSpecDieMut]
+	Status     diefields.Struct[StorageVersion, StorageVersionStatus, *StorageVersionStatusDie, *StorageVersionStatusDieMut]
 }
 
 var storageVersionFields = &diefields.Table[storageVersionFieldsTable]{Build: func() (f storageVersionFieldsTable) {
 	_ = annotated
 	f.Kind = diefields.NewField[StorageVersion, string]("kind")
 	f.APIVersion = diefields.NewField[StorageVersion, string]("apiVersion")
-	f.Metadata = diefields.NewStruct[StorageVersion, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie]("metadata")
-	f.Spec = diefields.NewStruct[StorageVersion, StorageVersionSpec, *StorageVersionSpecDie]("spec")
-	f.Status = diefields.NewStruct[StorageVersion, StorageVersionStatus, *StorageVersionStatusDie]("status")
+	f.Metadata = diefields.NewStruct[StorageVersion, diemetav1.ObjectMeta, *diemetav1.ObjectMetaDie, *diemetav1.ObjectMetaDieMut]("metadata")
+	f.Spec = diefields.NewStruct[StorageVersion, StorageVersionSpec, *StorageVersionSpecDie, *StorageVersionSpecDieMut]("spec")
+	f.Status = diefields.NewStruct[StorageVersion, StorageVersionStatus, *StorageVersionStatusDie, *StorageVersionStatusDieMut]("status")
 	return
 }}
 
@@ -196,7 +276,7 @@ var storageVersionFields = &diefields.Table[storageVersionFieldsTable]{Build: fu
 // Cannot be updated.
 // In CamelCase.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *StorageVersionDie) Kind() diefields.Value[string, *StorageVersionDie] {
+func (d *StorageVersionDie) Kind() diefields.Value[string] {
 	return diefields.ValueOf(d, storageVersionFields.Get().Kind)
 }
 
@@ -204,7 +284,7 @@ func (d *StorageVersionDie) Kind() diefields.Value[string, *StorageVersionDie] {
 // Servers should convert recognized schemas to the latest internal value, and
 // may reject unrecognized values.
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *StorageVersionDie) APIVersion() diefields.Value[string, *StorageVersionDie] {
+func (d *StorageVersionDie) APIVersion() diefields.Value[string] {
 	return diefields.ValueOf(d, storageVersionFields.Get().APIVersion)
 }
 
@@ -225,18 +305,67 @@ func (d *StorageVersionDie) Status() *StorageVersionStatusDie {
 	return diefields.Child(d, storageVersionFields.Get().Status)
 }
 
-// Describes the state of the storageVersion at a certain point.
-type StorageVersionConditionDie struct {
-	diebase.DieBase[StorageVersionCondition, *StorageVersionConditionDie]
+// Kind is a string value representing the REST resource this object represents.
+// Servers may infer this from the endpoint the client submits requests to.
+// Cannot be updated.
+// In CamelCase.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *StorageVersionDieMut) Kind() diefields.ValueMut[string, *StorageVersionDieMut] {
+	return diefields.ValueMutOf(d, storageVersionFields.Get().Kind)
 }
 
-func (*StorageVersionConditionDie) DieFrom(b diebase.DieBase[StorageVersionCondition, *StorageVersionConditionDie]) *StorageVersionConditionDie {
+// APIVersion defines the versioned schema of this representation of an object.
+// Servers should convert recognized schemas to the latest internal value, and
+// may reject unrecognized values.
+// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *StorageVersionDieMut) APIVersion() diefields.ValueMut[string, *StorageVersionDieMut] {
+	return diefields.ValueMutOf(d, storageVersionFields.Get().APIVersion)
+}
+
+// metadata is the standard object metadata.
+// The name is <group>.<resource>.
+func (d *StorageVersionDieMut) Metadata() *diemetav1.ObjectMetaDieMut {
+	return diefields.ChildMut(d, storageVersionFields.Get().Metadata)
+}
+
+// spec is an empty spec. It is here to comply with Kubernetes API style.
+func (d *StorageVersionDieMut) Spec() *StorageVersionSpecDieMut {
+	return diefields.ChildMut(d, storageVersionFields.Get().Spec)
+}
+
+// status on the version the API server instance can decode from and
+// encode objects to when persisting objects in the backend.
+func (d *StorageVersionDieMut) Status() *StorageVersionStatusDieMut {
+	return diefields.ChildMut(d, storageVersionFields.Get().Status)
+}
+
+// Describes the state of the storageVersion at a certain point.
+//
+// StorageVersionConditionDie is immutable: it reads.
+// StorageVersionConditionDieMut, its mutable die, also writes, as DieWith passes it.
+type StorageVersionConditionDie struct {
+	diebase.DieBase[StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut]
+}
+
+// StorageVersionConditionDieMut is the mutable die of StorageVersionCondition: see StorageVersionConditionDie.
+type StorageVersionConditionDieMut struct {
+	diebase.DieMutBase[StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut]
+}
+
+func (*StorageVersionConditionDie) DieFrom(b diebase.DieBase[StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut]) *StorageVersionConditionDie {
 	return &StorageVersionConditionDie{b}
 }
 
-var _ diebase.DieOf[StorageVersionCondition, *StorageVersionConditionDie] = (*StorageVersionConditionDie)(nil)
+func (*StorageVersionConditionDieMut) DieFrom(b diebase.DieMutBase[StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut]) *StorageVersionConditionDieMut {
+	return &StorageVersionConditionDieMut{b}
+}
 
-var StorageVersionConditionBlank = diebase.Blank[StorageVersionCondition, *StorageVersionConditionDie]()
+var (
+	_ diebase.DieOf[StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut]    = (*StorageVersionConditionDie)(nil)
+	_ diebase.DieMutOf[StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut] = (*StorageVersionConditionDieMut)(nil)
+)
+
+var StorageVersionConditionBlank = diebase.Blank[StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -245,34 +374,47 @@ func (d *StorageVersionConditionDie) DieReleaseApplyConfiguration() *StorageVers
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionConditionApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *StorageVersionConditionDie) DieFeedApplyConfiguration(ac *StorageVersionConditionApplyConfiguration) *StorageVersionConditionDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *StorageVersionConditionDie) DieStampApplyConfiguration(fn func(ac *StorageVersionConditionApplyConfiguration)) *StorageVersionConditionDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *StorageVersionConditionDie) DieReleaseApplyConfigurationE() (*StorageVersionConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[StorageVersionConditionApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *StorageVersionConditionDieMut) DieReleaseApplyConfiguration() *StorageVersionConditionApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[StorageVersionConditionApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *StorageVersionConditionDieMut) DieReleaseApplyConfigurationE() (*StorageVersionConditionApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[StorageVersionConditionApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *StorageVersionConditionDieMut) DieFeedApplyConfiguration(ac *StorageVersionConditionApplyConfiguration) *StorageVersionConditionDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *StorageVersionConditionDieMut) DieStampApplyConfiguration(fn func(ac *StorageVersionConditionApplyConfiguration)) *StorageVersionConditionDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *StorageVersionConditionDie) DieFeedApplyConfigurationE(ac *StorageVersionConditionApplyConfiguration) (*StorageVersionConditionDie, error) {
+func (d *StorageVersionConditionDieMut) DieFeedApplyConfigurationE(ac *StorageVersionConditionApplyConfiguration) (*StorageVersionConditionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *StorageVersionConditionDie) DieStampApplyConfigurationE(fn func(ac *StorageVersionConditionApplyConfiguration)) (*StorageVersionConditionDie, error) {
+func (d *StorageVersionConditionDieMut) DieStampApplyConfigurationE(fn func(ac *StorageVersionConditionApplyConfiguration)) (*StorageVersionConditionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
@@ -297,44 +439,74 @@ var storageVersionConditionFields = &diefields.Table[storageVersionConditionFiel
 }}
 
 // type of the condition.
-func (d *StorageVersionConditionDie) Type() diefields.Value[StorageVersionConditionType, *StorageVersionConditionDie] {
+func (d *StorageVersionConditionDie) Type() diefields.Value[StorageVersionConditionType] {
 	return diefields.ValueOf(d, storageVersionConditionFields.Get().Type)
 }
 
 // status of the condition, one of True, False, Unknown.
-func (d *StorageVersionConditionDie) Status() diefields.Value[ConditionStatus, *StorageVersionConditionDie] {
+func (d *StorageVersionConditionDie) Status() diefields.Value[ConditionStatus] {
 	return diefields.ValueOf(d, storageVersionConditionFields.Get().Status)
 }
 
 // observedGeneration represents the .metadata.generation that the condition was set based upon, if field is set.
-func (d *StorageVersionConditionDie) ObservedGeneration() diefields.Value[int64, *StorageVersionConditionDie] {
+func (d *StorageVersionConditionDie) ObservedGeneration() diefields.Value[int64] {
 	return diefields.ValueOf(d, storageVersionConditionFields.Get().ObservedGeneration)
 }
 
 // lastTransitionTime is the last time the condition transitioned from one status to another.
-func (d *StorageVersionConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time, *StorageVersionConditionDie] {
+func (d *StorageVersionConditionDie) LastTransitionTime() diefields.Value[diemetav1.Time] {
 	return diefields.ValueOf(d, storageVersionConditionFields.Get().LastTransitionTime)
 }
 
 // reason for the condition's last transition.
-func (d *StorageVersionConditionDie) Reason() diefields.Value[string, *StorageVersionConditionDie] {
+func (d *StorageVersionConditionDie) Reason() diefields.Value[string] {
 	return diefields.ValueOf(d, storageVersionConditionFields.Get().Reason)
 }
 
 // message is a human readable string indicating details about the transition.
-func (d *StorageVersionConditionDie) Message() diefields.Value[string, *StorageVersionConditionDie] {
+func (d *StorageVersionConditionDie) Message() diefields.Value[string] {
 	return diefields.ValueOf(d, storageVersionConditionFields.Get().Message)
+}
+
+// type of the condition.
+func (d *StorageVersionConditionDieMut) Type() diefields.ValueMut[StorageVersionConditionType, *StorageVersionConditionDieMut] {
+	return diefields.ValueMutOf(d, storageVersionConditionFields.Get().Type)
+}
+
+// status of the condition, one of True, False, Unknown.
+func (d *StorageVersionConditionDieMut) Status() diefields.ValueMut[ConditionStatus, *StorageVersionConditionDieMut] {
+	return diefields.ValueMutOf(d, storageVersionConditionFields.Get().Status)
+}
+
+// observedGeneration represents the .metadata.generation that the condition was set based upon, if field is set.
+func (d *StorageVersionConditionDieMut) ObservedGeneration() diefields.ValueMut[int64, *StorageVersionConditionDieMut] {
+	return diefields.ValueMutOf(d, storageVersionConditionFields.Get().ObservedGeneration)
+}
+
+// lastTransitionTime is the last time the condition transitioned from one status to another.
+func (d *StorageVersionConditionDieMut) LastTransitionTime() diefields.ValueMut[diemetav1.Time, *StorageVersionConditionDieMut] {
+	return diefields.ValueMutOf(d, storageVersionConditionFields.Get().LastTransitionTime)
+}
+
+// reason for the condition's last transition.
+func (d *StorageVersionConditionDieMut) Reason() diefields.ValueMut[string, *StorageVersionConditionDieMut] {
+	return diefields.ValueMutOf(d, storageVersionConditionFields.Get().Reason)
+}
+
+// message is a human readable string indicating details about the transition.
+func (d *StorageVersionConditionDieMut) Message() diefields.ValueMut[string, *StorageVersionConditionDieMut] {
+	return diefields.ValueMutOf(d, storageVersionConditionFields.Get().Message)
 }
 
 // A list of StorageVersions.
 type StorageVersionListDie struct {
-	dielists.List[*StorageVersionDie]
+	dielists.List[*StorageVersionDieMut]
 }
 
-var _ dielists.DieListOf[*StorageVersionDie] = (*StorageVersionListDie)(nil)
+var _ dielists.DieListOf[*StorageVersionDieMut] = (*StorageVersionListDie)(nil)
 
 // NewStorageVersionList returns a list with items.
-func NewStorageVersionList(items ...*StorageVersionDie) *StorageVersionListDie {
+func NewStorageVersionList(items ...*StorageVersionDieMut) *StorageVersionListDie {
 	return &StorageVersionListDie{dielists.NewList("internal.apiserver.k8s.io/v1alpha1", "StorageVersionList", items...)}
 }
 
@@ -346,17 +518,32 @@ func (l *StorageVersionListDie) DeepCopy() *StorageVersionListDie {
 func (l *StorageVersionListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // StorageVersionSpec is an empty spec.
+//
+// StorageVersionSpecDie is immutable: it reads.
+// StorageVersionSpecDieMut, its mutable die, also writes, as DieWith passes it.
 type StorageVersionSpecDie struct {
-	diebase.DieBase[StorageVersionSpec, *StorageVersionSpecDie]
+	diebase.DieBase[StorageVersionSpec, *StorageVersionSpecDie, *StorageVersionSpecDieMut]
 }
 
-func (*StorageVersionSpecDie) DieFrom(b diebase.DieBase[StorageVersionSpec, *StorageVersionSpecDie]) *StorageVersionSpecDie {
+// StorageVersionSpecDieMut is the mutable die of StorageVersionSpec: see StorageVersionSpecDie.
+type StorageVersionSpecDieMut struct {
+	diebase.DieMutBase[StorageVersionSpec, *StorageVersionSpecDie, *StorageVersionSpecDieMut]
+}
+
+func (*StorageVersionSpecDie) DieFrom(b diebase.DieBase[StorageVersionSpec, *StorageVersionSpecDie, *StorageVersionSpecDieMut]) *StorageVersionSpecDie {
 	return &StorageVersionSpecDie{b}
 }
 
-var _ diebase.DieOf[StorageVersionSpec, *StorageVersionSpecDie] = (*StorageVersionSpecDie)(nil)
+func (*StorageVersionSpecDieMut) DieFrom(b diebase.DieMutBase[StorageVersionSpec, *StorageVersionSpecDie, *StorageVersionSpecDieMut]) *StorageVersionSpecDieMut {
+	return &StorageVersionSpecDieMut{b}
+}
 
-var StorageVersionSpecBlank = diebase.Blank[StorageVersionSpec, *StorageVersionSpecDie]()
+var (
+	_ diebase.DieOf[StorageVersionSpec, *StorageVersionSpecDie, *StorageVersionSpecDieMut]    = (*StorageVersionSpecDie)(nil)
+	_ diebase.DieMutOf[StorageVersionSpec, *StorageVersionSpecDie, *StorageVersionSpecDieMut] = (*StorageVersionSpecDieMut)(nil)
+)
+
+var StorageVersionSpecBlank = diebase.Blank[StorageVersionSpec, *StorageVersionSpecDie, *StorageVersionSpecDieMut]()
 
 type storageVersionSpecFieldsTable struct {
 }
@@ -368,17 +555,32 @@ var storageVersionSpecFields = &diefields.Table[storageVersionSpecFieldsTable]{B
 
 // API server instances report the versions they can decode and the version they
 // encode objects to when persisting objects in the backend.
+//
+// StorageVersionStatusDie is immutable: it reads.
+// StorageVersionStatusDieMut, its mutable die, also writes, as DieWith passes it.
 type StorageVersionStatusDie struct {
-	diebase.DieBase[StorageVersionStatus, *StorageVersionStatusDie]
+	diebase.DieBase[StorageVersionStatus, *StorageVersionStatusDie, *StorageVersionStatusDieMut]
 }
 
-func (*StorageVersionStatusDie) DieFrom(b diebase.DieBase[StorageVersionStatus, *StorageVersionStatusDie]) *StorageVersionStatusDie {
+// StorageVersionStatusDieMut is the mutable die of StorageVersionStatus: see StorageVersionStatusDie.
+type StorageVersionStatusDieMut struct {
+	diebase.DieMutBase[StorageVersionStatus, *StorageVersionStatusDie, *StorageVersionStatusDieMut]
+}
+
+func (*StorageVersionStatusDie) DieFrom(b diebase.DieBase[StorageVersionStatus, *StorageVersionStatusDie, *StorageVersionStatusDieMut]) *StorageVersionStatusDie {
 	return &StorageVersionStatusDie{b}
 }
 
-var _ diebase.DieOf[StorageVersionStatus, *StorageVersionStatusDie] = (*StorageVersionStatusDie)(nil)
+func (*StorageVersionStatusDieMut) DieFrom(b diebase.DieMutBase[StorageVersionStatus, *StorageVersionStatusDie, *StorageVersionStatusDieMut]) *StorageVersionStatusDieMut {
+	return &StorageVersionStatusDieMut{b}
+}
 
-var StorageVersionStatusBlank = diebase.Blank[StorageVersionStatus, *StorageVersionStatusDie]()
+var (
+	_ diebase.DieOf[StorageVersionStatus, *StorageVersionStatusDie, *StorageVersionStatusDieMut]    = (*StorageVersionStatusDie)(nil)
+	_ diebase.DieMutOf[StorageVersionStatus, *StorageVersionStatusDie, *StorageVersionStatusDieMut] = (*StorageVersionStatusDieMut)(nil)
+)
+
+var StorageVersionStatusBlank = diebase.Blank[StorageVersionStatus, *StorageVersionStatusDie, *StorageVersionStatusDieMut]()
 
 // DieReleaseApplyConfiguration returns the die's intent as an apply
 // configuration: on a root, what an apply sends, the object's identity
@@ -387,48 +589,61 @@ func (d *StorageVersionStatusDie) DieReleaseApplyConfiguration() *StorageVersion
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionStatusApplyConfiguration](d)
 }
 
-// DieFeedApplyConfiguration replaces the die's intent with an apply
-// configuration's, such as the fields a manager owns that Extract returns:
-// each value it sets becomes intent, over the die's value.
-func (d *StorageVersionStatusDie) DieFeedApplyConfiguration(ac *StorageVersionStatusApplyConfiguration) *StorageVersionStatusDie {
-	return diecodegen.FeedApplyConfiguration(d, ac)
-}
-
-// DieStampApplyConfiguration passes the die's intent, as an apply
-// configuration, to fn, and feeds back what fn makes of it.
-func (d *StorageVersionStatusDie) DieStampApplyConfiguration(fn func(ac *StorageVersionStatusApplyConfiguration)) *StorageVersionStatusDie {
-	return diecodegen.StampApplyConfiguration(d, fn)
-}
-
 // DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
 // an error rather than panicking.
 func (d *StorageVersionStatusDie) DieReleaseApplyConfigurationE() (*StorageVersionStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[StorageVersionStatusApplyConfiguration](d)
 }
 
+// DieReleaseApplyConfiguration returns the die's intent as an apply
+// configuration: on a root, what an apply sends, the object's identity
+// included; on a die within another, its intent.
+func (d *StorageVersionStatusDieMut) DieReleaseApplyConfiguration() *StorageVersionStatusApplyConfiguration {
+	return diecodegen.ReleaseApplyConfiguration[StorageVersionStatusApplyConfiguration](d)
+}
+
+// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
+// an error rather than panicking.
+func (d *StorageVersionStatusDieMut) DieReleaseApplyConfigurationE() (*StorageVersionStatusApplyConfiguration, error) {
+	return diecodegen.ReleaseApplyConfigurationE[StorageVersionStatusApplyConfiguration](d)
+}
+
+// DieFeedApplyConfiguration replaces the die's intent with an apply
+// configuration's, such as the fields a manager owns that Extract returns:
+// each value it sets becomes intent, over the die's value.
+func (d *StorageVersionStatusDieMut) DieFeedApplyConfiguration(ac *StorageVersionStatusApplyConfiguration) *StorageVersionStatusDieMut {
+	return diecodegen.FeedApplyConfiguration(d, ac)
+}
+
+// DieStampApplyConfiguration passes the die's intent, as an apply
+// configuration, to fn, and feeds back what fn makes of it.
+func (d *StorageVersionStatusDieMut) DieStampApplyConfiguration(fn func(ac *StorageVersionStatusApplyConfiguration)) *StorageVersionStatusDieMut {
+	return diecodegen.StampApplyConfiguration(d, fn)
+}
+
 // DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
 // error rather than panicking.
-func (d *StorageVersionStatusDie) DieFeedApplyConfigurationE(ac *StorageVersionStatusApplyConfiguration) (*StorageVersionStatusDie, error) {
+func (d *StorageVersionStatusDieMut) DieFeedApplyConfigurationE(ac *StorageVersionStatusApplyConfiguration) (*StorageVersionStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
 // DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
 // error rather than panicking.
-func (d *StorageVersionStatusDie) DieStampApplyConfigurationE(fn func(ac *StorageVersionStatusApplyConfiguration)) (*StorageVersionStatusDie, error) {
+func (d *StorageVersionStatusDieMut) DieStampApplyConfigurationE(fn func(ac *StorageVersionStatusApplyConfiguration)) (*StorageVersionStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
 
 type storageVersionStatusFieldsTable struct {
-	StorageVersions       diefields.ListMapField[StorageVersionStatus, ServerStorageVersion, *ServerStorageVersionDie, string]
+	StorageVersions       diefields.ListMapField[StorageVersionStatus, ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut, string]
 	CommonEncodingVersion diefields.Field[StorageVersionStatus, *string]
-	Conditions            diefields.ListMapField[StorageVersionStatus, StorageVersionCondition, *StorageVersionConditionDie, StorageVersionConditionType]
+	Conditions            diefields.ListMapField[StorageVersionStatus, StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut, StorageVersionConditionType]
 }
 
 var storageVersionStatusFields = &diefields.Table[storageVersionStatusFieldsTable]{Build: func() (f storageVersionStatusFieldsTable) {
 	_ = annotated
-	f.StorageVersions = diefields.NewListMap[StorageVersionStatus, ServerStorageVersion, *ServerStorageVersionDie]("storageVersions", func(k string) []any { return []any{k} }, func(e ServerStorageVersion) string { return e.APIServerID })
+	f.StorageVersions = diefields.NewListMap[StorageVersionStatus, ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut]("storageVersions", func(k string) []any { return []any{k} }, func(e ServerStorageVersion) string { return e.APIServerID })
 	f.CommonEncodingVersion = diefields.NewField[StorageVersionStatus, *string]("commonEncodingVersion")
-	f.Conditions = diefields.NewListMap[StorageVersionStatus, StorageVersionCondition, *StorageVersionConditionDie]("conditions", func(k StorageVersionConditionType) []any { return []any{k} }, func(e StorageVersionCondition) StorageVersionConditionType { return e.Type })
+	f.Conditions = diefields.NewListMap[StorageVersionStatus, StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut]("conditions", func(k StorageVersionConditionType) []any { return []any{k} }, func(e StorageVersionCondition) StorageVersionConditionType { return e.Type })
 	return
 }}
 
@@ -442,7 +657,7 @@ func (d *StorageVersionStatusDie) StorageVersions() *diefields.ListMap[ServerSto
 // field is left empty.
 // API servers should finish updating its storageVersionStatus entry before
 // serving write operations, so that this field will be in sync with the reality.
-func (d *StorageVersionStatusDie) CommonEncodingVersion() diefields.Optional[string, *StorageVersionStatusDie] {
+func (d *StorageVersionStatusDie) CommonEncodingVersion() diefields.Optional[string] {
 	return diefields.OptionalOf(d, storageVersionStatusFields.Get().CommonEncodingVersion)
 }
 
@@ -451,18 +666,37 @@ func (d *StorageVersionStatusDie) Conditions() *diefields.ListMap[StorageVersion
 	return diefields.ListMapOf(d, storageVersionStatusFields.Get().Conditions)
 }
 
+// storageVersions lists the reported versions per API server instance.
+func (d *StorageVersionStatusDieMut) StorageVersions() *diefields.ListMapMut[ServerStorageVersion, *ServerStorageVersionDieMut, string] {
+	return diefields.ListMapMutOf(d, storageVersionStatusFields.Get().StorageVersions)
+}
+
+// commonEncodingVersion is set to an encoding storage version if all API server
+// instances share that same version. If they don't share one storage version, this
+// field is left empty.
+// API servers should finish updating its storageVersionStatus entry before
+// serving write operations, so that this field will be in sync with the reality.
+func (d *StorageVersionStatusDieMut) CommonEncodingVersion() diefields.OptionalMut[string, *StorageVersionStatusDieMut] {
+	return diefields.OptionalMutOf(d, storageVersionStatusFields.Get().CommonEncodingVersion)
+}
+
+// conditions lists the latest available observations of the storageVersion's state.
+func (d *StorageVersionStatusDieMut) Conditions() *diefields.ListMapMut[StorageVersionCondition, *StorageVersionConditionDieMut, StorageVersionConditionType] {
+	return diefields.ListMapMutOf(d, storageVersionStatusFields.Get().Conditions)
+}
+
 // SchemeGroupVersion is the group version of this package's object dies.
 var SchemeGroupVersion = schema.GroupVersion{Group: "internal.apiserver.k8s.io", Version: "v1alpha1"}
 
-// SchemeBuilder registers this package's object and list dies as the Go
-// types of their kinds, in place of the upstream types.
+// SchemeBuilder registers this package's mutable object dies, and list
+// dies, as the Go types of their kinds, in place of the upstream types.
 var SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 // AddToScheme registers this package's dies with a scheme.
 var AddToScheme = SchemeBuilder.AddToScheme
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("StorageVersion"), &StorageVersionDie{})
+	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("StorageVersion"), &StorageVersionDieMut{})
 	scheme.AddKnownTypeWithName(SchemeGroupVersion.WithKind("StorageVersionList"), &StorageVersionListDie{})
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

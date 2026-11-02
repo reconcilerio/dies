@@ -29,88 +29,102 @@ import (
 // a leaf. Handles have no fields of their own, so their methods need no Die
 // prefix.
 //
-// A leaf's mutators return the parent die so that calls chain at the parent's
-// level. On an immutable root they return a new root.
+// An immutable die's handles read. A mutable die's handles, ValueMut,
+// OptionalMut, ListMapMut and MapMut, embed them and also write, in place: a
+// leaf's writes return the die it is a field of, so calls chain at the die's
+// level.
 
 // leaf is the state shared by leaf handles: the die's location, and the
 // leaf's within it, usually a field of the die.
-type leaf[D any] struct {
-	h    *core.Holder
-	at   base.Path
-	rel  base.Path
-	self func(*core.Holder) (D, error)
+type leaf struct {
+	h   *core.Holder
+	at  base.Path
+	rel base.Path
 }
 
-func (l leaf[D]) path() base.Path { return core.JoinPath(l.at, l.rel) }
+func (l leaf) path() base.Path { return core.JoinPath(l.at, l.rel) }
 
-func (l leaf[D]) write(o core.Op, v reflect.Value, union bool) (D, error) {
-	h, err := l.h.Write(l.at, l.rel, core.SetOp(o, v), union)
-	if err != nil {
-		var zero D
+func leafOf[T, V any](d base.LocatedAs[T], f Field[T, V]) leaf {
+	h, at := dies.MustStateOf(d)
+	return leaf{h: h, at: at, rel: base.Path{core.FieldStep(f.fd.Wire)}}
+}
+
+// write writes through a leaf of d, returning d.
+func write[M any](d M, l leaf, o core.Op, v reflect.Value, union bool) (M, error) {
+	if _, err := l.h.Write(l.at, l.rel, core.SetOp(o, v), union); err != nil {
+		var zero M
 		return zero, err
 	}
-	return l.self(h)
+	return d, nil
 }
 
-// selfOf is the die a write through a handle of d returns.
-func selfOf[T any, D base.DieOf[T, D]](d D) func(*core.Holder) (D, error) {
-	self := dies.SelfOf[T](d)
-	return func(h *core.Holder) (D, error) { return self(h), nil }
-}
+// Value is a handle to a leaf field of type V, of an immutable die, which
+// reads it.
+type Value[V any] struct{ l leaf }
 
-// Value is a handle to a leaf field of type V on a D die.
-type Value[V, D any] struct{ l leaf[D] }
+// ValueMut is a handle to a leaf field of type V of a mutable M die, which
+// writes it.
+type ValueMut[V, M any] struct {
+	Value[V]
+	d M
+}
 
 // DieValue marks a handle as a location of a V, for LocatedAs. It does
 // nothing.
-func (Value[V, D]) DieValue(*V) {}
+func (Value[V]) DieValue(*V) {}
 
 // ValueAt returns the handle for the value of type V at a path within d's
-// root, such as one a JSONPath expression found, whose writes return d. The
-// path may be outside d itself, such as the namespace of the object a
-// subject is part of; then, as for any write through a child of an immutable
-// root, writing through it fails unless the root is mutable. It panics if
-// the value at the path isn't a V.
-func ValueAt[V any, D base.Die](d D, p base.Path) Value[V, D] { return core.Must(ValueAtE[V](d, p)) }
+// root, such as one a JSONPath expression found. It panics if the value at
+// the path isn't a V.
+func ValueAt[V any](d base.Die, p base.Path) Value[V] { return core.Must(ValueAtE[V](d, p)) }
 
 // ValueAtE is ValueAt, returning an error rather than panicking.
-func ValueAtE[V any, D base.Die](d D, p base.Path) (Value[V, D], error) {
-	h, at := dies.MustStateOf(d)
-	if t := core.TypeAt(h.Base.Type(), p); t != reflect.TypeFor[V]() {
-		return Value[V, D]{}, core.Errorf("die: the value at %s is a %s, not a %s", p, t, reflect.TypeFor[V]())
-	}
-	if len(p) >= len(at) && p[:len(at)].String() == at.String() {
-		self := func(nh *core.Holder) (D, error) {
-			if nh != h {
-				return dies.Wrap[D](nh, nil), nil
-			}
-			return dies.Wrap[D](nh, at), nil
-		}
-		return Value[V, D]{leaf[D]{h: h, at: at, rel: append(base.Path{}, p[len(at):]...), self: self}}, nil
-	}
-	// outside d: written from the root, returning d
-	self := func(nh *core.Holder) (D, error) {
-		if nh != h {
-			// a write on an immutable root made a new one, which d is not in
-			var zero D
-			return zero, core.ErrImmutableChild
-		}
-		return dies.Wrap[D](nh, at), nil
-	}
-	return Value[V, D]{leaf[D]{h: h, rel: append(base.Path{}, p...), self: self}}, nil
+func ValueAtE[V any](d base.Die, p base.Path) (Value[V], error) {
+	l, err := leafAt[V](d, p)
+	return Value[V]{l}, err
 }
 
-// ValueOf returns the handle for a leaf field of d.
-func ValueOf[T any, D base.DieOf[T, D], V any](d D, f Field[T, V]) Value[V, D] {
+// ValueMutAt returns the handle for the value of type V at a path within a
+// mutable die's root, whose writes return d. The path may be outside d
+// itself, such as the namespace of the object a subject is part of. It
+// panics if the value at the path isn't a V.
+func ValueMutAt[V any, M base.MutableDie](d M, p base.Path) ValueMut[V, M] {
+	return core.Must(ValueMutAtE[V](d, p))
+}
+
+// ValueMutAtE is ValueMutAt, returning an error rather than panicking.
+func ValueMutAtE[V any, M base.MutableDie](d M, p base.Path) (ValueMut[V, M], error) {
+	l, err := leafAt[V](d, p)
+	return ValueMut[V, M]{Value[V]{l}, d}, err
+}
+
+func leafAt[V any](d base.Die, p base.Path) (leaf, error) {
 	h, at := dies.MustStateOf(d)
-	return Value[V, D]{leaf[D]{h: h, at: at, rel: base.Path{core.FieldStep(f.fd.Wire)}, self: selfOf[T](d)}}
+	if t := core.TypeAt(h.Base.Type(), p); t != reflect.TypeFor[V]() {
+		return leaf{}, core.Errorf("die: the value at %s is a %s, not a %s", p, t, reflect.TypeFor[V]())
+	}
+	if len(p) >= len(at) && p[:len(at)].String() == at.String() {
+		return leaf{h: h, at: at, rel: append(base.Path{}, p[len(at):]...)}, nil
+	}
+	// outside d: written from the root
+	return leaf{h: h, rel: append(base.Path{}, p...)}, nil
+}
+
+// ValueOf returns the handle for a leaf field of an immutable die.
+func ValueOf[T, V any](d base.LocatedAs[T], f Field[T, V]) Value[V] {
+	return Value[V]{leafOf(d, f)}
+}
+
+// ValueMutOf returns the handle for a leaf field of a mutable die.
+func ValueMutOf[T, V any, M base.LocatedAs[T]](d M, f Field[T, V]) ValueMut[V, M] {
+	return ValueMut[V, M]{Value[V]{leafOf[T](d, f)}, d}
 }
 
 // Get returns a copy of the current value.
-func (v Value[V, D]) Get() V { return core.Must(v.GetE()) }
+func (v Value[V]) Get() V { return core.Must(v.GetE()) }
 
 // GetE is Get, returning an error rather than panicking.
-func (v Value[V, D]) GetE() (V, error) {
+func (v Value[V]) GetE() (V, error) {
 	val, err := v.l.h.ValueAt(v.l.path())
 	if err != nil {
 		var zero V
@@ -120,54 +134,69 @@ func (v Value[V, D]) GetE() (V, error) {
 }
 
 // Has reports whether the field is present.
-func (v Value[V, D]) Has() bool { return core.Must(v.HasE()) }
+func (v Value[V]) Has() bool { return core.Must(v.HasE()) }
 
 // HasE is Has, returning an error rather than panicking.
-func (v Value[V, D]) HasE() (bool, error) { return v.l.h.Has(v.l.path()) }
+func (v Value[V]) HasE() (bool, error) { return v.l.h.Has(v.l.path()) }
+
+func (v Value[V]) DiePath() base.Path { return v.l.path() }
+
+// DieRoot returns the root die this is within: see base.DieBase.DieRoot.
+func (v Value[V]) DieRoot() base.Die { return base.RootOf(v.l.h) }
+
+// DieRootType returns the type of the root value this is within.
+func (v Value[V]) DieRootType() reflect.Type { return v.l.h.Base.Type() }
 
 // Set records the value as intent, even when it is the zero value.
-func (v Value[V, D]) Set(x V) D { return core.Must(v.SetE(x)) }
+func (v ValueMut[V, M]) Set(x V) M { return core.Must(v.SetE(x)) }
 
 // SetE is Set, returning an error rather than panicking.
-func (v Value[V, D]) SetE(x V) (D, error) {
-	return v.l.write(core.OpSet, core.DeepCopy(reflect.ValueOf(&x).Elem()), true)
+func (v ValueMut[V, M]) SetE(x V) (M, error) {
+	return write(v.d, v.l, core.OpSet, core.DeepCopy(reflect.ValueOf(&x).Elem()), true)
 }
 
 // Clear records that the field is absent: null in patches.
-func (v Value[V, D]) Clear() D { return core.Must(v.ClearE()) }
+func (v ValueMut[V, M]) Clear() M { return core.Must(v.ClearE()) }
 
 // ClearE is Clear, returning an error rather than panicking.
-func (v Value[V, D]) ClearE() (D, error) { return v.l.write(core.OpClear, reflect.Value{}, false) }
+func (v ValueMut[V, M]) ClearE() (M, error) {
+	return write(v.d, v.l, core.OpClear, reflect.Value{}, false)
+}
 
 // Empty records that a list or map field is present and empty.
-func (v Value[V, D]) Empty() D { return core.Must(v.EmptyE()) }
+func (v ValueMut[V, M]) Empty() M { return core.Must(v.EmptyE()) }
 
 // EmptyE is Empty, returning an error rather than panicking.
-func (v Value[V, D]) EmptyE() (D, error) { return v.l.write(core.OpEmpty, reflect.Value{}, true) }
+func (v ValueMut[V, M]) EmptyE() (M, error) {
+	return write(v.d, v.l, core.OpEmpty, reflect.Value{}, true)
+}
 
-func (v Value[V, D]) DiePath() base.Path { return v.l.path() }
+// Optional is a handle to a pointer leaf field of type *V of an immutable
+// die, which reads V, with presence reported separately.
+type Optional[V any] struct{ l leaf }
 
-// DieRoot returns the root die this is within: see base.DieBase.DieRoot.
-func (v Value[V, D]) DieRoot() base.Die { return base.RootOf(v.l.h) }
+// OptionalMut is a handle to a pointer leaf field of type *V of a mutable M
+// die, which writes V.
+type OptionalMut[V, M any] struct {
+	Optional[V]
+	d M
+}
 
-// DieRootType returns the type of the root value this is within.
-func (v Value[V, D]) DieRootType() reflect.Type { return v.l.h.Base.Type() }
+// OptionalOf returns the handle for a pointer leaf field of an immutable die.
+func OptionalOf[T, V any](d base.LocatedAs[T], f Field[T, *V]) Optional[V] {
+	return Optional[V]{leafOf(d, f)}
+}
 
-// Optional is a handle to a pointer leaf field of type *V on a D die. It reads
-// and writes V, with presence reported separately.
-type Optional[V, D any] struct{ l leaf[D] }
-
-// OptionalOf returns the handle for a pointer leaf field of d.
-func OptionalOf[T any, D base.DieOf[T, D], V any](d D, f Field[T, *V]) Optional[V, D] {
-	h, at := dies.MustStateOf(d)
-	return Optional[V, D]{leaf[D]{h: h, at: at, rel: base.Path{core.FieldStep(f.fd.Wire)}, self: selfOf[T](d)}}
+// OptionalMutOf returns the handle for a pointer leaf field of a mutable die.
+func OptionalMutOf[T, V any, M base.LocatedAs[T]](d M, f Field[T, *V]) OptionalMut[V, M] {
+	return OptionalMut[V, M]{Optional[V]{leafOf[T](d, f)}, d}
 }
 
 // Get returns the current value, or the zero value when absent.
-func (o Optional[V, D]) Get() V { return core.Must(o.GetE()) }
+func (o Optional[V]) Get() V { return core.Must(o.GetE()) }
 
 // GetE is Get, returning an error rather than panicking.
-func (o Optional[V, D]) GetE() (V, error) {
+func (o Optional[V]) GetE() (V, error) {
 	p, err := o.PtrE()
 	if err != nil || p == nil {
 		var zero V
@@ -177,10 +206,10 @@ func (o Optional[V, D]) GetE() (V, error) {
 }
 
 // Ptr returns a copy of the current value, or nil when absent.
-func (o Optional[V, D]) Ptr() *V { return core.Must(o.PtrE()) }
+func (o Optional[V]) Ptr() *V { return core.Must(o.PtrE()) }
 
 // PtrE is Ptr, returning an error rather than panicking.
-func (o Optional[V, D]) PtrE() (*V, error) {
+func (o Optional[V]) PtrE() (*V, error) {
 	val, err := o.l.h.ValueAt(o.l.path())
 	if err != nil {
 		return nil, err
@@ -189,29 +218,31 @@ func (o Optional[V, D]) PtrE() (*V, error) {
 }
 
 // Has reports whether the field is present.
-func (o Optional[V, D]) Has() bool { return core.Must(o.HasE()) }
+func (o Optional[V]) Has() bool { return core.Must(o.HasE()) }
 
 // HasE is Has, returning an error rather than panicking.
-func (o Optional[V, D]) HasE() (bool, error) { return o.l.h.Has(o.l.path()) }
+func (o Optional[V]) HasE() (bool, error) { return o.l.h.Has(o.l.path()) }
+
+func (o Optional[V]) DiePath() base.Path { return o.l.path() }
+
+// DieRoot returns the root die this is within: see base.DieBase.DieRoot.
+func (o Optional[V]) DieRoot() base.Die { return base.RootOf(o.l.h) }
+
+// DieRootType returns the type of the root value this is within.
+func (o Optional[V]) DieRootType() reflect.Type { return o.l.h.Base.Type() }
 
 // Set records the value as intent.
-func (o Optional[V, D]) Set(x V) D { return core.Must(o.SetE(x)) }
+func (o OptionalMut[V, M]) Set(x V) M { return core.Must(o.SetE(x)) }
 
 // SetE is Set, returning an error rather than panicking.
-func (o Optional[V, D]) SetE(x V) (D, error) {
-	return o.l.write(core.OpSet, reflect.ValueOf(&x), true)
+func (o OptionalMut[V, M]) SetE(x V) (M, error) {
+	return write(o.d, o.l, core.OpSet, reflect.ValueOf(&x), true)
 }
 
 // Clear records that the field is absent: null in patches.
-func (o Optional[V, D]) Clear() D { return core.Must(o.ClearE()) }
+func (o OptionalMut[V, M]) Clear() M { return core.Must(o.ClearE()) }
 
 // ClearE is Clear, returning an error rather than panicking.
-func (o Optional[V, D]) ClearE() (D, error) { return o.l.write(core.OpClear, reflect.Value{}, false) }
-
-func (o Optional[V, D]) DiePath() base.Path { return o.l.path() }
-
-// DieRoot returns the root die this is within: see base.DieBase.DieRoot.
-func (o Optional[V, D]) DieRoot() base.Die { return base.RootOf(o.l.h) }
-
-// DieRootType returns the type of the root value this is within.
-func (o Optional[V, D]) DieRootType() reflect.Type { return o.l.h.Base.Type() }
+func (o OptionalMut[V, M]) ClearE() (M, error) {
+	return write(o.d, o.l, core.OpClear, reflect.Value{}, false)
+}
