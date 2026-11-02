@@ -69,7 +69,7 @@ type ValueMut[V, M any] struct {
 	d M
 }
 
-// DieValue marks a handle as a location of a V, for LocatedAs. It does
+// DieValue marks a handle as a location of a V, for [base.LocatedAs]. It does
 // nothing.
 func (Value[V]) DieValue(*V) {}
 
@@ -78,7 +78,7 @@ func (Value[V]) DieValue(*V) {}
 // the path isn't a V.
 func ValueAt[V any](d base.Die, p base.Path) Value[V] { return core.Must(ValueAtE[V](d, p)) }
 
-// ValueAtE is ValueAt, returning an error rather than panicking.
+// ValueAtE is [ValueAt], returning an error rather than panicking.
 func ValueAtE[V any](d base.Die, p base.Path) (Value[V], error) {
 	l, err := leafAt[V](d, p)
 	return Value[V]{l}, err
@@ -92,7 +92,7 @@ func ValueMutAt[V any, M base.MutableDie](d M, p base.Path) ValueMut[V, M] {
 	return core.Must(ValueMutAtE[V](d, p))
 }
 
-// ValueMutAtE is ValueMutAt, returning an error rather than panicking.
+// ValueMutAtE is [ValueMutAt], returning an error rather than panicking.
 func ValueMutAtE[V any, M base.MutableDie](d M, p base.Path) (ValueMut[V, M], error) {
 	l, err := leafAt[V](d, p)
 	return ValueMut[V, M]{Value[V]{l}, d}, err
@@ -123,7 +123,7 @@ func ValueMutOf[T, V any, M base.LocatedAs[T]](d M, f Field[T, V]) ValueMut[V, M
 // Get returns a copy of the current value.
 func (v Value[V]) Get() V { return core.Must(v.GetE()) }
 
-// GetE is Get, returning an error rather than panicking.
+// GetE is [Value.Get], returning an error rather than panicking.
 func (v Value[V]) GetE() (V, error) {
 	val, err := v.l.h.ValueAt(v.l.path())
 	if err != nil {
@@ -136,12 +136,12 @@ func (v Value[V]) GetE() (V, error) {
 // Has reports whether the field is present.
 func (v Value[V]) Has() bool { return core.Must(v.HasE()) }
 
-// HasE is Has, returning an error rather than panicking.
+// HasE is [Value.Has], returning an error rather than panicking.
 func (v Value[V]) HasE() (bool, error) { return v.l.h.Has(v.l.path()) }
 
 func (v Value[V]) DiePath() base.Path { return v.l.path() }
 
-// DieRoot returns the root die this is within: see base.DieBase.DieRoot.
+// DieRoot returns the root die this is within: see [base.DieBase.DieRoot].
 func (v Value[V]) DieRoot() base.Die { return base.RootOf(v.l.h) }
 
 // DieRootType returns the type of the root value this is within.
@@ -150,7 +150,7 @@ func (v Value[V]) DieRootType() reflect.Type { return v.l.h.Base.Type() }
 // Set records the value as intent, even when it is the zero value.
 func (v ValueMut[V, M]) Set(x V) M { return core.Must(v.SetE(x)) }
 
-// SetE is Set, returning an error rather than panicking.
+// SetE is [ValueMut.Set], returning an error rather than panicking.
 func (v ValueMut[V, M]) SetE(x V) (M, error) {
 	return write(v.d, v.l, core.OpSet, core.DeepCopy(reflect.ValueOf(&x).Elem()), true)
 }
@@ -158,7 +158,7 @@ func (v ValueMut[V, M]) SetE(x V) (M, error) {
 // Clear records that the field is absent: null in patches.
 func (v ValueMut[V, M]) Clear() M { return core.Must(v.ClearE()) }
 
-// ClearE is Clear, returning an error rather than panicking.
+// ClearE is [ValueMut.Clear], returning an error rather than panicking.
 func (v ValueMut[V, M]) ClearE() (M, error) {
 	return write(v.d, v.l, core.OpClear, reflect.Value{}, false)
 }
@@ -166,7 +166,7 @@ func (v ValueMut[V, M]) ClearE() (M, error) {
 // Empty records that a list or map field is present and empty.
 func (v ValueMut[V, M]) Empty() M { return core.Must(v.EmptyE()) }
 
-// EmptyE is Empty, returning an error rather than panicking.
+// EmptyE is [ValueMut.Empty], returning an error rather than panicking.
 func (v ValueMut[V, M]) EmptyE() (M, error) {
 	return write(v.d, v.l, core.OpEmpty, reflect.Value{}, true)
 }
@@ -195,7 +195,7 @@ func OptionalMutOf[T, V any, M base.LocatedAs[T]](d M, f Field[T, *V]) OptionalM
 // Get returns the current value, or the zero value when absent.
 func (o Optional[V]) Get() V { return core.Must(o.GetE()) }
 
-// GetE is Get, returning an error rather than panicking.
+// GetE is [Optional.Get], returning an error rather than panicking.
 func (o Optional[V]) GetE() (V, error) {
 	p, err := o.PtrE()
 	if err != nil || p == nil {
@@ -208,7 +208,7 @@ func (o Optional[V]) GetE() (V, error) {
 // Ptr returns a copy of the current value, or nil when absent.
 func (o Optional[V]) Ptr() *V { return core.Must(o.PtrE()) }
 
-// PtrE is Ptr, returning an error rather than panicking.
+// PtrE is [Optional.Ptr], returning an error rather than panicking.
 func (o Optional[V]) PtrE() (*V, error) {
 	val, err := o.l.h.ValueAt(o.l.path())
 	if err != nil {
@@ -220,12 +220,12 @@ func (o Optional[V]) PtrE() (*V, error) {
 // Has reports whether the field is present.
 func (o Optional[V]) Has() bool { return core.Must(o.HasE()) }
 
-// HasE is Has, returning an error rather than panicking.
+// HasE is [Optional.Has], returning an error rather than panicking.
 func (o Optional[V]) HasE() (bool, error) { return o.l.h.Has(o.l.path()) }
 
 func (o Optional[V]) DiePath() base.Path { return o.l.path() }
 
-// DieRoot returns the root die this is within: see base.DieBase.DieRoot.
+// DieRoot returns the root die this is within: see [base.DieBase.DieRoot].
 func (o Optional[V]) DieRoot() base.Die { return base.RootOf(o.l.h) }
 
 // DieRootType returns the type of the root value this is within.
@@ -234,7 +234,7 @@ func (o Optional[V]) DieRootType() reflect.Type { return o.l.h.Base.Type() }
 // Set records the value as intent.
 func (o OptionalMut[V, M]) Set(x V) M { return core.Must(o.SetE(x)) }
 
-// SetE is Set, returning an error rather than panicking.
+// SetE is [OptionalMut.Set], returning an error rather than panicking.
 func (o OptionalMut[V, M]) SetE(x V) (M, error) {
 	return write(o.d, o.l, core.OpSet, reflect.ValueOf(&x), true)
 }
@@ -242,7 +242,7 @@ func (o OptionalMut[V, M]) SetE(x V) (M, error) {
 // Clear records that the field is absent: null in patches.
 func (o OptionalMut[V, M]) Clear() M { return core.Must(o.ClearE()) }
 
-// ClearE is Clear, returning an error rather than panicking.
+// ClearE is [OptionalMut.Clear], returning an error rather than panicking.
 func (o OptionalMut[V, M]) ClearE() (M, error) {
 	return write(o.d, o.l, core.OpClear, reflect.Value{}, false)
 }

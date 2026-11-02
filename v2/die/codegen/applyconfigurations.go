@@ -37,8 +37,8 @@ func ReleaseApplyConfiguration[AC any](d base.Die) *AC {
 	return core.Must(ReleaseApplyConfigurationE[AC](d))
 }
 
-// ReleaseApplyConfigurationE is ReleaseApplyConfiguration, returning an error
-// rather than panicking.
+// ReleaseApplyConfigurationE is [ReleaseApplyConfiguration], returning an
+// error rather than panicking.
 func ReleaseApplyConfigurationE[AC any](d base.Die) (*AC, error) {
 	h, at := dies.MustStateOf(d)
 	data, err := core.IntentJSON(h, at)
@@ -60,7 +60,7 @@ func FeedApplyConfiguration[M base.MutableDie](d M, ac any) M {
 	return core.Must(FeedApplyConfigurationE(d, ac))
 }
 
-// FeedApplyConfigurationE is FeedApplyConfiguration, returning an error
+// FeedApplyConfigurationE is [FeedApplyConfiguration], returning an error
 // rather than panicking.
 func FeedApplyConfigurationE[M base.MutableDie](d M, ac any) (M, error) {
 	var zero M
@@ -86,7 +86,7 @@ func StampApplyConfiguration[AC any, M base.MutableDie](d M, fn func(ac *AC)) M 
 	return core.Must(StampApplyConfigurationE(d, fn))
 }
 
-// StampApplyConfigurationE is StampApplyConfiguration, returning an error
+// StampApplyConfigurationE is [StampApplyConfiguration], returning an error
 // rather than panicking.
 func StampApplyConfigurationE[AC any, M base.MutableDie](d M, fn func(ac *AC)) (M, error) {
 	ac, err := ReleaseApplyConfigurationE[AC](d)

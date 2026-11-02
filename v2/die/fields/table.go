@@ -20,9 +20,10 @@ import (
 	"sync"
 )
 
-// Table is a die's field table, built by Build on first use. Generated dies
-// declare each as a package variable whose Build captures nothing, which the
-// linker lays out statically, so a die package does no work at init.
+// Table is a die's field table, built by [Table.Build] on first use.
+// Generated dies declare each as a package variable whose [Table.Build]
+// captures nothing, which the linker lays out statically, so a die package
+// does no work at init.
 type Table[F any] struct {
 	Build func() F
 	once  sync.Once

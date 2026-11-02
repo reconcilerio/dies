@@ -32,12 +32,12 @@ func (e *Error) Error() string { return e.err.Error() }
 
 func (e *Error) Unwrap() error { return e.err }
 
-// Errorf returns an Error, formatted as fmt.Errorf formats, so %w wraps.
+// Errorf returns an [Error], formatted as [fmt.Errorf] formats, so %w wraps.
 func Errorf(format string, args ...any) *Error {
 	return &Error{err: fmt.Errorf(format, args...)}
 }
 
-// Wrap returns err as an Error, unless it is one.
+// Wrap returns err as an [Error], unless it is one.
 func Wrap(err error) *Error {
 	if e, ok := errors.AsType[*Error](err); ok {
 		return e

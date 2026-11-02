@@ -35,12 +35,12 @@ import (
 // Versions are in descending order of preference, with the first version being the preferred entry.
 //
 // APIGroupDiscoveryDie is immutable: it reads.
-// APIGroupDiscoveryDieMut, its mutable die, also writes, as DieWith passes it.
+// [APIGroupDiscoveryDieMut], its mutable die, also writes, as DieWith passes it.
 type APIGroupDiscoveryDie struct {
 	diebase.DieObjectBase[APIGroupDiscovery, *APIGroupDiscoveryDie, *APIGroupDiscoveryDieMut]
 }
 
-// APIGroupDiscoveryDieMut is the mutable die of APIGroupDiscovery: see APIGroupDiscoveryDie.
+// APIGroupDiscoveryDieMut is the mutable die of [APIGroupDiscovery]: see [APIGroupDiscoveryDie].
 type APIGroupDiscoveryDieMut struct {
 	diebase.DieObjectMutBase[APIGroupDiscovery, *APIGroupDiscoveryDie, *APIGroupDiscoveryDieMut]
 }
@@ -165,12 +165,12 @@ func (l *APIGroupDiscoveryListDie) DeepCopyObject() runtime.Object { return l.De
 // APIResourceDiscovery provides information about an API resource for discovery.
 //
 // APIResourceDiscoveryDie is immutable: it reads.
-// APIResourceDiscoveryDieMut, its mutable die, also writes, as DieWith passes it.
+// [APIResourceDiscoveryDieMut], its mutable die, also writes, as DieWith passes it.
 type APIResourceDiscoveryDie struct {
 	diebase.DieBase[APIResourceDiscovery, *APIResourceDiscoveryDie, *APIResourceDiscoveryDieMut]
 }
 
-// APIResourceDiscoveryDieMut is the mutable die of APIResourceDiscovery: see APIResourceDiscoveryDie.
+// APIResourceDiscoveryDieMut is the mutable die of [APIResourceDiscovery]: see [APIResourceDiscoveryDie].
 type APIResourceDiscoveryDieMut struct {
 	diebase.DieMutBase[APIResourceDiscovery, *APIResourceDiscoveryDie, *APIResourceDiscoveryDieMut]
 }
@@ -319,12 +319,12 @@ func (d *APIResourceDiscoveryDieMut) Subresources() *diefields.ListMapMut[APISub
 // APISubresourceDiscovery provides information about an API subresource for discovery.
 //
 // APISubresourceDiscoveryDie is immutable: it reads.
-// APISubresourceDiscoveryDieMut, its mutable die, also writes, as DieWith passes it.
+// [APISubresourceDiscoveryDieMut], its mutable die, also writes, as DieWith passes it.
 type APISubresourceDiscoveryDie struct {
 	diebase.DieBase[APISubresourceDiscovery, *APISubresourceDiscoveryDie, *APISubresourceDiscoveryDieMut]
 }
 
-// APISubresourceDiscoveryDieMut is the mutable die of APISubresourceDiscovery: see APISubresourceDiscoveryDie.
+// APISubresourceDiscoveryDieMut is the mutable die of [APISubresourceDiscovery]: see [APISubresourceDiscoveryDie].
 type APISubresourceDiscoveryDieMut struct {
 	diebase.DieMutBase[APISubresourceDiscovery, *APISubresourceDiscoveryDie, *APISubresourceDiscoveryDieMut]
 }
@@ -425,12 +425,12 @@ func (d *APISubresourceDiscoveryDieMut) Verbs() diefields.ValueMut[[]string, *AP
 // APIVersionDiscovery holds a list of APIResourceDiscovery types that are served for a particular version within an API Group.
 //
 // APIVersionDiscoveryDie is immutable: it reads.
-// APIVersionDiscoveryDieMut, its mutable die, also writes, as DieWith passes it.
+// [APIVersionDiscoveryDieMut], its mutable die, also writes, as DieWith passes it.
 type APIVersionDiscoveryDie struct {
 	diebase.DieBase[APIVersionDiscovery, *APIVersionDiscoveryDie, *APIVersionDiscoveryDieMut]
 }
 
-// APIVersionDiscoveryDieMut is the mutable die of APIVersionDiscovery: see APIVersionDiscoveryDie.
+// APIVersionDiscoveryDieMut is the mutable die of [APIVersionDiscovery]: see [APIVersionDiscoveryDie].
 type APIVersionDiscoveryDieMut struct {
 	diebase.DieMutBase[APIVersionDiscovery, *APIVersionDiscoveryDie, *APIVersionDiscoveryDieMut]
 }

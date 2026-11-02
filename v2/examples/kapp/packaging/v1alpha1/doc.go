@@ -14,10 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package v1alpha1 has dies for kapp-controller's packaging/v1alpha1, whose
-// types are cloned so that nothing depends on kapp-controller.
-//
 // +die:types:package=carvel.dev/kapp-controller/pkg/apis/packaging/v1alpha1,mode=clone,from=../../sources
 // +die:import:package=carvel.dev/kapp-controller/pkg/apis/kappctrl/v1alpha1,as=reconciler.io/dies/v2/examples/kapp/kappctrl/v1alpha1
 // +die:import:package=carvel.dev/vendir/pkg/vendir/versions/v1alpha1,as=reconciler.io/dies/v2/examples/kapp/vendir/v1alpha1
+
+// Package v1alpha1 has dies for
+// [carvel.dev/kapp-controller/pkg/apis/packaging/v1alpha1], whose types are
+// cloned so that nothing depends on kapp-controller.
 package v1alpha1

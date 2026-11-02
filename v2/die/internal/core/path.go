@@ -119,7 +119,7 @@ func UnstructuredKeyStep(keys []string, vals []any) Step {
 	return Step{kind: stepKey, keys: keys, vals: vals}
 }
 
-// DiePath returns the path, so that a Path is a Located.
+// DiePath returns the path, so that a [Path] is a [Located].
 func (p Path) DiePath() Path { return p }
 
 // Path is a location in an object's wire schema. Embedded structs are

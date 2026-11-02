@@ -17,8 +17,13 @@ limitations under the License.
 package main
 
 import (
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"reflect"
 	"testing"
+
+	"golang.org/x/tools/go/packages"
 )
 
 func TestDieMarkers(t *testing.T) {
@@ -70,5 +75,30 @@ func TestSpecRoundTrip(t *testing.T) {
 	lines := s.render([]string{"ports", "protocol", "secret", "emptyDir"})
 	if got := dieSpec(nil, lines); !reflect.DeepEqual(got, s) {
 		t.Errorf("round trip through\n%v\n got %+v\nwant %+v", lines, got, s)
+	}
+}
+
+func TestPackageDocMarkers(t *testing.T) {
+	tests := []struct {
+		name, src string
+		want      []string
+	}{
+		{"in the doc", "// Package v1 has dies.\n//\n// +die:types:package=k8s.io/api/core/v1\npackage v1\n", []string{"+die:types:package=k8s.io/api/core/v1"}},
+		{"apart from the doc", "/* license */\n\n// +die:types:package=k8s.io/api/core/v1\n\n// Package v1 has dies.\npackage v1\n", []string{"+die:types:package=k8s.io/api/core/v1"}},
+		{"without markers", "// Package v1 has dies.\npackage v1\n", nil},
+		{"after the package clause", "package v1\n\n// +die:types:package=k8s.io/api/core/v1\n", nil},
+	}
+	for _, tt := range tests {
+		f, err := parser.ParseFile(token.NewFileSet(), "doc.go", tt.src, parser.ParseComments)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var got []string
+		for _, m := range dieMarkers(packageDoc(&packages.Package{Syntax: []*ast.File{f}})) {
+			got = append(got, "+"+m.name+":package="+m.arg("package"))
+		}
+		if !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("%s: got %v, want %v", tt.name, got, tt.want)
+		}
 	}
 }

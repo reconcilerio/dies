@@ -31,12 +31,12 @@ import (
 // See: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#typical-status-properties
 //
 // ConditionDie is immutable: it reads.
-// ConditionDieMut, its mutable die, also writes, as DieWith passes it.
+// [ConditionDieMut], its mutable die, also writes, as DieWith passes it.
 type ConditionDie struct {
 	diebase.DieBase[Condition, *ConditionDie, *ConditionDieMut]
 }
 
-// ConditionDieMut is the mutable die of Condition: see ConditionDie.
+// ConditionDieMut is the mutable die of [Condition]: see [ConditionDie].
 type ConditionDieMut struct {
 	diebase.DieMutBase[Condition, *ConditionDie, *ConditionDieMut]
 }
@@ -147,12 +147,12 @@ func (d *ConditionDieMut) Message() diefields.ValueMut[string, *ConditionDieMut]
 // on whether it is a Living or Batch process respectively.
 //
 // ConditionSetDie is immutable: it reads.
-// ConditionSetDieMut, its mutable die, also writes, as DieWith passes it.
+// [ConditionSetDieMut], its mutable die, also writes, as DieWith passes it.
 type ConditionSetDie struct {
 	diebase.DieBase[ConditionSet, *ConditionSetDie, *ConditionSetDieMut]
 }
 
-// ConditionSetDieMut is the mutable die of ConditionSet: see ConditionSetDie.
+// ConditionSetDieMut is the mutable die of [ConditionSet]: see [ConditionSetDie].
 type ConditionSetDieMut struct {
 	diebase.DieMutBase[ConditionSet, *ConditionSetDie, *ConditionSetDieMut]
 }
@@ -185,12 +185,12 @@ var conditionSetFields = &diefields.Table[conditionSetFieldsTable]{Build: func()
 // FieldError methods are non-mutating.
 //
 // FieldErrorDie is immutable: it reads.
-// FieldErrorDieMut, its mutable die, also writes, as DieWith passes it.
+// [FieldErrorDieMut], its mutable die, also writes, as DieWith passes it.
 type FieldErrorDie struct {
 	diebase.DieBase[FieldError, *FieldErrorDie, *FieldErrorDieMut]
 }
 
-// FieldErrorDieMut is the mutable die of FieldError: see FieldErrorDie.
+// FieldErrorDieMut is the mutable die of [FieldError]: see [FieldErrorDie].
 type FieldErrorDieMut struct {
 	diebase.DieMutBase[FieldError, *FieldErrorDie, *FieldErrorDieMut]
 }

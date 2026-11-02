@@ -35,12 +35,12 @@ import (
 // integer value. The value can be any valid integer.
 //
 // PriorityClassDie is immutable: it reads.
-// PriorityClassDieMut, its mutable die, also writes, as DieWith passes it.
+// [PriorityClassDieMut], its mutable die, also writes, as DieWith passes it.
 type PriorityClassDie struct {
 	diebase.DieObjectBase[PriorityClass, *PriorityClassDie, *PriorityClassDieMut]
 }
 
-// PriorityClassDieMut is the mutable die of PriorityClass: see PriorityClassDie.
+// PriorityClassDieMut is the mutable die of [PriorityClass]: see [PriorityClassDie].
 type PriorityClassDieMut struct {
 	diebase.DieObjectMutBase[PriorityClass, *PriorityClassDie, *PriorityClassDieMut]
 }
@@ -67,8 +67,8 @@ func (d *PriorityClassDie) DieReleaseApplyConfiguration() *PriorityClassApplyCon
 	return diecodegen.ReleaseApplyConfiguration[PriorityClassApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PriorityClassDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PriorityClassDie) DieReleaseApplyConfigurationE() (*PriorityClassApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PriorityClassApplyConfiguration](d)
 }
@@ -80,8 +80,8 @@ func (d *PriorityClassDieMut) DieReleaseApplyConfiguration() *PriorityClassApply
 	return diecodegen.ReleaseApplyConfiguration[PriorityClassApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PriorityClassDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PriorityClassDieMut) DieReleaseApplyConfigurationE() (*PriorityClassApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PriorityClassApplyConfiguration](d)
 }
@@ -99,14 +99,14 @@ func (d *PriorityClassDieMut) DieStampApplyConfiguration(fn func(ac *PriorityCla
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PriorityClassDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PriorityClassDieMut) DieFeedApplyConfigurationE(ac *PriorityClassApplyConfiguration) (*PriorityClassDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PriorityClassDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PriorityClassDieMut) DieStampApplyConfigurationE(fn func(ac *PriorityClassApplyConfiguration)) (*PriorityClassDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

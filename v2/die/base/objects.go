@@ -44,15 +44,15 @@ import (
 // the change.
 
 // DieTyped is a die of any type with type metadata, immutable or mutable: a
-// Die that is a runtime.Object, as a typed die's base makes it.
+// [Die] that is a [runtime.Object], as a typed die's base makes it.
 // die.DieTypedOf and die.DieTypedMutOf have the rest, for generic code.
 type DieTyped interface {
 	Die
 	runtime.Object
 }
 
-// DieObject is an object die of any type, immutable or mutable: a DieTyped
-// that is a metav1.Object, as an object die's base makes it.
+// DieObject is an object die of any type, immutable or mutable: a [DieTyped]
+// that is a [metav1.Object], as an object die's base makes it.
 // die.DieObjectOf and die.DieObjectMutOf have the rest, for generic code.
 type DieObject interface {
 	DieTyped
@@ -84,12 +84,12 @@ var (
 	_ runtime.Object = (*DieTypedMutBase[struct{}, *typedCheck, *typedMutCheck])(nil)
 )
 
-// AsTyped wraps the state of a die in a DieTypedBase.
+// AsTyped wraps the state of a die in a [DieTypedBase].
 func AsTyped[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]](b DieBase[T, D, M]) DieTypedBase[T, D, M] {
 	return DieTypedBase[T, D, M]{DieBase: b}
 }
 
-// AsTypedMut wraps the state of a die in a DieTypedMutBase.
+// AsTypedMut wraps the state of a die in a [DieTypedMutBase].
 func AsTypedMut[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]](b DieMutBase[T, D, M]) DieTypedMutBase[T, D, M] {
 	return DieTypedMutBase[T, D, M]{DieMutBase: b}
 }
@@ -131,27 +131,27 @@ var (
 	_ DieObject = (*DieObjectMutBase[struct{}, *objectCheck, *objectMutCheck])(nil)
 )
 
-// AsObject wraps the state of a die in a DieObjectBase.
+// AsObject wraps the state of a die in a [DieObjectBase].
 func AsObject[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]](b DieBase[T, D, M]) DieObjectBase[T, D, M] {
 	return DieObjectBase[T, D, M]{DieTypedBase: AsTyped(b)}
 }
 
-// AsObjectMut wraps the state of a die in a DieObjectMutBase.
+// AsObjectMut wraps the state of a die in a [DieObjectMutBase].
 func AsObjectMut[T any, D DieOf[T, D, M], M DieMutOf[T, D, M]](b DieMutBase[T, D, M]) DieObjectMutBase[T, D, M] {
 	return DieObjectMutBase[T, D, M]{DieTypedMutBase: AsTypedMut(b)}
 }
 
-// DieFeedUnstructured feeds an unstructured object, as decoding it would:
-// the values it has are present, zero or not, and fields T doesn't have are
-// kept, to be encoded again. As with DieFeed, a root die discards its intent
-// and a die within another sets the value as intent. It panics if the object
-// doesn't decode as a T.
+// DieFeedUnstructured feeds an unstructured object, as decoding it would: the
+// values it has are present, zero or not, and fields T doesn't have are kept,
+// to be encoded again. As with [DieMutBase.DieFeed], a root die
+// discards its intent and a die within another sets the value as intent. It
+// panics if the object doesn't decode as a T.
 func (b *DieObjectMutBase[T, D, M]) DieFeedUnstructured(u *unstructured.Unstructured) M {
 	return core.Must(b.DieFeedUnstructuredE(u))
 }
 
-// DieFeedUnstructuredE is DieFeedUnstructured, returning an error rather
-// than panicking.
+// DieFeedUnstructuredE is [DieObjectMutBase.DieFeedUnstructured], returning
+// an error rather than panicking.
 func (b *DieObjectMutBase[T, D, M]) DieFeedUnstructuredE(u *unstructured.Unstructured) (M, error) {
 	data, err := u.MarshalJSON()
 	if err != nil {
@@ -162,26 +162,26 @@ func (b *DieObjectMutBase[T, D, M]) DieFeedUnstructuredE(u *unstructured.Unstruc
 }
 
 // DieReleaseUnstructured releases the object as an unstructured object,
-// encoded as MarshalJSON encodes it: fields T doesn't have that were fed
-// included, and absent values omitted.
+// encoded as [DieObjectBase.MarshalJSON] encodes it: fields T doesn't have
+// that were fed included, and absent values omitted.
 func (b *DieObjectBase[T, D, M]) DieReleaseUnstructured() *unstructured.Unstructured {
 	return core.Must(b.DieReleaseUnstructuredE())
 }
 
-// DieReleaseUnstructuredE is DieReleaseUnstructured, returning an error
-// rather than panicking.
+// DieReleaseUnstructuredE is [DieObjectBase.DieReleaseUnstructured],
+// returning an error rather than panicking.
 func (b *DieObjectBase[T, D, M]) DieReleaseUnstructuredE() (*unstructured.Unstructured, error) {
 	return releaseUnstructured[T](&b.state)
 }
 
 // DieReleaseUnstructured releases the object as an unstructured object: see
-// DieObjectBase.DieReleaseUnstructured.
+// [DieObjectBase.DieReleaseUnstructured].
 func (b *DieObjectMutBase[T, D, M]) DieReleaseUnstructured() *unstructured.Unstructured {
 	return core.Must(b.DieReleaseUnstructuredE())
 }
 
-// DieReleaseUnstructuredE is DieReleaseUnstructured, returning an error
-// rather than panicking.
+// DieReleaseUnstructuredE is [DieObjectMutBase.DieReleaseUnstructured],
+// returning an error rather than panicking.
 func (b *DieObjectMutBase[T, D, M]) DieReleaseUnstructuredE() (*unstructured.Unstructured, error) {
 	return releaseUnstructured[T](&b.state)
 }

@@ -37,12 +37,12 @@ import (
 // A PackageInstall CR must reference a Package CR.
 //
 // PackageInstallDie is immutable: it reads.
-// PackageInstallDieMut, its mutable die, also writes, as DieWith passes it.
+// [PackageInstallDieMut], its mutable die, also writes, as DieWith passes it.
 type PackageInstallDie struct {
 	diebase.DieObjectBase[PackageInstall, *PackageInstallDie, *PackageInstallDieMut]
 }
 
-// PackageInstallDieMut is the mutable die of PackageInstall: see PackageInstallDie.
+// PackageInstallDieMut is the mutable die of [PackageInstall]: see [PackageInstallDie].
 type PackageInstallDieMut struct {
 	diebase.DieObjectMutBase[PackageInstall, *PackageInstallDie, *PackageInstallDieMut]
 }
@@ -159,12 +159,12 @@ func (l *PackageInstallListDie) DeepCopy() *PackageInstallListDie {
 func (l *PackageInstallListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // PackageInstallSpecDie is immutable: it reads.
-// PackageInstallSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [PackageInstallSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type PackageInstallSpecDie struct {
 	diebase.DieBase[PackageInstallSpec, *PackageInstallSpecDie, *PackageInstallSpecDieMut]
 }
 
-// PackageInstallSpecDieMut is the mutable die of PackageInstallSpec: see PackageInstallSpecDie.
+// PackageInstallSpecDieMut is the mutable die of [PackageInstallSpec]: see [PackageInstallSpecDie].
 type PackageInstallSpecDieMut struct {
 	diebase.DieMutBase[PackageInstallSpec, *PackageInstallSpecDie, *PackageInstallSpecDieMut]
 }
@@ -317,12 +317,12 @@ func (d *PackageInstallSpecDieMut) DefaultNamespace() diefields.ValueMut[string,
 }
 
 // PackageInstallStatusDie is immutable: it reads.
-// PackageInstallStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [PackageInstallStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type PackageInstallStatusDie struct {
 	diebase.DieBase[PackageInstallStatus, *PackageInstallStatusDie, *PackageInstallStatusDieMut]
 }
 
-// PackageInstallStatusDieMut is the mutable die of PackageInstallStatus: see PackageInstallStatusDie.
+// PackageInstallStatusDieMut is the mutable die of [PackageInstallStatus]: see [PackageInstallStatusDie].
 type PackageInstallStatusDieMut struct {
 	diebase.DieMutBase[PackageInstallStatus, *PackageInstallStatusDie, *PackageInstallStatusDieMut]
 }
@@ -423,12 +423,12 @@ func (d *PackageInstallStatusDieMut) LastAttemptedVersion() diefields.ValueMut[s
 }
 
 // PackageInstallValuesDie is immutable: it reads.
-// PackageInstallValuesDieMut, its mutable die, also writes, as DieWith passes it.
+// [PackageInstallValuesDieMut], its mutable die, also writes, as DieWith passes it.
 type PackageInstallValuesDie struct {
 	diebase.DieBase[PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut]
 }
 
-// PackageInstallValuesDieMut is the mutable die of PackageInstallValues: see PackageInstallValuesDie.
+// PackageInstallValuesDieMut is the mutable die of [PackageInstallValues]: see [PackageInstallValuesDie].
 type PackageInstallValuesDieMut struct {
 	diebase.DieMutBase[PackageInstallValues, *PackageInstallValuesDie, *PackageInstallValuesDieMut]
 }
@@ -467,12 +467,12 @@ func (d *PackageInstallValuesDieMut) SecretRef() *PackageInstallValuesSecretRefD
 }
 
 // PackageInstallValuesSecretRefDie is immutable: it reads.
-// PackageInstallValuesSecretRefDieMut, its mutable die, also writes, as DieWith passes it.
+// [PackageInstallValuesSecretRefDieMut], its mutable die, also writes, as DieWith passes it.
 type PackageInstallValuesSecretRefDie struct {
 	diebase.DieBase[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie, *PackageInstallValuesSecretRefDieMut]
 }
 
-// PackageInstallValuesSecretRefDieMut is the mutable die of PackageInstallValuesSecretRef: see PackageInstallValuesSecretRefDie.
+// PackageInstallValuesSecretRefDieMut is the mutable die of [PackageInstallValuesSecretRef]: see [PackageInstallValuesSecretRefDie].
 type PackageInstallValuesSecretRefDieMut struct {
 	diebase.DieMutBase[PackageInstallValuesSecretRef, *PackageInstallValuesSecretRefDie, *PackageInstallValuesSecretRefDieMut]
 }
@@ -521,12 +521,12 @@ func (d *PackageInstallValuesSecretRefDieMut) Key() diefields.ValueMut[string, *
 }
 
 // PackageRefDie is immutable: it reads.
-// PackageRefDieMut, its mutable die, also writes, as DieWith passes it.
+// [PackageRefDieMut], its mutable die, also writes, as DieWith passes it.
 type PackageRefDie struct {
 	diebase.DieBase[PackageRef, *PackageRefDie, *PackageRefDieMut]
 }
 
-// PackageRefDieMut is the mutable die of PackageRef: see PackageRefDie.
+// PackageRefDieMut is the mutable die of [PackageRef]: see [PackageRefDie].
 type PackageRefDieMut struct {
 	diebase.DieMutBase[PackageRef, *PackageRefDie, *PackageRefDieMut]
 }
@@ -578,12 +578,12 @@ func (d *PackageRefDieMut) VersionSelection() *vendirv1alpha1.VersionSelectionSe
 // Similar to a maven repository or a rpm repository, adding a package repository to a cluster gives users of that cluster the ability to install any of the packages from that repository.
 //
 // PackageRepositoryDie is immutable: it reads.
-// PackageRepositoryDieMut, its mutable die, also writes, as DieWith passes it.
+// [PackageRepositoryDieMut], its mutable die, also writes, as DieWith passes it.
 type PackageRepositoryDie struct {
 	diebase.DieObjectBase[PackageRepository, *PackageRepositoryDie, *PackageRepositoryDieMut]
 }
 
-// PackageRepositoryDieMut is the mutable die of PackageRepository: see PackageRepositoryDie.
+// PackageRepositoryDieMut is the mutable die of [PackageRepository]: see [PackageRepositoryDie].
 type PackageRepositoryDieMut struct {
 	diebase.DieObjectMutBase[PackageRepository, *PackageRepositoryDie, *PackageRepositoryDieMut]
 }
@@ -682,12 +682,12 @@ func (d *PackageRepositoryDieMut) Status() *PackageRepositoryStatusDieMut {
 }
 
 // PackageRepositoryFetchDie is immutable: it reads.
-// PackageRepositoryFetchDieMut, its mutable die, also writes, as DieWith passes it.
+// [PackageRepositoryFetchDieMut], its mutable die, also writes, as DieWith passes it.
 type PackageRepositoryFetchDie struct {
 	diebase.DieBase[PackageRepositoryFetch, *PackageRepositoryFetchDie, *PackageRepositoryFetchDieMut]
 }
 
-// PackageRepositoryFetchDieMut is the mutable die of PackageRepositoryFetch: see PackageRepositoryFetchDie.
+// PackageRepositoryFetchDieMut is the mutable die of [PackageRepositoryFetch]: see [PackageRepositoryFetchDie].
 type PackageRepositoryFetchDieMut struct {
 	diebase.DieMutBase[PackageRepositoryFetch, *PackageRepositoryFetchDie, *PackageRepositoryFetchDieMut]
 }
@@ -796,12 +796,12 @@ func (l *PackageRepositoryListDie) DeepCopy() *PackageRepositoryListDie {
 func (l *PackageRepositoryListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // PackageRepositorySpecDie is immutable: it reads.
-// PackageRepositorySpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [PackageRepositorySpecDieMut], its mutable die, also writes, as DieWith passes it.
 type PackageRepositorySpecDie struct {
 	diebase.DieBase[PackageRepositorySpec, *PackageRepositorySpecDie, *PackageRepositorySpecDieMut]
 }
 
-// PackageRepositorySpecDieMut is the mutable die of PackageRepositorySpec: see PackageRepositorySpecDie.
+// PackageRepositorySpecDieMut is the mutable die of [PackageRepositorySpec]: see [PackageRepositorySpecDie].
 type PackageRepositorySpecDieMut struct {
 	diebase.DieMutBase[PackageRepositorySpec, *PackageRepositorySpecDie, *PackageRepositorySpecDieMut]
 }
@@ -866,12 +866,12 @@ func (d *PackageRepositorySpecDieMut) Fetch() *PackageRepositoryFetchDieMut {
 }
 
 // PackageRepositoryStatusDie is immutable: it reads.
-// PackageRepositoryStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [PackageRepositoryStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type PackageRepositoryStatusDie struct {
 	diebase.DieBase[PackageRepositoryStatus, *PackageRepositoryStatusDie, *PackageRepositoryStatusDieMut]
 }
 
-// PackageRepositoryStatusDieMut is the mutable die of PackageRepositoryStatus: see PackageRepositoryStatusDie.
+// PackageRepositoryStatusDieMut is the mutable die of [PackageRepositoryStatus]: see [PackageRepositoryStatusDie].
 type PackageRepositoryStatusDieMut struct {
 	diebase.DieMutBase[PackageRepositoryStatus, *PackageRepositoryStatusDie, *PackageRepositoryStatusDieMut]
 }

@@ -22,7 +22,7 @@ import (
 	flowcontrolv1beta2ac "k8s.io/client-go/applyconfigurations/flowcontrol/v1beta2"
 )
 
-// The apply configuration types of k8s.io/client-go/applyconfigurations/flowcontrol/v1beta2, and its Extract functions, so
+// The apply configuration types of [k8s.io/client-go/applyconfigurations/flowcontrol/v1beta2], and its Extract functions, so
 // that importing this package provides them with the dies. Its
 // constructors are not aliased: their names are those of the types.
 

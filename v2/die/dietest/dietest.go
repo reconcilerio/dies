@@ -25,14 +25,14 @@ import (
 )
 
 // FeedYAMLFile returns an immutable die of the YAML, or JSON, in a file, fed
-// to a copy of d as DieFeedYAML feeds it: FeedYAMLFile(DeploymentBlank,
-// "testdata/web.yaml"). It panics if the file can't be read or doesn't
-// decode, so that fixtures can be package variables.
+// to a copy of d as [base.DieMutBase.DieFeedYAML] feeds it:
+// FeedYAMLFile(DeploymentBlank, "testdata/web.yaml"). It panics if the file
+// can't be read or doesn't decode, so that fixtures can be package variables.
 func FeedYAMLFile[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]](d D, name string) D {
 	return core.Must(FeedYAMLFileE(d, name))
 }
 
-// FeedYAMLFileE is FeedYAMLFile, returning an error rather than panicking.
+// FeedYAMLFileE is [FeedYAMLFile], returning an error rather than panicking.
 func FeedYAMLFileE[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]](d D, name string) (D, error) {
 	data, err := os.ReadFile(name)
 	if err != nil {

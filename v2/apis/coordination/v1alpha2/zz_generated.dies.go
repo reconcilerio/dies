@@ -35,12 +35,12 @@ import (
 // Candidates are created such that coordinated leader election will pick the best leader from the list of candidates.
 //
 // LeaseCandidateDie is immutable: it reads.
-// LeaseCandidateDieMut, its mutable die, also writes, as DieWith passes it.
+// [LeaseCandidateDieMut], its mutable die, also writes, as DieWith passes it.
 type LeaseCandidateDie struct {
 	diebase.DieObjectBase[LeaseCandidate, *LeaseCandidateDie, *LeaseCandidateDieMut]
 }
 
-// LeaseCandidateDieMut is the mutable die of LeaseCandidate: see LeaseCandidateDie.
+// LeaseCandidateDieMut is the mutable die of [LeaseCandidate]: see [LeaseCandidateDie].
 type LeaseCandidateDieMut struct {
 	diebase.DieObjectMutBase[LeaseCandidate, *LeaseCandidateDie, *LeaseCandidateDieMut]
 }
@@ -67,8 +67,8 @@ func (d *LeaseCandidateDie) DieReleaseApplyConfiguration() *LeaseCandidateApplyC
 	return diecodegen.ReleaseApplyConfiguration[LeaseCandidateApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [LeaseCandidateDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LeaseCandidateDie) DieReleaseApplyConfigurationE() (*LeaseCandidateApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[LeaseCandidateApplyConfiguration](d)
 }
@@ -80,8 +80,8 @@ func (d *LeaseCandidateDieMut) DieReleaseApplyConfiguration() *LeaseCandidateApp
 	return diecodegen.ReleaseApplyConfiguration[LeaseCandidateApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [LeaseCandidateDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LeaseCandidateDieMut) DieReleaseApplyConfigurationE() (*LeaseCandidateApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[LeaseCandidateApplyConfiguration](d)
 }
@@ -99,14 +99,14 @@ func (d *LeaseCandidateDieMut) DieStampApplyConfiguration(fn func(ac *LeaseCandi
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [LeaseCandidateDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LeaseCandidateDieMut) DieFeedApplyConfigurationE(ac *LeaseCandidateApplyConfiguration) (*LeaseCandidateDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [LeaseCandidateDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LeaseCandidateDieMut) DieStampApplyConfigurationE(fn func(ac *LeaseCandidateApplyConfiguration)) (*LeaseCandidateDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -207,12 +207,12 @@ func (l *LeaseCandidateListDie) DeepCopyObject() runtime.Object { return l.DeepC
 // LeaseCandidateSpec is a specification of a Lease.
 //
 // LeaseCandidateSpecDie is immutable: it reads.
-// LeaseCandidateSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [LeaseCandidateSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type LeaseCandidateSpecDie struct {
 	diebase.DieBase[LeaseCandidateSpec, *LeaseCandidateSpecDie, *LeaseCandidateSpecDieMut]
 }
 
-// LeaseCandidateSpecDieMut is the mutable die of LeaseCandidateSpec: see LeaseCandidateSpecDie.
+// LeaseCandidateSpecDieMut is the mutable die of [LeaseCandidateSpec]: see [LeaseCandidateSpecDie].
 type LeaseCandidateSpecDieMut struct {
 	diebase.DieMutBase[LeaseCandidateSpec, *LeaseCandidateSpecDie, *LeaseCandidateSpecDieMut]
 }
@@ -239,8 +239,8 @@ func (d *LeaseCandidateSpecDie) DieReleaseApplyConfiguration() *LeaseCandidateSp
 	return diecodegen.ReleaseApplyConfiguration[LeaseCandidateSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [LeaseCandidateSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LeaseCandidateSpecDie) DieReleaseApplyConfigurationE() (*LeaseCandidateSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[LeaseCandidateSpecApplyConfiguration](d)
 }
@@ -252,8 +252,8 @@ func (d *LeaseCandidateSpecDieMut) DieReleaseApplyConfiguration() *LeaseCandidat
 	return diecodegen.ReleaseApplyConfiguration[LeaseCandidateSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [LeaseCandidateSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LeaseCandidateSpecDieMut) DieReleaseApplyConfigurationE() (*LeaseCandidateSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[LeaseCandidateSpecApplyConfiguration](d)
 }
@@ -271,14 +271,14 @@ func (d *LeaseCandidateSpecDieMut) DieStampApplyConfiguration(fn func(ac *LeaseC
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [LeaseCandidateSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LeaseCandidateSpecDieMut) DieFeedApplyConfigurationE(ac *LeaseCandidateSpecApplyConfiguration) (*LeaseCandidateSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [LeaseCandidateSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LeaseCandidateSpecDieMut) DieStampApplyConfigurationE(fn func(ac *LeaseCandidateSpecApplyConfiguration)) (*LeaseCandidateSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

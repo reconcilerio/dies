@@ -24,7 +24,7 @@ import (
 	vendirv1alpha1 "reconciler.io/dies/v2/examples/kapp/vendir/v1alpha1"
 )
 
-// The types and constants of carvel.dev/kapp-controller/pkg/apis/packaging/v1alpha1, cloned so that nothing depends on it
+// The types and constants of [carvel.dev/kapp-controller/pkg/apis/packaging/v1alpha1], cloned so that nothing depends on it
 // or its dependencies. Methods, functions and variables are not cloned.
 
 // +kubebuilder:subresource:status

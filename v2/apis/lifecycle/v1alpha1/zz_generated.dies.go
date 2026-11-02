@@ -56,12 +56,12 @@ import (
 // imperative Eviction API (pods/<name>/eviction subresource).
 //
 // EvictionDie is immutable: it reads.
-// EvictionDieMut, its mutable die, also writes, as DieWith passes it.
+// [EvictionDieMut], its mutable die, also writes, as DieWith passes it.
 type EvictionDie struct {
 	diebase.DieObjectBase[Eviction, *EvictionDie, *EvictionDieMut]
 }
 
-// EvictionDieMut is the mutable die of Eviction: see EvictionDie.
+// EvictionDieMut is the mutable die of [Eviction]: see [EvictionDie].
 type EvictionDieMut struct {
 	diebase.DieObjectMutBase[Eviction, *EvictionDie, *EvictionDieMut]
 }
@@ -88,8 +88,8 @@ func (d *EvictionDie) DieReleaseApplyConfiguration() *EvictionApplyConfiguration
 	return diecodegen.ReleaseApplyConfiguration[EvictionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionDie) DieReleaseApplyConfigurationE() (*EvictionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionApplyConfiguration](d)
 }
@@ -101,8 +101,8 @@ func (d *EvictionDieMut) DieReleaseApplyConfiguration() *EvictionApplyConfigurat
 	return diecodegen.ReleaseApplyConfiguration[EvictionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionDieMut) DieReleaseApplyConfigurationE() (*EvictionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionApplyConfiguration](d)
 }
@@ -120,14 +120,14 @@ func (d *EvictionDieMut) DieStampApplyConfiguration(fn func(ac *EvictionApplyCon
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [EvictionDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionDieMut) DieFeedApplyConfigurationE(ac *EvictionApplyConfiguration) (*EvictionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [EvictionDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionApplyConfiguration)) (*EvictionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -259,12 +259,12 @@ func (l *EvictionListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() 
 // namespace.
 //
 // EvictionPodReferenceDie is immutable: it reads.
-// EvictionPodReferenceDieMut, its mutable die, also writes, as DieWith passes it.
+// [EvictionPodReferenceDieMut], its mutable die, also writes, as DieWith passes it.
 type EvictionPodReferenceDie struct {
 	diebase.DieBase[EvictionPodReference, *EvictionPodReferenceDie, *EvictionPodReferenceDieMut]
 }
 
-// EvictionPodReferenceDieMut is the mutable die of EvictionPodReference: see EvictionPodReferenceDie.
+// EvictionPodReferenceDieMut is the mutable die of [EvictionPodReference]: see [EvictionPodReferenceDie].
 type EvictionPodReferenceDieMut struct {
 	diebase.DieMutBase[EvictionPodReference, *EvictionPodReferenceDie, *EvictionPodReferenceDieMut]
 }
@@ -291,8 +291,8 @@ func (d *EvictionPodReferenceDie) DieReleaseApplyConfiguration() *EvictionPodRef
 	return diecodegen.ReleaseApplyConfiguration[EvictionPodReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionPodReferenceDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionPodReferenceDie) DieReleaseApplyConfigurationE() (*EvictionPodReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionPodReferenceApplyConfiguration](d)
 }
@@ -304,8 +304,8 @@ func (d *EvictionPodReferenceDieMut) DieReleaseApplyConfiguration() *EvictionPod
 	return diecodegen.ReleaseApplyConfiguration[EvictionPodReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionPodReferenceDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionPodReferenceDieMut) DieReleaseApplyConfigurationE() (*EvictionPodReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionPodReferenceApplyConfiguration](d)
 }
@@ -323,14 +323,14 @@ func (d *EvictionPodReferenceDieMut) DieStampApplyConfiguration(fn func(ac *Evic
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [EvictionPodReferenceDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionPodReferenceDieMut) DieFeedApplyConfigurationE(ac *EvictionPodReferenceApplyConfiguration) (*EvictionPodReferenceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [EvictionPodReferenceDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionPodReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionPodReferenceApplyConfiguration)) (*EvictionPodReferenceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -392,12 +392,12 @@ func (d *EvictionPodReferenceDieMut) UID() diefields.ValueMut[types.UID, *Evicti
 // garbage collected.
 //
 // EvictionRequestDie is immutable: it reads.
-// EvictionRequestDieMut, its mutable die, also writes, as DieWith passes it.
+// [EvictionRequestDieMut], its mutable die, also writes, as DieWith passes it.
 type EvictionRequestDie struct {
 	diebase.DieObjectBase[EvictionRequest, *EvictionRequestDie, *EvictionRequestDieMut]
 }
 
-// EvictionRequestDieMut is the mutable die of EvictionRequest: see EvictionRequestDie.
+// EvictionRequestDieMut is the mutable die of [EvictionRequest]: see [EvictionRequestDie].
 type EvictionRequestDieMut struct {
 	diebase.DieObjectMutBase[EvictionRequest, *EvictionRequestDie, *EvictionRequestDieMut]
 }
@@ -424,8 +424,8 @@ func (d *EvictionRequestDie) DieReleaseApplyConfiguration() *EvictionRequestAppl
 	return diecodegen.ReleaseApplyConfiguration[EvictionRequestApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionRequestDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestDie) DieReleaseApplyConfigurationE() (*EvictionRequestApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionRequestApplyConfiguration](d)
 }
@@ -437,8 +437,8 @@ func (d *EvictionRequestDieMut) DieReleaseApplyConfiguration() *EvictionRequestA
 	return diecodegen.ReleaseApplyConfiguration[EvictionRequestApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionRequestDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestDieMut) DieReleaseApplyConfigurationE() (*EvictionRequestApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionRequestApplyConfiguration](d)
 }
@@ -456,14 +456,14 @@ func (d *EvictionRequestDieMut) DieStampApplyConfiguration(fn func(ac *EvictionR
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [EvictionRequestDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestDieMut) DieFeedApplyConfigurationE(ac *EvictionRequestApplyConfiguration) (*EvictionRequestDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [EvictionRequestDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionRequestApplyConfiguration)) (*EvictionRequestDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -577,12 +577,12 @@ func (l *EvictionRequestListDie) DeepCopyObject() runtime.Object { return l.Deep
 // same namespace.
 //
 // EvictionRequestPodReferenceDie is immutable: it reads.
-// EvictionRequestPodReferenceDieMut, its mutable die, also writes, as DieWith passes it.
+// [EvictionRequestPodReferenceDieMut], its mutable die, also writes, as DieWith passes it.
 type EvictionRequestPodReferenceDie struct {
 	diebase.DieBase[EvictionRequestPodReference, *EvictionRequestPodReferenceDie, *EvictionRequestPodReferenceDieMut]
 }
 
-// EvictionRequestPodReferenceDieMut is the mutable die of EvictionRequestPodReference: see EvictionRequestPodReferenceDie.
+// EvictionRequestPodReferenceDieMut is the mutable die of [EvictionRequestPodReference]: see [EvictionRequestPodReferenceDie].
 type EvictionRequestPodReferenceDieMut struct {
 	diebase.DieMutBase[EvictionRequestPodReference, *EvictionRequestPodReferenceDie, *EvictionRequestPodReferenceDieMut]
 }
@@ -609,8 +609,8 @@ func (d *EvictionRequestPodReferenceDie) DieReleaseApplyConfiguration() *Evictio
 	return diecodegen.ReleaseApplyConfiguration[EvictionRequestPodReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionRequestPodReferenceDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestPodReferenceDie) DieReleaseApplyConfigurationE() (*EvictionRequestPodReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionRequestPodReferenceApplyConfiguration](d)
 }
@@ -622,8 +622,8 @@ func (d *EvictionRequestPodReferenceDieMut) DieReleaseApplyConfiguration() *Evic
 	return diecodegen.ReleaseApplyConfiguration[EvictionRequestPodReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionRequestPodReferenceDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestPodReferenceDieMut) DieReleaseApplyConfigurationE() (*EvictionRequestPodReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionRequestPodReferenceApplyConfiguration](d)
 }
@@ -641,14 +641,14 @@ func (d *EvictionRequestPodReferenceDieMut) DieStampApplyConfiguration(fn func(a
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [EvictionRequestPodReferenceDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestPodReferenceDieMut) DieFeedApplyConfigurationE(ac *EvictionRequestPodReferenceApplyConfiguration) (*EvictionRequestPodReferenceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [EvictionRequestPodReferenceDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestPodReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionRequestPodReferenceApplyConfiguration)) (*EvictionRequestPodReferenceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -694,12 +694,12 @@ func (d *EvictionRequestPodReferenceDieMut) UID() diefields.ValueMut[types.UID, 
 // EvictionRequestSpec is a specification of an EvictionRequest.
 //
 // EvictionRequestSpecDie is immutable: it reads.
-// EvictionRequestSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [EvictionRequestSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type EvictionRequestSpecDie struct {
 	diebase.DieBase[EvictionRequestSpec, *EvictionRequestSpecDie, *EvictionRequestSpecDieMut]
 }
 
-// EvictionRequestSpecDieMut is the mutable die of EvictionRequestSpec: see EvictionRequestSpecDie.
+// EvictionRequestSpecDieMut is the mutable die of [EvictionRequestSpec]: see [EvictionRequestSpecDie].
 type EvictionRequestSpecDieMut struct {
 	diebase.DieMutBase[EvictionRequestSpec, *EvictionRequestSpecDie, *EvictionRequestSpecDieMut]
 }
@@ -726,8 +726,8 @@ func (d *EvictionRequestSpecDie) DieReleaseApplyConfiguration() *EvictionRequest
 	return diecodegen.ReleaseApplyConfiguration[EvictionRequestSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionRequestSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestSpecDie) DieReleaseApplyConfigurationE() (*EvictionRequestSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionRequestSpecApplyConfiguration](d)
 }
@@ -739,8 +739,8 @@ func (d *EvictionRequestSpecDieMut) DieReleaseApplyConfiguration() *EvictionRequ
 	return diecodegen.ReleaseApplyConfiguration[EvictionRequestSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionRequestSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestSpecDieMut) DieReleaseApplyConfigurationE() (*EvictionRequestSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionRequestSpecApplyConfiguration](d)
 }
@@ -758,14 +758,14 @@ func (d *EvictionRequestSpecDieMut) DieStampApplyConfiguration(fn func(ac *Evict
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [EvictionRequestSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestSpecDieMut) DieFeedApplyConfigurationE(ac *EvictionRequestSpecApplyConfiguration) (*EvictionRequestSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [EvictionRequestSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestSpecDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionRequestSpecApplyConfiguration)) (*EvictionRequestSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -843,12 +843,12 @@ func (d *EvictionRequestSpecDieMut) Intent() diefields.ValueMut[EvictionRequestI
 // EvictionRequestStatus represents the last observed status of the eviction request.
 //
 // EvictionRequestStatusDie is immutable: it reads.
-// EvictionRequestStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [EvictionRequestStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type EvictionRequestStatusDie struct {
 	diebase.DieBase[EvictionRequestStatus, *EvictionRequestStatusDie, *EvictionRequestStatusDieMut]
 }
 
-// EvictionRequestStatusDieMut is the mutable die of EvictionRequestStatus: see EvictionRequestStatusDie.
+// EvictionRequestStatusDieMut is the mutable die of [EvictionRequestStatus]: see [EvictionRequestStatusDie].
 type EvictionRequestStatusDieMut struct {
 	diebase.DieMutBase[EvictionRequestStatus, *EvictionRequestStatusDie, *EvictionRequestStatusDieMut]
 }
@@ -875,8 +875,8 @@ func (d *EvictionRequestStatusDie) DieReleaseApplyConfiguration() *EvictionReque
 	return diecodegen.ReleaseApplyConfiguration[EvictionRequestStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionRequestStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestStatusDie) DieReleaseApplyConfigurationE() (*EvictionRequestStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionRequestStatusApplyConfiguration](d)
 }
@@ -888,8 +888,8 @@ func (d *EvictionRequestStatusDieMut) DieReleaseApplyConfiguration() *EvictionRe
 	return diecodegen.ReleaseApplyConfiguration[EvictionRequestStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionRequestStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestStatusDieMut) DieReleaseApplyConfigurationE() (*EvictionRequestStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionRequestStatusApplyConfiguration](d)
 }
@@ -907,14 +907,14 @@ func (d *EvictionRequestStatusDieMut) DieStampApplyConfiguration(fn func(ac *Evi
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [EvictionRequestStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestStatusDieMut) DieFeedApplyConfigurationE(ac *EvictionRequestStatusApplyConfiguration) (*EvictionRequestStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [EvictionRequestStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestStatusDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionRequestStatusApplyConfiguration)) (*EvictionRequestStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -982,12 +982,12 @@ func (d *EvictionRequestStatusDieMut) ObservedGeneration() diefields.OptionalMut
 // EvictionRequestTarget contains a reference to an object that should be evicted.
 //
 // EvictionRequestTargetDie is immutable: it reads.
-// EvictionRequestTargetDieMut, its mutable die, also writes, as DieWith passes it.
+// [EvictionRequestTargetDieMut], its mutable die, also writes, as DieWith passes it.
 type EvictionRequestTargetDie struct {
 	diebase.DieBase[EvictionRequestTarget, *EvictionRequestTargetDie, *EvictionRequestTargetDieMut]
 }
 
-// EvictionRequestTargetDieMut is the mutable die of EvictionRequestTarget: see EvictionRequestTargetDie.
+// EvictionRequestTargetDieMut is the mutable die of [EvictionRequestTarget]: see [EvictionRequestTargetDie].
 type EvictionRequestTargetDieMut struct {
 	diebase.DieMutBase[EvictionRequestTarget, *EvictionRequestTargetDie, *EvictionRequestTargetDieMut]
 }
@@ -1014,8 +1014,8 @@ func (d *EvictionRequestTargetDie) DieReleaseApplyConfiguration() *EvictionReque
 	return diecodegen.ReleaseApplyConfiguration[EvictionRequestTargetApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionRequestTargetDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestTargetDie) DieReleaseApplyConfigurationE() (*EvictionRequestTargetApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionRequestTargetApplyConfiguration](d)
 }
@@ -1027,8 +1027,8 @@ func (d *EvictionRequestTargetDieMut) DieReleaseApplyConfiguration() *EvictionRe
 	return diecodegen.ReleaseApplyConfiguration[EvictionRequestTargetApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionRequestTargetDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestTargetDieMut) DieReleaseApplyConfigurationE() (*EvictionRequestTargetApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionRequestTargetApplyConfiguration](d)
 }
@@ -1046,14 +1046,14 @@ func (d *EvictionRequestTargetDieMut) DieStampApplyConfiguration(fn func(ac *Evi
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [EvictionRequestTargetDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestTargetDieMut) DieFeedApplyConfigurationE(ac *EvictionRequestTargetApplyConfiguration) (*EvictionRequestTargetDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [EvictionRequestTargetDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionRequestTargetDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionRequestTargetApplyConfiguration)) (*EvictionRequestTargetDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1083,12 +1083,12 @@ func (d *EvictionRequestTargetDieMut) Pod() *EvictionRequestPodReferenceDieMut {
 // EvictionSpec is a specification of an Eviction.
 //
 // EvictionSpecDie is immutable: it reads.
-// EvictionSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [EvictionSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type EvictionSpecDie struct {
 	diebase.DieBase[EvictionSpec, *EvictionSpecDie, *EvictionSpecDieMut]
 }
 
-// EvictionSpecDieMut is the mutable die of EvictionSpec: see EvictionSpecDie.
+// EvictionSpecDieMut is the mutable die of [EvictionSpec]: see [EvictionSpecDie].
 type EvictionSpecDieMut struct {
 	diebase.DieMutBase[EvictionSpec, *EvictionSpecDie, *EvictionSpecDieMut]
 }
@@ -1115,8 +1115,8 @@ func (d *EvictionSpecDie) DieReleaseApplyConfiguration() *EvictionSpecApplyConfi
 	return diecodegen.ReleaseApplyConfiguration[EvictionSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionSpecDie) DieReleaseApplyConfigurationE() (*EvictionSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionSpecApplyConfiguration](d)
 }
@@ -1128,8 +1128,8 @@ func (d *EvictionSpecDieMut) DieReleaseApplyConfiguration() *EvictionSpecApplyCo
 	return diecodegen.ReleaseApplyConfiguration[EvictionSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionSpecDieMut) DieReleaseApplyConfigurationE() (*EvictionSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionSpecApplyConfiguration](d)
 }
@@ -1147,14 +1147,14 @@ func (d *EvictionSpecDieMut) DieStampApplyConfiguration(fn func(ac *EvictionSpec
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [EvictionSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionSpecDieMut) DieFeedApplyConfigurationE(ac *EvictionSpecApplyConfiguration) (*EvictionSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [EvictionSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionSpecDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionSpecApplyConfiguration)) (*EvictionSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1184,12 +1184,12 @@ func (d *EvictionSpecDieMut) Target() *EvictionTargetDieMut {
 // EvictionStatus represents the last observed status of the eviction request.
 //
 // EvictionStatusDie is immutable: it reads.
-// EvictionStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [EvictionStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type EvictionStatusDie struct {
 	diebase.DieBase[EvictionStatus, *EvictionStatusDie, *EvictionStatusDieMut]
 }
 
-// EvictionStatusDieMut is the mutable die of EvictionStatus: see EvictionStatusDie.
+// EvictionStatusDieMut is the mutable die of [EvictionStatus]: see [EvictionStatusDie].
 type EvictionStatusDieMut struct {
 	diebase.DieMutBase[EvictionStatus, *EvictionStatusDie, *EvictionStatusDieMut]
 }
@@ -1216,8 +1216,8 @@ func (d *EvictionStatusDie) DieReleaseApplyConfiguration() *EvictionStatusApplyC
 	return diecodegen.ReleaseApplyConfiguration[EvictionStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionStatusDie) DieReleaseApplyConfigurationE() (*EvictionStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionStatusApplyConfiguration](d)
 }
@@ -1229,8 +1229,8 @@ func (d *EvictionStatusDieMut) DieReleaseApplyConfiguration() *EvictionStatusApp
 	return diecodegen.ReleaseApplyConfiguration[EvictionStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionStatusDieMut) DieReleaseApplyConfigurationE() (*EvictionStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionStatusApplyConfiguration](d)
 }
@@ -1248,14 +1248,14 @@ func (d *EvictionStatusDieMut) DieStampApplyConfiguration(fn func(ac *EvictionSt
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [EvictionStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionStatusDieMut) DieFeedApplyConfigurationE(ac *EvictionStatusApplyConfiguration) (*EvictionStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [EvictionStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionStatusDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionStatusApplyConfiguration)) (*EvictionStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1417,12 +1417,12 @@ func (d *EvictionStatusDieMut) Responders() *diefields.ListMapMut[ResponderStatu
 // EvictionTarget contains a reference to an object that should be evicted.
 //
 // EvictionTargetDie is immutable: it reads.
-// EvictionTargetDieMut, its mutable die, also writes, as DieWith passes it.
+// [EvictionTargetDieMut], its mutable die, also writes, as DieWith passes it.
 type EvictionTargetDie struct {
 	diebase.DieBase[EvictionTarget, *EvictionTargetDie, *EvictionTargetDieMut]
 }
 
-// EvictionTargetDieMut is the mutable die of EvictionTarget: see EvictionTargetDie.
+// EvictionTargetDieMut is the mutable die of [EvictionTarget]: see [EvictionTargetDie].
 type EvictionTargetDieMut struct {
 	diebase.DieMutBase[EvictionTarget, *EvictionTargetDie, *EvictionTargetDieMut]
 }
@@ -1449,8 +1449,8 @@ func (d *EvictionTargetDie) DieReleaseApplyConfiguration() *EvictionTargetApplyC
 	return diecodegen.ReleaseApplyConfiguration[EvictionTargetApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionTargetDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionTargetDie) DieReleaseApplyConfigurationE() (*EvictionTargetApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionTargetApplyConfiguration](d)
 }
@@ -1462,8 +1462,8 @@ func (d *EvictionTargetDieMut) DieReleaseApplyConfiguration() *EvictionTargetApp
 	return diecodegen.ReleaseApplyConfiguration[EvictionTargetApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionTargetDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionTargetDieMut) DieReleaseApplyConfigurationE() (*EvictionTargetApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionTargetApplyConfiguration](d)
 }
@@ -1481,14 +1481,14 @@ func (d *EvictionTargetDieMut) DieStampApplyConfiguration(fn func(ac *EvictionTa
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [EvictionTargetDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionTargetDieMut) DieFeedApplyConfigurationE(ac *EvictionTargetApplyConfiguration) (*EvictionTargetDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [EvictionTargetDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionTargetDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionTargetApplyConfiguration)) (*EvictionTargetDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1518,12 +1518,12 @@ func (d *EvictionTargetDieMut) Pod() *EvictionPodReferenceDieMut {
 // Requester allows you to identify the entity, that requested the eviction of the target.
 //
 // RequesterDie is immutable: it reads.
-// RequesterDieMut, its mutable die, also writes, as DieWith passes it.
+// [RequesterDieMut], its mutable die, also writes, as DieWith passes it.
 type RequesterDie struct {
 	diebase.DieBase[Requester, *RequesterDie, *RequesterDieMut]
 }
 
-// RequesterDieMut is the mutable die of Requester: see RequesterDie.
+// RequesterDieMut is the mutable die of [Requester]: see [RequesterDie].
 type RequesterDieMut struct {
 	diebase.DieMutBase[Requester, *RequesterDie, *RequesterDieMut]
 }
@@ -1550,8 +1550,8 @@ func (d *RequesterDie) DieReleaseApplyConfiguration() *RequesterApplyConfigurati
 	return diecodegen.ReleaseApplyConfiguration[RequesterApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [RequesterDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RequesterDie) DieReleaseApplyConfigurationE() (*RequesterApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[RequesterApplyConfiguration](d)
 }
@@ -1563,8 +1563,8 @@ func (d *RequesterDieMut) DieReleaseApplyConfiguration() *RequesterApplyConfigur
 	return diecodegen.ReleaseApplyConfiguration[RequesterApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [RequesterDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RequesterDieMut) DieReleaseApplyConfigurationE() (*RequesterApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[RequesterApplyConfiguration](d)
 }
@@ -1582,14 +1582,14 @@ func (d *RequesterDieMut) DieStampApplyConfiguration(fn func(ac *RequesterApplyC
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [RequesterDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RequesterDieMut) DieFeedApplyConfigurationE(ac *RequesterApplyConfiguration) (*RequesterDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [RequesterDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RequesterDieMut) DieStampApplyConfigurationE(fn func(ac *RequesterApplyConfiguration)) (*RequesterDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1654,12 +1654,12 @@ func (d *RequesterDieMut) Intent() diefields.ValueMut[RequesterIntent, *Requeste
 // It should be only updated by the designated responder whose name is .name field.
 //
 // ResponderStatusDie is immutable: it reads.
-// ResponderStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [ResponderStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type ResponderStatusDie struct {
 	diebase.DieBase[ResponderStatus, *ResponderStatusDie, *ResponderStatusDieMut]
 }
 
-// ResponderStatusDieMut is the mutable die of ResponderStatus: see ResponderStatusDie.
+// ResponderStatusDieMut is the mutable die of [ResponderStatus]: see [ResponderStatusDie].
 type ResponderStatusDieMut struct {
 	diebase.DieMutBase[ResponderStatus, *ResponderStatusDie, *ResponderStatusDieMut]
 }
@@ -1686,8 +1686,8 @@ func (d *ResponderStatusDie) DieReleaseApplyConfiguration() *ResponderStatusAppl
 	return diecodegen.ReleaseApplyConfiguration[ResponderStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ResponderStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ResponderStatusDie) DieReleaseApplyConfigurationE() (*ResponderStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ResponderStatusApplyConfiguration](d)
 }
@@ -1699,8 +1699,8 @@ func (d *ResponderStatusDieMut) DieReleaseApplyConfiguration() *ResponderStatusA
 	return diecodegen.ReleaseApplyConfiguration[ResponderStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ResponderStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ResponderStatusDieMut) DieReleaseApplyConfigurationE() (*ResponderStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ResponderStatusApplyConfiguration](d)
 }
@@ -1718,14 +1718,14 @@ func (d *ResponderStatusDieMut) DieStampApplyConfiguration(fn func(ac *Responder
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ResponderStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ResponderStatusDieMut) DieFeedApplyConfigurationE(ac *ResponderStatusApplyConfiguration) (*ResponderStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ResponderStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ResponderStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ResponderStatusApplyConfiguration)) (*ResponderStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1857,12 +1857,12 @@ func (d *ResponderStatusDieMut) Message() diefields.OptionalMut[string, *Respond
 // with the graceful eviction of a target (e.g. termination of a pod).
 //
 // TargetResponderDie is immutable: it reads.
-// TargetResponderDieMut, its mutable die, also writes, as DieWith passes it.
+// [TargetResponderDieMut], its mutable die, also writes, as DieWith passes it.
 type TargetResponderDie struct {
 	diebase.DieBase[TargetResponder, *TargetResponderDie, *TargetResponderDieMut]
 }
 
-// TargetResponderDieMut is the mutable die of TargetResponder: see TargetResponderDie.
+// TargetResponderDieMut is the mutable die of [TargetResponder]: see [TargetResponderDie].
 type TargetResponderDieMut struct {
 	diebase.DieMutBase[TargetResponder, *TargetResponderDie, *TargetResponderDieMut]
 }
@@ -1889,8 +1889,8 @@ func (d *TargetResponderDie) DieReleaseApplyConfiguration() *TargetResponderAppl
 	return diecodegen.ReleaseApplyConfiguration[TargetResponderApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [TargetResponderDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *TargetResponderDie) DieReleaseApplyConfigurationE() (*TargetResponderApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[TargetResponderApplyConfiguration](d)
 }
@@ -1902,8 +1902,8 @@ func (d *TargetResponderDieMut) DieReleaseApplyConfiguration() *TargetResponderA
 	return diecodegen.ReleaseApplyConfiguration[TargetResponderApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [TargetResponderDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *TargetResponderDieMut) DieReleaseApplyConfigurationE() (*TargetResponderApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[TargetResponderApplyConfiguration](d)
 }
@@ -1921,14 +1921,14 @@ func (d *TargetResponderDieMut) DieStampApplyConfiguration(fn func(ac *TargetRes
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [TargetResponderDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *TargetResponderDieMut) DieFeedApplyConfigurationE(ac *TargetResponderApplyConfiguration) (*TargetResponderDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [TargetResponderDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *TargetResponderDieMut) DieStampApplyConfigurationE(fn func(ac *TargetResponderApplyConfiguration)) (*TargetResponderDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

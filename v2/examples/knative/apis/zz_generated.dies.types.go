@@ -23,7 +23,7 @@ import (
 	url "net/url"
 )
 
-// The types and constants of knative.dev/pkg/apis, cloned so that nothing depends on it
+// The types and constants of [knative.dev/pkg/apis], cloned so that nothing depends on it
 // or its dependencies. Methods, functions and variables are not cloned.
 
 // Condition defines a readiness condition for a Knative resource.

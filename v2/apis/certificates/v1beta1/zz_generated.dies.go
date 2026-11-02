@@ -35,12 +35,12 @@ import (
 // Describes a certificate signing request
 //
 // CertificateSigningRequestDie is immutable: it reads.
-// CertificateSigningRequestDieMut, its mutable die, also writes, as DieWith passes it.
+// [CertificateSigningRequestDieMut], its mutable die, also writes, as DieWith passes it.
 type CertificateSigningRequestDie struct {
 	diebase.DieObjectBase[CertificateSigningRequest, *CertificateSigningRequestDie, *CertificateSigningRequestDieMut]
 }
 
-// CertificateSigningRequestDieMut is the mutable die of CertificateSigningRequest: see CertificateSigningRequestDie.
+// CertificateSigningRequestDieMut is the mutable die of [CertificateSigningRequest]: see [CertificateSigningRequestDie].
 type CertificateSigningRequestDieMut struct {
 	diebase.DieObjectMutBase[CertificateSigningRequest, *CertificateSigningRequestDie, *CertificateSigningRequestDieMut]
 }
@@ -67,8 +67,8 @@ func (d *CertificateSigningRequestDie) DieReleaseApplyConfiguration() *Certifica
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CertificateSigningRequestDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CertificateSigningRequestDie) DieReleaseApplyConfigurationE() (*CertificateSigningRequestApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestApplyConfiguration](d)
 }
@@ -80,8 +80,8 @@ func (d *CertificateSigningRequestDieMut) DieReleaseApplyConfiguration() *Certif
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CertificateSigningRequestDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CertificateSigningRequestDieMut) DieReleaseApplyConfigurationE() (*CertificateSigningRequestApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestApplyConfiguration](d)
 }
@@ -99,14 +99,14 @@ func (d *CertificateSigningRequestDieMut) DieStampApplyConfiguration(fn func(ac 
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CertificateSigningRequestDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CertificateSigningRequestDieMut) DieFeedApplyConfigurationE(ac *CertificateSigningRequestApplyConfiguration) (*CertificateSigningRequestDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CertificateSigningRequestDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CertificateSigningRequestDieMut) DieStampApplyConfigurationE(fn func(ac *CertificateSigningRequestApplyConfiguration)) (*CertificateSigningRequestDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -196,12 +196,12 @@ func (d *CertificateSigningRequestDieMut) Status() *CertificateSigningRequestSta
 }
 
 // CertificateSigningRequestConditionDie is immutable: it reads.
-// CertificateSigningRequestConditionDieMut, its mutable die, also writes, as DieWith passes it.
+// [CertificateSigningRequestConditionDieMut], its mutable die, also writes, as DieWith passes it.
 type CertificateSigningRequestConditionDie struct {
 	diebase.DieBase[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut]
 }
 
-// CertificateSigningRequestConditionDieMut is the mutable die of CertificateSigningRequestCondition: see CertificateSigningRequestConditionDie.
+// CertificateSigningRequestConditionDieMut is the mutable die of [CertificateSigningRequestCondition]: see [CertificateSigningRequestConditionDie].
 type CertificateSigningRequestConditionDieMut struct {
 	diebase.DieMutBase[CertificateSigningRequestCondition, *CertificateSigningRequestConditionDie, *CertificateSigningRequestConditionDieMut]
 }
@@ -228,8 +228,8 @@ func (d *CertificateSigningRequestConditionDie) DieReleaseApplyConfiguration() *
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestConditionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CertificateSigningRequestConditionDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CertificateSigningRequestConditionDie) DieReleaseApplyConfigurationE() (*CertificateSigningRequestConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestConditionApplyConfiguration](d)
 }
@@ -241,8 +241,8 @@ func (d *CertificateSigningRequestConditionDieMut) DieReleaseApplyConfiguration(
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestConditionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CertificateSigningRequestConditionDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CertificateSigningRequestConditionDieMut) DieReleaseApplyConfigurationE() (*CertificateSigningRequestConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestConditionApplyConfiguration](d)
 }
@@ -260,14 +260,14 @@ func (d *CertificateSigningRequestConditionDieMut) DieStampApplyConfiguration(fn
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CertificateSigningRequestConditionDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CertificateSigningRequestConditionDieMut) DieFeedApplyConfigurationE(ac *CertificateSigningRequestConditionApplyConfiguration) (*CertificateSigningRequestConditionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CertificateSigningRequestConditionDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CertificateSigningRequestConditionDieMut) DieStampApplyConfigurationE(fn func(ac *CertificateSigningRequestConditionApplyConfiguration)) (*CertificateSigningRequestConditionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -383,12 +383,12 @@ func (l *CertificateSigningRequestListDie) DeepCopyObject() runtime.Object { ret
 // CertificateSigningRequestSpec contains the certificate request.
 //
 // CertificateSigningRequestSpecDie is immutable: it reads.
-// CertificateSigningRequestSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [CertificateSigningRequestSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type CertificateSigningRequestSpecDie struct {
 	diebase.DieBase[CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie, *CertificateSigningRequestSpecDieMut]
 }
 
-// CertificateSigningRequestSpecDieMut is the mutable die of CertificateSigningRequestSpec: see CertificateSigningRequestSpecDie.
+// CertificateSigningRequestSpecDieMut is the mutable die of [CertificateSigningRequestSpec]: see [CertificateSigningRequestSpecDie].
 type CertificateSigningRequestSpecDieMut struct {
 	diebase.DieMutBase[CertificateSigningRequestSpec, *CertificateSigningRequestSpecDie, *CertificateSigningRequestSpecDieMut]
 }
@@ -415,8 +415,8 @@ func (d *CertificateSigningRequestSpecDie) DieReleaseApplyConfiguration() *Certi
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CertificateSigningRequestSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CertificateSigningRequestSpecDie) DieReleaseApplyConfigurationE() (*CertificateSigningRequestSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestSpecApplyConfiguration](d)
 }
@@ -428,8 +428,8 @@ func (d *CertificateSigningRequestSpecDieMut) DieReleaseApplyConfiguration() *Ce
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CertificateSigningRequestSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CertificateSigningRequestSpecDieMut) DieReleaseApplyConfigurationE() (*CertificateSigningRequestSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestSpecApplyConfiguration](d)
 }
@@ -447,14 +447,14 @@ func (d *CertificateSigningRequestSpecDieMut) DieStampApplyConfiguration(fn func
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CertificateSigningRequestSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CertificateSigningRequestSpecDieMut) DieFeedApplyConfigurationE(ac *CertificateSigningRequestSpecApplyConfiguration) (*CertificateSigningRequestSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CertificateSigningRequestSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CertificateSigningRequestSpecDieMut) DieStampApplyConfigurationE(fn func(ac *CertificateSigningRequestSpecApplyConfiguration)) (*CertificateSigningRequestSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -688,12 +688,12 @@ func (d *CertificateSigningRequestSpecDieMut) Extra() *diefields.MapMut[string, 
 }
 
 // CertificateSigningRequestStatusDie is immutable: it reads.
-// CertificateSigningRequestStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [CertificateSigningRequestStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type CertificateSigningRequestStatusDie struct {
 	diebase.DieBase[CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie, *CertificateSigningRequestStatusDieMut]
 }
 
-// CertificateSigningRequestStatusDieMut is the mutable die of CertificateSigningRequestStatus: see CertificateSigningRequestStatusDie.
+// CertificateSigningRequestStatusDieMut is the mutable die of [CertificateSigningRequestStatus]: see [CertificateSigningRequestStatusDie].
 type CertificateSigningRequestStatusDieMut struct {
 	diebase.DieMutBase[CertificateSigningRequestStatus, *CertificateSigningRequestStatusDie, *CertificateSigningRequestStatusDieMut]
 }
@@ -720,8 +720,8 @@ func (d *CertificateSigningRequestStatusDie) DieReleaseApplyConfiguration() *Cer
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CertificateSigningRequestStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CertificateSigningRequestStatusDie) DieReleaseApplyConfigurationE() (*CertificateSigningRequestStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestStatusApplyConfiguration](d)
 }
@@ -733,8 +733,8 @@ func (d *CertificateSigningRequestStatusDieMut) DieReleaseApplyConfiguration() *
 	return diecodegen.ReleaseApplyConfiguration[CertificateSigningRequestStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CertificateSigningRequestStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CertificateSigningRequestStatusDieMut) DieReleaseApplyConfigurationE() (*CertificateSigningRequestStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CertificateSigningRequestStatusApplyConfiguration](d)
 }
@@ -752,14 +752,14 @@ func (d *CertificateSigningRequestStatusDieMut) DieStampApplyConfiguration(fn fu
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CertificateSigningRequestStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CertificateSigningRequestStatusDieMut) DieFeedApplyConfigurationE(ac *CertificateSigningRequestStatusApplyConfiguration) (*CertificateSigningRequestStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CertificateSigningRequestStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CertificateSigningRequestStatusDieMut) DieStampApplyConfigurationE(fn func(ac *CertificateSigningRequestStatusApplyConfiguration)) (*CertificateSigningRequestStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -813,12 +813,12 @@ func (d *CertificateSigningRequestStatusDieMut) Certificate() diefields.ValueMut
 // with permissions on the signer can create or modify the corresponding bundle.
 //
 // ClusterTrustBundleDie is immutable: it reads.
-// ClusterTrustBundleDieMut, its mutable die, also writes, as DieWith passes it.
+// [ClusterTrustBundleDieMut], its mutable die, also writes, as DieWith passes it.
 type ClusterTrustBundleDie struct {
 	diebase.DieObjectBase[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]
 }
 
-// ClusterTrustBundleDieMut is the mutable die of ClusterTrustBundle: see ClusterTrustBundleDie.
+// ClusterTrustBundleDieMut is the mutable die of [ClusterTrustBundle]: see [ClusterTrustBundleDie].
 type ClusterTrustBundleDieMut struct {
 	diebase.DieObjectMutBase[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]
 }
@@ -845,8 +845,8 @@ func (d *ClusterTrustBundleDie) DieReleaseApplyConfiguration() *ClusterTrustBund
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ClusterTrustBundleDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterTrustBundleDie) DieReleaseApplyConfigurationE() (*ClusterTrustBundleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleApplyConfiguration](d)
 }
@@ -858,8 +858,8 @@ func (d *ClusterTrustBundleDieMut) DieReleaseApplyConfiguration() *ClusterTrustB
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ClusterTrustBundleDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterTrustBundleDieMut) DieReleaseApplyConfigurationE() (*ClusterTrustBundleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleApplyConfiguration](d)
 }
@@ -877,14 +877,14 @@ func (d *ClusterTrustBundleDieMut) DieStampApplyConfiguration(fn func(ac *Cluste
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ClusterTrustBundleDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterTrustBundleDieMut) DieFeedApplyConfigurationE(ac *ClusterTrustBundleApplyConfiguration) (*ClusterTrustBundleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ClusterTrustBundleDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterTrustBundleDieMut) DieStampApplyConfigurationE(fn func(ac *ClusterTrustBundleApplyConfiguration)) (*ClusterTrustBundleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -981,12 +981,12 @@ func (l *ClusterTrustBundleListDie) DeepCopyObject() runtime.Object { return l.D
 // ClusterTrustBundleSpec contains the signer and trust anchors.
 //
 // ClusterTrustBundleSpecDie is immutable: it reads.
-// ClusterTrustBundleSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [ClusterTrustBundleSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type ClusterTrustBundleSpecDie struct {
 	diebase.DieBase[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]
 }
 
-// ClusterTrustBundleSpecDieMut is the mutable die of ClusterTrustBundleSpec: see ClusterTrustBundleSpecDie.
+// ClusterTrustBundleSpecDieMut is the mutable die of [ClusterTrustBundleSpec]: see [ClusterTrustBundleSpecDie].
 type ClusterTrustBundleSpecDieMut struct {
 	diebase.DieMutBase[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]
 }
@@ -1013,8 +1013,8 @@ func (d *ClusterTrustBundleSpecDie) DieReleaseApplyConfiguration() *ClusterTrust
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ClusterTrustBundleSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterTrustBundleSpecDie) DieReleaseApplyConfigurationE() (*ClusterTrustBundleSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleSpecApplyConfiguration](d)
 }
@@ -1026,8 +1026,8 @@ func (d *ClusterTrustBundleSpecDieMut) DieReleaseApplyConfiguration() *ClusterTr
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ClusterTrustBundleSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterTrustBundleSpecDieMut) DieReleaseApplyConfigurationE() (*ClusterTrustBundleSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleSpecApplyConfiguration](d)
 }
@@ -1045,14 +1045,14 @@ func (d *ClusterTrustBundleSpecDieMut) DieStampApplyConfiguration(fn func(ac *Cl
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ClusterTrustBundleSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterTrustBundleSpecDieMut) DieFeedApplyConfigurationE(ac *ClusterTrustBundleSpecApplyConfiguration) (*ClusterTrustBundleSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ClusterTrustBundleSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterTrustBundleSpecDieMut) DieStampApplyConfigurationE(fn func(ac *ClusterTrustBundleSpecApplyConfiguration)) (*ClusterTrustBundleSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1149,12 +1149,12 @@ func (d *ClusterTrustBundleSpecDieMut) TrustBundle() diefields.ValueMut[string, 
 // # Kubelets use this API to implement podCertificate projected volumes
 //
 // PodCertificateRequestDie is immutable: it reads.
-// PodCertificateRequestDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodCertificateRequestDieMut], its mutable die, also writes, as DieWith passes it.
 type PodCertificateRequestDie struct {
 	diebase.DieObjectBase[PodCertificateRequest, *PodCertificateRequestDie, *PodCertificateRequestDieMut]
 }
 
-// PodCertificateRequestDieMut is the mutable die of PodCertificateRequest: see PodCertificateRequestDie.
+// PodCertificateRequestDieMut is the mutable die of [PodCertificateRequest]: see [PodCertificateRequestDie].
 type PodCertificateRequestDieMut struct {
 	diebase.DieObjectMutBase[PodCertificateRequest, *PodCertificateRequestDie, *PodCertificateRequestDieMut]
 }
@@ -1181,8 +1181,8 @@ func (d *PodCertificateRequestDie) DieReleaseApplyConfiguration() *PodCertificat
 	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodCertificateRequestDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodCertificateRequestDie) DieReleaseApplyConfigurationE() (*PodCertificateRequestApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestApplyConfiguration](d)
 }
@@ -1194,8 +1194,8 @@ func (d *PodCertificateRequestDieMut) DieReleaseApplyConfiguration() *PodCertifi
 	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodCertificateRequestDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodCertificateRequestDieMut) DieReleaseApplyConfigurationE() (*PodCertificateRequestApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestApplyConfiguration](d)
 }
@@ -1213,14 +1213,14 @@ func (d *PodCertificateRequestDieMut) DieStampApplyConfiguration(fn func(ac *Pod
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodCertificateRequestDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodCertificateRequestDieMut) DieFeedApplyConfigurationE(ac *PodCertificateRequestApplyConfiguration) (*PodCertificateRequestDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodCertificateRequestDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodCertificateRequestDieMut) DieStampApplyConfigurationE(fn func(ac *PodCertificateRequestApplyConfiguration)) (*PodCertificateRequestDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1330,12 +1330,12 @@ func (l *PodCertificateRequestListDie) DeepCopyObject() runtime.Object { return 
 // immutable after creation.
 //
 // PodCertificateRequestSpecDie is immutable: it reads.
-// PodCertificateRequestSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodCertificateRequestSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type PodCertificateRequestSpecDie struct {
 	diebase.DieBase[PodCertificateRequestSpec, *PodCertificateRequestSpecDie, *PodCertificateRequestSpecDieMut]
 }
 
-// PodCertificateRequestSpecDieMut is the mutable die of PodCertificateRequestSpec: see PodCertificateRequestSpecDie.
+// PodCertificateRequestSpecDieMut is the mutable die of [PodCertificateRequestSpec]: see [PodCertificateRequestSpecDie].
 type PodCertificateRequestSpecDieMut struct {
 	diebase.DieMutBase[PodCertificateRequestSpec, *PodCertificateRequestSpecDie, *PodCertificateRequestSpecDieMut]
 }
@@ -1362,8 +1362,8 @@ func (d *PodCertificateRequestSpecDie) DieReleaseApplyConfiguration() *PodCertif
 	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodCertificateRequestSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodCertificateRequestSpecDie) DieReleaseApplyConfigurationE() (*PodCertificateRequestSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestSpecApplyConfiguration](d)
 }
@@ -1375,8 +1375,8 @@ func (d *PodCertificateRequestSpecDieMut) DieReleaseApplyConfiguration() *PodCer
 	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodCertificateRequestSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodCertificateRequestSpecDieMut) DieReleaseApplyConfigurationE() (*PodCertificateRequestSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestSpecApplyConfiguration](d)
 }
@@ -1394,14 +1394,14 @@ func (d *PodCertificateRequestSpecDieMut) DieStampApplyConfiguration(fn func(ac 
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodCertificateRequestSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodCertificateRequestSpecDieMut) DieFeedApplyConfigurationE(ac *PodCertificateRequestSpecApplyConfiguration) (*PodCertificateRequestSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodCertificateRequestSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodCertificateRequestSpecDieMut) DieStampApplyConfigurationE(fn func(ac *PodCertificateRequestSpecApplyConfiguration)) (*PodCertificateRequestSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1724,12 +1724,12 @@ func (d *PodCertificateRequestSpecDieMut) UnverifiedUserAnnotations() *diefields
 // the certificate data if the request is issued.
 //
 // PodCertificateRequestStatusDie is immutable: it reads.
-// PodCertificateRequestStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodCertificateRequestStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type PodCertificateRequestStatusDie struct {
 	diebase.DieBase[PodCertificateRequestStatus, *PodCertificateRequestStatusDie, *PodCertificateRequestStatusDieMut]
 }
 
-// PodCertificateRequestStatusDieMut is the mutable die of PodCertificateRequestStatus: see PodCertificateRequestStatusDie.
+// PodCertificateRequestStatusDieMut is the mutable die of [PodCertificateRequestStatus]: see [PodCertificateRequestStatusDie].
 type PodCertificateRequestStatusDieMut struct {
 	diebase.DieMutBase[PodCertificateRequestStatus, *PodCertificateRequestStatusDie, *PodCertificateRequestStatusDieMut]
 }
@@ -1756,8 +1756,8 @@ func (d *PodCertificateRequestStatusDie) DieReleaseApplyConfiguration() *PodCert
 	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodCertificateRequestStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodCertificateRequestStatusDie) DieReleaseApplyConfigurationE() (*PodCertificateRequestStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestStatusApplyConfiguration](d)
 }
@@ -1769,8 +1769,8 @@ func (d *PodCertificateRequestStatusDieMut) DieReleaseApplyConfiguration() *PodC
 	return diecodegen.ReleaseApplyConfiguration[PodCertificateRequestStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodCertificateRequestStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodCertificateRequestStatusDieMut) DieReleaseApplyConfigurationE() (*PodCertificateRequestStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodCertificateRequestStatusApplyConfiguration](d)
 }
@@ -1788,14 +1788,14 @@ func (d *PodCertificateRequestStatusDieMut) DieStampApplyConfiguration(fn func(a
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodCertificateRequestStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodCertificateRequestStatusDieMut) DieFeedApplyConfigurationE(ac *PodCertificateRequestStatusApplyConfiguration) (*PodCertificateRequestStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodCertificateRequestStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodCertificateRequestStatusDieMut) DieStampApplyConfigurationE(fn func(ac *PodCertificateRequestStatusApplyConfiguration)) (*PodCertificateRequestStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

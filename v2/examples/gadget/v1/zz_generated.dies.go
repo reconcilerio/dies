@@ -26,12 +26,12 @@ import (
 )
 
 // GadgetPartDie is immutable: it reads.
-// GadgetPartDieMut, its mutable die, also writes, as DieWith passes it.
+// [GadgetPartDieMut], its mutable die, also writes, as DieWith passes it.
 type GadgetPartDie struct {
 	diebase.DieBase[GadgetPart, *GadgetPartDie, *GadgetPartDieMut]
 }
 
-// GadgetPartDieMut is the mutable die of GadgetPart: see GadgetPartDie.
+// GadgetPartDieMut is the mutable die of [GadgetPart]: see [GadgetPartDie].
 type GadgetPartDieMut struct {
 	diebase.DieMutBase[GadgetPart, *GadgetPartDie, *GadgetPartDieMut]
 }
@@ -73,12 +73,12 @@ func (d *GadgetPartDieMut) Name() diefields.ValueMut[string, *GadgetPartDieMut] 
 // the +die marker overrides to atomic.
 //
 // GadgetSpecDie is immutable: it reads.
-// GadgetSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [GadgetSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type GadgetSpecDie struct {
 	diebase.DieBase[GadgetSpec, *GadgetSpecDie, *GadgetSpecDieMut]
 }
 
-// GadgetSpecDieMut is the mutable die of GadgetSpec: see GadgetSpecDie.
+// GadgetSpecDieMut is the mutable die of [GadgetSpec]: see [GadgetSpecDie].
 type GadgetSpecDieMut struct {
 	diebase.DieMutBase[GadgetSpec, *GadgetSpecDie, *GadgetSpecDieMut]
 }

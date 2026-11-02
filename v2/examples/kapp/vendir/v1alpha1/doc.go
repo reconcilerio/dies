@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package v1alpha1 has dies for carvel.dev/vendir/pkg/vendir/versions/v1alpha1,
-// whose types are cloned so that nothing depends on vendir.
-//
 // +die:types:package=carvel.dev/vendir/pkg/vendir/versions/v1alpha1@v0.46.2,mode=clone
+
+// Package v1alpha1 has dies for [carvel.dev/vendir/pkg/vendir/versions/v1alpha1],
+// whose types are cloned so that nothing depends on vendir.
 package v1alpha1

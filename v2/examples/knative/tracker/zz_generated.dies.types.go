@@ -22,7 +22,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// The types and constants of knative.dev/pkg/tracker, cloned so that nothing depends on it
+// The types and constants of [knative.dev/pkg/tracker], cloned so that nothing depends on it
 // or its dependencies. Methods, functions and variables are not cloned.
 
 // Reference is modeled after corev1.ObjectReference, but omits fields

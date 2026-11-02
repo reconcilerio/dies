@@ -22,7 +22,7 @@ import (
 	apiregistrationv1ac "k8s.io/kube-aggregator/pkg/client/applyconfiguration/apiregistration/v1"
 )
 
-// The apply configuration types of k8s.io/kube-aggregator/pkg/client/applyconfiguration/apiregistration/v1, and its Extract functions, so
+// The apply configuration types of [k8s.io/kube-aggregator/pkg/client/applyconfiguration/apiregistration/v1], and its Extract functions, so
 // that importing this package provides them with the dies. Its
 // constructors are not aliased: their names are those of the types.
 

@@ -33,11 +33,11 @@ import (
 )
 
 // Object is an immutable die for an object with no Go type, held as
-// unstructured.Unstructured holds one, and ObjectMut is its mutable die.
+// [unstructured.Unstructured] holds one, and [ObjectMut] is its mutable die.
 // They behave as any die, with intent recorded and patches from it. They are
-// objects, runtime.Objects and metav1.Objects, but have no field accessors:
-// their values are read, and an ObjectMut's written, through nodes, from
-// Node.
+// objects, each a [runtime.Object] and a [metav1.Object], but have no field
+// accessors: their values are read, and an ObjectMut's written, through
+// nodes, from [Object.Node].
 type Object struct {
 	base.DieObjectBase[map[string]any, *Object, *ObjectMut]
 }
@@ -46,7 +46,7 @@ func (*Object) DieFrom(b base.DieBase[map[string]any, *Object, *ObjectMut]) *Obj
 	return &Object{base.AsObject(b)}
 }
 
-// ObjectMut is the mutable die of an object with no Go type: see Object.
+// ObjectMut is the mutable die of an object with no Go type: see [Object].
 type ObjectMut struct {
 	base.DieObjectMutBase[map[string]any, *Object, *ObjectMut]
 }
@@ -66,7 +66,7 @@ var (
 var Blank = base.Blank[map[string]any, *Object, *ObjectMut]()
 
 // BlankFor returns an immutable, empty unstructured die of a kind: a blank,
-// with only its type metadata, and no mold. Molds makes blanks in a mold.
+// with only its type metadata, and no mold. [Molds] makes blanks in a mold.
 func BlankFor(apiVersion, kind string) *Object {
 	return Blank.DieWith(func(d *ObjectMut) {
 		d.Node().Field("apiVersion").Set(apiVersion)
@@ -81,8 +81,8 @@ func (d *ObjectMut) DieFeedUnstructured(u *unstructured.Unstructured) *ObjectMut
 	return d.DieFeed(u.DeepCopy().Object)
 }
 
-// DieFeedUnstructuredE is DieFeedUnstructured, returning an error rather
-// than panicking.
+// DieFeedUnstructuredE is [ObjectMut.DieFeedUnstructured], returning an error
+// rather than panicking.
 func (d *ObjectMut) DieFeedUnstructuredE(u *unstructured.Unstructured) (*ObjectMut, error) {
 	return d.DieFeedE(u.DeepCopy().Object)
 }
@@ -97,9 +97,9 @@ func (d *ObjectMut) DieReleaseUnstructured() *unstructured.Unstructured {
 	return &unstructured.Unstructured{Object: d.DieRelease()}
 }
 
-// An unstructured die is a runtime.Unstructured, so clients and libraries that
-// handle unstructured objects, such as controller-runtime's client, take it
-// directly. An immutable die's SetUnstructuredContent panics.
+// An unstructured die is a [runtime.Unstructured], so clients and libraries
+// that handle unstructured objects, such as controller-runtime's client, take
+// it directly. An immutable die's [Object.SetUnstructuredContent] panics.
 var (
 	_ runtime.Unstructured = (*Object)(nil)
 	_ runtime.Unstructured = (*ObjectMut)(nil)
@@ -154,11 +154,11 @@ func setUnstructuredContent(h *core.Holder, at base.Path, content map[string]any
 }
 
 // IsList reports whether the content is a list, with items, as an
-// unstructured.Unstructured does.
+// [unstructured.Unstructured] does.
 func (d *Object) IsList() bool { return isList(d) }
 
 // IsList reports whether the content is a list, with items, as an
-// unstructured.Unstructured does.
+// [unstructured.Unstructured] does.
 func (d *ObjectMut) IsList() bool { return isList(d) }
 
 func isList(d Location) bool {
@@ -275,11 +275,11 @@ func (d *ObjectMut) Node() *NodeMut {
 }
 
 // ObjectList is a list of unstructured dies, as
-// unstructured.UnstructuredList is a list of unstructured objects. Like every
-// list die, it is a plain list: see lists.List. It is also a runtime.Unstructured,
-// so clients list into it, when it is registered as a kind's list type for
-// those that need it. Fields of the list other than its type and list
-// metadata and items are not kept.
+// [unstructured.UnstructuredList] is a list of unstructured objects. Like
+// every list die, it is a plain list: see [lists.List]. It is also a
+// [runtime.Unstructured], so clients list into it, when it is registered as a
+// kind's list type for those that need it. Fields of the list other than its
+// type and list metadata and items are not kept.
 type ObjectList struct {
 	lists.List[*ObjectMut]
 }
@@ -296,7 +296,7 @@ func NewList(apiVersion, kind string, items ...*ObjectMut) *ObjectList {
 // items are mutable, as decoded items are.
 func ListFrom(u *unstructured.UnstructuredList) *ObjectList { return core.Must(ListFromE(u)) }
 
-// ListFromE is ListFrom, returning an error rather than panicking.
+// ListFromE is [ListFrom], returning an error rather than panicking.
 func ListFromE(u *unstructured.UnstructuredList) (*ObjectList, error) {
 	l := &ObjectList{}
 	if err := l.setContent(u.UnstructuredContent()); err != nil {
@@ -393,8 +393,8 @@ func (l *ObjectList) EachListItemWithAlloc(fn func(runtime.Object) error) error 
 	return nil
 }
 
-// node is a location within an unstructured die, with the methods Node and
-// NodeMut both have, which read.
+// node is a location within an unstructured die, with the methods [Node] and
+// [NodeMut] both have, which read.
 type node struct {
 	h  *core.Holder
 	at base.Path
@@ -417,12 +417,12 @@ type NodeMut struct {
 func (n *NodeMut) Field(name string) *NodeMut { return &NodeMut{n.field(name)} }
 
 // Item returns the node for the element of this list with key fields: see
-// Node.Item.
+// [Node.Item].
 func (n *NodeMut) Item(keysAndValues ...any) *NodeMut {
 	return core.Must(n.ItemE(keysAndValues...))
 }
 
-// ItemE is Item, returning an error rather than panicking.
+// ItemE is [NodeMut.Item], returning an error rather than panicking.
 func (n *NodeMut) ItemE(keysAndValues ...any) (*NodeMut, error) {
 	m, err := n.item(keysAndValues)
 	if err != nil {
@@ -432,10 +432,10 @@ func (n *NodeMut) ItemE(keysAndValues ...any) (*NodeMut, error) {
 }
 
 // Index returns the node for the element of this list at an index: see
-// Node.Index.
+// [Node.Index].
 func (n *NodeMut) Index(i int) *NodeMut { return core.Must(n.IndexE(i)) }
 
-// IndexE is Index, returning an error rather than panicking.
+// IndexE is [NodeMut.Index], returning an error rather than panicking.
 func (n *NodeMut) IndexE(i int) (*NodeMut, error) {
 	m, err := n.index(i)
 	if err != nil {
@@ -444,10 +444,10 @@ func (n *NodeMut) IndexE(i int) (*NodeMut, error) {
 	return &NodeMut{m}, nil
 }
 
-// Find returns the nodes that a JSONPath expression matches: see Node.Find.
+// Find returns the nodes that a JSONPath expression matches: see [Node.Find].
 func (n *NodeMut) Find(expr string) []*NodeMut { return core.Must(n.FindE(expr)) }
 
-// FindE is Find, returning an error rather than panicking.
+// FindE is [NodeMut.Find], returning an error rather than panicking.
 func (n *NodeMut) FindE(expr string) ([]*NodeMut, error) {
 	found, err := n.find(expr)
 	if err != nil {
@@ -473,7 +473,7 @@ func (n *node) field(name string) node {
 // is not unique is ambiguous.
 func (n *Node) Item(keysAndValues ...any) *Node { return core.Must(n.ItemE(keysAndValues...)) }
 
-// ItemE is Item, returning an error rather than panicking.
+// ItemE is [Node.Item], returning an error rather than panicking.
 func (n *Node) ItemE(keysAndValues ...any) (*Node, error) {
 	m, err := n.item(keysAndValues)
 	if err != nil {
@@ -504,13 +504,13 @@ func (n *node) item(keysAndValues []any) (node, error) {
 }
 
 // Index returns the node for the element of this list at an index. Unlike
-// Item, it is for lists whose elements have no keys: the element is found by
-// its position in the list as it is, and a write through it sets the whole
-// list. Clearing the element removes it from the list. Writing an element
-// past the end of the list is an error.
+// [Node.Item], it is for lists whose elements have no keys: the element is
+// found by its position in the list as it is, and a write through it sets the
+// whole list. Clearing the element removes it from the list. Writing an
+// element past the end of the list is an error.
 func (n *Node) Index(i int) *Node { return core.Must(n.IndexE(i)) }
 
-// IndexE is Index, returning an error rather than panicking.
+// IndexE is [Node.Index], returning an error rather than panicking.
 func (n *Node) IndexE(i int) (*Node, error) {
 	m, err := n.index(i)
 	if err != nil {
@@ -534,7 +534,7 @@ func (n *node) index(i int) (node, error) {
 // has a value, so that setting it creates it.
 func (n *Node) Find(expr string) []*Node { return core.Must(n.FindE(expr)) }
 
-// FindE is Find, returning an error rather than panicking.
+// FindE is [Node.Find], returning an error rather than panicking.
 func (n *Node) FindE(expr string) ([]*Node, error) {
 	found, err := n.find(expr)
 	if err != nil {
@@ -561,7 +561,7 @@ func (n *node) find(expr string) ([]node, error) {
 
 func (n *node) DiePath() base.Path { return n.at }
 
-// DieRoot returns the root die this is within: see base.DieBase.DieRoot.
+// DieRoot returns the root die this is within: see [base.DieBase.DieRoot].
 func (n *node) DieRoot() base.Die { return base.RootOf(n.h) }
 
 // DieRootType returns the type of the root value this is within.
@@ -570,7 +570,7 @@ func (n *node) DieRootType() reflect.Type { return n.h.Base.Type() }
 // Get returns a copy of the value, in unstructured form, or nil.
 func (n *node) Get() any { return core.Must(n.GetE()) }
 
-// GetE is Get, returning an error rather than panicking.
+// GetE is [Node.Get], returning an error rather than panicking.
 func (n *node) GetE() (any, error) {
 	v, err := n.h.ValueAt(n.at)
 	if err != nil || !v.IsValid() || (v.Kind() == reflect.Interface && v.IsNil()) {
@@ -586,14 +586,14 @@ type Location interface {
 }
 
 // ImmutableLocation is a location in an immutable unstructured die: an
-// Object, or a Node.
+// [Object], or a [Node].
 type ImmutableLocation interface {
 	Location
 	immutableAt()
 }
 
 // MutableLocation is a location in a mutable unstructured die: an
-// ObjectMut, or a NodeMut.
+// [ObjectMut], or a [NodeMut].
 type MutableLocation interface {
 	Location
 	mutableAt()
@@ -611,10 +611,10 @@ func (d *ObjectMut) unstructuredAt() (*core.Holder, base.Path) { return dies.Mus
 func (n *node) unstructuredAt() (*core.Holder, base.Path) { return n.h, n.at }
 
 // GetAs reads the value of an unstructured die or node as a T. A die is read
-// as a detached copy; to keep it linked, use JigAs.
+// as a detached copy; to keep it linked, use [JigAs].
 func GetAs[T any](u Location) T { return core.Must(GetAsE[T](u)) }
 
-// GetAsE is GetAs, returning an error rather than panicking.
+// GetAsE is [GetAs], returning an error rather than panicking.
 func GetAsE[T any](u Location) (T, error) {
 	h, at := u.unstructuredAt()
 	return core.GetAt[T](h, at, nil)
@@ -624,7 +624,7 @@ func GetAsE[T any](u Location) (T, error) {
 // typed die, D, such as a *DeploymentDie or a *ContainerDie. Like any jig,
 // it holds no state of its own: reads come from the unstructured die, so
 // what D's type does not describe, such as fields newer than it, is kept.
-// A mutable die or node has JigAsMut.
+// A mutable die or node has [JigAsMut].
 func JigAs[D base.ImmutableDie](u ImmutableLocation) D { return jigAs[D](u) }
 
 // JigAsMut presents a mutable unstructured die or node as a mutable typed
@@ -644,14 +644,14 @@ func jigAs[D base.Die](u Location) D {
 // Has reports whether the value is present.
 func (n *node) Has() bool { return core.Must(n.HasE()) }
 
-// HasE is Has, returning an error rather than panicking.
+// HasE is [Node.Has], returning an error rather than panicking.
 func (n *node) HasE() (bool, error) { return n.h.Has(n.at) }
 
 // Set records the value as intent. Typed values, such as structs, are
 // converted to unstructured form.
 func (n *NodeMut) Set(v any) *NodeMut { return core.Must(n.SetE(v)) }
 
-// SetE is Set, returning an error rather than panicking.
+// SetE is [NodeMut.Set], returning an error rather than panicking.
 func (n *NodeMut) SetE(v any) (*NodeMut, error) {
 	if _, err := n.h.Write(n.at, nil, core.SetOp(core.OpSet, reflect.ValueOf(&v).Elem()), false); err != nil {
 		return nil, err
@@ -663,7 +663,7 @@ func (n *NodeMut) SetE(v any) (*NodeMut, error) {
 // list element.
 func (n *NodeMut) Clear() *NodeMut { return core.Must(n.ClearE()) }
 
-// ClearE is Clear, returning an error rather than panicking.
+// ClearE is [NodeMut.Clear], returning an error rather than panicking.
 func (n *NodeMut) ClearE() (*NodeMut, error) {
 	if _, err := n.h.Write(n.at, nil, core.SetOp(core.OpClear, reflect.Value{}), false); err != nil {
 		return nil, err
@@ -674,7 +674,8 @@ func (n *NodeMut) ClearE() (*NodeMut, error) {
 // EmptyObject records that the value is present and an empty object.
 func (n *NodeMut) EmptyObject() *NodeMut { return core.Must(n.EmptyObjectE()) }
 
-// EmptyObjectE is EmptyObject, returning an error rather than panicking.
+// EmptyObjectE is [NodeMut.EmptyObject], returning an error rather than
+// panicking.
 func (n *NodeMut) EmptyObjectE() (*NodeMut, error) {
 	if _, err := n.h.Write(n.at, nil, core.SetOp(core.OpEmpty, reflect.ValueOf(map[string]any{})), false); err != nil {
 		return nil, err
@@ -685,7 +686,7 @@ func (n *NodeMut) EmptyObjectE() (*NodeMut, error) {
 // EmptyList records that the value is present and an empty list.
 func (n *NodeMut) EmptyList() *NodeMut { return core.Must(n.EmptyListE()) }
 
-// EmptyListE is EmptyList, returning an error rather than panicking.
+// EmptyListE is [NodeMut.EmptyList], returning an error rather than panicking.
 func (n *NodeMut) EmptyListE() (*NodeMut, error) {
 	if _, err := n.h.Write(n.at, nil, core.SetOp(core.OpEmpty, reflect.ValueOf([]any{})), false); err != nil {
 		return nil, err
@@ -696,7 +697,7 @@ func (n *NodeMut) EmptyListE() (*NodeMut, error) {
 // Keys returns the fields of this object, sorted.
 func (n *node) Keys() []string { return core.Must(n.KeysE()) }
 
-// KeysE is Keys, returning an error rather than panicking.
+// KeysE is [Node.Keys], returning an error rather than panicking.
 func (n *node) KeysE() ([]string, error) {
 	v, err := n.GetE()
 	if err != nil {
@@ -715,7 +716,7 @@ func (n *node) KeysE() ([]string, error) {
 // object.
 func (n *node) Len() int { return core.Must(n.LenE()) }
 
-// LenE is Len, returning an error rather than panicking.
+// LenE is [Node.Len], returning an error rather than panicking.
 func (n *node) LenE() (int, error) {
 	v, err := n.GetE()
 	switch v := v.(type) {
@@ -727,10 +728,10 @@ func (n *node) LenE() (int, error) {
 	return 0, err
 }
 
-// Type is the JSON type of an unstructured value. Each is held
-// as one Go type, which Get returns and GetAs reads without conversion; GetAs
-// also reads a value as any other type with the same JSON form, such as an
-// object as a struct.
+// Type is the JSON type of an unstructured value. Each is held as one Go
+// type, which Get returns and [GetAs] reads without conversion; [GetAs] also
+// reads a value as any other type with the same JSON form, such as an object
+// as a struct.
 type Type uint8
 
 const (
@@ -773,7 +774,7 @@ func (t Type) String() string {
 // another Go form is classified by its kind.
 func (n *node) Type() Type { return core.Must(n.TypeE()) }
 
-// TypeE is Type, returning an error rather than panicking.
+// TypeE is [Node.Type], returning an error rather than panicking.
 func (n *node) TypeE() (Type, error) {
 	v, err := n.GetE()
 	if err != nil || v == nil {

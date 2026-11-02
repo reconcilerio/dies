@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package v1 has dies for knative's duck/v1, whose
-// types are cloned so that nothing depends on knative.
-//
 // +die:types:package=knative.dev/pkg/apis,mode=clone,from=../sources
+
+// Package apis has dies for [knative.dev/pkg/apis], whose types are cloned so
+// that nothing depends on knative.
 package apis

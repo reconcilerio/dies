@@ -32,12 +32,12 @@ import (
 // ImageReview checks if the set of images in a pod are allowed.
 //
 // ImageReviewDie is immutable: it reads.
-// ImageReviewDieMut, its mutable die, also writes, as DieWith passes it.
+// [ImageReviewDieMut], its mutable die, also writes, as DieWith passes it.
 type ImageReviewDie struct {
 	diebase.DieObjectBase[ImageReview, *ImageReviewDie, *ImageReviewDieMut]
 }
 
-// ImageReviewDieMut is the mutable die of ImageReview: see ImageReviewDie.
+// ImageReviewDieMut is the mutable die of [ImageReview]: see [ImageReviewDie].
 type ImageReviewDieMut struct {
 	diebase.DieObjectMutBase[ImageReview, *ImageReviewDie, *ImageReviewDieMut]
 }
@@ -64,8 +64,8 @@ func (d *ImageReviewDie) DieReleaseApplyConfiguration() *ImageReviewApplyConfigu
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ImageReviewDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ImageReviewDie) DieReleaseApplyConfigurationE() (*ImageReviewApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ImageReviewApplyConfiguration](d)
 }
@@ -77,8 +77,8 @@ func (d *ImageReviewDieMut) DieReleaseApplyConfiguration() *ImageReviewApplyConf
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ImageReviewDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ImageReviewDieMut) DieReleaseApplyConfigurationE() (*ImageReviewApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ImageReviewApplyConfiguration](d)
 }
@@ -96,14 +96,14 @@ func (d *ImageReviewDieMut) DieStampApplyConfiguration(fn func(ac *ImageReviewAp
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ImageReviewDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ImageReviewDieMut) DieFeedApplyConfigurationE(ac *ImageReviewApplyConfiguration) (*ImageReviewDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ImageReviewDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ImageReviewDieMut) DieStampApplyConfigurationE(fn func(ac *ImageReviewApplyConfiguration)) (*ImageReviewDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -195,12 +195,12 @@ func (d *ImageReviewDieMut) Status() *ImageReviewStatusDieMut {
 // ImageReviewContainerSpec is a description of a container within the pod creation request.
 //
 // ImageReviewContainerSpecDie is immutable: it reads.
-// ImageReviewContainerSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [ImageReviewContainerSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type ImageReviewContainerSpecDie struct {
 	diebase.DieBase[ImageReviewContainerSpec, *ImageReviewContainerSpecDie, *ImageReviewContainerSpecDieMut]
 }
 
-// ImageReviewContainerSpecDieMut is the mutable die of ImageReviewContainerSpec: see ImageReviewContainerSpecDie.
+// ImageReviewContainerSpecDieMut is the mutable die of [ImageReviewContainerSpec]: see [ImageReviewContainerSpecDie].
 type ImageReviewContainerSpecDieMut struct {
 	diebase.DieMutBase[ImageReviewContainerSpec, *ImageReviewContainerSpecDie, *ImageReviewContainerSpecDieMut]
 }
@@ -227,8 +227,8 @@ func (d *ImageReviewContainerSpecDie) DieReleaseApplyConfiguration() *ImageRevie
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewContainerSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ImageReviewContainerSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ImageReviewContainerSpecDie) DieReleaseApplyConfigurationE() (*ImageReviewContainerSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ImageReviewContainerSpecApplyConfiguration](d)
 }
@@ -240,8 +240,8 @@ func (d *ImageReviewContainerSpecDieMut) DieReleaseApplyConfiguration() *ImageRe
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewContainerSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ImageReviewContainerSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ImageReviewContainerSpecDieMut) DieReleaseApplyConfigurationE() (*ImageReviewContainerSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ImageReviewContainerSpecApplyConfiguration](d)
 }
@@ -259,14 +259,14 @@ func (d *ImageReviewContainerSpecDieMut) DieStampApplyConfiguration(fn func(ac *
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ImageReviewContainerSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ImageReviewContainerSpecDieMut) DieFeedApplyConfigurationE(ac *ImageReviewContainerSpecApplyConfiguration) (*ImageReviewContainerSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ImageReviewContainerSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ImageReviewContainerSpecDieMut) DieStampApplyConfigurationE(fn func(ac *ImageReviewContainerSpecApplyConfiguration)) (*ImageReviewContainerSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -294,12 +294,12 @@ func (d *ImageReviewContainerSpecDieMut) Image() diefields.ValueMut[string, *Ima
 // ImageReviewSpec is a description of the pod creation request.
 //
 // ImageReviewSpecDie is immutable: it reads.
-// ImageReviewSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [ImageReviewSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type ImageReviewSpecDie struct {
 	diebase.DieBase[ImageReviewSpec, *ImageReviewSpecDie, *ImageReviewSpecDieMut]
 }
 
-// ImageReviewSpecDieMut is the mutable die of ImageReviewSpec: see ImageReviewSpecDie.
+// ImageReviewSpecDieMut is the mutable die of [ImageReviewSpec]: see [ImageReviewSpecDie].
 type ImageReviewSpecDieMut struct {
 	diebase.DieMutBase[ImageReviewSpec, *ImageReviewSpecDie, *ImageReviewSpecDieMut]
 }
@@ -326,8 +326,8 @@ func (d *ImageReviewSpecDie) DieReleaseApplyConfiguration() *ImageReviewSpecAppl
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ImageReviewSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ImageReviewSpecDie) DieReleaseApplyConfigurationE() (*ImageReviewSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ImageReviewSpecApplyConfiguration](d)
 }
@@ -339,8 +339,8 @@ func (d *ImageReviewSpecDieMut) DieReleaseApplyConfiguration() *ImageReviewSpecA
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ImageReviewSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ImageReviewSpecDieMut) DieReleaseApplyConfigurationE() (*ImageReviewSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ImageReviewSpecApplyConfiguration](d)
 }
@@ -358,14 +358,14 @@ func (d *ImageReviewSpecDieMut) DieStampApplyConfiguration(fn func(ac *ImageRevi
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ImageReviewSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ImageReviewSpecDieMut) DieFeedApplyConfigurationE(ac *ImageReviewSpecApplyConfiguration) (*ImageReviewSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ImageReviewSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ImageReviewSpecDieMut) DieStampApplyConfigurationE(fn func(ac *ImageReviewSpecApplyConfiguration)) (*ImageReviewSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -421,12 +421,12 @@ func (d *ImageReviewSpecDieMut) Namespace() diefields.ValueMut[string, *ImageRev
 // ImageReviewStatus is the result of the review for the pod creation request.
 //
 // ImageReviewStatusDie is immutable: it reads.
-// ImageReviewStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [ImageReviewStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type ImageReviewStatusDie struct {
 	diebase.DieBase[ImageReviewStatus, *ImageReviewStatusDie, *ImageReviewStatusDieMut]
 }
 
-// ImageReviewStatusDieMut is the mutable die of ImageReviewStatus: see ImageReviewStatusDie.
+// ImageReviewStatusDieMut is the mutable die of [ImageReviewStatus]: see [ImageReviewStatusDie].
 type ImageReviewStatusDieMut struct {
 	diebase.DieMutBase[ImageReviewStatus, *ImageReviewStatusDie, *ImageReviewStatusDieMut]
 }
@@ -453,8 +453,8 @@ func (d *ImageReviewStatusDie) DieReleaseApplyConfiguration() *ImageReviewStatus
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ImageReviewStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ImageReviewStatusDie) DieReleaseApplyConfigurationE() (*ImageReviewStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ImageReviewStatusApplyConfiguration](d)
 }
@@ -466,8 +466,8 @@ func (d *ImageReviewStatusDieMut) DieReleaseApplyConfiguration() *ImageReviewSta
 	return diecodegen.ReleaseApplyConfiguration[ImageReviewStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ImageReviewStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ImageReviewStatusDieMut) DieReleaseApplyConfigurationE() (*ImageReviewStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ImageReviewStatusApplyConfiguration](d)
 }
@@ -485,14 +485,14 @@ func (d *ImageReviewStatusDieMut) DieStampApplyConfiguration(fn func(ac *ImageRe
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ImageReviewStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ImageReviewStatusDieMut) DieFeedApplyConfigurationE(ac *ImageReviewStatusApplyConfiguration) (*ImageReviewStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ImageReviewStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ImageReviewStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ImageReviewStatusApplyConfiguration)) (*ImageReviewStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

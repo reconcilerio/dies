@@ -17,11 +17,20 @@ limitations under the License.
 // Command diegen is a spike of the v2 die generator. It generates dies for
 // the packages matching its arguments (./apis/... by default), in two phases.
 //
-// Types: a die package's doc says where the types its dies are for come from,
-// and how they're brought in, aliased (the default) or cloned:
+// Types: a die package's markers, the comments above its package clause, say
+// where the types its dies are for come from, and how they're brought in,
+// aliased (the default) or cloned:
 //
 //	// +die:types:package=k8s.io/api/core/v1
 //	// +die:types:package=carvel.dev/vendir/pkg/vendir/versions/v1alpha1@v0.46.2,mode=clone
+//
+// Package markers may be in the package doc, or, to keep them out of the
+// godoc, in a comment of their own separated from it by a blank line:
+//
+//	// +die:types:package=k8s.io/api/core/v1
+//
+//	// Package v1 has dies for k8s.io/api/core/v1.
+//	package v1
 //
 // Either way it gets a zz_generated.dies.types.go. Aliased, it aliases the
 // upstream package's types and constants, so that one import provides both
@@ -37,7 +46,7 @@ limitations under the License.
 // A field whose type is in another package uses that type's die, found
 // through, in order:
 //
-//   - an import in the die package's doc, saying where another package's
+//   - an import in the die package's markers, saying where another package's
 //     dies are:
 //     +die:import:package=k8s.io/apimachinery/pkg/apis/meta/v1,as=reconciler.io/dies/v2/apis/meta/v1
 //   - the default mappings, from k8s.io/api/<group>/<version>, apimachinery's

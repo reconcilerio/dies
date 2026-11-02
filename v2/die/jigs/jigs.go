@@ -56,7 +56,7 @@ type Jig[V any, VD base.DieOf[V, VD, VDM], VDM base.DieMutOf[V, VD, VDM]] struct
 }
 
 // Binding binds a location of a jig to a location of a source: made by
-// Bind, BindVia, BindPath, BindPathVia and BindAll.
+// [Bind], [BindVia], [BindPath], [BindPathVia] and [BindAll].
 type Binding = core.Binding
 
 // NewJig returns a jig with no sources.
@@ -80,7 +80,7 @@ func bind(jig, source base.Located) Binding {
 }
 
 // BindPath binds a location of a jig to a path in an unstructured object,
-// for ForKind and ForUnknownKinds.
+// for [Jig.ForKind] and [Jig.ForUnknownKinds].
 func BindPath[X any](jig base.LocatedAs[X], path string) Binding {
 	vroot, err := core.RootOf(jig)
 	return core.WithErr(core.NewBinding(jig.DiePath(), core.ParsePath(path), vroot, nil, nil, nil), err)
@@ -101,10 +101,10 @@ func BindPathVia[S, V any](jig base.LocatedAs[V], path string, t Transform[S, V]
 //     From(To(s), s) == s
 //   - put-get: what was written reads back unchanged, To(From(v, s)) == v
 //
-// From receives the current source value, so that what the jig does not
-// show is kept. Put-get is checked on every write through a transform: a jig
-// value the source cannot represent is an error, rather than being changed.
-// Check get-put with CheckTransform.
+// [Transform.From] receives the current source value, so that what the jig
+// does not show is kept. Put-get is checked on every write through a
+// transform: a jig value the source cannot represent is an error, rather than
+// being changed. Check get-put with [CheckTransform].
 type Transform[S, V any] struct {
 	// To presents a source value as a jig value.
 	To func(s S) V
@@ -153,7 +153,7 @@ func (v *Jig[V, VD, VDM]) For(source base.Located, bindings ...Binding) *Jig[V, 
 	return core.Must(v.ForE(source, bindings...))
 }
 
-// ForE is For, returning an error rather than panicking.
+// ForE is [Jig.For], returning an error rather than panicking.
 func (v *Jig[V, VD, VDM]) ForE(source base.Located, bindings ...Binding) (*Jig[V, VD, VDM], error) {
 	st, err := core.RootOf(source)
 	if err != nil {
@@ -177,7 +177,7 @@ func (v *Jig[V, VD, VDM]) ForKind(gvk schema.GroupVersionKind, bindings ...Bindi
 	return core.Must(v.ForKindE(gvk, bindings...))
 }
 
-// ForKindE is ForKind, returning an error rather than panicking.
+// ForKindE is [Jig.ForKind], returning an error rather than panicking.
 func (v *Jig[V, VD, VDM]) ForKindE(gvk schema.GroupVersionKind, bindings ...Binding) (*Jig[V, VD, VDM], error) {
 	if err := v.untyped(gvk.String(), bindings); err != nil {
 		return nil, err
@@ -192,7 +192,7 @@ func (v *Jig[V, VD, VDM]) ForUnknownKinds(bindings ...Binding) *Jig[V, VD, VDM] 
 	return core.Must(v.ForUnknownKindsE(bindings...))
 }
 
-// ForUnknownKindsE is ForUnknownKinds, returning an error rather than
+// ForUnknownKindsE is [Jig.ForUnknownKinds], returning an error rather than
 // panicking.
 func (v *Jig[V, VD, VDM]) ForUnknownKindsE(bindings ...Binding) (*Jig[V, VD, VDM], error) {
 	if err := v.untyped("unknown kinds", bindings); err != nil {
@@ -217,14 +217,14 @@ func (v *Jig[V, VD, VDM]) untyped(what string, bindings []Binding) error {
 
 // Of returns the jig of an immutable die, an immutable die of the jig's
 // type, if the jig has bindings for the source's type, or for an
-// unstructured die, its kind. A mutable die has OfMut.
+// unstructured die, its kind. A mutable die has [Jig.OfMut].
 func (v *Jig[V, VD, VDM]) Of(source base.ImmutableDie) (VD, bool) {
 	d, ok, err := v.OfE(source)
 	core.Check(err)
 	return d, ok
 }
 
-// OfE is Of, returning an error rather than panicking, such as when an
+// OfE is [Jig.Of], returning an error rather than panicking, such as when an
 // unstructured die's kind can't be read.
 func (v *Jig[V, VD, VDM]) OfE(source base.ImmutableDie) (VD, bool, error) {
 	var zero VD
@@ -238,14 +238,14 @@ func (v *Jig[V, VD, VDM]) OfE(source base.ImmutableDie) (VD, bool, error) {
 // OfMut returns the jig of a mutable die, a mutable die of the jig's type
 // whose writes are writes to the source, if the jig has bindings for the
 // source's type, or for an unstructured die, its kind. An immutable die has
-// Of.
+// [Jig.Of].
 func (v *Jig[V, VD, VDM]) OfMut(source base.MutableDie) (VDM, bool) {
 	d, ok, err := v.OfMutE(source)
 	core.Check(err)
 	return d, ok
 }
 
-// OfMutE is OfMut, returning an error rather than panicking.
+// OfMutE is [Jig.OfMut], returning an error rather than panicking.
 func (v *Jig[V, VD, VDM]) OfMutE(source base.MutableDie) (VDM, bool, error) {
 	var zero VDM
 	src, ok, err := v.sourceOf(source)

@@ -26,12 +26,12 @@ import (
 )
 
 // VersionSelectionDie is immutable: it reads.
-// VersionSelectionDieMut, its mutable die, also writes, as DieWith passes it.
+// [VersionSelectionDieMut], its mutable die, also writes, as DieWith passes it.
 type VersionSelectionDie struct {
 	diebase.DieBase[VersionSelection, *VersionSelectionDie, *VersionSelectionDieMut]
 }
 
-// VersionSelectionDieMut is the mutable die of VersionSelection: see VersionSelectionDie.
+// VersionSelectionDieMut is the mutable die of [VersionSelection]: see [VersionSelectionDie].
 type VersionSelectionDieMut struct {
 	diebase.DieMutBase[VersionSelection, *VersionSelectionDie, *VersionSelectionDieMut]
 }
@@ -69,12 +69,12 @@ func (d *VersionSelectionDieMut) Semver() *VersionSelectionSemverDieMut {
 }
 
 // VersionSelectionSemverDie is immutable: it reads.
-// VersionSelectionSemverDieMut, its mutable die, also writes, as DieWith passes it.
+// [VersionSelectionSemverDieMut], its mutable die, also writes, as DieWith passes it.
 type VersionSelectionSemverDie struct {
 	diebase.DieBase[VersionSelectionSemver, *VersionSelectionSemverDie, *VersionSelectionSemverDieMut]
 }
 
-// VersionSelectionSemverDieMut is the mutable die of VersionSelectionSemver: see VersionSelectionSemverDie.
+// VersionSelectionSemverDieMut is the mutable die of [VersionSelectionSemver]: see [VersionSelectionSemverDie].
 type VersionSelectionSemverDieMut struct {
 	diebase.DieMutBase[VersionSelectionSemver, *VersionSelectionSemverDie, *VersionSelectionSemverDieMut]
 }
@@ -122,12 +122,12 @@ func (d *VersionSelectionSemverDieMut) Prereleases() *VersionSelectionSemverPrer
 }
 
 // VersionSelectionSemverPrereleasesDie is immutable: it reads.
-// VersionSelectionSemverPrereleasesDieMut, its mutable die, also writes, as DieWith passes it.
+// [VersionSelectionSemverPrereleasesDieMut], its mutable die, also writes, as DieWith passes it.
 type VersionSelectionSemverPrereleasesDie struct {
 	diebase.DieBase[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie, *VersionSelectionSemverPrereleasesDieMut]
 }
 
-// VersionSelectionSemverPrereleasesDieMut is the mutable die of VersionSelectionSemverPrereleases: see VersionSelectionSemverPrereleasesDie.
+// VersionSelectionSemverPrereleasesDieMut is the mutable die of [VersionSelectionSemverPrereleases]: see [VersionSelectionSemverPrereleasesDie].
 type VersionSelectionSemverPrereleasesDieMut struct {
 	diebase.DieMutBase[VersionSelectionSemverPrereleases, *VersionSelectionSemverPrereleasesDie, *VersionSelectionSemverPrereleasesDieMut]
 }

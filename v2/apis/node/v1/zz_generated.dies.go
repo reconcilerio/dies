@@ -35,12 +35,12 @@ import (
 // Overhead structure represents the resource overhead associated with running a pod.
 //
 // OverheadDie is immutable: it reads.
-// OverheadDieMut, its mutable die, also writes, as DieWith passes it.
+// [OverheadDieMut], its mutable die, also writes, as DieWith passes it.
 type OverheadDie struct {
 	diebase.DieBase[Overhead, *OverheadDie, *OverheadDieMut]
 }
 
-// OverheadDieMut is the mutable die of Overhead: see OverheadDie.
+// OverheadDieMut is the mutable die of [Overhead]: see [OverheadDie].
 type OverheadDieMut struct {
 	diebase.DieMutBase[Overhead, *OverheadDie, *OverheadDieMut]
 }
@@ -67,8 +67,8 @@ func (d *OverheadDie) DieReleaseApplyConfiguration() *OverheadApplyConfiguration
 	return diecodegen.ReleaseApplyConfiguration[OverheadApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [OverheadDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *OverheadDie) DieReleaseApplyConfigurationE() (*OverheadApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[OverheadApplyConfiguration](d)
 }
@@ -80,8 +80,8 @@ func (d *OverheadDieMut) DieReleaseApplyConfiguration() *OverheadApplyConfigurat
 	return diecodegen.ReleaseApplyConfiguration[OverheadApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [OverheadDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *OverheadDieMut) DieReleaseApplyConfigurationE() (*OverheadApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[OverheadApplyConfiguration](d)
 }
@@ -99,14 +99,14 @@ func (d *OverheadDieMut) DieStampApplyConfiguration(fn func(ac *OverheadApplyCon
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [OverheadDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *OverheadDieMut) DieFeedApplyConfigurationE(ac *OverheadApplyConfiguration) (*OverheadDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [OverheadDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *OverheadDieMut) DieStampApplyConfigurationE(fn func(ac *OverheadApplyConfiguration)) (*OverheadDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -140,12 +140,12 @@ func (d *OverheadDieMut) PodFixed() *diefields.MapMut[diecorev1.ResourceName, re
 // https://kubernetes.io/docs/concepts/containers/runtime-class/
 //
 // RuntimeClassDie is immutable: it reads.
-// RuntimeClassDieMut, its mutable die, also writes, as DieWith passes it.
+// [RuntimeClassDieMut], its mutable die, also writes, as DieWith passes it.
 type RuntimeClassDie struct {
 	diebase.DieObjectBase[RuntimeClass, *RuntimeClassDie, *RuntimeClassDieMut]
 }
 
-// RuntimeClassDieMut is the mutable die of RuntimeClass: see RuntimeClassDie.
+// RuntimeClassDieMut is the mutable die of [RuntimeClass]: see [RuntimeClassDie].
 type RuntimeClassDieMut struct {
 	diebase.DieObjectMutBase[RuntimeClass, *RuntimeClassDie, *RuntimeClassDieMut]
 }
@@ -172,8 +172,8 @@ func (d *RuntimeClassDie) DieReleaseApplyConfiguration() *RuntimeClassApplyConfi
 	return diecodegen.ReleaseApplyConfiguration[RuntimeClassApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [RuntimeClassDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RuntimeClassDie) DieReleaseApplyConfigurationE() (*RuntimeClassApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[RuntimeClassApplyConfiguration](d)
 }
@@ -185,8 +185,8 @@ func (d *RuntimeClassDieMut) DieReleaseApplyConfiguration() *RuntimeClassApplyCo
 	return diecodegen.ReleaseApplyConfiguration[RuntimeClassApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [RuntimeClassDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RuntimeClassDieMut) DieReleaseApplyConfigurationE() (*RuntimeClassApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[RuntimeClassApplyConfiguration](d)
 }
@@ -204,14 +204,14 @@ func (d *RuntimeClassDieMut) DieStampApplyConfiguration(fn func(ac *RuntimeClass
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [RuntimeClassDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RuntimeClassDieMut) DieFeedApplyConfigurationE(ac *RuntimeClassApplyConfiguration) (*RuntimeClassDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [RuntimeClassDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RuntimeClassDieMut) DieStampApplyConfigurationE(fn func(ac *RuntimeClassApplyConfiguration)) (*RuntimeClassDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -365,12 +365,12 @@ func (l *RuntimeClassListDie) DeepCopyObject() runtime.Object { return l.DeepCop
 // RuntimeClass.
 //
 // SchedulingDie is immutable: it reads.
-// SchedulingDieMut, its mutable die, also writes, as DieWith passes it.
+// [SchedulingDieMut], its mutable die, also writes, as DieWith passes it.
 type SchedulingDie struct {
 	diebase.DieBase[Scheduling, *SchedulingDie, *SchedulingDieMut]
 }
 
-// SchedulingDieMut is the mutable die of Scheduling: see SchedulingDie.
+// SchedulingDieMut is the mutable die of [Scheduling]: see [SchedulingDie].
 type SchedulingDieMut struct {
 	diebase.DieMutBase[Scheduling, *SchedulingDie, *SchedulingDieMut]
 }
@@ -397,8 +397,8 @@ func (d *SchedulingDie) DieReleaseApplyConfiguration() *SchedulingApplyConfigura
 	return diecodegen.ReleaseApplyConfiguration[SchedulingApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [SchedulingDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *SchedulingDie) DieReleaseApplyConfigurationE() (*SchedulingApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[SchedulingApplyConfiguration](d)
 }
@@ -410,8 +410,8 @@ func (d *SchedulingDieMut) DieReleaseApplyConfiguration() *SchedulingApplyConfig
 	return diecodegen.ReleaseApplyConfiguration[SchedulingApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [SchedulingDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *SchedulingDieMut) DieReleaseApplyConfigurationE() (*SchedulingApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[SchedulingApplyConfiguration](d)
 }
@@ -429,14 +429,14 @@ func (d *SchedulingDieMut) DieStampApplyConfiguration(fn func(ac *SchedulingAppl
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [SchedulingDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *SchedulingDieMut) DieFeedApplyConfigurationE(ac *SchedulingApplyConfiguration) (*SchedulingDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [SchedulingDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *SchedulingDieMut) DieStampApplyConfigurationE(fn func(ac *SchedulingApplyConfiguration)) (*SchedulingDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

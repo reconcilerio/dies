@@ -453,10 +453,23 @@ func docText(lines []string) []string {
 	return out
 }
 
+// packageDoc returns the comments above the package clause of the first of
+// a package's files that has markers there. Markers may be in the package
+// doc, or, to keep them out of the godoc, in a comment of their own
+// separated from it by a blank line.
 func packageDoc(p *packages.Package) []string {
 	for _, f := range p.Syntax {
-		if f.Doc != nil {
-			return commentLines(f.Doc)
+		var lines []string
+		for _, cg := range f.Comments {
+			if cg.End() >= f.Package {
+				break
+			}
+			lines = append(lines, commentLines(cg)...)
+		}
+		for _, l := range lines {
+			if strings.HasPrefix(l, "+") {
+				return lines
+			}
 		}
 	}
 	return nil

@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package v1alpha3 has dies for k8s.io/api/scheduling/v1alpha3, whose types
-// and constants it also aliases.
-//
 // +die:types:package=k8s.io/api/scheduling/v1alpha3
+
+// Package v1alpha3 has dies for [k8s.io/api/scheduling/v1alpha3], whose types
+// and constants it also aliases.
 package v1alpha3

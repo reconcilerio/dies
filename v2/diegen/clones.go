@@ -218,7 +218,7 @@ func (g *generator) emitClone(p, up *packages.Package) error {
 	cloned := typesToClone(up)
 	hand := methodsByHand(p)
 
-	f.p("// The types and constants of %s, cloned so that nothing depends on it", up.PkgPath)
+	f.p("// The types and constants of [%s], cloned so that nothing depends on it", up.PkgPath)
 	f.p("// or its dependencies. Methods, functions and variables are not cloned.")
 	f.p("")
 	for _, name := range scope.Names() {

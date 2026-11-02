@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package v1beta1 has dies for k8s.io/api/rbac/v1beta1, whose types and constants it
-// also aliases.
-//
 // +die:types:package=k8s.io/api/rbac/v1beta1
+
+// Package v1beta1 has dies for [k8s.io/api/rbac/v1beta1], whose types and constants it
+// also aliases.
 package v1beta1

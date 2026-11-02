@@ -22,10 +22,10 @@ import (
 	apidiscoveryv2 "k8s.io/api/apidiscovery/v2"
 )
 
-// The types and constants of k8s.io/api/apidiscovery/v2, so that importing this package provides
+// The types and constants of [k8s.io/api/apidiscovery/v2], so that importing this package provides
 // both the types and their dies. Each type is followed by its values.
 // Functions and variables are deliberately not re-exported: this package's
-// AddToScheme registers its dies, not the upstream types.
+// [AddToScheme] registers its dies, not the upstream types.
 
 // +die:object:apiVersion=apidiscovery.k8s.io/v2,kind=APIGroupDiscovery
 // +die:field:name=versions,listType=map,listMapKey=version

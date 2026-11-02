@@ -33,12 +33,12 @@ import (
 // BoundObjectReference is a reference to an object that a token is bound to.
 //
 // BoundObjectReferenceDie is immutable: it reads.
-// BoundObjectReferenceDieMut, its mutable die, also writes, as DieWith passes it.
+// [BoundObjectReferenceDieMut], its mutable die, also writes, as DieWith passes it.
 type BoundObjectReferenceDie struct {
 	diebase.DieBase[BoundObjectReference, *BoundObjectReferenceDie, *BoundObjectReferenceDieMut]
 }
 
-// BoundObjectReferenceDieMut is the mutable die of BoundObjectReference: see BoundObjectReferenceDie.
+// BoundObjectReferenceDieMut is the mutable die of [BoundObjectReference]: see [BoundObjectReferenceDie].
 type BoundObjectReferenceDieMut struct {
 	diebase.DieMutBase[BoundObjectReference, *BoundObjectReferenceDie, *BoundObjectReferenceDieMut]
 }
@@ -121,12 +121,12 @@ func (d *BoundObjectReferenceDieMut) UID() diefields.ValueMut[types.UID, *BoundO
 // request header authentication is used, any extra keys will have their case ignored and returned as lowercase.
 //
 // SelfSubjectReviewDie is immutable: it reads.
-// SelfSubjectReviewDieMut, its mutable die, also writes, as DieWith passes it.
+// [SelfSubjectReviewDieMut], its mutable die, also writes, as DieWith passes it.
 type SelfSubjectReviewDie struct {
 	diebase.DieObjectBase[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut]
 }
 
-// SelfSubjectReviewDieMut is the mutable die of SelfSubjectReview: see SelfSubjectReviewDie.
+// SelfSubjectReviewDieMut is the mutable die of [SelfSubjectReview]: see [SelfSubjectReviewDie].
 type SelfSubjectReviewDieMut struct {
 	diebase.DieObjectMutBase[SelfSubjectReview, *SelfSubjectReviewDie, *SelfSubjectReviewDieMut]
 }
@@ -221,12 +221,12 @@ func (d *SelfSubjectReviewDieMut) Status() *SelfSubjectReviewStatusDieMut {
 // SelfSubjectReviewStatus is filled by the kube-apiserver and sent back to a user.
 //
 // SelfSubjectReviewStatusDie is immutable: it reads.
-// SelfSubjectReviewStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [SelfSubjectReviewStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type SelfSubjectReviewStatusDie struct {
 	diebase.DieBase[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut]
 }
 
-// SelfSubjectReviewStatusDieMut is the mutable die of SelfSubjectReviewStatus: see SelfSubjectReviewStatusDie.
+// SelfSubjectReviewStatusDieMut is the mutable die of [SelfSubjectReviewStatus]: see [SelfSubjectReviewStatusDie].
 type SelfSubjectReviewStatusDieMut struct {
 	diebase.DieMutBase[SelfSubjectReviewStatus, *SelfSubjectReviewStatusDie, *SelfSubjectReviewStatusDieMut]
 }
@@ -269,12 +269,12 @@ func (d *SelfSubjectReviewStatusDieMut) UserInfo() *UserInfoDieMut {
 // TokenRequest requests a token for a given service account.
 //
 // TokenRequestDie is immutable: it reads.
-// TokenRequestDieMut, its mutable die, also writes, as DieWith passes it.
+// [TokenRequestDieMut], its mutable die, also writes, as DieWith passes it.
 type TokenRequestDie struct {
 	diebase.DieObjectBase[TokenRequest, *TokenRequestDie, *TokenRequestDieMut]
 }
 
-// TokenRequestDieMut is the mutable die of TokenRequest: see TokenRequestDie.
+// TokenRequestDieMut is the mutable die of [TokenRequest]: see [TokenRequestDie].
 type TokenRequestDieMut struct {
 	diebase.DieObjectMutBase[TokenRequest, *TokenRequestDie, *TokenRequestDieMut]
 }
@@ -381,12 +381,12 @@ func (d *TokenRequestDieMut) Status() *TokenRequestStatusDieMut {
 // TokenRequestSpec contains client provided parameters of a token request.
 //
 // TokenRequestSpecDie is immutable: it reads.
-// TokenRequestSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [TokenRequestSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type TokenRequestSpecDie struct {
 	diebase.DieBase[TokenRequestSpec, *TokenRequestSpecDie, *TokenRequestSpecDieMut]
 }
 
-// TokenRequestSpecDieMut is the mutable die of TokenRequestSpec: see TokenRequestSpecDie.
+// TokenRequestSpecDieMut is the mutable die of [TokenRequestSpec]: see [TokenRequestSpecDie].
 type TokenRequestSpecDieMut struct {
 	diebase.DieMutBase[TokenRequestSpec, *TokenRequestSpecDie, *TokenRequestSpecDieMut]
 }
@@ -495,12 +495,12 @@ func (d *TokenRequestSpecDieMut) Attestations() *diefields.MapMut[string, Attest
 // TokenRequestStatus is the result of a token request.
 //
 // TokenRequestStatusDie is immutable: it reads.
-// TokenRequestStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [TokenRequestStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type TokenRequestStatusDie struct {
 	diebase.DieBase[TokenRequestStatus, *TokenRequestStatusDie, *TokenRequestStatusDieMut]
 }
 
-// TokenRequestStatusDieMut is the mutable die of TokenRequestStatus: see TokenRequestStatusDie.
+// TokenRequestStatusDieMut is the mutable die of [TokenRequestStatus]: see [TokenRequestStatusDie].
 type TokenRequestStatusDieMut struct {
 	diebase.DieMutBase[TokenRequestStatus, *TokenRequestStatusDie, *TokenRequestStatusDieMut]
 }
@@ -557,12 +557,12 @@ func (d *TokenRequestStatusDieMut) ExpirationTimestamp() diefields.ValueMut[diem
 // plugin in the kube-apiserver.
 //
 // TokenReviewDie is immutable: it reads.
-// TokenReviewDieMut, its mutable die, also writes, as DieWith passes it.
+// [TokenReviewDieMut], its mutable die, also writes, as DieWith passes it.
 type TokenReviewDie struct {
 	diebase.DieObjectBase[TokenReview, *TokenReviewDie, *TokenReviewDieMut]
 }
 
-// TokenReviewDieMut is the mutable die of TokenReview: see TokenReviewDie.
+// TokenReviewDieMut is the mutable die of [TokenReview]: see [TokenReviewDie].
 type TokenReviewDieMut struct {
 	diebase.DieObjectMutBase[TokenReview, *TokenReviewDie, *TokenReviewDieMut]
 }
@@ -669,12 +669,12 @@ func (d *TokenReviewDieMut) Status() *TokenReviewStatusDieMut {
 // TokenReviewSpec is a description of the token authentication request.
 //
 // TokenReviewSpecDie is immutable: it reads.
-// TokenReviewSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [TokenReviewSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type TokenReviewSpecDie struct {
 	diebase.DieBase[TokenReviewSpec, *TokenReviewSpecDie, *TokenReviewSpecDieMut]
 }
 
-// TokenReviewSpecDieMut is the mutable die of TokenReviewSpec: see TokenReviewSpecDie.
+// TokenReviewSpecDieMut is the mutable die of [TokenReviewSpec]: see [TokenReviewSpecDie].
 type TokenReviewSpecDieMut struct {
 	diebase.DieMutBase[TokenReviewSpec, *TokenReviewSpecDie, *TokenReviewSpecDieMut]
 }
@@ -737,12 +737,12 @@ func (d *TokenReviewSpecDieMut) Audiences() diefields.ValueMut[[]string, *TokenR
 // TokenReviewStatus is the result of the token authentication request.
 //
 // TokenReviewStatusDie is immutable: it reads.
-// TokenReviewStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [TokenReviewStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type TokenReviewStatusDie struct {
 	diebase.DieBase[TokenReviewStatus, *TokenReviewStatusDie, *TokenReviewStatusDieMut]
 }
 
-// TokenReviewStatusDieMut is the mutable die of TokenReviewStatus: see TokenReviewStatusDie.
+// TokenReviewStatusDieMut is the mutable die of [TokenReviewStatus]: see [TokenReviewStatusDie].
 type TokenReviewStatusDieMut struct {
 	diebase.DieMutBase[TokenReviewStatus, *TokenReviewStatusDie, *TokenReviewStatusDieMut]
 }
@@ -838,12 +838,12 @@ func (d *TokenReviewStatusDieMut) Error() diefields.ValueMut[string, *TokenRevie
 // user.Info interface.
 //
 // UserInfoDie is immutable: it reads.
-// UserInfoDieMut, its mutable die, also writes, as DieWith passes it.
+// [UserInfoDieMut], its mutable die, also writes, as DieWith passes it.
 type UserInfoDie struct {
 	diebase.DieBase[UserInfo, *UserInfoDie, *UserInfoDieMut]
 }
 
-// UserInfoDieMut is the mutable die of UserInfo: see UserInfoDie.
+// UserInfoDieMut is the mutable die of [UserInfo]: see [UserInfoDie].
 type UserInfoDieMut struct {
 	diebase.DieMutBase[UserInfo, *UserInfoDie, *UserInfoDieMut]
 }

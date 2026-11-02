@@ -37,7 +37,7 @@ func pathsOf(root reflect.Type, at []Located) ([]Path, error) {
 // as .spec.template.spec.containers[name=app].
 type Path = core.Path
 
-// Located is anything that identifies a location within a root die: a Path,
+// Located is anything that identifies a location within a root die: a [Path],
 // a die or a handle.
 type Located = core.Located
 

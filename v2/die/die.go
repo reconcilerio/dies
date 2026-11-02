@@ -51,7 +51,7 @@ type ImmutableDie = base.ImmutableDie
 // mutable dies, such as a jig's OfMut.
 type MutableDie = base.MutableDie
 
-// DieTyped is a die of any type with type metadata: a Die that is a
+// DieTyped is a die of any type with type metadata: a [Die] that is a
 // runtime.Object.
 type DieTyped = base.DieTyped
 
@@ -59,7 +59,7 @@ type DieTyped = base.DieTyped
 // T, its own pointer type D, and its mutable counterpart's, M.
 type DieOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] = base.DieOf[T, D, M]
 
-// DieMutOf carries a mutable die's types for generic code, as DieOf does an
+// DieMutOf carries a mutable die's types for generic code, as [DieOf] does an
 // immutable die's.
 type DieMutOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] = base.DieMutOf[T, D, M]
 
@@ -71,12 +71,12 @@ type DieTypedOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] = fields
 // its type metadata's accessors.
 type DieTypedMutOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] = fields.DieTypedMutOf[T, D, M]
 
-// DieObject is an object die of any type: a DieTyped that is a
+// DieObject is an object die of any type: a [DieTyped] that is a
 // metav1.Object.
 type DieObject = base.DieObject
 
 // DieObjectOf carries an immutable object die's types for generic code, with
-// its metadata's accessor. An unstructured die is a DieObject, but not a
+// its metadata's accessor. An unstructured die is a [DieObject], but not a
 // DieObjectOf: its fields are reached through its nodes, not accessors.
 type DieObjectOf[T any, D base.DieOf[T, D, M], M base.DieMutOf[T, D, M]] = objects.DieObjectOf[T, D, M]
 
@@ -91,7 +91,7 @@ type DieList = lists.DieList
 // DieListOf is a list die of D items, for generic code.
 type DieListOf[D lists.ListItem[D]] = lists.DieListOf[D]
 
-// Located is anything that identifies a location within a root die: a Path,
+// Located is anything that identifies a location within a root die: a [Path],
 // a die or a handle.
 type Located = base.Located
 

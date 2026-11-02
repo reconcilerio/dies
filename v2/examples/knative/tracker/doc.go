@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package tracker has dies for knative's tracker, whose types are cloned so
-// that nothing depends on knative.
-//
 // +die:types:package=knative.dev/pkg/tracker,mode=clone,from=../sources
+
+// Package tracker has dies for [knative.dev/pkg/tracker], whose types are
+// cloned so that nothing depends on knative.
 package tracker

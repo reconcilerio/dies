@@ -18,7 +18,7 @@ limitations under the License.
 
 package v1alpha1
 
-// The types and constants of carvel.dev/vendir/pkg/vendir/versions/v1alpha1, cloned so that nothing depends on it
+// The types and constants of [carvel.dev/vendir/pkg/vendir/versions/v1alpha1], cloned so that nothing depends on it
 // or its dependencies. Methods, functions and variables are not cloned.
 
 // +die

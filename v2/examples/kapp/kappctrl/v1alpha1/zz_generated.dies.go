@@ -39,12 +39,12 @@ import (
 // spec.deploy – declare deployment tool and any deploy specific configuration
 //
 // AppDie is immutable: it reads.
-// AppDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppDieMut], its mutable die, also writes, as DieWith passes it.
 type AppDie struct {
 	diebase.DieObjectBase[App, *AppDie, *AppDieMut]
 }
 
-// AppDieMut is the mutable die of App: see AppDie.
+// AppDieMut is the mutable die of [App]: see [AppDie].
 type AppDieMut struct {
 	diebase.DieObjectMutBase[App, *AppDie, *AppDieMut]
 }
@@ -133,12 +133,12 @@ func (d *AppDieMut) Spec() *AppSpecDieMut { return diefields.ChildMut(d, appFiel
 func (d *AppDieMut) Status() *AppStatusDieMut { return diefields.ChildMut(d, appFields.Get().Status) }
 
 // AppClusterDie is immutable: it reads.
-// AppClusterDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppClusterDieMut], its mutable die, also writes, as DieWith passes it.
 type AppClusterDie struct {
 	diebase.DieBase[AppCluster, *AppClusterDie, *AppClusterDieMut]
 }
 
-// AppClusterDieMut is the mutable die of AppCluster: see AppClusterDie.
+// AppClusterDieMut is the mutable die of [AppCluster]: see [AppClusterDie].
 type AppClusterDieMut struct {
 	diebase.DieMutBase[AppCluster, *AppClusterDie, *AppClusterDieMut]
 }
@@ -191,12 +191,12 @@ func (d *AppClusterDieMut) KubeconfigSecretRef() *AppClusterKubeconfigSecretRefD
 }
 
 // AppClusterKubeconfigSecretRefDie is immutable: it reads.
-// AppClusterKubeconfigSecretRefDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppClusterKubeconfigSecretRefDieMut], its mutable die, also writes, as DieWith passes it.
 type AppClusterKubeconfigSecretRefDie struct {
 	diebase.DieBase[AppClusterKubeconfigSecretRef, *AppClusterKubeconfigSecretRefDie, *AppClusterKubeconfigSecretRefDieMut]
 }
 
-// AppClusterKubeconfigSecretRefDieMut is the mutable die of AppClusterKubeconfigSecretRef: see AppClusterKubeconfigSecretRefDie.
+// AppClusterKubeconfigSecretRefDieMut is the mutable die of [AppClusterKubeconfigSecretRef]: see [AppClusterKubeconfigSecretRefDie].
 type AppClusterKubeconfigSecretRefDieMut struct {
 	diebase.DieMutBase[AppClusterKubeconfigSecretRef, *AppClusterKubeconfigSecretRefDie, *AppClusterKubeconfigSecretRefDieMut]
 }
@@ -249,12 +249,12 @@ func (d *AppClusterKubeconfigSecretRefDieMut) Key() diefields.ValueMut[string, *
 }
 
 // AppDeployDie is immutable: it reads.
-// AppDeployDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppDeployDieMut], its mutable die, also writes, as DieWith passes it.
 type AppDeployDie struct {
 	diebase.DieBase[AppDeploy, *AppDeployDie, *AppDeployDieMut]
 }
 
-// AppDeployDieMut is the mutable die of AppDeploy: see AppDeployDie.
+// AppDeployDieMut is the mutable die of [AppDeploy]: see [AppDeployDie].
 type AppDeployDieMut struct {
 	diebase.DieMutBase[AppDeploy, *AppDeployDie, *AppDeployDieMut]
 }
@@ -295,12 +295,12 @@ func (d *AppDeployDieMut) Kapp() *AppDeployKappDieMut {
 }
 
 // AppDeployKappDie is immutable: it reads.
-// AppDeployKappDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppDeployKappDieMut], its mutable die, also writes, as DieWith passes it.
 type AppDeployKappDie struct {
 	diebase.DieBase[AppDeployKapp, *AppDeployKappDie, *AppDeployKappDieMut]
 }
 
-// AppDeployKappDieMut is the mutable die of AppDeployKapp: see AppDeployKappDie.
+// AppDeployKappDieMut is the mutable die of [AppDeployKapp]: see [AppDeployKappDie].
 type AppDeployKappDieMut struct {
 	diebase.DieMutBase[AppDeployKapp, *AppDeployKappDie, *AppDeployKappDieMut]
 }
@@ -393,12 +393,12 @@ func (d *AppDeployKappDieMut) Delete() *AppDeployKappDeleteDieMut {
 }
 
 // AppDeployKappDeleteDie is immutable: it reads.
-// AppDeployKappDeleteDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppDeployKappDeleteDieMut], its mutable die, also writes, as DieWith passes it.
 type AppDeployKappDeleteDie struct {
 	diebase.DieBase[AppDeployKappDelete, *AppDeployKappDeleteDie, *AppDeployKappDeleteDieMut]
 }
 
-// AppDeployKappDeleteDieMut is the mutable die of AppDeployKappDelete: see AppDeployKappDeleteDie.
+// AppDeployKappDeleteDieMut is the mutable die of [AppDeployKappDelete]: see [AppDeployKappDeleteDie].
 type AppDeployKappDeleteDieMut struct {
 	diebase.DieMutBase[AppDeployKappDelete, *AppDeployKappDeleteDie, *AppDeployKappDeleteDieMut]
 }
@@ -439,12 +439,12 @@ func (d *AppDeployKappDeleteDieMut) RawOptions() diefields.ValueMut[[]string, *A
 }
 
 // AppDeployKappInspectDie is immutable: it reads.
-// AppDeployKappInspectDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppDeployKappInspectDieMut], its mutable die, also writes, as DieWith passes it.
 type AppDeployKappInspectDie struct {
 	diebase.DieBase[AppDeployKappInspect, *AppDeployKappInspectDie, *AppDeployKappInspectDieMut]
 }
 
-// AppDeployKappInspectDieMut is the mutable die of AppDeployKappInspect: see AppDeployKappInspectDie.
+// AppDeployKappInspectDieMut is the mutable die of [AppDeployKappInspect]: see [AppDeployKappInspectDie].
 type AppDeployKappInspectDieMut struct {
 	diebase.DieMutBase[AppDeployKappInspect, *AppDeployKappInspectDie, *AppDeployKappInspectDieMut]
 }
@@ -485,12 +485,12 @@ func (d *AppDeployKappInspectDieMut) RawOptions() diefields.ValueMut[[]string, *
 }
 
 // AppFetchDie is immutable: it reads.
-// AppFetchDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppFetchDieMut], its mutable die, also writes, as DieWith passes it.
 type AppFetchDie struct {
 	diebase.DieBase[AppFetch, *AppFetchDie, *AppFetchDieMut]
 }
 
-// AppFetchDieMut is the mutable die of AppFetch: see AppFetchDie.
+// AppFetchDieMut is the mutable die of [AppFetch]: see [AppFetchDie].
 type AppFetchDieMut struct {
 	diebase.DieMutBase[AppFetch, *AppFetchDie, *AppFetchDieMut]
 }
@@ -599,12 +599,12 @@ func (d *AppFetchDieMut) Path() diefields.ValueMut[string, *AppFetchDieMut] {
 }
 
 // AppFetchGitDie is immutable: it reads.
-// AppFetchGitDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppFetchGitDieMut], its mutable die, also writes, as DieWith passes it.
 type AppFetchGitDie struct {
 	diebase.DieBase[AppFetchGit, *AppFetchGitDie, *AppFetchGitDieMut]
 }
 
-// AppFetchGitDieMut is the mutable die of AppFetchGit: see AppFetchGitDie.
+// AppFetchGitDieMut is the mutable die of [AppFetchGit]: see [AppFetchGitDie].
 type AppFetchGitDieMut struct {
 	diebase.DieMutBase[AppFetchGit, *AppFetchGitDie, *AppFetchGitDieMut]
 }
@@ -731,12 +731,12 @@ func (d *AppFetchGitDieMut) Depth() diefields.OptionalMut[int64, *AppFetchGitDie
 }
 
 // AppFetchHTTPDie is immutable: it reads.
-// AppFetchHTTPDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppFetchHTTPDieMut], its mutable die, also writes, as DieWith passes it.
 type AppFetchHTTPDie struct {
 	diebase.DieBase[AppFetchHTTP, *AppFetchHTTPDie, *AppFetchHTTPDieMut]
 }
 
-// AppFetchHTTPDieMut is the mutable die of AppFetchHTTP: see AppFetchHTTPDie.
+// AppFetchHTTPDieMut is the mutable die of [AppFetchHTTP]: see [AppFetchHTTPDie].
 type AppFetchHTTPDieMut struct {
 	diebase.DieMutBase[AppFetchHTTP, *AppFetchHTTPDie, *AppFetchHTTPDieMut]
 }
@@ -819,12 +819,12 @@ func (d *AppFetchHTTPDieMut) SubPath() diefields.ValueMut[string, *AppFetchHTTPD
 }
 
 // AppFetchHelmChartDie is immutable: it reads.
-// AppFetchHelmChartDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppFetchHelmChartDieMut], its mutable die, also writes, as DieWith passes it.
 type AppFetchHelmChartDie struct {
 	diebase.DieBase[AppFetchHelmChart, *AppFetchHelmChartDie, *AppFetchHelmChartDieMut]
 }
 
-// AppFetchHelmChartDieMut is the mutable die of AppFetchHelmChart: see AppFetchHelmChartDie.
+// AppFetchHelmChartDieMut is the mutable die of [AppFetchHelmChart]: see [AppFetchHelmChartDie].
 type AppFetchHelmChartDieMut struct {
 	diebase.DieMutBase[AppFetchHelmChart, *AppFetchHelmChartDie, *AppFetchHelmChartDieMut]
 }
@@ -885,12 +885,12 @@ func (d *AppFetchHelmChartDieMut) Repository() *AppFetchHelmChartRepoDieMut {
 }
 
 // AppFetchHelmChartRepoDie is immutable: it reads.
-// AppFetchHelmChartRepoDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppFetchHelmChartRepoDieMut], its mutable die, also writes, as DieWith passes it.
 type AppFetchHelmChartRepoDie struct {
 	diebase.DieBase[AppFetchHelmChartRepo, *AppFetchHelmChartRepoDie, *AppFetchHelmChartRepoDieMut]
 }
 
-// AppFetchHelmChartRepoDieMut is the mutable die of AppFetchHelmChartRepo: see AppFetchHelmChartRepoDie.
+// AppFetchHelmChartRepoDieMut is the mutable die of [AppFetchHelmChartRepo]: see [AppFetchHelmChartRepoDie].
 type AppFetchHelmChartRepoDieMut struct {
 	diebase.DieMutBase[AppFetchHelmChartRepo, *AppFetchHelmChartRepoDie, *AppFetchHelmChartRepoDieMut]
 }
@@ -945,12 +945,12 @@ func (d *AppFetchHelmChartRepoDieMut) SecretRef() *AppFetchLocalRefDieMut {
 }
 
 // AppFetchImageDie is immutable: it reads.
-// AppFetchImageDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppFetchImageDieMut], its mutable die, also writes, as DieWith passes it.
 type AppFetchImageDie struct {
 	diebase.DieBase[AppFetchImage, *AppFetchImageDie, *AppFetchImageDieMut]
 }
 
-// AppFetchImageDieMut is the mutable die of AppFetchImage: see AppFetchImageDie.
+// AppFetchImageDieMut is the mutable die of [AppFetchImage]: see [AppFetchImageDie].
 type AppFetchImageDieMut struct {
 	diebase.DieMutBase[AppFetchImage, *AppFetchImageDie, *AppFetchImageDieMut]
 }
@@ -1035,12 +1035,12 @@ func (d *AppFetchImageDieMut) SubPath() diefields.ValueMut[string, *AppFetchImag
 }
 
 // AppFetchImgpkgBundleDie is immutable: it reads.
-// AppFetchImgpkgBundleDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppFetchImgpkgBundleDieMut], its mutable die, also writes, as DieWith passes it.
 type AppFetchImgpkgBundleDie struct {
 	diebase.DieBase[AppFetchImgpkgBundle, *AppFetchImgpkgBundleDie, *AppFetchImgpkgBundleDieMut]
 }
 
-// AppFetchImgpkgBundleDieMut is the mutable die of AppFetchImgpkgBundle: see AppFetchImgpkgBundleDie.
+// AppFetchImgpkgBundleDieMut is the mutable die of [AppFetchImgpkgBundle]: see [AppFetchImgpkgBundleDie].
 type AppFetchImgpkgBundleDieMut struct {
 	diebase.DieMutBase[AppFetchImgpkgBundle, *AppFetchImgpkgBundleDie, *AppFetchImgpkgBundleDieMut]
 }
@@ -1111,12 +1111,12 @@ func (d *AppFetchImgpkgBundleDieMut) SecretRef() *AppFetchLocalRefDieMut {
 }
 
 // AppFetchInlineDie is immutable: it reads.
-// AppFetchInlineDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppFetchInlineDieMut], its mutable die, also writes, as DieWith passes it.
 type AppFetchInlineDie struct {
 	diebase.DieBase[AppFetchInline, *AppFetchInlineDie, *AppFetchInlineDieMut]
 }
 
-// AppFetchInlineDieMut is the mutable die of AppFetchInline: see AppFetchInlineDie.
+// AppFetchInlineDieMut is the mutable die of [AppFetchInline]: see [AppFetchInlineDie].
 type AppFetchInlineDieMut struct {
 	diebase.DieMutBase[AppFetchInline, *AppFetchInlineDie, *AppFetchInlineDieMut]
 }
@@ -1173,12 +1173,12 @@ func (d *AppFetchInlineDieMut) PathsFrom() diefields.ValueMut[[]AppFetchInlineSo
 }
 
 // AppFetchInlineSourceDie is immutable: it reads.
-// AppFetchInlineSourceDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppFetchInlineSourceDieMut], its mutable die, also writes, as DieWith passes it.
 type AppFetchInlineSourceDie struct {
 	diebase.DieBase[AppFetchInlineSource, *AppFetchInlineSourceDie, *AppFetchInlineSourceDieMut]
 }
 
-// AppFetchInlineSourceDieMut is the mutable die of AppFetchInlineSource: see AppFetchInlineSourceDie.
+// AppFetchInlineSourceDieMut is the mutable die of [AppFetchInlineSource]: see [AppFetchInlineSourceDie].
 type AppFetchInlineSourceDieMut struct {
 	diebase.DieMutBase[AppFetchInlineSource, *AppFetchInlineSourceDie, *AppFetchInlineSourceDieMut]
 }
@@ -1227,12 +1227,12 @@ func (d *AppFetchInlineSourceDieMut) ConfigMapRef() *AppFetchInlineSourceRefDieM
 }
 
 // AppFetchInlineSourceRefDie is immutable: it reads.
-// AppFetchInlineSourceRefDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppFetchInlineSourceRefDieMut], its mutable die, also writes, as DieWith passes it.
 type AppFetchInlineSourceRefDie struct {
 	diebase.DieBase[AppFetchInlineSourceRef, *AppFetchInlineSourceRefDie, *AppFetchInlineSourceRefDieMut]
 }
 
-// AppFetchInlineSourceRefDieMut is the mutable die of AppFetchInlineSourceRef: see AppFetchInlineSourceRefDie.
+// AppFetchInlineSourceRefDieMut is the mutable die of [AppFetchInlineSourceRef]: see [AppFetchInlineSourceRefDie].
 type AppFetchInlineSourceRefDieMut struct {
 	diebase.DieMutBase[AppFetchInlineSourceRef, *AppFetchInlineSourceRefDie, *AppFetchInlineSourceRefDieMut]
 }
@@ -1283,12 +1283,12 @@ func (d *AppFetchInlineSourceRefDieMut) Name() diefields.ValueMut[string, *AppFe
 }
 
 // AppFetchLocalRefDie is immutable: it reads.
-// AppFetchLocalRefDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppFetchLocalRefDieMut], its mutable die, also writes, as DieWith passes it.
 type AppFetchLocalRefDie struct {
 	diebase.DieBase[AppFetchLocalRef, *AppFetchLocalRefDie, *AppFetchLocalRefDieMut]
 }
 
-// AppFetchLocalRefDieMut is the mutable die of AppFetchLocalRef: see AppFetchLocalRefDie.
+// AppFetchLocalRefDieMut is the mutable die of [AppFetchLocalRef]: see [AppFetchLocalRefDie].
 type AppFetchLocalRefDieMut struct {
 	diebase.DieMutBase[AppFetchLocalRef, *AppFetchLocalRefDie, *AppFetchLocalRefDieMut]
 }
@@ -1345,12 +1345,12 @@ func (l *AppListDie) DeepCopy() *AppListDie { return &AppListDie{l.DieCopy()} }
 func (l *AppListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 
 // AppSpecDie is immutable: it reads.
-// AppSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type AppSpecDie struct {
 	diebase.DieBase[AppSpec, *AppSpecDie, *AppSpecDieMut]
 }
 
-// AppSpecDieMut is the mutable die of AppSpec: see AppSpecDie.
+// AppSpecDieMut is the mutable die of [AppSpec]: see [AppSpecDie].
 type AppSpecDieMut struct {
 	diebase.DieMutBase[AppSpec, *AppSpecDie, *AppSpecDieMut]
 }
@@ -1507,12 +1507,12 @@ func (d *AppSpecDieMut) DefaultNamespace() diefields.ValueMut[string, *AppSpecDi
 }
 
 // AppStatusDie is immutable: it reads.
-// AppStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type AppStatusDie struct {
 	diebase.DieBase[AppStatus, *AppStatusDie, *AppStatusDieMut]
 }
 
-// AppStatusDieMut is the mutable die of AppStatus: see AppStatusDie.
+// AppStatusDieMut is the mutable die of [AppStatus]: see [AppStatusDie].
 type AppStatusDieMut struct {
 	diebase.DieMutBase[AppStatus, *AppStatusDie, *AppStatusDieMut]
 }
@@ -1657,12 +1657,12 @@ func (d *AppStatusDieMut) UsefulErrorMessage() diefields.ValueMut[string, *AppSt
 }
 
 // AppStatusDeployDie is immutable: it reads.
-// AppStatusDeployDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppStatusDeployDieMut], its mutable die, also writes, as DieWith passes it.
 type AppStatusDeployDie struct {
 	diebase.DieBase[AppStatusDeploy, *AppStatusDeployDie, *AppStatusDeployDieMut]
 }
 
-// AppStatusDeployDieMut is the mutable die of AppStatusDeploy: see AppStatusDeployDie.
+// AppStatusDeployDieMut is the mutable die of [AppStatusDeploy]: see [AppStatusDeployDie].
 type AppStatusDeployDieMut struct {
 	diebase.DieMutBase[AppStatusDeploy, *AppStatusDeployDie, *AppStatusDeployDieMut]
 }
@@ -1771,12 +1771,12 @@ func (d *AppStatusDeployDieMut) KappDeployStatus() *KappDeployStatusDieMut {
 }
 
 // AppStatusFetchDie is immutable: it reads.
-// AppStatusFetchDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppStatusFetchDieMut], its mutable die, also writes, as DieWith passes it.
 type AppStatusFetchDie struct {
 	diebase.DieBase[AppStatusFetch, *AppStatusFetchDie, *AppStatusFetchDieMut]
 }
 
-// AppStatusFetchDieMut is the mutable die of AppStatusFetch: see AppStatusFetchDie.
+// AppStatusFetchDieMut is the mutable die of [AppStatusFetch]: see [AppStatusFetchDie].
 type AppStatusFetchDieMut struct {
 	diebase.DieMutBase[AppStatusFetch, *AppStatusFetchDie, *AppStatusFetchDieMut]
 }
@@ -1865,12 +1865,12 @@ func (d *AppStatusFetchDieMut) UpdatedAt() diefields.ValueMut[diemetav1.Time, *A
 }
 
 // AppStatusInspectDie is immutable: it reads.
-// AppStatusInspectDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppStatusInspectDieMut], its mutable die, also writes, as DieWith passes it.
 type AppStatusInspectDie struct {
 	diebase.DieBase[AppStatusInspect, *AppStatusInspectDie, *AppStatusInspectDieMut]
 }
 
-// AppStatusInspectDieMut is the mutable die of AppStatusInspect: see AppStatusInspectDie.
+// AppStatusInspectDieMut is the mutable die of [AppStatusInspect]: see [AppStatusInspectDie].
 type AppStatusInspectDieMut struct {
 	diebase.DieMutBase[AppStatusInspect, *AppStatusInspectDie, *AppStatusInspectDieMut]
 }
@@ -1949,12 +1949,12 @@ func (d *AppStatusInspectDieMut) UpdatedAt() diefields.ValueMut[diemetav1.Time, 
 }
 
 // AppStatusTemplateDie is immutable: it reads.
-// AppStatusTemplateDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppStatusTemplateDieMut], its mutable die, also writes, as DieWith passes it.
 type AppStatusTemplateDie struct {
 	diebase.DieBase[AppStatusTemplate, *AppStatusTemplateDie, *AppStatusTemplateDieMut]
 }
 
-// AppStatusTemplateDieMut is the mutable die of AppStatusTemplate: see AppStatusTemplateDie.
+// AppStatusTemplateDieMut is the mutable die of [AppStatusTemplate]: see [AppStatusTemplateDie].
 type AppStatusTemplateDieMut struct {
 	diebase.DieMutBase[AppStatusTemplate, *AppStatusTemplateDie, *AppStatusTemplateDieMut]
 }
@@ -2023,12 +2023,12 @@ func (d *AppStatusTemplateDieMut) UpdatedAt() diefields.ValueMut[diemetav1.Time,
 }
 
 // AppTemplateDie is immutable: it reads.
-// AppTemplateDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppTemplateDieMut], its mutable die, also writes, as DieWith passes it.
 type AppTemplateDie struct {
 	diebase.DieBase[AppTemplate, *AppTemplateDie, *AppTemplateDieMut]
 }
 
-// AppTemplateDieMut is the mutable die of AppTemplate: see AppTemplateDie.
+// AppTemplateDieMut is the mutable die of [AppTemplate]: see [AppTemplateDie].
 type AppTemplateDieMut struct {
 	diebase.DieMutBase[AppTemplate, *AppTemplateDie, *AppTemplateDieMut]
 }
@@ -2135,12 +2135,12 @@ func (d *AppTemplateDieMut) Cue() *AppTemplateCueDieMut {
 }
 
 // AppTemplateCueDie is immutable: it reads.
-// AppTemplateCueDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppTemplateCueDieMut], its mutable die, also writes, as DieWith passes it.
 type AppTemplateCueDie struct {
 	diebase.DieBase[AppTemplateCue, *AppTemplateCueDie, *AppTemplateCueDieMut]
 }
 
-// AppTemplateCueDieMut is the mutable die of AppTemplateCue: see AppTemplateCueDie.
+// AppTemplateCueDieMut is the mutable die of [AppTemplateCue]: see [AppTemplateCueDie].
 type AppTemplateCueDieMut struct {
 	diebase.DieMutBase[AppTemplateCue, *AppTemplateCueDie, *AppTemplateCueDieMut]
 }
@@ -2217,12 +2217,12 @@ func (d *AppTemplateCueDieMut) OutputExpression() diefields.ValueMut[string, *Ap
 }
 
 // AppTemplateHelmTemplateDie is immutable: it reads.
-// AppTemplateHelmTemplateDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppTemplateHelmTemplateDieMut], its mutable die, also writes, as DieWith passes it.
 type AppTemplateHelmTemplateDie struct {
 	diebase.DieBase[AppTemplateHelmTemplate, *AppTemplateHelmTemplateDie, *AppTemplateHelmTemplateDieMut]
 }
 
-// AppTemplateHelmTemplateDieMut is the mutable die of AppTemplateHelmTemplate: see AppTemplateHelmTemplateDie.
+// AppTemplateHelmTemplateDieMut is the mutable die of [AppTemplateHelmTemplate]: see [AppTemplateHelmTemplateDie].
 type AppTemplateHelmTemplateDieMut struct {
 	diebase.DieMutBase[AppTemplateHelmTemplate, *AppTemplateHelmTemplateDie, *AppTemplateHelmTemplateDieMut]
 }
@@ -2327,12 +2327,12 @@ func (d *AppTemplateHelmTemplateDieMut) KubernetesAPIs() *KubernetesAPIsDieMut {
 // TODO implement jsonnet
 //
 // AppTemplateJsonnetDie is immutable: it reads.
-// AppTemplateJsonnetDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppTemplateJsonnetDieMut], its mutable die, also writes, as DieWith passes it.
 type AppTemplateJsonnetDie struct {
 	diebase.DieBase[AppTemplateJsonnet, *AppTemplateJsonnetDie, *AppTemplateJsonnetDieMut]
 }
 
-// AppTemplateJsonnetDieMut is the mutable die of AppTemplateJsonnet: see AppTemplateJsonnetDie.
+// AppTemplateJsonnetDieMut is the mutable die of [AppTemplateJsonnet]: see [AppTemplateJsonnetDie].
 type AppTemplateJsonnetDieMut struct {
 	diebase.DieMutBase[AppTemplateJsonnet, *AppTemplateJsonnetDie, *AppTemplateJsonnetDieMut]
 }
@@ -2361,12 +2361,12 @@ var appTemplateJsonnetFields = &diefields.Table[appTemplateJsonnetFieldsTable]{B
 }}
 
 // AppTemplateKbldDie is immutable: it reads.
-// AppTemplateKbldDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppTemplateKbldDieMut], its mutable die, also writes, as DieWith passes it.
 type AppTemplateKbldDie struct {
 	diebase.DieBase[AppTemplateKbld, *AppTemplateKbldDie, *AppTemplateKbldDieMut]
 }
 
-// AppTemplateKbldDieMut is the mutable die of AppTemplateKbld: see AppTemplateKbldDie.
+// AppTemplateKbldDieMut is the mutable die of [AppTemplateKbld]: see [AppTemplateKbldDie].
 type AppTemplateKbldDieMut struct {
 	diebase.DieMutBase[AppTemplateKbld, *AppTemplateKbldDie, *AppTemplateKbldDieMut]
 }
@@ -2419,12 +2419,12 @@ func (d *AppTemplateKbldDieMut) Platform() diefields.ValueMut[string, *AppTempla
 // TODO implement kustomize
 //
 // AppTemplateKustomizeDie is immutable: it reads.
-// AppTemplateKustomizeDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppTemplateKustomizeDieMut], its mutable die, also writes, as DieWith passes it.
 type AppTemplateKustomizeDie struct {
 	diebase.DieBase[AppTemplateKustomize, *AppTemplateKustomizeDie, *AppTemplateKustomizeDieMut]
 }
 
-// AppTemplateKustomizeDieMut is the mutable die of AppTemplateKustomize: see AppTemplateKustomizeDie.
+// AppTemplateKustomizeDieMut is the mutable die of [AppTemplateKustomize]: see [AppTemplateKustomizeDie].
 type AppTemplateKustomizeDieMut struct {
 	diebase.DieMutBase[AppTemplateKustomize, *AppTemplateKustomizeDie, *AppTemplateKustomizeDieMut]
 }
@@ -2453,12 +2453,12 @@ var appTemplateKustomizeFields = &diefields.Table[appTemplateKustomizeFieldsTabl
 }}
 
 // AppTemplateSopsDie is immutable: it reads.
-// AppTemplateSopsDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppTemplateSopsDieMut], its mutable die, also writes, as DieWith passes it.
 type AppTemplateSopsDie struct {
 	diebase.DieBase[AppTemplateSops, *AppTemplateSopsDie, *AppTemplateSopsDieMut]
 }
 
-// AppTemplateSopsDieMut is the mutable die of AppTemplateSops: see AppTemplateSopsDie.
+// AppTemplateSopsDieMut is the mutable die of [AppTemplateSops]: see [AppTemplateSopsDie].
 type AppTemplateSopsDieMut struct {
 	diebase.DieMutBase[AppTemplateSops, *AppTemplateSopsDie, *AppTemplateSopsDieMut]
 }
@@ -2521,12 +2521,12 @@ func (d *AppTemplateSopsDieMut) Age() *AppTemplateSopsAgeDieMut {
 }
 
 // AppTemplateSopsAgeDie is immutable: it reads.
-// AppTemplateSopsAgeDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppTemplateSopsAgeDieMut], its mutable die, also writes, as DieWith passes it.
 type AppTemplateSopsAgeDie struct {
 	diebase.DieBase[AppTemplateSopsAge, *AppTemplateSopsAgeDie, *AppTemplateSopsAgeDieMut]
 }
 
-// AppTemplateSopsAgeDieMut is the mutable die of AppTemplateSopsAge: see AppTemplateSopsAgeDie.
+// AppTemplateSopsAgeDieMut is the mutable die of [AppTemplateSopsAge]: see [AppTemplateSopsAgeDie].
 type AppTemplateSopsAgeDieMut struct {
 	diebase.DieMutBase[AppTemplateSopsAge, *AppTemplateSopsAgeDie, *AppTemplateSopsAgeDieMut]
 }
@@ -2567,12 +2567,12 @@ func (d *AppTemplateSopsAgeDieMut) PrivateKeysSecretRef() *AppTemplateSopsPrivat
 }
 
 // AppTemplateSopsPGPDie is immutable: it reads.
-// AppTemplateSopsPGPDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppTemplateSopsPGPDieMut], its mutable die, also writes, as DieWith passes it.
 type AppTemplateSopsPGPDie struct {
 	diebase.DieBase[AppTemplateSopsPGP, *AppTemplateSopsPGPDie, *AppTemplateSopsPGPDieMut]
 }
 
-// AppTemplateSopsPGPDieMut is the mutable die of AppTemplateSopsPGP: see AppTemplateSopsPGPDie.
+// AppTemplateSopsPGPDieMut is the mutable die of [AppTemplateSopsPGP]: see [AppTemplateSopsPGPDie].
 type AppTemplateSopsPGPDieMut struct {
 	diebase.DieMutBase[AppTemplateSopsPGP, *AppTemplateSopsPGPDie, *AppTemplateSopsPGPDieMut]
 }
@@ -2613,12 +2613,12 @@ func (d *AppTemplateSopsPGPDieMut) PrivateKeysSecretRef() *AppTemplateSopsPrivat
 }
 
 // AppTemplateSopsPrivateKeysSecretRefDie is immutable: it reads.
-// AppTemplateSopsPrivateKeysSecretRefDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppTemplateSopsPrivateKeysSecretRefDieMut], its mutable die, also writes, as DieWith passes it.
 type AppTemplateSopsPrivateKeysSecretRefDie struct {
 	diebase.DieBase[AppTemplateSopsPrivateKeysSecretRef, *AppTemplateSopsPrivateKeysSecretRefDie, *AppTemplateSopsPrivateKeysSecretRefDieMut]
 }
 
-// AppTemplateSopsPrivateKeysSecretRefDieMut is the mutable die of AppTemplateSopsPrivateKeysSecretRef: see AppTemplateSopsPrivateKeysSecretRefDie.
+// AppTemplateSopsPrivateKeysSecretRefDieMut is the mutable die of [AppTemplateSopsPrivateKeysSecretRef]: see [AppTemplateSopsPrivateKeysSecretRefDie].
 type AppTemplateSopsPrivateKeysSecretRefDieMut struct {
 	diebase.DieMutBase[AppTemplateSopsPrivateKeysSecretRef, *AppTemplateSopsPrivateKeysSecretRefDie, *AppTemplateSopsPrivateKeysSecretRefDieMut]
 }
@@ -2657,12 +2657,12 @@ func (d *AppTemplateSopsPrivateKeysSecretRefDieMut) Name() diefields.ValueMut[st
 }
 
 // AppTemplateValuesDownwardAPIDie is immutable: it reads.
-// AppTemplateValuesDownwardAPIDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppTemplateValuesDownwardAPIDieMut], its mutable die, also writes, as DieWith passes it.
 type AppTemplateValuesDownwardAPIDie struct {
 	diebase.DieBase[AppTemplateValuesDownwardAPI, *AppTemplateValuesDownwardAPIDie, *AppTemplateValuesDownwardAPIDieMut]
 }
 
-// AppTemplateValuesDownwardAPIDieMut is the mutable die of AppTemplateValuesDownwardAPI: see AppTemplateValuesDownwardAPIDie.
+// AppTemplateValuesDownwardAPIDieMut is the mutable die of [AppTemplateValuesDownwardAPI]: see [AppTemplateValuesDownwardAPIDie].
 type AppTemplateValuesDownwardAPIDieMut struct {
 	diebase.DieMutBase[AppTemplateValuesDownwardAPI, *AppTemplateValuesDownwardAPIDie, *AppTemplateValuesDownwardAPIDieMut]
 }
@@ -2701,12 +2701,12 @@ func (d *AppTemplateValuesDownwardAPIDieMut) Items() diefields.ValueMut[[]AppTem
 }
 
 // AppTemplateValuesDownwardAPIItemDie is immutable: it reads.
-// AppTemplateValuesDownwardAPIItemDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppTemplateValuesDownwardAPIItemDieMut], its mutable die, also writes, as DieWith passes it.
 type AppTemplateValuesDownwardAPIItemDie struct {
 	diebase.DieBase[AppTemplateValuesDownwardAPIItem, *AppTemplateValuesDownwardAPIItemDie, *AppTemplateValuesDownwardAPIItemDieMut]
 }
 
-// AppTemplateValuesDownwardAPIItemDieMut is the mutable die of AppTemplateValuesDownwardAPIItem: see AppTemplateValuesDownwardAPIItemDie.
+// AppTemplateValuesDownwardAPIItemDieMut is the mutable die of [AppTemplateValuesDownwardAPIItem]: see [AppTemplateValuesDownwardAPIItemDie].
 type AppTemplateValuesDownwardAPIItemDieMut struct {
 	diebase.DieMutBase[AppTemplateValuesDownwardAPIItem, *AppTemplateValuesDownwardAPIItemDie, *AppTemplateValuesDownwardAPIItemDieMut]
 }
@@ -2799,12 +2799,12 @@ func (d *AppTemplateValuesDownwardAPIItemDieMut) KubernetesAPIs() *KubernetesAPI
 }
 
 // AppTemplateValuesSourceDie is immutable: it reads.
-// AppTemplateValuesSourceDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppTemplateValuesSourceDieMut], its mutable die, also writes, as DieWith passes it.
 type AppTemplateValuesSourceDie struct {
 	diebase.DieBase[AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut]
 }
 
-// AppTemplateValuesSourceDieMut is the mutable die of AppTemplateValuesSource: see AppTemplateValuesSourceDie.
+// AppTemplateValuesSourceDieMut is the mutable die of [AppTemplateValuesSource]: see [AppTemplateValuesSourceDie].
 type AppTemplateValuesSourceDieMut struct {
 	diebase.DieMutBase[AppTemplateValuesSource, *AppTemplateValuesSourceDie, *AppTemplateValuesSourceDieMut]
 }
@@ -2873,12 +2873,12 @@ func (d *AppTemplateValuesSourceDieMut) DownwardAPI() *AppTemplateValuesDownward
 }
 
 // AppTemplateValuesSourceRefDie is immutable: it reads.
-// AppTemplateValuesSourceRefDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppTemplateValuesSourceRefDieMut], its mutable die, also writes, as DieWith passes it.
 type AppTemplateValuesSourceRefDie struct {
 	diebase.DieBase[AppTemplateValuesSourceRef, *AppTemplateValuesSourceRefDie, *AppTemplateValuesSourceRefDieMut]
 }
 
-// AppTemplateValuesSourceRefDieMut is the mutable die of AppTemplateValuesSourceRef: see AppTemplateValuesSourceRefDie.
+// AppTemplateValuesSourceRefDieMut is the mutable die of [AppTemplateValuesSourceRef]: see [AppTemplateValuesSourceRefDie].
 type AppTemplateValuesSourceRefDieMut struct {
 	diebase.DieMutBase[AppTemplateValuesSourceRef, *AppTemplateValuesSourceRefDie, *AppTemplateValuesSourceRefDieMut]
 }
@@ -2917,12 +2917,12 @@ func (d *AppTemplateValuesSourceRefDieMut) Name() diefields.ValueMut[string, *Ap
 }
 
 // AppTemplateYttDie is immutable: it reads.
-// AppTemplateYttDieMut, its mutable die, also writes, as DieWith passes it.
+// [AppTemplateYttDieMut], its mutable die, also writes, as DieWith passes it.
 type AppTemplateYttDie struct {
 	diebase.DieBase[AppTemplateYtt, *AppTemplateYttDie, *AppTemplateYttDieMut]
 }
 
-// AppTemplateYttDieMut is the mutable die of AppTemplateYtt: see AppTemplateYttDie.
+// AppTemplateYttDieMut is the mutable die of [AppTemplateYtt]: see [AppTemplateYttDie].
 type AppTemplateYttDieMut struct {
 	diebase.DieMutBase[AppTemplateYtt, *AppTemplateYttDie, *AppTemplateYttDieMut]
 }
@@ -3031,12 +3031,12 @@ func (d *AppTemplateYttDieMut) ValuesFrom() diefields.ValueMut[[]AppTemplateValu
 // AssociatedResources contains the associated App label, namespaces and GKs
 //
 // AssociatedResourcesDie is immutable: it reads.
-// AssociatedResourcesDieMut, its mutable die, also writes, as DieWith passes it.
+// [AssociatedResourcesDieMut], its mutable die, also writes, as DieWith passes it.
 type AssociatedResourcesDie struct {
 	diebase.DieBase[AssociatedResources, *AssociatedResourcesDie, *AssociatedResourcesDieMut]
 }
 
-// AssociatedResourcesDieMut is the mutable die of AssociatedResources: see AssociatedResourcesDie.
+// AssociatedResourcesDieMut is the mutable die of [AssociatedResources]: see [AssociatedResourcesDie].
 type AssociatedResourcesDieMut struct {
 	diebase.DieMutBase[AssociatedResources, *AssociatedResourcesDie, *AssociatedResourcesDieMut]
 }
@@ -3095,12 +3095,12 @@ func (d *AssociatedResourcesDieMut) GroupKinds() diefields.ValueMut[[]diemetav1.
 }
 
 // ConditionDie is immutable: it reads.
-// ConditionDieMut, its mutable die, also writes, as DieWith passes it.
+// [ConditionDieMut], its mutable die, also writes, as DieWith passes it.
 type ConditionDie struct {
 	diebase.DieBase[Condition, *ConditionDie, *ConditionDieMut]
 }
 
-// ConditionDieMut is the mutable die of Condition: see ConditionDie.
+// ConditionDieMut is the mutable die of [Condition]: see [ConditionDie].
 type ConditionDieMut struct {
 	diebase.DieMutBase[Condition, *ConditionDie, *ConditionDieMut]
 }
@@ -3177,12 +3177,12 @@ func (d *ConditionDieMut) Message() diefields.ValueMut[string, *ConditionDieMut]
 }
 
 // GenericStatusDie is immutable: it reads.
-// GenericStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [GenericStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type GenericStatusDie struct {
 	diebase.DieBase[GenericStatus, *GenericStatusDie, *GenericStatusDieMut]
 }
 
-// GenericStatusDieMut is the mutable die of GenericStatus: see GenericStatusDie.
+// GenericStatusDieMut is the mutable die of [GenericStatus]: see [GenericStatusDie].
 type GenericStatusDieMut struct {
 	diebase.DieMutBase[GenericStatus, *GenericStatusDie, *GenericStatusDieMut]
 }
@@ -3259,12 +3259,12 @@ func (d *GenericStatusDieMut) UsefulErrorMessage() diefields.ValueMut[string, *G
 // KappDeployStatus contains the associated AppCR deployed resources
 //
 // KappDeployStatusDie is immutable: it reads.
-// KappDeployStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [KappDeployStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type KappDeployStatusDie struct {
 	diebase.DieBase[KappDeployStatus, *KappDeployStatusDie, *KappDeployStatusDieMut]
 }
 
-// KappDeployStatusDieMut is the mutable die of KappDeployStatus: see KappDeployStatusDie.
+// KappDeployStatusDieMut is the mutable die of [KappDeployStatus]: see [KappDeployStatusDie].
 type KappDeployStatusDieMut struct {
 	diebase.DieMutBase[KappDeployStatus, *KappDeployStatusDie, *KappDeployStatusDieMut]
 }
@@ -3303,12 +3303,12 @@ func (d *KappDeployStatusDieMut) AssociatedResources() *AssociatedResourcesDieMu
 }
 
 // KubernetesAPIsDie is immutable: it reads.
-// KubernetesAPIsDieMut, its mutable die, also writes, as DieWith passes it.
+// [KubernetesAPIsDieMut], its mutable die, also writes, as DieWith passes it.
 type KubernetesAPIsDie struct {
 	diebase.DieBase[KubernetesAPIs, *KubernetesAPIsDie, *KubernetesAPIsDieMut]
 }
 
-// KubernetesAPIsDieMut is the mutable die of KubernetesAPIs: see KubernetesAPIsDie.
+// KubernetesAPIsDieMut is the mutable die of [KubernetesAPIs]: see [KubernetesAPIsDie].
 type KubernetesAPIsDieMut struct {
 	diebase.DieMutBase[KubernetesAPIs, *KubernetesAPIsDie, *KubernetesAPIsDieMut]
 }
@@ -3347,12 +3347,12 @@ func (d *KubernetesAPIsDieMut) GroupVersions() diefields.ValueMut[[]string, *Kub
 }
 
 // VersionDie is immutable: it reads.
-// VersionDieMut, its mutable die, also writes, as DieWith passes it.
+// [VersionDieMut], its mutable die, also writes, as DieWith passes it.
 type VersionDie struct {
 	diebase.DieBase[Version, *VersionDie, *VersionDieMut]
 }
 
-// VersionDieMut is the mutable die of Version: see VersionDie.
+// VersionDieMut is the mutable die of [Version]: see [VersionDie].
 type VersionDieMut struct {
 	diebase.DieMutBase[Version, *VersionDie, *VersionDieMut]
 }

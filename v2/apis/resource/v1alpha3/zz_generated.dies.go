@@ -34,12 +34,12 @@ import (
 // CELDeviceSelector contains a CEL expression for selecting a device.
 //
 // CELDeviceSelectorDie is immutable: it reads.
-// CELDeviceSelectorDieMut, its mutable die, also writes, as DieWith passes it.
+// [CELDeviceSelectorDieMut], its mutable die, also writes, as DieWith passes it.
 type CELDeviceSelectorDie struct {
 	diebase.DieBase[CELDeviceSelector, *CELDeviceSelectorDie, *CELDeviceSelectorDieMut]
 }
 
-// CELDeviceSelectorDieMut is the mutable die of CELDeviceSelector: see CELDeviceSelectorDie.
+// CELDeviceSelectorDieMut is the mutable die of [CELDeviceSelector]: see [CELDeviceSelectorDie].
 type CELDeviceSelectorDieMut struct {
 	diebase.DieMutBase[CELDeviceSelector, *CELDeviceSelectorDie, *CELDeviceSelectorDieMut]
 }
@@ -198,12 +198,12 @@ func (d *CELDeviceSelectorDieMut) Expression() diefields.ValueMut[string, *CELDe
 // DeviceSelector must have exactly one field set.
 //
 // DeviceSelectorDie is immutable: it reads.
-// DeviceSelectorDieMut, its mutable die, also writes, as DieWith passes it.
+// [DeviceSelectorDieMut], its mutable die, also writes, as DieWith passes it.
 type DeviceSelectorDie struct {
 	diebase.DieBase[DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut]
 }
 
-// DeviceSelectorDieMut is the mutable die of DeviceSelector: see DeviceSelectorDie.
+// DeviceSelectorDieMut is the mutable die of [DeviceSelector]: see [DeviceSelectorDie].
 type DeviceSelectorDieMut struct {
 	diebase.DieMutBase[DeviceSelector, *DeviceSelectorDie, *DeviceSelectorDieMut]
 }
@@ -248,12 +248,12 @@ func (d *DeviceSelectorDieMut) CEL() *CELDeviceSelectorDieMut {
 // to pods using the claim.
 //
 // DeviceTaintDie is immutable: it reads.
-// DeviceTaintDieMut, its mutable die, also writes, as DieWith passes it.
+// [DeviceTaintDieMut], its mutable die, also writes, as DieWith passes it.
 type DeviceTaintDie struct {
 	diebase.DieBase[DeviceTaint, *DeviceTaintDie, *DeviceTaintDieMut]
 }
 
-// DeviceTaintDieMut is the mutable die of DeviceTaint: see DeviceTaintDie.
+// DeviceTaintDieMut is the mutable die of [DeviceTaint]: see [DeviceTaintDie].
 type DeviceTaintDieMut struct {
 	diebase.DieMutBase[DeviceTaint, *DeviceTaintDie, *DeviceTaintDieMut]
 }
@@ -280,8 +280,8 @@ func (d *DeviceTaintDie) DieReleaseApplyConfiguration() *DeviceTaintApplyConfigu
 	return diecodegen.ReleaseApplyConfiguration[DeviceTaintApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [DeviceTaintDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintDie) DieReleaseApplyConfigurationE() (*DeviceTaintApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[DeviceTaintApplyConfiguration](d)
 }
@@ -293,8 +293,8 @@ func (d *DeviceTaintDieMut) DieReleaseApplyConfiguration() *DeviceTaintApplyConf
 	return diecodegen.ReleaseApplyConfiguration[DeviceTaintApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [DeviceTaintDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintDieMut) DieReleaseApplyConfigurationE() (*DeviceTaintApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[DeviceTaintApplyConfiguration](d)
 }
@@ -312,14 +312,14 @@ func (d *DeviceTaintDieMut) DieStampApplyConfiguration(fn func(ac *DeviceTaintAp
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [DeviceTaintDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintDieMut) DieFeedApplyConfigurationE(ac *DeviceTaintApplyConfiguration) (*DeviceTaintDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [DeviceTaintDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintDieMut) DieStampApplyConfigurationE(fn func(ac *DeviceTaintApplyConfiguration)) (*DeviceTaintDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -419,12 +419,12 @@ func (d *DeviceTaintDieMut) TimeAdded() diefields.OptionalMut[diemetav1.Time, *D
 // in the ResourceSlice by the DRA driver.
 //
 // DeviceTaintRuleDie is immutable: it reads.
-// DeviceTaintRuleDieMut, its mutable die, also writes, as DieWith passes it.
+// [DeviceTaintRuleDieMut], its mutable die, also writes, as DieWith passes it.
 type DeviceTaintRuleDie struct {
 	diebase.DieObjectBase[DeviceTaintRule, *DeviceTaintRuleDie, *DeviceTaintRuleDieMut]
 }
 
-// DeviceTaintRuleDieMut is the mutable die of DeviceTaintRule: see DeviceTaintRuleDie.
+// DeviceTaintRuleDieMut is the mutable die of [DeviceTaintRule]: see [DeviceTaintRuleDie].
 type DeviceTaintRuleDieMut struct {
 	diebase.DieObjectMutBase[DeviceTaintRule, *DeviceTaintRuleDie, *DeviceTaintRuleDieMut]
 }
@@ -451,8 +451,8 @@ func (d *DeviceTaintRuleDie) DieReleaseApplyConfiguration() *DeviceTaintRuleAppl
 	return diecodegen.ReleaseApplyConfiguration[DeviceTaintRuleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [DeviceTaintRuleDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintRuleDie) DieReleaseApplyConfigurationE() (*DeviceTaintRuleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[DeviceTaintRuleApplyConfiguration](d)
 }
@@ -464,8 +464,8 @@ func (d *DeviceTaintRuleDieMut) DieReleaseApplyConfiguration() *DeviceTaintRuleA
 	return diecodegen.ReleaseApplyConfiguration[DeviceTaintRuleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [DeviceTaintRuleDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintRuleDieMut) DieReleaseApplyConfigurationE() (*DeviceTaintRuleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[DeviceTaintRuleApplyConfiguration](d)
 }
@@ -483,14 +483,14 @@ func (d *DeviceTaintRuleDieMut) DieStampApplyConfiguration(fn func(ac *DeviceTai
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [DeviceTaintRuleDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintRuleDieMut) DieFeedApplyConfigurationE(ac *DeviceTaintRuleApplyConfiguration) (*DeviceTaintRuleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [DeviceTaintRuleDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintRuleDieMut) DieStampApplyConfigurationE(fn func(ac *DeviceTaintRuleApplyConfiguration)) (*DeviceTaintRuleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -603,12 +603,12 @@ func (l *DeviceTaintRuleListDie) DeepCopyObject() runtime.Object { return l.Deep
 // DeviceTaintRuleSpec specifies the selector and one taint.
 //
 // DeviceTaintRuleSpecDie is immutable: it reads.
-// DeviceTaintRuleSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [DeviceTaintRuleSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type DeviceTaintRuleSpecDie struct {
 	diebase.DieBase[DeviceTaintRuleSpec, *DeviceTaintRuleSpecDie, *DeviceTaintRuleSpecDieMut]
 }
 
-// DeviceTaintRuleSpecDieMut is the mutable die of DeviceTaintRuleSpec: see DeviceTaintRuleSpecDie.
+// DeviceTaintRuleSpecDieMut is the mutable die of [DeviceTaintRuleSpec]: see [DeviceTaintRuleSpecDie].
 type DeviceTaintRuleSpecDieMut struct {
 	diebase.DieMutBase[DeviceTaintRuleSpec, *DeviceTaintRuleSpecDie, *DeviceTaintRuleSpecDieMut]
 }
@@ -635,8 +635,8 @@ func (d *DeviceTaintRuleSpecDie) DieReleaseApplyConfiguration() *DeviceTaintRule
 	return diecodegen.ReleaseApplyConfiguration[DeviceTaintRuleSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [DeviceTaintRuleSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintRuleSpecDie) DieReleaseApplyConfigurationE() (*DeviceTaintRuleSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[DeviceTaintRuleSpecApplyConfiguration](d)
 }
@@ -648,8 +648,8 @@ func (d *DeviceTaintRuleSpecDieMut) DieReleaseApplyConfiguration() *DeviceTaintR
 	return diecodegen.ReleaseApplyConfiguration[DeviceTaintRuleSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [DeviceTaintRuleSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintRuleSpecDieMut) DieReleaseApplyConfigurationE() (*DeviceTaintRuleSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[DeviceTaintRuleSpecApplyConfiguration](d)
 }
@@ -667,14 +667,14 @@ func (d *DeviceTaintRuleSpecDieMut) DieStampApplyConfiguration(fn func(ac *Devic
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [DeviceTaintRuleSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintRuleSpecDieMut) DieFeedApplyConfigurationE(ac *DeviceTaintRuleSpecApplyConfiguration) (*DeviceTaintRuleSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [DeviceTaintRuleSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintRuleSpecDieMut) DieStampApplyConfigurationE(fn func(ac *DeviceTaintRuleSpecApplyConfiguration)) (*DeviceTaintRuleSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -720,12 +720,12 @@ func (d *DeviceTaintRuleSpecDieMut) Taint() *DeviceTaintDieMut {
 // DeviceTaintRuleStatus provides information about an on-going pod eviction.
 //
 // DeviceTaintRuleStatusDie is immutable: it reads.
-// DeviceTaintRuleStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [DeviceTaintRuleStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type DeviceTaintRuleStatusDie struct {
 	diebase.DieBase[DeviceTaintRuleStatus, *DeviceTaintRuleStatusDie, *DeviceTaintRuleStatusDieMut]
 }
 
-// DeviceTaintRuleStatusDieMut is the mutable die of DeviceTaintRuleStatus: see DeviceTaintRuleStatusDie.
+// DeviceTaintRuleStatusDieMut is the mutable die of [DeviceTaintRuleStatus]: see [DeviceTaintRuleStatusDie].
 type DeviceTaintRuleStatusDieMut struct {
 	diebase.DieMutBase[DeviceTaintRuleStatus, *DeviceTaintRuleStatusDie, *DeviceTaintRuleStatusDieMut]
 }
@@ -752,8 +752,8 @@ func (d *DeviceTaintRuleStatusDie) DieReleaseApplyConfiguration() *DeviceTaintRu
 	return diecodegen.ReleaseApplyConfiguration[DeviceTaintRuleStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [DeviceTaintRuleStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintRuleStatusDie) DieReleaseApplyConfigurationE() (*DeviceTaintRuleStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[DeviceTaintRuleStatusApplyConfiguration](d)
 }
@@ -765,8 +765,8 @@ func (d *DeviceTaintRuleStatusDieMut) DieReleaseApplyConfiguration() *DeviceTain
 	return diecodegen.ReleaseApplyConfiguration[DeviceTaintRuleStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [DeviceTaintRuleStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintRuleStatusDieMut) DieReleaseApplyConfigurationE() (*DeviceTaintRuleStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[DeviceTaintRuleStatusApplyConfiguration](d)
 }
@@ -784,14 +784,14 @@ func (d *DeviceTaintRuleStatusDieMut) DieStampApplyConfiguration(fn func(ac *Dev
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [DeviceTaintRuleStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintRuleStatusDieMut) DieFeedApplyConfigurationE(ac *DeviceTaintRuleStatusApplyConfiguration) (*DeviceTaintRuleStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [DeviceTaintRuleStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintRuleStatusDieMut) DieStampApplyConfigurationE(fn func(ac *DeviceTaintRuleStatusApplyConfiguration)) (*DeviceTaintRuleStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -859,12 +859,12 @@ func (d *DeviceTaintRuleStatusDieMut) Conditions() *diefields.ListMapMut[diemeta
 // are matched.
 //
 // DeviceTaintSelectorDie is immutable: it reads.
-// DeviceTaintSelectorDieMut, its mutable die, also writes, as DieWith passes it.
+// [DeviceTaintSelectorDieMut], its mutable die, also writes, as DieWith passes it.
 type DeviceTaintSelectorDie struct {
 	diebase.DieBase[DeviceTaintSelector, *DeviceTaintSelectorDie, *DeviceTaintSelectorDieMut]
 }
 
-// DeviceTaintSelectorDieMut is the mutable die of DeviceTaintSelector: see DeviceTaintSelectorDie.
+// DeviceTaintSelectorDieMut is the mutable die of [DeviceTaintSelector]: see [DeviceTaintSelectorDie].
 type DeviceTaintSelectorDieMut struct {
 	diebase.DieMutBase[DeviceTaintSelector, *DeviceTaintSelectorDie, *DeviceTaintSelectorDieMut]
 }
@@ -891,8 +891,8 @@ func (d *DeviceTaintSelectorDie) DieReleaseApplyConfiguration() *DeviceTaintSele
 	return diecodegen.ReleaseApplyConfiguration[DeviceTaintSelectorApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [DeviceTaintSelectorDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintSelectorDie) DieReleaseApplyConfigurationE() (*DeviceTaintSelectorApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[DeviceTaintSelectorApplyConfiguration](d)
 }
@@ -904,8 +904,8 @@ func (d *DeviceTaintSelectorDieMut) DieReleaseApplyConfiguration() *DeviceTaintS
 	return diecodegen.ReleaseApplyConfiguration[DeviceTaintSelectorApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [DeviceTaintSelectorDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintSelectorDieMut) DieReleaseApplyConfigurationE() (*DeviceTaintSelectorApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[DeviceTaintSelectorApplyConfiguration](d)
 }
@@ -923,14 +923,14 @@ func (d *DeviceTaintSelectorDieMut) DieStampApplyConfiguration(fn func(ac *Devic
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [DeviceTaintSelectorDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintSelectorDieMut) DieFeedApplyConfigurationE(ac *DeviceTaintSelectorApplyConfiguration) (*DeviceTaintSelectorDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [DeviceTaintSelectorDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeviceTaintSelectorDieMut) DieStampApplyConfigurationE(fn func(ac *DeviceTaintSelectorApplyConfiguration)) (*DeviceTaintSelectorDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1007,12 +1007,12 @@ func (d *DeviceTaintSelectorDieMut) Device() diefields.OptionalMut[string, *Devi
 // identified by the value of a grouping attribute.
 //
 // PartitionTypeStatusDie is immutable: it reads.
-// PartitionTypeStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [PartitionTypeStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type PartitionTypeStatusDie struct {
 	diebase.DieBase[PartitionTypeStatus, *PartitionTypeStatusDie, *PartitionTypeStatusDieMut]
 }
 
-// PartitionTypeStatusDieMut is the mutable die of PartitionTypeStatus: see PartitionTypeStatusDie.
+// PartitionTypeStatusDieMut is the mutable die of [PartitionTypeStatus]: see [PartitionTypeStatusDie].
 type PartitionTypeStatusDieMut struct {
 	diebase.DieMutBase[PartitionTypeStatus, *PartitionTypeStatusDie, *PartitionTypeStatusDieMut]
 }
@@ -1039,8 +1039,8 @@ func (d *PartitionTypeStatusDie) DieReleaseApplyConfiguration() *PartitionTypeSt
 	return diecodegen.ReleaseApplyConfiguration[PartitionTypeStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PartitionTypeStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PartitionTypeStatusDie) DieReleaseApplyConfigurationE() (*PartitionTypeStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PartitionTypeStatusApplyConfiguration](d)
 }
@@ -1052,8 +1052,8 @@ func (d *PartitionTypeStatusDieMut) DieReleaseApplyConfiguration() *PartitionTyp
 	return diecodegen.ReleaseApplyConfiguration[PartitionTypeStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PartitionTypeStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PartitionTypeStatusDieMut) DieReleaseApplyConfigurationE() (*PartitionTypeStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PartitionTypeStatusApplyConfiguration](d)
 }
@@ -1071,14 +1071,14 @@ func (d *PartitionTypeStatusDieMut) DieStampApplyConfiguration(fn func(ac *Parti
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PartitionTypeStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PartitionTypeStatusDieMut) DieFeedApplyConfigurationE(ac *PartitionTypeStatusApplyConfiguration) (*PartitionTypeStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PartitionTypeStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PartitionTypeStatusDieMut) DieStampApplyConfigurationE(fn func(ac *PartitionTypeStatusApplyConfiguration)) (*PartitionTypeStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1150,12 +1150,12 @@ func (d *PartitionTypeStatusDieMut) Allocatable() diefields.OptionalMut[int32, *
 // PoolStatus contains status information for a single resource pool.
 //
 // PoolStatusDie is immutable: it reads.
-// PoolStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [PoolStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type PoolStatusDie struct {
 	diebase.DieBase[PoolStatus, *PoolStatusDie, *PoolStatusDieMut]
 }
 
-// PoolStatusDieMut is the mutable die of PoolStatus: see PoolStatusDie.
+// PoolStatusDieMut is the mutable die of [PoolStatus]: see [PoolStatusDie].
 type PoolStatusDieMut struct {
 	diebase.DieMutBase[PoolStatus, *PoolStatusDie, *PoolStatusDieMut]
 }
@@ -1182,8 +1182,8 @@ func (d *PoolStatusDie) DieReleaseApplyConfiguration() *PoolStatusApplyConfigura
 	return diecodegen.ReleaseApplyConfiguration[PoolStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PoolStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PoolStatusDie) DieReleaseApplyConfigurationE() (*PoolStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PoolStatusApplyConfiguration](d)
 }
@@ -1195,8 +1195,8 @@ func (d *PoolStatusDieMut) DieReleaseApplyConfiguration() *PoolStatusApplyConfig
 	return diecodegen.ReleaseApplyConfiguration[PoolStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PoolStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PoolStatusDieMut) DieReleaseApplyConfigurationE() (*PoolStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PoolStatusApplyConfiguration](d)
 }
@@ -1214,14 +1214,14 @@ func (d *PoolStatusDieMut) DieStampApplyConfiguration(fn func(ac *PoolStatusAppl
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PoolStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PoolStatusDieMut) DieFeedApplyConfigurationE(ac *PoolStatusApplyConfiguration) (*PoolStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PoolStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PoolStatusDieMut) DieStampApplyConfigurationE(fn func(ac *PoolStatusApplyConfiguration)) (*PoolStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1441,12 +1441,12 @@ func (d *PoolStatusDieMut) ShareableSummary() *ShareableSummaryStatusDieMut {
 // Users should delete and recreate requests to get updated information.
 //
 // ResourcePoolStatusRequestDie is immutable: it reads.
-// ResourcePoolStatusRequestDieMut, its mutable die, also writes, as DieWith passes it.
+// [ResourcePoolStatusRequestDieMut], its mutable die, also writes, as DieWith passes it.
 type ResourcePoolStatusRequestDie struct {
 	diebase.DieObjectBase[ResourcePoolStatusRequest, *ResourcePoolStatusRequestDie, *ResourcePoolStatusRequestDieMut]
 }
 
-// ResourcePoolStatusRequestDieMut is the mutable die of ResourcePoolStatusRequest: see ResourcePoolStatusRequestDie.
+// ResourcePoolStatusRequestDieMut is the mutable die of [ResourcePoolStatusRequest]: see [ResourcePoolStatusRequestDie].
 type ResourcePoolStatusRequestDieMut struct {
 	diebase.DieObjectMutBase[ResourcePoolStatusRequest, *ResourcePoolStatusRequestDie, *ResourcePoolStatusRequestDieMut]
 }
@@ -1473,8 +1473,8 @@ func (d *ResourcePoolStatusRequestDie) DieReleaseApplyConfiguration() *ResourceP
 	return diecodegen.ReleaseApplyConfiguration[ResourcePoolStatusRequestApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ResourcePoolStatusRequestDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ResourcePoolStatusRequestDie) DieReleaseApplyConfigurationE() (*ResourcePoolStatusRequestApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ResourcePoolStatusRequestApplyConfiguration](d)
 }
@@ -1486,8 +1486,8 @@ func (d *ResourcePoolStatusRequestDieMut) DieReleaseApplyConfiguration() *Resour
 	return diecodegen.ReleaseApplyConfiguration[ResourcePoolStatusRequestApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ResourcePoolStatusRequestDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ResourcePoolStatusRequestDieMut) DieReleaseApplyConfigurationE() (*ResourcePoolStatusRequestApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ResourcePoolStatusRequestApplyConfiguration](d)
 }
@@ -1505,14 +1505,14 @@ func (d *ResourcePoolStatusRequestDieMut) DieStampApplyConfiguration(fn func(ac 
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ResourcePoolStatusRequestDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ResourcePoolStatusRequestDieMut) DieFeedApplyConfigurationE(ac *ResourcePoolStatusRequestApplyConfiguration) (*ResourcePoolStatusRequestDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ResourcePoolStatusRequestDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ResourcePoolStatusRequestDieMut) DieStampApplyConfigurationE(fn func(ac *ResourcePoolStatusRequestApplyConfiguration)) (*ResourcePoolStatusRequestDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1627,12 +1627,12 @@ func (l *ResourcePoolStatusRequestListDie) DeepCopyObject() runtime.Object { ret
 // ResourcePoolStatusRequestSpec defines the filters for the pool status request.
 //
 // ResourcePoolStatusRequestSpecDie is immutable: it reads.
-// ResourcePoolStatusRequestSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [ResourcePoolStatusRequestSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type ResourcePoolStatusRequestSpecDie struct {
 	diebase.DieBase[ResourcePoolStatusRequestSpec, *ResourcePoolStatusRequestSpecDie, *ResourcePoolStatusRequestSpecDieMut]
 }
 
-// ResourcePoolStatusRequestSpecDieMut is the mutable die of ResourcePoolStatusRequestSpec: see ResourcePoolStatusRequestSpecDie.
+// ResourcePoolStatusRequestSpecDieMut is the mutable die of [ResourcePoolStatusRequestSpec]: see [ResourcePoolStatusRequestSpecDie].
 type ResourcePoolStatusRequestSpecDieMut struct {
 	diebase.DieMutBase[ResourcePoolStatusRequestSpec, *ResourcePoolStatusRequestSpecDie, *ResourcePoolStatusRequestSpecDieMut]
 }
@@ -1659,8 +1659,8 @@ func (d *ResourcePoolStatusRequestSpecDie) DieReleaseApplyConfiguration() *Resou
 	return diecodegen.ReleaseApplyConfiguration[ResourcePoolStatusRequestSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ResourcePoolStatusRequestSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ResourcePoolStatusRequestSpecDie) DieReleaseApplyConfigurationE() (*ResourcePoolStatusRequestSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ResourcePoolStatusRequestSpecApplyConfiguration](d)
 }
@@ -1672,8 +1672,8 @@ func (d *ResourcePoolStatusRequestSpecDieMut) DieReleaseApplyConfiguration() *Re
 	return diecodegen.ReleaseApplyConfiguration[ResourcePoolStatusRequestSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ResourcePoolStatusRequestSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ResourcePoolStatusRequestSpecDieMut) DieReleaseApplyConfigurationE() (*ResourcePoolStatusRequestSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ResourcePoolStatusRequestSpecApplyConfiguration](d)
 }
@@ -1691,14 +1691,14 @@ func (d *ResourcePoolStatusRequestSpecDieMut) DieStampApplyConfiguration(fn func
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ResourcePoolStatusRequestSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ResourcePoolStatusRequestSpecDieMut) DieFeedApplyConfigurationE(ac *ResourcePoolStatusRequestSpecApplyConfiguration) (*ResourcePoolStatusRequestSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ResourcePoolStatusRequestSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ResourcePoolStatusRequestSpecDieMut) DieStampApplyConfigurationE(fn func(ac *ResourcePoolStatusRequestSpecApplyConfiguration)) (*ResourcePoolStatusRequestSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1806,12 +1806,12 @@ func (d *ResourcePoolStatusRequestSpecDieMut) DefaultPartitionTypeAttribute() di
 // ResourcePoolStatusRequestStatus contains the calculated pool status information.
 //
 // ResourcePoolStatusRequestStatusDie is immutable: it reads.
-// ResourcePoolStatusRequestStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [ResourcePoolStatusRequestStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type ResourcePoolStatusRequestStatusDie struct {
 	diebase.DieBase[ResourcePoolStatusRequestStatus, *ResourcePoolStatusRequestStatusDie, *ResourcePoolStatusRequestStatusDieMut]
 }
 
-// ResourcePoolStatusRequestStatusDieMut is the mutable die of ResourcePoolStatusRequestStatus: see ResourcePoolStatusRequestStatusDie.
+// ResourcePoolStatusRequestStatusDieMut is the mutable die of [ResourcePoolStatusRequestStatus]: see [ResourcePoolStatusRequestStatusDie].
 type ResourcePoolStatusRequestStatusDieMut struct {
 	diebase.DieMutBase[ResourcePoolStatusRequestStatus, *ResourcePoolStatusRequestStatusDie, *ResourcePoolStatusRequestStatusDieMut]
 }
@@ -1838,8 +1838,8 @@ func (d *ResourcePoolStatusRequestStatusDie) DieReleaseApplyConfiguration() *Res
 	return diecodegen.ReleaseApplyConfiguration[ResourcePoolStatusRequestStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ResourcePoolStatusRequestStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ResourcePoolStatusRequestStatusDie) DieReleaseApplyConfigurationE() (*ResourcePoolStatusRequestStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ResourcePoolStatusRequestStatusApplyConfiguration](d)
 }
@@ -1851,8 +1851,8 @@ func (d *ResourcePoolStatusRequestStatusDieMut) DieReleaseApplyConfiguration() *
 	return diecodegen.ReleaseApplyConfiguration[ResourcePoolStatusRequestStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ResourcePoolStatusRequestStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ResourcePoolStatusRequestStatusDieMut) DieReleaseApplyConfigurationE() (*ResourcePoolStatusRequestStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ResourcePoolStatusRequestStatusApplyConfiguration](d)
 }
@@ -1870,14 +1870,14 @@ func (d *ResourcePoolStatusRequestStatusDieMut) DieStampApplyConfiguration(fn fu
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ResourcePoolStatusRequestStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ResourcePoolStatusRequestStatusDieMut) DieFeedApplyConfigurationE(ac *ResourcePoolStatusRequestStatusApplyConfiguration) (*ResourcePoolStatusRequestStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ResourcePoolStatusRequestStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ResourcePoolStatusRequestStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ResourcePoolStatusRequestStatusApplyConfiguration)) (*ResourcePoolStatusRequestStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1952,12 +1952,12 @@ func (d *ResourcePoolStatusRequestStatusDieMut) Conditions() *diefields.ListMapM
 // capacity key.
 //
 // ShareableCapacityStatusDie is immutable: it reads.
-// ShareableCapacityStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [ShareableCapacityStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type ShareableCapacityStatusDie struct {
 	diebase.DieBase[ShareableCapacityStatus, *ShareableCapacityStatusDie, *ShareableCapacityStatusDieMut]
 }
 
-// ShareableCapacityStatusDieMut is the mutable die of ShareableCapacityStatus: see ShareableCapacityStatusDie.
+// ShareableCapacityStatusDieMut is the mutable die of [ShareableCapacityStatus]: see [ShareableCapacityStatusDie].
 type ShareableCapacityStatusDieMut struct {
 	diebase.DieMutBase[ShareableCapacityStatus, *ShareableCapacityStatusDie, *ShareableCapacityStatusDieMut]
 }
@@ -1984,8 +1984,8 @@ func (d *ShareableCapacityStatusDie) DieReleaseApplyConfiguration() *ShareableCa
 	return diecodegen.ReleaseApplyConfiguration[ShareableCapacityStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ShareableCapacityStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ShareableCapacityStatusDie) DieReleaseApplyConfigurationE() (*ShareableCapacityStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ShareableCapacityStatusApplyConfiguration](d)
 }
@@ -1997,8 +1997,8 @@ func (d *ShareableCapacityStatusDieMut) DieReleaseApplyConfiguration() *Shareabl
 	return diecodegen.ReleaseApplyConfiguration[ShareableCapacityStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ShareableCapacityStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ShareableCapacityStatusDieMut) DieReleaseApplyConfigurationE() (*ShareableCapacityStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ShareableCapacityStatusApplyConfiguration](d)
 }
@@ -2016,14 +2016,14 @@ func (d *ShareableCapacityStatusDieMut) DieStampApplyConfiguration(fn func(ac *S
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ShareableCapacityStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ShareableCapacityStatusDieMut) DieFeedApplyConfigurationE(ac *ShareableCapacityStatusApplyConfiguration) (*ShareableCapacityStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ShareableCapacityStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ShareableCapacityStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ShareableCapacityStatusApplyConfiguration)) (*ShareableCapacityStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2088,12 +2088,12 @@ func (d *ShareableCapacityStatusDieMut) Available() diefields.OptionalMut[resour
 // devices with AllowMultipleAllocations.
 //
 // ShareableSummaryStatusDie is immutable: it reads.
-// ShareableSummaryStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [ShareableSummaryStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type ShareableSummaryStatusDie struct {
 	diebase.DieBase[ShareableSummaryStatus, *ShareableSummaryStatusDie, *ShareableSummaryStatusDieMut]
 }
 
-// ShareableSummaryStatusDieMut is the mutable die of ShareableSummaryStatus: see ShareableSummaryStatusDie.
+// ShareableSummaryStatusDieMut is the mutable die of [ShareableSummaryStatus]: see [ShareableSummaryStatusDie].
 type ShareableSummaryStatusDieMut struct {
 	diebase.DieMutBase[ShareableSummaryStatus, *ShareableSummaryStatusDie, *ShareableSummaryStatusDieMut]
 }
@@ -2120,8 +2120,8 @@ func (d *ShareableSummaryStatusDie) DieReleaseApplyConfiguration() *ShareableSum
 	return diecodegen.ReleaseApplyConfiguration[ShareableSummaryStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ShareableSummaryStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ShareableSummaryStatusDie) DieReleaseApplyConfigurationE() (*ShareableSummaryStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ShareableSummaryStatusApplyConfiguration](d)
 }
@@ -2133,8 +2133,8 @@ func (d *ShareableSummaryStatusDieMut) DieReleaseApplyConfiguration() *Shareable
 	return diecodegen.ReleaseApplyConfiguration[ShareableSummaryStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ShareableSummaryStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ShareableSummaryStatusDieMut) DieReleaseApplyConfigurationE() (*ShareableSummaryStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ShareableSummaryStatusApplyConfiguration](d)
 }
@@ -2152,14 +2152,14 @@ func (d *ShareableSummaryStatusDieMut) DieStampApplyConfiguration(fn func(ac *Sh
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ShareableSummaryStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ShareableSummaryStatusDieMut) DieFeedApplyConfigurationE(ac *ShareableSummaryStatusApplyConfiguration) (*ShareableSummaryStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ShareableSummaryStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ShareableSummaryStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ShareableSummaryStatusApplyConfiguration)) (*ShareableSummaryStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

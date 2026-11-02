@@ -41,12 +41,12 @@ import (
 // See also: https://github.com/knative/serving/blob/main/docs/spec/overview.md#configuration
 //
 // ConfigurationDie is immutable: it reads.
-// ConfigurationDieMut, its mutable die, also writes, as DieWith passes it.
+// [ConfigurationDieMut], its mutable die, also writes, as DieWith passes it.
 type ConfigurationDie struct {
 	diebase.DieObjectBase[Configuration, *ConfigurationDie, *ConfigurationDieMut]
 }
 
-// ConfigurationDieMut is the mutable die of Configuration: see ConfigurationDie.
+// ConfigurationDieMut is the mutable die of [Configuration]: see [ConfigurationDie].
 type ConfigurationDieMut struct {
 	diebase.DieObjectMutBase[Configuration, *ConfigurationDie, *ConfigurationDieMut]
 }
@@ -164,12 +164,12 @@ func (l *ConfigurationListDie) DeepCopyObject() runtime.Object { return l.DeepCo
 // ConfigurationSpec holds the desired state of the Configuration (from the client).
 //
 // ConfigurationSpecDie is immutable: it reads.
-// ConfigurationSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [ConfigurationSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type ConfigurationSpecDie struct {
 	diebase.DieBase[ConfigurationSpec, *ConfigurationSpecDie, *ConfigurationSpecDieMut]
 }
 
-// ConfigurationSpecDieMut is the mutable die of ConfigurationSpec: see ConfigurationSpecDie.
+// ConfigurationSpecDieMut is the mutable die of [ConfigurationSpec]: see [ConfigurationSpecDie].
 type ConfigurationSpecDieMut struct {
 	diebase.DieMutBase[ConfigurationSpec, *ConfigurationSpecDie, *ConfigurationSpecDieMut]
 }
@@ -212,12 +212,12 @@ func (d *ConfigurationSpecDieMut) Template() *RevisionTemplateSpecDieMut {
 // ConfigurationStatus communicates the observed state of the Configuration (from the controller).
 //
 // ConfigurationStatusDie is immutable: it reads.
-// ConfigurationStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [ConfigurationStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type ConfigurationStatusDie struct {
 	diebase.DieBase[ConfigurationStatus, *ConfigurationStatusDie, *ConfigurationStatusDieMut]
 }
 
-// ConfigurationStatusDieMut is the mutable die of ConfigurationStatus: see ConfigurationStatusDie.
+// ConfigurationStatusDieMut is the mutable die of [ConfigurationStatus]: see [ConfigurationStatusDie].
 type ConfigurationStatusDieMut struct {
 	diebase.DieMutBase[ConfigurationStatus, *ConfigurationStatusDie, *ConfigurationStatusDieMut]
 }
@@ -322,12 +322,12 @@ func (d *ConfigurationStatusDieMut) LatestCreatedRevisionName() diefields.ValueM
 // other types can readily consume these fields via duck typing.
 //
 // ConfigurationStatusFieldsDie is immutable: it reads.
-// ConfigurationStatusFieldsDieMut, its mutable die, also writes, as DieWith passes it.
+// [ConfigurationStatusFieldsDieMut], its mutable die, also writes, as DieWith passes it.
 type ConfigurationStatusFieldsDie struct {
 	diebase.DieBase[ConfigurationStatusFields, *ConfigurationStatusFieldsDie, *ConfigurationStatusFieldsDieMut]
 }
 
-// ConfigurationStatusFieldsDieMut is the mutable die of ConfigurationStatusFields: see ConfigurationStatusFieldsDie.
+// ConfigurationStatusFieldsDieMut is the mutable die of [ConfigurationStatusFields]: see [ConfigurationStatusFieldsDie].
 type ConfigurationStatusFieldsDieMut struct {
 	diebase.DieMutBase[ConfigurationStatusFields, *ConfigurationStatusFieldsDie, *ConfigurationStatusFieldsDieMut]
 }
@@ -386,12 +386,12 @@ func (d *ConfigurationStatusFieldsDieMut) LatestCreatedRevisionName() diefields.
 // ContainerStatus holds the information of container name and image digest value
 //
 // ContainerStatusDie is immutable: it reads.
-// ContainerStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [ContainerStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type ContainerStatusDie struct {
 	diebase.DieBase[ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]
 }
 
-// ContainerStatusDieMut is the mutable die of ContainerStatus: see ContainerStatusDie.
+// ContainerStatusDieMut is the mutable die of [ContainerStatus]: see [ContainerStatusDie].
 type ContainerStatusDieMut struct {
 	diebase.DieMutBase[ContainerStatus, *ContainerStatusDie, *ContainerStatusDieMut]
 }
@@ -446,12 +446,12 @@ func (d *ContainerStatusDieMut) ImageDigest() diefields.ValueMut[string, *Contai
 // See also: https://github.com/knative/serving/blob/main/docs/spec/overview.md#revision
 //
 // RevisionDie is immutable: it reads.
-// RevisionDieMut, its mutable die, also writes, as DieWith passes it.
+// [RevisionDieMut], its mutable die, also writes, as DieWith passes it.
 type RevisionDie struct {
 	diebase.DieObjectBase[Revision, *RevisionDie, *RevisionDieMut]
 }
 
-// RevisionDieMut is the mutable die of Revision: see RevisionDie.
+// RevisionDieMut is the mutable die of [Revision]: see [RevisionDie].
 type RevisionDieMut struct {
 	diebase.DieObjectMutBase[Revision, *RevisionDie, *RevisionDieMut]
 }
@@ -565,12 +565,12 @@ func (l *RevisionListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() 
 // RevisionSpec holds the desired state of the Revision (from the client).
 //
 // RevisionSpecDie is immutable: it reads.
-// RevisionSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [RevisionSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type RevisionSpecDie struct {
 	diebase.DieBase[RevisionSpec, *RevisionSpecDie, *RevisionSpecDieMut]
 }
 
-// RevisionSpecDieMut is the mutable die of RevisionSpec: see RevisionSpecDie.
+// RevisionSpecDieMut is the mutable die of [RevisionSpec]: see [RevisionSpecDie].
 type RevisionSpecDieMut struct {
 	diebase.DieMutBase[RevisionSpec, *RevisionSpecDie, *RevisionSpecDieMut]
 }
@@ -1563,12 +1563,12 @@ func (d *RevisionSpecDieMut) IdleTimeoutSeconds() diefields.OptionalMut[int64, *
 // RevisionStatus communicates the observed state of the Revision (from the controller).
 //
 // RevisionStatusDie is immutable: it reads.
-// RevisionStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [RevisionStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type RevisionStatusDie struct {
 	diebase.DieBase[RevisionStatus, *RevisionStatusDie, *RevisionStatusDieMut]
 }
 
-// RevisionStatusDieMut is the mutable die of RevisionStatus: see RevisionStatusDie.
+// RevisionStatusDieMut is the mutable die of [RevisionStatus]: see [RevisionStatusDie].
 type RevisionStatusDieMut struct {
 	diebase.DieMutBase[RevisionStatus, *RevisionStatusDie, *RevisionStatusDieMut]
 }
@@ -1726,12 +1726,12 @@ func (d *RevisionStatusDieMut) DesiredReplicas() diefields.OptionalMut[int32, *R
 // Based on: https://github.com/kubernetes/api/blob/e771f807/core/v1/types.go#L3179-L3190
 //
 // RevisionTemplateSpecDie is immutable: it reads.
-// RevisionTemplateSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [RevisionTemplateSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type RevisionTemplateSpecDie struct {
 	diebase.DieBase[RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut]
 }
 
-// RevisionTemplateSpecDieMut is the mutable die of RevisionTemplateSpec: see RevisionTemplateSpecDie.
+// RevisionTemplateSpecDieMut is the mutable die of [RevisionTemplateSpec]: see [RevisionTemplateSpecDie].
 type RevisionTemplateSpecDieMut struct {
 	diebase.DieMutBase[RevisionTemplateSpec, *RevisionTemplateSpecDie, *RevisionTemplateSpecDieMut]
 }
@@ -1787,12 +1787,12 @@ func (d *RevisionTemplateSpecDieMut) Spec() *RevisionSpecDieMut {
 // See also: https://github.com/knative/serving/blob/main/docs/spec/overview.md#route
 //
 // RouteDie is immutable: it reads.
-// RouteDieMut, its mutable die, also writes, as DieWith passes it.
+// [RouteDieMut], its mutable die, also writes, as DieWith passes it.
 type RouteDie struct {
 	diebase.DieObjectBase[Route, *RouteDie, *RouteDieMut]
 }
 
-// RouteDieMut is the mutable die of Route: see RouteDie.
+// RouteDieMut is the mutable die of [Route]: see [RouteDie].
 type RouteDieMut struct {
 	diebase.DieObjectMutBase[Route, *RouteDie, *RouteDieMut]
 }
@@ -1906,12 +1906,12 @@ func (l *RouteListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 // RouteSpec holds the desired state of the Route (from the client).
 //
 // RouteSpecDie is immutable: it reads.
-// RouteSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [RouteSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type RouteSpecDie struct {
 	diebase.DieBase[RouteSpec, *RouteSpecDie, *RouteSpecDieMut]
 }
 
-// RouteSpecDieMut is the mutable die of RouteSpec: see RouteSpecDie.
+// RouteSpecDieMut is the mutable die of [RouteSpec]: see [RouteSpecDie].
 type RouteSpecDieMut struct {
 	diebase.DieMutBase[RouteSpec, *RouteSpecDie, *RouteSpecDieMut]
 }
@@ -1956,12 +1956,12 @@ func (d *RouteSpecDieMut) Traffic() diefields.ValueMut[[]TrafficTarget, *RouteSp
 // RouteStatus communicates the observed state of the Route (from the controller).
 //
 // RouteStatusDie is immutable: it reads.
-// RouteStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [RouteStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type RouteStatusDie struct {
 	diebase.DieBase[RouteStatus, *RouteStatusDie, *RouteStatusDieMut]
 }
 
-// RouteStatusDieMut is the mutable die of RouteStatus: see RouteStatusDie.
+// RouteStatusDieMut is the mutable die of [RouteStatus]: see [RouteStatusDie].
 type RouteStatusDieMut struct {
 	diebase.DieMutBase[RouteStatus, *RouteStatusDie, *RouteStatusDieMut]
 }
@@ -2082,12 +2082,12 @@ func (d *RouteStatusDieMut) Traffic() diefields.ValueMut[[]TrafficTarget, *Route
 // other types can readily consume these fields via duck typing.
 //
 // RouteStatusFieldsDie is immutable: it reads.
-// RouteStatusFieldsDieMut, its mutable die, also writes, as DieWith passes it.
+// [RouteStatusFieldsDieMut], its mutable die, also writes, as DieWith passes it.
 type RouteStatusFieldsDie struct {
 	diebase.DieBase[RouteStatusFields, *RouteStatusFieldsDie, *RouteStatusFieldsDieMut]
 }
 
-// RouteStatusFieldsDieMut is the mutable die of RouteStatusFields: see RouteStatusFieldsDie.
+// RouteStatusFieldsDieMut is the mutable die of [RouteStatusFields]: see [RouteStatusFieldsDie].
 type RouteStatusFieldsDieMut struct {
 	diebase.DieMutBase[RouteStatusFields, *RouteStatusFieldsDie, *RouteStatusFieldsDieMut]
 }
@@ -2173,12 +2173,12 @@ func (d *RouteStatusFieldsDieMut) Traffic() diefields.ValueMut[[]TrafficTarget, 
 // See also: https://github.com/knative/serving/blob/main/docs/spec/overview.md#service
 //
 // ServiceDie is immutable: it reads.
-// ServiceDieMut, its mutable die, also writes, as DieWith passes it.
+// [ServiceDieMut], its mutable die, also writes, as DieWith passes it.
 type ServiceDie struct {
 	diebase.DieObjectBase[Service, *ServiceDie, *ServiceDieMut]
 }
 
-// ServiceDieMut is the mutable die of Service: see ServiceDie.
+// ServiceDieMut is the mutable die of [Service]: see [ServiceDie].
 type ServiceDieMut struct {
 	diebase.DieObjectMutBase[Service, *ServiceDie, *ServiceDieMut]
 }
@@ -2298,12 +2298,12 @@ func (l *ServiceListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 // the appropriate "run latest" spec.
 //
 // ServiceSpecDie is immutable: it reads.
-// ServiceSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [ServiceSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type ServiceSpecDie struct {
 	diebase.DieBase[ServiceSpec, *ServiceSpecDie, *ServiceSpecDieMut]
 }
 
-// ServiceSpecDieMut is the mutable die of ServiceSpec: see ServiceSpecDie.
+// ServiceSpecDieMut is the mutable die of [ServiceSpec]: see [ServiceSpecDie].
 type ServiceSpecDieMut struct {
 	diebase.DieMutBase[ServiceSpec, *ServiceSpecDie, *ServiceSpecDieMut]
 }
@@ -2360,12 +2360,12 @@ func (d *ServiceSpecDieMut) Traffic() diefields.ValueMut[[]TrafficTarget, *Servi
 // ServiceStatus represents the Status stanza of the Service resource.
 //
 // ServiceStatusDie is immutable: it reads.
-// ServiceStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [ServiceStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type ServiceStatusDie struct {
 	diebase.DieBase[ServiceStatus, *ServiceStatusDie, *ServiceStatusDieMut]
 }
 
-// ServiceStatusDieMut is the mutable die of ServiceStatus: see ServiceStatusDie.
+// ServiceStatusDieMut is the mutable die of [ServiceStatus]: see [ServiceStatusDie].
 type ServiceStatusDieMut struct {
 	diebase.DieMutBase[ServiceStatus, *ServiceStatusDie, *ServiceStatusDieMut]
 }
@@ -2512,12 +2512,12 @@ func (d *ServiceStatusDieMut) Traffic() diefields.ValueMut[[]TrafficTarget, *Ser
 // TrafficTarget holds a single entry of the routing table for a Route.
 //
 // TrafficTargetDie is immutable: it reads.
-// TrafficTargetDieMut, its mutable die, also writes, as DieWith passes it.
+// [TrafficTargetDieMut], its mutable die, also writes, as DieWith passes it.
 type TrafficTargetDie struct {
 	diebase.DieBase[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]
 }
 
-// TrafficTargetDieMut is the mutable die of TrafficTarget: see TrafficTargetDie.
+// TrafficTargetDieMut is the mutable die of [TrafficTarget]: see [TrafficTargetDie].
 type TrafficTargetDieMut struct {
 	diebase.DieMutBase[TrafficTarget, *TrafficTargetDie, *TrafficTargetDieMut]
 }

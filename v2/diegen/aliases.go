@@ -168,10 +168,10 @@ func (g *generator) emitAliases(p, up *packages.Package) error {
 		}
 	}
 
-	f.p("// The types and constants of %s, so that importing this package provides", up.PkgPath)
+	f.p("// The types and constants of [%s], so that importing this package provides", up.PkgPath)
 	f.p("// both the types and their dies. Each type is followed by its values.")
 	f.p("// Functions and variables are deliberately not re-exported: this package's")
-	f.p("// AddToScheme registers its dies, not the upstream types.")
+	f.p("// [AddToScheme] registers its dies, not the upstream types.")
 	f.p("")
 	for _, name := range scope.Names() {
 		if declared[name] {

@@ -59,7 +59,7 @@ import (
 // Find returns the locations within a die that an expression matches.
 func Find(d base.Die, expr string) []base.Path { return core.Must(FindE(d, expr)) }
 
-// FindE is Find, returning an error rather than panicking.
+// FindE is [Find], returning an error rather than panicking.
 func FindE(d base.Die, expr string) ([]base.Path, error) {
 	h, at, ok := core.StateOf(d)
 	if !ok {
@@ -76,7 +76,7 @@ func Dies[CD base.ImmutableDie](d base.ImmutableDie, expr string) []CD {
 	return core.Must(DiesE[CD](d, expr))
 }
 
-// DiesE is Dies, returning an error rather than panicking.
+// DiesE is [Dies], returning an error rather than panicking.
 func DiesE[CD base.ImmutableDie](d base.ImmutableDie, expr string) ([]CD, error) {
 	return matches[CD](d, expr)
 }
@@ -88,7 +88,7 @@ func DiesMut[CDM base.MutableDie](d base.MutableDie, expr string) []CDM {
 	return core.Must(DiesMutE[CDM](d, expr))
 }
 
-// DiesMutE is DiesMut, returning an error rather than panicking.
+// DiesMutE is [DiesMut], returning an error rather than panicking.
 func DiesMutE[CDM base.MutableDie](d base.MutableDie, expr string) ([]CDM, error) {
 	return matches[CDM](d, expr)
 }
@@ -120,7 +120,7 @@ func Values[V any](d base.Die, expr string) []fields.Value[V] {
 	return core.Must(ValuesE[V](d, expr))
 }
 
-// ValuesE is Values, returning an error rather than panicking.
+// ValuesE is [Values], returning an error rather than panicking.
 func ValuesE[V any](d base.Die, expr string) ([]fields.Value[V], error) {
 	paths, err := valuePaths[V](d, expr)
 	if err != nil {
@@ -142,7 +142,7 @@ func ValuesMut[V any, M base.MutableDie](d M, expr string) []fields.ValueMut[V, 
 	return core.Must(ValuesMutE[V](d, expr))
 }
 
-// ValuesMutE is ValuesMut, returning an error rather than panicking.
+// ValuesMutE is [ValuesMut], returning an error rather than panicking.
 func ValuesMutE[V any, M base.MutableDie](d M, expr string) ([]fields.ValueMut[V, M], error) {
 	paths, err := valuePaths[V](d, expr)
 	if err != nil {

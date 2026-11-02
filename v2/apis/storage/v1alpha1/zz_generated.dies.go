@@ -58,12 +58,12 @@ import (
 // node.
 //
 // CSIStorageCapacityDie is immutable: it reads.
-// CSIStorageCapacityDieMut, its mutable die, also writes, as DieWith passes it.
+// [CSIStorageCapacityDieMut], its mutable die, also writes, as DieWith passes it.
 type CSIStorageCapacityDie struct {
 	diebase.DieObjectBase[CSIStorageCapacity, *CSIStorageCapacityDie, *CSIStorageCapacityDieMut]
 }
 
-// CSIStorageCapacityDieMut is the mutable die of CSIStorageCapacity: see CSIStorageCapacityDie.
+// CSIStorageCapacityDieMut is the mutable die of [CSIStorageCapacity]: see [CSIStorageCapacityDie].
 type CSIStorageCapacityDieMut struct {
 	diebase.DieObjectMutBase[CSIStorageCapacity, *CSIStorageCapacityDie, *CSIStorageCapacityDieMut]
 }
@@ -90,8 +90,8 @@ func (d *CSIStorageCapacityDie) DieReleaseApplyConfiguration() *CSIStorageCapaci
 	return diecodegen.ReleaseApplyConfiguration[CSIStorageCapacityApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CSIStorageCapacityDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CSIStorageCapacityDie) DieReleaseApplyConfigurationE() (*CSIStorageCapacityApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CSIStorageCapacityApplyConfiguration](d)
 }
@@ -103,8 +103,8 @@ func (d *CSIStorageCapacityDieMut) DieReleaseApplyConfiguration() *CSIStorageCap
 	return diecodegen.ReleaseApplyConfiguration[CSIStorageCapacityApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CSIStorageCapacityDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CSIStorageCapacityDieMut) DieReleaseApplyConfigurationE() (*CSIStorageCapacityApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CSIStorageCapacityApplyConfiguration](d)
 }
@@ -122,14 +122,14 @@ func (d *CSIStorageCapacityDieMut) DieStampApplyConfiguration(fn func(ac *CSISto
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CSIStorageCapacityDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CSIStorageCapacityDieMut) DieFeedApplyConfigurationE(ac *CSIStorageCapacityApplyConfiguration) (*CSIStorageCapacityDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CSIStorageCapacityDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CSIStorageCapacityDieMut) DieStampApplyConfigurationE(fn func(ac *CSIStorageCapacityApplyConfiguration)) (*CSIStorageCapacityDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -331,12 +331,12 @@ func (l *CSIStorageCapacityListDie) DeepCopyObject() runtime.Object { return l.D
 // VolumeAttachment objects are non-namespaced.
 //
 // VolumeAttachmentDie is immutable: it reads.
-// VolumeAttachmentDieMut, its mutable die, also writes, as DieWith passes it.
+// [VolumeAttachmentDieMut], its mutable die, also writes, as DieWith passes it.
 type VolumeAttachmentDie struct {
 	diebase.DieObjectBase[VolumeAttachment, *VolumeAttachmentDie, *VolumeAttachmentDieMut]
 }
 
-// VolumeAttachmentDieMut is the mutable die of VolumeAttachment: see VolumeAttachmentDie.
+// VolumeAttachmentDieMut is the mutable die of [VolumeAttachment]: see [VolumeAttachmentDie].
 type VolumeAttachmentDieMut struct {
 	diebase.DieObjectMutBase[VolumeAttachment, *VolumeAttachmentDie, *VolumeAttachmentDieMut]
 }
@@ -363,8 +363,8 @@ func (d *VolumeAttachmentDie) DieReleaseApplyConfiguration() *VolumeAttachmentAp
 	return diecodegen.ReleaseApplyConfiguration[VolumeAttachmentApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [VolumeAttachmentDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttachmentDie) DieReleaseApplyConfigurationE() (*VolumeAttachmentApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[VolumeAttachmentApplyConfiguration](d)
 }
@@ -376,8 +376,8 @@ func (d *VolumeAttachmentDieMut) DieReleaseApplyConfiguration() *VolumeAttachmen
 	return diecodegen.ReleaseApplyConfiguration[VolumeAttachmentApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [VolumeAttachmentDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttachmentDieMut) DieReleaseApplyConfigurationE() (*VolumeAttachmentApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[VolumeAttachmentApplyConfiguration](d)
 }
@@ -395,14 +395,14 @@ func (d *VolumeAttachmentDieMut) DieStampApplyConfiguration(fn func(ac *VolumeAt
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [VolumeAttachmentDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttachmentDieMut) DieFeedApplyConfigurationE(ac *VolumeAttachmentApplyConfiguration) (*VolumeAttachmentDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [VolumeAttachmentDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttachmentDieMut) DieStampApplyConfigurationE(fn func(ac *VolumeAttachmentApplyConfiguration)) (*VolumeAttachmentDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -522,12 +522,12 @@ func (l *VolumeAttachmentListDie) DeepCopyObject() runtime.Object { return l.Dee
 // Exactly one member can be set.
 //
 // VolumeAttachmentSourceDie is immutable: it reads.
-// VolumeAttachmentSourceDieMut, its mutable die, also writes, as DieWith passes it.
+// [VolumeAttachmentSourceDieMut], its mutable die, also writes, as DieWith passes it.
 type VolumeAttachmentSourceDie struct {
 	diebase.DieBase[VolumeAttachmentSource, *VolumeAttachmentSourceDie, *VolumeAttachmentSourceDieMut]
 }
 
-// VolumeAttachmentSourceDieMut is the mutable die of VolumeAttachmentSource: see VolumeAttachmentSourceDie.
+// VolumeAttachmentSourceDieMut is the mutable die of [VolumeAttachmentSource]: see [VolumeAttachmentSourceDie].
 type VolumeAttachmentSourceDieMut struct {
 	diebase.DieMutBase[VolumeAttachmentSource, *VolumeAttachmentSourceDie, *VolumeAttachmentSourceDieMut]
 }
@@ -554,8 +554,8 @@ func (d *VolumeAttachmentSourceDie) DieReleaseApplyConfiguration() *VolumeAttach
 	return diecodegen.ReleaseApplyConfiguration[VolumeAttachmentSourceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [VolumeAttachmentSourceDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttachmentSourceDie) DieReleaseApplyConfigurationE() (*VolumeAttachmentSourceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[VolumeAttachmentSourceApplyConfiguration](d)
 }
@@ -567,8 +567,8 @@ func (d *VolumeAttachmentSourceDieMut) DieReleaseApplyConfiguration() *VolumeAtt
 	return diecodegen.ReleaseApplyConfiguration[VolumeAttachmentSourceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [VolumeAttachmentSourceDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttachmentSourceDieMut) DieReleaseApplyConfigurationE() (*VolumeAttachmentSourceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[VolumeAttachmentSourceApplyConfiguration](d)
 }
@@ -586,14 +586,14 @@ func (d *VolumeAttachmentSourceDieMut) DieStampApplyConfiguration(fn func(ac *Vo
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [VolumeAttachmentSourceDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttachmentSourceDieMut) DieFeedApplyConfigurationE(ac *VolumeAttachmentSourceApplyConfiguration) (*VolumeAttachmentSourceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [VolumeAttachmentSourceDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttachmentSourceDieMut) DieStampApplyConfigurationE(fn func(ac *VolumeAttachmentSourceApplyConfiguration)) (*VolumeAttachmentSourceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -643,12 +643,12 @@ func (d *VolumeAttachmentSourceDieMut) InlineVolumeSpec() *diecorev1.PersistentV
 // VolumeAttachmentSpec is the specification of a VolumeAttachment request.
 //
 // VolumeAttachmentSpecDie is immutable: it reads.
-// VolumeAttachmentSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [VolumeAttachmentSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type VolumeAttachmentSpecDie struct {
 	diebase.DieBase[VolumeAttachmentSpec, *VolumeAttachmentSpecDie, *VolumeAttachmentSpecDieMut]
 }
 
-// VolumeAttachmentSpecDieMut is the mutable die of VolumeAttachmentSpec: see VolumeAttachmentSpecDie.
+// VolumeAttachmentSpecDieMut is the mutable die of [VolumeAttachmentSpec]: see [VolumeAttachmentSpecDie].
 type VolumeAttachmentSpecDieMut struct {
 	diebase.DieMutBase[VolumeAttachmentSpec, *VolumeAttachmentSpecDie, *VolumeAttachmentSpecDieMut]
 }
@@ -675,8 +675,8 @@ func (d *VolumeAttachmentSpecDie) DieReleaseApplyConfiguration() *VolumeAttachme
 	return diecodegen.ReleaseApplyConfiguration[VolumeAttachmentSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [VolumeAttachmentSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttachmentSpecDie) DieReleaseApplyConfigurationE() (*VolumeAttachmentSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[VolumeAttachmentSpecApplyConfiguration](d)
 }
@@ -688,8 +688,8 @@ func (d *VolumeAttachmentSpecDieMut) DieReleaseApplyConfiguration() *VolumeAttac
 	return diecodegen.ReleaseApplyConfiguration[VolumeAttachmentSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [VolumeAttachmentSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttachmentSpecDieMut) DieReleaseApplyConfigurationE() (*VolumeAttachmentSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[VolumeAttachmentSpecApplyConfiguration](d)
 }
@@ -707,14 +707,14 @@ func (d *VolumeAttachmentSpecDieMut) DieStampApplyConfiguration(fn func(ac *Volu
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [VolumeAttachmentSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttachmentSpecDieMut) DieFeedApplyConfigurationE(ac *VolumeAttachmentSpecApplyConfiguration) (*VolumeAttachmentSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [VolumeAttachmentSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttachmentSpecDieMut) DieStampApplyConfigurationE(fn func(ac *VolumeAttachmentSpecApplyConfiguration)) (*VolumeAttachmentSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -768,12 +768,12 @@ func (d *VolumeAttachmentSpecDieMut) NodeName() diefields.ValueMut[string, *Volu
 // VolumeAttachmentStatus is the status of a VolumeAttachment request.
 //
 // VolumeAttachmentStatusDie is immutable: it reads.
-// VolumeAttachmentStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [VolumeAttachmentStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type VolumeAttachmentStatusDie struct {
 	diebase.DieBase[VolumeAttachmentStatus, *VolumeAttachmentStatusDie, *VolumeAttachmentStatusDieMut]
 }
 
-// VolumeAttachmentStatusDieMut is the mutable die of VolumeAttachmentStatus: see VolumeAttachmentStatusDie.
+// VolumeAttachmentStatusDieMut is the mutable die of [VolumeAttachmentStatus]: see [VolumeAttachmentStatusDie].
 type VolumeAttachmentStatusDieMut struct {
 	diebase.DieMutBase[VolumeAttachmentStatus, *VolumeAttachmentStatusDie, *VolumeAttachmentStatusDieMut]
 }
@@ -800,8 +800,8 @@ func (d *VolumeAttachmentStatusDie) DieReleaseApplyConfiguration() *VolumeAttach
 	return diecodegen.ReleaseApplyConfiguration[VolumeAttachmentStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [VolumeAttachmentStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttachmentStatusDie) DieReleaseApplyConfigurationE() (*VolumeAttachmentStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[VolumeAttachmentStatusApplyConfiguration](d)
 }
@@ -813,8 +813,8 @@ func (d *VolumeAttachmentStatusDieMut) DieReleaseApplyConfiguration() *VolumeAtt
 	return diecodegen.ReleaseApplyConfiguration[VolumeAttachmentStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [VolumeAttachmentStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttachmentStatusDieMut) DieReleaseApplyConfigurationE() (*VolumeAttachmentStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[VolumeAttachmentStatusApplyConfiguration](d)
 }
@@ -832,14 +832,14 @@ func (d *VolumeAttachmentStatusDieMut) DieStampApplyConfiguration(fn func(ac *Vo
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [VolumeAttachmentStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttachmentStatusDieMut) DieFeedApplyConfigurationE(ac *VolumeAttachmentStatusApplyConfiguration) (*VolumeAttachmentStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [VolumeAttachmentStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttachmentStatusDieMut) DieStampApplyConfigurationE(fn func(ac *VolumeAttachmentStatusApplyConfiguration)) (*VolumeAttachmentStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -925,12 +925,12 @@ func (d *VolumeAttachmentStatusDieMut) DetachError() *VolumeErrorDieMut {
 // of PersistentVolumeClaims, and changed in the PersistentVolumeClaim spec after provisioning.
 //
 // VolumeAttributesClassDie is immutable: it reads.
-// VolumeAttributesClassDieMut, its mutable die, also writes, as DieWith passes it.
+// [VolumeAttributesClassDieMut], its mutable die, also writes, as DieWith passes it.
 type VolumeAttributesClassDie struct {
 	diebase.DieObjectBase[VolumeAttributesClass, *VolumeAttributesClassDie, *VolumeAttributesClassDieMut]
 }
 
-// VolumeAttributesClassDieMut is the mutable die of VolumeAttributesClass: see VolumeAttributesClassDie.
+// VolumeAttributesClassDieMut is the mutable die of [VolumeAttributesClass]: see [VolumeAttributesClassDie].
 type VolumeAttributesClassDieMut struct {
 	diebase.DieObjectMutBase[VolumeAttributesClass, *VolumeAttributesClassDie, *VolumeAttributesClassDieMut]
 }
@@ -957,8 +957,8 @@ func (d *VolumeAttributesClassDie) DieReleaseApplyConfiguration() *VolumeAttribu
 	return diecodegen.ReleaseApplyConfiguration[VolumeAttributesClassApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [VolumeAttributesClassDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttributesClassDie) DieReleaseApplyConfigurationE() (*VolumeAttributesClassApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[VolumeAttributesClassApplyConfiguration](d)
 }
@@ -970,8 +970,8 @@ func (d *VolumeAttributesClassDieMut) DieReleaseApplyConfiguration() *VolumeAttr
 	return diecodegen.ReleaseApplyConfiguration[VolumeAttributesClassApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [VolumeAttributesClassDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttributesClassDieMut) DieReleaseApplyConfigurationE() (*VolumeAttributesClassApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[VolumeAttributesClassApplyConfiguration](d)
 }
@@ -989,14 +989,14 @@ func (d *VolumeAttributesClassDieMut) DieStampApplyConfiguration(fn func(ac *Vol
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [VolumeAttributesClassDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttributesClassDieMut) DieFeedApplyConfigurationE(ac *VolumeAttributesClassApplyConfiguration) (*VolumeAttributesClassDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [VolumeAttributesClassDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeAttributesClassDieMut) DieStampApplyConfigurationE(fn func(ac *VolumeAttributesClassApplyConfiguration)) (*VolumeAttributesClassDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1133,12 +1133,12 @@ func (l *VolumeAttributesClassListDie) DeepCopyObject() runtime.Object { return 
 // VolumeError captures an error encountered during a volume operation.
 //
 // VolumeErrorDie is immutable: it reads.
-// VolumeErrorDieMut, its mutable die, also writes, as DieWith passes it.
+// [VolumeErrorDieMut], its mutable die, also writes, as DieWith passes it.
 type VolumeErrorDie struct {
 	diebase.DieBase[VolumeError, *VolumeErrorDie, *VolumeErrorDieMut]
 }
 
-// VolumeErrorDieMut is the mutable die of VolumeError: see VolumeErrorDie.
+// VolumeErrorDieMut is the mutable die of [VolumeError]: see [VolumeErrorDie].
 type VolumeErrorDieMut struct {
 	diebase.DieMutBase[VolumeError, *VolumeErrorDie, *VolumeErrorDieMut]
 }
@@ -1165,8 +1165,8 @@ func (d *VolumeErrorDie) DieReleaseApplyConfiguration() *VolumeErrorApplyConfigu
 	return diecodegen.ReleaseApplyConfiguration[VolumeErrorApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [VolumeErrorDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeErrorDie) DieReleaseApplyConfigurationE() (*VolumeErrorApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[VolumeErrorApplyConfiguration](d)
 }
@@ -1178,8 +1178,8 @@ func (d *VolumeErrorDieMut) DieReleaseApplyConfiguration() *VolumeErrorApplyConf
 	return diecodegen.ReleaseApplyConfiguration[VolumeErrorApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [VolumeErrorDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeErrorDieMut) DieReleaseApplyConfigurationE() (*VolumeErrorApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[VolumeErrorApplyConfiguration](d)
 }
@@ -1197,14 +1197,14 @@ func (d *VolumeErrorDieMut) DieStampApplyConfiguration(fn func(ac *VolumeErrorAp
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [VolumeErrorDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeErrorDieMut) DieFeedApplyConfigurationE(ac *VolumeErrorApplyConfiguration) (*VolumeErrorDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [VolumeErrorDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *VolumeErrorDieMut) DieStampApplyConfigurationE(fn func(ac *VolumeErrorApplyConfiguration)) (*VolumeErrorDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

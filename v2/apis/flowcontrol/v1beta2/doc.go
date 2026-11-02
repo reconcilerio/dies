@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package v1beta2 has dies for k8s.io/api/flowcontrol/v1beta2, whose types and constants it
-// also aliases.
-//
 // +die:types:package=k8s.io/api/flowcontrol/v1beta2
+
+// Package v1beta2 has dies for [k8s.io/api/flowcontrol/v1beta2], whose types and constants it
+// also aliases.
 package v1beta2

@@ -34,12 +34,12 @@ import (
 // Name must be "version.group".
 //
 // APIServiceDie is immutable: it reads.
-// APIServiceDieMut, its mutable die, also writes, as DieWith passes it.
+// [APIServiceDieMut], its mutable die, also writes, as DieWith passes it.
 type APIServiceDie struct {
 	diebase.DieObjectBase[APIService, *APIServiceDie, *APIServiceDieMut]
 }
 
-// APIServiceDieMut is the mutable die of APIService: see APIServiceDie.
+// APIServiceDieMut is the mutable die of [APIService]: see [APIServiceDie].
 type APIServiceDieMut struct {
 	diebase.DieObjectMutBase[APIService, *APIServiceDie, *APIServiceDieMut]
 }
@@ -66,8 +66,8 @@ func (d *APIServiceDie) DieReleaseApplyConfiguration() *APIServiceApplyConfigura
 	return diecodegen.ReleaseApplyConfiguration[APIServiceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [APIServiceDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *APIServiceDie) DieReleaseApplyConfigurationE() (*APIServiceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[APIServiceApplyConfiguration](d)
 }
@@ -79,8 +79,8 @@ func (d *APIServiceDieMut) DieReleaseApplyConfiguration() *APIServiceApplyConfig
 	return diecodegen.ReleaseApplyConfiguration[APIServiceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [APIServiceDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *APIServiceDieMut) DieReleaseApplyConfigurationE() (*APIServiceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[APIServiceApplyConfiguration](d)
 }
@@ -98,14 +98,14 @@ func (d *APIServiceDieMut) DieStampApplyConfiguration(fn func(ac *APIServiceAppl
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [APIServiceDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *APIServiceDieMut) DieFeedApplyConfigurationE(ac *APIServiceApplyConfiguration) (*APIServiceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [APIServiceDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *APIServiceDieMut) DieStampApplyConfigurationE(fn func(ac *APIServiceApplyConfiguration)) (*APIServiceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -197,12 +197,12 @@ func (d *APIServiceDieMut) Status() *APIServiceStatusDieMut {
 // APIServiceCondition describes the state of an APIService at a particular point
 //
 // APIServiceConditionDie is immutable: it reads.
-// APIServiceConditionDieMut, its mutable die, also writes, as DieWith passes it.
+// [APIServiceConditionDieMut], its mutable die, also writes, as DieWith passes it.
 type APIServiceConditionDie struct {
 	diebase.DieBase[APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut]
 }
 
-// APIServiceConditionDieMut is the mutable die of APIServiceCondition: see APIServiceConditionDie.
+// APIServiceConditionDieMut is the mutable die of [APIServiceCondition]: see [APIServiceConditionDie].
 type APIServiceConditionDieMut struct {
 	diebase.DieMutBase[APIServiceCondition, *APIServiceConditionDie, *APIServiceConditionDieMut]
 }
@@ -229,8 +229,8 @@ func (d *APIServiceConditionDie) DieReleaseApplyConfiguration() *APIServiceCondi
 	return diecodegen.ReleaseApplyConfiguration[APIServiceConditionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [APIServiceConditionDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *APIServiceConditionDie) DieReleaseApplyConfigurationE() (*APIServiceConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[APIServiceConditionApplyConfiguration](d)
 }
@@ -242,8 +242,8 @@ func (d *APIServiceConditionDieMut) DieReleaseApplyConfiguration() *APIServiceCo
 	return diecodegen.ReleaseApplyConfiguration[APIServiceConditionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [APIServiceConditionDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *APIServiceConditionDieMut) DieReleaseApplyConfigurationE() (*APIServiceConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[APIServiceConditionApplyConfiguration](d)
 }
@@ -261,14 +261,14 @@ func (d *APIServiceConditionDieMut) DieStampApplyConfiguration(fn func(ac *APISe
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [APIServiceConditionDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *APIServiceConditionDieMut) DieFeedApplyConfigurationE(ac *APIServiceConditionApplyConfiguration) (*APIServiceConditionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [APIServiceConditionDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *APIServiceConditionDieMut) DieStampApplyConfigurationE(fn func(ac *APIServiceConditionApplyConfiguration)) (*APIServiceConditionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -364,12 +364,12 @@ func (l *APIServiceListDie) DeepCopyObject() runtime.Object { return l.DeepCopy(
 // Only https is supported, though you are able to disable certificate verification.
 //
 // APIServiceSpecDie is immutable: it reads.
-// APIServiceSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [APIServiceSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type APIServiceSpecDie struct {
 	diebase.DieBase[APIServiceSpec, *APIServiceSpecDie, *APIServiceSpecDieMut]
 }
 
-// APIServiceSpecDieMut is the mutable die of APIServiceSpec: see APIServiceSpecDie.
+// APIServiceSpecDieMut is the mutable die of [APIServiceSpec]: see [APIServiceSpecDie].
 type APIServiceSpecDieMut struct {
 	diebase.DieMutBase[APIServiceSpec, *APIServiceSpecDie, *APIServiceSpecDieMut]
 }
@@ -396,8 +396,8 @@ func (d *APIServiceSpecDie) DieReleaseApplyConfiguration() *APIServiceSpecApplyC
 	return diecodegen.ReleaseApplyConfiguration[APIServiceSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [APIServiceSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *APIServiceSpecDie) DieReleaseApplyConfigurationE() (*APIServiceSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[APIServiceSpecApplyConfiguration](d)
 }
@@ -409,8 +409,8 @@ func (d *APIServiceSpecDieMut) DieReleaseApplyConfiguration() *APIServiceSpecApp
 	return diecodegen.ReleaseApplyConfiguration[APIServiceSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [APIServiceSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *APIServiceSpecDieMut) DieReleaseApplyConfigurationE() (*APIServiceSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[APIServiceSpecApplyConfiguration](d)
 }
@@ -428,14 +428,14 @@ func (d *APIServiceSpecDieMut) DieStampApplyConfiguration(fn func(ac *APIService
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [APIServiceSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *APIServiceSpecDieMut) DieFeedApplyConfigurationE(ac *APIServiceSpecApplyConfiguration) (*APIServiceSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [APIServiceSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *APIServiceSpecDieMut) DieStampApplyConfigurationE(fn func(ac *APIServiceSpecApplyConfiguration)) (*APIServiceSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -573,12 +573,12 @@ func (d *APIServiceSpecDieMut) VersionPriority() diefields.ValueMut[int32, *APIS
 // APIServiceStatus contains derived information about an API server
 //
 // APIServiceStatusDie is immutable: it reads.
-// APIServiceStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [APIServiceStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type APIServiceStatusDie struct {
 	diebase.DieBase[APIServiceStatus, *APIServiceStatusDie, *APIServiceStatusDieMut]
 }
 
-// APIServiceStatusDieMut is the mutable die of APIServiceStatus: see APIServiceStatusDie.
+// APIServiceStatusDieMut is the mutable die of [APIServiceStatus]: see [APIServiceStatusDie].
 type APIServiceStatusDieMut struct {
 	diebase.DieMutBase[APIServiceStatus, *APIServiceStatusDie, *APIServiceStatusDieMut]
 }
@@ -605,8 +605,8 @@ func (d *APIServiceStatusDie) DieReleaseApplyConfiguration() *APIServiceStatusAp
 	return diecodegen.ReleaseApplyConfiguration[APIServiceStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [APIServiceStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *APIServiceStatusDie) DieReleaseApplyConfigurationE() (*APIServiceStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[APIServiceStatusApplyConfiguration](d)
 }
@@ -618,8 +618,8 @@ func (d *APIServiceStatusDieMut) DieReleaseApplyConfiguration() *APIServiceStatu
 	return diecodegen.ReleaseApplyConfiguration[APIServiceStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [APIServiceStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *APIServiceStatusDieMut) DieReleaseApplyConfigurationE() (*APIServiceStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[APIServiceStatusApplyConfiguration](d)
 }
@@ -637,14 +637,14 @@ func (d *APIServiceStatusDieMut) DieStampApplyConfiguration(fn func(ac *APIServi
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [APIServiceStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *APIServiceStatusDieMut) DieFeedApplyConfigurationE(ac *APIServiceStatusApplyConfiguration) (*APIServiceStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [APIServiceStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *APIServiceStatusDieMut) DieStampApplyConfigurationE(fn func(ac *APIServiceStatusApplyConfiguration)) (*APIServiceStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -672,12 +672,12 @@ func (d *APIServiceStatusDieMut) Conditions() *diefields.ListMapMut[APIServiceCo
 // ServiceReference holds a reference to Service.legacy.k8s.io
 //
 // ServiceReferenceDie is immutable: it reads.
-// ServiceReferenceDieMut, its mutable die, also writes, as DieWith passes it.
+// [ServiceReferenceDieMut], its mutable die, also writes, as DieWith passes it.
 type ServiceReferenceDie struct {
 	diebase.DieBase[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]
 }
 
-// ServiceReferenceDieMut is the mutable die of ServiceReference: see ServiceReferenceDie.
+// ServiceReferenceDieMut is the mutable die of [ServiceReference]: see [ServiceReferenceDie].
 type ServiceReferenceDieMut struct {
 	diebase.DieMutBase[ServiceReference, *ServiceReferenceDie, *ServiceReferenceDieMut]
 }
@@ -704,8 +704,8 @@ func (d *ServiceReferenceDie) DieReleaseApplyConfiguration() *ServiceReferenceAp
 	return diecodegen.ReleaseApplyConfiguration[ServiceReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ServiceReferenceDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ServiceReferenceDie) DieReleaseApplyConfigurationE() (*ServiceReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ServiceReferenceApplyConfiguration](d)
 }
@@ -717,8 +717,8 @@ func (d *ServiceReferenceDieMut) DieReleaseApplyConfiguration() *ServiceReferenc
 	return diecodegen.ReleaseApplyConfiguration[ServiceReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ServiceReferenceDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ServiceReferenceDieMut) DieReleaseApplyConfigurationE() (*ServiceReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ServiceReferenceApplyConfiguration](d)
 }
@@ -736,14 +736,14 @@ func (d *ServiceReferenceDieMut) DieStampApplyConfiguration(fn func(ac *ServiceR
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ServiceReferenceDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ServiceReferenceDieMut) DieFeedApplyConfigurationE(ac *ServiceReferenceApplyConfiguration) (*ServiceReferenceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ServiceReferenceDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ServiceReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *ServiceReferenceApplyConfiguration)) (*ServiceReferenceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

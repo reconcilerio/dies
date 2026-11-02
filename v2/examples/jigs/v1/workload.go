@@ -59,7 +59,7 @@ var WorkloadJig = jigs.NewJig[Workload, *WorkloadDie]().
 		),
 	)
 
-// BuilderContainerJig presents a Builder as a Container.
+// BuilderContainerJig presents a [Builder] as a Container.
 var BuilderContainerJig = jigs.NewJig[diecorev1.Container, *diecorev1.ContainerDie]().
 	For(BuilderBlank,
 		jigs.Bind(diecorev1.ContainerBlank.Name(), BuilderBlank.Name()),

@@ -31,12 +31,12 @@ import (
 // divergent ways.
 //
 // ReferenceDie is immutable: it reads.
-// ReferenceDieMut, its mutable die, also writes, as DieWith passes it.
+// [ReferenceDieMut], its mutable die, also writes, as DieWith passes it.
 type ReferenceDie struct {
 	diebase.DieBase[Reference, *ReferenceDie, *ReferenceDieMut]
 }
 
-// ReferenceDieMut is the mutable die of Reference: see ReferenceDie.
+// ReferenceDieMut is the mutable die of [Reference]: see [ReferenceDie].
 type ReferenceDieMut struct {
 	diebase.DieMutBase[Reference, *ReferenceDie, *ReferenceDieMut]
 }

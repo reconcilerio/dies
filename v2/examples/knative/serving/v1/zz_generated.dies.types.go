@@ -25,7 +25,7 @@ import (
 	duckv1 "reconciler.io/dies/v2/examples/knative/duck/v1"
 )
 
-// The types and constants of knative.dev/serving/pkg/apis/serving/v1, cloned so that nothing depends on it
+// The types and constants of [knative.dev/serving/pkg/apis/serving/v1], cloned so that nothing depends on it
 // or its dependencies. Methods, functions and variables are not cloned.
 
 const AutoscalingQueueMetricsPortName = "http-autometric"

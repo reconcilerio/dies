@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package fields has the handles a die's accessors return, Value, Optional,
-// ListMap and Map, and the field tables generated dies declare to make them.
+// Package fields has the handles a die's accessors return, [Value],
+// [Optional], [ListMap] and [Map], and the field tables generated dies
+// declare to make them.
 package fields
 
 import (

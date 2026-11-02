@@ -34,12 +34,12 @@ import (
 // disrupted or preempted together.
 //
 // AllCompositeDisruptionModeDie is immutable: it reads.
-// AllCompositeDisruptionModeDieMut, its mutable die, also writes, as DieWith passes it.
+// [AllCompositeDisruptionModeDieMut], its mutable die, also writes, as DieWith passes it.
 type AllCompositeDisruptionModeDie struct {
 	diebase.DieBase[AllCompositeDisruptionMode, *AllCompositeDisruptionModeDie, *AllCompositeDisruptionModeDieMut]
 }
 
-// AllCompositeDisruptionModeDieMut is the mutable die of AllCompositeDisruptionMode: see AllCompositeDisruptionModeDie.
+// AllCompositeDisruptionModeDieMut is the mutable die of [AllCompositeDisruptionMode]: see [AllCompositeDisruptionModeDie].
 type AllCompositeDisruptionModeDieMut struct {
 	diebase.DieMutBase[AllCompositeDisruptionMode, *AllCompositeDisruptionModeDie, *AllCompositeDisruptionModeDieMut]
 }
@@ -70,12 +70,12 @@ var allCompositeDisruptionModeFields = &diefields.Table[allCompositeDisruptionMo
 // AllDisruptionMode specifies that children can only be disrupted together.
 //
 // AllDisruptionModeDie is immutable: it reads.
-// AllDisruptionModeDieMut, its mutable die, also writes, as DieWith passes it.
+// [AllDisruptionModeDieMut], its mutable die, also writes, as DieWith passes it.
 type AllDisruptionModeDie struct {
 	diebase.DieBase[AllDisruptionMode, *AllDisruptionModeDie, *AllDisruptionModeDieMut]
 }
 
-// AllDisruptionModeDieMut is the mutable die of AllDisruptionMode: see AllDisruptionModeDie.
+// AllDisruptionModeDieMut is the mutable die of [AllDisruptionMode]: see [AllDisruptionModeDie].
 type AllDisruptionModeDieMut struct {
 	diebase.DieMutBase[AllDisruptionMode, *AllDisruptionModeDie, *AllDisruptionModeDieMut]
 }
@@ -107,12 +107,12 @@ var allDisruptionModeFields = &diefields.Table[allDisruptionModeFieldsTable]{Bui
 // scheduling behavior should be used.
 //
 // BasicSchedulingPolicyDie is immutable: it reads.
-// BasicSchedulingPolicyDieMut, its mutable die, also writes, as DieWith passes it.
+// [BasicSchedulingPolicyDieMut], its mutable die, also writes, as DieWith passes it.
 type BasicSchedulingPolicyDie struct {
 	diebase.DieBase[BasicSchedulingPolicy, *BasicSchedulingPolicyDie, *BasicSchedulingPolicyDieMut]
 }
 
-// BasicSchedulingPolicyDieMut is the mutable die of BasicSchedulingPolicy: see BasicSchedulingPolicyDie.
+// BasicSchedulingPolicyDieMut is the mutable die of [BasicSchedulingPolicy]: see [BasicSchedulingPolicyDie].
 type BasicSchedulingPolicyDieMut struct {
 	diebase.DieMutBase[BasicSchedulingPolicy, *BasicSchedulingPolicyDie, *BasicSchedulingPolicyDieMut]
 }
@@ -144,12 +144,12 @@ var basicSchedulingPolicyFields = &diefields.Table[basicSchedulingPolicyFieldsTa
 // should be scheduled independently.
 //
 // CompositeBasicSchedulingPolicyDie is immutable: it reads.
-// CompositeBasicSchedulingPolicyDieMut, its mutable die, also writes, as DieWith passes it.
+// [CompositeBasicSchedulingPolicyDieMut], its mutable die, also writes, as DieWith passes it.
 type CompositeBasicSchedulingPolicyDie struct {
 	diebase.DieBase[CompositeBasicSchedulingPolicy, *CompositeBasicSchedulingPolicyDie, *CompositeBasicSchedulingPolicyDieMut]
 }
 
-// CompositeBasicSchedulingPolicyDieMut is the mutable die of CompositeBasicSchedulingPolicy: see CompositeBasicSchedulingPolicyDie.
+// CompositeBasicSchedulingPolicyDieMut is the mutable die of [CompositeBasicSchedulingPolicy]: see [CompositeBasicSchedulingPolicyDie].
 type CompositeBasicSchedulingPolicyDieMut struct {
 	diebase.DieMutBase[CompositeBasicSchedulingPolicy, *CompositeBasicSchedulingPolicyDie, *CompositeBasicSchedulingPolicyDieMut]
 }
@@ -181,12 +181,12 @@ var compositeBasicSchedulingPolicyFields = &diefields.Table[compositeBasicSchedu
 // Exactly one mode must be set.
 //
 // CompositeDisruptionModeDie is immutable: it reads.
-// CompositeDisruptionModeDieMut, its mutable die, also writes, as DieWith passes it.
+// [CompositeDisruptionModeDieMut], its mutable die, also writes, as DieWith passes it.
 type CompositeDisruptionModeDie struct {
 	diebase.DieBase[CompositeDisruptionMode, *CompositeDisruptionModeDie, *CompositeDisruptionModeDieMut]
 }
 
-// CompositeDisruptionModeDieMut is the mutable die of CompositeDisruptionMode: see CompositeDisruptionModeDie.
+// CompositeDisruptionModeDieMut is the mutable die of [CompositeDisruptionMode]: see [CompositeDisruptionModeDie].
 type CompositeDisruptionModeDieMut struct {
 	diebase.DieMutBase[CompositeDisruptionMode, *CompositeDisruptionModeDie, *CompositeDisruptionModeDieMut]
 }
@@ -213,8 +213,8 @@ func (d *CompositeDisruptionModeDie) DieReleaseApplyConfiguration() *CompositeDi
 	return diecodegen.ReleaseApplyConfiguration[CompositeDisruptionModeApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CompositeDisruptionModeDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositeDisruptionModeDie) DieReleaseApplyConfigurationE() (*CompositeDisruptionModeApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CompositeDisruptionModeApplyConfiguration](d)
 }
@@ -226,8 +226,8 @@ func (d *CompositeDisruptionModeDieMut) DieReleaseApplyConfiguration() *Composit
 	return diecodegen.ReleaseApplyConfiguration[CompositeDisruptionModeApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CompositeDisruptionModeDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositeDisruptionModeDieMut) DieReleaseApplyConfigurationE() (*CompositeDisruptionModeApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CompositeDisruptionModeApplyConfiguration](d)
 }
@@ -245,14 +245,14 @@ func (d *CompositeDisruptionModeDieMut) DieStampApplyConfiguration(fn func(ac *C
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CompositeDisruptionModeDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositeDisruptionModeDieMut) DieFeedApplyConfigurationE(ac *CompositeDisruptionModeApplyConfiguration) (*CompositeDisruptionModeDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CompositeDisruptionModeDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositeDisruptionModeDieMut) DieStampApplyConfigurationE(fn func(ac *CompositeDisruptionModeApplyConfiguration)) (*CompositeDisruptionModeDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -293,12 +293,12 @@ func (d *CompositeDisruptionModeDieMut) All() *AllCompositeDisruptionModeDieMut 
 // should be scheduled using all-or-nothing semantics.
 //
 // CompositeGangSchedulingPolicyDie is immutable: it reads.
-// CompositeGangSchedulingPolicyDieMut, its mutable die, also writes, as DieWith passes it.
+// [CompositeGangSchedulingPolicyDieMut], its mutable die, also writes, as DieWith passes it.
 type CompositeGangSchedulingPolicyDie struct {
 	diebase.DieBase[CompositeGangSchedulingPolicy, *CompositeGangSchedulingPolicyDie, *CompositeGangSchedulingPolicyDieMut]
 }
 
-// CompositeGangSchedulingPolicyDieMut is the mutable die of CompositeGangSchedulingPolicy: see CompositeGangSchedulingPolicyDie.
+// CompositeGangSchedulingPolicyDieMut is the mutable die of [CompositeGangSchedulingPolicy]: see [CompositeGangSchedulingPolicyDie].
 type CompositeGangSchedulingPolicyDieMut struct {
 	diebase.DieMutBase[CompositeGangSchedulingPolicy, *CompositeGangSchedulingPolicyDie, *CompositeGangSchedulingPolicyDieMut]
 }
@@ -325,8 +325,8 @@ func (d *CompositeGangSchedulingPolicyDie) DieReleaseApplyConfiguration() *Compo
 	return diecodegen.ReleaseApplyConfiguration[CompositeGangSchedulingPolicyApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CompositeGangSchedulingPolicyDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositeGangSchedulingPolicyDie) DieReleaseApplyConfigurationE() (*CompositeGangSchedulingPolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CompositeGangSchedulingPolicyApplyConfiguration](d)
 }
@@ -338,8 +338,8 @@ func (d *CompositeGangSchedulingPolicyDieMut) DieReleaseApplyConfiguration() *Co
 	return diecodegen.ReleaseApplyConfiguration[CompositeGangSchedulingPolicyApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CompositeGangSchedulingPolicyDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositeGangSchedulingPolicyDieMut) DieReleaseApplyConfigurationE() (*CompositeGangSchedulingPolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CompositeGangSchedulingPolicyApplyConfiguration](d)
 }
@@ -357,14 +357,14 @@ func (d *CompositeGangSchedulingPolicyDieMut) DieStampApplyConfiguration(fn func
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CompositeGangSchedulingPolicyDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositeGangSchedulingPolicyDieMut) DieFeedApplyConfigurationE(ac *CompositeGangSchedulingPolicyApplyConfiguration) (*CompositeGangSchedulingPolicyDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CompositeGangSchedulingPolicyDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositeGangSchedulingPolicyDieMut) DieStampApplyConfigurationE(fn func(ac *CompositeGangSchedulingPolicyApplyConfiguration)) (*CompositeGangSchedulingPolicyDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -399,12 +399,12 @@ func (d *CompositeGangSchedulingPolicyDieMut) MinGroupCount() diefields.ValueMut
 // CompositePodGroup API enablement is toggled by the CompositePodGroup feature gate.
 //
 // CompositePodGroupDie is immutable: it reads.
-// CompositePodGroupDieMut, its mutable die, also writes, as DieWith passes it.
+// [CompositePodGroupDieMut], its mutable die, also writes, as DieWith passes it.
 type CompositePodGroupDie struct {
 	diebase.DieObjectBase[CompositePodGroup, *CompositePodGroupDie, *CompositePodGroupDieMut]
 }
 
-// CompositePodGroupDieMut is the mutable die of CompositePodGroup: see CompositePodGroupDie.
+// CompositePodGroupDieMut is the mutable die of [CompositePodGroup]: see [CompositePodGroupDie].
 type CompositePodGroupDieMut struct {
 	diebase.DieObjectMutBase[CompositePodGroup, *CompositePodGroupDie, *CompositePodGroupDieMut]
 }
@@ -431,8 +431,8 @@ func (d *CompositePodGroupDie) DieReleaseApplyConfiguration() *CompositePodGroup
 	return diecodegen.ReleaseApplyConfiguration[CompositePodGroupApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CompositePodGroupDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupDie) DieReleaseApplyConfigurationE() (*CompositePodGroupApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CompositePodGroupApplyConfiguration](d)
 }
@@ -444,8 +444,8 @@ func (d *CompositePodGroupDieMut) DieReleaseApplyConfiguration() *CompositePodGr
 	return diecodegen.ReleaseApplyConfiguration[CompositePodGroupApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CompositePodGroupDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupDieMut) DieReleaseApplyConfigurationE() (*CompositePodGroupApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CompositePodGroupApplyConfiguration](d)
 }
@@ -463,14 +463,14 @@ func (d *CompositePodGroupDieMut) DieStampApplyConfiguration(fn func(ac *Composi
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CompositePodGroupDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupDieMut) DieFeedApplyConfigurationE(ac *CompositePodGroupApplyConfiguration) (*CompositePodGroupDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CompositePodGroupDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupDieMut) DieStampApplyConfigurationE(fn func(ac *CompositePodGroupApplyConfiguration)) (*CompositePodGroupDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -581,12 +581,12 @@ func (l *CompositePodGroupListDie) DeepCopyObject() runtime.Object { return l.De
 // CompositePodGroupSchedulingConstraints defines scheduling constraints (e.g. topology) for a CompositePodGroup.
 //
 // CompositePodGroupSchedulingConstraintsDie is immutable: it reads.
-// CompositePodGroupSchedulingConstraintsDieMut, its mutable die, also writes, as DieWith passes it.
+// [CompositePodGroupSchedulingConstraintsDieMut], its mutable die, also writes, as DieWith passes it.
 type CompositePodGroupSchedulingConstraintsDie struct {
 	diebase.DieBase[CompositePodGroupSchedulingConstraints, *CompositePodGroupSchedulingConstraintsDie, *CompositePodGroupSchedulingConstraintsDieMut]
 }
 
-// CompositePodGroupSchedulingConstraintsDieMut is the mutable die of CompositePodGroupSchedulingConstraints: see CompositePodGroupSchedulingConstraintsDie.
+// CompositePodGroupSchedulingConstraintsDieMut is the mutable die of [CompositePodGroupSchedulingConstraints]: see [CompositePodGroupSchedulingConstraintsDie].
 type CompositePodGroupSchedulingConstraintsDieMut struct {
 	diebase.DieMutBase[CompositePodGroupSchedulingConstraints, *CompositePodGroupSchedulingConstraintsDie, *CompositePodGroupSchedulingConstraintsDieMut]
 }
@@ -613,8 +613,8 @@ func (d *CompositePodGroupSchedulingConstraintsDie) DieReleaseApplyConfiguration
 	return diecodegen.ReleaseApplyConfiguration[CompositePodGroupSchedulingConstraintsApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CompositePodGroupSchedulingConstraintsDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupSchedulingConstraintsDie) DieReleaseApplyConfigurationE() (*CompositePodGroupSchedulingConstraintsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CompositePodGroupSchedulingConstraintsApplyConfiguration](d)
 }
@@ -626,8 +626,8 @@ func (d *CompositePodGroupSchedulingConstraintsDieMut) DieReleaseApplyConfigurat
 	return diecodegen.ReleaseApplyConfiguration[CompositePodGroupSchedulingConstraintsApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CompositePodGroupSchedulingConstraintsDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupSchedulingConstraintsDieMut) DieReleaseApplyConfigurationE() (*CompositePodGroupSchedulingConstraintsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CompositePodGroupSchedulingConstraintsApplyConfiguration](d)
 }
@@ -645,14 +645,14 @@ func (d *CompositePodGroupSchedulingConstraintsDieMut) DieStampApplyConfiguratio
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CompositePodGroupSchedulingConstraintsDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupSchedulingConstraintsDieMut) DieFeedApplyConfigurationE(ac *CompositePodGroupSchedulingConstraintsApplyConfiguration) (*CompositePodGroupSchedulingConstraintsDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CompositePodGroupSchedulingConstraintsDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupSchedulingConstraintsDieMut) DieStampApplyConfigurationE(fn func(ac *CompositePodGroupSchedulingConstraintsApplyConfiguration)) (*CompositePodGroupSchedulingConstraintsDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -683,12 +683,12 @@ func (d *CompositePodGroupSchedulingConstraintsDieMut) Topology() diefields.Valu
 // Exactly one policy must be set.
 //
 // CompositePodGroupSchedulingPolicyDie is immutable: it reads.
-// CompositePodGroupSchedulingPolicyDieMut, its mutable die, also writes, as DieWith passes it.
+// [CompositePodGroupSchedulingPolicyDieMut], its mutable die, also writes, as DieWith passes it.
 type CompositePodGroupSchedulingPolicyDie struct {
 	diebase.DieBase[CompositePodGroupSchedulingPolicy, *CompositePodGroupSchedulingPolicyDie, *CompositePodGroupSchedulingPolicyDieMut]
 }
 
-// CompositePodGroupSchedulingPolicyDieMut is the mutable die of CompositePodGroupSchedulingPolicy: see CompositePodGroupSchedulingPolicyDie.
+// CompositePodGroupSchedulingPolicyDieMut is the mutable die of [CompositePodGroupSchedulingPolicy]: see [CompositePodGroupSchedulingPolicyDie].
 type CompositePodGroupSchedulingPolicyDieMut struct {
 	diebase.DieMutBase[CompositePodGroupSchedulingPolicy, *CompositePodGroupSchedulingPolicyDie, *CompositePodGroupSchedulingPolicyDieMut]
 }
@@ -715,8 +715,8 @@ func (d *CompositePodGroupSchedulingPolicyDie) DieReleaseApplyConfiguration() *C
 	return diecodegen.ReleaseApplyConfiguration[CompositePodGroupSchedulingPolicyApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CompositePodGroupSchedulingPolicyDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupSchedulingPolicyDie) DieReleaseApplyConfigurationE() (*CompositePodGroupSchedulingPolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CompositePodGroupSchedulingPolicyApplyConfiguration](d)
 }
@@ -728,8 +728,8 @@ func (d *CompositePodGroupSchedulingPolicyDieMut) DieReleaseApplyConfiguration()
 	return diecodegen.ReleaseApplyConfiguration[CompositePodGroupSchedulingPolicyApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CompositePodGroupSchedulingPolicyDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupSchedulingPolicyDieMut) DieReleaseApplyConfigurationE() (*CompositePodGroupSchedulingPolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CompositePodGroupSchedulingPolicyApplyConfiguration](d)
 }
@@ -747,14 +747,14 @@ func (d *CompositePodGroupSchedulingPolicyDieMut) DieStampApplyConfiguration(fn 
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CompositePodGroupSchedulingPolicyDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupSchedulingPolicyDieMut) DieFeedApplyConfigurationE(ac *CompositePodGroupSchedulingPolicyApplyConfiguration) (*CompositePodGroupSchedulingPolicyDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CompositePodGroupSchedulingPolicyDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupSchedulingPolicyDieMut) DieStampApplyConfigurationE(fn func(ac *CompositePodGroupSchedulingPolicyApplyConfiguration)) (*CompositePodGroupSchedulingPolicyDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -798,12 +798,12 @@ func (d *CompositePodGroupSchedulingPolicyDieMut) Gang() *CompositeGangSchedulin
 // CompositePodGroupSpec defines the desired state of CompositePodGroup.
 //
 // CompositePodGroupSpecDie is immutable: it reads.
-// CompositePodGroupSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [CompositePodGroupSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type CompositePodGroupSpecDie struct {
 	diebase.DieBase[CompositePodGroupSpec, *CompositePodGroupSpecDie, *CompositePodGroupSpecDieMut]
 }
 
-// CompositePodGroupSpecDieMut is the mutable die of CompositePodGroupSpec: see CompositePodGroupSpecDie.
+// CompositePodGroupSpecDieMut is the mutable die of [CompositePodGroupSpec]: see [CompositePodGroupSpecDie].
 type CompositePodGroupSpecDieMut struct {
 	diebase.DieMutBase[CompositePodGroupSpec, *CompositePodGroupSpecDie, *CompositePodGroupSpecDieMut]
 }
@@ -830,8 +830,8 @@ func (d *CompositePodGroupSpecDie) DieReleaseApplyConfiguration() *CompositePodG
 	return diecodegen.ReleaseApplyConfiguration[CompositePodGroupSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CompositePodGroupSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupSpecDie) DieReleaseApplyConfigurationE() (*CompositePodGroupSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CompositePodGroupSpecApplyConfiguration](d)
 }
@@ -843,8 +843,8 @@ func (d *CompositePodGroupSpecDieMut) DieReleaseApplyConfiguration() *CompositeP
 	return diecodegen.ReleaseApplyConfiguration[CompositePodGroupSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CompositePodGroupSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupSpecDieMut) DieReleaseApplyConfigurationE() (*CompositePodGroupSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CompositePodGroupSpecApplyConfiguration](d)
 }
@@ -862,14 +862,14 @@ func (d *CompositePodGroupSpecDieMut) DieStampApplyConfiguration(fn func(ac *Com
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CompositePodGroupSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupSpecDieMut) DieFeedApplyConfigurationE(ac *CompositePodGroupSpecApplyConfiguration) (*CompositePodGroupSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CompositePodGroupSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupSpecDieMut) DieStampApplyConfigurationE(fn func(ac *CompositePodGroupSpecApplyConfiguration)) (*CompositePodGroupSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1037,12 +1037,12 @@ func (d *CompositePodGroupSpecDieMut) PreemptionPolicy() diefields.OptionalMut[P
 // CompositePodGroupStatus represents information about the status of a composite pod group.
 //
 // CompositePodGroupStatusDie is immutable: it reads.
-// CompositePodGroupStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [CompositePodGroupStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type CompositePodGroupStatusDie struct {
 	diebase.DieBase[CompositePodGroupStatus, *CompositePodGroupStatusDie, *CompositePodGroupStatusDieMut]
 }
 
-// CompositePodGroupStatusDieMut is the mutable die of CompositePodGroupStatus: see CompositePodGroupStatusDie.
+// CompositePodGroupStatusDieMut is the mutable die of [CompositePodGroupStatus]: see [CompositePodGroupStatusDie].
 type CompositePodGroupStatusDieMut struct {
 	diebase.DieMutBase[CompositePodGroupStatus, *CompositePodGroupStatusDie, *CompositePodGroupStatusDieMut]
 }
@@ -1069,8 +1069,8 @@ func (d *CompositePodGroupStatusDie) DieReleaseApplyConfiguration() *CompositePo
 	return diecodegen.ReleaseApplyConfiguration[CompositePodGroupStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CompositePodGroupStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupStatusDie) DieReleaseApplyConfigurationE() (*CompositePodGroupStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CompositePodGroupStatusApplyConfiguration](d)
 }
@@ -1082,8 +1082,8 @@ func (d *CompositePodGroupStatusDieMut) DieReleaseApplyConfiguration() *Composit
 	return diecodegen.ReleaseApplyConfiguration[CompositePodGroupStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CompositePodGroupStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupStatusDieMut) DieReleaseApplyConfigurationE() (*CompositePodGroupStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CompositePodGroupStatusApplyConfiguration](d)
 }
@@ -1101,14 +1101,14 @@ func (d *CompositePodGroupStatusDieMut) DieStampApplyConfiguration(fn func(ac *C
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CompositePodGroupStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupStatusDieMut) DieFeedApplyConfigurationE(ac *CompositePodGroupStatusApplyConfiguration) (*CompositePodGroupStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CompositePodGroupStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupStatusDieMut) DieStampApplyConfigurationE(fn func(ac *CompositePodGroupStatusApplyConfiguration)) (*CompositePodGroupStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1178,12 +1178,12 @@ func (d *CompositePodGroupStatusDieMut) Conditions() *diefields.ListMapMut[dieme
 // CompositePodGroupTemplate represents a template for a CompositePodGroup with a scheduling policy.
 //
 // CompositePodGroupTemplateDie is immutable: it reads.
-// CompositePodGroupTemplateDieMut, its mutable die, also writes, as DieWith passes it.
+// [CompositePodGroupTemplateDieMut], its mutable die, also writes, as DieWith passes it.
 type CompositePodGroupTemplateDie struct {
 	diebase.DieBase[CompositePodGroupTemplate, *CompositePodGroupTemplateDie, *CompositePodGroupTemplateDieMut]
 }
 
-// CompositePodGroupTemplateDieMut is the mutable die of CompositePodGroupTemplate: see CompositePodGroupTemplateDie.
+// CompositePodGroupTemplateDieMut is the mutable die of [CompositePodGroupTemplate]: see [CompositePodGroupTemplateDie].
 type CompositePodGroupTemplateDieMut struct {
 	diebase.DieMutBase[CompositePodGroupTemplate, *CompositePodGroupTemplateDie, *CompositePodGroupTemplateDieMut]
 }
@@ -1210,8 +1210,8 @@ func (d *CompositePodGroupTemplateDie) DieReleaseApplyConfiguration() *Composite
 	return diecodegen.ReleaseApplyConfiguration[CompositePodGroupTemplateApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CompositePodGroupTemplateDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupTemplateDie) DieReleaseApplyConfigurationE() (*CompositePodGroupTemplateApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CompositePodGroupTemplateApplyConfiguration](d)
 }
@@ -1223,8 +1223,8 @@ func (d *CompositePodGroupTemplateDieMut) DieReleaseApplyConfiguration() *Compos
 	return diecodegen.ReleaseApplyConfiguration[CompositePodGroupTemplateApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CompositePodGroupTemplateDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupTemplateDieMut) DieReleaseApplyConfigurationE() (*CompositePodGroupTemplateApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CompositePodGroupTemplateApplyConfiguration](d)
 }
@@ -1242,14 +1242,14 @@ func (d *CompositePodGroupTemplateDieMut) DieStampApplyConfiguration(fn func(ac 
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CompositePodGroupTemplateDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupTemplateDieMut) DieFeedApplyConfigurationE(ac *CompositePodGroupTemplateApplyConfiguration) (*CompositePodGroupTemplateDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CompositePodGroupTemplateDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CompositePodGroupTemplateDieMut) DieStampApplyConfigurationE(fn func(ac *CompositePodGroupTemplateApplyConfiguration)) (*CompositePodGroupTemplateDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1416,12 +1416,12 @@ func (d *CompositePodGroupTemplateDieMut) CompositePodGroupTemplates() *diefield
 // Exactly one mode can be set.
 //
 // DisruptionModeDie is immutable: it reads.
-// DisruptionModeDieMut, its mutable die, also writes, as DieWith passes it.
+// [DisruptionModeDieMut], its mutable die, also writes, as DieWith passes it.
 type DisruptionModeDie struct {
 	diebase.DieBase[DisruptionMode, *DisruptionModeDie, *DisruptionModeDieMut]
 }
 
-// DisruptionModeDieMut is the mutable die of DisruptionMode: see DisruptionModeDie.
+// DisruptionModeDieMut is the mutable die of [DisruptionMode]: see [DisruptionModeDie].
 type DisruptionModeDieMut struct {
 	diebase.DieMutBase[DisruptionMode, *DisruptionModeDie, *DisruptionModeDieMut]
 }
@@ -1448,8 +1448,8 @@ func (d *DisruptionModeDie) DieReleaseApplyConfiguration() *DisruptionModeApplyC
 	return diecodegen.ReleaseApplyConfiguration[DisruptionModeApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [DisruptionModeDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DisruptionModeDie) DieReleaseApplyConfigurationE() (*DisruptionModeApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[DisruptionModeApplyConfiguration](d)
 }
@@ -1461,8 +1461,8 @@ func (d *DisruptionModeDieMut) DieReleaseApplyConfiguration() *DisruptionModeApp
 	return diecodegen.ReleaseApplyConfiguration[DisruptionModeApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [DisruptionModeDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DisruptionModeDieMut) DieReleaseApplyConfigurationE() (*DisruptionModeApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[DisruptionModeApplyConfiguration](d)
 }
@@ -1480,14 +1480,14 @@ func (d *DisruptionModeDieMut) DieStampApplyConfiguration(fn func(ac *Disruption
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [DisruptionModeDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DisruptionModeDieMut) DieFeedApplyConfigurationE(ac *DisruptionModeApplyConfiguration) (*DisruptionModeDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [DisruptionModeDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DisruptionModeDieMut) DieStampApplyConfigurationE(fn func(ac *DisruptionModeApplyConfiguration)) (*DisruptionModeDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1527,12 +1527,12 @@ func (d *DisruptionModeDieMut) All() *AllDisruptionModeDieMut {
 // GangSchedulingPolicy defines the parameters for gang scheduling.
 //
 // GangSchedulingPolicyDie is immutable: it reads.
-// GangSchedulingPolicyDieMut, its mutable die, also writes, as DieWith passes it.
+// [GangSchedulingPolicyDieMut], its mutable die, also writes, as DieWith passes it.
 type GangSchedulingPolicyDie struct {
 	diebase.DieBase[GangSchedulingPolicy, *GangSchedulingPolicyDie, *GangSchedulingPolicyDieMut]
 }
 
-// GangSchedulingPolicyDieMut is the mutable die of GangSchedulingPolicy: see GangSchedulingPolicyDie.
+// GangSchedulingPolicyDieMut is the mutable die of [GangSchedulingPolicy]: see [GangSchedulingPolicyDie].
 type GangSchedulingPolicyDieMut struct {
 	diebase.DieMutBase[GangSchedulingPolicy, *GangSchedulingPolicyDie, *GangSchedulingPolicyDieMut]
 }
@@ -1559,8 +1559,8 @@ func (d *GangSchedulingPolicyDie) DieReleaseApplyConfiguration() *GangScheduling
 	return diecodegen.ReleaseApplyConfiguration[GangSchedulingPolicyApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [GangSchedulingPolicyDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *GangSchedulingPolicyDie) DieReleaseApplyConfigurationE() (*GangSchedulingPolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[GangSchedulingPolicyApplyConfiguration](d)
 }
@@ -1572,8 +1572,8 @@ func (d *GangSchedulingPolicyDieMut) DieReleaseApplyConfiguration() *GangSchedul
 	return diecodegen.ReleaseApplyConfiguration[GangSchedulingPolicyApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [GangSchedulingPolicyDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *GangSchedulingPolicyDieMut) DieReleaseApplyConfigurationE() (*GangSchedulingPolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[GangSchedulingPolicyApplyConfiguration](d)
 }
@@ -1591,14 +1591,14 @@ func (d *GangSchedulingPolicyDieMut) DieStampApplyConfiguration(fn func(ac *Gang
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [GangSchedulingPolicyDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *GangSchedulingPolicyDieMut) DieFeedApplyConfigurationE(ac *GangSchedulingPolicyApplyConfiguration) (*GangSchedulingPolicyDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [GangSchedulingPolicyDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *GangSchedulingPolicyDieMut) DieStampApplyConfigurationE(fn func(ac *GangSchedulingPolicyApplyConfiguration)) (*GangSchedulingPolicyDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1649,12 +1649,12 @@ func (d *GangSchedulingPolicyDieMut) MinCount() diefields.ValueMut[int32, *GangS
 // PodGroup API enablement is toggled by the GenericWorkload feature gate.
 //
 // PodGroupDie is immutable: it reads.
-// PodGroupDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodGroupDieMut], its mutable die, also writes, as DieWith passes it.
 type PodGroupDie struct {
 	diebase.DieObjectBase[PodGroup, *PodGroupDie, *PodGroupDieMut]
 }
 
-// PodGroupDieMut is the mutable die of PodGroup: see PodGroupDie.
+// PodGroupDieMut is the mutable die of [PodGroup]: see [PodGroupDie].
 type PodGroupDieMut struct {
 	diebase.DieObjectMutBase[PodGroup, *PodGroupDie, *PodGroupDieMut]
 }
@@ -1681,8 +1681,8 @@ func (d *PodGroupDie) DieReleaseApplyConfiguration() *PodGroupApplyConfiguration
 	return diecodegen.ReleaseApplyConfiguration[PodGroupApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodGroupDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupDie) DieReleaseApplyConfigurationE() (*PodGroupApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodGroupApplyConfiguration](d)
 }
@@ -1694,8 +1694,8 @@ func (d *PodGroupDieMut) DieReleaseApplyConfiguration() *PodGroupApplyConfigurat
 	return diecodegen.ReleaseApplyConfiguration[PodGroupApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodGroupDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupDieMut) DieReleaseApplyConfigurationE() (*PodGroupApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodGroupApplyConfiguration](d)
 }
@@ -1713,14 +1713,14 @@ func (d *PodGroupDieMut) DieStampApplyConfiguration(fn func(ac *PodGroupApplyCon
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodGroupDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupDieMut) DieFeedApplyConfigurationE(ac *PodGroupApplyConfiguration) (*PodGroupDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodGroupDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupDieMut) DieStampApplyConfigurationE(fn func(ac *PodGroupApplyConfiguration)) (*PodGroupDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1834,12 +1834,12 @@ func (l *PodGroupListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() 
 // PodGroup's claim exactly.
 //
 // PodGroupResourceClaimDie is immutable: it reads.
-// PodGroupResourceClaimDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodGroupResourceClaimDieMut], its mutable die, also writes, as DieWith passes it.
 type PodGroupResourceClaimDie struct {
 	diebase.DieBase[PodGroupResourceClaim, *PodGroupResourceClaimDie, *PodGroupResourceClaimDieMut]
 }
 
-// PodGroupResourceClaimDieMut is the mutable die of PodGroupResourceClaim: see PodGroupResourceClaimDie.
+// PodGroupResourceClaimDieMut is the mutable die of [PodGroupResourceClaim]: see [PodGroupResourceClaimDie].
 type PodGroupResourceClaimDieMut struct {
 	diebase.DieMutBase[PodGroupResourceClaim, *PodGroupResourceClaimDie, *PodGroupResourceClaimDieMut]
 }
@@ -1866,8 +1866,8 @@ func (d *PodGroupResourceClaimDie) DieReleaseApplyConfiguration() *PodGroupResou
 	return diecodegen.ReleaseApplyConfiguration[PodGroupResourceClaimApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodGroupResourceClaimDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupResourceClaimDie) DieReleaseApplyConfigurationE() (*PodGroupResourceClaimApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodGroupResourceClaimApplyConfiguration](d)
 }
@@ -1879,8 +1879,8 @@ func (d *PodGroupResourceClaimDieMut) DieReleaseApplyConfiguration() *PodGroupRe
 	return diecodegen.ReleaseApplyConfiguration[PodGroupResourceClaimApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodGroupResourceClaimDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupResourceClaimDieMut) DieReleaseApplyConfigurationE() (*PodGroupResourceClaimApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodGroupResourceClaimApplyConfiguration](d)
 }
@@ -1898,14 +1898,14 @@ func (d *PodGroupResourceClaimDieMut) DieStampApplyConfiguration(fn func(ac *Pod
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodGroupResourceClaimDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupResourceClaimDieMut) DieFeedApplyConfigurationE(ac *PodGroupResourceClaimApplyConfiguration) (*PodGroupResourceClaimDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodGroupResourceClaimDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupResourceClaimDieMut) DieStampApplyConfigurationE(fn func(ac *PodGroupResourceClaimApplyConfiguration)) (*PodGroupResourceClaimDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1999,12 +1999,12 @@ func (d *PodGroupResourceClaimDieMut) ResourceClaimTemplateName() diefields.Opti
 // generated name for the corresponding ResourceClaim.
 //
 // PodGroupResourceClaimStatusDie is immutable: it reads.
-// PodGroupResourceClaimStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodGroupResourceClaimStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type PodGroupResourceClaimStatusDie struct {
 	diebase.DieBase[PodGroupResourceClaimStatus, *PodGroupResourceClaimStatusDie, *PodGroupResourceClaimStatusDieMut]
 }
 
-// PodGroupResourceClaimStatusDieMut is the mutable die of PodGroupResourceClaimStatus: see PodGroupResourceClaimStatusDie.
+// PodGroupResourceClaimStatusDieMut is the mutable die of [PodGroupResourceClaimStatus]: see [PodGroupResourceClaimStatusDie].
 type PodGroupResourceClaimStatusDieMut struct {
 	diebase.DieMutBase[PodGroupResourceClaimStatus, *PodGroupResourceClaimStatusDie, *PodGroupResourceClaimStatusDieMut]
 }
@@ -2031,8 +2031,8 @@ func (d *PodGroupResourceClaimStatusDie) DieReleaseApplyConfiguration() *PodGrou
 	return diecodegen.ReleaseApplyConfiguration[PodGroupResourceClaimStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodGroupResourceClaimStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupResourceClaimStatusDie) DieReleaseApplyConfigurationE() (*PodGroupResourceClaimStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodGroupResourceClaimStatusApplyConfiguration](d)
 }
@@ -2044,8 +2044,8 @@ func (d *PodGroupResourceClaimStatusDieMut) DieReleaseApplyConfiguration() *PodG
 	return diecodegen.ReleaseApplyConfiguration[PodGroupResourceClaimStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodGroupResourceClaimStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupResourceClaimStatusDieMut) DieReleaseApplyConfigurationE() (*PodGroupResourceClaimStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodGroupResourceClaimStatusApplyConfiguration](d)
 }
@@ -2063,14 +2063,14 @@ func (d *PodGroupResourceClaimStatusDieMut) DieStampApplyConfiguration(fn func(a
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodGroupResourceClaimStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupResourceClaimStatusDieMut) DieFeedApplyConfigurationE(ac *PodGroupResourceClaimStatusApplyConfiguration) (*PodGroupResourceClaimStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodGroupResourceClaimStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupResourceClaimStatusDieMut) DieStampApplyConfigurationE(fn func(ac *PodGroupResourceClaimStatusApplyConfiguration)) (*PodGroupResourceClaimStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2120,12 +2120,12 @@ func (d *PodGroupResourceClaimStatusDieMut) ResourceClaimName() diefields.Option
 // PodGroupSchedulingConstraints defines scheduling constraints (e.g. topology) for a PodGroup.
 //
 // PodGroupSchedulingConstraintsDie is immutable: it reads.
-// PodGroupSchedulingConstraintsDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodGroupSchedulingConstraintsDieMut], its mutable die, also writes, as DieWith passes it.
 type PodGroupSchedulingConstraintsDie struct {
 	diebase.DieBase[PodGroupSchedulingConstraints, *PodGroupSchedulingConstraintsDie, *PodGroupSchedulingConstraintsDieMut]
 }
 
-// PodGroupSchedulingConstraintsDieMut is the mutable die of PodGroupSchedulingConstraints: see PodGroupSchedulingConstraintsDie.
+// PodGroupSchedulingConstraintsDieMut is the mutable die of [PodGroupSchedulingConstraints]: see [PodGroupSchedulingConstraintsDie].
 type PodGroupSchedulingConstraintsDieMut struct {
 	diebase.DieMutBase[PodGroupSchedulingConstraints, *PodGroupSchedulingConstraintsDie, *PodGroupSchedulingConstraintsDieMut]
 }
@@ -2152,8 +2152,8 @@ func (d *PodGroupSchedulingConstraintsDie) DieReleaseApplyConfiguration() *PodGr
 	return diecodegen.ReleaseApplyConfiguration[PodGroupSchedulingConstraintsApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodGroupSchedulingConstraintsDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupSchedulingConstraintsDie) DieReleaseApplyConfigurationE() (*PodGroupSchedulingConstraintsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodGroupSchedulingConstraintsApplyConfiguration](d)
 }
@@ -2165,8 +2165,8 @@ func (d *PodGroupSchedulingConstraintsDieMut) DieReleaseApplyConfiguration() *Po
 	return diecodegen.ReleaseApplyConfiguration[PodGroupSchedulingConstraintsApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodGroupSchedulingConstraintsDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupSchedulingConstraintsDieMut) DieReleaseApplyConfigurationE() (*PodGroupSchedulingConstraintsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodGroupSchedulingConstraintsApplyConfiguration](d)
 }
@@ -2184,14 +2184,14 @@ func (d *PodGroupSchedulingConstraintsDieMut) DieStampApplyConfiguration(fn func
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodGroupSchedulingConstraintsDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupSchedulingConstraintsDieMut) DieFeedApplyConfigurationE(ac *PodGroupSchedulingConstraintsApplyConfiguration) (*PodGroupSchedulingConstraintsDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodGroupSchedulingConstraintsDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupSchedulingConstraintsDieMut) DieStampApplyConfigurationE(fn func(ac *PodGroupSchedulingConstraintsApplyConfiguration)) (*PodGroupSchedulingConstraintsDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2224,12 +2224,12 @@ func (d *PodGroupSchedulingConstraintsDieMut) Topology() diefields.ValueMut[[]To
 // Fields within chosen policy may be updated after creation when their individual fields allow it.
 //
 // PodGroupSchedulingPolicyDie is immutable: it reads.
-// PodGroupSchedulingPolicyDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodGroupSchedulingPolicyDieMut], its mutable die, also writes, as DieWith passes it.
 type PodGroupSchedulingPolicyDie struct {
 	diebase.DieBase[PodGroupSchedulingPolicy, *PodGroupSchedulingPolicyDie, *PodGroupSchedulingPolicyDieMut]
 }
 
-// PodGroupSchedulingPolicyDieMut is the mutable die of PodGroupSchedulingPolicy: see PodGroupSchedulingPolicyDie.
+// PodGroupSchedulingPolicyDieMut is the mutable die of [PodGroupSchedulingPolicy]: see [PodGroupSchedulingPolicyDie].
 type PodGroupSchedulingPolicyDieMut struct {
 	diebase.DieMutBase[PodGroupSchedulingPolicy, *PodGroupSchedulingPolicyDie, *PodGroupSchedulingPolicyDieMut]
 }
@@ -2256,8 +2256,8 @@ func (d *PodGroupSchedulingPolicyDie) DieReleaseApplyConfiguration() *PodGroupSc
 	return diecodegen.ReleaseApplyConfiguration[PodGroupSchedulingPolicyApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodGroupSchedulingPolicyDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupSchedulingPolicyDie) DieReleaseApplyConfigurationE() (*PodGroupSchedulingPolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodGroupSchedulingPolicyApplyConfiguration](d)
 }
@@ -2269,8 +2269,8 @@ func (d *PodGroupSchedulingPolicyDieMut) DieReleaseApplyConfiguration() *PodGrou
 	return diecodegen.ReleaseApplyConfiguration[PodGroupSchedulingPolicyApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodGroupSchedulingPolicyDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupSchedulingPolicyDieMut) DieReleaseApplyConfigurationE() (*PodGroupSchedulingPolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodGroupSchedulingPolicyApplyConfiguration](d)
 }
@@ -2288,14 +2288,14 @@ func (d *PodGroupSchedulingPolicyDieMut) DieStampApplyConfiguration(fn func(ac *
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodGroupSchedulingPolicyDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupSchedulingPolicyDieMut) DieFeedApplyConfigurationE(ac *PodGroupSchedulingPolicyApplyConfiguration) (*PodGroupSchedulingPolicyDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodGroupSchedulingPolicyDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupSchedulingPolicyDieMut) DieStampApplyConfigurationE(fn func(ac *PodGroupSchedulingPolicyApplyConfiguration)) (*PodGroupSchedulingPolicyDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2345,12 +2345,12 @@ func (d *PodGroupSchedulingPolicyDieMut) Gang() *GangSchedulingPolicyDieMut {
 // PodGroupSpec defines the desired state of a PodGroup.
 //
 // PodGroupSpecDie is immutable: it reads.
-// PodGroupSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodGroupSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type PodGroupSpecDie struct {
 	diebase.DieBase[PodGroupSpec, *PodGroupSpecDie, *PodGroupSpecDieMut]
 }
 
-// PodGroupSpecDieMut is the mutable die of PodGroupSpec: see PodGroupSpecDie.
+// PodGroupSpecDieMut is the mutable die of [PodGroupSpec]: see [PodGroupSpecDie].
 type PodGroupSpecDieMut struct {
 	diebase.DieMutBase[PodGroupSpec, *PodGroupSpecDie, *PodGroupSpecDieMut]
 }
@@ -2377,8 +2377,8 @@ func (d *PodGroupSpecDie) DieReleaseApplyConfiguration() *PodGroupSpecApplyConfi
 	return diecodegen.ReleaseApplyConfiguration[PodGroupSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodGroupSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupSpecDie) DieReleaseApplyConfigurationE() (*PodGroupSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodGroupSpecApplyConfiguration](d)
 }
@@ -2390,8 +2390,8 @@ func (d *PodGroupSpecDieMut) DieReleaseApplyConfiguration() *PodGroupSpecApplyCo
 	return diecodegen.ReleaseApplyConfiguration[PodGroupSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodGroupSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupSpecDieMut) DieReleaseApplyConfigurationE() (*PodGroupSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodGroupSpecApplyConfiguration](d)
 }
@@ -2409,14 +2409,14 @@ func (d *PodGroupSpecDieMut) DieStampApplyConfiguration(fn func(ac *PodGroupSpec
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodGroupSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupSpecDieMut) DieFeedApplyConfigurationE(ac *PodGroupSpecApplyConfiguration) (*PodGroupSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodGroupSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupSpecDieMut) DieStampApplyConfigurationE(fn func(ac *PodGroupSpecApplyConfiguration)) (*PodGroupSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2614,12 +2614,12 @@ func (d *PodGroupSpecDieMut) PreemptionPolicy() diefields.OptionalMut[Preemption
 // PodGroupStatus represents information about the status of a pod group.
 //
 // PodGroupStatusDie is immutable: it reads.
-// PodGroupStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodGroupStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type PodGroupStatusDie struct {
 	diebase.DieBase[PodGroupStatus, *PodGroupStatusDie, *PodGroupStatusDieMut]
 }
 
-// PodGroupStatusDieMut is the mutable die of PodGroupStatus: see PodGroupStatusDie.
+// PodGroupStatusDieMut is the mutable die of [PodGroupStatus]: see [PodGroupStatusDie].
 type PodGroupStatusDieMut struct {
 	diebase.DieMutBase[PodGroupStatus, *PodGroupStatusDie, *PodGroupStatusDieMut]
 }
@@ -2646,8 +2646,8 @@ func (d *PodGroupStatusDie) DieReleaseApplyConfiguration() *PodGroupStatusApplyC
 	return diecodegen.ReleaseApplyConfiguration[PodGroupStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodGroupStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupStatusDie) DieReleaseApplyConfigurationE() (*PodGroupStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodGroupStatusApplyConfiguration](d)
 }
@@ -2659,8 +2659,8 @@ func (d *PodGroupStatusDieMut) DieReleaseApplyConfiguration() *PodGroupStatusApp
 	return diecodegen.ReleaseApplyConfiguration[PodGroupStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodGroupStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupStatusDieMut) DieReleaseApplyConfigurationE() (*PodGroupStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodGroupStatusApplyConfiguration](d)
 }
@@ -2678,14 +2678,14 @@ func (d *PodGroupStatusDieMut) DieStampApplyConfiguration(fn func(ac *PodGroupSt
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodGroupStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupStatusDieMut) DieFeedApplyConfigurationE(ac *PodGroupStatusApplyConfiguration) (*PodGroupStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodGroupStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupStatusDieMut) DieStampApplyConfigurationE(fn func(ac *PodGroupStatusApplyConfiguration)) (*PodGroupStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2759,12 +2759,12 @@ func (d *PodGroupStatusDieMut) ResourceClaimStatuses() *diefields.ListMapMut[Pod
 // PodGroupTemplate represents a template for a set of pods with a scheduling policy.
 //
 // PodGroupTemplateDie is immutable: it reads.
-// PodGroupTemplateDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodGroupTemplateDieMut], its mutable die, also writes, as DieWith passes it.
 type PodGroupTemplateDie struct {
 	diebase.DieBase[PodGroupTemplate, *PodGroupTemplateDie, *PodGroupTemplateDieMut]
 }
 
-// PodGroupTemplateDieMut is the mutable die of PodGroupTemplate: see PodGroupTemplateDie.
+// PodGroupTemplateDieMut is the mutable die of [PodGroupTemplate]: see [PodGroupTemplateDie].
 type PodGroupTemplateDieMut struct {
 	diebase.DieMutBase[PodGroupTemplate, *PodGroupTemplateDie, *PodGroupTemplateDieMut]
 }
@@ -2791,8 +2791,8 @@ func (d *PodGroupTemplateDie) DieReleaseApplyConfiguration() *PodGroupTemplateAp
 	return diecodegen.ReleaseApplyConfiguration[PodGroupTemplateApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodGroupTemplateDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupTemplateDie) DieReleaseApplyConfigurationE() (*PodGroupTemplateApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodGroupTemplateApplyConfiguration](d)
 }
@@ -2804,8 +2804,8 @@ func (d *PodGroupTemplateDieMut) DieReleaseApplyConfiguration() *PodGroupTemplat
 	return diecodegen.ReleaseApplyConfiguration[PodGroupTemplateApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodGroupTemplateDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupTemplateDieMut) DieReleaseApplyConfigurationE() (*PodGroupTemplateApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodGroupTemplateApplyConfiguration](d)
 }
@@ -2823,14 +2823,14 @@ func (d *PodGroupTemplateDieMut) DieStampApplyConfiguration(fn func(ac *PodGroup
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodGroupTemplateDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupTemplateDieMut) DieFeedApplyConfigurationE(ac *PodGroupTemplateApplyConfiguration) (*PodGroupTemplateDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodGroupTemplateDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodGroupTemplateDieMut) DieStampApplyConfigurationE(fn func(ac *PodGroupTemplateApplyConfiguration)) (*PodGroupTemplateDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2987,12 +2987,12 @@ func (d *PodGroupTemplateDieMut) PreemptionPolicy() diefields.OptionalMut[Preemp
 // can be disrupted or preempted independently.
 //
 // SingleCompositeDisruptionModeDie is immutable: it reads.
-// SingleCompositeDisruptionModeDieMut, its mutable die, also writes, as DieWith passes it.
+// [SingleCompositeDisruptionModeDieMut], its mutable die, also writes, as DieWith passes it.
 type SingleCompositeDisruptionModeDie struct {
 	diebase.DieBase[SingleCompositeDisruptionMode, *SingleCompositeDisruptionModeDie, *SingleCompositeDisruptionModeDieMut]
 }
 
-// SingleCompositeDisruptionModeDieMut is the mutable die of SingleCompositeDisruptionMode: see SingleCompositeDisruptionModeDie.
+// SingleCompositeDisruptionModeDieMut is the mutable die of [SingleCompositeDisruptionMode]: see [SingleCompositeDisruptionModeDie].
 type SingleCompositeDisruptionModeDieMut struct {
 	diebase.DieMutBase[SingleCompositeDisruptionMode, *SingleCompositeDisruptionModeDie, *SingleCompositeDisruptionModeDieMut]
 }
@@ -3023,12 +3023,12 @@ var singleCompositeDisruptionModeFields = &diefields.Table[singleCompositeDisrup
 // SingleDisruptionMode specifies that children can be disrupted independently.
 //
 // SingleDisruptionModeDie is immutable: it reads.
-// SingleDisruptionModeDieMut, its mutable die, also writes, as DieWith passes it.
+// [SingleDisruptionModeDieMut], its mutable die, also writes, as DieWith passes it.
 type SingleDisruptionModeDie struct {
 	diebase.DieBase[SingleDisruptionMode, *SingleDisruptionModeDie, *SingleDisruptionModeDieMut]
 }
 
-// SingleDisruptionModeDieMut is the mutable die of SingleDisruptionMode: see SingleDisruptionModeDie.
+// SingleDisruptionModeDieMut is the mutable die of [SingleDisruptionMode]: see [SingleDisruptionModeDie].
 type SingleDisruptionModeDieMut struct {
 	diebase.DieMutBase[SingleDisruptionMode, *SingleDisruptionModeDie, *SingleDisruptionModeDieMut]
 }
@@ -3059,12 +3059,12 @@ var singleDisruptionModeFields = &diefields.Table[singleDisruptionModeFieldsTabl
 // TopologyConstraint defines a topology constraint for a PodGroup.
 //
 // TopologyConstraintDie is immutable: it reads.
-// TopologyConstraintDieMut, its mutable die, also writes, as DieWith passes it.
+// [TopologyConstraintDieMut], its mutable die, also writes, as DieWith passes it.
 type TopologyConstraintDie struct {
 	diebase.DieBase[TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]
 }
 
-// TopologyConstraintDieMut is the mutable die of TopologyConstraint: see TopologyConstraintDie.
+// TopologyConstraintDieMut is the mutable die of [TopologyConstraint]: see [TopologyConstraintDie].
 type TopologyConstraintDieMut struct {
 	diebase.DieMutBase[TopologyConstraint, *TopologyConstraintDie, *TopologyConstraintDieMut]
 }
@@ -3091,8 +3091,8 @@ func (d *TopologyConstraintDie) DieReleaseApplyConfiguration() *TopologyConstrai
 	return diecodegen.ReleaseApplyConfiguration[TopologyConstraintApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [TopologyConstraintDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *TopologyConstraintDie) DieReleaseApplyConfigurationE() (*TopologyConstraintApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[TopologyConstraintApplyConfiguration](d)
 }
@@ -3104,8 +3104,8 @@ func (d *TopologyConstraintDieMut) DieReleaseApplyConfiguration() *TopologyConst
 	return diecodegen.ReleaseApplyConfiguration[TopologyConstraintApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [TopologyConstraintDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *TopologyConstraintDieMut) DieReleaseApplyConfigurationE() (*TopologyConstraintApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[TopologyConstraintApplyConfiguration](d)
 }
@@ -3123,14 +3123,14 @@ func (d *TopologyConstraintDieMut) DieStampApplyConfiguration(fn func(ac *Topolo
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [TopologyConstraintDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *TopologyConstraintDieMut) DieFeedApplyConfigurationE(ac *TopologyConstraintApplyConfiguration) (*TopologyConstraintDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [TopologyConstraintDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *TopologyConstraintDieMut) DieStampApplyConfigurationE(fn func(ac *TopologyConstraintApplyConfiguration)) (*TopologyConstraintDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -3164,12 +3164,12 @@ func (d *TopologyConstraintDieMut) Key() diefields.ValueMut[string, *TopologyCon
 // TypedLocalObjectReference allows to reference typed object inside the same namespace.
 //
 // TypedLocalObjectReferenceDie is immutable: it reads.
-// TypedLocalObjectReferenceDieMut, its mutable die, also writes, as DieWith passes it.
+// [TypedLocalObjectReferenceDieMut], its mutable die, also writes, as DieWith passes it.
 type TypedLocalObjectReferenceDie struct {
 	diebase.DieBase[TypedLocalObjectReference, *TypedLocalObjectReferenceDie, *TypedLocalObjectReferenceDieMut]
 }
 
-// TypedLocalObjectReferenceDieMut is the mutable die of TypedLocalObjectReference: see TypedLocalObjectReferenceDie.
+// TypedLocalObjectReferenceDieMut is the mutable die of [TypedLocalObjectReference]: see [TypedLocalObjectReferenceDie].
 type TypedLocalObjectReferenceDieMut struct {
 	diebase.DieMutBase[TypedLocalObjectReference, *TypedLocalObjectReferenceDie, *TypedLocalObjectReferenceDieMut]
 }
@@ -3196,8 +3196,8 @@ func (d *TypedLocalObjectReferenceDie) DieReleaseApplyConfiguration() *TypedLoca
 	return diecodegen.ReleaseApplyConfiguration[TypedLocalObjectReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [TypedLocalObjectReferenceDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *TypedLocalObjectReferenceDie) DieReleaseApplyConfigurationE() (*TypedLocalObjectReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[TypedLocalObjectReferenceApplyConfiguration](d)
 }
@@ -3209,8 +3209,8 @@ func (d *TypedLocalObjectReferenceDieMut) DieReleaseApplyConfiguration() *TypedL
 	return diecodegen.ReleaseApplyConfiguration[TypedLocalObjectReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [TypedLocalObjectReferenceDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *TypedLocalObjectReferenceDieMut) DieReleaseApplyConfigurationE() (*TypedLocalObjectReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[TypedLocalObjectReferenceApplyConfiguration](d)
 }
@@ -3228,14 +3228,14 @@ func (d *TypedLocalObjectReferenceDieMut) DieStampApplyConfiguration(fn func(ac 
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [TypedLocalObjectReferenceDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *TypedLocalObjectReferenceDieMut) DieFeedApplyConfigurationE(ac *TypedLocalObjectReferenceApplyConfiguration) (*TypedLocalObjectReferenceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [TypedLocalObjectReferenceDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *TypedLocalObjectReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *TypedLocalObjectReferenceApplyConfiguration)) (*TypedLocalObjectReferenceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -3300,12 +3300,12 @@ func (d *TypedLocalObjectReferenceDieMut) Name() diefields.ValueMut[string, *Typ
 // Workload API enablement is toggled by the GenericWorkload feature gate.
 //
 // WorkloadDie is immutable: it reads.
-// WorkloadDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadDie struct {
 	diebase.DieObjectBase[Workload, *WorkloadDie, *WorkloadDieMut]
 }
 
-// WorkloadDieMut is the mutable die of Workload: see WorkloadDie.
+// WorkloadDieMut is the mutable die of [Workload]: see [WorkloadDie].
 type WorkloadDieMut struct {
 	diebase.DieObjectMutBase[Workload, *WorkloadDie, *WorkloadDieMut]
 }
@@ -3332,8 +3332,8 @@ func (d *WorkloadDie) DieReleaseApplyConfiguration() *WorkloadApplyConfiguration
 	return diecodegen.ReleaseApplyConfiguration[WorkloadApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [WorkloadDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadDie) DieReleaseApplyConfigurationE() (*WorkloadApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WorkloadApplyConfiguration](d)
 }
@@ -3345,8 +3345,8 @@ func (d *WorkloadDieMut) DieReleaseApplyConfiguration() *WorkloadApplyConfigurat
 	return diecodegen.ReleaseApplyConfiguration[WorkloadApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [WorkloadDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadDieMut) DieReleaseApplyConfigurationE() (*WorkloadApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WorkloadApplyConfiguration](d)
 }
@@ -3364,14 +3364,14 @@ func (d *WorkloadDieMut) DieStampApplyConfiguration(fn func(ac *WorkloadApplyCon
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [WorkloadDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadDieMut) DieFeedApplyConfigurationE(ac *WorkloadApplyConfiguration) (*WorkloadDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [WorkloadDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadDieMut) DieStampApplyConfigurationE(fn func(ac *WorkloadApplyConfiguration)) (*WorkloadDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -3450,12 +3450,12 @@ func (d *WorkloadDieMut) Spec() *WorkloadSpecDieMut {
 // must be disrupted together.
 //
 // WorkloadCompositePodGroupAllDisruptionModeDie is immutable: it reads.
-// WorkloadCompositePodGroupAllDisruptionModeDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadCompositePodGroupAllDisruptionModeDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadCompositePodGroupAllDisruptionModeDie struct {
 	diebase.DieBase[WorkloadCompositePodGroupAllDisruptionMode, *WorkloadCompositePodGroupAllDisruptionModeDie, *WorkloadCompositePodGroupAllDisruptionModeDieMut]
 }
 
-// WorkloadCompositePodGroupAllDisruptionModeDieMut is the mutable die of WorkloadCompositePodGroupAllDisruptionMode: see WorkloadCompositePodGroupAllDisruptionModeDie.
+// WorkloadCompositePodGroupAllDisruptionModeDieMut is the mutable die of [WorkloadCompositePodGroupAllDisruptionMode]: see [WorkloadCompositePodGroupAllDisruptionModeDie].
 type WorkloadCompositePodGroupAllDisruptionModeDieMut struct {
 	diebase.DieMutBase[WorkloadCompositePodGroupAllDisruptionMode, *WorkloadCompositePodGroupAllDisruptionModeDie, *WorkloadCompositePodGroupAllDisruptionModeDieMut]
 }
@@ -3487,12 +3487,12 @@ var workloadCompositePodGroupAllDisruptionModeFields = &diefields.Table[workload
 // of a composite group should be scheduled independently.
 //
 // WorkloadCompositePodGroupBasicSchedulingPolicyDie is immutable: it reads.
-// WorkloadCompositePodGroupBasicSchedulingPolicyDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadCompositePodGroupBasicSchedulingPolicyDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadCompositePodGroupBasicSchedulingPolicyDie struct {
 	diebase.DieBase[WorkloadCompositePodGroupBasicSchedulingPolicy, *WorkloadCompositePodGroupBasicSchedulingPolicyDie, *WorkloadCompositePodGroupBasicSchedulingPolicyDieMut]
 }
 
-// WorkloadCompositePodGroupBasicSchedulingPolicyDieMut is the mutable die of WorkloadCompositePodGroupBasicSchedulingPolicy: see WorkloadCompositePodGroupBasicSchedulingPolicyDie.
+// WorkloadCompositePodGroupBasicSchedulingPolicyDieMut is the mutable die of [WorkloadCompositePodGroupBasicSchedulingPolicy]: see [WorkloadCompositePodGroupBasicSchedulingPolicyDie].
 type WorkloadCompositePodGroupBasicSchedulingPolicyDieMut struct {
 	diebase.DieMutBase[WorkloadCompositePodGroupBasicSchedulingPolicy, *WorkloadCompositePodGroupBasicSchedulingPolicyDie, *WorkloadCompositePodGroupBasicSchedulingPolicyDieMut]
 }
@@ -3546,12 +3546,12 @@ var workloadCompositePodGroupBasicSchedulingPolicyFields = &diefields.Table[work
 //	}
 //
 // WorkloadCompositePodGroupDisruptionModeDie is immutable: it reads.
-// WorkloadCompositePodGroupDisruptionModeDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadCompositePodGroupDisruptionModeDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadCompositePodGroupDisruptionModeDie struct {
 	diebase.DieBase[WorkloadCompositePodGroupDisruptionMode, *WorkloadCompositePodGroupDisruptionModeDie, *WorkloadCompositePodGroupDisruptionModeDieMut]
 }
 
-// WorkloadCompositePodGroupDisruptionModeDieMut is the mutable die of WorkloadCompositePodGroupDisruptionMode: see WorkloadCompositePodGroupDisruptionModeDie.
+// WorkloadCompositePodGroupDisruptionModeDieMut is the mutable die of [WorkloadCompositePodGroupDisruptionMode]: see [WorkloadCompositePodGroupDisruptionModeDie].
 type WorkloadCompositePodGroupDisruptionModeDieMut struct {
 	diebase.DieMutBase[WorkloadCompositePodGroupDisruptionMode, *WorkloadCompositePodGroupDisruptionModeDie, *WorkloadCompositePodGroupDisruptionModeDieMut]
 }
@@ -3609,12 +3609,12 @@ func (d *WorkloadCompositePodGroupDisruptionModeDieMut) All() *WorkloadComposite
 // scheduling of a composite group's child groups.
 //
 // WorkloadCompositePodGroupGangSchedulingPolicyDie is immutable: it reads.
-// WorkloadCompositePodGroupGangSchedulingPolicyDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadCompositePodGroupGangSchedulingPolicyDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadCompositePodGroupGangSchedulingPolicyDie struct {
 	diebase.DieBase[WorkloadCompositePodGroupGangSchedulingPolicy, *WorkloadCompositePodGroupGangSchedulingPolicyDie, *WorkloadCompositePodGroupGangSchedulingPolicyDieMut]
 }
 
-// WorkloadCompositePodGroupGangSchedulingPolicyDieMut is the mutable die of WorkloadCompositePodGroupGangSchedulingPolicy: see WorkloadCompositePodGroupGangSchedulingPolicyDie.
+// WorkloadCompositePodGroupGangSchedulingPolicyDieMut is the mutable die of [WorkloadCompositePodGroupGangSchedulingPolicy]: see [WorkloadCompositePodGroupGangSchedulingPolicyDie].
 type WorkloadCompositePodGroupGangSchedulingPolicyDieMut struct {
 	diebase.DieMutBase[WorkloadCompositePodGroupGangSchedulingPolicy, *WorkloadCompositePodGroupGangSchedulingPolicyDie, *WorkloadCompositePodGroupGangSchedulingPolicyDieMut]
 }
@@ -3691,12 +3691,12 @@ func (d *WorkloadCompositePodGroupGangSchedulingPolicyDieMut) MinGroupCount() di
 //	}
 //
 // WorkloadCompositePodGroupSchedulingConstraintsDie is immutable: it reads.
-// WorkloadCompositePodGroupSchedulingConstraintsDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadCompositePodGroupSchedulingConstraintsDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadCompositePodGroupSchedulingConstraintsDie struct {
 	diebase.DieBase[WorkloadCompositePodGroupSchedulingConstraints, *WorkloadCompositePodGroupSchedulingConstraintsDie, *WorkloadCompositePodGroupSchedulingConstraintsDieMut]
 }
 
-// WorkloadCompositePodGroupSchedulingConstraintsDieMut is the mutable die of WorkloadCompositePodGroupSchedulingConstraints: see WorkloadCompositePodGroupSchedulingConstraintsDie.
+// WorkloadCompositePodGroupSchedulingConstraintsDieMut is the mutable die of [WorkloadCompositePodGroupSchedulingConstraints]: see [WorkloadCompositePodGroupSchedulingConstraintsDie].
 type WorkloadCompositePodGroupSchedulingConstraintsDieMut struct {
 	diebase.DieMutBase[WorkloadCompositePodGroupSchedulingConstraints, *WorkloadCompositePodGroupSchedulingConstraintsDie, *WorkloadCompositePodGroupSchedulingConstraintsDieMut]
 }
@@ -3765,12 +3765,12 @@ func (d *WorkloadCompositePodGroupSchedulingConstraintsDieMut) Topology() diefie
 //	}
 //
 // WorkloadCompositePodGroupSchedulingPolicyDie is immutable: it reads.
-// WorkloadCompositePodGroupSchedulingPolicyDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadCompositePodGroupSchedulingPolicyDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadCompositePodGroupSchedulingPolicyDie struct {
 	diebase.DieBase[WorkloadCompositePodGroupSchedulingPolicy, *WorkloadCompositePodGroupSchedulingPolicyDie, *WorkloadCompositePodGroupSchedulingPolicyDieMut]
 }
 
-// WorkloadCompositePodGroupSchedulingPolicyDieMut is the mutable die of WorkloadCompositePodGroupSchedulingPolicy: see WorkloadCompositePodGroupSchedulingPolicyDie.
+// WorkloadCompositePodGroupSchedulingPolicyDieMut is the mutable die of [WorkloadCompositePodGroupSchedulingPolicy]: see [WorkloadCompositePodGroupSchedulingPolicyDie].
 type WorkloadCompositePodGroupSchedulingPolicyDieMut struct {
 	diebase.DieMutBase[WorkloadCompositePodGroupSchedulingPolicy, *WorkloadCompositePodGroupSchedulingPolicyDie, *WorkloadCompositePodGroupSchedulingPolicyDieMut]
 }
@@ -3830,12 +3830,12 @@ func (d *WorkloadCompositePodGroupSchedulingPolicyDieMut) Gang() *WorkloadCompos
 // can be disrupted independently.
 //
 // WorkloadCompositePodGroupSingleDisruptionModeDie is immutable: it reads.
-// WorkloadCompositePodGroupSingleDisruptionModeDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadCompositePodGroupSingleDisruptionModeDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadCompositePodGroupSingleDisruptionModeDie struct {
 	diebase.DieBase[WorkloadCompositePodGroupSingleDisruptionMode, *WorkloadCompositePodGroupSingleDisruptionModeDie, *WorkloadCompositePodGroupSingleDisruptionModeDieMut]
 }
 
-// WorkloadCompositePodGroupSingleDisruptionModeDieMut is the mutable die of WorkloadCompositePodGroupSingleDisruptionMode: see WorkloadCompositePodGroupSingleDisruptionModeDie.
+// WorkloadCompositePodGroupSingleDisruptionModeDieMut is the mutable die of [WorkloadCompositePodGroupSingleDisruptionMode]: see [WorkloadCompositePodGroupSingleDisruptionModeDie].
 type WorkloadCompositePodGroupSingleDisruptionModeDieMut struct {
 	diebase.DieMutBase[WorkloadCompositePodGroupSingleDisruptionMode, *WorkloadCompositePodGroupSingleDisruptionModeDie, *WorkloadCompositePodGroupSingleDisruptionModeDieMut]
 }
@@ -3884,12 +3884,12 @@ func (l *WorkloadListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() 
 // group must be disrupted together.
 //
 // WorkloadPodGroupAllDisruptionModeDie is immutable: it reads.
-// WorkloadPodGroupAllDisruptionModeDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadPodGroupAllDisruptionModeDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadPodGroupAllDisruptionModeDie struct {
 	diebase.DieBase[WorkloadPodGroupAllDisruptionMode, *WorkloadPodGroupAllDisruptionModeDie, *WorkloadPodGroupAllDisruptionModeDieMut]
 }
 
-// WorkloadPodGroupAllDisruptionModeDieMut is the mutable die of WorkloadPodGroupAllDisruptionMode: see WorkloadPodGroupAllDisruptionModeDie.
+// WorkloadPodGroupAllDisruptionModeDieMut is the mutable die of [WorkloadPodGroupAllDisruptionMode]: see [WorkloadPodGroupAllDisruptionModeDie].
 type WorkloadPodGroupAllDisruptionModeDieMut struct {
 	diebase.DieMutBase[WorkloadPodGroupAllDisruptionMode, *WorkloadPodGroupAllDisruptionModeDie, *WorkloadPodGroupAllDisruptionModeDieMut]
 }
@@ -3921,12 +3921,12 @@ var workloadPodGroupAllDisruptionModeFields = &diefields.Table[workloadPodGroupA
 // scheduling behavior.
 //
 // WorkloadPodGroupBasicSchedulingPolicyDie is immutable: it reads.
-// WorkloadPodGroupBasicSchedulingPolicyDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadPodGroupBasicSchedulingPolicyDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadPodGroupBasicSchedulingPolicyDie struct {
 	diebase.DieBase[WorkloadPodGroupBasicSchedulingPolicy, *WorkloadPodGroupBasicSchedulingPolicyDie, *WorkloadPodGroupBasicSchedulingPolicyDieMut]
 }
 
-// WorkloadPodGroupBasicSchedulingPolicyDieMut is the mutable die of WorkloadPodGroupBasicSchedulingPolicy: see WorkloadPodGroupBasicSchedulingPolicyDie.
+// WorkloadPodGroupBasicSchedulingPolicyDieMut is the mutable die of [WorkloadPodGroupBasicSchedulingPolicy]: see [WorkloadPodGroupBasicSchedulingPolicyDie].
 type WorkloadPodGroupBasicSchedulingPolicyDieMut struct {
 	diebase.DieMutBase[WorkloadPodGroupBasicSchedulingPolicy, *WorkloadPodGroupBasicSchedulingPolicyDie, *WorkloadPodGroupBasicSchedulingPolicyDieMut]
 }
@@ -3979,12 +3979,12 @@ var workloadPodGroupBasicSchedulingPolicyFields = &diefields.Table[workloadPodGr
 //	}
 //
 // WorkloadPodGroupDisruptionModeDie is immutable: it reads.
-// WorkloadPodGroupDisruptionModeDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadPodGroupDisruptionModeDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadPodGroupDisruptionModeDie struct {
 	diebase.DieBase[WorkloadPodGroupDisruptionMode, *WorkloadPodGroupDisruptionModeDie, *WorkloadPodGroupDisruptionModeDieMut]
 }
 
-// WorkloadPodGroupDisruptionModeDieMut is the mutable die of WorkloadPodGroupDisruptionMode: see WorkloadPodGroupDisruptionModeDie.
+// WorkloadPodGroupDisruptionModeDieMut is the mutable die of [WorkloadPodGroupDisruptionMode]: see [WorkloadPodGroupDisruptionModeDie].
 type WorkloadPodGroupDisruptionModeDieMut struct {
 	diebase.DieMutBase[WorkloadPodGroupDisruptionMode, *WorkloadPodGroupDisruptionModeDie, *WorkloadPodGroupDisruptionModeDieMut]
 }
@@ -4011,8 +4011,8 @@ func (d *WorkloadPodGroupDisruptionModeDie) DieReleaseApplyConfiguration() *Work
 	return diecodegen.ReleaseApplyConfiguration[WorkloadPodGroupDisruptionModeApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [WorkloadPodGroupDisruptionModeDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupDisruptionModeDie) DieReleaseApplyConfigurationE() (*WorkloadPodGroupDisruptionModeApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WorkloadPodGroupDisruptionModeApplyConfiguration](d)
 }
@@ -4024,8 +4024,8 @@ func (d *WorkloadPodGroupDisruptionModeDieMut) DieReleaseApplyConfiguration() *W
 	return diecodegen.ReleaseApplyConfiguration[WorkloadPodGroupDisruptionModeApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [WorkloadPodGroupDisruptionModeDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupDisruptionModeDieMut) DieReleaseApplyConfigurationE() (*WorkloadPodGroupDisruptionModeApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WorkloadPodGroupDisruptionModeApplyConfiguration](d)
 }
@@ -4043,14 +4043,14 @@ func (d *WorkloadPodGroupDisruptionModeDieMut) DieStampApplyConfiguration(fn fun
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [WorkloadPodGroupDisruptionModeDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupDisruptionModeDieMut) DieFeedApplyConfigurationE(ac *WorkloadPodGroupDisruptionModeApplyConfiguration) (*WorkloadPodGroupDisruptionModeDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [WorkloadPodGroupDisruptionModeDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupDisruptionModeDieMut) DieStampApplyConfigurationE(fn func(ac *WorkloadPodGroupDisruptionModeApplyConfiguration)) (*WorkloadPodGroupDisruptionModeDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -4091,12 +4091,12 @@ func (d *WorkloadPodGroupDisruptionModeDieMut) All() *WorkloadPodGroupAllDisrupt
 // (all-or-nothing) scheduling.
 //
 // WorkloadPodGroupGangSchedulingPolicyDie is immutable: it reads.
-// WorkloadPodGroupGangSchedulingPolicyDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadPodGroupGangSchedulingPolicyDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadPodGroupGangSchedulingPolicyDie struct {
 	diebase.DieBase[WorkloadPodGroupGangSchedulingPolicy, *WorkloadPodGroupGangSchedulingPolicyDie, *WorkloadPodGroupGangSchedulingPolicyDieMut]
 }
 
-// WorkloadPodGroupGangSchedulingPolicyDieMut is the mutable die of WorkloadPodGroupGangSchedulingPolicy: see WorkloadPodGroupGangSchedulingPolicyDie.
+// WorkloadPodGroupGangSchedulingPolicyDieMut is the mutable die of [WorkloadPodGroupGangSchedulingPolicy]: see [WorkloadPodGroupGangSchedulingPolicyDie].
 type WorkloadPodGroupGangSchedulingPolicyDieMut struct {
 	diebase.DieMutBase[WorkloadPodGroupGangSchedulingPolicy, *WorkloadPodGroupGangSchedulingPolicyDie, *WorkloadPodGroupGangSchedulingPolicyDieMut]
 }
@@ -4123,8 +4123,8 @@ func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieReleaseApplyConfiguration()
 	return diecodegen.ReleaseApplyConfiguration[WorkloadPodGroupGangSchedulingPolicyApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [WorkloadPodGroupGangSchedulingPolicyDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupGangSchedulingPolicyDie) DieReleaseApplyConfigurationE() (*WorkloadPodGroupGangSchedulingPolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WorkloadPodGroupGangSchedulingPolicyApplyConfiguration](d)
 }
@@ -4136,8 +4136,8 @@ func (d *WorkloadPodGroupGangSchedulingPolicyDieMut) DieReleaseApplyConfiguratio
 	return diecodegen.ReleaseApplyConfiguration[WorkloadPodGroupGangSchedulingPolicyApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [WorkloadPodGroupGangSchedulingPolicyDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupGangSchedulingPolicyDieMut) DieReleaseApplyConfigurationE() (*WorkloadPodGroupGangSchedulingPolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WorkloadPodGroupGangSchedulingPolicyApplyConfiguration](d)
 }
@@ -4155,14 +4155,14 @@ func (d *WorkloadPodGroupGangSchedulingPolicyDieMut) DieStampApplyConfiguration(
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [WorkloadPodGroupGangSchedulingPolicyDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupGangSchedulingPolicyDieMut) DieFeedApplyConfigurationE(ac *WorkloadPodGroupGangSchedulingPolicyApplyConfiguration) (*WorkloadPodGroupGangSchedulingPolicyDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [WorkloadPodGroupGangSchedulingPolicyDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupGangSchedulingPolicyDieMut) DieStampApplyConfigurationE(fn func(ac *WorkloadPodGroupGangSchedulingPolicyApplyConfiguration)) (*WorkloadPodGroupGangSchedulingPolicyDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -4229,12 +4229,12 @@ func (d *WorkloadPodGroupGangSchedulingPolicyDieMut) MinCount() diefields.Option
 //	}
 //
 // WorkloadPodGroupResourceClaimDie is immutable: it reads.
-// WorkloadPodGroupResourceClaimDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadPodGroupResourceClaimDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadPodGroupResourceClaimDie struct {
 	diebase.DieBase[WorkloadPodGroupResourceClaim, *WorkloadPodGroupResourceClaimDie, *WorkloadPodGroupResourceClaimDieMut]
 }
 
-// WorkloadPodGroupResourceClaimDieMut is the mutable die of WorkloadPodGroupResourceClaim: see WorkloadPodGroupResourceClaimDie.
+// WorkloadPodGroupResourceClaimDieMut is the mutable die of [WorkloadPodGroupResourceClaim]: see [WorkloadPodGroupResourceClaimDie].
 type WorkloadPodGroupResourceClaimDieMut struct {
 	diebase.DieMutBase[WorkloadPodGroupResourceClaim, *WorkloadPodGroupResourceClaimDie, *WorkloadPodGroupResourceClaimDieMut]
 }
@@ -4261,8 +4261,8 @@ func (d *WorkloadPodGroupResourceClaimDie) DieReleaseApplyConfiguration() *Workl
 	return diecodegen.ReleaseApplyConfiguration[WorkloadPodGroupResourceClaimApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [WorkloadPodGroupResourceClaimDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupResourceClaimDie) DieReleaseApplyConfigurationE() (*WorkloadPodGroupResourceClaimApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WorkloadPodGroupResourceClaimApplyConfiguration](d)
 }
@@ -4274,8 +4274,8 @@ func (d *WorkloadPodGroupResourceClaimDieMut) DieReleaseApplyConfiguration() *Wo
 	return diecodegen.ReleaseApplyConfiguration[WorkloadPodGroupResourceClaimApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [WorkloadPodGroupResourceClaimDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupResourceClaimDieMut) DieReleaseApplyConfigurationE() (*WorkloadPodGroupResourceClaimApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WorkloadPodGroupResourceClaimApplyConfiguration](d)
 }
@@ -4293,14 +4293,14 @@ func (d *WorkloadPodGroupResourceClaimDieMut) DieStampApplyConfiguration(fn func
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [WorkloadPodGroupResourceClaimDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupResourceClaimDieMut) DieFeedApplyConfigurationE(ac *WorkloadPodGroupResourceClaimApplyConfiguration) (*WorkloadPodGroupResourceClaimDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [WorkloadPodGroupResourceClaimDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupResourceClaimDieMut) DieStampApplyConfigurationE(fn func(ac *WorkloadPodGroupResourceClaimApplyConfiguration)) (*WorkloadPodGroupResourceClaimDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -4387,12 +4387,12 @@ func (d *WorkloadPodGroupResourceClaimDieMut) ResourceClaimTemplateName() diefie
 //	}
 //
 // WorkloadPodGroupSchedulingConstraintsDie is immutable: it reads.
-// WorkloadPodGroupSchedulingConstraintsDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadPodGroupSchedulingConstraintsDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadPodGroupSchedulingConstraintsDie struct {
 	diebase.DieBase[WorkloadPodGroupSchedulingConstraints, *WorkloadPodGroupSchedulingConstraintsDie, *WorkloadPodGroupSchedulingConstraintsDieMut]
 }
 
-// WorkloadPodGroupSchedulingConstraintsDieMut is the mutable die of WorkloadPodGroupSchedulingConstraints: see WorkloadPodGroupSchedulingConstraintsDie.
+// WorkloadPodGroupSchedulingConstraintsDieMut is the mutable die of [WorkloadPodGroupSchedulingConstraints]: see [WorkloadPodGroupSchedulingConstraintsDie].
 type WorkloadPodGroupSchedulingConstraintsDieMut struct {
 	diebase.DieMutBase[WorkloadPodGroupSchedulingConstraints, *WorkloadPodGroupSchedulingConstraintsDie, *WorkloadPodGroupSchedulingConstraintsDieMut]
 }
@@ -4419,8 +4419,8 @@ func (d *WorkloadPodGroupSchedulingConstraintsDie) DieReleaseApplyConfiguration(
 	return diecodegen.ReleaseApplyConfiguration[WorkloadPodGroupSchedulingConstraintsApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [WorkloadPodGroupSchedulingConstraintsDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupSchedulingConstraintsDie) DieReleaseApplyConfigurationE() (*WorkloadPodGroupSchedulingConstraintsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WorkloadPodGroupSchedulingConstraintsApplyConfiguration](d)
 }
@@ -4432,8 +4432,8 @@ func (d *WorkloadPodGroupSchedulingConstraintsDieMut) DieReleaseApplyConfigurati
 	return diecodegen.ReleaseApplyConfiguration[WorkloadPodGroupSchedulingConstraintsApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [WorkloadPodGroupSchedulingConstraintsDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupSchedulingConstraintsDieMut) DieReleaseApplyConfigurationE() (*WorkloadPodGroupSchedulingConstraintsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WorkloadPodGroupSchedulingConstraintsApplyConfiguration](d)
 }
@@ -4451,14 +4451,14 @@ func (d *WorkloadPodGroupSchedulingConstraintsDieMut) DieStampApplyConfiguration
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [WorkloadPodGroupSchedulingConstraintsDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupSchedulingConstraintsDieMut) DieFeedApplyConfigurationE(ac *WorkloadPodGroupSchedulingConstraintsApplyConfiguration) (*WorkloadPodGroupSchedulingConstraintsDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [WorkloadPodGroupSchedulingConstraintsDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupSchedulingConstraintsDieMut) DieStampApplyConfigurationE(fn func(ac *WorkloadPodGroupSchedulingConstraintsApplyConfiguration)) (*WorkloadPodGroupSchedulingConstraintsDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -4517,12 +4517,12 @@ func (d *WorkloadPodGroupSchedulingConstraintsDieMut) Topology() diefields.Value
 //	}
 //
 // WorkloadPodGroupSchedulingPolicyDie is immutable: it reads.
-// WorkloadPodGroupSchedulingPolicyDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadPodGroupSchedulingPolicyDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadPodGroupSchedulingPolicyDie struct {
 	diebase.DieBase[WorkloadPodGroupSchedulingPolicy, *WorkloadPodGroupSchedulingPolicyDie, *WorkloadPodGroupSchedulingPolicyDieMut]
 }
 
-// WorkloadPodGroupSchedulingPolicyDieMut is the mutable die of WorkloadPodGroupSchedulingPolicy: see WorkloadPodGroupSchedulingPolicyDie.
+// WorkloadPodGroupSchedulingPolicyDieMut is the mutable die of [WorkloadPodGroupSchedulingPolicy]: see [WorkloadPodGroupSchedulingPolicyDie].
 type WorkloadPodGroupSchedulingPolicyDieMut struct {
 	diebase.DieMutBase[WorkloadPodGroupSchedulingPolicy, *WorkloadPodGroupSchedulingPolicyDie, *WorkloadPodGroupSchedulingPolicyDieMut]
 }
@@ -4549,8 +4549,8 @@ func (d *WorkloadPodGroupSchedulingPolicyDie) DieReleaseApplyConfiguration() *Wo
 	return diecodegen.ReleaseApplyConfiguration[WorkloadPodGroupSchedulingPolicyApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [WorkloadPodGroupSchedulingPolicyDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupSchedulingPolicyDie) DieReleaseApplyConfigurationE() (*WorkloadPodGroupSchedulingPolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WorkloadPodGroupSchedulingPolicyApplyConfiguration](d)
 }
@@ -4562,8 +4562,8 @@ func (d *WorkloadPodGroupSchedulingPolicyDieMut) DieReleaseApplyConfiguration() 
 	return diecodegen.ReleaseApplyConfiguration[WorkloadPodGroupSchedulingPolicyApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [WorkloadPodGroupSchedulingPolicyDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupSchedulingPolicyDieMut) DieReleaseApplyConfigurationE() (*WorkloadPodGroupSchedulingPolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WorkloadPodGroupSchedulingPolicyApplyConfiguration](d)
 }
@@ -4581,14 +4581,14 @@ func (d *WorkloadPodGroupSchedulingPolicyDieMut) DieStampApplyConfiguration(fn f
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [WorkloadPodGroupSchedulingPolicyDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupSchedulingPolicyDieMut) DieFeedApplyConfigurationE(ac *WorkloadPodGroupSchedulingPolicyApplyConfiguration) (*WorkloadPodGroupSchedulingPolicyDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [WorkloadPodGroupSchedulingPolicyDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadPodGroupSchedulingPolicyDieMut) DieStampApplyConfigurationE(fn func(ac *WorkloadPodGroupSchedulingPolicyApplyConfiguration)) (*WorkloadPodGroupSchedulingPolicyDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -4631,12 +4631,12 @@ func (d *WorkloadPodGroupSchedulingPolicyDieMut) Gang() *WorkloadPodGroupGangSch
 // can be disrupted independently.
 //
 // WorkloadPodGroupSingleDisruptionModeDie is immutable: it reads.
-// WorkloadPodGroupSingleDisruptionModeDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadPodGroupSingleDisruptionModeDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadPodGroupSingleDisruptionModeDie struct {
 	diebase.DieBase[WorkloadPodGroupSingleDisruptionMode, *WorkloadPodGroupSingleDisruptionModeDie, *WorkloadPodGroupSingleDisruptionModeDieMut]
 }
 
-// WorkloadPodGroupSingleDisruptionModeDieMut is the mutable die of WorkloadPodGroupSingleDisruptionMode: see WorkloadPodGroupSingleDisruptionModeDie.
+// WorkloadPodGroupSingleDisruptionModeDieMut is the mutable die of [WorkloadPodGroupSingleDisruptionMode]: see [WorkloadPodGroupSingleDisruptionModeDie].
 type WorkloadPodGroupSingleDisruptionModeDieMut struct {
 	diebase.DieMutBase[WorkloadPodGroupSingleDisruptionMode, *WorkloadPodGroupSingleDisruptionModeDie, *WorkloadPodGroupSingleDisruptionModeDieMut]
 }
@@ -4668,12 +4668,12 @@ var workloadPodGroupSingleDisruptionModeFields = &diefields.Table[workloadPodGro
 // that was used to create a particular PodGroup.
 //
 // WorkloadReferenceDie is immutable: it reads.
-// WorkloadReferenceDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadReferenceDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadReferenceDie struct {
 	diebase.DieBase[WorkloadReference, *WorkloadReferenceDie, *WorkloadReferenceDieMut]
 }
 
-// WorkloadReferenceDieMut is the mutable die of WorkloadReference: see WorkloadReferenceDie.
+// WorkloadReferenceDieMut is the mutable die of [WorkloadReference]: see [WorkloadReferenceDie].
 type WorkloadReferenceDieMut struct {
 	diebase.DieMutBase[WorkloadReference, *WorkloadReferenceDie, *WorkloadReferenceDieMut]
 }
@@ -4700,8 +4700,8 @@ func (d *WorkloadReferenceDie) DieReleaseApplyConfiguration() *WorkloadReference
 	return diecodegen.ReleaseApplyConfiguration[WorkloadReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [WorkloadReferenceDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadReferenceDie) DieReleaseApplyConfigurationE() (*WorkloadReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WorkloadReferenceApplyConfiguration](d)
 }
@@ -4713,8 +4713,8 @@ func (d *WorkloadReferenceDieMut) DieReleaseApplyConfiguration() *WorkloadRefere
 	return diecodegen.ReleaseApplyConfiguration[WorkloadReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [WorkloadReferenceDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadReferenceDieMut) DieReleaseApplyConfigurationE() (*WorkloadReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WorkloadReferenceApplyConfiguration](d)
 }
@@ -4732,14 +4732,14 @@ func (d *WorkloadReferenceDieMut) DieStampApplyConfiguration(fn func(ac *Workloa
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [WorkloadReferenceDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadReferenceDieMut) DieFeedApplyConfigurationE(ac *WorkloadReferenceApplyConfiguration) (*WorkloadReferenceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [WorkloadReferenceDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *WorkloadReferenceApplyConfiguration)) (*WorkloadReferenceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -4789,12 +4789,12 @@ func (d *WorkloadReferenceDieMut) TemplateName() diefields.ValueMut[string, *Wor
 // WorkloadSpec defines the desired state of a Workload.
 //
 // WorkloadSpecDie is immutable: it reads.
-// WorkloadSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadSpecDie struct {
 	diebase.DieBase[WorkloadSpec, *WorkloadSpecDie, *WorkloadSpecDieMut]
 }
 
-// WorkloadSpecDieMut is the mutable die of WorkloadSpec: see WorkloadSpecDie.
+// WorkloadSpecDieMut is the mutable die of [WorkloadSpec]: see [WorkloadSpecDie].
 type WorkloadSpecDieMut struct {
 	diebase.DieMutBase[WorkloadSpec, *WorkloadSpecDie, *WorkloadSpecDieMut]
 }
@@ -4821,8 +4821,8 @@ func (d *WorkloadSpecDie) DieReleaseApplyConfiguration() *WorkloadSpecApplyConfi
 	return diecodegen.ReleaseApplyConfiguration[WorkloadSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [WorkloadSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadSpecDie) DieReleaseApplyConfigurationE() (*WorkloadSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WorkloadSpecApplyConfiguration](d)
 }
@@ -4834,8 +4834,8 @@ func (d *WorkloadSpecDieMut) DieReleaseApplyConfiguration() *WorkloadSpecApplyCo
 	return diecodegen.ReleaseApplyConfiguration[WorkloadSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [WorkloadSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadSpecDieMut) DieReleaseApplyConfigurationE() (*WorkloadSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[WorkloadSpecApplyConfiguration](d)
 }
@@ -4853,14 +4853,14 @@ func (d *WorkloadSpecDieMut) DieStampApplyConfiguration(fn func(ac *WorkloadSpec
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [WorkloadSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadSpecDieMut) DieFeedApplyConfigurationE(ac *WorkloadSpecApplyConfiguration) (*WorkloadSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [WorkloadSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *WorkloadSpecDieMut) DieStampApplyConfigurationE(fn func(ac *WorkloadSpecApplyConfiguration)) (*WorkloadSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

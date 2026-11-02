@@ -34,12 +34,12 @@ import (
 // encodes objects to when persisting objects in the backend.
 //
 // ServerStorageVersionDie is immutable: it reads.
-// ServerStorageVersionDieMut, its mutable die, also writes, as DieWith passes it.
+// [ServerStorageVersionDieMut], its mutable die, also writes, as DieWith passes it.
 type ServerStorageVersionDie struct {
 	diebase.DieBase[ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut]
 }
 
-// ServerStorageVersionDieMut is the mutable die of ServerStorageVersion: see ServerStorageVersionDie.
+// ServerStorageVersionDieMut is the mutable die of [ServerStorageVersion]: see [ServerStorageVersionDie].
 type ServerStorageVersionDieMut struct {
 	diebase.DieMutBase[ServerStorageVersion, *ServerStorageVersionDie, *ServerStorageVersionDieMut]
 }
@@ -66,8 +66,8 @@ func (d *ServerStorageVersionDie) DieReleaseApplyConfiguration() *ServerStorageV
 	return diecodegen.ReleaseApplyConfiguration[ServerStorageVersionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ServerStorageVersionDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ServerStorageVersionDie) DieReleaseApplyConfigurationE() (*ServerStorageVersionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ServerStorageVersionApplyConfiguration](d)
 }
@@ -79,8 +79,8 @@ func (d *ServerStorageVersionDieMut) DieReleaseApplyConfiguration() *ServerStora
 	return diecodegen.ReleaseApplyConfiguration[ServerStorageVersionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ServerStorageVersionDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ServerStorageVersionDieMut) DieReleaseApplyConfigurationE() (*ServerStorageVersionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ServerStorageVersionApplyConfiguration](d)
 }
@@ -98,14 +98,14 @@ func (d *ServerStorageVersionDieMut) DieStampApplyConfiguration(fn func(ac *Serv
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ServerStorageVersionDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ServerStorageVersionDieMut) DieFeedApplyConfigurationE(ac *ServerStorageVersionApplyConfiguration) (*ServerStorageVersionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ServerStorageVersionDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ServerStorageVersionDieMut) DieStampApplyConfigurationE(fn func(ac *ServerStorageVersionApplyConfiguration)) (*ServerStorageVersionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -177,12 +177,12 @@ func (d *ServerStorageVersionDieMut) ServedVersions() diefields.ValueMut[[]strin
 // Storage version of a specific resource.
 //
 // StorageVersionDie is immutable: it reads.
-// StorageVersionDieMut, its mutable die, also writes, as DieWith passes it.
+// [StorageVersionDieMut], its mutable die, also writes, as DieWith passes it.
 type StorageVersionDie struct {
 	diebase.DieObjectBase[StorageVersion, *StorageVersionDie, *StorageVersionDieMut]
 }
 
-// StorageVersionDieMut is the mutable die of StorageVersion: see StorageVersionDie.
+// StorageVersionDieMut is the mutable die of [StorageVersion]: see [StorageVersionDie].
 type StorageVersionDieMut struct {
 	diebase.DieObjectMutBase[StorageVersion, *StorageVersionDie, *StorageVersionDieMut]
 }
@@ -209,8 +209,8 @@ func (d *StorageVersionDie) DieReleaseApplyConfiguration() *StorageVersionApplyC
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [StorageVersionDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionDie) DieReleaseApplyConfigurationE() (*StorageVersionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[StorageVersionApplyConfiguration](d)
 }
@@ -222,8 +222,8 @@ func (d *StorageVersionDieMut) DieReleaseApplyConfiguration() *StorageVersionApp
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [StorageVersionDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionDieMut) DieReleaseApplyConfigurationE() (*StorageVersionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[StorageVersionApplyConfiguration](d)
 }
@@ -241,14 +241,14 @@ func (d *StorageVersionDieMut) DieStampApplyConfiguration(fn func(ac *StorageVer
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [StorageVersionDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionDieMut) DieFeedApplyConfigurationE(ac *StorageVersionApplyConfiguration) (*StorageVersionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [StorageVersionDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionDieMut) DieStampApplyConfigurationE(fn func(ac *StorageVersionApplyConfiguration)) (*StorageVersionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -342,12 +342,12 @@ func (d *StorageVersionDieMut) Status() *StorageVersionStatusDieMut {
 // Describes the state of the storageVersion at a certain point.
 //
 // StorageVersionConditionDie is immutable: it reads.
-// StorageVersionConditionDieMut, its mutable die, also writes, as DieWith passes it.
+// [StorageVersionConditionDieMut], its mutable die, also writes, as DieWith passes it.
 type StorageVersionConditionDie struct {
 	diebase.DieBase[StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut]
 }
 
-// StorageVersionConditionDieMut is the mutable die of StorageVersionCondition: see StorageVersionConditionDie.
+// StorageVersionConditionDieMut is the mutable die of [StorageVersionCondition]: see [StorageVersionConditionDie].
 type StorageVersionConditionDieMut struct {
 	diebase.DieMutBase[StorageVersionCondition, *StorageVersionConditionDie, *StorageVersionConditionDieMut]
 }
@@ -374,8 +374,8 @@ func (d *StorageVersionConditionDie) DieReleaseApplyConfiguration() *StorageVers
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionConditionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [StorageVersionConditionDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionConditionDie) DieReleaseApplyConfigurationE() (*StorageVersionConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[StorageVersionConditionApplyConfiguration](d)
 }
@@ -387,8 +387,8 @@ func (d *StorageVersionConditionDieMut) DieReleaseApplyConfiguration() *StorageV
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionConditionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [StorageVersionConditionDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionConditionDieMut) DieReleaseApplyConfigurationE() (*StorageVersionConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[StorageVersionConditionApplyConfiguration](d)
 }
@@ -406,14 +406,14 @@ func (d *StorageVersionConditionDieMut) DieStampApplyConfiguration(fn func(ac *S
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [StorageVersionConditionDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionConditionDieMut) DieFeedApplyConfigurationE(ac *StorageVersionConditionApplyConfiguration) (*StorageVersionConditionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [StorageVersionConditionDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionConditionDieMut) DieStampApplyConfigurationE(fn func(ac *StorageVersionConditionApplyConfiguration)) (*StorageVersionConditionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -520,12 +520,12 @@ func (l *StorageVersionListDie) DeepCopyObject() runtime.Object { return l.DeepC
 // StorageVersionSpec is an empty spec.
 //
 // StorageVersionSpecDie is immutable: it reads.
-// StorageVersionSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [StorageVersionSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type StorageVersionSpecDie struct {
 	diebase.DieBase[StorageVersionSpec, *StorageVersionSpecDie, *StorageVersionSpecDieMut]
 }
 
-// StorageVersionSpecDieMut is the mutable die of StorageVersionSpec: see StorageVersionSpecDie.
+// StorageVersionSpecDieMut is the mutable die of [StorageVersionSpec]: see [StorageVersionSpecDie].
 type StorageVersionSpecDieMut struct {
 	diebase.DieMutBase[StorageVersionSpec, *StorageVersionSpecDie, *StorageVersionSpecDieMut]
 }
@@ -557,12 +557,12 @@ var storageVersionSpecFields = &diefields.Table[storageVersionSpecFieldsTable]{B
 // encode objects to when persisting objects in the backend.
 //
 // StorageVersionStatusDie is immutable: it reads.
-// StorageVersionStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [StorageVersionStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type StorageVersionStatusDie struct {
 	diebase.DieBase[StorageVersionStatus, *StorageVersionStatusDie, *StorageVersionStatusDieMut]
 }
 
-// StorageVersionStatusDieMut is the mutable die of StorageVersionStatus: see StorageVersionStatusDie.
+// StorageVersionStatusDieMut is the mutable die of [StorageVersionStatus]: see [StorageVersionStatusDie].
 type StorageVersionStatusDieMut struct {
 	diebase.DieMutBase[StorageVersionStatus, *StorageVersionStatusDie, *StorageVersionStatusDieMut]
 }
@@ -589,8 +589,8 @@ func (d *StorageVersionStatusDie) DieReleaseApplyConfiguration() *StorageVersion
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [StorageVersionStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionStatusDie) DieReleaseApplyConfigurationE() (*StorageVersionStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[StorageVersionStatusApplyConfiguration](d)
 }
@@ -602,8 +602,8 @@ func (d *StorageVersionStatusDieMut) DieReleaseApplyConfiguration() *StorageVers
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [StorageVersionStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionStatusDieMut) DieReleaseApplyConfigurationE() (*StorageVersionStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[StorageVersionStatusApplyConfiguration](d)
 }
@@ -621,14 +621,14 @@ func (d *StorageVersionStatusDieMut) DieStampApplyConfiguration(fn func(ac *Stor
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [StorageVersionStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionStatusDieMut) DieFeedApplyConfigurationE(ac *StorageVersionStatusApplyConfiguration) (*StorageVersionStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [StorageVersionStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionStatusDieMut) DieStampApplyConfigurationE(fn func(ac *StorageVersionStatusApplyConfiguration)) (*StorageVersionStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

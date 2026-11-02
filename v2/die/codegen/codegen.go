@@ -36,7 +36,7 @@ import (
 // die manages are asked for. Neither happens at init.
 type Package struct {
 	// Types are the import paths of the packages declaring the types, such as
-	// k8s.io/api/apps/v1 for the dies of its aliases.
+	// [k8s.io/api/apps/v1] for the dies of its aliases.
 	Types    []string
 	Annotate func()
 	Tables   func()
@@ -130,10 +130,6 @@ func CheckManaged[T any]() error {
 	return fmt.Errorf("the die for %s does not match its type (new fields %v, removed fields %v); regenerate the dies", reflect.TypeFor[T](), added, removed)
 }
 
-// Annotate supplies die tags, keyed by Go field name, for a type whose
-// declaration cannot carry them, such as an apimachinery type reused as is.
-// It must be called before the type's schema is first used: generated dies
-// call it from their package's Annotate, which runs before then.
 // Object registers the apiVersion and kind of an object type, for an apply
 // patch from a die whose value doesn't have them, such as one a client
 // decoded into, which strips them from typed objects. Generated dies call it
@@ -142,6 +138,10 @@ func Object[T any](apiVersion, kind string) {
 	core.SetIdentity(reflect.TypeFor[T](), apiVersion, kind)
 }
 
+// Annotate supplies die tags, keyed by Go field name, for a type whose
+// declaration cannot carry them, such as an apimachinery type reused as is.
+// It must be called before the type's schema is first used: generated dies
+// call it from their package's Annotate, which runs before then.
 func Annotate[T any](tags map[string]string) {
 	core.AnnotateType(reflect.TypeFor[T](), tags)
 }

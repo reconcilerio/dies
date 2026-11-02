@@ -35,7 +35,7 @@ import (
 // take it as they take any list.
 //
 // List dies embed it, and declare DeepCopyObject. List itself implements
-// metav1.ListInterface, by its list metadata.
+// [metav1.ListInterface], by its list metadata.
 type List[D ListItem[D]] struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
@@ -51,7 +51,7 @@ type ListItem[D any] interface {
 }
 
 // DieList is a list die of any type, as the Kubernetes list interfaces see a
-// list: meta.ExtractList and meta.EachListItem read its items. DieListOf has
+// list: meta.ExtractList and meta.EachListItem read its items. [DieListOf] has
 // them typed, for generic code.
 type DieList interface {
 	runtime.Object

@@ -34,12 +34,12 @@ import (
 // storage version.
 //
 // StorageVersionMigrationDie is immutable: it reads.
-// StorageVersionMigrationDieMut, its mutable die, also writes, as DieWith passes it.
+// [StorageVersionMigrationDieMut], its mutable die, also writes, as DieWith passes it.
 type StorageVersionMigrationDie struct {
 	diebase.DieObjectBase[StorageVersionMigration, *StorageVersionMigrationDie, *StorageVersionMigrationDieMut]
 }
 
-// StorageVersionMigrationDieMut is the mutable die of StorageVersionMigration: see StorageVersionMigrationDie.
+// StorageVersionMigrationDieMut is the mutable die of [StorageVersionMigration]: see [StorageVersionMigrationDie].
 type StorageVersionMigrationDieMut struct {
 	diebase.DieObjectMutBase[StorageVersionMigration, *StorageVersionMigrationDie, *StorageVersionMigrationDieMut]
 }
@@ -66,8 +66,8 @@ func (d *StorageVersionMigrationDie) DieReleaseApplyConfiguration() *StorageVers
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionMigrationApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [StorageVersionMigrationDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionMigrationDie) DieReleaseApplyConfigurationE() (*StorageVersionMigrationApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[StorageVersionMigrationApplyConfiguration](d)
 }
@@ -79,8 +79,8 @@ func (d *StorageVersionMigrationDieMut) DieReleaseApplyConfiguration() *StorageV
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionMigrationApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [StorageVersionMigrationDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionMigrationDieMut) DieReleaseApplyConfigurationE() (*StorageVersionMigrationApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[StorageVersionMigrationApplyConfiguration](d)
 }
@@ -98,14 +98,14 @@ func (d *StorageVersionMigrationDieMut) DieStampApplyConfiguration(fn func(ac *S
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [StorageVersionMigrationDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionMigrationDieMut) DieFeedApplyConfigurationE(ac *StorageVersionMigrationApplyConfiguration) (*StorageVersionMigrationDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [StorageVersionMigrationDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionMigrationDieMut) DieStampApplyConfigurationE(fn func(ac *StorageVersionMigrationApplyConfiguration)) (*StorageVersionMigrationDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -216,12 +216,12 @@ func (l *StorageVersionMigrationListDie) DeepCopyObject() runtime.Object { retur
 // Spec of the storage version migration.
 //
 // StorageVersionMigrationSpecDie is immutable: it reads.
-// StorageVersionMigrationSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [StorageVersionMigrationSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type StorageVersionMigrationSpecDie struct {
 	diebase.DieBase[StorageVersionMigrationSpec, *StorageVersionMigrationSpecDie, *StorageVersionMigrationSpecDieMut]
 }
 
-// StorageVersionMigrationSpecDieMut is the mutable die of StorageVersionMigrationSpec: see StorageVersionMigrationSpecDie.
+// StorageVersionMigrationSpecDieMut is the mutable die of [StorageVersionMigrationSpec]: see [StorageVersionMigrationSpecDie].
 type StorageVersionMigrationSpecDieMut struct {
 	diebase.DieMutBase[StorageVersionMigrationSpec, *StorageVersionMigrationSpecDie, *StorageVersionMigrationSpecDieMut]
 }
@@ -248,8 +248,8 @@ func (d *StorageVersionMigrationSpecDie) DieReleaseApplyConfiguration() *Storage
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionMigrationSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [StorageVersionMigrationSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionMigrationSpecDie) DieReleaseApplyConfigurationE() (*StorageVersionMigrationSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[StorageVersionMigrationSpecApplyConfiguration](d)
 }
@@ -261,8 +261,8 @@ func (d *StorageVersionMigrationSpecDieMut) DieReleaseApplyConfiguration() *Stor
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionMigrationSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [StorageVersionMigrationSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionMigrationSpecDieMut) DieReleaseApplyConfigurationE() (*StorageVersionMigrationSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[StorageVersionMigrationSpecApplyConfiguration](d)
 }
@@ -280,14 +280,14 @@ func (d *StorageVersionMigrationSpecDieMut) DieStampApplyConfiguration(fn func(a
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [StorageVersionMigrationSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionMigrationSpecDieMut) DieFeedApplyConfigurationE(ac *StorageVersionMigrationSpecApplyConfiguration) (*StorageVersionMigrationSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [StorageVersionMigrationSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionMigrationSpecDieMut) DieStampApplyConfigurationE(fn func(ac *StorageVersionMigrationSpecApplyConfiguration)) (*StorageVersionMigrationSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -319,12 +319,12 @@ func (d *StorageVersionMigrationSpecDieMut) Resource() *diemetav1.GroupResourceD
 // Status of the storage version migration.
 //
 // StorageVersionMigrationStatusDie is immutable: it reads.
-// StorageVersionMigrationStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [StorageVersionMigrationStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type StorageVersionMigrationStatusDie struct {
 	diebase.DieBase[StorageVersionMigrationStatus, *StorageVersionMigrationStatusDie, *StorageVersionMigrationStatusDieMut]
 }
 
-// StorageVersionMigrationStatusDieMut is the mutable die of StorageVersionMigrationStatus: see StorageVersionMigrationStatusDie.
+// StorageVersionMigrationStatusDieMut is the mutable die of [StorageVersionMigrationStatus]: see [StorageVersionMigrationStatusDie].
 type StorageVersionMigrationStatusDieMut struct {
 	diebase.DieMutBase[StorageVersionMigrationStatus, *StorageVersionMigrationStatusDie, *StorageVersionMigrationStatusDieMut]
 }
@@ -351,8 +351,8 @@ func (d *StorageVersionMigrationStatusDie) DieReleaseApplyConfiguration() *Stora
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionMigrationStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [StorageVersionMigrationStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionMigrationStatusDie) DieReleaseApplyConfigurationE() (*StorageVersionMigrationStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[StorageVersionMigrationStatusApplyConfiguration](d)
 }
@@ -364,8 +364,8 @@ func (d *StorageVersionMigrationStatusDieMut) DieReleaseApplyConfiguration() *St
 	return diecodegen.ReleaseApplyConfiguration[StorageVersionMigrationStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [StorageVersionMigrationStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionMigrationStatusDieMut) DieReleaseApplyConfigurationE() (*StorageVersionMigrationStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[StorageVersionMigrationStatusApplyConfiguration](d)
 }
@@ -383,14 +383,14 @@ func (d *StorageVersionMigrationStatusDieMut) DieStampApplyConfiguration(fn func
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [StorageVersionMigrationStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionMigrationStatusDieMut) DieFeedApplyConfigurationE(ac *StorageVersionMigrationStatusApplyConfiguration) (*StorageVersionMigrationStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [StorageVersionMigrationStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *StorageVersionMigrationStatusDieMut) DieStampApplyConfigurationE(fn func(ac *StorageVersionMigrationStatusApplyConfiguration)) (*StorageVersionMigrationStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

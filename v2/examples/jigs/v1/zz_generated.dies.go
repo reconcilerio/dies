@@ -31,12 +31,12 @@ import (
 // of their own, and has an optional init container.
 //
 // BatchDie is immutable: it reads.
-// BatchDieMut, its mutable die, also writes, as DieWith passes it.
+// [BatchDieMut], its mutable die, also writes, as DieWith passes it.
 type BatchDie struct {
 	diebase.DieBase[Batch, *BatchDie, *BatchDieMut]
 }
 
-// BatchDieMut is the mutable die of Batch: see BatchDie.
+// BatchDieMut is the mutable die of [Batch]: see [BatchDie].
 type BatchDieMut struct {
 	diebase.DieMutBase[Batch, *BatchDie, *BatchDieMut]
 }
@@ -83,12 +83,12 @@ func (d *BatchDieMut) Init() *diecorev1.ContainerDieMut {
 }
 
 // BuilderDie is immutable: it reads.
-// BuilderDieMut, its mutable die, also writes, as DieWith passes it.
+// [BuilderDieMut], its mutable die, also writes, as DieWith passes it.
 type BuilderDie struct {
 	diebase.DieBase[Builder, *BuilderDie, *BuilderDieMut]
 }
 
-// BuilderDieMut is the mutable die of Builder: see BuilderDie.
+// BuilderDieMut is the mutable die of [Builder]: see [BuilderDie].
 type BuilderDieMut struct {
 	diebase.DieMutBase[Builder, *BuilderDie, *BuilderDieMut]
 }
@@ -149,12 +149,12 @@ func (d *BuilderDieMut) Env() *diefields.ListMapMut[diecorev1.EnvVar, *diecorev1
 // Conditioned presents the conditions of a status in their harmonized form.
 //
 // ConditionedDie is immutable: it reads.
-// ConditionedDieMut, its mutable die, also writes, as DieWith passes it.
+// [ConditionedDieMut], its mutable die, also writes, as DieWith passes it.
 type ConditionedDie struct {
 	diebase.DieBase[Conditioned, *ConditionedDie, *ConditionedDieMut]
 }
 
-// ConditionedDieMut is the mutable die of Conditioned: see ConditionedDie.
+// ConditionedDieMut is the mutable die of [Conditioned]: see [ConditionedDie].
 type ConditionedDieMut struct {
 	diebase.DieMutBase[Conditioned, *ConditionedDie, *ConditionedDieMut]
 }
@@ -195,12 +195,12 @@ func (d *ConditionedDieMut) Conditions() *diefields.ListMapMut[diemetav1.Conditi
 // ContainerImage presents a container's image as its parts.
 //
 // ContainerImageDie is immutable: it reads.
-// ContainerImageDieMut, its mutable die, also writes, as DieWith passes it.
+// [ContainerImageDieMut], its mutable die, also writes, as DieWith passes it.
 type ContainerImageDie struct {
 	diebase.DieBase[ContainerImage, *ContainerImageDie, *ContainerImageDieMut]
 }
 
-// ContainerImageDieMut is the mutable die of ContainerImage: see ContainerImageDie.
+// ContainerImageDieMut is the mutable die of [ContainerImage]: see [ContainerImageDie].
 type ContainerImageDieMut struct {
 	diebase.DieMutBase[ContainerImage, *ContainerImageDie, *ContainerImageDieMut]
 }
@@ -252,12 +252,12 @@ func (d *ContainerImageDieMut) Image() *ImageReferenceDieMut {
 // or registry.example/repo@sha256:digest.
 //
 // ImageReferenceDie is immutable: it reads.
-// ImageReferenceDieMut, its mutable die, also writes, as DieWith passes it.
+// [ImageReferenceDieMut], its mutable die, also writes, as DieWith passes it.
 type ImageReferenceDie struct {
 	diebase.DieBase[ImageReference, *ImageReferenceDie, *ImageReferenceDieMut]
 }
 
-// ImageReferenceDieMut is the mutable die of ImageReference: see ImageReferenceDie.
+// ImageReferenceDieMut is the mutable die of [ImageReference]: see [ImageReferenceDie].
 type ImageReferenceDieMut struct {
 	diebase.DieMutBase[ImageReference, *ImageReferenceDie, *ImageReferenceDieMut]
 }
@@ -319,12 +319,12 @@ func (d *ImageReferenceDieMut) Digest() diefields.ValueMut[string, *ImageReferen
 // sidecar, and a builder that isn't a container but can be presented as one.
 //
 // PipelineDie is immutable: it reads.
-// PipelineDieMut, its mutable die, also writes, as DieWith passes it.
+// [PipelineDieMut], its mutable die, also writes, as DieWith passes it.
 type PipelineDie struct {
 	diebase.DieBase[Pipeline, *PipelineDie, *PipelineDieMut]
 }
 
-// PipelineDieMut is the mutable die of Pipeline: see PipelineDie.
+// PipelineDieMut is the mutable die of [Pipeline]: see [PipelineDie].
 type PipelineDieMut struct {
 	diebase.DieMutBase[Pipeline, *PipelineDie, *PipelineDieMut]
 }
@@ -383,12 +383,12 @@ func (d *PipelineDieMut) Builder() *BuilderDieMut {
 // PodSpecable is anything that runs pods: its metadata and its pod template.
 //
 // PodSpecableDie is immutable: it reads.
-// PodSpecableDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodSpecableDieMut], its mutable die, also writes, as DieWith passes it.
 type PodSpecableDie struct {
 	diebase.DieBase[PodSpecable, *PodSpecableDie, *PodSpecableDieMut]
 }
 
-// PodSpecableDieMut is the mutable die of PodSpecable: see PodSpecableDie.
+// PodSpecableDieMut is the mutable die of [PodSpecable]: see [PodSpecableDie].
 type PodSpecableDieMut struct {
 	diebase.DieMutBase[PodSpecable, *PodSpecableDie, *PodSpecableDieMut]
 }
@@ -440,12 +440,12 @@ func (d *PodSpecableDieMut) Template() *diecorev1.PodTemplateSpecDieMut {
 // container, wherever it is, and the volumes.
 //
 // WorkloadDie is immutable: it reads.
-// WorkloadDieMut, its mutable die, also writes, as DieWith passes it.
+// [WorkloadDieMut], its mutable die, also writes, as DieWith passes it.
 type WorkloadDie struct {
 	diebase.DieBase[Workload, *WorkloadDie, *WorkloadDieMut]
 }
 
-// WorkloadDieMut is the mutable die of Workload: see WorkloadDie.
+// WorkloadDieMut is the mutable die of [Workload]: see [WorkloadDie].
 type WorkloadDieMut struct {
 	diebase.DieMutBase[Workload, *WorkloadDie, *WorkloadDieMut]
 }

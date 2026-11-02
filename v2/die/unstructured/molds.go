@@ -88,7 +88,7 @@ func NewMolds(client openapi.Client) *Molds {
 // the server has no schema for the kind.
 func (m *Molds) Blank(gvk schema.GroupVersionKind) *Object { return core.Must(m.BlankE(gvk)) }
 
-// BlankE is Blank, returning an error rather than panicking.
+// BlankE is [Molds.Blank], returning an error rather than panicking.
 func (m *Molds) BlankE(gvk schema.GroupVersionKind) (*Object, error) {
 	sc, err := m.schemaOf(gvk)
 	if err != nil {
@@ -105,7 +105,7 @@ func (m *Molds) BlankE(gvk schema.GroupVersionKind) (*Object, error) {
 // the die's kind.
 func (m *Molds) For(d *Object) *Object { return core.Must(m.ForE(d)) }
 
-// ForE is For, returning an error rather than panicking.
+// ForE is [Molds.For], returning an error rather than panicking.
 func (m *Molds) ForE(d *Object) (*Object, error) {
 	h, sc, err := m.moldOf(d)
 	if err != nil {
@@ -121,7 +121,7 @@ func (m *Molds) ForE(d *Object) (*Object, error) {
 // intent. It panics if the server has no schema for the die's kind.
 func (m *Molds) ForMut(d *ObjectMut) *ObjectMut { return core.Must(m.ForMutE(d)) }
 
-// ForMutE is ForMut, returning an error rather than panicking.
+// ForMutE is [Molds.ForMut], returning an error rather than panicking.
 func (m *Molds) ForMutE(d *ObjectMut) (*ObjectMut, error) {
 	h, sc, err := m.moldOf(d)
 	if err != nil {

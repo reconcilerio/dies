@@ -39,12 +39,12 @@ import (
 // treated as informative, best-effort, supplemental data.
 //
 // EventDie is immutable: it reads.
-// EventDieMut, its mutable die, also writes, as DieWith passes it.
+// [EventDieMut], its mutable die, also writes, as DieWith passes it.
 type EventDie struct {
 	diebase.DieObjectBase[Event, *EventDie, *EventDieMut]
 }
 
-// EventDieMut is the mutable die of Event: see EventDie.
+// EventDieMut is the mutable die of [Event]: see [EventDie].
 type EventDieMut struct {
 	diebase.DieObjectMutBase[Event, *EventDie, *EventDieMut]
 }
@@ -71,8 +71,8 @@ func (d *EventDie) DieReleaseApplyConfiguration() *EventApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[EventApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EventDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EventDie) DieReleaseApplyConfigurationE() (*EventApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EventApplyConfiguration](d)
 }
@@ -84,8 +84,8 @@ func (d *EventDieMut) DieReleaseApplyConfiguration() *EventApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[EventApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EventDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EventDieMut) DieReleaseApplyConfigurationE() (*EventApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EventApplyConfiguration](d)
 }
@@ -103,14 +103,14 @@ func (d *EventDieMut) DieStampApplyConfiguration(fn func(ac *EventApplyConfigura
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [EventDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EventDieMut) DieFeedApplyConfigurationE(ac *EventApplyConfiguration) (*EventDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [EventDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EventDieMut) DieStampApplyConfigurationE(fn func(ac *EventApplyConfiguration)) (*EventDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -382,12 +382,12 @@ func (l *EventListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 // continuously for some time.
 //
 // EventSeriesDie is immutable: it reads.
-// EventSeriesDieMut, its mutable die, also writes, as DieWith passes it.
+// [EventSeriesDieMut], its mutable die, also writes, as DieWith passes it.
 type EventSeriesDie struct {
 	diebase.DieBase[EventSeries, *EventSeriesDie, *EventSeriesDieMut]
 }
 
-// EventSeriesDieMut is the mutable die of EventSeries: see EventSeriesDie.
+// EventSeriesDieMut is the mutable die of [EventSeries]: see [EventSeriesDie].
 type EventSeriesDieMut struct {
 	diebase.DieMutBase[EventSeries, *EventSeriesDie, *EventSeriesDieMut]
 }
@@ -414,8 +414,8 @@ func (d *EventSeriesDie) DieReleaseApplyConfiguration() *EventSeriesApplyConfigu
 	return diecodegen.ReleaseApplyConfiguration[EventSeriesApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EventSeriesDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EventSeriesDie) DieReleaseApplyConfigurationE() (*EventSeriesApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EventSeriesApplyConfiguration](d)
 }
@@ -427,8 +427,8 @@ func (d *EventSeriesDieMut) DieReleaseApplyConfiguration() *EventSeriesApplyConf
 	return diecodegen.ReleaseApplyConfiguration[EventSeriesApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EventSeriesDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EventSeriesDieMut) DieReleaseApplyConfigurationE() (*EventSeriesApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EventSeriesApplyConfiguration](d)
 }
@@ -446,14 +446,14 @@ func (d *EventSeriesDieMut) DieStampApplyConfiguration(fn func(ac *EventSeriesAp
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [EventSeriesDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EventSeriesDieMut) DieFeedApplyConfigurationE(ac *EventSeriesApplyConfiguration) (*EventSeriesDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [EventSeriesDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EventSeriesDieMut) DieStampApplyConfigurationE(fn func(ac *EventSeriesApplyConfiguration)) (*EventSeriesDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

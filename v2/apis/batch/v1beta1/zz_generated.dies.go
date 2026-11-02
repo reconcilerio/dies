@@ -35,12 +35,12 @@ import (
 // CronJob represents the configuration of a single cron job.
 //
 // CronJobDie is immutable: it reads.
-// CronJobDieMut, its mutable die, also writes, as DieWith passes it.
+// [CronJobDieMut], its mutable die, also writes, as DieWith passes it.
 type CronJobDie struct {
 	diebase.DieObjectBase[CronJob, *CronJobDie, *CronJobDieMut]
 }
 
-// CronJobDieMut is the mutable die of CronJob: see CronJobDie.
+// CronJobDieMut is the mutable die of [CronJob]: see [CronJobDie].
 type CronJobDieMut struct {
 	diebase.DieObjectMutBase[CronJob, *CronJobDie, *CronJobDieMut]
 }
@@ -67,8 +67,8 @@ func (d *CronJobDie) DieReleaseApplyConfiguration() *CronJobApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[CronJobApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CronJobDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobDie) DieReleaseApplyConfigurationE() (*CronJobApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobApplyConfiguration](d)
 }
@@ -80,8 +80,8 @@ func (d *CronJobDieMut) DieReleaseApplyConfiguration() *CronJobApplyConfiguratio
 	return diecodegen.ReleaseApplyConfiguration[CronJobApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CronJobDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobDieMut) DieReleaseApplyConfigurationE() (*CronJobApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobApplyConfiguration](d)
 }
@@ -99,14 +99,14 @@ func (d *CronJobDieMut) DieStampApplyConfiguration(fn func(ac *CronJobApplyConfi
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CronJobDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobDieMut) DieFeedApplyConfigurationE(ac *CronJobApplyConfiguration) (*CronJobDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CronJobDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobDieMut) DieStampApplyConfigurationE(fn func(ac *CronJobApplyConfiguration)) (*CronJobDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -217,12 +217,12 @@ func (l *CronJobListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 // CronJobSpec describes how the job execution will look like and when it will actually run.
 //
 // CronJobSpecDie is immutable: it reads.
-// CronJobSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [CronJobSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type CronJobSpecDie struct {
 	diebase.DieBase[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]
 }
 
-// CronJobSpecDieMut is the mutable die of CronJobSpec: see CronJobSpecDie.
+// CronJobSpecDieMut is the mutable die of [CronJobSpec]: see [CronJobSpecDie].
 type CronJobSpecDieMut struct {
 	diebase.DieMutBase[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]
 }
@@ -249,8 +249,8 @@ func (d *CronJobSpecDie) DieReleaseApplyConfiguration() *CronJobSpecApplyConfigu
 	return diecodegen.ReleaseApplyConfiguration[CronJobSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CronJobSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobSpecDie) DieReleaseApplyConfigurationE() (*CronJobSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobSpecApplyConfiguration](d)
 }
@@ -262,8 +262,8 @@ func (d *CronJobSpecDieMut) DieReleaseApplyConfiguration() *CronJobSpecApplyConf
 	return diecodegen.ReleaseApplyConfiguration[CronJobSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CronJobSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobSpecDieMut) DieReleaseApplyConfigurationE() (*CronJobSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobSpecApplyConfiguration](d)
 }
@@ -281,14 +281,14 @@ func (d *CronJobSpecDieMut) DieStampApplyConfiguration(fn func(ac *CronJobSpecAp
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CronJobSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobSpecDieMut) DieFeedApplyConfigurationE(ac *CronJobSpecApplyConfiguration) (*CronJobSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CronJobSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobSpecDieMut) DieStampApplyConfigurationE(fn func(ac *CronJobSpecApplyConfiguration)) (*CronJobSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -438,12 +438,12 @@ func (d *CronJobSpecDieMut) FailedJobsHistoryLimit() diefields.OptionalMut[int32
 // CronJobStatus represents the current state of a cron job.
 //
 // CronJobStatusDie is immutable: it reads.
-// CronJobStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [CronJobStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type CronJobStatusDie struct {
 	diebase.DieBase[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]
 }
 
-// CronJobStatusDieMut is the mutable die of CronJobStatus: see CronJobStatusDie.
+// CronJobStatusDieMut is the mutable die of [CronJobStatus]: see [CronJobStatusDie].
 type CronJobStatusDieMut struct {
 	diebase.DieMutBase[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]
 }
@@ -470,8 +470,8 @@ func (d *CronJobStatusDie) DieReleaseApplyConfiguration() *CronJobStatusApplyCon
 	return diecodegen.ReleaseApplyConfiguration[CronJobStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CronJobStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobStatusDie) DieReleaseApplyConfigurationE() (*CronJobStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobStatusApplyConfiguration](d)
 }
@@ -483,8 +483,8 @@ func (d *CronJobStatusDieMut) DieReleaseApplyConfiguration() *CronJobStatusApply
 	return diecodegen.ReleaseApplyConfiguration[CronJobStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CronJobStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobStatusDieMut) DieReleaseApplyConfigurationE() (*CronJobStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobStatusApplyConfiguration](d)
 }
@@ -502,14 +502,14 @@ func (d *CronJobStatusDieMut) DieStampApplyConfiguration(fn func(ac *CronJobStat
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CronJobStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobStatusDieMut) DieFeedApplyConfigurationE(ac *CronJobStatusApplyConfiguration) (*CronJobStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CronJobStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobStatusDieMut) DieStampApplyConfigurationE(fn func(ac *CronJobStatusApplyConfiguration)) (*CronJobStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -561,12 +561,12 @@ func (d *CronJobStatusDieMut) LastSuccessfulTime() diefields.OptionalMut[diemeta
 // JobTemplateSpec describes the data a Job should have when created from a template
 //
 // JobTemplateSpecDie is immutable: it reads.
-// JobTemplateSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [JobTemplateSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type JobTemplateSpecDie struct {
 	diebase.DieBase[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]
 }
 
-// JobTemplateSpecDieMut is the mutable die of JobTemplateSpec: see JobTemplateSpecDie.
+// JobTemplateSpecDieMut is the mutable die of [JobTemplateSpec]: see [JobTemplateSpecDie].
 type JobTemplateSpecDieMut struct {
 	diebase.DieMutBase[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]
 }
@@ -593,8 +593,8 @@ func (d *JobTemplateSpecDie) DieReleaseApplyConfiguration() *JobTemplateSpecAppl
 	return diecodegen.ReleaseApplyConfiguration[JobTemplateSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [JobTemplateSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobTemplateSpecDie) DieReleaseApplyConfigurationE() (*JobTemplateSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobTemplateSpecApplyConfiguration](d)
 }
@@ -606,8 +606,8 @@ func (d *JobTemplateSpecDieMut) DieReleaseApplyConfiguration() *JobTemplateSpecA
 	return diecodegen.ReleaseApplyConfiguration[JobTemplateSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [JobTemplateSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobTemplateSpecDieMut) DieReleaseApplyConfigurationE() (*JobTemplateSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobTemplateSpecApplyConfiguration](d)
 }
@@ -625,14 +625,14 @@ func (d *JobTemplateSpecDieMut) DieStampApplyConfiguration(fn func(ac *JobTempla
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [JobTemplateSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobTemplateSpecDieMut) DieFeedApplyConfigurationE(ac *JobTemplateSpecApplyConfiguration) (*JobTemplateSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [JobTemplateSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobTemplateSpecDieMut) DieStampApplyConfigurationE(fn func(ac *JobTemplateSpecApplyConfiguration)) (*JobTemplateSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

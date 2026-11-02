@@ -22,10 +22,10 @@ import (
 	resourcev1beta2 "k8s.io/api/resource/v1beta2"
 )
 
-// The types and constants of k8s.io/api/resource/v1beta2, so that importing this package provides
+// The types and constants of [k8s.io/api/resource/v1beta2], so that importing this package provides
 // both the types and their dies. Each type is followed by its values.
 // Functions and variables are deliberately not re-exported: this package's
-// AddToScheme registers its dies, not the upstream types.
+// [AddToScheme] registers its dies, not the upstream types.
 
 // +die
 // +die:field:name=conditions,listType=map,listMapKey=type

@@ -41,12 +41,12 @@ import (
 // should be set.
 //
 // ContainerResourceMetricSourceDie is immutable: it reads.
-// ContainerResourceMetricSourceDieMut, its mutable die, also writes, as DieWith passes it.
+// [ContainerResourceMetricSourceDieMut], its mutable die, also writes, as DieWith passes it.
 type ContainerResourceMetricSourceDie struct {
 	diebase.DieBase[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]
 }
 
-// ContainerResourceMetricSourceDieMut is the mutable die of ContainerResourceMetricSource: see ContainerResourceMetricSourceDie.
+// ContainerResourceMetricSourceDieMut is the mutable die of [ContainerResourceMetricSource]: see [ContainerResourceMetricSourceDie].
 type ContainerResourceMetricSourceDieMut struct {
 	diebase.DieMutBase[ContainerResourceMetricSource, *ContainerResourceMetricSourceDie, *ContainerResourceMetricSourceDieMut]
 }
@@ -137,12 +137,12 @@ func (d *ContainerResourceMetricSourceDieMut) Container() diefields.ValueMut[str
 // normal per-pod metrics using the "pods" source.
 //
 // ContainerResourceMetricStatusDie is immutable: it reads.
-// ContainerResourceMetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [ContainerResourceMetricStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type ContainerResourceMetricStatusDie struct {
 	diebase.DieBase[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]
 }
 
-// ContainerResourceMetricStatusDieMut is the mutable die of ContainerResourceMetricStatus: see ContainerResourceMetricStatusDie.
+// ContainerResourceMetricStatusDieMut is the mutable die of [ContainerResourceMetricStatus]: see [ContainerResourceMetricStatusDie].
 type ContainerResourceMetricStatusDieMut struct {
 	diebase.DieMutBase[ContainerResourceMetricStatus, *ContainerResourceMetricStatusDie, *ContainerResourceMetricStatusDieMut]
 }
@@ -235,12 +235,12 @@ func (d *ContainerResourceMetricStatusDieMut) Container() diefields.ValueMut[str
 // CrossVersionObjectReference contains enough information to let you identify the referred resource.
 //
 // CrossVersionObjectReferenceDie is immutable: it reads.
-// CrossVersionObjectReferenceDieMut, its mutable die, also writes, as DieWith passes it.
+// [CrossVersionObjectReferenceDieMut], its mutable die, also writes, as DieWith passes it.
 type CrossVersionObjectReferenceDie struct {
 	diebase.DieBase[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]
 }
 
-// CrossVersionObjectReferenceDieMut is the mutable die of CrossVersionObjectReference: see CrossVersionObjectReferenceDie.
+// CrossVersionObjectReferenceDieMut is the mutable die of [CrossVersionObjectReference]: see [CrossVersionObjectReferenceDie].
 type CrossVersionObjectReferenceDieMut struct {
 	diebase.DieMutBase[CrossVersionObjectReference, *CrossVersionObjectReferenceDie, *CrossVersionObjectReferenceDieMut]
 }
@@ -267,8 +267,8 @@ func (d *CrossVersionObjectReferenceDie) DieReleaseApplyConfiguration() *CrossVe
 	return diecodegen.ReleaseApplyConfiguration[CrossVersionObjectReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CrossVersionObjectReferenceDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CrossVersionObjectReferenceDie) DieReleaseApplyConfigurationE() (*CrossVersionObjectReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CrossVersionObjectReferenceApplyConfiguration](d)
 }
@@ -280,8 +280,8 @@ func (d *CrossVersionObjectReferenceDieMut) DieReleaseApplyConfiguration() *Cros
 	return diecodegen.ReleaseApplyConfiguration[CrossVersionObjectReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CrossVersionObjectReferenceDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CrossVersionObjectReferenceDieMut) DieReleaseApplyConfigurationE() (*CrossVersionObjectReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CrossVersionObjectReferenceApplyConfiguration](d)
 }
@@ -299,14 +299,14 @@ func (d *CrossVersionObjectReferenceDieMut) DieStampApplyConfiguration(fn func(a
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CrossVersionObjectReferenceDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CrossVersionObjectReferenceDieMut) DieFeedApplyConfigurationE(ac *CrossVersionObjectReferenceApplyConfiguration) (*CrossVersionObjectReferenceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CrossVersionObjectReferenceDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CrossVersionObjectReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *CrossVersionObjectReferenceApplyConfiguration)) (*CrossVersionObjectReferenceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -360,12 +360,12 @@ func (d *CrossVersionObjectReferenceDieMut) APIVersion() diefields.ValueMut[stri
 // messaging service, or QPS from loadbalancer running outside of cluster).
 //
 // ExternalMetricSourceDie is immutable: it reads.
-// ExternalMetricSourceDieMut, its mutable die, also writes, as DieWith passes it.
+// [ExternalMetricSourceDieMut], its mutable die, also writes, as DieWith passes it.
 type ExternalMetricSourceDie struct {
 	diebase.DieBase[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]
 }
 
-// ExternalMetricSourceDieMut is the mutable die of ExternalMetricSource: see ExternalMetricSourceDie.
+// ExternalMetricSourceDieMut is the mutable die of [ExternalMetricSource]: see [ExternalMetricSourceDie].
 type ExternalMetricSourceDieMut struct {
 	diebase.DieMutBase[ExternalMetricSource, *ExternalMetricSourceDie, *ExternalMetricSourceDieMut]
 }
@@ -451,12 +451,12 @@ func (d *ExternalMetricSourceDieMut) TargetAverageValue() diefields.OptionalMut[
 // not associated with any Kubernetes object.
 //
 // ExternalMetricStatusDie is immutable: it reads.
-// ExternalMetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [ExternalMetricStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type ExternalMetricStatusDie struct {
 	diebase.DieBase[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]
 }
 
-// ExternalMetricStatusDieMut is the mutable die of ExternalMetricStatus: see ExternalMetricStatusDie.
+// ExternalMetricStatusDieMut is the mutable die of [ExternalMetricStatus]: see [ExternalMetricStatusDie].
 type ExternalMetricStatusDieMut struct {
 	diebase.DieMutBase[ExternalMetricStatus, *ExternalMetricStatusDie, *ExternalMetricStatusDieMut]
 }
@@ -539,12 +539,12 @@ func (d *ExternalMetricStatusDieMut) CurrentAverageValue() diefields.OptionalMut
 // configuration of a horizontal pod autoscaler.
 //
 // HorizontalPodAutoscalerDie is immutable: it reads.
-// HorizontalPodAutoscalerDieMut, its mutable die, also writes, as DieWith passes it.
+// [HorizontalPodAutoscalerDieMut], its mutable die, also writes, as DieWith passes it.
 type HorizontalPodAutoscalerDie struct {
 	diebase.DieObjectBase[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut]
 }
 
-// HorizontalPodAutoscalerDieMut is the mutable die of HorizontalPodAutoscaler: see HorizontalPodAutoscalerDie.
+// HorizontalPodAutoscalerDieMut is the mutable die of [HorizontalPodAutoscaler]: see [HorizontalPodAutoscalerDie].
 type HorizontalPodAutoscalerDieMut struct {
 	diebase.DieObjectMutBase[HorizontalPodAutoscaler, *HorizontalPodAutoscalerDie, *HorizontalPodAutoscalerDieMut]
 }
@@ -571,8 +571,8 @@ func (d *HorizontalPodAutoscalerDie) DieReleaseApplyConfiguration() *HorizontalP
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [HorizontalPodAutoscalerDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *HorizontalPodAutoscalerDie) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerApplyConfiguration](d)
 }
@@ -584,8 +584,8 @@ func (d *HorizontalPodAutoscalerDieMut) DieReleaseApplyConfiguration() *Horizont
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [HorizontalPodAutoscalerDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *HorizontalPodAutoscalerDieMut) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerApplyConfiguration](d)
 }
@@ -603,14 +603,14 @@ func (d *HorizontalPodAutoscalerDieMut) DieStampApplyConfiguration(fn func(ac *H
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [HorizontalPodAutoscalerDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *HorizontalPodAutoscalerDieMut) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerApplyConfiguration) (*HorizontalPodAutoscalerDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [HorizontalPodAutoscalerDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *HorizontalPodAutoscalerDieMut) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerApplyConfiguration)) (*HorizontalPodAutoscalerDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -701,12 +701,12 @@ func (d *HorizontalPodAutoscalerDieMut) Status() *HorizontalPodAutoscalerStatusD
 // a HorizontalPodAutoscaler at a certain point.
 //
 // HorizontalPodAutoscalerConditionDie is immutable: it reads.
-// HorizontalPodAutoscalerConditionDieMut, its mutable die, also writes, as DieWith passes it.
+// [HorizontalPodAutoscalerConditionDieMut], its mutable die, also writes, as DieWith passes it.
 type HorizontalPodAutoscalerConditionDie struct {
 	diebase.DieBase[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]
 }
 
-// HorizontalPodAutoscalerConditionDieMut is the mutable die of HorizontalPodAutoscalerCondition: see HorizontalPodAutoscalerConditionDie.
+// HorizontalPodAutoscalerConditionDieMut is the mutable die of [HorizontalPodAutoscalerCondition]: see [HorizontalPodAutoscalerConditionDie].
 type HorizontalPodAutoscalerConditionDieMut struct {
 	diebase.DieMutBase[HorizontalPodAutoscalerCondition, *HorizontalPodAutoscalerConditionDie, *HorizontalPodAutoscalerConditionDieMut]
 }
@@ -836,12 +836,12 @@ func (l *HorizontalPodAutoscalerListDie) DeepCopyObject() runtime.Object { retur
 // specification of a horizontal pod autoscaler.
 //
 // HorizontalPodAutoscalerSpecDie is immutable: it reads.
-// HorizontalPodAutoscalerSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [HorizontalPodAutoscalerSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type HorizontalPodAutoscalerSpecDie struct {
 	diebase.DieBase[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]
 }
 
-// HorizontalPodAutoscalerSpecDieMut is the mutable die of HorizontalPodAutoscalerSpec: see HorizontalPodAutoscalerSpecDie.
+// HorizontalPodAutoscalerSpecDieMut is the mutable die of [HorizontalPodAutoscalerSpec]: see [HorizontalPodAutoscalerSpecDie].
 type HorizontalPodAutoscalerSpecDieMut struct {
 	diebase.DieMutBase[HorizontalPodAutoscalerSpec, *HorizontalPodAutoscalerSpecDie, *HorizontalPodAutoscalerSpecDieMut]
 }
@@ -868,8 +868,8 @@ func (d *HorizontalPodAutoscalerSpecDie) DieReleaseApplyConfiguration() *Horizon
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [HorizontalPodAutoscalerSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *HorizontalPodAutoscalerSpecDie) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerSpecApplyConfiguration](d)
 }
@@ -881,8 +881,8 @@ func (d *HorizontalPodAutoscalerSpecDieMut) DieReleaseApplyConfiguration() *Hori
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [HorizontalPodAutoscalerSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *HorizontalPodAutoscalerSpecDieMut) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerSpecApplyConfiguration](d)
 }
@@ -900,14 +900,14 @@ func (d *HorizontalPodAutoscalerSpecDieMut) DieStampApplyConfiguration(fn func(a
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [HorizontalPodAutoscalerSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *HorizontalPodAutoscalerSpecDieMut) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerSpecApplyConfiguration) (*HorizontalPodAutoscalerSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [HorizontalPodAutoscalerSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *HorizontalPodAutoscalerSpecDieMut) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerSpecApplyConfiguration)) (*HorizontalPodAutoscalerSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -983,12 +983,12 @@ func (d *HorizontalPodAutoscalerSpecDieMut) TargetCPUUtilizationPercentage() die
 // current status of a horizontal pod autoscaler
 //
 // HorizontalPodAutoscalerStatusDie is immutable: it reads.
-// HorizontalPodAutoscalerStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [HorizontalPodAutoscalerStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type HorizontalPodAutoscalerStatusDie struct {
 	diebase.DieBase[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]
 }
 
-// HorizontalPodAutoscalerStatusDieMut is the mutable die of HorizontalPodAutoscalerStatus: see HorizontalPodAutoscalerStatusDie.
+// HorizontalPodAutoscalerStatusDieMut is the mutable die of [HorizontalPodAutoscalerStatus]: see [HorizontalPodAutoscalerStatusDie].
 type HorizontalPodAutoscalerStatusDieMut struct {
 	diebase.DieMutBase[HorizontalPodAutoscalerStatus, *HorizontalPodAutoscalerStatusDie, *HorizontalPodAutoscalerStatusDieMut]
 }
@@ -1015,8 +1015,8 @@ func (d *HorizontalPodAutoscalerStatusDie) DieReleaseApplyConfiguration() *Horiz
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [HorizontalPodAutoscalerStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *HorizontalPodAutoscalerStatusDie) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerStatusApplyConfiguration](d)
 }
@@ -1028,8 +1028,8 @@ func (d *HorizontalPodAutoscalerStatusDieMut) DieReleaseApplyConfiguration() *Ho
 	return diecodegen.ReleaseApplyConfiguration[HorizontalPodAutoscalerStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [HorizontalPodAutoscalerStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *HorizontalPodAutoscalerStatusDieMut) DieReleaseApplyConfigurationE() (*HorizontalPodAutoscalerStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[HorizontalPodAutoscalerStatusApplyConfiguration](d)
 }
@@ -1047,14 +1047,14 @@ func (d *HorizontalPodAutoscalerStatusDieMut) DieStampApplyConfiguration(fn func
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [HorizontalPodAutoscalerStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *HorizontalPodAutoscalerStatusDieMut) DieFeedApplyConfigurationE(ac *HorizontalPodAutoscalerStatusApplyConfiguration) (*HorizontalPodAutoscalerStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [HorizontalPodAutoscalerStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *HorizontalPodAutoscalerStatusDieMut) DieStampApplyConfigurationE(fn func(ac *HorizontalPodAutoscalerStatusApplyConfiguration)) (*HorizontalPodAutoscalerStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1135,12 +1135,12 @@ func (d *HorizontalPodAutoscalerStatusDieMut) CurrentCPUUtilizationPercentage() 
 // (only `type` and one other matching field should be set at once).
 //
 // MetricSpecDie is immutable: it reads.
-// MetricSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [MetricSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type MetricSpecDie struct {
 	diebase.DieBase[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]
 }
 
-// MetricSpecDieMut is the mutable die of MetricSpec: see MetricSpecDie.
+// MetricSpecDieMut is the mutable die of [MetricSpec]: see [MetricSpecDie].
 type MetricSpecDieMut struct {
 	diebase.DieMutBase[MetricSpec, *MetricSpecDie, *MetricSpecDieMut]
 }
@@ -1275,12 +1275,12 @@ func (d *MetricSpecDieMut) External() *ExternalMetricSourceDieMut {
 // MetricStatus describes the last-read state of a single metric.
 //
 // MetricStatusDie is immutable: it reads.
-// MetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [MetricStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type MetricStatusDie struct {
 	diebase.DieBase[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]
 }
 
-// MetricStatusDieMut is the mutable die of MetricStatus: see MetricStatusDie.
+// MetricStatusDieMut is the mutable die of [MetricStatus]: see [MetricStatusDie].
 type MetricStatusDieMut struct {
 	diebase.DieMutBase[MetricStatus, *MetricStatusDie, *MetricStatusDieMut]
 }
@@ -1416,12 +1416,12 @@ func (d *MetricStatusDieMut) External() *ExternalMetricStatusDieMut {
 // kubernetes object (for example, hits-per-second on an Ingress object).
 //
 // ObjectMetricSourceDie is immutable: it reads.
-// ObjectMetricSourceDieMut, its mutable die, also writes, as DieWith passes it.
+// [ObjectMetricSourceDieMut], its mutable die, also writes, as DieWith passes it.
 type ObjectMetricSourceDie struct {
 	diebase.DieBase[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]
 }
 
-// ObjectMetricSourceDieMut is the mutable die of ObjectMetricSource: see ObjectMetricSourceDie.
+// ObjectMetricSourceDieMut is the mutable die of [ObjectMetricSource]: see [ObjectMetricSourceDie].
 type ObjectMetricSourceDieMut struct {
 	diebase.DieMutBase[ObjectMetricSource, *ObjectMetricSourceDie, *ObjectMetricSourceDieMut]
 }
@@ -1519,12 +1519,12 @@ func (d *ObjectMetricSourceDieMut) AverageValue() diefields.OptionalMut[resource
 // kubernetes object (for example, hits-per-second on an Ingress object).
 //
 // ObjectMetricStatusDie is immutable: it reads.
-// ObjectMetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [ObjectMetricStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type ObjectMetricStatusDie struct {
 	diebase.DieBase[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]
 }
 
-// ObjectMetricStatusDieMut is the mutable die of ObjectMetricStatus: see ObjectMetricStatusDie.
+// ObjectMetricStatusDieMut is the mutable die of [ObjectMetricStatus]: see [ObjectMetricStatusDie].
 type ObjectMetricStatusDieMut struct {
 	diebase.DieMutBase[ObjectMetricStatus, *ObjectMetricStatusDie, *ObjectMetricStatusDieMut]
 }
@@ -1624,12 +1624,12 @@ func (d *ObjectMetricStatusDieMut) AverageValue() diefields.OptionalMut[resource
 // value.
 //
 // PodsMetricSourceDie is immutable: it reads.
-// PodsMetricSourceDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodsMetricSourceDieMut], its mutable die, also writes, as DieWith passes it.
 type PodsMetricSourceDie struct {
 	diebase.DieBase[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]
 }
 
-// PodsMetricSourceDieMut is the mutable die of PodsMetricSource: see PodsMetricSourceDie.
+// PodsMetricSourceDieMut is the mutable die of [PodsMetricSource]: see [PodsMetricSourceDie].
 type PodsMetricSourceDieMut struct {
 	diebase.DieMutBase[PodsMetricSource, *PodsMetricSourceDie, *PodsMetricSourceDieMut]
 }
@@ -1703,12 +1703,12 @@ func (d *PodsMetricSourceDieMut) Selector() *diemetav1.LabelSelectorDieMut {
 // the current scale target (for example, transactions-processed-per-second).
 //
 // PodsMetricStatusDie is immutable: it reads.
-// PodsMetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodsMetricStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type PodsMetricStatusDie struct {
 	diebase.DieBase[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]
 }
 
-// PodsMetricStatusDieMut is the mutable die of PodsMetricStatus: see PodsMetricStatusDie.
+// PodsMetricStatusDieMut is the mutable die of [PodsMetricStatus]: see [PodsMetricStatusDie].
 type PodsMetricStatusDieMut struct {
 	diebase.DieMutBase[PodsMetricStatus, *PodsMetricStatusDie, *PodsMetricStatusDieMut]
 }
@@ -1787,12 +1787,12 @@ func (d *PodsMetricStatusDieMut) Selector() *diemetav1.LabelSelectorDieMut {
 // should be set.
 //
 // ResourceMetricSourceDie is immutable: it reads.
-// ResourceMetricSourceDieMut, its mutable die, also writes, as DieWith passes it.
+// [ResourceMetricSourceDieMut], its mutable die, also writes, as DieWith passes it.
 type ResourceMetricSourceDie struct {
 	diebase.DieBase[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]
 }
 
-// ResourceMetricSourceDieMut is the mutable die of ResourceMetricSource: see ResourceMetricSourceDie.
+// ResourceMetricSourceDieMut is the mutable die of [ResourceMetricSource]: see [ResourceMetricSourceDie].
 type ResourceMetricSourceDieMut struct {
 	diebase.DieMutBase[ResourceMetricSource, *ResourceMetricSourceDie, *ResourceMetricSourceDieMut]
 }
@@ -1871,12 +1871,12 @@ func (d *ResourceMetricSourceDieMut) TargetAverageValue() diefields.OptionalMut[
 // normal per-pod metrics using the "pods" source.
 //
 // ResourceMetricStatusDie is immutable: it reads.
-// ResourceMetricStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [ResourceMetricStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type ResourceMetricStatusDie struct {
 	diebase.DieBase[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]
 }
 
-// ResourceMetricStatusDieMut is the mutable die of ResourceMetricStatus: see ResourceMetricStatusDie.
+// ResourceMetricStatusDieMut is the mutable die of [ResourceMetricStatus]: see [ResourceMetricStatusDie].
 type ResourceMetricStatusDieMut struct {
 	diebase.DieMutBase[ResourceMetricStatus, *ResourceMetricStatusDie, *ResourceMetricStatusDieMut]
 }
@@ -1957,12 +1957,12 @@ func (d *ResourceMetricStatusDieMut) CurrentAverageValue() diefields.ValueMut[re
 // Scale represents a scaling request for a resource.
 //
 // ScaleDie is immutable: it reads.
-// ScaleDieMut, its mutable die, also writes, as DieWith passes it.
+// [ScaleDieMut], its mutable die, also writes, as DieWith passes it.
 type ScaleDie struct {
 	diebase.DieObjectBase[Scale, *ScaleDie, *ScaleDieMut]
 }
 
-// ScaleDieMut is the mutable die of Scale: see ScaleDie.
+// ScaleDieMut is the mutable die of [Scale]: see [ScaleDie].
 type ScaleDieMut struct {
 	diebase.DieObjectMutBase[Scale, *ScaleDie, *ScaleDieMut]
 }
@@ -1989,8 +1989,8 @@ func (d *ScaleDie) DieReleaseApplyConfiguration() *ScaleApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[ScaleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ScaleDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ScaleDie) DieReleaseApplyConfigurationE() (*ScaleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ScaleApplyConfiguration](d)
 }
@@ -2002,8 +2002,8 @@ func (d *ScaleDieMut) DieReleaseApplyConfiguration() *ScaleApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[ScaleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ScaleDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ScaleDieMut) DieReleaseApplyConfigurationE() (*ScaleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ScaleApplyConfiguration](d)
 }
@@ -2021,14 +2021,14 @@ func (d *ScaleDieMut) DieStampApplyConfiguration(fn func(ac *ScaleApplyConfigura
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ScaleDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ScaleDieMut) DieFeedApplyConfigurationE(ac *ScaleApplyConfiguration) (*ScaleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ScaleDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ScaleDieMut) DieStampApplyConfigurationE(fn func(ac *ScaleApplyConfiguration)) (*ScaleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2112,12 +2112,12 @@ func (d *ScaleDieMut) Status() *ScaleStatusDieMut {
 // ScaleSpec describes the attributes of a scale subresource.
 //
 // ScaleSpecDie is immutable: it reads.
-// ScaleSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [ScaleSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type ScaleSpecDie struct {
 	diebase.DieBase[ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut]
 }
 
-// ScaleSpecDieMut is the mutable die of ScaleSpec: see ScaleSpecDie.
+// ScaleSpecDieMut is the mutable die of [ScaleSpec]: see [ScaleSpecDie].
 type ScaleSpecDieMut struct {
 	diebase.DieMutBase[ScaleSpec, *ScaleSpecDie, *ScaleSpecDieMut]
 }
@@ -2144,8 +2144,8 @@ func (d *ScaleSpecDie) DieReleaseApplyConfiguration() *ScaleSpecApplyConfigurati
 	return diecodegen.ReleaseApplyConfiguration[ScaleSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ScaleSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ScaleSpecDie) DieReleaseApplyConfigurationE() (*ScaleSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ScaleSpecApplyConfiguration](d)
 }
@@ -2157,8 +2157,8 @@ func (d *ScaleSpecDieMut) DieReleaseApplyConfiguration() *ScaleSpecApplyConfigur
 	return diecodegen.ReleaseApplyConfiguration[ScaleSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ScaleSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ScaleSpecDieMut) DieReleaseApplyConfigurationE() (*ScaleSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ScaleSpecApplyConfiguration](d)
 }
@@ -2176,14 +2176,14 @@ func (d *ScaleSpecDieMut) DieStampApplyConfiguration(fn func(ac *ScaleSpecApplyC
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ScaleSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ScaleSpecDieMut) DieFeedApplyConfigurationE(ac *ScaleSpecApplyConfiguration) (*ScaleSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ScaleSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ScaleSpecDieMut) DieStampApplyConfigurationE(fn func(ac *ScaleSpecApplyConfiguration)) (*ScaleSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2211,12 +2211,12 @@ func (d *ScaleSpecDieMut) Replicas() diefields.ValueMut[int32, *ScaleSpecDieMut]
 // ScaleStatus represents the current status of a scale subresource.
 //
 // ScaleStatusDie is immutable: it reads.
-// ScaleStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [ScaleStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type ScaleStatusDie struct {
 	diebase.DieBase[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut]
 }
 
-// ScaleStatusDieMut is the mutable die of ScaleStatus: see ScaleStatusDie.
+// ScaleStatusDieMut is the mutable die of [ScaleStatus]: see [ScaleStatusDie].
 type ScaleStatusDieMut struct {
 	diebase.DieMutBase[ScaleStatus, *ScaleStatusDie, *ScaleStatusDieMut]
 }
@@ -2243,8 +2243,8 @@ func (d *ScaleStatusDie) DieReleaseApplyConfiguration() *ScaleStatusApplyConfigu
 	return diecodegen.ReleaseApplyConfiguration[ScaleStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ScaleStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ScaleStatusDie) DieReleaseApplyConfigurationE() (*ScaleStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ScaleStatusApplyConfiguration](d)
 }
@@ -2256,8 +2256,8 @@ func (d *ScaleStatusDieMut) DieReleaseApplyConfiguration() *ScaleStatusApplyConf
 	return diecodegen.ReleaseApplyConfiguration[ScaleStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ScaleStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ScaleStatusDieMut) DieReleaseApplyConfigurationE() (*ScaleStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ScaleStatusApplyConfiguration](d)
 }
@@ -2275,14 +2275,14 @@ func (d *ScaleStatusDieMut) DieStampApplyConfiguration(fn func(ac *ScaleStatusAp
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ScaleStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ScaleStatusDieMut) DieFeedApplyConfigurationE(ac *ScaleStatusApplyConfiguration) (*ScaleStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ScaleStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ScaleStatusDieMut) DieStampApplyConfigurationE(fn func(ac *ScaleStatusApplyConfiguration)) (*ScaleStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

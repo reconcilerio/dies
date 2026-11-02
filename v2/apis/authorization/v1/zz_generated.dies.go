@@ -41,12 +41,12 @@ import (
 // * If rawSelector is present and requirements are present, the request is invalid.
 //
 // FieldSelectorAttributesDie is immutable: it reads.
-// FieldSelectorAttributesDieMut, its mutable die, also writes, as DieWith passes it.
+// [FieldSelectorAttributesDieMut], its mutable die, also writes, as DieWith passes it.
 type FieldSelectorAttributesDie struct {
 	diebase.DieBase[FieldSelectorAttributes, *FieldSelectorAttributesDie, *FieldSelectorAttributesDieMut]
 }
 
-// FieldSelectorAttributesDieMut is the mutable die of FieldSelectorAttributes: see FieldSelectorAttributesDie.
+// FieldSelectorAttributesDieMut is the mutable die of [FieldSelectorAttributes]: see [FieldSelectorAttributesDie].
 type FieldSelectorAttributesDieMut struct {
 	diebase.DieMutBase[FieldSelectorAttributes, *FieldSelectorAttributesDie, *FieldSelectorAttributesDieMut]
 }
@@ -122,12 +122,12 @@ func (d *FieldSelectorAttributesDieMut) Requirements() diefields.ValueMut[[]diem
 // * If rawSelector is present and requirements are present, the request is invalid.
 //
 // LabelSelectorAttributesDie is immutable: it reads.
-// LabelSelectorAttributesDieMut, its mutable die, also writes, as DieWith passes it.
+// [LabelSelectorAttributesDieMut], its mutable die, also writes, as DieWith passes it.
 type LabelSelectorAttributesDie struct {
 	diebase.DieBase[LabelSelectorAttributes, *LabelSelectorAttributesDie, *LabelSelectorAttributesDieMut]
 }
 
-// LabelSelectorAttributesDieMut is the mutable die of LabelSelectorAttributes: see LabelSelectorAttributesDie.
+// LabelSelectorAttributesDieMut is the mutable die of [LabelSelectorAttributes]: see [LabelSelectorAttributesDie].
 type LabelSelectorAttributesDieMut struct {
 	diebase.DieMutBase[LabelSelectorAttributes, *LabelSelectorAttributesDie, *LabelSelectorAttributesDieMut]
 }
@@ -196,12 +196,12 @@ func (d *LabelSelectorAttributesDieMut) Requirements() diefields.ValueMut[[]diem
 // checking.
 //
 // LocalSubjectAccessReviewDie is immutable: it reads.
-// LocalSubjectAccessReviewDieMut, its mutable die, also writes, as DieWith passes it.
+// [LocalSubjectAccessReviewDieMut], its mutable die, also writes, as DieWith passes it.
 type LocalSubjectAccessReviewDie struct {
 	diebase.DieObjectBase[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie, *LocalSubjectAccessReviewDieMut]
 }
 
-// LocalSubjectAccessReviewDieMut is the mutable die of LocalSubjectAccessReview: see LocalSubjectAccessReviewDie.
+// LocalSubjectAccessReviewDieMut is the mutable die of [LocalSubjectAccessReview]: see [LocalSubjectAccessReviewDie].
 type LocalSubjectAccessReviewDieMut struct {
 	diebase.DieObjectMutBase[LocalSubjectAccessReview, *LocalSubjectAccessReviewDie, *LocalSubjectAccessReviewDieMut]
 }
@@ -310,12 +310,12 @@ func (d *LocalSubjectAccessReviewDieMut) Status() *SubjectAccessReviewStatusDieM
 // NonResourceAttributes includes the authorization attributes available for non-resource requests to the Authorizer interface
 //
 // NonResourceAttributesDie is immutable: it reads.
-// NonResourceAttributesDieMut, its mutable die, also writes, as DieWith passes it.
+// [NonResourceAttributesDieMut], its mutable die, also writes, as DieWith passes it.
 type NonResourceAttributesDie struct {
 	diebase.DieBase[NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut]
 }
 
-// NonResourceAttributesDieMut is the mutable die of NonResourceAttributes: see NonResourceAttributesDie.
+// NonResourceAttributesDieMut is the mutable die of [NonResourceAttributes]: see [NonResourceAttributesDie].
 type NonResourceAttributesDieMut struct {
 	diebase.DieMutBase[NonResourceAttributes, *NonResourceAttributesDie, *NonResourceAttributesDieMut]
 }
@@ -370,12 +370,12 @@ func (d *NonResourceAttributesDieMut) Verb() diefields.ValueMut[string, *NonReso
 // NonResourceRule holds information that describes a rule for the non-resource
 //
 // NonResourceRuleDie is immutable: it reads.
-// NonResourceRuleDieMut, its mutable die, also writes, as DieWith passes it.
+// [NonResourceRuleDieMut], its mutable die, also writes, as DieWith passes it.
 type NonResourceRuleDie struct {
 	diebase.DieBase[NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut]
 }
 
-// NonResourceRuleDieMut is the mutable die of NonResourceRule: see NonResourceRuleDie.
+// NonResourceRuleDieMut is the mutable die of [NonResourceRule]: see [NonResourceRuleDie].
 type NonResourceRuleDieMut struct {
 	diebase.DieMutBase[NonResourceRule, *NonResourceRuleDie, *NonResourceRuleDieMut]
 }
@@ -432,12 +432,12 @@ func (d *NonResourceRuleDieMut) NonResourceURLs() diefields.ValueMut[[]string, *
 // ResourceAttributes includes the authorization attributes available for resource requests to the Authorizer interface
 //
 // ResourceAttributesDie is immutable: it reads.
-// ResourceAttributesDieMut, its mutable die, also writes, as DieWith passes it.
+// [ResourceAttributesDieMut], its mutable die, also writes, as DieWith passes it.
 type ResourceAttributesDie struct {
 	diebase.DieBase[ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]
 }
 
-// ResourceAttributesDieMut is the mutable die of ResourceAttributes: see ResourceAttributesDie.
+// ResourceAttributesDieMut is the mutable die of [ResourceAttributes]: see [ResourceAttributesDie].
 type ResourceAttributesDieMut struct {
 	diebase.DieMutBase[ResourceAttributes, *ResourceAttributesDie, *ResourceAttributesDieMut]
 }
@@ -583,12 +583,12 @@ func (d *ResourceAttributesDieMut) LabelSelector() *LabelSelectorAttributesDieMu
 // may contain duplicates, and possibly be incomplete.
 //
 // ResourceRuleDie is immutable: it reads.
-// ResourceRuleDieMut, its mutable die, also writes, as DieWith passes it.
+// [ResourceRuleDieMut], its mutable die, also writes, as DieWith passes it.
 type ResourceRuleDie struct {
 	diebase.DieBase[ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut]
 }
 
-// ResourceRuleDieMut is the mutable die of ResourceRule: see ResourceRuleDie.
+// ResourceRuleDieMut is the mutable die of [ResourceRule]: see [ResourceRuleDie].
 type ResourceRuleDieMut struct {
 	diebase.DieMutBase[ResourceRule, *ResourceRuleDie, *ResourceRuleDieMut]
 }
@@ -675,12 +675,12 @@ func (d *ResourceRuleDieMut) ResourceNames() diefields.ValueMut[[]string, *Resou
 // to check whether they can perform an action
 //
 // SelfSubjectAccessReviewDie is immutable: it reads.
-// SelfSubjectAccessReviewDieMut, its mutable die, also writes, as DieWith passes it.
+// [SelfSubjectAccessReviewDieMut], its mutable die, also writes, as DieWith passes it.
 type SelfSubjectAccessReviewDie struct {
 	diebase.DieObjectBase[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie, *SelfSubjectAccessReviewDieMut]
 }
 
-// SelfSubjectAccessReviewDieMut is the mutable die of SelfSubjectAccessReview: see SelfSubjectAccessReviewDie.
+// SelfSubjectAccessReviewDieMut is the mutable die of [SelfSubjectAccessReview]: see [SelfSubjectAccessReviewDie].
 type SelfSubjectAccessReviewDieMut struct {
 	diebase.DieObjectMutBase[SelfSubjectAccessReview, *SelfSubjectAccessReviewDie, *SelfSubjectAccessReviewDieMut]
 }
@@ -788,12 +788,12 @@ func (d *SelfSubjectAccessReviewDieMut) Status() *SubjectAccessReviewStatusDieMu
 // and nonResourceAttributes must be set
 //
 // SelfSubjectAccessReviewSpecDie is immutable: it reads.
-// SelfSubjectAccessReviewSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [SelfSubjectAccessReviewSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type SelfSubjectAccessReviewSpecDie struct {
 	diebase.DieBase[SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie, *SelfSubjectAccessReviewSpecDieMut]
 }
 
-// SelfSubjectAccessReviewSpecDieMut is the mutable die of SelfSubjectAccessReviewSpec: see SelfSubjectAccessReviewSpecDie.
+// SelfSubjectAccessReviewSpecDieMut is the mutable die of [SelfSubjectAccessReviewSpec]: see [SelfSubjectAccessReviewSpecDie].
 type SelfSubjectAccessReviewSpecDieMut struct {
 	diebase.DieMutBase[SelfSubjectAccessReviewSpec, *SelfSubjectAccessReviewSpecDie, *SelfSubjectAccessReviewSpecDieMut]
 }
@@ -853,12 +853,12 @@ func (d *SelfSubjectAccessReviewSpecDieMut) NonResourceAttributes() *NonResource
 // SubjectAccessReview, and LocalAccessReview are the correct way to defer authorization decisions to the API server.
 //
 // SelfSubjectRulesReviewDie is immutable: it reads.
-// SelfSubjectRulesReviewDieMut, its mutable die, also writes, as DieWith passes it.
+// [SelfSubjectRulesReviewDieMut], its mutable die, also writes, as DieWith passes it.
 type SelfSubjectRulesReviewDie struct {
 	diebase.DieObjectBase[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie, *SelfSubjectRulesReviewDieMut]
 }
 
-// SelfSubjectRulesReviewDieMut is the mutable die of SelfSubjectRulesReview: see SelfSubjectRulesReviewDie.
+// SelfSubjectRulesReviewDieMut is the mutable die of [SelfSubjectRulesReview]: see [SelfSubjectRulesReviewDie].
 type SelfSubjectRulesReviewDieMut struct {
 	diebase.DieObjectMutBase[SelfSubjectRulesReview, *SelfSubjectRulesReviewDie, *SelfSubjectRulesReviewDieMut]
 }
@@ -965,12 +965,12 @@ func (d *SelfSubjectRulesReviewDieMut) Status() *SubjectRulesReviewStatusDieMut 
 // SelfSubjectRulesReviewSpec defines the specification for SelfSubjectRulesReview.
 //
 // SelfSubjectRulesReviewSpecDie is immutable: it reads.
-// SelfSubjectRulesReviewSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [SelfSubjectRulesReviewSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type SelfSubjectRulesReviewSpecDie struct {
 	diebase.DieBase[SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie, *SelfSubjectRulesReviewSpecDieMut]
 }
 
-// SelfSubjectRulesReviewSpecDieMut is the mutable die of SelfSubjectRulesReviewSpec: see SelfSubjectRulesReviewSpecDie.
+// SelfSubjectRulesReviewSpecDieMut is the mutable die of [SelfSubjectRulesReviewSpec]: see [SelfSubjectRulesReviewSpecDie].
 type SelfSubjectRulesReviewSpecDieMut struct {
 	diebase.DieMutBase[SelfSubjectRulesReviewSpec, *SelfSubjectRulesReviewSpecDie, *SelfSubjectRulesReviewSpecDieMut]
 }
@@ -1013,12 +1013,12 @@ func (d *SelfSubjectRulesReviewSpecDieMut) Namespace() diefields.ValueMut[string
 // SubjectAccessReview checks whether or not a user or group can perform an action.
 //
 // SubjectAccessReviewDie is immutable: it reads.
-// SubjectAccessReviewDieMut, its mutable die, also writes, as DieWith passes it.
+// [SubjectAccessReviewDieMut], its mutable die, also writes, as DieWith passes it.
 type SubjectAccessReviewDie struct {
 	diebase.DieObjectBase[SubjectAccessReview, *SubjectAccessReviewDie, *SubjectAccessReviewDieMut]
 }
 
-// SubjectAccessReviewDieMut is the mutable die of SubjectAccessReview: see SubjectAccessReviewDie.
+// SubjectAccessReviewDieMut is the mutable die of [SubjectAccessReview]: see [SubjectAccessReviewDie].
 type SubjectAccessReviewDieMut struct {
 	diebase.DieObjectMutBase[SubjectAccessReview, *SubjectAccessReviewDie, *SubjectAccessReviewDieMut]
 }
@@ -1126,12 +1126,12 @@ func (d *SubjectAccessReviewDieMut) Status() *SubjectAccessReviewStatusDieMut {
 // and nonResourceAttributes must be set
 //
 // SubjectAccessReviewSpecDie is immutable: it reads.
-// SubjectAccessReviewSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [SubjectAccessReviewSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type SubjectAccessReviewSpecDie struct {
 	diebase.DieBase[SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie, *SubjectAccessReviewSpecDieMut]
 }
 
-// SubjectAccessReviewSpecDieMut is the mutable die of SubjectAccessReviewSpec: see SubjectAccessReviewSpecDie.
+// SubjectAccessReviewSpecDieMut is the mutable die of [SubjectAccessReviewSpec]: see [SubjectAccessReviewSpecDie].
 type SubjectAccessReviewSpecDieMut struct {
 	diebase.DieMutBase[SubjectAccessReviewSpec, *SubjectAccessReviewSpecDie, *SubjectAccessReviewSpecDieMut]
 }
@@ -1238,12 +1238,12 @@ func (d *SubjectAccessReviewSpecDieMut) UID() diefields.ValueMut[string, *Subjec
 // SubjectAccessReviewStatus
 //
 // SubjectAccessReviewStatusDie is immutable: it reads.
-// SubjectAccessReviewStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [SubjectAccessReviewStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type SubjectAccessReviewStatusDie struct {
 	diebase.DieBase[SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut]
 }
 
-// SubjectAccessReviewStatusDieMut is the mutable die of SubjectAccessReviewStatus: see SubjectAccessReviewStatusDie.
+// SubjectAccessReviewStatusDieMut is the mutable die of [SubjectAccessReviewStatus]: see [SubjectAccessReviewStatusDie].
 type SubjectAccessReviewStatusDieMut struct {
 	diebase.DieMutBase[SubjectAccessReviewStatus, *SubjectAccessReviewStatusDie, *SubjectAccessReviewStatusDieMut]
 }
@@ -1335,12 +1335,12 @@ func (d *SubjectAccessReviewStatusDieMut) EvaluationError() diefields.ValueMut[s
 // even if that list is incomplete.
 //
 // SubjectRulesReviewStatusDie is immutable: it reads.
-// SubjectRulesReviewStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [SubjectRulesReviewStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type SubjectRulesReviewStatusDie struct {
 	diebase.DieBase[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie, *SubjectRulesReviewStatusDieMut]
 }
 
-// SubjectRulesReviewStatusDieMut is the mutable die of SubjectRulesReviewStatus: see SubjectRulesReviewStatusDie.
+// SubjectRulesReviewStatusDieMut is the mutable die of [SubjectRulesReviewStatus]: see [SubjectRulesReviewStatusDie].
 type SubjectRulesReviewStatusDieMut struct {
 	diebase.DieMutBase[SubjectRulesReviewStatus, *SubjectRulesReviewStatusDie, *SubjectRulesReviewStatusDieMut]
 }

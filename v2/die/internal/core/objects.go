@@ -29,7 +29,7 @@ type ObjectKind struct {
 	ReadOnly bool
 }
 
-// GroupVersionKind implements schema.ObjectKind, which can't return an
+// GroupVersionKind implements [schema.ObjectKind], which can't return an
 // error, so it panics with one, as a read through a jig can fail.
 func (k *ObjectKind) GroupVersionKind() schema.GroupVersionKind {
 	apiVersion, err := GetAt[string](k.H, k.At, Path{FieldStep("apiVersion")})
@@ -46,7 +46,7 @@ func (k *ObjectKind) GroupVersionKind() schema.GroupVersionKind {
 // SetGroupVersionKind sets the type metadata in the base, not as intent:
 // libraries set it, and strip it, as they encode and decode, such as a
 // client decoding into a typed object, and it is not something to patch. It
-// implements schema.ObjectKind, which can't return an error, so it panics
+// implements [schema.ObjectKind], which can't return an error, so it panics
 // with one, on an immutable die.
 func (k *ObjectKind) SetGroupVersionKind(gvk schema.GroupVersionKind) {
 	if err := k.setGroupVersionKind(gvk); err != nil {

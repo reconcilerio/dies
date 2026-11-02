@@ -31,12 +31,12 @@ import (
 // of a group.
 //
 // APIGroupDie is immutable: it reads.
-// APIGroupDieMut, its mutable die, also writes, as DieWith passes it.
+// [APIGroupDieMut], its mutable die, also writes, as DieWith passes it.
 type APIGroupDie struct {
 	diebase.DieBase[APIGroup, *APIGroupDie, *APIGroupDieMut]
 }
 
-// APIGroupDieMut is the mutable die of APIGroup: see APIGroupDie.
+// APIGroupDieMut is the mutable die of [APIGroup]: see [APIGroupDie].
 type APIGroupDieMut struct {
 	diebase.DieMutBase[APIGroup, *APIGroupDie, *APIGroupDieMut]
 }
@@ -168,12 +168,12 @@ func (d *APIGroupDieMut) ServerAddressByClientCIDRs() diefields.ValueMut[[]Serve
 // /apis.
 //
 // APIGroupListDie is immutable: it reads.
-// APIGroupListDieMut, its mutable die, also writes, as DieWith passes it.
+// [APIGroupListDieMut], its mutable die, also writes, as DieWith passes it.
 type APIGroupListDie struct {
 	diebase.DieBase[APIGroupList, *APIGroupListDie, *APIGroupListDieMut]
 }
 
-// APIGroupListDieMut is the mutable die of APIGroupList: see APIGroupListDie.
+// APIGroupListDieMut is the mutable die of [APIGroupList]: see [APIGroupListDie].
 type APIGroupListDieMut struct {
 	diebase.DieMutBase[APIGroupList, *APIGroupListDie, *APIGroupListDieMut]
 }
@@ -254,12 +254,12 @@ func (d *APIGroupListDieMut) Groups() diefields.ValueMut[[]APIGroup, *APIGroupLi
 // APIResource specifies the name of a resource and whether it is namespaced.
 //
 // APIResourceDie is immutable: it reads.
-// APIResourceDieMut, its mutable die, also writes, as DieWith passes it.
+// [APIResourceDieMut], its mutable die, also writes, as DieWith passes it.
 type APIResourceDie struct {
 	diebase.DieBase[APIResource, *APIResourceDie, *APIResourceDieMut]
 }
 
-// APIResourceDieMut is the mutable die of APIResource: see APIResourceDie.
+// APIResourceDieMut is the mutable die of [APIResource]: see [APIResourceDie].
 type APIResourceDieMut struct {
 	diebase.DieMutBase[APIResource, *APIResourceDie, *APIResourceDieMut]
 }
@@ -434,12 +434,12 @@ func (d *APIResourceDieMut) StorageVersionHash() diefields.ValueMut[string, *API
 // is namespaced.
 //
 // APIResourceListDie is immutable: it reads.
-// APIResourceListDieMut, its mutable die, also writes, as DieWith passes it.
+// [APIResourceListDieMut], its mutable die, also writes, as DieWith passes it.
 type APIResourceListDie struct {
 	diebase.DieBase[APIResourceList, *APIResourceListDie, *APIResourceListDieMut]
 }
 
-// APIResourceListDieMut is the mutable die of APIResourceList: see APIResourceListDie.
+// APIResourceListDieMut is the mutable die of [APIResourceList]: see [APIResourceListDie].
 type APIResourceListDieMut struct {
 	diebase.DieMutBase[APIResourceList, *APIResourceListDie, *APIResourceListDieMut]
 }
@@ -533,12 +533,12 @@ func (d *APIResourceListDieMut) APIResources() diefields.ValueMut[[]APIResource,
 // discover the API at /api, which is the root path of the legacy v1 API.
 //
 // APIVersionsDie is immutable: it reads.
-// APIVersionsDieMut, its mutable die, also writes, as DieWith passes it.
+// [APIVersionsDieMut], its mutable die, also writes, as DieWith passes it.
 type APIVersionsDie struct {
 	diebase.DieBase[APIVersions, *APIVersionsDie, *APIVersionsDieMut]
 }
 
-// APIVersionsDieMut is the mutable die of APIVersions: see APIVersionsDie.
+// APIVersionsDieMut is the mutable die of [APIVersions]: see [APIVersionsDie].
 type APIVersionsDieMut struct {
 	diebase.DieMutBase[APIVersions, *APIVersionsDie, *APIVersionsDieMut]
 }
@@ -646,12 +646,12 @@ func (d *APIVersionsDieMut) ServerAddressByClientCIDRs() diefields.ValueMut[[]Se
 // that speaks specifically to how the options fields relate to apply.
 //
 // ApplyOptionsDie is immutable: it reads.
-// ApplyOptionsDieMut, its mutable die, also writes, as DieWith passes it.
+// [ApplyOptionsDieMut], its mutable die, also writes, as DieWith passes it.
 type ApplyOptionsDie struct {
 	diebase.DieBase[ApplyOptions, *ApplyOptionsDie, *ApplyOptionsDieMut]
 }
 
-// ApplyOptionsDieMut is the mutable die of ApplyOptions: see ApplyOptionsDie.
+// ApplyOptionsDieMut is the mutable die of [ApplyOptions]: see [ApplyOptionsDie].
 type ApplyOptionsDieMut struct {
 	diebase.DieMutBase[ApplyOptions, *ApplyOptionsDie, *ApplyOptionsDieMut]
 }
@@ -791,12 +791,12 @@ func (d *ApplyOptionsDieMut) FieldManager() diefields.ValueMut[string, *ApplyOpt
 //	}
 //
 // ConditionDie is immutable: it reads.
-// ConditionDieMut, its mutable die, also writes, as DieWith passes it.
+// [ConditionDieMut], its mutable die, also writes, as DieWith passes it.
 type ConditionDie struct {
 	diebase.DieBase[Condition, *ConditionDie, *ConditionDieMut]
 }
 
-// ConditionDieMut is the mutable die of Condition: see ConditionDie.
+// ConditionDieMut is the mutable die of [Condition]: see [ConditionDie].
 type ConditionDieMut struct {
 	diebase.DieMutBase[Condition, *ConditionDie, *ConditionDieMut]
 }
@@ -823,8 +823,8 @@ func (d *ConditionDie) DieReleaseApplyConfiguration() *ConditionApplyConfigurati
 	return diecodegen.ReleaseApplyConfiguration[ConditionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ConditionDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ConditionDie) DieReleaseApplyConfigurationE() (*ConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ConditionApplyConfiguration](d)
 }
@@ -836,8 +836,8 @@ func (d *ConditionDieMut) DieReleaseApplyConfiguration() *ConditionApplyConfigur
 	return diecodegen.ReleaseApplyConfiguration[ConditionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ConditionDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ConditionDieMut) DieReleaseApplyConfigurationE() (*ConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ConditionApplyConfiguration](d)
 }
@@ -855,14 +855,14 @@ func (d *ConditionDieMut) DieStampApplyConfiguration(fn func(ac *ConditionApplyC
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ConditionDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ConditionDieMut) DieFeedApplyConfigurationE(ac *ConditionApplyConfiguration) (*ConditionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ConditionDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ConditionDieMut) DieStampApplyConfigurationE(fn func(ac *ConditionApplyConfiguration)) (*ConditionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -974,12 +974,12 @@ func (d *ConditionDieMut) Message() diefields.ValueMut[string, *ConditionDieMut]
 // CreateOptions may be provided when creating an API object.
 //
 // CreateOptionsDie is immutable: it reads.
-// CreateOptionsDieMut, its mutable die, also writes, as DieWith passes it.
+// [CreateOptionsDieMut], its mutable die, also writes, as DieWith passes it.
 type CreateOptionsDie struct {
 	diebase.DieBase[CreateOptions, *CreateOptionsDie, *CreateOptionsDieMut]
 }
 
-// CreateOptionsDieMut is the mutable die of CreateOptions: see CreateOptionsDie.
+// CreateOptionsDieMut is the mutable die of [CreateOptions]: see [CreateOptionsDie].
 type CreateOptionsDieMut struct {
 	diebase.DieMutBase[CreateOptions, *CreateOptionsDie, *CreateOptionsDieMut]
 }
@@ -1128,12 +1128,12 @@ func (d *CreateOptionsDieMut) FieldValidation() diefields.ValueMut[string, *Crea
 // DeleteOptions may be provided when deleting an API object.
 //
 // DeleteOptionsDie is immutable: it reads.
-// DeleteOptionsDieMut, its mutable die, also writes, as DieWith passes it.
+// [DeleteOptionsDieMut], its mutable die, also writes, as DieWith passes it.
 type DeleteOptionsDie struct {
 	diebase.DieBase[DeleteOptions, *DeleteOptionsDie, *DeleteOptionsDieMut]
 }
 
-// DeleteOptionsDieMut is the mutable die of DeleteOptions: see DeleteOptionsDie.
+// DeleteOptionsDieMut is the mutable die of [DeleteOptions]: see [DeleteOptionsDie].
 type DeleteOptionsDieMut struct {
 	diebase.DieMutBase[DeleteOptions, *DeleteOptionsDie, *DeleteOptionsDieMut]
 }
@@ -1160,8 +1160,8 @@ func (d *DeleteOptionsDie) DieReleaseApplyConfiguration() *DeleteOptionsApplyCon
 	return diecodegen.ReleaseApplyConfiguration[DeleteOptionsApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [DeleteOptionsDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeleteOptionsDie) DieReleaseApplyConfigurationE() (*DeleteOptionsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[DeleteOptionsApplyConfiguration](d)
 }
@@ -1173,8 +1173,8 @@ func (d *DeleteOptionsDieMut) DieReleaseApplyConfiguration() *DeleteOptionsApply
 	return diecodegen.ReleaseApplyConfiguration[DeleteOptionsApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [DeleteOptionsDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeleteOptionsDieMut) DieReleaseApplyConfigurationE() (*DeleteOptionsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[DeleteOptionsApplyConfiguration](d)
 }
@@ -1192,14 +1192,14 @@ func (d *DeleteOptionsDieMut) DieStampApplyConfiguration(fn func(ac *DeleteOptio
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [DeleteOptionsDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeleteOptionsDieMut) DieFeedApplyConfigurationE(ac *DeleteOptionsApplyConfiguration) (*DeleteOptionsDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [DeleteOptionsDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *DeleteOptionsDieMut) DieStampApplyConfigurationE(fn func(ac *DeleteOptionsApplyConfiguration)) (*DeleteOptionsDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1384,12 +1384,12 @@ func (d *DeleteOptionsDieMut) IgnoreStoreReadErrorWithClusterBreakingPotential()
 // relates the key and values.
 //
 // FieldSelectorRequirementDie is immutable: it reads.
-// FieldSelectorRequirementDieMut, its mutable die, also writes, as DieWith passes it.
+// [FieldSelectorRequirementDieMut], its mutable die, also writes, as DieWith passes it.
 type FieldSelectorRequirementDie struct {
 	diebase.DieBase[FieldSelectorRequirement, *FieldSelectorRequirementDie, *FieldSelectorRequirementDieMut]
 }
 
-// FieldSelectorRequirementDieMut is the mutable die of FieldSelectorRequirement: see FieldSelectorRequirementDie.
+// FieldSelectorRequirementDieMut is the mutable die of [FieldSelectorRequirement]: see [FieldSelectorRequirementDie].
 type FieldSelectorRequirementDieMut struct {
 	diebase.DieMutBase[FieldSelectorRequirement, *FieldSelectorRequirementDie, *FieldSelectorRequirementDieMut]
 }
@@ -1464,12 +1464,12 @@ func (d *FieldSelectorRequirementDieMut) Values() diefields.ValueMut[[]string, *
 // GetOptions is the standard query options to the standard REST get call.
 //
 // GetOptionsDie is immutable: it reads.
-// GetOptionsDieMut, its mutable die, also writes, as DieWith passes it.
+// [GetOptionsDieMut], its mutable die, also writes, as DieWith passes it.
 type GetOptionsDie struct {
 	diebase.DieBase[GetOptions, *GetOptionsDie, *GetOptionsDieMut]
 }
 
-// GetOptionsDieMut is the mutable die of GetOptions: see GetOptionsDie.
+// GetOptionsDieMut is the mutable die of [GetOptions]: see [GetOptionsDie].
 type GetOptionsDieMut struct {
 	diebase.DieMutBase[GetOptions, *GetOptionsDie, *GetOptionsDieMut]
 }
@@ -1559,12 +1559,12 @@ func (d *GetOptionsDieMut) ResourceVersion() diefields.ValueMut[string, *GetOpti
 // concepts during lookup stages without having partially valid types
 //
 // GroupKindDie is immutable: it reads.
-// GroupKindDieMut, its mutable die, also writes, as DieWith passes it.
+// [GroupKindDieMut], its mutable die, also writes, as DieWith passes it.
 type GroupKindDie struct {
 	diebase.DieBase[GroupKind, *GroupKindDie, *GroupKindDieMut]
 }
 
-// GroupKindDieMut is the mutable die of GroupKind: see GroupKindDie.
+// GroupKindDieMut is the mutable die of [GroupKind]: see [GroupKindDie].
 type GroupKindDieMut struct {
 	diebase.DieMutBase[GroupKind, *GroupKindDie, *GroupKindDieMut]
 }
@@ -1616,12 +1616,12 @@ func (d *GroupKindDieMut) Kind() diefields.ValueMut[string, *GroupKindDieMut] {
 // concepts during lookup stages without having partially valid types
 //
 // GroupResourceDie is immutable: it reads.
-// GroupResourceDieMut, its mutable die, also writes, as DieWith passes it.
+// [GroupResourceDieMut], its mutable die, also writes, as DieWith passes it.
 type GroupResourceDie struct {
 	diebase.DieBase[GroupResource, *GroupResourceDie, *GroupResourceDieMut]
 }
 
-// GroupResourceDieMut is the mutable die of GroupResource: see GroupResourceDie.
+// GroupResourceDieMut is the mutable die of [GroupResource]: see [GroupResourceDie].
 type GroupResourceDieMut struct {
 	diebase.DieMutBase[GroupResource, *GroupResourceDie, *GroupResourceDieMut]
 }
@@ -1648,8 +1648,8 @@ func (d *GroupResourceDie) DieReleaseApplyConfiguration() *GroupResourceApplyCon
 	return diecodegen.ReleaseApplyConfiguration[GroupResourceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [GroupResourceDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *GroupResourceDie) DieReleaseApplyConfigurationE() (*GroupResourceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[GroupResourceApplyConfiguration](d)
 }
@@ -1661,8 +1661,8 @@ func (d *GroupResourceDieMut) DieReleaseApplyConfiguration() *GroupResourceApply
 	return diecodegen.ReleaseApplyConfiguration[GroupResourceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [GroupResourceDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *GroupResourceDieMut) DieReleaseApplyConfigurationE() (*GroupResourceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[GroupResourceApplyConfiguration](d)
 }
@@ -1680,14 +1680,14 @@ func (d *GroupResourceDieMut) DieStampApplyConfiguration(fn func(ac *GroupResour
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [GroupResourceDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *GroupResourceDieMut) DieFeedApplyConfigurationE(ac *GroupResourceApplyConfiguration) (*GroupResourceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [GroupResourceDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *GroupResourceDieMut) DieStampApplyConfigurationE(fn func(ac *GroupResourceApplyConfiguration)) (*GroupResourceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1724,12 +1724,12 @@ func (d *GroupResourceDieMut) Resource() diefields.ValueMut[string, *GroupResour
 // It is made a struct to keep extensibility.
 //
 // GroupVersionForDiscoveryDie is immutable: it reads.
-// GroupVersionForDiscoveryDieMut, its mutable die, also writes, as DieWith passes it.
+// [GroupVersionForDiscoveryDieMut], its mutable die, also writes, as DieWith passes it.
 type GroupVersionForDiscoveryDie struct {
 	diebase.DieBase[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]
 }
 
-// GroupVersionForDiscoveryDieMut is the mutable die of GroupVersionForDiscovery: see GroupVersionForDiscoveryDie.
+// GroupVersionForDiscoveryDieMut is the mutable die of [GroupVersionForDiscovery]: see [GroupVersionForDiscoveryDie].
 type GroupVersionForDiscoveryDieMut struct {
 	diebase.DieMutBase[GroupVersionForDiscovery, *GroupVersionForDiscoveryDie, *GroupVersionForDiscoveryDieMut]
 }
@@ -1787,12 +1787,12 @@ func (d *GroupVersionForDiscoveryDieMut) Version() diefields.ValueMut[string, *G
 // to avoid automatic coercion.  It doesn't use a GroupVersion to avoid custom marshalling
 //
 // GroupVersionKindDie is immutable: it reads.
-// GroupVersionKindDieMut, its mutable die, also writes, as DieWith passes it.
+// [GroupVersionKindDieMut], its mutable die, also writes, as DieWith passes it.
 type GroupVersionKindDie struct {
 	diebase.DieBase[GroupVersionKind, *GroupVersionKindDie, *GroupVersionKindDieMut]
 }
 
-// GroupVersionKindDieMut is the mutable die of GroupVersionKind: see GroupVersionKindDie.
+// GroupVersionKindDieMut is the mutable die of [GroupVersionKind]: see [GroupVersionKindDie].
 type GroupVersionKindDieMut struct {
 	diebase.DieMutBase[GroupVersionKind, *GroupVersionKindDie, *GroupVersionKindDieMut]
 }
@@ -1854,12 +1854,12 @@ func (d *GroupVersionKindDieMut) Kind() diefields.ValueMut[string, *GroupVersion
 // to avoid automatic coercion.  It doesn't use a GroupVersion to avoid custom marshalling
 //
 // GroupVersionResourceDie is immutable: it reads.
-// GroupVersionResourceDieMut, its mutable die, also writes, as DieWith passes it.
+// [GroupVersionResourceDieMut], its mutable die, also writes, as DieWith passes it.
 type GroupVersionResourceDie struct {
 	diebase.DieBase[GroupVersionResource, *GroupVersionResourceDie, *GroupVersionResourceDieMut]
 }
 
-// GroupVersionResourceDieMut is the mutable die of GroupVersionResource: see GroupVersionResourceDie.
+// GroupVersionResourceDieMut is the mutable die of [GroupVersionResource]: see [GroupVersionResourceDie].
 type GroupVersionResourceDieMut struct {
 	diebase.DieMutBase[GroupVersionResource, *GroupVersionResourceDie, *GroupVersionResourceDieMut]
 }
@@ -1920,12 +1920,12 @@ func (d *GroupVersionResourceDieMut) Resource() diefields.ValueMut[string, *Grou
 // InternalEvent makes watch.Event versioned
 //
 // InternalEventDie is immutable: it reads.
-// InternalEventDieMut, its mutable die, also writes, as DieWith passes it.
+// [InternalEventDieMut], its mutable die, also writes, as DieWith passes it.
 type InternalEventDie struct {
 	diebase.DieBase[InternalEvent, *InternalEventDie, *InternalEventDieMut]
 }
 
-// InternalEventDieMut is the mutable die of InternalEvent: see InternalEventDie.
+// InternalEventDieMut is the mutable die of [InternalEvent]: see [InternalEventDie].
 type InternalEventDieMut struct {
 	diebase.DieMutBase[InternalEvent, *InternalEventDie, *InternalEventDieMut]
 }
@@ -1996,12 +1996,12 @@ func (d *InternalEventDieMut) Object() diefields.ValueMut[runtime.Object, *Inter
 // label selector matches no objects.
 //
 // LabelSelectorDie is immutable: it reads.
-// LabelSelectorDieMut, its mutable die, also writes, as DieWith passes it.
+// [LabelSelectorDieMut], its mutable die, also writes, as DieWith passes it.
 type LabelSelectorDie struct {
 	diebase.DieBase[LabelSelector, *LabelSelectorDie, *LabelSelectorDieMut]
 }
 
-// LabelSelectorDieMut is the mutable die of LabelSelector: see LabelSelectorDie.
+// LabelSelectorDieMut is the mutable die of [LabelSelector]: see [LabelSelectorDie].
 type LabelSelectorDieMut struct {
 	diebase.DieMutBase[LabelSelector, *LabelSelectorDie, *LabelSelectorDieMut]
 }
@@ -2028,8 +2028,8 @@ func (d *LabelSelectorDie) DieReleaseApplyConfiguration() *LabelSelectorApplyCon
 	return diecodegen.ReleaseApplyConfiguration[LabelSelectorApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [LabelSelectorDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LabelSelectorDie) DieReleaseApplyConfigurationE() (*LabelSelectorApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[LabelSelectorApplyConfiguration](d)
 }
@@ -2041,8 +2041,8 @@ func (d *LabelSelectorDieMut) DieReleaseApplyConfiguration() *LabelSelectorApply
 	return diecodegen.ReleaseApplyConfiguration[LabelSelectorApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [LabelSelectorDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LabelSelectorDieMut) DieReleaseApplyConfigurationE() (*LabelSelectorApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[LabelSelectorApplyConfiguration](d)
 }
@@ -2060,14 +2060,14 @@ func (d *LabelSelectorDieMut) DieStampApplyConfiguration(fn func(ac *LabelSelect
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [LabelSelectorDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LabelSelectorDieMut) DieFeedApplyConfigurationE(ac *LabelSelectorApplyConfiguration) (*LabelSelectorDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [LabelSelectorDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LabelSelectorDieMut) DieStampApplyConfigurationE(fn func(ac *LabelSelectorApplyConfiguration)) (*LabelSelectorDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2112,12 +2112,12 @@ func (d *LabelSelectorDieMut) MatchExpressions() diefields.ValueMut[[]LabelSelec
 // relates the key and values.
 //
 // LabelSelectorRequirementDie is immutable: it reads.
-// LabelSelectorRequirementDieMut, its mutable die, also writes, as DieWith passes it.
+// [LabelSelectorRequirementDieMut], its mutable die, also writes, as DieWith passes it.
 type LabelSelectorRequirementDie struct {
 	diebase.DieBase[LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut]
 }
 
-// LabelSelectorRequirementDieMut is the mutable die of LabelSelectorRequirement: see LabelSelectorRequirementDie.
+// LabelSelectorRequirementDieMut is the mutable die of [LabelSelectorRequirement]: see [LabelSelectorRequirementDie].
 type LabelSelectorRequirementDieMut struct {
 	diebase.DieMutBase[LabelSelectorRequirement, *LabelSelectorRequirementDie, *LabelSelectorRequirementDieMut]
 }
@@ -2144,8 +2144,8 @@ func (d *LabelSelectorRequirementDie) DieReleaseApplyConfiguration() *LabelSelec
 	return diecodegen.ReleaseApplyConfiguration[LabelSelectorRequirementApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [LabelSelectorRequirementDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LabelSelectorRequirementDie) DieReleaseApplyConfigurationE() (*LabelSelectorRequirementApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[LabelSelectorRequirementApplyConfiguration](d)
 }
@@ -2157,8 +2157,8 @@ func (d *LabelSelectorRequirementDieMut) DieReleaseApplyConfiguration() *LabelSe
 	return diecodegen.ReleaseApplyConfiguration[LabelSelectorRequirementApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [LabelSelectorRequirementDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LabelSelectorRequirementDieMut) DieReleaseApplyConfigurationE() (*LabelSelectorRequirementApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[LabelSelectorRequirementApplyConfiguration](d)
 }
@@ -2176,14 +2176,14 @@ func (d *LabelSelectorRequirementDieMut) DieStampApplyConfiguration(fn func(ac *
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [LabelSelectorRequirementDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LabelSelectorRequirementDieMut) DieFeedApplyConfigurationE(ac *LabelSelectorRequirementApplyConfiguration) (*LabelSelectorRequirementDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [LabelSelectorRequirementDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LabelSelectorRequirementDieMut) DieStampApplyConfigurationE(fn func(ac *LabelSelectorRequirementApplyConfiguration)) (*LabelSelectorRequirementDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2243,12 +2243,12 @@ func (d *LabelSelectorRequirementDieMut) Values() diefields.ValueMut[[]string, *
 // List holds a list of objects, which may not be known by the server.
 //
 // ListDie is immutable: it reads.
-// ListDieMut, its mutable die, also writes, as DieWith passes it.
+// [ListDieMut], its mutable die, also writes, as DieWith passes it.
 type ListDie struct {
 	diebase.DieBase[List, *ListDie, *ListDieMut]
 }
 
-// ListDieMut is the mutable die of List: see ListDie.
+// ListDieMut is the mutable die of [List]: see [ListDie].
 type ListDieMut struct {
 	diebase.DieMutBase[List, *ListDie, *ListDieMut]
 }
@@ -2338,12 +2338,12 @@ func (d *ListDieMut) Items() diefields.ValueMut[[]runtime.RawExtension, *ListDie
 // various status objects. A resource may have only one of {ObjectMeta, ListMeta}.
 //
 // ListMetaDie is immutable: it reads.
-// ListMetaDieMut, its mutable die, also writes, as DieWith passes it.
+// [ListMetaDieMut], its mutable die, also writes, as DieWith passes it.
 type ListMetaDie struct {
 	diebase.DieBase[ListMeta, *ListMetaDie, *ListMetaDieMut]
 }
 
-// ListMetaDieMut is the mutable die of ListMeta: see ListMetaDie.
+// ListMetaDieMut is the mutable die of [ListMeta]: see [ListMetaDie].
 type ListMetaDieMut struct {
 	diebase.DieMutBase[ListMeta, *ListMetaDie, *ListMetaDieMut]
 }
@@ -2484,12 +2484,12 @@ func (d *ListMetaDieMut) ShardInfo() *ShardInfoDieMut {
 // ListOptions is the query options to a standard REST list call.
 //
 // ListOptionsDie is immutable: it reads.
-// ListOptionsDieMut, its mutable die, also writes, as DieWith passes it.
+// [ListOptionsDieMut], its mutable die, also writes, as DieWith passes it.
 type ListOptionsDie struct {
 	diebase.DieBase[ListOptions, *ListOptionsDie, *ListOptionsDieMut]
 }
 
-// ListOptionsDieMut is the mutable die of ListOptions: see ListOptionsDie.
+// ListOptionsDieMut is the mutable die of [ListOptions]: see [ListOptionsDie].
 type ListOptionsDieMut struct {
 	diebase.DieMutBase[ListOptions, *ListOptionsDie, *ListOptionsDieMut]
 }
@@ -2885,12 +2885,12 @@ func (d *ListOptionsDieMut) ShardSelector() diefields.ValueMut[string, *ListOpti
 // that the fieldset applies to.
 //
 // ManagedFieldsEntryDie is immutable: it reads.
-// ManagedFieldsEntryDieMut, its mutable die, also writes, as DieWith passes it.
+// [ManagedFieldsEntryDieMut], its mutable die, also writes, as DieWith passes it.
 type ManagedFieldsEntryDie struct {
 	diebase.DieBase[ManagedFieldsEntry, *ManagedFieldsEntryDie, *ManagedFieldsEntryDieMut]
 }
 
-// ManagedFieldsEntryDieMut is the mutable die of ManagedFieldsEntry: see ManagedFieldsEntryDie.
+// ManagedFieldsEntryDieMut is the mutable die of [ManagedFieldsEntry]: see [ManagedFieldsEntryDie].
 type ManagedFieldsEntryDieMut struct {
 	diebase.DieMutBase[ManagedFieldsEntry, *ManagedFieldsEntryDie, *ManagedFieldsEntryDieMut]
 }
@@ -2917,8 +2917,8 @@ func (d *ManagedFieldsEntryDie) DieReleaseApplyConfiguration() *ManagedFieldsEnt
 	return diecodegen.ReleaseApplyConfiguration[ManagedFieldsEntryApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ManagedFieldsEntryDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ManagedFieldsEntryDie) DieReleaseApplyConfigurationE() (*ManagedFieldsEntryApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ManagedFieldsEntryApplyConfiguration](d)
 }
@@ -2930,8 +2930,8 @@ func (d *ManagedFieldsEntryDieMut) DieReleaseApplyConfiguration() *ManagedFields
 	return diecodegen.ReleaseApplyConfiguration[ManagedFieldsEntryApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ManagedFieldsEntryDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ManagedFieldsEntryDieMut) DieReleaseApplyConfigurationE() (*ManagedFieldsEntryApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ManagedFieldsEntryApplyConfiguration](d)
 }
@@ -2949,14 +2949,14 @@ func (d *ManagedFieldsEntryDieMut) DieStampApplyConfiguration(fn func(ac *Manage
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ManagedFieldsEntryDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ManagedFieldsEntryDieMut) DieFeedApplyConfigurationE(ac *ManagedFieldsEntryApplyConfiguration) (*ManagedFieldsEntryDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ManagedFieldsEntryDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ManagedFieldsEntryDieMut) DieStampApplyConfigurationE(fn func(ac *ManagedFieldsEntryApplyConfiguration)) (*ManagedFieldsEntryDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -3087,12 +3087,12 @@ func (d *ManagedFieldsEntryDieMut) Subresource() diefields.ValueMut[string, *Man
 // users must create.
 //
 // ObjectMetaDie is immutable: it reads.
-// ObjectMetaDieMut, its mutable die, also writes, as DieWith passes it.
+// [ObjectMetaDieMut], its mutable die, also writes, as DieWith passes it.
 type ObjectMetaDie struct {
 	diebase.DieBase[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]
 }
 
-// ObjectMetaDieMut is the mutable die of ObjectMeta: see ObjectMetaDie.
+// ObjectMetaDieMut is the mutable die of [ObjectMeta]: see [ObjectMetaDie].
 type ObjectMetaDieMut struct {
 	diebase.DieMutBase[ObjectMeta, *ObjectMetaDie, *ObjectMetaDieMut]
 }
@@ -3119,8 +3119,8 @@ func (d *ObjectMetaDie) DieReleaseApplyConfiguration() *ObjectMetaApplyConfigura
 	return diecodegen.ReleaseApplyConfiguration[ObjectMetaApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ObjectMetaDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ObjectMetaDie) DieReleaseApplyConfigurationE() (*ObjectMetaApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ObjectMetaApplyConfiguration](d)
 }
@@ -3132,8 +3132,8 @@ func (d *ObjectMetaDieMut) DieReleaseApplyConfiguration() *ObjectMetaApplyConfig
 	return diecodegen.ReleaseApplyConfiguration[ObjectMetaApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ObjectMetaDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ObjectMetaDieMut) DieReleaseApplyConfigurationE() (*ObjectMetaApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ObjectMetaApplyConfiguration](d)
 }
@@ -3151,14 +3151,14 @@ func (d *ObjectMetaDieMut) DieStampApplyConfiguration(fn func(ac *ObjectMetaAppl
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ObjectMetaDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ObjectMetaDieMut) DieFeedApplyConfigurationE(ac *ObjectMetaApplyConfiguration) (*ObjectMetaDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ObjectMetaDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ObjectMetaDieMut) DieStampApplyConfigurationE(fn func(ac *ObjectMetaApplyConfiguration)) (*ObjectMetaDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -3542,12 +3542,12 @@ func (d *ObjectMetaDieMut) ManagedFields() diefields.ValueMut[[]ManagedFieldsEnt
 // be cluster-scoped, so there is no namespace field.
 //
 // OwnerReferenceDie is immutable: it reads.
-// OwnerReferenceDieMut, its mutable die, also writes, as DieWith passes it.
+// [OwnerReferenceDieMut], its mutable die, also writes, as DieWith passes it.
 type OwnerReferenceDie struct {
 	diebase.DieBase[OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut]
 }
 
-// OwnerReferenceDieMut is the mutable die of OwnerReference: see OwnerReferenceDie.
+// OwnerReferenceDieMut is the mutable die of [OwnerReference]: see [OwnerReferenceDie].
 type OwnerReferenceDieMut struct {
 	diebase.DieMutBase[OwnerReference, *OwnerReferenceDie, *OwnerReferenceDieMut]
 }
@@ -3574,8 +3574,8 @@ func (d *OwnerReferenceDie) DieReleaseApplyConfiguration() *OwnerReferenceApplyC
 	return diecodegen.ReleaseApplyConfiguration[OwnerReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [OwnerReferenceDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *OwnerReferenceDie) DieReleaseApplyConfigurationE() (*OwnerReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[OwnerReferenceApplyConfiguration](d)
 }
@@ -3587,8 +3587,8 @@ func (d *OwnerReferenceDieMut) DieReleaseApplyConfiguration() *OwnerReferenceApp
 	return diecodegen.ReleaseApplyConfiguration[OwnerReferenceApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [OwnerReferenceDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *OwnerReferenceDieMut) DieReleaseApplyConfigurationE() (*OwnerReferenceApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[OwnerReferenceApplyConfiguration](d)
 }
@@ -3606,14 +3606,14 @@ func (d *OwnerReferenceDieMut) DieStampApplyConfiguration(fn func(ac *OwnerRefer
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [OwnerReferenceDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *OwnerReferenceDieMut) DieFeedApplyConfigurationE(ac *OwnerReferenceApplyConfiguration) (*OwnerReferenceDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [OwnerReferenceDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *OwnerReferenceDieMut) DieStampApplyConfigurationE(fn func(ac *OwnerReferenceApplyConfiguration)) (*OwnerReferenceDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -3722,12 +3722,12 @@ func (d *OwnerReferenceDieMut) BlockOwnerDeletion() diefields.OptionalMut[bool, 
 // to get access to a particular ObjectMeta schema without knowing the details of the version.
 //
 // PartialObjectMetadataDie is immutable: it reads.
-// PartialObjectMetadataDieMut, its mutable die, also writes, as DieWith passes it.
+// [PartialObjectMetadataDieMut], its mutable die, also writes, as DieWith passes it.
 type PartialObjectMetadataDie struct {
 	diebase.DieBase[PartialObjectMetadata, *PartialObjectMetadataDie, *PartialObjectMetadataDieMut]
 }
 
-// PartialObjectMetadataDieMut is the mutable die of PartialObjectMetadata: see PartialObjectMetadataDie.
+// PartialObjectMetadataDieMut is the mutable die of [PartialObjectMetadata]: see [PartialObjectMetadataDie].
 type PartialObjectMetadataDieMut struct {
 	diebase.DieMutBase[PartialObjectMetadata, *PartialObjectMetadataDie, *PartialObjectMetadataDieMut]
 }
@@ -3810,12 +3810,12 @@ func (d *PartialObjectMetadataDieMut) Metadata() *ObjectMetaDieMut {
 // PartialObjectMetadataList contains a list of objects containing only their metadata
 //
 // PartialObjectMetadataListDie is immutable: it reads.
-// PartialObjectMetadataListDieMut, its mutable die, also writes, as DieWith passes it.
+// [PartialObjectMetadataListDieMut], its mutable die, also writes, as DieWith passes it.
 type PartialObjectMetadataListDie struct {
 	diebase.DieBase[PartialObjectMetadataList, *PartialObjectMetadataListDie, *PartialObjectMetadataListDieMut]
 }
 
-// PartialObjectMetadataListDieMut is the mutable die of PartialObjectMetadataList: see PartialObjectMetadataListDie.
+// PartialObjectMetadataListDieMut is the mutable die of [PartialObjectMetadataList]: see [PartialObjectMetadataListDie].
 type PartialObjectMetadataListDieMut struct {
 	diebase.DieMutBase[PartialObjectMetadataList, *PartialObjectMetadataListDie, *PartialObjectMetadataListDieMut]
 }
@@ -3910,12 +3910,12 @@ func (d *PartialObjectMetadataListDieMut) Items() diefields.ValueMut[[]PartialOb
 // Patch is provided to give a concrete name and type to the Kubernetes PATCH request body.
 //
 // PatchDie is immutable: it reads.
-// PatchDieMut, its mutable die, also writes, as DieWith passes it.
+// [PatchDieMut], its mutable die, also writes, as DieWith passes it.
 type PatchDie struct {
 	diebase.DieBase[Patch, *PatchDie, *PatchDieMut]
 }
 
-// PatchDieMut is the mutable die of Patch: see PatchDie.
+// PatchDieMut is the mutable die of [Patch]: see [PatchDie].
 type PatchDieMut struct {
 	diebase.DieMutBase[Patch, *PatchDie, *PatchDieMut]
 }
@@ -3947,12 +3947,12 @@ var patchFields = &diefields.Table[patchFieldsTable]{Build: func() (f patchField
 // PatchOptions is meant to be a superset of UpdateOptions.
 //
 // PatchOptionsDie is immutable: it reads.
-// PatchOptionsDieMut, its mutable die, also writes, as DieWith passes it.
+// [PatchOptionsDieMut], its mutable die, also writes, as DieWith passes it.
 type PatchOptionsDie struct {
 	diebase.DieBase[PatchOptions, *PatchOptionsDie, *PatchOptionsDieMut]
 }
 
-// PatchOptionsDieMut is the mutable die of PatchOptions: see PatchOptionsDie.
+// PatchOptionsDieMut is the mutable die of [PatchOptions]: see [PatchOptionsDie].
 type PatchOptionsDieMut struct {
 	diebase.DieMutBase[PatchOptions, *PatchOptionsDie, *PatchOptionsDieMut]
 }
@@ -4123,12 +4123,12 @@ func (d *PatchOptionsDieMut) FieldValidation() diefields.ValueMut[string, *Patch
 // Preconditions must be fulfilled before an operation (update, delete, etc.) is carried out.
 //
 // PreconditionsDie is immutable: it reads.
-// PreconditionsDieMut, its mutable die, also writes, as DieWith passes it.
+// [PreconditionsDieMut], its mutable die, also writes, as DieWith passes it.
 type PreconditionsDie struct {
 	diebase.DieBase[Preconditions, *PreconditionsDie, *PreconditionsDieMut]
 }
 
-// PreconditionsDieMut is the mutable die of Preconditions: see PreconditionsDie.
+// PreconditionsDieMut is the mutable die of [Preconditions]: see [PreconditionsDie].
 type PreconditionsDieMut struct {
 	diebase.DieMutBase[Preconditions, *PreconditionsDie, *PreconditionsDieMut]
 }
@@ -4155,8 +4155,8 @@ func (d *PreconditionsDie) DieReleaseApplyConfiguration() *PreconditionsApplyCon
 	return diecodegen.ReleaseApplyConfiguration[PreconditionsApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PreconditionsDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PreconditionsDie) DieReleaseApplyConfigurationE() (*PreconditionsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PreconditionsApplyConfiguration](d)
 }
@@ -4168,8 +4168,8 @@ func (d *PreconditionsDieMut) DieReleaseApplyConfiguration() *PreconditionsApply
 	return diecodegen.ReleaseApplyConfiguration[PreconditionsApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PreconditionsDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PreconditionsDieMut) DieReleaseApplyConfigurationE() (*PreconditionsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PreconditionsApplyConfiguration](d)
 }
@@ -4187,14 +4187,14 @@ func (d *PreconditionsDieMut) DieStampApplyConfiguration(fn func(ac *Preconditio
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PreconditionsDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PreconditionsDieMut) DieFeedApplyConfigurationE(ac *PreconditionsApplyConfiguration) (*PreconditionsDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PreconditionsDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PreconditionsDieMut) DieStampApplyConfigurationE(fn func(ac *PreconditionsApplyConfiguration)) (*PreconditionsDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -4235,12 +4235,12 @@ func (d *PreconditionsDieMut) ResourceVersion() diefields.OptionalMut[string, *P
 // For example: "/healthz", "/apis".
 //
 // RootPathsDie is immutable: it reads.
-// RootPathsDieMut, its mutable die, also writes, as DieWith passes it.
+// [RootPathsDieMut], its mutable die, also writes, as DieWith passes it.
 type RootPathsDie struct {
 	diebase.DieBase[RootPaths, *RootPathsDie, *RootPathsDieMut]
 }
 
-// RootPathsDieMut is the mutable die of RootPaths: see RootPathsDie.
+// RootPathsDieMut is the mutable die of [RootPaths]: see [RootPathsDie].
 type RootPathsDieMut struct {
 	diebase.DieMutBase[RootPaths, *RootPathsDie, *RootPathsDieMut]
 }
@@ -4283,12 +4283,12 @@ func (d *RootPathsDieMut) Paths() diefields.ValueMut[[]string, *RootPathsDieMut]
 // ServerAddressByClientCIDR helps the client to determine the server address that they should use, depending on the clientCIDR that they match.
 //
 // ServerAddressByClientCIDRDie is immutable: it reads.
-// ServerAddressByClientCIDRDieMut, its mutable die, also writes, as DieWith passes it.
+// [ServerAddressByClientCIDRDieMut], its mutable die, also writes, as DieWith passes it.
 type ServerAddressByClientCIDRDie struct {
 	diebase.DieBase[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]
 }
 
-// ServerAddressByClientCIDRDieMut is the mutable die of ServerAddressByClientCIDR: see ServerAddressByClientCIDRDie.
+// ServerAddressByClientCIDRDieMut is the mutable die of [ServerAddressByClientCIDR]: see [ServerAddressByClientCIDRDie].
 type ServerAddressByClientCIDRDieMut struct {
 	diebase.DieMutBase[ServerAddressByClientCIDR, *ServerAddressByClientCIDRDie, *ServerAddressByClientCIDRDieMut]
 }
@@ -4346,12 +4346,12 @@ func (d *ServerAddressByClientCIDRDieMut) ServerAddress() diefields.ValueMut[str
 // Its presence on a list response indicates the list is a filtered subset.
 //
 // ShardInfoDie is immutable: it reads.
-// ShardInfoDieMut, its mutable die, also writes, as DieWith passes it.
+// [ShardInfoDieMut], its mutable die, also writes, as DieWith passes it.
 type ShardInfoDie struct {
 	diebase.DieBase[ShardInfo, *ShardInfoDie, *ShardInfoDieMut]
 }
 
-// ShardInfoDieMut is the mutable die of ShardInfo: see ShardInfoDie.
+// ShardInfoDieMut is the mutable die of [ShardInfo]: see [ShardInfoDie].
 type ShardInfoDieMut struct {
 	diebase.DieMutBase[ShardInfo, *ShardInfoDie, *ShardInfoDieMut]
 }
@@ -4396,12 +4396,12 @@ func (d *ShardInfoDieMut) Selector() diefields.ValueMut[string, *ShardInfoDieMut
 // Status is a return value for calls that don't return other objects.
 //
 // StatusDie is immutable: it reads.
-// StatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [StatusDieMut], its mutable die, also writes, as DieWith passes it.
 type StatusDie struct {
 	diebase.DieBase[Status, *StatusDie, *StatusDieMut]
 }
 
-// StatusDieMut is the mutable die of Status: see StatusDie.
+// StatusDieMut is the mutable die of [Status]: see [StatusDie].
 type StatusDieMut struct {
 	diebase.DieMutBase[Status, *StatusDie, *StatusDieMut]
 }
@@ -4559,12 +4559,12 @@ func (d *StatusDieMut) Code() diefields.ValueMut[int32, *StatusDieMut] {
 // cases when multiple errors are encountered.
 //
 // StatusCauseDie is immutable: it reads.
-// StatusCauseDieMut, its mutable die, also writes, as DieWith passes it.
+// [StatusCauseDieMut], its mutable die, also writes, as DieWith passes it.
 type StatusCauseDie struct {
 	diebase.DieBase[StatusCause, *StatusCauseDie, *StatusCauseDieMut]
 }
 
-// StatusCauseDieMut is the mutable die of StatusCause: see StatusCauseDie.
+// StatusCauseDieMut is the mutable die of [StatusCause]: see [StatusCauseDie].
 type StatusCauseDieMut struct {
 	diebase.DieMutBase[StatusCause, *StatusCauseDie, *StatusCauseDieMut]
 }
@@ -4658,12 +4658,12 @@ func (d *StatusCauseDieMut) Field() diefields.ValueMut[string, *StatusCauseDieMu
 // defined.
 //
 // StatusDetailsDie is immutable: it reads.
-// StatusDetailsDieMut, its mutable die, also writes, as DieWith passes it.
+// [StatusDetailsDieMut], its mutable die, also writes, as DieWith passes it.
 type StatusDetailsDie struct {
 	diebase.DieBase[StatusDetails, *StatusDetailsDie, *StatusDetailsDieMut]
 }
 
-// StatusDetailsDieMut is the mutable die of StatusDetails: see StatusDetailsDie.
+// StatusDetailsDieMut is the mutable die of [StatusDetails]: see [StatusDetailsDie].
 type StatusDetailsDieMut struct {
 	diebase.DieMutBase[StatusDetails, *StatusDetailsDie, *StatusDetailsDieMut]
 }
@@ -4783,12 +4783,12 @@ func (d *StatusDetailsDieMut) RetryAfterSeconds() diefields.ValueMut[int32, *Sta
 // object into a set of preferred columns for quickly reviewing the objects.
 //
 // TableDie is immutable: it reads.
-// TableDieMut, its mutable die, also writes, as DieWith passes it.
+// [TableDieMut], its mutable die, also writes, as DieWith passes it.
 type TableDie struct {
 	diebase.DieBase[Table, *TableDie, *TableDieMut]
 }
 
-// TableDieMut is the mutable die of Table: see TableDie.
+// TableDieMut is the mutable die of [Table]: see [TableDie].
 type TableDieMut struct {
 	diebase.DieMutBase[Table, *TableDie, *TableDieMut]
 }
@@ -4895,12 +4895,12 @@ func (d *TableDieMut) Rows() diefields.ValueMut[[]TableRow, *TableDieMut] {
 // TableColumnDefinition contains information about a column returned in the Table.
 //
 // TableColumnDefinitionDie is immutable: it reads.
-// TableColumnDefinitionDieMut, its mutable die, also writes, as DieWith passes it.
+// [TableColumnDefinitionDieMut], its mutable die, also writes, as DieWith passes it.
 type TableColumnDefinitionDie struct {
 	diebase.DieBase[TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut]
 }
 
-// TableColumnDefinitionDieMut is the mutable die of TableColumnDefinition: see TableColumnDefinitionDie.
+// TableColumnDefinitionDieMut is the mutable die of [TableColumnDefinition]: see [TableColumnDefinitionDie].
 type TableColumnDefinitionDieMut struct {
 	diebase.DieMutBase[TableColumnDefinition, *TableColumnDefinitionDie, *TableColumnDefinitionDieMut]
 }
@@ -5007,12 +5007,12 @@ func (d *TableColumnDefinitionDieMut) Priority() diefields.ValueMut[int32, *Tabl
 // TableOptions are used when a Table is requested by the caller.
 //
 // TableOptionsDie is immutable: it reads.
-// TableOptionsDieMut, its mutable die, also writes, as DieWith passes it.
+// [TableOptionsDieMut], its mutable die, also writes, as DieWith passes it.
 type TableOptionsDie struct {
 	diebase.DieBase[TableOptions, *TableOptionsDie, *TableOptionsDieMut]
 }
 
-// TableOptionsDieMut is the mutable die of TableOptions: see TableOptionsDie.
+// TableOptionsDieMut is the mutable die of [TableOptions]: see [TableOptionsDie].
 type TableOptionsDieMut struct {
 	diebase.DieMutBase[TableOptions, *TableOptionsDie, *TableOptionsDieMut]
 }
@@ -5099,12 +5099,12 @@ func (d *TableOptionsDieMut) IncludeObject() diefields.ValueMut[IncludeObjectPol
 // TableRow is an individual row in a table.
 //
 // TableRowDie is immutable: it reads.
-// TableRowDieMut, its mutable die, also writes, as DieWith passes it.
+// [TableRowDieMut], its mutable die, also writes, as DieWith passes it.
 type TableRowDie struct {
 	diebase.DieBase[TableRow, *TableRowDie, *TableRowDieMut]
 }
 
-// TableRowDieMut is the mutable die of TableRow: see TableRowDie.
+// TableRowDieMut is the mutable die of [TableRow]: see [TableRowDie].
 type TableRowDieMut struct {
 	diebase.DieMutBase[TableRow, *TableRowDie, *TableRowDieMut]
 }
@@ -5191,12 +5191,12 @@ func (d *TableRowDieMut) Object() diefields.ValueMut[runtime.RawExtension, *Tabl
 // TableRowCondition allows a row to be marked with additional information.
 //
 // TableRowConditionDie is immutable: it reads.
-// TableRowConditionDieMut, its mutable die, also writes, as DieWith passes it.
+// [TableRowConditionDieMut], its mutable die, also writes, as DieWith passes it.
 type TableRowConditionDie struct {
 	diebase.DieBase[TableRowCondition, *TableRowConditionDie, *TableRowConditionDieMut]
 }
 
-// TableRowConditionDieMut is the mutable die of TableRowCondition: see TableRowConditionDie.
+// TableRowConditionDieMut is the mutable die of [TableRowCondition]: see [TableRowConditionDie].
 type TableRowConditionDieMut struct {
 	diebase.DieMutBase[TableRowCondition, *TableRowConditionDie, *TableRowConditionDieMut]
 }
@@ -5283,12 +5283,12 @@ func (d *TableRowConditionDieMut) Message() diefields.ValueMut[string, *TableRow
 // that matches Time. Do not use in Go structs.
 //
 // TimestampDie is immutable: it reads.
-// TimestampDieMut, its mutable die, also writes, as DieWith passes it.
+// [TimestampDieMut], its mutable die, also writes, as DieWith passes it.
 type TimestampDie struct {
 	diebase.DieBase[Timestamp, *TimestampDie, *TimestampDieMut]
 }
 
-// TimestampDieMut is the mutable die of Timestamp: see TimestampDie.
+// TimestampDieMut is the mutable die of [Timestamp]: see [TimestampDie].
 type TimestampDieMut struct {
 	diebase.DieMutBase[Timestamp, *TimestampDie, *TimestampDieMut]
 }
@@ -5355,12 +5355,12 @@ func (d *TimestampDieMut) Nanos() diefields.ValueMut[int32, *TimestampDieMut] {
 // Structures that are versioned or persisted should inline TypeMeta.
 //
 // TypeMetaDie is immutable: it reads.
-// TypeMetaDieMut, its mutable die, also writes, as DieWith passes it.
+// [TypeMetaDieMut], its mutable die, also writes, as DieWith passes it.
 type TypeMetaDie struct {
 	diebase.DieBase[TypeMeta, *TypeMetaDie, *TypeMetaDieMut]
 }
 
-// TypeMetaDieMut is the mutable die of TypeMeta: see TypeMetaDie.
+// TypeMetaDieMut is the mutable die of [TypeMeta]: see [TypeMetaDie].
 type TypeMetaDieMut struct {
 	diebase.DieMutBase[TypeMeta, *TypeMetaDie, *TypeMetaDieMut]
 }
@@ -5387,8 +5387,8 @@ func (d *TypeMetaDie) DieReleaseApplyConfiguration() *TypeMetaApplyConfiguration
 	return diecodegen.ReleaseApplyConfiguration[TypeMetaApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [TypeMetaDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *TypeMetaDie) DieReleaseApplyConfigurationE() (*TypeMetaApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[TypeMetaApplyConfiguration](d)
 }
@@ -5400,8 +5400,8 @@ func (d *TypeMetaDieMut) DieReleaseApplyConfiguration() *TypeMetaApplyConfigurat
 	return diecodegen.ReleaseApplyConfiguration[TypeMetaApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [TypeMetaDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *TypeMetaDieMut) DieReleaseApplyConfigurationE() (*TypeMetaApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[TypeMetaApplyConfiguration](d)
 }
@@ -5419,14 +5419,14 @@ func (d *TypeMetaDieMut) DieStampApplyConfiguration(fn func(ac *TypeMetaApplyCon
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [TypeMetaDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *TypeMetaDieMut) DieFeedApplyConfigurationE(ac *TypeMetaApplyConfiguration) (*TypeMetaDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [TypeMetaDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *TypeMetaDieMut) DieStampApplyConfigurationE(fn func(ac *TypeMetaApplyConfiguration)) (*TypeMetaDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -5481,12 +5481,12 @@ func (d *TypeMetaDieMut) APIVersion() diefields.ValueMut[string, *TypeMetaDieMut
 // All fields in UpdateOptions should also be present in PatchOptions.
 //
 // UpdateOptionsDie is immutable: it reads.
-// UpdateOptionsDieMut, its mutable die, also writes, as DieWith passes it.
+// [UpdateOptionsDieMut], its mutable die, also writes, as DieWith passes it.
 type UpdateOptionsDie struct {
 	diebase.DieBase[UpdateOptions, *UpdateOptionsDie, *UpdateOptionsDieMut]
 }
 
-// UpdateOptionsDieMut is the mutable die of UpdateOptions: see UpdateOptionsDie.
+// UpdateOptionsDieMut is the mutable die of [UpdateOptions]: see [UpdateOptionsDie].
 type UpdateOptionsDieMut struct {
 	diebase.DieMutBase[UpdateOptions, *UpdateOptionsDie, *UpdateOptionsDieMut]
 }
@@ -5635,12 +5635,12 @@ func (d *UpdateOptionsDieMut) FieldValidation() diefields.ValueMut[string, *Upda
 // Event represents a single event to a watched resource.
 //
 // WatchEventDie is immutable: it reads.
-// WatchEventDieMut, its mutable die, also writes, as DieWith passes it.
+// [WatchEventDieMut], its mutable die, also writes, as DieWith passes it.
 type WatchEventDie struct {
 	diebase.DieBase[WatchEvent, *WatchEventDie, *WatchEventDieMut]
 }
 
-// WatchEventDieMut is the mutable die of WatchEvent: see WatchEventDie.
+// WatchEventDieMut is the mutable die of [WatchEvent]: see [WatchEventDie].
 type WatchEventDieMut struct {
 	diebase.DieMutBase[WatchEvent, *WatchEventDie, *WatchEventDieMut]
 }

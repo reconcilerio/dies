@@ -36,12 +36,12 @@ import (
 // created by POSTing to .../pods/<pod name>/evictions.
 //
 // EvictionDie is immutable: it reads.
-// EvictionDieMut, its mutable die, also writes, as DieWith passes it.
+// [EvictionDieMut], its mutable die, also writes, as DieWith passes it.
 type EvictionDie struct {
 	diebase.DieObjectBase[Eviction, *EvictionDie, *EvictionDieMut]
 }
 
-// EvictionDieMut is the mutable die of Eviction: see EvictionDie.
+// EvictionDieMut is the mutable die of [Eviction]: see [EvictionDie].
 type EvictionDieMut struct {
 	diebase.DieObjectMutBase[Eviction, *EvictionDie, *EvictionDieMut]
 }
@@ -68,8 +68,8 @@ func (d *EvictionDie) DieReleaseApplyConfiguration() *EvictionApplyConfiguration
 	return diecodegen.ReleaseApplyConfiguration[EvictionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionDie) DieReleaseApplyConfigurationE() (*EvictionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionApplyConfiguration](d)
 }
@@ -81,8 +81,8 @@ func (d *EvictionDieMut) DieReleaseApplyConfiguration() *EvictionApplyConfigurat
 	return diecodegen.ReleaseApplyConfiguration[EvictionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [EvictionDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionDieMut) DieReleaseApplyConfigurationE() (*EvictionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[EvictionApplyConfiguration](d)
 }
@@ -100,14 +100,14 @@ func (d *EvictionDieMut) DieStampApplyConfiguration(fn func(ac *EvictionApplyCon
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [EvictionDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionDieMut) DieFeedApplyConfigurationE(ac *EvictionApplyConfiguration) (*EvictionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [EvictionDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *EvictionDieMut) DieStampApplyConfigurationE(fn func(ac *EvictionApplyConfiguration)) (*EvictionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -185,12 +185,12 @@ func (d *EvictionDieMut) DeleteOptions() *diemetav1.DeleteOptionsDieMut {
 // PodDisruptionBudget is an object to define the max disruption that can be caused to a collection of pods
 //
 // PodDisruptionBudgetDie is immutable: it reads.
-// PodDisruptionBudgetDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodDisruptionBudgetDieMut], its mutable die, also writes, as DieWith passes it.
 type PodDisruptionBudgetDie struct {
 	diebase.DieObjectBase[PodDisruptionBudget, *PodDisruptionBudgetDie, *PodDisruptionBudgetDieMut]
 }
 
-// PodDisruptionBudgetDieMut is the mutable die of PodDisruptionBudget: see PodDisruptionBudgetDie.
+// PodDisruptionBudgetDieMut is the mutable die of [PodDisruptionBudget]: see [PodDisruptionBudgetDie].
 type PodDisruptionBudgetDieMut struct {
 	diebase.DieObjectMutBase[PodDisruptionBudget, *PodDisruptionBudgetDie, *PodDisruptionBudgetDieMut]
 }
@@ -217,8 +217,8 @@ func (d *PodDisruptionBudgetDie) DieReleaseApplyConfiguration() *PodDisruptionBu
 	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodDisruptionBudgetDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodDisruptionBudgetDie) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetApplyConfiguration](d)
 }
@@ -230,8 +230,8 @@ func (d *PodDisruptionBudgetDieMut) DieReleaseApplyConfiguration() *PodDisruptio
 	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodDisruptionBudgetDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodDisruptionBudgetDieMut) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetApplyConfiguration](d)
 }
@@ -249,14 +249,14 @@ func (d *PodDisruptionBudgetDieMut) DieStampApplyConfiguration(fn func(ac *PodDi
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodDisruptionBudgetDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodDisruptionBudgetDieMut) DieFeedApplyConfigurationE(ac *PodDisruptionBudgetApplyConfiguration) (*PodDisruptionBudgetDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodDisruptionBudgetDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodDisruptionBudgetDieMut) DieStampApplyConfigurationE(fn func(ac *PodDisruptionBudgetApplyConfiguration)) (*PodDisruptionBudgetDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -367,12 +367,12 @@ func (l *PodDisruptionBudgetListDie) DeepCopyObject() runtime.Object { return l.
 // PodDisruptionBudgetSpec is a description of a PodDisruptionBudget.
 //
 // PodDisruptionBudgetSpecDie is immutable: it reads.
-// PodDisruptionBudgetSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodDisruptionBudgetSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type PodDisruptionBudgetSpecDie struct {
 	diebase.DieBase[PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie, *PodDisruptionBudgetSpecDieMut]
 }
 
-// PodDisruptionBudgetSpecDieMut is the mutable die of PodDisruptionBudgetSpec: see PodDisruptionBudgetSpecDie.
+// PodDisruptionBudgetSpecDieMut is the mutable die of [PodDisruptionBudgetSpec]: see [PodDisruptionBudgetSpecDie].
 type PodDisruptionBudgetSpecDieMut struct {
 	diebase.DieMutBase[PodDisruptionBudgetSpec, *PodDisruptionBudgetSpecDie, *PodDisruptionBudgetSpecDieMut]
 }
@@ -399,8 +399,8 @@ func (d *PodDisruptionBudgetSpecDie) DieReleaseApplyConfiguration() *PodDisrupti
 	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodDisruptionBudgetSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodDisruptionBudgetSpecDie) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetSpecApplyConfiguration](d)
 }
@@ -412,8 +412,8 @@ func (d *PodDisruptionBudgetSpecDieMut) DieReleaseApplyConfiguration() *PodDisru
 	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodDisruptionBudgetSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodDisruptionBudgetSpecDieMut) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetSpecApplyConfiguration](d)
 }
@@ -431,14 +431,14 @@ func (d *PodDisruptionBudgetSpecDieMut) DieStampApplyConfiguration(fn func(ac *P
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodDisruptionBudgetSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodDisruptionBudgetSpecDieMut) DieFeedApplyConfigurationE(ac *PodDisruptionBudgetSpecApplyConfiguration) (*PodDisruptionBudgetSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodDisruptionBudgetSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodDisruptionBudgetSpecDieMut) DieStampApplyConfigurationE(fn func(ac *PodDisruptionBudgetSpecApplyConfiguration)) (*PodDisruptionBudgetSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -563,12 +563,12 @@ func (d *PodDisruptionBudgetSpecDieMut) UnhealthyPodEvictionPolicy() diefields.O
 // PodDisruptionBudget. Status may trail the actual state of a system.
 //
 // PodDisruptionBudgetStatusDie is immutable: it reads.
-// PodDisruptionBudgetStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodDisruptionBudgetStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type PodDisruptionBudgetStatusDie struct {
 	diebase.DieBase[PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie, *PodDisruptionBudgetStatusDieMut]
 }
 
-// PodDisruptionBudgetStatusDieMut is the mutable die of PodDisruptionBudgetStatus: see PodDisruptionBudgetStatusDie.
+// PodDisruptionBudgetStatusDieMut is the mutable die of [PodDisruptionBudgetStatus]: see [PodDisruptionBudgetStatusDie].
 type PodDisruptionBudgetStatusDieMut struct {
 	diebase.DieMutBase[PodDisruptionBudgetStatus, *PodDisruptionBudgetStatusDie, *PodDisruptionBudgetStatusDieMut]
 }
@@ -595,8 +595,8 @@ func (d *PodDisruptionBudgetStatusDie) DieReleaseApplyConfiguration() *PodDisrup
 	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodDisruptionBudgetStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodDisruptionBudgetStatusDie) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetStatusApplyConfiguration](d)
 }
@@ -608,8 +608,8 @@ func (d *PodDisruptionBudgetStatusDieMut) DieReleaseApplyConfiguration() *PodDis
 	return diecodegen.ReleaseApplyConfiguration[PodDisruptionBudgetStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodDisruptionBudgetStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodDisruptionBudgetStatusDieMut) DieReleaseApplyConfigurationE() (*PodDisruptionBudgetStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodDisruptionBudgetStatusApplyConfiguration](d)
 }
@@ -627,14 +627,14 @@ func (d *PodDisruptionBudgetStatusDieMut) DieStampApplyConfiguration(fn func(ac 
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodDisruptionBudgetStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodDisruptionBudgetStatusDieMut) DieFeedApplyConfigurationE(ac *PodDisruptionBudgetStatusApplyConfiguration) (*PodDisruptionBudgetStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodDisruptionBudgetStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodDisruptionBudgetStatusDieMut) DieStampApplyConfigurationE(fn func(ac *PodDisruptionBudgetStatusApplyConfiguration)) (*PodDisruptionBudgetStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

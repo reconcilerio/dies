@@ -33,12 +33,12 @@ import (
 // Lease defines a lease concept.
 //
 // LeaseDie is immutable: it reads.
-// LeaseDieMut, its mutable die, also writes, as DieWith passes it.
+// [LeaseDieMut], its mutable die, also writes, as DieWith passes it.
 type LeaseDie struct {
 	diebase.DieObjectBase[Lease, *LeaseDie, *LeaseDieMut]
 }
 
-// LeaseDieMut is the mutable die of Lease: see LeaseDie.
+// LeaseDieMut is the mutable die of [Lease]: see [LeaseDie].
 type LeaseDieMut struct {
 	diebase.DieObjectMutBase[Lease, *LeaseDie, *LeaseDieMut]
 }
@@ -65,8 +65,8 @@ func (d *LeaseDie) DieReleaseApplyConfiguration() *LeaseApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[LeaseApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [LeaseDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LeaseDie) DieReleaseApplyConfigurationE() (*LeaseApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[LeaseApplyConfiguration](d)
 }
@@ -78,8 +78,8 @@ func (d *LeaseDieMut) DieReleaseApplyConfiguration() *LeaseApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[LeaseApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [LeaseDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LeaseDieMut) DieReleaseApplyConfigurationE() (*LeaseApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[LeaseApplyConfiguration](d)
 }
@@ -97,14 +97,14 @@ func (d *LeaseDieMut) DieStampApplyConfiguration(fn func(ac *LeaseApplyConfigura
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [LeaseDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LeaseDieMut) DieFeedApplyConfigurationE(ac *LeaseApplyConfiguration) (*LeaseDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [LeaseDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LeaseDieMut) DieStampApplyConfigurationE(fn func(ac *LeaseApplyConfiguration)) (*LeaseDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -199,12 +199,12 @@ func (l *LeaseListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 // LeaseSpec is a specification of a Lease.
 //
 // LeaseSpecDie is immutable: it reads.
-// LeaseSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [LeaseSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type LeaseSpecDie struct {
 	diebase.DieBase[LeaseSpec, *LeaseSpecDie, *LeaseSpecDieMut]
 }
 
-// LeaseSpecDieMut is the mutable die of LeaseSpec: see LeaseSpecDie.
+// LeaseSpecDieMut is the mutable die of [LeaseSpec]: see [LeaseSpecDie].
 type LeaseSpecDieMut struct {
 	diebase.DieMutBase[LeaseSpec, *LeaseSpecDie, *LeaseSpecDieMut]
 }
@@ -231,8 +231,8 @@ func (d *LeaseSpecDie) DieReleaseApplyConfiguration() *LeaseSpecApplyConfigurati
 	return diecodegen.ReleaseApplyConfiguration[LeaseSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [LeaseSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LeaseSpecDie) DieReleaseApplyConfigurationE() (*LeaseSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[LeaseSpecApplyConfiguration](d)
 }
@@ -244,8 +244,8 @@ func (d *LeaseSpecDieMut) DieReleaseApplyConfiguration() *LeaseSpecApplyConfigur
 	return diecodegen.ReleaseApplyConfiguration[LeaseSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [LeaseSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LeaseSpecDieMut) DieReleaseApplyConfigurationE() (*LeaseSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[LeaseSpecApplyConfiguration](d)
 }
@@ -263,14 +263,14 @@ func (d *LeaseSpecDieMut) DieStampApplyConfiguration(fn func(ac *LeaseSpecApplyC
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [LeaseSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LeaseSpecDieMut) DieFeedApplyConfigurationE(ac *LeaseSpecApplyConfiguration) (*LeaseSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [LeaseSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *LeaseSpecDieMut) DieStampApplyConfigurationE(fn func(ac *LeaseSpecApplyConfiguration)) (*LeaseSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

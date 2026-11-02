@@ -47,12 +47,12 @@ import (
 // with permissions on the signer can create or modify the corresponding bundle.
 //
 // ClusterTrustBundleDie is immutable: it reads.
-// ClusterTrustBundleDieMut, its mutable die, also writes, as DieWith passes it.
+// [ClusterTrustBundleDieMut], its mutable die, also writes, as DieWith passes it.
 type ClusterTrustBundleDie struct {
 	diebase.DieObjectBase[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]
 }
 
-// ClusterTrustBundleDieMut is the mutable die of ClusterTrustBundle: see ClusterTrustBundleDie.
+// ClusterTrustBundleDieMut is the mutable die of [ClusterTrustBundle]: see [ClusterTrustBundleDie].
 type ClusterTrustBundleDieMut struct {
 	diebase.DieObjectMutBase[ClusterTrustBundle, *ClusterTrustBundleDie, *ClusterTrustBundleDieMut]
 }
@@ -79,8 +79,8 @@ func (d *ClusterTrustBundleDie) DieReleaseApplyConfiguration() *ClusterTrustBund
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ClusterTrustBundleDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterTrustBundleDie) DieReleaseApplyConfigurationE() (*ClusterTrustBundleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleApplyConfiguration](d)
 }
@@ -92,8 +92,8 @@ func (d *ClusterTrustBundleDieMut) DieReleaseApplyConfiguration() *ClusterTrustB
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ClusterTrustBundleDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterTrustBundleDieMut) DieReleaseApplyConfigurationE() (*ClusterTrustBundleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleApplyConfiguration](d)
 }
@@ -111,14 +111,14 @@ func (d *ClusterTrustBundleDieMut) DieStampApplyConfiguration(fn func(ac *Cluste
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ClusterTrustBundleDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterTrustBundleDieMut) DieFeedApplyConfigurationE(ac *ClusterTrustBundleApplyConfiguration) (*ClusterTrustBundleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ClusterTrustBundleDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterTrustBundleDieMut) DieStampApplyConfigurationE(fn func(ac *ClusterTrustBundleApplyConfiguration)) (*ClusterTrustBundleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -215,12 +215,12 @@ func (l *ClusterTrustBundleListDie) DeepCopyObject() runtime.Object { return l.D
 // ClusterTrustBundleSpec contains the signer and trust anchors.
 //
 // ClusterTrustBundleSpecDie is immutable: it reads.
-// ClusterTrustBundleSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [ClusterTrustBundleSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type ClusterTrustBundleSpecDie struct {
 	diebase.DieBase[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]
 }
 
-// ClusterTrustBundleSpecDieMut is the mutable die of ClusterTrustBundleSpec: see ClusterTrustBundleSpecDie.
+// ClusterTrustBundleSpecDieMut is the mutable die of [ClusterTrustBundleSpec]: see [ClusterTrustBundleSpecDie].
 type ClusterTrustBundleSpecDieMut struct {
 	diebase.DieMutBase[ClusterTrustBundleSpec, *ClusterTrustBundleSpecDie, *ClusterTrustBundleSpecDieMut]
 }
@@ -247,8 +247,8 @@ func (d *ClusterTrustBundleSpecDie) DieReleaseApplyConfiguration() *ClusterTrust
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ClusterTrustBundleSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterTrustBundleSpecDie) DieReleaseApplyConfigurationE() (*ClusterTrustBundleSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleSpecApplyConfiguration](d)
 }
@@ -260,8 +260,8 @@ func (d *ClusterTrustBundleSpecDieMut) DieReleaseApplyConfiguration() *ClusterTr
 	return diecodegen.ReleaseApplyConfiguration[ClusterTrustBundleSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ClusterTrustBundleSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterTrustBundleSpecDieMut) DieReleaseApplyConfigurationE() (*ClusterTrustBundleSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterTrustBundleSpecApplyConfiguration](d)
 }
@@ -279,14 +279,14 @@ func (d *ClusterTrustBundleSpecDieMut) DieStampApplyConfiguration(fn func(ac *Cl
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ClusterTrustBundleSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterTrustBundleSpecDieMut) DieFeedApplyConfigurationE(ac *ClusterTrustBundleSpecApplyConfiguration) (*ClusterTrustBundleSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ClusterTrustBundleSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterTrustBundleSpecDieMut) DieStampApplyConfigurationE(fn func(ac *ClusterTrustBundleSpecApplyConfiguration)) (*ClusterTrustBundleSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

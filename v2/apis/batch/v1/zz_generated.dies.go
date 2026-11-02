@@ -36,12 +36,12 @@ import (
 // CronJob represents the configuration of a single cron job.
 //
 // CronJobDie is immutable: it reads.
-// CronJobDieMut, its mutable die, also writes, as DieWith passes it.
+// [CronJobDieMut], its mutable die, also writes, as DieWith passes it.
 type CronJobDie struct {
 	diebase.DieObjectBase[CronJob, *CronJobDie, *CronJobDieMut]
 }
 
-// CronJobDieMut is the mutable die of CronJob: see CronJobDie.
+// CronJobDieMut is the mutable die of [CronJob]: see [CronJobDie].
 type CronJobDieMut struct {
 	diebase.DieObjectMutBase[CronJob, *CronJobDie, *CronJobDieMut]
 }
@@ -68,8 +68,8 @@ func (d *CronJobDie) DieReleaseApplyConfiguration() *CronJobApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[CronJobApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CronJobDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobDie) DieReleaseApplyConfigurationE() (*CronJobApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobApplyConfiguration](d)
 }
@@ -81,8 +81,8 @@ func (d *CronJobDieMut) DieReleaseApplyConfiguration() *CronJobApplyConfiguratio
 	return diecodegen.ReleaseApplyConfiguration[CronJobApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CronJobDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobDieMut) DieReleaseApplyConfigurationE() (*CronJobApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobApplyConfiguration](d)
 }
@@ -100,14 +100,14 @@ func (d *CronJobDieMut) DieStampApplyConfiguration(fn func(ac *CronJobApplyConfi
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CronJobDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobDieMut) DieFeedApplyConfigurationE(ac *CronJobApplyConfiguration) (*CronJobDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CronJobDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobDieMut) DieStampApplyConfigurationE(fn func(ac *CronJobApplyConfiguration)) (*CronJobDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -218,12 +218,12 @@ func (l *CronJobListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 // CronJobSpec describes how the job execution will look like and when it will actually run.
 //
 // CronJobSpecDie is immutable: it reads.
-// CronJobSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [CronJobSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type CronJobSpecDie struct {
 	diebase.DieBase[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]
 }
 
-// CronJobSpecDieMut is the mutable die of CronJobSpec: see CronJobSpecDie.
+// CronJobSpecDieMut is the mutable die of [CronJobSpec]: see [CronJobSpecDie].
 type CronJobSpecDieMut struct {
 	diebase.DieMutBase[CronJobSpec, *CronJobSpecDie, *CronJobSpecDieMut]
 }
@@ -250,8 +250,8 @@ func (d *CronJobSpecDie) DieReleaseApplyConfiguration() *CronJobSpecApplyConfigu
 	return diecodegen.ReleaseApplyConfiguration[CronJobSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CronJobSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobSpecDie) DieReleaseApplyConfigurationE() (*CronJobSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobSpecApplyConfiguration](d)
 }
@@ -263,8 +263,8 @@ func (d *CronJobSpecDieMut) DieReleaseApplyConfiguration() *CronJobSpecApplyConf
 	return diecodegen.ReleaseApplyConfiguration[CronJobSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CronJobSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobSpecDieMut) DieReleaseApplyConfigurationE() (*CronJobSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobSpecApplyConfiguration](d)
 }
@@ -282,14 +282,14 @@ func (d *CronJobSpecDieMut) DieStampApplyConfiguration(fn func(ac *CronJobSpecAp
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CronJobSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobSpecDieMut) DieFeedApplyConfigurationE(ac *CronJobSpecApplyConfiguration) (*CronJobSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CronJobSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobSpecDieMut) DieStampApplyConfigurationE(fn func(ac *CronJobSpecApplyConfiguration)) (*CronJobSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -435,12 +435,12 @@ func (d *CronJobSpecDieMut) FailedJobsHistoryLimit() diefields.OptionalMut[int32
 // CronJobStatus represents the current state of a cron job.
 //
 // CronJobStatusDie is immutable: it reads.
-// CronJobStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [CronJobStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type CronJobStatusDie struct {
 	diebase.DieBase[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]
 }
 
-// CronJobStatusDieMut is the mutable die of CronJobStatus: see CronJobStatusDie.
+// CronJobStatusDieMut is the mutable die of [CronJobStatus]: see [CronJobStatusDie].
 type CronJobStatusDieMut struct {
 	diebase.DieMutBase[CronJobStatus, *CronJobStatusDie, *CronJobStatusDieMut]
 }
@@ -467,8 +467,8 @@ func (d *CronJobStatusDie) DieReleaseApplyConfiguration() *CronJobStatusApplyCon
 	return diecodegen.ReleaseApplyConfiguration[CronJobStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CronJobStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobStatusDie) DieReleaseApplyConfigurationE() (*CronJobStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobStatusApplyConfiguration](d)
 }
@@ -480,8 +480,8 @@ func (d *CronJobStatusDieMut) DieReleaseApplyConfiguration() *CronJobStatusApply
 	return diecodegen.ReleaseApplyConfiguration[CronJobStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [CronJobStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobStatusDieMut) DieReleaseApplyConfigurationE() (*CronJobStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[CronJobStatusApplyConfiguration](d)
 }
@@ -499,14 +499,14 @@ func (d *CronJobStatusDieMut) DieStampApplyConfiguration(fn func(ac *CronJobStat
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [CronJobStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobStatusDieMut) DieFeedApplyConfigurationE(ac *CronJobStatusApplyConfiguration) (*CronJobStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [CronJobStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *CronJobStatusDieMut) DieStampApplyConfigurationE(fn func(ac *CronJobStatusApplyConfiguration)) (*CronJobStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -558,12 +558,12 @@ func (d *CronJobStatusDieMut) LastSuccessfulTime() diefields.OptionalMut[diemeta
 // Job represents the configuration of a single job.
 //
 // JobDie is immutable: it reads.
-// JobDieMut, its mutable die, also writes, as DieWith passes it.
+// [JobDieMut], its mutable die, also writes, as DieWith passes it.
 type JobDie struct {
 	diebase.DieObjectBase[Job, *JobDie, *JobDieMut]
 }
 
-// JobDieMut is the mutable die of Job: see JobDie.
+// JobDieMut is the mutable die of [Job]: see [JobDie].
 type JobDieMut struct {
 	diebase.DieObjectMutBase[Job, *JobDie, *JobDieMut]
 }
@@ -590,8 +590,8 @@ func (d *JobDie) DieReleaseApplyConfiguration() *JobApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[JobApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [JobDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobDie) DieReleaseApplyConfigurationE() (*JobApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobApplyConfiguration](d)
 }
@@ -603,8 +603,8 @@ func (d *JobDieMut) DieReleaseApplyConfiguration() *JobApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[JobApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [JobDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobDieMut) DieReleaseApplyConfigurationE() (*JobApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobApplyConfiguration](d)
 }
@@ -622,14 +622,14 @@ func (d *JobDieMut) DieStampApplyConfiguration(fn func(ac *JobApplyConfiguration
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [JobDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobDieMut) DieFeedApplyConfigurationE(ac *JobApplyConfiguration) (*JobDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [JobDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobDieMut) DieStampApplyConfigurationE(fn func(ac *JobApplyConfiguration)) (*JobDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -715,12 +715,12 @@ func (d *JobDieMut) Status() *JobStatusDieMut { return diefields.ChildMut(d, job
 // JobCondition describes current state of a job.
 //
 // JobConditionDie is immutable: it reads.
-// JobConditionDieMut, its mutable die, also writes, as DieWith passes it.
+// [JobConditionDieMut], its mutable die, also writes, as DieWith passes it.
 type JobConditionDie struct {
 	diebase.DieBase[JobCondition, *JobConditionDie, *JobConditionDieMut]
 }
 
-// JobConditionDieMut is the mutable die of JobCondition: see JobConditionDie.
+// JobConditionDieMut is the mutable die of [JobCondition]: see [JobConditionDie].
 type JobConditionDieMut struct {
 	diebase.DieMutBase[JobCondition, *JobConditionDie, *JobConditionDieMut]
 }
@@ -747,8 +747,8 @@ func (d *JobConditionDie) DieReleaseApplyConfiguration() *JobConditionApplyConfi
 	return diecodegen.ReleaseApplyConfiguration[JobConditionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [JobConditionDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobConditionDie) DieReleaseApplyConfigurationE() (*JobConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobConditionApplyConfiguration](d)
 }
@@ -760,8 +760,8 @@ func (d *JobConditionDieMut) DieReleaseApplyConfiguration() *JobConditionApplyCo
 	return diecodegen.ReleaseApplyConfiguration[JobConditionApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [JobConditionDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobConditionDieMut) DieReleaseApplyConfigurationE() (*JobConditionApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobConditionApplyConfiguration](d)
 }
@@ -779,14 +779,14 @@ func (d *JobConditionDieMut) DieStampApplyConfiguration(fn func(ac *JobCondition
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [JobConditionDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobConditionDieMut) DieFeedApplyConfigurationE(ac *JobConditionApplyConfiguration) (*JobConditionDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [JobConditionDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobConditionDieMut) DieStampApplyConfigurationE(fn func(ac *JobConditionApplyConfiguration)) (*JobConditionDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -892,12 +892,12 @@ func (l *JobListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 // scheduling building blocks.
 //
 // JobSchedulingConfigurationDie is immutable: it reads.
-// JobSchedulingConfigurationDieMut, its mutable die, also writes, as DieWith passes it.
+// [JobSchedulingConfigurationDieMut], its mutable die, also writes, as DieWith passes it.
 type JobSchedulingConfigurationDie struct {
 	diebase.DieBase[JobSchedulingConfiguration, *JobSchedulingConfigurationDie, *JobSchedulingConfigurationDieMut]
 }
 
-// JobSchedulingConfigurationDieMut is the mutable die of JobSchedulingConfiguration: see JobSchedulingConfigurationDie.
+// JobSchedulingConfigurationDieMut is the mutable die of [JobSchedulingConfiguration]: see [JobSchedulingConfigurationDie].
 type JobSchedulingConfigurationDieMut struct {
 	diebase.DieMutBase[JobSchedulingConfiguration, *JobSchedulingConfigurationDie, *JobSchedulingConfigurationDieMut]
 }
@@ -924,8 +924,8 @@ func (d *JobSchedulingConfigurationDie) DieReleaseApplyConfiguration() *JobSched
 	return diecodegen.ReleaseApplyConfiguration[JobSchedulingConfigurationApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [JobSchedulingConfigurationDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobSchedulingConfigurationDie) DieReleaseApplyConfigurationE() (*JobSchedulingConfigurationApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobSchedulingConfigurationApplyConfiguration](d)
 }
@@ -937,8 +937,8 @@ func (d *JobSchedulingConfigurationDieMut) DieReleaseApplyConfiguration() *JobSc
 	return diecodegen.ReleaseApplyConfiguration[JobSchedulingConfigurationApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [JobSchedulingConfigurationDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobSchedulingConfigurationDieMut) DieReleaseApplyConfigurationE() (*JobSchedulingConfigurationApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobSchedulingConfigurationApplyConfiguration](d)
 }
@@ -956,14 +956,14 @@ func (d *JobSchedulingConfigurationDieMut) DieStampApplyConfiguration(fn func(ac
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [JobSchedulingConfigurationDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobSchedulingConfigurationDieMut) DieFeedApplyConfigurationE(ac *JobSchedulingConfigurationApplyConfiguration) (*JobSchedulingConfigurationDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [JobSchedulingConfigurationDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobSchedulingConfigurationDieMut) DieStampApplyConfigurationE(fn func(ac *JobSchedulingConfigurationApplyConfiguration)) (*JobSchedulingConfigurationDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1059,12 +1059,12 @@ func (d *JobSchedulingConfigurationDieMut) ResourceClaims() *diefields.ListMapMu
 // JobSpec describes how the job execution will look like.
 //
 // JobSpecDie is immutable: it reads.
-// JobSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [JobSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type JobSpecDie struct {
 	diebase.DieBase[JobSpec, *JobSpecDie, *JobSpecDieMut]
 }
 
-// JobSpecDieMut is the mutable die of JobSpec: see JobSpecDie.
+// JobSpecDieMut is the mutable die of [JobSpec]: see [JobSpecDie].
 type JobSpecDieMut struct {
 	diebase.DieMutBase[JobSpec, *JobSpecDie, *JobSpecDieMut]
 }
@@ -1091,8 +1091,8 @@ func (d *JobSpecDie) DieReleaseApplyConfiguration() *JobSpecApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[JobSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [JobSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobSpecDie) DieReleaseApplyConfigurationE() (*JobSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobSpecApplyConfiguration](d)
 }
@@ -1104,8 +1104,8 @@ func (d *JobSpecDieMut) DieReleaseApplyConfiguration() *JobSpecApplyConfiguratio
 	return diecodegen.ReleaseApplyConfiguration[JobSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [JobSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobSpecDieMut) DieReleaseApplyConfigurationE() (*JobSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobSpecApplyConfiguration](d)
 }
@@ -1123,14 +1123,14 @@ func (d *JobSpecDieMut) DieStampApplyConfiguration(fn func(ac *JobSpecApplyConfi
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [JobSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobSpecDieMut) DieFeedApplyConfigurationE(ac *JobSpecApplyConfiguration) (*JobSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [JobSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobSpecDieMut) DieStampApplyConfigurationE(fn func(ac *JobSpecApplyConfiguration)) (*JobSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1562,12 +1562,12 @@ func (d *JobSpecDieMut) Scheduling() *JobSchedulingConfigurationDieMut {
 // JobStatus represents the current state of a Job.
 //
 // JobStatusDie is immutable: it reads.
-// JobStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [JobStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type JobStatusDie struct {
 	diebase.DieBase[JobStatus, *JobStatusDie, *JobStatusDieMut]
 }
 
-// JobStatusDieMut is the mutable die of JobStatus: see JobStatusDie.
+// JobStatusDieMut is the mutable die of [JobStatus]: see [JobStatusDie].
 type JobStatusDieMut struct {
 	diebase.DieMutBase[JobStatus, *JobStatusDie, *JobStatusDieMut]
 }
@@ -1594,8 +1594,8 @@ func (d *JobStatusDie) DieReleaseApplyConfiguration() *JobStatusApplyConfigurati
 	return diecodegen.ReleaseApplyConfiguration[JobStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [JobStatusDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobStatusDie) DieReleaseApplyConfigurationE() (*JobStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobStatusApplyConfiguration](d)
 }
@@ -1607,8 +1607,8 @@ func (d *JobStatusDieMut) DieReleaseApplyConfiguration() *JobStatusApplyConfigur
 	return diecodegen.ReleaseApplyConfiguration[JobStatusApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [JobStatusDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobStatusDieMut) DieReleaseApplyConfigurationE() (*JobStatusApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobStatusApplyConfiguration](d)
 }
@@ -1626,14 +1626,14 @@ func (d *JobStatusDieMut) DieStampApplyConfiguration(fn func(ac *JobStatusApplyC
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [JobStatusDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobStatusDieMut) DieFeedApplyConfigurationE(ac *JobStatusApplyConfiguration) (*JobStatusDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [JobStatusDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobStatusDieMut) DieStampApplyConfigurationE(fn func(ac *JobStatusApplyConfiguration)) (*JobStatusDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1897,12 +1897,12 @@ func (d *JobStatusDieMut) Ready() diefields.OptionalMut[int32, *JobStatusDieMut]
 // JobTemplateSpec describes the data a Job should have when created from a template
 //
 // JobTemplateSpecDie is immutable: it reads.
-// JobTemplateSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [JobTemplateSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type JobTemplateSpecDie struct {
 	diebase.DieBase[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]
 }
 
-// JobTemplateSpecDieMut is the mutable die of JobTemplateSpec: see JobTemplateSpecDie.
+// JobTemplateSpecDieMut is the mutable die of [JobTemplateSpec]: see [JobTemplateSpecDie].
 type JobTemplateSpecDieMut struct {
 	diebase.DieMutBase[JobTemplateSpec, *JobTemplateSpecDie, *JobTemplateSpecDieMut]
 }
@@ -1929,8 +1929,8 @@ func (d *JobTemplateSpecDie) DieReleaseApplyConfiguration() *JobTemplateSpecAppl
 	return diecodegen.ReleaseApplyConfiguration[JobTemplateSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [JobTemplateSpecDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobTemplateSpecDie) DieReleaseApplyConfigurationE() (*JobTemplateSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobTemplateSpecApplyConfiguration](d)
 }
@@ -1942,8 +1942,8 @@ func (d *JobTemplateSpecDieMut) DieReleaseApplyConfiguration() *JobTemplateSpecA
 	return diecodegen.ReleaseApplyConfiguration[JobTemplateSpecApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [JobTemplateSpecDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobTemplateSpecDieMut) DieReleaseApplyConfigurationE() (*JobTemplateSpecApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[JobTemplateSpecApplyConfiguration](d)
 }
@@ -1961,14 +1961,14 @@ func (d *JobTemplateSpecDieMut) DieStampApplyConfiguration(fn func(ac *JobTempla
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [JobTemplateSpecDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobTemplateSpecDieMut) DieFeedApplyConfigurationE(ac *JobTemplateSpecApplyConfiguration) (*JobTemplateSpecDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [JobTemplateSpecDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *JobTemplateSpecDieMut) DieStampApplyConfigurationE(fn func(ac *JobTemplateSpecApplyConfiguration)) (*JobTemplateSpecDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2012,12 +2012,12 @@ func (d *JobTemplateSpecDieMut) Spec() *JobSpecDieMut {
 // PodFailurePolicy describes how failed pods influence the backoffLimit.
 //
 // PodFailurePolicyDie is immutable: it reads.
-// PodFailurePolicyDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodFailurePolicyDieMut], its mutable die, also writes, as DieWith passes it.
 type PodFailurePolicyDie struct {
 	diebase.DieBase[PodFailurePolicy, *PodFailurePolicyDie, *PodFailurePolicyDieMut]
 }
 
-// PodFailurePolicyDieMut is the mutable die of PodFailurePolicy: see PodFailurePolicyDie.
+// PodFailurePolicyDieMut is the mutable die of [PodFailurePolicy]: see [PodFailurePolicyDie].
 type PodFailurePolicyDieMut struct {
 	diebase.DieMutBase[PodFailurePolicy, *PodFailurePolicyDie, *PodFailurePolicyDieMut]
 }
@@ -2044,8 +2044,8 @@ func (d *PodFailurePolicyDie) DieReleaseApplyConfiguration() *PodFailurePolicyAp
 	return diecodegen.ReleaseApplyConfiguration[PodFailurePolicyApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodFailurePolicyDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodFailurePolicyDie) DieReleaseApplyConfigurationE() (*PodFailurePolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodFailurePolicyApplyConfiguration](d)
 }
@@ -2057,8 +2057,8 @@ func (d *PodFailurePolicyDieMut) DieReleaseApplyConfiguration() *PodFailurePolic
 	return diecodegen.ReleaseApplyConfiguration[PodFailurePolicyApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodFailurePolicyDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodFailurePolicyDieMut) DieReleaseApplyConfigurationE() (*PodFailurePolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodFailurePolicyApplyConfiguration](d)
 }
@@ -2076,14 +2076,14 @@ func (d *PodFailurePolicyDieMut) DieStampApplyConfiguration(fn func(ac *PodFailu
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodFailurePolicyDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodFailurePolicyDieMut) DieFeedApplyConfigurationE(ac *PodFailurePolicyApplyConfiguration) (*PodFailurePolicyDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodFailurePolicyDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodFailurePolicyDieMut) DieStampApplyConfigurationE(fn func(ac *PodFailurePolicyApplyConfiguration)) (*PodFailurePolicyDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2124,12 +2124,12 @@ func (d *PodFailurePolicyDieMut) Rules() diefields.ValueMut[[]PodFailurePolicyRu
 // (exit code 0) are excluded from the requirement check.
 //
 // PodFailurePolicyOnExitCodesRequirementDie is immutable: it reads.
-// PodFailurePolicyOnExitCodesRequirementDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodFailurePolicyOnExitCodesRequirementDieMut], its mutable die, also writes, as DieWith passes it.
 type PodFailurePolicyOnExitCodesRequirementDie struct {
 	diebase.DieBase[PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut]
 }
 
-// PodFailurePolicyOnExitCodesRequirementDieMut is the mutable die of PodFailurePolicyOnExitCodesRequirement: see PodFailurePolicyOnExitCodesRequirementDie.
+// PodFailurePolicyOnExitCodesRequirementDieMut is the mutable die of [PodFailurePolicyOnExitCodesRequirement]: see [PodFailurePolicyOnExitCodesRequirementDie].
 type PodFailurePolicyOnExitCodesRequirementDieMut struct {
 	diebase.DieMutBase[PodFailurePolicyOnExitCodesRequirement, *PodFailurePolicyOnExitCodesRequirementDie, *PodFailurePolicyOnExitCodesRequirementDieMut]
 }
@@ -2156,8 +2156,8 @@ func (d *PodFailurePolicyOnExitCodesRequirementDie) DieReleaseApplyConfiguration
 	return diecodegen.ReleaseApplyConfiguration[PodFailurePolicyOnExitCodesRequirementApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodFailurePolicyOnExitCodesRequirementDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodFailurePolicyOnExitCodesRequirementDie) DieReleaseApplyConfigurationE() (*PodFailurePolicyOnExitCodesRequirementApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodFailurePolicyOnExitCodesRequirementApplyConfiguration](d)
 }
@@ -2169,8 +2169,8 @@ func (d *PodFailurePolicyOnExitCodesRequirementDieMut) DieReleaseApplyConfigurat
 	return diecodegen.ReleaseApplyConfiguration[PodFailurePolicyOnExitCodesRequirementApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodFailurePolicyOnExitCodesRequirementDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodFailurePolicyOnExitCodesRequirementDieMut) DieReleaseApplyConfigurationE() (*PodFailurePolicyOnExitCodesRequirementApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodFailurePolicyOnExitCodesRequirementApplyConfiguration](d)
 }
@@ -2188,14 +2188,14 @@ func (d *PodFailurePolicyOnExitCodesRequirementDieMut) DieStampApplyConfiguratio
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodFailurePolicyOnExitCodesRequirementDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodFailurePolicyOnExitCodesRequirementDieMut) DieFeedApplyConfigurationE(ac *PodFailurePolicyOnExitCodesRequirementApplyConfiguration) (*PodFailurePolicyOnExitCodesRequirementDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodFailurePolicyOnExitCodesRequirementDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodFailurePolicyOnExitCodesRequirementDieMut) DieStampApplyConfigurationE(fn func(ac *PodFailurePolicyOnExitCodesRequirementApplyConfiguration)) (*PodFailurePolicyOnExitCodesRequirementDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2286,12 +2286,12 @@ func (d *PodFailurePolicyOnExitCodesRequirementDieMut) Values() diefields.ValueM
 // an actual pod condition type.
 //
 // PodFailurePolicyOnPodConditionsPatternDie is immutable: it reads.
-// PodFailurePolicyOnPodConditionsPatternDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodFailurePolicyOnPodConditionsPatternDieMut], its mutable die, also writes, as DieWith passes it.
 type PodFailurePolicyOnPodConditionsPatternDie struct {
 	diebase.DieBase[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie, *PodFailurePolicyOnPodConditionsPatternDieMut]
 }
 
-// PodFailurePolicyOnPodConditionsPatternDieMut is the mutable die of PodFailurePolicyOnPodConditionsPattern: see PodFailurePolicyOnPodConditionsPatternDie.
+// PodFailurePolicyOnPodConditionsPatternDieMut is the mutable die of [PodFailurePolicyOnPodConditionsPattern]: see [PodFailurePolicyOnPodConditionsPatternDie].
 type PodFailurePolicyOnPodConditionsPatternDieMut struct {
 	diebase.DieMutBase[PodFailurePolicyOnPodConditionsPattern, *PodFailurePolicyOnPodConditionsPatternDie, *PodFailurePolicyOnPodConditionsPatternDieMut]
 }
@@ -2318,8 +2318,8 @@ func (d *PodFailurePolicyOnPodConditionsPatternDie) DieReleaseApplyConfiguration
 	return diecodegen.ReleaseApplyConfiguration[PodFailurePolicyOnPodConditionsPatternApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodFailurePolicyOnPodConditionsPatternDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodFailurePolicyOnPodConditionsPatternDie) DieReleaseApplyConfigurationE() (*PodFailurePolicyOnPodConditionsPatternApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodFailurePolicyOnPodConditionsPatternApplyConfiguration](d)
 }
@@ -2331,8 +2331,8 @@ func (d *PodFailurePolicyOnPodConditionsPatternDieMut) DieReleaseApplyConfigurat
 	return diecodegen.ReleaseApplyConfiguration[PodFailurePolicyOnPodConditionsPatternApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodFailurePolicyOnPodConditionsPatternDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodFailurePolicyOnPodConditionsPatternDieMut) DieReleaseApplyConfigurationE() (*PodFailurePolicyOnPodConditionsPatternApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodFailurePolicyOnPodConditionsPatternApplyConfiguration](d)
 }
@@ -2350,14 +2350,14 @@ func (d *PodFailurePolicyOnPodConditionsPatternDieMut) DieStampApplyConfiguratio
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodFailurePolicyOnPodConditionsPatternDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodFailurePolicyOnPodConditionsPatternDieMut) DieFeedApplyConfigurationE(ac *PodFailurePolicyOnPodConditionsPatternApplyConfiguration) (*PodFailurePolicyOnPodConditionsPatternDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodFailurePolicyOnPodConditionsPatternDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodFailurePolicyOnPodConditionsPatternDieMut) DieStampApplyConfigurationE(fn func(ac *PodFailurePolicyOnPodConditionsPatternApplyConfiguration)) (*PodFailurePolicyOnPodConditionsPatternDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2404,12 +2404,12 @@ func (d *PodFailurePolicyOnPodConditionsPatternDieMut) Status() diefields.ValueM
 // One of onExitCodes and onPodConditions, but not both, can be used in each rule.
 //
 // PodFailurePolicyRuleDie is immutable: it reads.
-// PodFailurePolicyRuleDieMut, its mutable die, also writes, as DieWith passes it.
+// [PodFailurePolicyRuleDieMut], its mutable die, also writes, as DieWith passes it.
 type PodFailurePolicyRuleDie struct {
 	diebase.DieBase[PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut]
 }
 
-// PodFailurePolicyRuleDieMut is the mutable die of PodFailurePolicyRule: see PodFailurePolicyRuleDie.
+// PodFailurePolicyRuleDieMut is the mutable die of [PodFailurePolicyRule]: see [PodFailurePolicyRuleDie].
 type PodFailurePolicyRuleDieMut struct {
 	diebase.DieMutBase[PodFailurePolicyRule, *PodFailurePolicyRuleDie, *PodFailurePolicyRuleDieMut]
 }
@@ -2436,8 +2436,8 @@ func (d *PodFailurePolicyRuleDie) DieReleaseApplyConfiguration() *PodFailurePoli
 	return diecodegen.ReleaseApplyConfiguration[PodFailurePolicyRuleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodFailurePolicyRuleDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodFailurePolicyRuleDie) DieReleaseApplyConfigurationE() (*PodFailurePolicyRuleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodFailurePolicyRuleApplyConfiguration](d)
 }
@@ -2449,8 +2449,8 @@ func (d *PodFailurePolicyRuleDieMut) DieReleaseApplyConfiguration() *PodFailureP
 	return diecodegen.ReleaseApplyConfiguration[PodFailurePolicyRuleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PodFailurePolicyRuleDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodFailurePolicyRuleDieMut) DieReleaseApplyConfigurationE() (*PodFailurePolicyRuleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PodFailurePolicyRuleApplyConfiguration](d)
 }
@@ -2468,14 +2468,14 @@ func (d *PodFailurePolicyRuleDieMut) DieStampApplyConfiguration(fn func(ac *PodF
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PodFailurePolicyRuleDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodFailurePolicyRuleDieMut) DieFeedApplyConfigurationE(ac *PodFailurePolicyRuleApplyConfiguration) (*PodFailurePolicyRuleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PodFailurePolicyRuleDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PodFailurePolicyRuleDieMut) DieStampApplyConfigurationE(fn func(ac *PodFailurePolicyRuleApplyConfiguration)) (*PodFailurePolicyRuleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2557,12 +2557,12 @@ func (d *PodFailurePolicyRuleDieMut) OnPodConditions() diefields.ValueMut[[]PodF
 // SuccessPolicy describes when a Job can be declared as succeeded based on the success of some indexes.
 //
 // SuccessPolicyDie is immutable: it reads.
-// SuccessPolicyDieMut, its mutable die, also writes, as DieWith passes it.
+// [SuccessPolicyDieMut], its mutable die, also writes, as DieWith passes it.
 type SuccessPolicyDie struct {
 	diebase.DieBase[SuccessPolicy, *SuccessPolicyDie, *SuccessPolicyDieMut]
 }
 
-// SuccessPolicyDieMut is the mutable die of SuccessPolicy: see SuccessPolicyDie.
+// SuccessPolicyDieMut is the mutable die of [SuccessPolicy]: see [SuccessPolicyDie].
 type SuccessPolicyDieMut struct {
 	diebase.DieMutBase[SuccessPolicy, *SuccessPolicyDie, *SuccessPolicyDieMut]
 }
@@ -2589,8 +2589,8 @@ func (d *SuccessPolicyDie) DieReleaseApplyConfiguration() *SuccessPolicyApplyCon
 	return diecodegen.ReleaseApplyConfiguration[SuccessPolicyApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [SuccessPolicyDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *SuccessPolicyDie) DieReleaseApplyConfigurationE() (*SuccessPolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[SuccessPolicyApplyConfiguration](d)
 }
@@ -2602,8 +2602,8 @@ func (d *SuccessPolicyDieMut) DieReleaseApplyConfiguration() *SuccessPolicyApply
 	return diecodegen.ReleaseApplyConfiguration[SuccessPolicyApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [SuccessPolicyDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *SuccessPolicyDieMut) DieReleaseApplyConfigurationE() (*SuccessPolicyApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[SuccessPolicyApplyConfiguration](d)
 }
@@ -2621,14 +2621,14 @@ func (d *SuccessPolicyDieMut) DieStampApplyConfiguration(fn func(ac *SuccessPoli
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [SuccessPolicyDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *SuccessPolicyDieMut) DieFeedApplyConfigurationE(ac *SuccessPolicyApplyConfiguration) (*SuccessPolicyDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [SuccessPolicyDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *SuccessPolicyDieMut) DieStampApplyConfigurationE(fn func(ac *SuccessPolicyApplyConfiguration)) (*SuccessPolicyDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2667,12 +2667,12 @@ func (d *SuccessPolicyDieMut) Rules() diefields.ValueMut[[]SuccessPolicyRule, *S
 // Each rule must have at least one of the "succeededIndexes" or "succeededCount" specified.
 //
 // SuccessPolicyRuleDie is immutable: it reads.
-// SuccessPolicyRuleDieMut, its mutable die, also writes, as DieWith passes it.
+// [SuccessPolicyRuleDieMut], its mutable die, also writes, as DieWith passes it.
 type SuccessPolicyRuleDie struct {
 	diebase.DieBase[SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut]
 }
 
-// SuccessPolicyRuleDieMut is the mutable die of SuccessPolicyRule: see SuccessPolicyRuleDie.
+// SuccessPolicyRuleDieMut is the mutable die of [SuccessPolicyRule]: see [SuccessPolicyRuleDie].
 type SuccessPolicyRuleDieMut struct {
 	diebase.DieMutBase[SuccessPolicyRule, *SuccessPolicyRuleDie, *SuccessPolicyRuleDieMut]
 }
@@ -2699,8 +2699,8 @@ func (d *SuccessPolicyRuleDie) DieReleaseApplyConfiguration() *SuccessPolicyRule
 	return diecodegen.ReleaseApplyConfiguration[SuccessPolicyRuleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [SuccessPolicyRuleDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *SuccessPolicyRuleDie) DieReleaseApplyConfigurationE() (*SuccessPolicyRuleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[SuccessPolicyRuleApplyConfiguration](d)
 }
@@ -2712,8 +2712,8 @@ func (d *SuccessPolicyRuleDieMut) DieReleaseApplyConfiguration() *SuccessPolicyR
 	return diecodegen.ReleaseApplyConfiguration[SuccessPolicyRuleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [SuccessPolicyRuleDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *SuccessPolicyRuleDieMut) DieReleaseApplyConfigurationE() (*SuccessPolicyRuleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[SuccessPolicyRuleApplyConfiguration](d)
 }
@@ -2731,14 +2731,14 @@ func (d *SuccessPolicyRuleDieMut) DieStampApplyConfiguration(fn func(ac *Success
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [SuccessPolicyRuleDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *SuccessPolicyRuleDieMut) DieFeedApplyConfigurationE(ac *SuccessPolicyRuleApplyConfiguration) (*SuccessPolicyRuleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [SuccessPolicyRuleDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *SuccessPolicyRuleDieMut) DieStampApplyConfigurationE(fn func(ac *SuccessPolicyRuleApplyConfiguration)) (*SuccessPolicyRuleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -2817,12 +2817,12 @@ func (d *SuccessPolicyRuleDieMut) SucceededCount() diefields.OptionalMut[int32, 
 // been accounted in Job status counters.
 //
 // UncountedTerminatedPodsDie is immutable: it reads.
-// UncountedTerminatedPodsDieMut, its mutable die, also writes, as DieWith passes it.
+// [UncountedTerminatedPodsDieMut], its mutable die, also writes, as DieWith passes it.
 type UncountedTerminatedPodsDie struct {
 	diebase.DieBase[UncountedTerminatedPods, *UncountedTerminatedPodsDie, *UncountedTerminatedPodsDieMut]
 }
 
-// UncountedTerminatedPodsDieMut is the mutable die of UncountedTerminatedPods: see UncountedTerminatedPodsDie.
+// UncountedTerminatedPodsDieMut is the mutable die of [UncountedTerminatedPods]: see [UncountedTerminatedPodsDie].
 type UncountedTerminatedPodsDieMut struct {
 	diebase.DieMutBase[UncountedTerminatedPods, *UncountedTerminatedPodsDie, *UncountedTerminatedPodsDieMut]
 }
@@ -2849,8 +2849,8 @@ func (d *UncountedTerminatedPodsDie) DieReleaseApplyConfiguration() *UncountedTe
 	return diecodegen.ReleaseApplyConfiguration[UncountedTerminatedPodsApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [UncountedTerminatedPodsDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *UncountedTerminatedPodsDie) DieReleaseApplyConfigurationE() (*UncountedTerminatedPodsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[UncountedTerminatedPodsApplyConfiguration](d)
 }
@@ -2862,8 +2862,8 @@ func (d *UncountedTerminatedPodsDieMut) DieReleaseApplyConfiguration() *Uncounte
 	return diecodegen.ReleaseApplyConfiguration[UncountedTerminatedPodsApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [UncountedTerminatedPodsDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *UncountedTerminatedPodsDieMut) DieReleaseApplyConfigurationE() (*UncountedTerminatedPodsApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[UncountedTerminatedPodsApplyConfiguration](d)
 }
@@ -2881,14 +2881,14 @@ func (d *UncountedTerminatedPodsDieMut) DieStampApplyConfiguration(fn func(ac *U
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [UncountedTerminatedPodsDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *UncountedTerminatedPodsDieMut) DieFeedApplyConfigurationE(ac *UncountedTerminatedPodsApplyConfiguration) (*UncountedTerminatedPodsDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [UncountedTerminatedPodsDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *UncountedTerminatedPodsDieMut) DieStampApplyConfigurationE(fn func(ac *UncountedTerminatedPodsApplyConfiguration)) (*UncountedTerminatedPodsDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

@@ -26,10 +26,10 @@ import (
 )
 
 // DeploymentConditions presents a Deployment's legacy conditions as
-// metav1.Conditions. It is lossless: lastUpdateTime, which a metav1.Condition
-// doesn't have, is kept from the condition of the same type, and
-// observedGeneration, which a DeploymentCondition doesn't have, is always
-// zero, so writing anything else is refused.
+// [metav1.Condition] values. It is lossless: lastUpdateTime, which a
+// [metav1.Condition] doesn't have, is kept from the condition of the same
+// type, and observedGeneration, which an [appsv1.DeploymentCondition] doesn't
+// have, is always zero, so writing anything else is refused.
 var DeploymentConditions = jigs.Transform[[]appsv1.DeploymentCondition, []metav1.Condition]{
 	To: func(legacy []appsv1.DeploymentCondition) []metav1.Condition {
 		if legacy == nil {

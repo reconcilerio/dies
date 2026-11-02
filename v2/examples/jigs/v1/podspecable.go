@@ -25,7 +25,7 @@ import (
 	"reconciler.io/dies/v2/die/jigs"
 )
 
-// PodSpecableJig presents workloads as PodSpecable. Each binding pairs a
+// PodSpecableJig presents workloads as [PodSpecable]. Each binding pairs a
 // location of the jig with a location of the source, both navigated from
 // blanks; binding locations of different types does not compile.
 var PodSpecableJig = jigs.NewJig[PodSpecable, *PodSpecableDie]().

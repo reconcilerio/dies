@@ -16,7 +16,7 @@ limitations under the License.
 
 // Package v1 is an example of dies for types declared locally. They are
 // marked +die just as aliased upstream types are, and their fields of
-// upstream types use the dies in reconciler.io/dies/v2/apis.
+// upstream types use the dies in [reconciler.io/dies/v2/apis].
 package v1
 
 import (

@@ -22,10 +22,10 @@ import (
 	lifecyclev1alpha1 "k8s.io/api/lifecycle/v1alpha1"
 )
 
-// The types and constants of k8s.io/api/lifecycle/v1alpha1, so that importing this package provides
+// The types and constants of [k8s.io/api/lifecycle/v1alpha1], so that importing this package provides
 // both the types and their dies. Each type is followed by its values.
 // Functions and variables are deliberately not re-exported: this package's
-// AddToScheme registers its dies, not the upstream types.
+// [AddToScheme] registers its dies, not the upstream types.
 
 // +die:object:apiVersion=lifecycle.k8s.io/v1alpha1,kind=Eviction
 type Eviction = lifecyclev1alpha1.Eviction

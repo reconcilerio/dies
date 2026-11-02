@@ -34,12 +34,12 @@ import (
 // Widget runs a pod template with named ports.
 //
 // WidgetDie is immutable: it reads.
-// WidgetDieMut, its mutable die, also writes, as DieWith passes it.
+// [WidgetDieMut], its mutable die, also writes, as DieWith passes it.
 type WidgetDie struct {
 	diebase.DieObjectBase[Widget, *WidgetDie, *WidgetDieMut]
 }
 
-// WidgetDieMut is the mutable die of Widget: see WidgetDie.
+// WidgetDieMut is the mutable die of [Widget]: see [WidgetDie].
 type WidgetDieMut struct {
 	diebase.DieObjectMutBase[Widget, *WidgetDie, *WidgetDieMut]
 }
@@ -132,12 +132,12 @@ func (d *WidgetDieMut) Status() *WidgetStatusDieMut {
 }
 
 // WidgetGadgetDie is immutable: it reads.
-// WidgetGadgetDieMut, its mutable die, also writes, as DieWith passes it.
+// [WidgetGadgetDieMut], its mutable die, also writes, as DieWith passes it.
 type WidgetGadgetDie struct {
 	diebase.DieBase[WidgetGadget, *WidgetGadgetDie, *WidgetGadgetDieMut]
 }
 
-// WidgetGadgetDieMut is the mutable die of WidgetGadget: see WidgetGadgetDie.
+// WidgetGadgetDieMut is the mutable die of [WidgetGadget]: see [WidgetGadgetDie].
 type WidgetGadgetDieMut struct {
 	diebase.DieMutBase[WidgetGadget, *WidgetGadgetDie, *WidgetGadgetDieMut]
 }
@@ -189,12 +189,12 @@ func (d *WidgetGadgetDieMut) Parts() diefields.ValueMut[[]gadgetv1.GadgetPart, *
 // collides with the die method that compares dies, so it is renamed.
 //
 // WidgetMatchDie is immutable: it reads.
-// WidgetMatchDieMut, its mutable die, also writes, as DieWith passes it.
+// [WidgetMatchDieMut], its mutable die, also writes, as DieWith passes it.
 type WidgetMatchDie struct {
 	diebase.DieBase[WidgetMatch, *WidgetMatchDie, *WidgetMatchDieMut]
 }
 
-// WidgetMatchDieMut is the mutable die of WidgetMatch: see WidgetMatchDie.
+// WidgetMatchDieMut is the mutable die of [WidgetMatch]: see [WidgetMatchDie].
 type WidgetMatchDieMut struct {
 	diebase.DieMutBase[WidgetMatch, *WidgetMatchDie, *WidgetMatchDieMut]
 }
@@ -247,12 +247,12 @@ func (d *WidgetMatchDieMut) Note() diefields.OptionalMut[string, *WidgetMatchDie
 }
 
 // WidgetPortDie is immutable: it reads.
-// WidgetPortDieMut, its mutable die, also writes, as DieWith passes it.
+// [WidgetPortDieMut], its mutable die, also writes, as DieWith passes it.
 type WidgetPortDie struct {
 	diebase.DieBase[WidgetPort, *WidgetPortDie, *WidgetPortDieMut]
 }
 
-// WidgetPortDieMut is the mutable die of WidgetPort: see WidgetPortDie.
+// WidgetPortDieMut is the mutable die of [WidgetPort]: see [WidgetPortDie].
 type WidgetPortDieMut struct {
 	diebase.DieMutBase[WidgetPort, *WidgetPortDie, *WidgetPortDieMut]
 }
@@ -301,12 +301,12 @@ func (d *WidgetPortDieMut) Port() diefields.ValueMut[int32, *WidgetPortDieMut] {
 }
 
 // WidgetSpecDie is immutable: it reads.
-// WidgetSpecDieMut, its mutable die, also writes, as DieWith passes it.
+// [WidgetSpecDieMut], its mutable die, also writes, as DieWith passes it.
 type WidgetSpecDie struct {
 	diebase.DieBase[WidgetSpec, *WidgetSpecDie, *WidgetSpecDieMut]
 }
 
-// WidgetSpecDieMut is the mutable die of WidgetSpec: see WidgetSpecDie.
+// WidgetSpecDieMut is the mutable die of [WidgetSpec]: see [WidgetSpecDie].
 type WidgetSpecDieMut struct {
 	diebase.DieMutBase[WidgetSpec, *WidgetSpecDie, *WidgetSpecDieMut]
 }
@@ -383,12 +383,12 @@ func (d *WidgetSpecDieMut) Match() *WidgetMatchDieMut {
 }
 
 // WidgetStatusDie is immutable: it reads.
-// WidgetStatusDieMut, its mutable die, also writes, as DieWith passes it.
+// [WidgetStatusDieMut], its mutable die, also writes, as DieWith passes it.
 type WidgetStatusDie struct {
 	diebase.DieBase[WidgetStatus, *WidgetStatusDie, *WidgetStatusDieMut]
 }
 
-// WidgetStatusDieMut is the mutable die of WidgetStatus: see WidgetStatusDie.
+// WidgetStatusDieMut is the mutable die of [WidgetStatus]: see [WidgetStatusDie].
 type WidgetStatusDieMut struct {
 	diebase.DieMutBase[WidgetStatus, *WidgetStatusDie, *WidgetStatusDieMut]
 }

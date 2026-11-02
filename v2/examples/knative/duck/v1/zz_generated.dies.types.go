@@ -26,7 +26,7 @@ import (
 	tracker "reconciler.io/dies/v2/examples/knative/tracker"
 )
 
-// The types and constants of knative.dev/pkg/apis/duck/v1, cloned so that nothing depends on it
+// The types and constants of [knative.dev/pkg/apis/duck/v1], cloned so that nothing depends on it
 // or its dependencies. Methods, functions and variables are not cloned.
 
 // AddressStatus shows how we expect folks to embed Addressable in

@@ -21,5 +21,5 @@ import (
 )
 
 // VolatileTime is declared by hand instead of cloned: upstream wraps a
-// metav1.Time and encodes exactly as it does.
+// [metav1.Time] and encodes exactly as it does.
 type VolatileTime = metav1.Time

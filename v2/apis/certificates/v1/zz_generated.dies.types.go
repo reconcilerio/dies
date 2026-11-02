@@ -22,10 +22,10 @@ import (
 	certificatesv1 "k8s.io/api/certificates/v1"
 )
 
-// The types and constants of k8s.io/api/certificates/v1, so that importing this package provides
+// The types and constants of [k8s.io/api/certificates/v1], so that importing this package provides
 // both the types and their dies. Each type is followed by its values.
 // Functions and variables are deliberately not re-exported: this package's
-// AddToScheme registers its dies, not the upstream types.
+// [AddToScheme] registers its dies, not the upstream types.
 
 // +die:object:apiVersion=certificates.k8s.io/v1,kind=CertificateSigningRequest
 // +die:subresource:name=approval

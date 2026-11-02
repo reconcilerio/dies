@@ -20,7 +20,7 @@ import (
 	"reflect"
 )
 
-// Located is anything that identifies a location within a root die: a Path,
+// Located is anything that identifies a location within a root die: a [Path],
 // a child die or a handle.
 //
 // Navigating a blank builds a typed location without a die at hand:
@@ -32,7 +32,7 @@ type Located interface {
 
 // rooted locations know the type of their root, so a location taken from a
 // different type is rejected rather than silently matching nothing. Only dies
-// and handles implement it; a bare Path is unchecked.
+// and handles implement it; a bare [Path] is unchecked.
 type Rooted interface {
 	DieRootType() reflect.Type
 }

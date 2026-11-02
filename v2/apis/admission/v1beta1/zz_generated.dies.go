@@ -33,12 +33,12 @@ import (
 // AdmissionRequest describes the admission.Attributes for the admission request.
 //
 // AdmissionRequestDie is immutable: it reads.
-// AdmissionRequestDieMut, its mutable die, also writes, as DieWith passes it.
+// [AdmissionRequestDieMut], its mutable die, also writes, as DieWith passes it.
 type AdmissionRequestDie struct {
 	diebase.DieBase[AdmissionRequest, *AdmissionRequestDie, *AdmissionRequestDieMut]
 }
 
-// AdmissionRequestDieMut is the mutable die of AdmissionRequest: see AdmissionRequestDie.
+// AdmissionRequestDieMut is the mutable die of [AdmissionRequest]: see [AdmissionRequestDie].
 type AdmissionRequestDieMut struct {
 	diebase.DieMutBase[AdmissionRequest, *AdmissionRequestDie, *AdmissionRequestDieMut]
 }
@@ -309,12 +309,12 @@ func (d *AdmissionRequestDieMut) Options() diefields.ValueMut[runtime.RawExtensi
 // AdmissionResponse describes an admission response.
 //
 // AdmissionResponseDie is immutable: it reads.
-// AdmissionResponseDieMut, its mutable die, also writes, as DieWith passes it.
+// [AdmissionResponseDieMut], its mutable die, also writes, as DieWith passes it.
 type AdmissionResponseDie struct {
 	diebase.DieBase[AdmissionResponse, *AdmissionResponseDie, *AdmissionResponseDieMut]
 }
 
-// AdmissionResponseDieMut is the mutable die of AdmissionResponse: see AdmissionResponseDie.
+// AdmissionResponseDieMut is the mutable die of [AdmissionResponse]: see [AdmissionResponseDie].
 type AdmissionResponseDieMut struct {
 	diebase.DieMutBase[AdmissionResponse, *AdmissionResponseDie, *AdmissionResponseDieMut]
 }
@@ -445,12 +445,12 @@ func (d *AdmissionResponseDieMut) Warnings() diefields.ValueMut[[]string, *Admis
 // AdmissionReview describes an admission review request/response.
 //
 // AdmissionReviewDie is immutable: it reads.
-// AdmissionReviewDieMut, its mutable die, also writes, as DieWith passes it.
+// [AdmissionReviewDieMut], its mutable die, also writes, as DieWith passes it.
 type AdmissionReviewDie struct {
 	diebase.DieTypedBase[AdmissionReview, *AdmissionReviewDie, *AdmissionReviewDieMut]
 }
 
-// AdmissionReviewDieMut is the mutable die of AdmissionReview: see AdmissionReviewDie.
+// AdmissionReviewDieMut is the mutable die of [AdmissionReview]: see [AdmissionReviewDie].
 type AdmissionReviewDieMut struct {
 	diebase.DieTypedMutBase[AdmissionReview, *AdmissionReviewDie, *AdmissionReviewDieMut]
 }

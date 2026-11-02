@@ -22,7 +22,7 @@ import (
 	apiextensionsv1ac "k8s.io/apiextensions-apiserver/pkg/client/applyconfiguration/apiextensions/v1"
 )
 
-// The apply configuration types of k8s.io/apiextensions-apiserver/pkg/client/applyconfiguration/apiextensions/v1, and its Extract functions, so
+// The apply configuration types of [k8s.io/apiextensions-apiserver/pkg/client/applyconfiguration/apiextensions/v1], and its Extract functions, so
 // that importing this package provides them with the dies. Its
 // constructors are not aliased: their names are those of the types.
 

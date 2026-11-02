@@ -33,12 +33,12 @@ import (
 // AggregationRule describes how to locate ClusterRoles to aggregate into the ClusterRole
 //
 // AggregationRuleDie is immutable: it reads.
-// AggregationRuleDieMut, its mutable die, also writes, as DieWith passes it.
+// [AggregationRuleDieMut], its mutable die, also writes, as DieWith passes it.
 type AggregationRuleDie struct {
 	diebase.DieBase[AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut]
 }
 
-// AggregationRuleDieMut is the mutable die of AggregationRule: see AggregationRuleDie.
+// AggregationRuleDieMut is the mutable die of [AggregationRule]: see [AggregationRuleDie].
 type AggregationRuleDieMut struct {
 	diebase.DieMutBase[AggregationRule, *AggregationRuleDie, *AggregationRuleDieMut]
 }
@@ -65,8 +65,8 @@ func (d *AggregationRuleDie) DieReleaseApplyConfiguration() *AggregationRuleAppl
 	return diecodegen.ReleaseApplyConfiguration[AggregationRuleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [AggregationRuleDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *AggregationRuleDie) DieReleaseApplyConfigurationE() (*AggregationRuleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[AggregationRuleApplyConfiguration](d)
 }
@@ -78,8 +78,8 @@ func (d *AggregationRuleDieMut) DieReleaseApplyConfiguration() *AggregationRuleA
 	return diecodegen.ReleaseApplyConfiguration[AggregationRuleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [AggregationRuleDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *AggregationRuleDieMut) DieReleaseApplyConfigurationE() (*AggregationRuleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[AggregationRuleApplyConfiguration](d)
 }
@@ -97,14 +97,14 @@ func (d *AggregationRuleDieMut) DieStampApplyConfiguration(fn func(ac *Aggregati
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [AggregationRuleDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *AggregationRuleDieMut) DieFeedApplyConfigurationE(ac *AggregationRuleApplyConfiguration) (*AggregationRuleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [AggregationRuleDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *AggregationRuleDieMut) DieStampApplyConfigurationE(fn func(ac *AggregationRuleApplyConfiguration)) (*AggregationRuleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -134,12 +134,12 @@ func (d *AggregationRuleDieMut) ClusterRoleSelectors() diefields.ValueMut[[]diem
 // ClusterRole is a cluster level, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding or ClusterRoleBinding.
 //
 // ClusterRoleDie is immutable: it reads.
-// ClusterRoleDieMut, its mutable die, also writes, as DieWith passes it.
+// [ClusterRoleDieMut], its mutable die, also writes, as DieWith passes it.
 type ClusterRoleDie struct {
 	diebase.DieObjectBase[ClusterRole, *ClusterRoleDie, *ClusterRoleDieMut]
 }
 
-// ClusterRoleDieMut is the mutable die of ClusterRole: see ClusterRoleDie.
+// ClusterRoleDieMut is the mutable die of [ClusterRole]: see [ClusterRoleDie].
 type ClusterRoleDieMut struct {
 	diebase.DieObjectMutBase[ClusterRole, *ClusterRoleDie, *ClusterRoleDieMut]
 }
@@ -166,8 +166,8 @@ func (d *ClusterRoleDie) DieReleaseApplyConfiguration() *ClusterRoleApplyConfigu
 	return diecodegen.ReleaseApplyConfiguration[ClusterRoleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ClusterRoleDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterRoleDie) DieReleaseApplyConfigurationE() (*ClusterRoleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterRoleApplyConfiguration](d)
 }
@@ -179,8 +179,8 @@ func (d *ClusterRoleDieMut) DieReleaseApplyConfiguration() *ClusterRoleApplyConf
 	return diecodegen.ReleaseApplyConfiguration[ClusterRoleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ClusterRoleDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterRoleDieMut) DieReleaseApplyConfigurationE() (*ClusterRoleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterRoleApplyConfiguration](d)
 }
@@ -198,14 +198,14 @@ func (d *ClusterRoleDieMut) DieStampApplyConfiguration(fn func(ac *ClusterRoleAp
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ClusterRoleDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterRoleDieMut) DieFeedApplyConfigurationE(ac *ClusterRoleApplyConfiguration) (*ClusterRoleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ClusterRoleDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterRoleDieMut) DieStampApplyConfigurationE(fn func(ac *ClusterRoleApplyConfiguration)) (*ClusterRoleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -300,12 +300,12 @@ func (d *ClusterRoleDieMut) AggregationRule() *AggregationRuleDieMut {
 // and adds who information via Subject.
 //
 // ClusterRoleBindingDie is immutable: it reads.
-// ClusterRoleBindingDieMut, its mutable die, also writes, as DieWith passes it.
+// [ClusterRoleBindingDieMut], its mutable die, also writes, as DieWith passes it.
 type ClusterRoleBindingDie struct {
 	diebase.DieObjectBase[ClusterRoleBinding, *ClusterRoleBindingDie, *ClusterRoleBindingDieMut]
 }
 
-// ClusterRoleBindingDieMut is the mutable die of ClusterRoleBinding: see ClusterRoleBindingDie.
+// ClusterRoleBindingDieMut is the mutable die of [ClusterRoleBinding]: see [ClusterRoleBindingDie].
 type ClusterRoleBindingDieMut struct {
 	diebase.DieObjectMutBase[ClusterRoleBinding, *ClusterRoleBindingDie, *ClusterRoleBindingDieMut]
 }
@@ -332,8 +332,8 @@ func (d *ClusterRoleBindingDie) DieReleaseApplyConfiguration() *ClusterRoleBindi
 	return diecodegen.ReleaseApplyConfiguration[ClusterRoleBindingApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ClusterRoleBindingDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterRoleBindingDie) DieReleaseApplyConfigurationE() (*ClusterRoleBindingApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterRoleBindingApplyConfiguration](d)
 }
@@ -345,8 +345,8 @@ func (d *ClusterRoleBindingDieMut) DieReleaseApplyConfiguration() *ClusterRoleBi
 	return diecodegen.ReleaseApplyConfiguration[ClusterRoleBindingApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [ClusterRoleBindingDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterRoleBindingDieMut) DieReleaseApplyConfigurationE() (*ClusterRoleBindingApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[ClusterRoleBindingApplyConfiguration](d)
 }
@@ -364,14 +364,14 @@ func (d *ClusterRoleBindingDieMut) DieStampApplyConfiguration(fn func(ac *Cluste
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [ClusterRoleBindingDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterRoleBindingDieMut) DieFeedApplyConfigurationE(ac *ClusterRoleBindingApplyConfiguration) (*ClusterRoleBindingDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [ClusterRoleBindingDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *ClusterRoleBindingDieMut) DieStampApplyConfigurationE(fn func(ac *ClusterRoleBindingApplyConfiguration)) (*ClusterRoleBindingDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -502,12 +502,12 @@ func (l *ClusterRoleListDie) DeepCopyObject() runtime.Object { return l.DeepCopy
 // about who the rule applies to or which namespace the rule applies to.
 //
 // PolicyRuleDie is immutable: it reads.
-// PolicyRuleDieMut, its mutable die, also writes, as DieWith passes it.
+// [PolicyRuleDieMut], its mutable die, also writes, as DieWith passes it.
 type PolicyRuleDie struct {
 	diebase.DieBase[PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]
 }
 
-// PolicyRuleDieMut is the mutable die of PolicyRule: see PolicyRuleDie.
+// PolicyRuleDieMut is the mutable die of [PolicyRule]: see [PolicyRuleDie].
 type PolicyRuleDieMut struct {
 	diebase.DieMutBase[PolicyRule, *PolicyRuleDie, *PolicyRuleDieMut]
 }
@@ -534,8 +534,8 @@ func (d *PolicyRuleDie) DieReleaseApplyConfiguration() *PolicyRuleApplyConfigura
 	return diecodegen.ReleaseApplyConfiguration[PolicyRuleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PolicyRuleDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PolicyRuleDie) DieReleaseApplyConfigurationE() (*PolicyRuleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PolicyRuleApplyConfiguration](d)
 }
@@ -547,8 +547,8 @@ func (d *PolicyRuleDieMut) DieReleaseApplyConfiguration() *PolicyRuleApplyConfig
 	return diecodegen.ReleaseApplyConfiguration[PolicyRuleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [PolicyRuleDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PolicyRuleDieMut) DieReleaseApplyConfigurationE() (*PolicyRuleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[PolicyRuleApplyConfiguration](d)
 }
@@ -566,14 +566,14 @@ func (d *PolicyRuleDieMut) DieStampApplyConfiguration(fn func(ac *PolicyRuleAppl
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [PolicyRuleDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PolicyRuleDieMut) DieFeedApplyConfigurationE(ac *PolicyRuleApplyConfiguration) (*PolicyRuleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [PolicyRuleDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *PolicyRuleDieMut) DieStampApplyConfigurationE(fn func(ac *PolicyRuleApplyConfiguration)) (*PolicyRuleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -655,12 +655,12 @@ func (d *PolicyRuleDieMut) NonResourceURLs() diefields.ValueMut[[]string, *Polic
 // Role is a namespaced, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding.
 //
 // RoleDie is immutable: it reads.
-// RoleDieMut, its mutable die, also writes, as DieWith passes it.
+// [RoleDieMut], its mutable die, also writes, as DieWith passes it.
 type RoleDie struct {
 	diebase.DieObjectBase[Role, *RoleDie, *RoleDieMut]
 }
 
-// RoleDieMut is the mutable die of Role: see RoleDie.
+// RoleDieMut is the mutable die of [Role]: see [RoleDie].
 type RoleDieMut struct {
 	diebase.DieObjectMutBase[Role, *RoleDie, *RoleDieMut]
 }
@@ -687,8 +687,8 @@ func (d *RoleDie) DieReleaseApplyConfiguration() *RoleApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[RoleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [RoleDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RoleDie) DieReleaseApplyConfigurationE() (*RoleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[RoleApplyConfiguration](d)
 }
@@ -700,8 +700,8 @@ func (d *RoleDieMut) DieReleaseApplyConfiguration() *RoleApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[RoleApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [RoleDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RoleDieMut) DieReleaseApplyConfigurationE() (*RoleApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[RoleApplyConfiguration](d)
 }
@@ -719,14 +719,14 @@ func (d *RoleDieMut) DieStampApplyConfiguration(fn func(ac *RoleApplyConfigurati
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [RoleDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RoleDieMut) DieFeedApplyConfigurationE(ac *RoleApplyConfiguration) (*RoleDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [RoleDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RoleDieMut) DieStampApplyConfigurationE(fn func(ac *RoleApplyConfiguration)) (*RoleDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -804,12 +804,12 @@ func (d *RoleDieMut) Rules() diefields.ValueMut[[]PolicyRule, *RoleDieMut] {
 // namespace only have effect in that namespace.
 //
 // RoleBindingDie is immutable: it reads.
-// RoleBindingDieMut, its mutable die, also writes, as DieWith passes it.
+// [RoleBindingDieMut], its mutable die, also writes, as DieWith passes it.
 type RoleBindingDie struct {
 	diebase.DieObjectBase[RoleBinding, *RoleBindingDie, *RoleBindingDieMut]
 }
 
-// RoleBindingDieMut is the mutable die of RoleBinding: see RoleBindingDie.
+// RoleBindingDieMut is the mutable die of [RoleBinding]: see [RoleBindingDie].
 type RoleBindingDieMut struct {
 	diebase.DieObjectMutBase[RoleBinding, *RoleBindingDie, *RoleBindingDieMut]
 }
@@ -836,8 +836,8 @@ func (d *RoleBindingDie) DieReleaseApplyConfiguration() *RoleBindingApplyConfigu
 	return diecodegen.ReleaseApplyConfiguration[RoleBindingApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [RoleBindingDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RoleBindingDie) DieReleaseApplyConfigurationE() (*RoleBindingApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[RoleBindingApplyConfiguration](d)
 }
@@ -849,8 +849,8 @@ func (d *RoleBindingDieMut) DieReleaseApplyConfiguration() *RoleBindingApplyConf
 	return diecodegen.ReleaseApplyConfiguration[RoleBindingApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [RoleBindingDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RoleBindingDieMut) DieReleaseApplyConfigurationE() (*RoleBindingApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[RoleBindingApplyConfiguration](d)
 }
@@ -868,14 +868,14 @@ func (d *RoleBindingDieMut) DieStampApplyConfiguration(fn func(ac *RoleBindingAp
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [RoleBindingDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RoleBindingDieMut) DieFeedApplyConfigurationE(ac *RoleBindingApplyConfiguration) (*RoleBindingDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [RoleBindingDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RoleBindingDieMut) DieStampApplyConfigurationE(fn func(ac *RoleBindingApplyConfiguration)) (*RoleBindingDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1003,12 +1003,12 @@ func (l *RoleListDie) DeepCopyObject() runtime.Object { return l.DeepCopy() }
 // RoleRef contains information that points to the role being used
 //
 // RoleRefDie is immutable: it reads.
-// RoleRefDieMut, its mutable die, also writes, as DieWith passes it.
+// [RoleRefDieMut], its mutable die, also writes, as DieWith passes it.
 type RoleRefDie struct {
 	diebase.DieBase[RoleRef, *RoleRefDie, *RoleRefDieMut]
 }
 
-// RoleRefDieMut is the mutable die of RoleRef: see RoleRefDie.
+// RoleRefDieMut is the mutable die of [RoleRef]: see [RoleRefDie].
 type RoleRefDieMut struct {
 	diebase.DieMutBase[RoleRef, *RoleRefDie, *RoleRefDieMut]
 }
@@ -1035,8 +1035,8 @@ func (d *RoleRefDie) DieReleaseApplyConfiguration() *RoleRefApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[RoleRefApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [RoleRefDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RoleRefDie) DieReleaseApplyConfigurationE() (*RoleRefApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[RoleRefApplyConfiguration](d)
 }
@@ -1048,8 +1048,8 @@ func (d *RoleRefDieMut) DieReleaseApplyConfiguration() *RoleRefApplyConfiguratio
 	return diecodegen.ReleaseApplyConfiguration[RoleRefApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [RoleRefDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RoleRefDieMut) DieReleaseApplyConfigurationE() (*RoleRefApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[RoleRefApplyConfiguration](d)
 }
@@ -1067,14 +1067,14 @@ func (d *RoleRefDieMut) DieStampApplyConfiguration(fn func(ac *RoleRefApplyConfi
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [RoleRefDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RoleRefDieMut) DieFeedApplyConfigurationE(ac *RoleRefApplyConfiguration) (*RoleRefDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [RoleRefDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *RoleRefDieMut) DieStampApplyConfigurationE(fn func(ac *RoleRefApplyConfiguration)) (*RoleRefDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }
@@ -1127,12 +1127,12 @@ func (d *RoleRefDieMut) Name() diefields.ValueMut[string, *RoleRefDieMut] {
 // or a value for non-objects such as user and group names.
 //
 // SubjectDie is immutable: it reads.
-// SubjectDieMut, its mutable die, also writes, as DieWith passes it.
+// [SubjectDieMut], its mutable die, also writes, as DieWith passes it.
 type SubjectDie struct {
 	diebase.DieBase[Subject, *SubjectDie, *SubjectDieMut]
 }
 
-// SubjectDieMut is the mutable die of Subject: see SubjectDie.
+// SubjectDieMut is the mutable die of [Subject]: see [SubjectDie].
 type SubjectDieMut struct {
 	diebase.DieMutBase[Subject, *SubjectDie, *SubjectDieMut]
 }
@@ -1159,8 +1159,8 @@ func (d *SubjectDie) DieReleaseApplyConfiguration() *SubjectApplyConfiguration {
 	return diecodegen.ReleaseApplyConfiguration[SubjectApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [SubjectDie.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *SubjectDie) DieReleaseApplyConfigurationE() (*SubjectApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[SubjectApplyConfiguration](d)
 }
@@ -1172,8 +1172,8 @@ func (d *SubjectDieMut) DieReleaseApplyConfiguration() *SubjectApplyConfiguratio
 	return diecodegen.ReleaseApplyConfiguration[SubjectApplyConfiguration](d)
 }
 
-// DieReleaseApplyConfigurationE is DieReleaseApplyConfiguration, returning
-// an error rather than panicking.
+// DieReleaseApplyConfigurationE is [SubjectDieMut.DieReleaseApplyConfiguration],
+// returning an error rather than panicking.
 func (d *SubjectDieMut) DieReleaseApplyConfigurationE() (*SubjectApplyConfiguration, error) {
 	return diecodegen.ReleaseApplyConfigurationE[SubjectApplyConfiguration](d)
 }
@@ -1191,14 +1191,14 @@ func (d *SubjectDieMut) DieStampApplyConfiguration(fn func(ac *SubjectApplyConfi
 	return diecodegen.StampApplyConfiguration(d, fn)
 }
 
-// DieFeedApplyConfigurationE is DieFeedApplyConfiguration, returning an
-// error rather than panicking.
+// DieFeedApplyConfigurationE is [SubjectDieMut.DieFeedApplyConfiguration],
+// returning an error rather than panicking.
 func (d *SubjectDieMut) DieFeedApplyConfigurationE(ac *SubjectApplyConfiguration) (*SubjectDieMut, error) {
 	return diecodegen.FeedApplyConfigurationE(d, ac)
 }
 
-// DieStampApplyConfigurationE is DieStampApplyConfiguration, returning an
-// error rather than panicking.
+// DieStampApplyConfigurationE is [SubjectDieMut.DieStampApplyConfiguration],
+// returning an error rather than panicking.
 func (d *SubjectDieMut) DieStampApplyConfigurationE(fn func(ac *SubjectApplyConfiguration)) (*SubjectDieMut, error) {
 	return diecodegen.StampApplyConfigurationE(d, fn)
 }

@@ -123,7 +123,7 @@ func (g *generator) metaFor(path string) (*pkgMeta, error) {
 }
 
 // isDiePackage reports whether a package has die metadata: +die markers in
-// its package doc or on its types.
+// the comments above its package clause or on its types.
 func isDiePackage(p *packages.Package) bool {
 	if len(dieMarkers(packageDoc(p))) > 0 {
 		return true

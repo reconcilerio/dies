@@ -22,10 +22,10 @@ import (
 	eventsv1beta1 "k8s.io/api/events/v1beta1"
 )
 
-// The types and constants of k8s.io/api/events/v1beta1, so that importing this package provides
+// The types and constants of [k8s.io/api/events/v1beta1], so that importing this package provides
 // both the types and their dies. Each type is followed by its values.
 // Functions and variables are deliberately not re-exported: this package's
-// AddToScheme registers its dies, not the upstream types.
+// [AddToScheme] registers its dies, not the upstream types.
 
 // +die:object:apiVersion=events.k8s.io/v1beta1,kind=Event
 // +die:field:name=regarding,structType=atomic
