@@ -1,0 +1,22 @@
+/*
+Copyright 2026 the original author or authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+// Package v1alpha1 has dies for kapp-controller's kappctrl/v1alpha1, whose
+// types are cloned so that nothing depends on kapp-controller.
+//
+// +die:types:package=carvel.dev/kapp-controller/pkg/apis/kappctrl/v1alpha1,mode=clone,from=../../sources
+// +die:import:package=carvel.dev/vendir/pkg/vendir/versions/v1alpha1,as=reconciler.io/dies/v2/examples/kapp/vendir/v1alpha1
+package v1alpha1

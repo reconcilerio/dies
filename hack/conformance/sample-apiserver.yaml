@@ -1,0 +1,148 @@
+# Kubernetes' sample-apiserver, serving wardle.example.com/v1alpha1 behind an
+# APIService, as Kubernetes' own aggregator e2e test deploys it, for the
+# cluster conformance suite to test dies against an aggregated API. For a
+# throwaway test cluster only: the APIService skips TLS verification of the
+# server's self-signed certificate.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: wardle
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: wardle
+  name: sample-apiserver
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dies-conformance:sample-apiserver
+rules:
+- apiGroups: [""]
+  resources: [namespaces]
+  verbs: [get, list, watch]
+- apiGroups: [admissionregistration.k8s.io]
+  resources: ["*"]
+  verbs: [get, list, watch]
+- apiGroups: [flowcontrol.apiserver.k8s.io]
+  resources: [prioritylevelconfigurations, flowschemas]
+  verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dies-conformance:sample-apiserver
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: dies-conformance:sample-apiserver
+subjects:
+- kind: ServiceAccount
+  namespace: wardle
+  name: sample-apiserver
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dies-conformance:sample-apiserver:auth-delegator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+- kind: ServiceAccount
+  namespace: wardle
+  name: sample-apiserver
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: kube-system
+  name: dies-conformance:sample-apiserver:auth-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+- kind: ServiceAccount
+  namespace: wardle
+  name: sample-apiserver
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: wardle
+  name: sample-apiserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sample-apiserver
+  template:
+    metadata:
+      labels:
+        app: sample-apiserver
+    spec:
+      serviceAccountName: sample-apiserver
+      containers:
+      - name: sample-apiserver
+        image: registry.k8s.io/e2e-test-images/sample-apiserver:1.33.8
+        args:
+        - --etcd-servers=http://127.0.0.1:2379
+        # a self-signed serving certificate, which the APIService doesn't verify
+        - --cert-dir=/certs
+        - --audit-log-path=-
+        - --audit-log-maxage=0
+        - --audit-log-maxbackup=0
+        volumeMounts:
+        - name: certs
+          mountPath: /certs
+        readinessProbe:
+          httpGet:
+            scheme: HTTPS
+            port: 443
+            path: /readyz
+          periodSeconds: 1
+      - name: etcd
+        image: registry.k8s.io/etcd:3.6.16-0
+        command:
+        - /usr/local/bin/etcd
+        - --data-dir=/var/lib/etcd
+        - --listen-client-urls=http://127.0.0.1:2379
+        - --advertise-client-urls=http://127.0.0.1:2379
+        volumeMounts:
+        - name: etcd
+          mountPath: /var/lib/etcd
+      volumes:
+      - name: certs
+        emptyDir: {}
+      - name: etcd
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: wardle
+  name: sample-api
+spec:
+  selector:
+    app: sample-apiserver
+  ports:
+  - port: 443
+    targetPort: 443
+---
+apiVersion: apiregistration.k8s.io/v1
+kind: APIService
+metadata:
+  name: v1alpha1.wardle.example.com
+spec:
+  group: wardle.example.com
+  version: v1alpha1
+  groupPriorityMinimum: 2000
+  versionPriority: 200
+  insecureSkipTLSVerify: true
+  service:
+    namespace: wardle
+    name: sample-api
+    port: 443
